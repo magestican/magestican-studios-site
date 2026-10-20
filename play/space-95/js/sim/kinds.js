@@ -6,6 +6,7 @@ import './bosses/mantis.js';
 import './bosses/matriarch.js';
 import './enemies/antPorter.js';
 import './enemies/aphid.js';
+import './enemies/aunt.js';
 import './enemies/bandit.js';
 import './enemies/dustmite.js';
 import './enemies/guard.js';

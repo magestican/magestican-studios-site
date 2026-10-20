@@ -9,6 +9,7 @@ import { attachBlooms, createBlooms, stepBlooms } from './bloom.js';
 import { INVULN_TIME } from './combat.js';
 import { STEP } from './constants.js';
 import { stepDig } from './dig.js';
+import { stepSnares } from './enemies/aunt.js';
 import { spawnEntities, stepEntities } from './entities.js';
 import { attachFans, createFans, stepFans } from './fan.js';
 import { attachHeaves, stepHeaves } from './heave.js';
@@ -24,6 +25,7 @@ import { createShoe, resetShoe, stepShoe } from './shoe.js';
 import { stepSurge } from './surge.js';
 import { createTrain, defaultPoints, defaultSignals, rerailTrain, stepTrain, syncProxy } from './train.js';
 import { checkDunk, DUNK_TIME, fishOut, trackSafe } from './water.js';
+import { attachWebs, createWebs, stepWebs, trackFallSafe } from './web.js';
 import { attachWind, stepWind } from './wind.js';
 
 const RESPAWN_DELAY = 0.45; 
@@ -121,6 +123,10 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     light: createLight(level),
     blooms: createBlooms(level),
     flock: createFlock(level),
+    
+    webs: createWebs(level),
+    snares: [],
+    snags: 0, 
   };
   if (level.mode === 'train') startTrain(s, start);
   initArena(s);
@@ -181,7 +187,8 @@ function sessionWorld(level) {
     level.arena?.length ||
     level.fans?.length ||
     level.spins?.length ||
-    level.blooms?.length;
+    level.blooms?.length ||
+    level.webs?.length;
   const w = changes ? level.world.clone() : level.world;
   if ((level.entities ?? []).some((d) => d.kind === 'typeKey')) w.mutable = true; 
   if (level.honey) w.honey = level.honey; 
@@ -196,6 +203,7 @@ function sessionWorld(level) {
   if (level.fans?.length) attachFans(w); 
   if (level.spins?.length) w.spins = level.spins; 
   if (level.blooms?.length) attachBlooms(w); 
+  if (level.webs?.length) attachWebs(w, level); 
   return w;
 }
 
@@ -218,6 +226,10 @@ export function stepSession(s, input) {
     s.world.fanT = s.time;
   }
   if (s.blooms) s.world.bloomState = s.blooms; 
+  if (s.webs) {
+    s.world.webState = s.webs; 
+    s.world.webT = s.time;
+  }
   if (s.invuln > 0) s.invuln -= STEP;
   if (s.dead > 0) {
     s.dead += STEP;
@@ -245,6 +257,7 @@ export function stepSession(s, input) {
   else {
     stepRafts(s);
     stepPlayer(s.player, s.cleared ? NO_INPUT : input, s.world);
+    if (s.webs) stepWebs(s); 
   }
   const p = s.player;
   if (s.fans) stepFans(s); 
@@ -253,6 +266,7 @@ export function stepSession(s, input) {
   stepShield(s);
   stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
   stepArena(s); 
+  if (s.snares.length) stepSnares(s); 
   if (s.flock) stepFlock(s); 
   if (s.light) stepLight(s); 
   if (s.blooms) stepBlooms(s); 
@@ -294,6 +308,25 @@ export function stepSession(s, input) {
     trackSafe(s);
     if (checkDunk(s)) return s; 
   } else if (s.level.pitReturn === 'ground') trackSafe(s); 
+  if (s.level.fallReturn && !s.train) {
+    
+    
+    trackFallSafe(s);
+    if (!p.grounded && p.y < s.safe.y - s.level.fallReturn) {
+      s.events.push({ type: 'snag', x: p.x, y: p.y, signals: ['visual:paperclip', 'audio:tether-snag'] });
+      s.snags += 1;
+      const cost = s.level.pitCost ?? 'none';
+      if (cost === 'heart') s.hearts -= 1;
+      if (cost === 'life') s.hearts = 0;
+      if (s.hearts > 0) {
+        s.pitFall = STEP;
+        s.pitReturns += 1;
+        return s;
+      }
+      die(s);
+      return s;
+    }
+  }
   
   const pin = s.level.sparks ? touchPins(s) : null;
   if (!s.train && (p.y < PIT_Y || pin)) {
@@ -370,6 +403,11 @@ function respawn(s) {
       s.blooms = createBlooms(s.level);
       s.flock = createFlock(s.level);
     }
+    if (s.level.webs) {
+      
+      s.webs = createWebs(s.level);
+      s.snares = [];
+    }
     s.events.push({ type: 'gameOver' });
   }
   if (s.hearts <= 0) s.hearts = s.maxHearts;
@@ -386,7 +424,7 @@ function respawn(s) {
   s.punt = 0;
   s.dunk = 0;
   s.pitFall = 0;
-  if (s.level.pitReturn === 'ground') {
+  if (s.level.pitReturn === 'ground' || s.level.fallReturn) {
     s.safe = { ...s.respawnAt };
     s.safeLand = s.safe;
   }

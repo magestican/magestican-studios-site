@@ -16,6 +16,7 @@
 
 
 
+
 export function readCheats(search) {
   const q = new URLSearchParams(search);
   const num = (k, d) => {
@@ -25,7 +26,7 @@ export function readCheats(search) {
   const variant = q.get('variant') === 'man' ? 'man' : 'woman';
   const lv = q.get('level');
   return {
-    level: lv === 'gym' || lv === 'gym-train' ? lv : lv && /^\d+$/.test(lv) ? Number(lv) : 1,
+    level: lv === 'gym' || lv === 'gym-train' || lv === 'gym-webs' ? lv : lv && /^\d+$/.test(lv) ? Number(lv) : 1,
     checkpoint: Math.max(0, Math.floor(num('checkpoint', 0))),
     variant,
     slow: Math.min(1, Math.max(0.05, num('slow', 1))),

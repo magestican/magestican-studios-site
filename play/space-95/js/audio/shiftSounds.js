@@ -14,7 +14,7 @@
 
 
 
-import { cueFor, signalSounds } from './cues.js';
+import { CUE_VARIANTS, cueFor, signalSounds } from './cues.js';
 import { MUSIC_TRACKS } from './musicManifest.js';
 import { SFX } from './sfxManifest.js';
 import { SHIFT_EVENTS } from './shiftEvents.js';
@@ -35,6 +35,7 @@ export const SURFACE = {
   12: 'metal',
   13: 'metal', 
   14: 'grass_blade', 
+  15: 'silk', 
 }; 
 
 
@@ -53,6 +54,7 @@ const MUSIC = {
   12: 'machine',
   13: 'crumb-express',
   14: 'night-bloom',
+  15: 'silk-span',
 };
 
 
@@ -102,6 +104,7 @@ export function shiftSounds(level) {
   for (const type of [...ALWAYS_EVENTS, ...(SHIFT_EVENTS[level.id ?? 0] ?? [])]) {
     const n = cueFor({ type }, delivered);
     if (n) names.add(n);
+    for (const v of CUE_VARIANTS[type] ?? []) if (type !== 'fling' || (level.webs?.length ?? 0) > 0) names.add(v);
   }
   for (const e of level.entities ?? []) if (e.signals) for (const n of signalSounds(e, delivered)) names.add(n);
   return [...names].filter(delivered).sort();

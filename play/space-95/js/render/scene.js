@@ -15,6 +15,7 @@ import { createCameraRig, updateCameraRig } from './cameraRig.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
 import { createNight, nightEntityView } from './nightView.js';
+import { createSilk, silkEntityView } from './silkView.js';
 import { createTrainView } from './trainView.js';
 
 const CAM_DIST = 20;
@@ -89,6 +90,8 @@ export function createView(canvas, level, labels) {
   const entityViews = new Map();
   
   const night = createNight(scene, level, { hemi, sun, spark: (...a) => spark(...a), kick: (a) => kick(a), views: entityViews, bolt });
+  
+  const silk = createSilk(scene, level, { sun, spark: (...a) => spark(...a), views: entityViews, jo });
 
   const rig = createCameraRig(0, 0);
   let squash = 0; 
@@ -152,6 +155,7 @@ export function createView(canvas, level, labels) {
           wall,
           carryVx: p.carryVx ?? 0,
           descent: !!level.descent,
+          webLaunch: !!p.webLaunch,
         },
         dt,
         RUN_SPEED,
@@ -191,8 +195,8 @@ export function createView(canvas, level, labels) {
       machine.update(session);
       
       const dark = session.lightsOut ? 0.25 : 1;
-      hemi.intensity += ((night ? night.hemiBase : 1.6) * dark - hemi.intensity) * Math.min(1, dt * 4);
-      if (!night) sun.intensity += (2.2 * dark - sun.intensity) * Math.min(1, dt * 4);
+      hemi.intensity += ((night ? night.hemiBase : silk ? silk.hemiBase : 1.6) * dark - hemi.intensity) * Math.min(1, dt * 4);
+      if (!night) sun.intensity += ((silk ? silk.sunBase : 2.2) * dark - sun.intensity) * Math.min(1, dt * 4);
       shoe.update(session, dt);
       sea.update(session);
       jo.shell.visible = !!session.shield;
@@ -215,6 +219,7 @@ export function createView(canvas, level, labels) {
       if (session.punt > 0) jo.group.position.y += Math.sin(Math.min(1, session.punt / 0.8) * Math.PI) * 2.5;
       syncEntities(scene, entityViews, session.entities, alpha, session.time);
       night?.update(session, dt, camera);
+      silk?.update(session, dt, camera);
       for (let i = teles.length - 1; i >= 0; i--) {
         const T = teles[i];
         T.t += dt;
@@ -249,6 +254,7 @@ export function createView(canvas, level, labels) {
     onEvent(e) {
       pendingEvents.push(e);
       night?.onEvent(e);
+      silk?.onEvent(e);
       if (e.type === 'jump') squash = -0.6;
       if (e.type === 'land') squash = Math.min(1, 0.25 + (e.fall ?? 0) * 0.12);
       if (e.type === 'mantle') squash = -0.3;
@@ -352,7 +358,7 @@ export function entityView(e) {
   const g = new THREE.Group();
   const mat = (color) => new THREE.MeshLambertMaterial({ color });
   
-  if (nightEntityView(e, g)) {
+  if (nightEntityView(e, g) || silkEntityView(e, g)) {
     
   } else if (e.kind === 'pebble') {
     const m = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat(0xb8b1a6));

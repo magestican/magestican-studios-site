@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "silk-span",
+      "title": "Silk Span",
+      "files": {
+        "webm": "silk-span.webm",
+        "ogg": "silk-span.ogg",
+        "m4a": "silk-span.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 7680000,
+      "loopSeconds": 160.0,
+      "bpm": 108,
+      "beats": 4,
+      "bars": 72,
+      "key": "B major",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.97,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "silk-span.webm",
+          "decoded_samples": 7680000,
+          "corr": 0.9976,
+          "true_peak_db": -4.83,
+          "bytes": 3480893
+        },
+        "ogg": {
+          "file": "silk-span.ogg",
+          "decoded_samples": 7680000,
+          "corr": 0.9983,
+          "true_peak_db": -5.16,
+          "bytes": 3583365
+        },
+        "m4a": {
+          "file": "silk-span.m4a",
+          "decoded_samples": 7680000,
+          "corr": 0.9992,
+          "true_peak_db": -5.47,
+          "bytes": 5221456
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-silk-span, rework of the main theme (same, transpose 6)",
+        "seed": 234844224,
+        "cover_chord_agree": 0.934,
+        "cover_chroma_corr": 0.795,
+        "render": "D:\\magestican-dj\\renders\\space-95\\silk-span",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\silk-span\\space-95-bgm-city-pop-1.wav (seed 306046334, chord_agree 0.931)"
+        ]
+      }
+    }
+  ]
+}

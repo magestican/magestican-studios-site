@@ -12,6 +12,7 @@ export const MUSIC_TRACKS = [
   'night-bloom',
   'orchard',
   'puddle-sea',
+  'silk-span',
   'stripecat',
   'underground',
   'windward',

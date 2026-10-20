@@ -187,6 +187,22 @@ const CUES = {
   ivyRustle: ['ivy_rustle', 'dust_scrape'],
   thornHit: ['thorn_prick', 'hurt_tone'],
   flapSwing: ['flap_swing', 'whoosh'],
+  
+  webLand: ['web_thrum'],
+  webLaunch: ['web_boing'],
+  pluck: ['harp_pluck_1'],
+  webDrop: ['web_thrum_soft'],
+  lineCut: ['silk_snip', 'snip'],
+  auntTelegraph: ['aunt_zzzip', 'whoosh'],
+  auntDrop: ['aunt_land', 'boing'],
+  auntBounce: ['aunt_bounce', 'boing'],
+  snareThrow: ['snare_thwip', 'mud_toss'],
+  snarePatch: ['snare_splat', 'honey_gloop'],
+  snare: ['snared', 'honey_stick'],
+  snareFree: ['snare_free', 'shell_pop'],
+  goldClimb: ['gold_aunt_climb', 'secret_glint'],
+  snag: ['bolt_snag', 'tether_hup'],
+  silkRustle: ['silk_rustle', 'ivy_rustle'],
 };
 
 
@@ -205,6 +221,8 @@ const SIGNAL_SOUNDS = {
   'audio:curve-squeal': ['curve_squeal', 'slick_squeak'],
   'audio:derail-crash': ['derail_crash', 'cave_in'],
   'audio:ghost-hum': ['ghost_hum', 'cricket_hum'], 
+  'audio:watch-tick': ['watch_tick', 'secret_glint'], 
+  'audio:harp-twang': ['harp_twang', 'secret_glint'], 
 };
 
 
@@ -243,11 +261,32 @@ export function createLadder(window = 1.2) {
 
 export function cueFor(e, has = () => true) {
   if (e.type === 'land') {
+    if (e.web) return null; 
     const f = e.fall ?? 0;
     return f < LAND_SOFT_MAX ? 'land_soft' : f < LAND_RUN_MAX ? 'land_run' : 'land_hard';
   }
+  const pick = ( list) => list.find(has) ?? null;
+  
+  if (e.type === 'fling' && e.sling) return pick(['sling_chime', 'shell_fling']); 
+  if (e.type === 'webLand') return pick(e.hub ? ['hub_chord', 'web_thrum'] : (e.v ?? 0) >= 12 ? ['web_thrum'] : ['web_thrum_soft']);
+  if (e.type === 'webLaunch') {
+    if (!e.pumped && !e.hub) return null; 
+    return pick(e.hub || (e.v ?? 0) >= 29 ? ['web_boing_big', 'web_boing'] : e.slant ? ['web_slant_twang', 'web_boing'] : ['web_boing']);
+  }
+  if (e.type === 'pluck') {
+    const k = (Number.parseInt(String(e.web ?? '').replace(/\D/g, ''), 10) || 1) - 1;
+    return pick([`harp_pluck_${(k % 3) + 1}`, 'harp_pluck_1']);
+  }
   return CUES[e.type]?.find(has) ?? null;
 }
+
+
+export const CUE_VARIANTS = {
+  fling: ['sling_chime'],
+  webLand: ['hub_chord', 'web_thrum', 'web_thrum_soft'],
+  webLaunch: ['web_boing_big', 'web_slant_twang', 'web_boing'],
+  pluck: ['harp_pluck_1', 'harp_pluck_2', 'harp_pluck_3'],
+};
 
 
 export function createFootsteps(surface = 'dirt') {

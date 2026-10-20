@@ -54,10 +54,34 @@ const LINES = {
   dazzled: ["Don't look at it! Turn away - or out-glow it."],
   bloom: ['It BLOOMED! And look - our nav lamp, in the middle!'],
   ghostBlink: ['She hates the bright. Keep me down.'],
+  
+  webLand: ['Jump as it SINKS - it throws you!'],
+  auntTelegraph: ["Spider. Aunt-sized. She thinks we're breakfast. DASH through her line!"],
+  lineCut: ['Snip! She is off home. No hard feelings.'],
+  snare: ['Sticky! Mash jump - wriggle out!'],
+  pluck: ["She's playing the web. Land as it comes UP."],
+  snag: ['Got you! Paperclip. Never fails.'],
 };
 
 
-const TEACH = new Set(['noPoints', 'pointsThrow', 'boost', 'couple', 'derail', 'lanternRaise', 'budPop', 'dazzled', 'bloom', 'ghostBlink']);
+const TEACH = new Set([
+  'noPoints',
+  'pointsThrow',
+  'boost',
+  'couple',
+  'derail',
+  'lanternRaise',
+  'budPop',
+  'dazzled',
+  'bloom',
+  'ghostBlink',
+  'webLand',
+  'auntTelegraph',
+  'lineCut',
+  'snare',
+  'pluck',
+  'snag',
+]);
 
 
 export function createBoltVoice() {

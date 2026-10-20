@@ -8,11 +8,13 @@ import { bufferOk, cornerCorrect, coyoteOk, ledgeAssist } from './assists.js';
 import { onGround, sweepX, sweepY, touchingWall } from './body.js';
 import { climbStep, onBark } from './climb.js';
 import * as K from './constants.js';
+import { snareStep } from './enemies/aunt.js';
 import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
 import { spinUnder } from './pins.js';
 import { raftById } from './raft.js';
 import { rideStep, wakeStep } from './slipstream.js';
 import { tetherAfterMove, tetherStep } from './tether.js';
+import { WEB } from './web.js';
 import { gustDx, windCushion } from './wind.js';
 
 
@@ -88,7 +90,10 @@ export function stepPlayer(p, held, world) {
   
   const glooped = p.ab?.gloop > 0;
   if (glooped) p.ab.gloop -= S;
-  const input = glooped ? NO_INPUT : held;
+  
+  const snared = p.snared > 0 && snareStep(p, held);
+  const input = glooped || snared ? NO_INPUT : held;
+  if (p.flingT > 0) p.flingT -= S; 
   p.px = p.x;
   p.py = p.y;
   const dir = input.x > 0.25 ? 1 : input.x < -0.25 ? -1 : 0;
@@ -111,6 +116,7 @@ export function stepPlayer(p, held, world) {
   } else if (!climbStep(p, input, world, dir, pressed)) {
     horizontal(p, dir, input, top);
     abilityHorizontal(p, input, dir);
+    if (p.webOn) webPress(p, input, pressed); 
     tryJump(p);
     abilityJumps(p, input, world);
     variableHeight(p, input);
@@ -145,6 +151,7 @@ export function stepPlayer(p, held, world) {
     }
   }
   p.y = my.y;
+  p.floor = my.floor ?? null; 
   
   if (my.floor) p.floorVs = Math.max(0, my.floor.vs);
   else if (my.hit) p.floorVs = 0;
@@ -187,14 +194,18 @@ export function stepPlayer(p, held, world) {
   }
   if (p.grounded) {
     if (!wasGrounded) {
-      p.events.push({ type: 'land', fall: p.airPeak - p.y, speed: -p.vyLanding || 0 });
+      
+      p.events.push({ type: 'land', fall: p.airPeak - p.y, speed: -p.vyLanding || 0, ...(p.floor?.web ? { web: p.floor.web } : {}) });
     }
     p.sinceGrounded = 0;
     p.jumpedThisAir = false;
     p.rising = false;
     p.cut = false;
     p.airPeak = p.y;
-    if (!wasGrounded) tryJump(p); 
+    
+    if (!wasGrounded && my.floor?.web && -p.vyLanding >= WEB.TAKE) {
+      if (bufferOk(p.sincePressed)) pumpPress(p);
+    } else if (!wasGrounded) tryJump(p);
   } else {
     if (wasGrounded && !p.jumpedThisAir) {
       p.events.push({ type: 'leave' });
@@ -236,6 +247,7 @@ function horizontal(p, dir, input, top) {
     return;
   }
   p.skid = 0;
+  if (p.flingT > 0 && dir !== -Math.sign(p.vx)) return; 
   const cap = top * (input.jump ? K.AIR_CARRY_HELD : K.AIR_CARRY_RELEASED);
   if (dir !== 0) {
     const target = dir * cap;
@@ -245,6 +257,22 @@ function horizontal(p, dir, input, top) {
   } else {
     p.vx = approach(p.vx, 0, K.GROUND_DECEL * K.AIR_CONTROL * S);
   }
+}
+
+
+function webPress(p, input, pressed) {
+  if (input.down && pressed && p.grounded) {
+    p.dropWeb = p.webOn;
+    p.sincePressed = Number.POSITIVE_INFINITY;
+    p.grounded = false;
+    p.events.push({ type: 'webDrop', id: p.webOn, x: p.x, y: p.y });
+  } else if (p.webStretch && bufferOk(p.sincePressed)) pumpPress(p);
+}
+
+function pumpPress(p) {
+  p.pumpPress = true;
+  p.sincePressed = Number.POSITIVE_INFINITY; 
+  p.events.push({ type: 'pumpPress', x: p.x, y: p.y });
 }
 
 

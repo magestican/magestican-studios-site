@@ -60,8 +60,10 @@ function placeAt(s, x, y) {
   const c = Math.floor(x / T);
   for (let r = Math.min(w.height - 1, y === null ? w.height - 1 : Math.floor(y / T)); r >= 0; r--) {
     if (w.solid(c, r) || w.oneWay(c, r)) {
+      
+      const f = y !== null && w.floorAt ? w.floorAt({ x, y, w: s.player.w, h: s.player.h }, x) : null;
       s.player.x = s.player.px = x;
-      s.player.y = s.player.py = (r + 1) * T;
+      s.player.y = s.player.py = f && f.y > (r + 1) * T ? f.y : (r + 1) * T;
       s.partial = true;
       return;
     }

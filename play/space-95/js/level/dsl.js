@@ -44,6 +44,9 @@ export function levelBuilder(meta) {
   const lamps = []; 
   const blooms = []; 
   const ivy = []; 
+  const webs = []; 
+  const harps = []; 
+  const hubs = []; 
   
   const track = { rails: [], points: [], diamonds: [], stations: [], signals: [], debris: [], peas: [], chevrons: [], props: [] };
   const builtRails = {};
@@ -313,7 +316,34 @@ export function levelBuilder(meta) {
     
     ivy(x0, x1, y0, y1, opts = {}) {
       counters.ivy = (counters.ivy ?? 0) + 1;
-      ivy.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-ivy-${counters.ivy}`, x0, x1, y0, y1 });
+      ivy.push({
+        id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-ivy-${counters.ivy}`,
+        x0,
+        x1,
+        y0,
+        y1,
+        ...(opts.skin ? { skin: opts.skin } : {}),
+      });
+      return api;
+    },
+    
+
+
+
+
+    web(x0, y0, x1, y1, opts = {}) {
+      counters.web = (counters.web ?? 0) + 1;
+      webs.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-web-${counters.web}`, x0, y0, x1, y1, ...opts });
+      return api;
+    },
+    
+    harp(opts) {
+      harps.push({ every: 1.6, amp: 1, ...opts });
+      return api;
+    },
+    
+    hub(opts) {
+      hubs.push({ ...opts });
       return api;
     },
     
@@ -527,6 +557,12 @@ export function levelBuilder(meta) {
         ...(lamps.length ? { lamps } : {}),
         ...(blooms.length ? { blooms } : {}),
         ...(ivy.length ? { ivy } : {}),
+        
+        ...(webs.length ? { webs } : {}),
+        ...(harps.length ? { harps } : {}),
+        ...(hubs.length ? { hubs } : {}),
+        ...(meta.fallReturn ? { fallReturn: meta.fallReturn } : {}),
+        ...(meta.sky ? { sky: meta.sky } : {}),
         
         ...(meta.mode === 'train' ? trainFields(meta, track, builtRails, trainStart, entities) : {}),
         dir: meta.dir ?? 1,

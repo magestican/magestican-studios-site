@@ -21,6 +21,7 @@ const WALL_HOLD = 0.5;
 
 const DESCENT_LOOK = 6; 
 const DESCENT_LOOK_SPEED = 6; 
+const WEB_LEAD_SPEED = 12; 
 
 export function createCameraRig(x, y) {
   return { x, y, focusY: y, ahead: 0, fallLook: 0, upLook: 0, wallT: 0 };
@@ -50,7 +51,11 @@ export function updateCameraRig(cam, target, dt, runSpeed) {
   const falling = target.vy < -(descent ? DESCENT_LOOK_SPEED : FALL_LOOK_SPEED);
   cam.fallLook += ((falling ? (descent ? DESCENT_LOOK : FALL_LOOK) : 0) - cam.fallLook) * k(3);
   
-  const lead = descent && !target.grounded && target.vy < 0 ? target.vy / FOLLOW_Y_RATE : 0;
+  
+  
+  
+  const webLead = target.webLaunch && target.vy > WEB_LEAD_SPEED ? target.vy / FOLLOW_Y_RATE : 0;
+  const lead = descent && !target.grounded && target.vy < 0 ? target.vy / FOLLOW_Y_RATE : webLead;
   const up = climbing || target.vy > 6;
   cam.upLook += ((up ? CLIMB_LOOK : 0) - cam.upLook) * k(2);
   cam.y += (cam.focusY - cam.fallLook + cam.upLook + lead - cam.y) * k(FOLLOW_Y_RATE);

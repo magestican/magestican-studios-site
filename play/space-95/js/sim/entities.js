@@ -45,6 +45,7 @@ export function spawnEntities(defs) {
 export function stepEntities(list, ctx) {
   for (const e of list) {
     if (!e.alive) continue;
+    if (e.webFlung) continue; 
     e.px = e.x;
     e.py = e.y;
     const impl = KINDS[e.kind];
@@ -81,7 +82,8 @@ export function stepEntities(list, ctx) {
     }
     if (impl.sleeps && !e.awake && ctx.session?.train) e.awake = true; 
     if (impl.sleeps && !e.awake) {
-      if (Math.abs(ctx.player.x - e.x) > (e.wake ?? WAKE_RANGE) || Math.abs(ctx.player.y - e.y) > WAKE_RANGE_Y) continue;
+      if (Math.abs(ctx.player.x - e.x) > (e.wake ?? WAKE_RANGE) || Math.abs(ctx.player.y - e.y) > (e.wakeY ?? WAKE_RANGE_Y)) continue;
+      if (e.wakeGrounded && !ctx.player.grounded) continue; 
       e.awake = true;
       ctx.events.push({ type: 'wake', id: e.id });
     }

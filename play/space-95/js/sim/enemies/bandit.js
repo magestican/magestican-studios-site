@@ -31,11 +31,23 @@ registerKind('bandit', {
     e.h = 1.2;
     e.stage = 'idle';
     e.st = 0;
+    
+    
+    
+    if (e.awake && !e.sleeping) e.awake = false;
+    if (e.sleeping) e.awake = true;
   },
   step(e, ctx) {
     if (ctx.session?.train) return stepRailFoe(e, ctx); 
     if (stepDefeated(e)) return;
     const p = ctx.player;
+    if (e.sleeping) {
+      if (contact(p, e) === 'stomp') {
+        stompBounce(p);
+        defeat(e, ctx, 'stomp');
+      }
+      return;
+    }
     e.st += STEP;
     const airborne = e.stage === 'hop';
     if (e.stage === 'idle' && e.st >= IDLE_T) {
