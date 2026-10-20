@@ -121,7 +121,8 @@ export function buildL19() {
   wave(900, 'M3');
   surfSeeds(900);
   tall(908, 'sprinkler');
-  L.putAt('perchBug', 911, 12.3, {
+  L.putAt('perchBug', 885, 12.3, {
+    fly: { x1: 945, lead: 5 }, 
     specimen: true,
     name: 'Comet Cadet',
     signals: ['visual:azure-trail', 'audio:comet-whine'],

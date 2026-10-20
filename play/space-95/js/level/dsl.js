@@ -459,6 +459,7 @@ export function levelBuilder(meta) {
         y,
         ...(opts.phase ? { phase: opts.phase } : {}),
         ...(opts.climb ? { climb: true } : {}),
+        ...(opts.mode ? { mode: opts.mode } : {}), 
       });
       return api;
     },

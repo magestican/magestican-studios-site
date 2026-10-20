@@ -136,10 +136,12 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     webs: createWebs(level),
     snares: [],
     snags: 0, 
+    boxes: 0, 
   };
   if (level.mode === 'train') startTrain(s, start);
   
   if (level.mode === 'plane') startPlane(s, start, start !== level.spawn);
+  else if (start.mode === 'plane') startPlane(s, start, true); 
   if (level.ride) startRide(s, start); 
   initArena(s);
   return s;
@@ -461,7 +463,16 @@ function respawn(s) {
     else startTrain(s, cp, s.train);
   }
   s.invuln = 0;
-  if (s.plane) {
+  if (s.plane && s.level.mode !== 'plane') {
+    
+    
+    const cp = s.level.checkpoints.find((c) => c.id === s.checkpoint);
+    if (cp?.mode === 'plane') respawnPlane(s, s.respawnAt);
+    else {
+      s.plane = null;
+      for (const e of s.entities) if (e.kind === 'board') e.boarded = false;
+    }
+  } else if (s.plane) {
     
     resetAces(s);
     if (s.checkpoint === 0) startPlane(s, s.level.spawn, false);

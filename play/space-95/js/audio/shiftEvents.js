@@ -642,6 +642,7 @@ export const SHIFT_EVENTS = {
     'checkpoint',
     'clear',
     'deedEarned',
+    'defeat',
     'doubleJump',
     'glideEnd',
     'glideStart',

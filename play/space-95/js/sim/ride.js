@@ -154,6 +154,13 @@ registerKind('perchBug', {
   },
   step(e, ctx) {
     if (stepDefeated(e)) return;
+    
+    
+    if (e.fly && e.x < e.fly.x1) {
+      const deck = ctx.session.rafts?.list.find((r) => r.lane === ctx.session.level.ride);
+      if (deck && e.flyOff === undefined && deck.x >= e.x - e.fly.lead) e.flyOff = e.x - deck.x;
+      if (deck && e.flyOff !== undefined) e.x = Math.min(e.fly.x1, deck.x + e.flyOff);
+    }
     if (overlaps(ctx.player, e)) defeat(e, ctx, 'scan');
   },
 });

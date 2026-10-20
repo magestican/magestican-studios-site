@@ -5,6 +5,7 @@ import './bosses/duchessMounted.js';
 import './bosses/foreman.js';
 import './bosses/mantis.js';
 import './bosses/matriarch.js';
+import './bosses/sovereign.js';
 import './enemies/ace.js';
 import './enemies/antPorter.js';
 import './enemies/aphid.js';

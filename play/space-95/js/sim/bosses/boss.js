@@ -168,6 +168,11 @@ registerKind('boss', {
       ctx.events.push({ type: 'bossHit', id: e.id, hp: e.hp, phase: e.phase, how, x: e.x, y: e.y });
       if (e.hp <= 0) {
         
+        if (ph.box) {
+          s.boxes = Math.max(s.boxes ?? 0, ph.box);
+          ctx.events.push({ type: 'box', n: ph.box, id: e.id });
+        }
+        
         if (ph.deed && !e.phaseHurt) {
           for (const x of s.entities) if (x.id === ph.deed) x.alive = true;
           ctx.events.push({ type: 'deedEarned', id: e.id, deed: ph.deed, phase: e.phase });

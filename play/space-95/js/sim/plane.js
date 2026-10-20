@@ -24,6 +24,7 @@
 import { boxFree, sweepX, sweepY } from './body.js';
 import { defeat, hurtPlayer, INVULN_TIME } from './combat.js';
 import { STEP } from './constants.js';
+import { overlaps, registerKind } from './entities.js';
 import { zoneOn } from './wind.js';
 
 const D = Math.PI / 180;
@@ -140,6 +141,24 @@ export function startPlane(s, start, air) {
   s.stats ??= { wingman: 0 };
   syncPlaneProxy(s);
 }
+
+
+
+
+
+registerKind('board', {
+  create(e) {
+    e.w ??= 3;
+    e.h ??= 2;
+  },
+  step(e, ctx) {
+    const s = ctx.session;
+    if (s.plane || e.boarded || (e.needBoxes ?? 0) > (s.boxes ?? 0) || !overlaps(ctx.player, e)) return;
+    e.boarded = true;
+    startPlane(s, { x: e.x, y: e.y }, false);
+    ctx.events.push({ type: 'board', id: e.id, x: e.x, y: e.y });
+  },
+});
 
 
 export function placePlane(s, x, y, headingDeg = 0) {
