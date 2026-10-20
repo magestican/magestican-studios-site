@@ -47,6 +47,7 @@ export function levelBuilder(meta) {
   const webs = []; 
   const harps = []; 
   const hubs = []; 
+  const softs = []; 
   
   const track = { rails: [], points: [], diamonds: [], stations: [], signals: [], debris: [], peas: [], chevrons: [], props: [] };
   const builtRails = {};
@@ -195,6 +196,18 @@ export function levelBuilder(meta) {
         lift: 7,
         ...opts,
       });
+      return api;
+    },
+    
+    fluff(x0, x1, y0, y1, opts = {}) {
+      counters.soft = (counters.soft ?? 0) + 1;
+      softs.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-soft-${counters.soft}`, skin: 'fluff', x0, x1, y0, y1, ...opts });
+      return api;
+    },
+    
+    soft(x0, x1, y0, y1, opts = {}) {
+      counters.soft = (counters.soft ?? 0) + 1;
+      softs.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-soft-${counters.soft}`, skin: 'cloth', x0, x1, y0, y1, ...opts });
       return api;
     },
     
@@ -580,6 +593,8 @@ export function levelBuilder(meta) {
         ...(meta.sky ? { sky: meta.sky } : {}),
         
         ...(meta.mode === 'train' ? trainFields(meta, track, builtRails, trainStart, entities) : {}),
+        
+        ...(meta.mode === 'plane' ? { mode: 'plane', camDist: meta.camDist ?? 28, ceiling: (meta.height ?? 24) - 8, softs } : {}),
         dir: meta.dir ?? 1,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,

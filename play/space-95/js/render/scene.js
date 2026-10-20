@@ -17,6 +17,7 @@ import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './cr
 import { createJoSprite } from './joSprite.js';
 import { createNight, nightEntityView } from './nightView.js';
 import { createSilk, silkEntityView } from './silkView.js';
+import { createSky, skyEntityView } from './skyView.js';
 import { createTrainView } from './trainView.js';
 
 const CAM_DIST = 20;
@@ -102,6 +103,8 @@ export function createView(canvas, level, labels) {
     jo,
     soil,
   });
+  
+  const sky = createSky(scene, level, { jo, bolt, views: entityViews, spark: (...a) => spark(...a), kick: (a) => kick(a) });
 
   const rig = createCameraRig(0, 0);
   let squash = 0; 
@@ -185,7 +188,7 @@ export function createView(canvas, level, labels) {
       shake *= Math.exp(-dt * 18);
       const sx0 = Math.sin(session.time * 91) * shake;
       const sy0 = Math.cos(session.time * 73) * shake;
-      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, CAM_DIST * (1 + 0.45 * frameK));
+      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, (level.camDist ?? CAM_DIST) * (1 + 0.45 * frameK)); 
       camera.lookAt(camX + sx0, rig.y + hintDy + 0.6 + sy0, 0);
 
       squash *= Math.exp(-dt * 14);
@@ -232,6 +235,7 @@ export function createView(canvas, level, labels) {
       night?.update(session, dt, camera);
       silk?.update(session, dt, camera);
       burrow?.update(session, dt);
+      sky?.update(session, dt);
       for (let i = teles.length - 1; i >= 0; i--) {
         const T = teles[i];
         T.t += dt;
@@ -268,6 +272,7 @@ export function createView(canvas, level, labels) {
       night?.onEvent(e);
       silk?.onEvent(e);
       burrow?.onEvent(e);
+      sky?.onEvent(e);
       if (e.type === 'jump') squash = -0.6;
       if (e.type === 'land') squash = Math.min(1, 0.25 + (e.fall ?? 0) * 0.12);
       if (e.type === 'mantle') squash = -0.3;
@@ -371,7 +376,7 @@ export function entityView(e) {
   const g = new THREE.Group();
   const mat = (color) => new THREE.MeshLambertMaterial({ color });
   
-  if (nightEntityView(e, g) || silkEntityView(e, g) || burrowEntityView(e, g)) {
+  if (nightEntityView(e, g) || silkEntityView(e, g) || burrowEntityView(e, g) || skyEntityView(e, g)) {
     
   } else if (e.kind === 'pebble') {
     const m = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat(0xb8b1a6));

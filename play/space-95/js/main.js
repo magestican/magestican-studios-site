@@ -14,6 +14,7 @@ import { joSpriteLoaded } from './render/joSprite.js';
 import { createView } from './render/scene.js';
 import { parseAbilities } from './sim/abilities.js';
 import { STEP } from './sim/constants.js';
+import { placePlane } from './sim/plane.js';
 import { createSession, stepSession } from './sim/session.js';
 import { placeTrain } from './sim/train.js';
 import { site } from './site/adapter.js';
@@ -44,6 +45,11 @@ if (train && (cheats.rail !== null || cheats.x !== null || cheats.points)) {
     
     for (const d of level.entities ?? []) if (d.kind === 'ability') abilities.add(d.grant);
   }
+} else if (level.mode === 'plane' && cheats.x !== null) {
+  
+  placePlane(session, cheats.x, cheats.y ?? 30, cheats.heading);
+  session.partial = true;
+  for (const d of level.entities ?? []) if (d.kind === 'ability') abilities.add(d.grant);
 } else if (cheats.x !== null) placeAt(session, cheats.x, cheats.y);
 if (cheats.bossPhase !== null)
   for (const b of session.entities)
@@ -80,6 +86,16 @@ if (train) {
   if (jumpBtn) jumpBtn.innerHTML = `${LEVER_ICON}<span class="touch-label">Points</span>`;
   if (dashBtn) dashBtn.innerHTML = `${KEY_ICON}<span class="touch-label">Boost</span>`;
   document.body.classList.add('is-train');
+}
+
+if (level.mode === 'plane') {
+  const help = document.getElementById('help');
+  if (help)
+    help.innerHTML = `<span><kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&rarr;</kbd><kbd>&darr;</kbd> steer</span><span><kbd>Space</kbd> loop</span><span class="help-dash" hidden><kbd>Shift</kbd> roll</span><span><kbd>R</kbd> retry</span><span><kbd>M</kbd> sound</span><span><kbd>Esc</kbd> pause</span>`;
+  const jumpBtn = document.querySelector('[data-touch="jump"]');
+  const dashBtn = document.querySelector('[data-touch="dash"]');
+  if (jumpBtn) jumpBtn.innerHTML = '<span class="touch-label">Loop</span>';
+  if (dashBtn) dashBtn.innerHTML = '<span class="touch-label">Roll</span>';
 }
 if (abilities.has('dash')) for (const el of document.querySelectorAll('.touch-dash, .help-dash')) el.hidden = false;
 if (abilities.has('tether')) for (const el of document.querySelectorAll('.touch-tether, .help-tether')) el.hidden = false;

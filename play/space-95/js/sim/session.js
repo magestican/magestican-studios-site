@@ -9,13 +9,16 @@ import { attachBlooms, createBlooms, stepBlooms } from './bloom.js';
 import { INVULN_TIME } from './combat.js';
 import { STEP } from './constants.js';
 import { stepDig } from './dig.js';
+import { resetAces, stepAerodrome } from './enemies/ace.js';
 import { stepSnares } from './enemies/aunt.js';
 import { spawnEntities, stepEntities } from './entities.js';
 import { attachFans, createFans, stepFans } from './fan.js';
 import { attachHeaves, stepHeaves } from './heave.js';
 import { createLight, stepLight } from './light.js';
 import { createFlock, stepFlock } from './motifs/flock.js';
+import { stepWingman } from './motifs/wingman.js';
 import { touchPins } from './pins.js';
+import { respawnPlane, startPlane, stepPlane } from './plane.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
 import { attachRafts, createRafts, stepRafts } from './raft.js';
 import { createRipple, stepRipple } from './ripple.js';
@@ -114,6 +117,8 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     lightsOut: false,
     
     train: null,
+    
+    plane: null,
     points: null,
     signals: null,
     derails: 0,
@@ -129,6 +134,8 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     snags: 0, 
   };
   if (level.mode === 'train') startTrain(s, start);
+  
+  if (level.mode === 'plane') startPlane(s, start, start !== level.spawn);
   initArena(s);
   return s;
 }
@@ -234,7 +241,7 @@ export function stepSession(s, input) {
   if (s.dead > 0) {
     s.dead += STEP;
     if (s.dead >= RESPAWN_DELAY) respawn(s);
-    if (!s.train) stepPlayer(s.player, NO_INPUT, s.world);
+    if (!s.train && !s.plane) stepPlayer(s.player, NO_INPUT, s.world);
     return s;
   }
   if (s.punt > 0) {
@@ -254,6 +261,8 @@ export function stepSession(s, input) {
   }
   if (s.train)
     stepTrain(s, input); 
+  else if (s.plane)
+    stepPlane(s, input); 
   else {
     stepRafts(s);
     stepPlayer(s.player, s.cleared ? NO_INPUT : input, s.world);
@@ -266,6 +275,10 @@ export function stepSession(s, input) {
   stepDig(s);
   stepShield(s);
   stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
+  if (s.plane) {
+    stepWingman(s); 
+    stepAerodrome(s); 
+  }
   stepArena(s); 
   if (s.snares.length) stepSnares(s); 
   if (s.flock) stepFlock(s); 
@@ -298,7 +311,7 @@ export function stepSession(s, input) {
           : (s.level.dir ?? 1) > 0
             ? p.x >= c.x
             : p.x <= c.x;
-    if (c.id > s.checkpoint && p.grounded && passed) {
+    if (c.id > s.checkpoint && (p.grounded || s.plane) && passed) {
       s.checkpoint = c.id;
       s.respawnAt = { x: c.x, y: c.y };
       s.events.push({ type: 'checkpoint', id: c.id });
@@ -330,7 +343,7 @@ export function stepSession(s, input) {
   }
   
   const pin = s.level.sparks ? touchPins(s) : null;
-  if (!s.train && (p.y < PIT_Y || pin)) {
+  if (!s.train && !s.plane && (p.y < PIT_Y || pin)) {
     
     s.events.push(
       pin
@@ -410,6 +423,8 @@ function respawn(s) {
       s.snares = [];
       s.dawn = false;
     }
+    s.aero = null; 
+    s.deedLost = false;
     s.events.push({ type: 'gameOver' });
   }
   if (s.hearts <= 0) s.hearts = s.maxHearts;
@@ -422,6 +437,12 @@ function respawn(s) {
     else startTrain(s, cp, s.train);
   }
   s.invuln = 0;
+  if (s.plane) {
+    
+    resetAces(s);
+    if (s.checkpoint === 0) startPlane(s, s.level.spawn, false);
+    else respawnPlane(s, s.respawnAt);
+  }
   s.dead = 0;
   s.punt = 0;
   s.dunk = 0;

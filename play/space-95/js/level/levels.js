@@ -1,6 +1,7 @@
 
 import { CHALLENGES, gymWorld } from './gym.js';
 import { buildDrillGym } from './gymDrill.js';
+import { buildPlaneGym } from './gymPlane.js';
 import { buildTrainGym } from './gymTrain.js';
 import { buildWebGym } from './gymWebs.js';
 import { buildL01 } from './L01.js';
@@ -19,6 +20,7 @@ import { buildL13 } from './L13.js';
 import { buildL14 } from './L14.js';
 import { buildL15 } from './L15.js';
 import { buildL16 } from './L16.js';
+import { buildL17 } from './L17.js';
 
 const SHIFTS = {
   1: buildL01,
@@ -37,7 +39,16 @@ const SHIFTS = {
   14: buildL14,
   15: buildL15,
   16: buildL16,
+  17: buildL17,
 };
+
+
+
+
+
+
+
+export const UNRENDERED = new Set( ([])); 
 
 
 export function loadLevel(key) {
@@ -64,8 +75,16 @@ export function loadLevel(key) {
     const level = buildDrillGym();
     return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Drill gym' };
   }
+  if (key === 'gym-plane') {
+    
+    const level = buildPlaneGym();
+    return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Plane gym' };
+  }
   return { level: { ...gymWorld(), pitCost: 'none' }, labels: CHALLENGES, title: 'Metrics gym' };
 }
 
-export const SHIFT_IDS = Object.keys(SHIFTS).map(Number);
+
+export const ALL_SHIFT_IDS = Object.keys(SHIFTS).map(Number);
+
+export const SHIFT_IDS = ALL_SHIFT_IDS.filter((id) => !UNRENDERED.has(id));
 export const buildShift = (id) => SHIFTS[id]();

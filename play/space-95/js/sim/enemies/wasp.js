@@ -9,10 +9,12 @@
 
 
 
+
+
 import { sweepX, sweepY } from '../body.js';
 import { contact, defeat, hurtPlayer, stepDefeated, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
-import { registerKind } from '../entities.js';
+import { overlaps, registerKind } from '../entities.js';
 import { HONEY_STUCK, honeyAt, honeyStuckEvent } from '../honey.js';
 
 const BOB = 0.3; 
@@ -60,6 +62,8 @@ registerKind('wasp', {
     if (stepDefeated(e)) return;
     const p = ctx.player;
     const s = ctx.session;
+    
+    if (e.asleep) return;
     e.st += STEP;
     const pc = centre(p);
     const ec = centre(e);
@@ -144,6 +148,12 @@ registerKind('wasp', {
         e.x += e.vx * STEP;
         e.y += e.vy * STEP;
       }
+    }
+    if (s.plane) {
+      
+      
+      if (e.stage === 'dive' && !s.plane.iframes && overlaps(p, e)) hurtPlayer(s, e.x);
+      return;
     }
     const c = contact(p, e);
     if (!c) {

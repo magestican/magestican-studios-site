@@ -60,7 +60,8 @@ registerKind('cameo', {
   step(e, ctx) {
     const p = ctx.player;
     const z = e.zone;
-    if (p.grounded && p.x >= z.x0 && p.x <= z.x1 && p.y >= z.y0 && p.y <= z.y1) {
+    if (!z) return; 
+    if ((p.grounded || ctx.session.plane) && p.x >= z.x0 && p.x <= z.x1 && p.y >= z.y0 && p.y <= z.y1) {
       e.alive = false;
       if (e.event) ctx.events.push({ type: e.event, id: e.id, step: e.step, x: p.x, y: p.y });
       else ctx.events.push({ type: 'bossCameo', id: e.id, who: e.who, x: p.x, y: p.y });
@@ -102,13 +103,16 @@ registerKind('finish', {
     
     const down = ctx.session.level.descent;
     const t = ctx.session?.train; 
-    const reached = t
-      ? t.rail === e.rail && t.s >= e.s
-      : e.axis === 'y'
-        ? (down ? p.y <= e.y : p.y >= e.y) && Math.abs(p.x - e.x) < 3
-        : left
-          ? p.x <= e.x
-          : p.x >= e.x;
+    const pl = ctx.session?.plane; 
+    const reached = pl
+      ? pl.landed
+      : t
+        ? t.rail === e.rail && t.s >= e.s
+        : e.axis === 'y'
+          ? (down ? p.y <= e.y : p.y >= e.y) && Math.abs(p.x - e.x) < 3
+          : left
+            ? p.x <= e.x
+            : p.x >= e.x;
     if (!ctx.session.cleared && reached) {
       ctx.session.cleared = true;
       ctx.events.push({ type: 'clear', time: ctx.session.time });

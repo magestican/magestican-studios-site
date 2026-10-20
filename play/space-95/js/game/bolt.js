@@ -71,7 +71,31 @@ const LINES = {
   spadeStuck: ["Its rear's stuck! The stones - dig the foot!"],
   tunnelTrip: ['It tripped in its own hole! Dig it another - two pounds!'],
   heapBuilt: ['Top of the heap - one dig takes the lot!'],
+  
+  control: ['Point the stick - she follows. No jumping in a plane, Jo. JUMP loops.'],
+  mothTail: ["Something's on our tail! ...A moth. Tap JUMP - loop, and let it pass!"],
+  turret: ["You buzz 'em, I pop 'em."],
+  scrape: ['Trees are SOLID, Jo.'],
+  softBump: ['Cloth. Roll through it.'],
+  planeRefuse: ['No hooks in the sky, Jo.'],
+  glasswingFlee: ["Easy - it's shy. Loop WITH it."],
+  stripRefused: ["Not while they're on the runway."],
+  scramble: ["Their airfield. We land when they let us. ...They won't."],
+  vReveal: ["That one's got a MOUSTACHE."],
+  vClose: ['All three on our tail - NOW, Jo! LOOP!'],
+  landed: ['Full thrust cooks the cell. We need COLD. ...After you.'],
 };
+
+
+const SKY = [
+  "Sleepers! Buzz 'em close - I've got the turret!",
+  'Fluff! Tap DASH - roll through!',
+  'Dragonflies. With GOGGLES. ...Between them, Jo!',
+  "One on our TAIL! LOOP - it'll fly right through!",
+  'Nice morning for laundry.',
+  "A wall of 'em - ROLL THROUGH!",
+  'Shh. Nobody wake the mountain.',
+];
 
 
 const BURROW = [
@@ -108,6 +132,18 @@ const TEACH = new Set([
   'spadeStuck',
   'tunnelTrip',
   'heapBuilt',
+  'control',
+  'mothTail',
+  'turret',
+  'scrape',
+  'softBump',
+  'planeRefuse',
+  'glasswingFlee',
+  'stripRefused',
+  'scramble',
+  'vReveal',
+  'vClose',
+  'landed',
 ]);
 
 
@@ -129,6 +165,12 @@ export function createBoltVoice() {
         e.type === 'secret' || e.type === 'clear' || e.type === 'ability' || e.type === 'strike' || e.type === 'bossDefeat' || teach;
       if (cooldown > 0 && !important) return null;
       let kind = null;
+      if (e.type === 'skyLine' && SKY[e.step]) {
+        
+        cooldown = 4;
+        return { text: SKY[e.step], beep: e.step === 6 ? null : 'bolt_beep_happy', mood: e.step === 6 ? 'worried' : 'happy' };
+      }
+      if (e.type === 'bossCameo' && e.who === 'mandibella') return null; 
       if (e.type === 'burrowLine' && BURROW[e.step]) {
         
         cooldown = 4;

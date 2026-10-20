@@ -13,9 +13,11 @@
 
 
 
+
 import { contact } from './combat.js';
 import { STEP } from './constants.js';
 import { overlaps, registerKind } from './entities.js';
+import { stepTailMoth } from './tailMoth.js';
 
 const PERCH_RANGE = 4; 
 const TRIGGER_REACH = 12; 
@@ -144,6 +146,7 @@ registerKind('moth', {
     e.trail = makePath(e);
   },
   step(e, ctx) {
+    if (e.tail) return stepTailMoth(e, ctx); 
     const p = ctx.player;
     if (e.state === 'perch') {
       const near = Math.hypot(p.x - e.home.x, p.y - e.home.y) <= PERCH_RANGE;

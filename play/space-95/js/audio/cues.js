@@ -234,6 +234,27 @@ const CUES = {
   stonesBounce: ['stone_clack', 'pebble_hit'],
   reinsSnap: ['crop_crack', 'snip'],
   glitterMarker: ['crop_crack', 'boss_telegraph'],
+  
+  
+  takeoff: ['plane_takeoff', 'windup_boost'],
+  liftoff: ['plane_liftoff', 'whoosh'],
+  loop: ['plane_loop', 'cloud_whoosh'],
+  roll: ['plane_roll', 'cape_swish'],
+  graze: ['wingman_chime', 'sling_chime'],
+  turret: ['turret_pip', 'laser_pew'],
+  scrape: ['plane_scrape', 'dust_scrape'],
+  fluffStick: ['fluff_poff', 'cloud_hush'],
+  softZip: ['cloth_flump', 'silk_rustle'],
+  softBump: ['fur_fwump', 'boing'],
+  aceWake: ['ace_buzz', 'wing_buzz'],
+  aceFire: ['dart_tsew', 'wasp_dive'],
+  aceDown: ['ace_down', 'enemy_defeat_pop'],
+  scramble: ['ace_horn', 'wing_roar'],
+  vReveal: ['ace_horn', 'wing_roar'],
+  squadronDown: ['squadron_down', 'bowl_chime'],
+  touchdown: ['plane_touchdown', 'land_soft'],
+  mothSwoop: ['moth_takeoff'],
+  glasswingScan: ['glass_whistle', 'scan_beep'],
 };
 
 
@@ -272,6 +293,7 @@ export function cueRate(e) {
   if (e.type === 'capsize' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'bowl' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'collapseHit' && e.n > 1) return 2 ** ((2 * Math.min(6, e.n - 1)) / 12); 
+  if (e.type === 'graze' && e.n > 1) return 2 ** ((2 * Math.min(6, e.n - 1)) / 12); 
   return e.type === 'pebbleHit' && e.hits > 1 ? 2 ** ((2 * (e.hits - 1)) / 12) : 1;
 }
 
