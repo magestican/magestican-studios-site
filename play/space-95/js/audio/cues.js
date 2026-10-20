@@ -277,6 +277,8 @@ const SIGNAL_SOUNDS = {
   'audio:harp-twang': ['harp_twang', 'secret_glint'], 
   'audio:nymph-chirp': ['nymph_trill', 'cricket_hum'], 
   'audio:music-box': ['music_box', 'secret_glint'], 
+  'audio:paper-flutter': ['paper_flutter', 'secret_glint'], 
+  'audio:glass-whistle': ['glass_whistle', 'secret_glint'], 
 };
 
 
