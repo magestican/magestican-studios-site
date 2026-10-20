@@ -1,0 +1,270 @@
+genre: city-pop
+style: space95-deep-burrow
+title: The Deep Burrow
+key: G minor
+bpm: 100
+beats: 4
+swing: 0.5
+language: en
+seed: 1396200398
+groove: space95-deep-burrow
+singer: none (instrumental)
+sections:
+- name: intro1
+  role: intro
+  bars: 4
+  energy: 0.3
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Cm7
+  - D7sus4
+  - Bbmaj7
+  - D7
+  melody: C5:2 D5:2 Eb5:2 A4:2 G4:8 G4:2 A4:2 C5:2 G5:2 D5:6 r:2 C#5:2 C5:2 Bb4:4
+    F5:2 C#5:6 C5:2 Bb4:2 A4:2 Eb5:2 D5:6 r:2
+  lyrics: []
+  lineup:
+    lead: bassoon
+    counter: pizzicato
+    comp: marimba
+    bass: contrabass
+- name: verse1
+  role: verse
+  bars: 8
+  energy: 0.45
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Am7b5
+  - D7
+  - Gm7
+  - Eb7
+  - Gm7
+  - Gm7
+  - Cm7
+  - D7
+  melody: A4:2 G4:4 Eb4:2 G4:4 C5:4 C5:2 Bb4:2 F4:2 Eb4:2 F4:6 r:2 F4:2 G4:4 Bb4:2
+    Bb4:4 G4:4 G4:2 G4:2 Bb4:2 Bb4:2 G4:6 r:2 G4:2 F4:2 G4:2 F4:2 G4:8 G4:2 F4:2 G4:2
+    F4:2 F4:6 r:2 Eb4:2 F4:4 A4:2 G4:4 Eb4:4 F4:2 Eb4:2 F4:2 Eb4:2 F4:6 r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: bassoon
+    comp: pizzicato
+    bass: contrabass
+- name: pre1
+  role: pre
+  bars: 4
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Am7b5
+  - Bbmaj7
+  - Cm7
+  - D7
+  melody: C5:6 D5:2 C5:2 G5:2 G5:4 F5:2 G5:2 F5:2 Bb4:2 Ab4:6 r:2 G4:2 F4:2 G4:4 C5:2
+    Bb4:6 A4:2 G4:2 F4:2 C5:2 A4:6 r:2
+  lyrics: []
+  lineup:
+    lead: bassoon
+    counter: clarinet
+    comp: marimba
+    bass: contrabass
+- name: chorus1
+  role: chorus
+  bars: 8
+  energy: 0.8
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Cm7
+  - D7
+  - Bbmaj7
+  - Ebmaj7
+  - Cm7
+  - Bb7
+  - Ebmaj7
+  - Gm
+  melody: C5:2 D5:2 C5:4 C5:2 Bb4:6 C5:2 D5:2 C5:2 D5:2 C5:6 r:2 Bb4:2 Ab4:2 Bb4:4
+    Ab4:2 Bb4:6 Bb4:2 A4:2 Bb4:2 A4:2 Bb4:6 r:2 C5:2 D5:2 C5:4 C5:2 Bb4:6 Bb4:2 Bb4:2
+    Ab4:2 Bb4:2 Ab4:6 r:2 F#4:2 A4:2 F#4:4 F#4:2 A4:6 G4:2 A4:2 G4:2 A4:2 G4:6 r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: cello
+    comp: strings
+    bass: contrabass
+- name: interlude1
+  role: interlude
+  bars: 8
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Ebmaj7
+  - A7
+  - Am7b5
+  - D7
+  - Cm7
+  - Bbmaj7
+  - Am7b5
+  - D7
+  melody: Bb4:4 F#4:4 F#4:2 Bb4:2 F#4:4 G4:2 Bb4:2 C#5:2 Eb5:2 A4:6 r:2 r:2 A4:2 C5:4
+    C5:2 A4:2 C5:4 C5:2 Eb5:2 D5:2 Bb4:2 D5:6 r:2 C5:2 A4:4 Bb4:2 C5:4 G4:4 F4:2 Ab4:2
+    Bb4:2 C#5:2 Ab4:6 r:2 A4:2 F4:2 G4:2 Bb4:2 G4:8 F4:2 A4:2 F4:2 A4:2 D5:6 r:2
+  lyrics: []
+  lineup:
+    lead: marimba
+    counter: bassoon
+    comp: pizzicato
+    bass: contrabass
+- name: verse2
+  role: verse
+  bars: 8
+  energy: 0.5
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Am7b5
+  - D7
+  - Gm7
+  - Eb7
+  - Gm7
+  - Gm7
+  - Cm7
+  - D7
+  melody: A4:2 G4:4 Eb4:2 G4:4 C5:4 C5:2 Bb4:2 F4:2 Eb4:2 F4:3 A4:3 r:2 F4:2 G4:4
+    Bb4:2 Bb4:4 G4:4 G4:2 G4:2 Bb4:2 Bb4:2 G4:3 Bb4:3 r:2 G4:2 F4:2 G4:2 F4:2 G4:8
+    G4:2 F4:2 G4:2 F4:2 F4:3 G4:3 r:2 Eb4:2 F4:4 A4:2 G4:4 Eb4:4 F4:2 Eb4:2 F4:2 Eb4:2
+    F4:3 A4:3 r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: bassoon
+    comp: pizzicato
+    bass: contrabass
+- name: pre2
+  role: pre
+  bars: 4
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Am7b5
+  - Bbmaj7
+  - Cm7
+  - D7
+  melody: C5:6 D5:2 C5:2 G5:2 G5:4 F5:2 G5:2 F5:2 Bb4:2 Ab4:3 Bb4:3 r:2 G4:2 F4:2
+    G4:4 C5:2 Bb4:6 A4:2 G4:2 F4:2 C5:2 A4:3 C5:3 r:2
+  lyrics: []
+  lineup:
+    lead: bassoon
+    counter: clarinet
+    comp: marimba
+    bass: contrabass
+- name: chorus2
+  role: chorus
+  bars: 8
+  energy: 0.85
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Cm7
+  - D7
+  - Bbmaj7
+  - Ebmaj7
+  - Cm7
+  - Bb7
+  - Ebmaj7
+  - Gm
+  melody: C5:2 D5:2 C5:4 C5:2 Bb4:6 C5:2 D5:2 C5:2 D5:2 C5:6 r:2 Bb4:2 Ab4:2 Bb4:4
+    Ab4:2 Bb4:6 Bb4:2 A4:2 Bb4:2 A4:2 Bb4:6 r:2 C5:2 D5:2 C5:4 C5:2 Bb4:6 Bb4:2 Bb4:2
+    Ab4:2 Bb4:2 Ab4:6 r:2 F#4:2 A4:2 F#4:4 F#4:2 A4:6 G4:2 A4:2 G4:2 A4:2 G4:6 r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: cello
+    comp: strings
+    bass: contrabass
+- name: bridge1
+  role: bridge
+  bars: 8
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bbmaj7
+  - Eb7
+  - Am7b5
+  - D7
+  - Ebmaj7
+  - Bb7
+  - Cm7
+  - D7
+  melody: Bb4:4 C#5:2 G4:2 Bb4:4 Ab4:4 G4:2 Bb4:2 Eb5:2 Bb4:2 G4:6 r:2 r:2 G4:2 C5:2
+    F4:2 C5:4 C5:4 C5:2 G4:2 D5:2 G5:2 F5:6 r:2 F#4:2 C5:2 F#5:4 C#5:2 C5:6 Bb4:2
+    D5:2 F4:2 Bb4:2 Ab4:6 r:2 G4:4 C5:2 F4:2 Bb4:4 G4:4 F4:2 Bb4:2 F5:2 C5:2 A4:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: brass
+    counter: cello
+    comp: strings
+    bass: contrabass
+- name: chorus3
+  role: chorus
+  bars: 8
+  energy: 1.0
+  sung: false
+  hook: true
+  transpose: 1
+  chords:
+  - C#m7
+  - Eb7
+  - Bmaj7
+  - Emaj7
+  - C#m7
+  - B7
+  - Emaj7
+  - Abm
+  melody: C#5:2 Eb5:2 C#5:4 C#5:2 B4:6 C#5:2 Eb5:2 C#5:2 Eb5:2 C#5:6 r:2 B4:2 A4:2
+    B4:4 A4:2 B4:6 B4:2 Bb4:2 B4:2 Bb4:2 B4:6 r:2 C#5:2 Eb5:2 C#5:4 C#5:2 B4:6 B4:2
+    B4:2 A4:2 B4:2 A4:6 r:2 G4:2 Bb4:2 G4:4 G4:2 Bb4:6 Ab4:2 Bb4:2 Ab4:2 Bb4:2 Ab4:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: cello
+    comp: strings
+    bass: contrabass
+- name: outro1
+  role: outro
+  bars: 4
+  energy: 0.4
+  sung: false
+  hook: false
+  transpose: 1
+  chords:
+  - Bbm7b5
+  - Eb7
+  - Abm7
+  - Abm
+  melody: C#5:2 B4:2 Ab4:4 C#5:2 Ab4:6 F#4:2 E4:2 Bb4:2 E4:2 Bb4:6 r:2 Ab4:4 F#4:4
+    B4:2 F#4:2 B4:4 Ab4:2 F#4:2 B4:2 F#4:2 Ab4:6 r:2
+  lyrics: []
+  lineup:
+    lead: bassoon
+    counter: clarinet
+    comp: pizzicato
+    bass: contrabass

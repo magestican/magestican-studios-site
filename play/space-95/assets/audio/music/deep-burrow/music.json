@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "deep-burrow",
+      "title": "The Deep Burrow",
+      "files": {
+        "webm": "deep-burrow.webm",
+        "ogg": "deep-burrow.ogg",
+        "m4a": "deep-burrow.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 8294400,
+      "loopSeconds": 172.8,
+      "bpm": 100,
+      "beats": 4,
+      "bars": 72,
+      "key": "G minor",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -4.93,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "deep-burrow.webm",
+          "decoded_samples": 8294400,
+          "corr": 0.9991,
+          "true_peak_db": -4.85,
+          "bytes": 4255759
+        },
+        "ogg": {
+          "file": "deep-burrow.ogg",
+          "decoded_samples": 8294400,
+          "corr": 0.9995,
+          "true_peak_db": -5.08,
+          "bytes": 3964858
+        },
+        "m4a": {
+          "file": "deep-burrow.m4a",
+          "decoded_samples": 8294400,
+          "corr": 0.9998,
+          "true_peak_db": -4.1,
+          "bytes": 5709542
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-deep-burrow, rework of the main theme (minor, transpose 2)",
+        "seed": 770005673,
+        "cover_chord_agree": 0.642,
+        "cover_chroma_corr": 0.973,
+        "render": "D:\\magestican-dj\\renders\\space-95\\deep-burrow",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\deep-burrow\\space-95-bgm-city-pop-2.wav (seed 1453995375, chord_agree 0.622)"
+        ]
+      }
+    }
+  ]
+}

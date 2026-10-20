@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "dogfight",
+      "title": "Dragonfly Dogfight",
+      "files": {
+        "webm": "dogfight.webm",
+        "ogg": "dogfight.ogg",
+        "m4a": "dogfight.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 6283636,
+      "loopSeconds": 130.909083,
+      "bpm": 132,
+      "beats": 4,
+      "bars": 72,
+      "key": "E minor",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.51,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "dogfight.webm",
+          "decoded_samples": 6283636,
+          "corr": 0.9975,
+          "true_peak_db": -5.27,
+          "bytes": 2876419
+        },
+        "ogg": {
+          "file": "dogfight.ogg",
+          "decoded_samples": 6283636,
+          "corr": 0.9982,
+          "true_peak_db": -5.4,
+          "bytes": 2907046
+        },
+        "m4a": {
+          "file": "dogfight.m4a",
+          "decoded_samples": 6283636,
+          "corr": 0.9993,
+          "true_peak_db": -5.5,
+          "bytes": 4373449
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-dogfight, rework of the main theme (minor, transpose -1)",
+        "seed": 1583612445,
+        "cover_chord_agree": 0.479,
+        "cover_chroma_corr": 0.675,
+        "render": "D:\\magestican-dj\\renders\\space-95\\dogfight",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\dogfight\\space-95-bgm-city-pop-2.wav (seed 1100599001, chord_agree 0.451)"
+        ]
+      }
+    }
+  ]
+}
