@@ -25,7 +25,7 @@ import { createShoe, resetShoe, stepShoe } from './shoe.js';
 import { stepSurge } from './surge.js';
 import { createTrain, defaultPoints, defaultSignals, rerailTrain, stepTrain, syncProxy } from './train.js';
 import { checkDunk, DUNK_TIME, fishOut, trackSafe } from './water.js';
-import { attachWebs, createWebs, stepWebs, trackFallSafe } from './web.js';
+import { attachWebs, createWebs, stepDawn, stepWebs, trackFallSafe } from './web.js';
 import { attachWind, stepWind } from './wind.js';
 
 const RESPAWN_DELAY = 0.45; 
@@ -258,6 +258,7 @@ export function stepSession(s, input) {
     stepRafts(s);
     stepPlayer(s.player, s.cleared ? NO_INPUT : input, s.world);
     if (s.webs) stepWebs(s); 
+    if (s.webs) stepDawn(s); 
   }
   const p = s.player;
   if (s.fans) stepFans(s); 
@@ -407,6 +408,7 @@ function respawn(s) {
       
       s.webs = createWebs(s.level);
       s.snares = [];
+      s.dawn = false;
     }
     s.events.push({ type: 'gameOver' });
   }

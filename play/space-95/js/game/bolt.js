@@ -61,6 +61,7 @@ const LINES = {
   snare: ['Sticky! Mash jump - wriggle out!'],
   pluck: ["She's playing the web. Land as it comes UP."],
   snag: ['Got you! Paperclip. Never fails.'],
+  dawn: ["Is that... the sun? We're on overtime."],
 };
 
 
@@ -81,6 +82,7 @@ const TEACH = new Set([
   'snare',
   'pluck',
   'snag',
+  'dawn',
 ]);
 
 

@@ -128,6 +128,17 @@ export function attachWebs(world, level) {
 }
 
 
+
+
+
+export function stepDawn(s) {
+  const p = s.player;
+  if (s.dawn || s.level.dawnY === undefined || !p.grounded || p.y < s.level.dawnY - 0.01) return;
+  s.dawn = true;
+  s.events.push({ type: 'dawn', x: p.x, y: p.y });
+}
+
+
 export function trackFallSafe(s) {
   const p = s.player;
   if (!p.grounded) return;

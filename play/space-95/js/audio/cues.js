@@ -203,6 +203,7 @@ const CUES = {
   goldClimb: ['gold_aunt_climb', 'secret_glint'],
   snag: ['bolt_snag', 'tether_hup'],
   silkRustle: ['silk_rustle', 'ivy_rustle'],
+  dawn: ['dawn_chorus'],
 };
 
 

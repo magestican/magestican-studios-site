@@ -249,6 +249,7 @@ export function buildL15() {
   const level = L.build();
   level.waypoints = route(ids);
   level.slingTags = ids;
+  level.dawnY = Y(198.5); 
   
   
   
