@@ -1,7 +1,7 @@
 
 
 import { createAudio } from './audio/audio.js';
-import { createFootsteps, createLadder, cueFor, cueRate, signalSounds } from './audio/cues.js';
+import { createFootsteps, createGallop, createLadder, cueFor, cueRate, signalSounds } from './audio/cues.js';
 import { SFX } from './audio/sfxManifest.js';
 import { levelMusic as musicOf, SURFACE, shiftSounds } from './audio/shiftSounds.js';
 import { readCheats } from './cheats.js';
@@ -113,6 +113,7 @@ const audio = createAudio(undefined, {
   after: Promise.all([joSpriteLoaded, preloadCritterSprites(level.entities ?? [])]),
 });
 const footsteps = createFootsteps(SURFACE[level.id] ?? 'dirt');
+const gallop = level.ride ? createGallop() : null; 
 const ladder = createLadder();
 const boltVoice = createBoltVoice();
 const boltEl = document.getElementById('bolt');
@@ -267,6 +268,8 @@ function frame(now) {
   if (steps === MAX_STEPS) acc = 0;
   const step = session.dead > 0 || train ? null : footsteps.update(session.player, dt * cheats.slow);
   if (step && step in SFX) audio.play(step, { volume: 0.8 });
+  const paws = gallop?.update(session.dead === 0 && !session.cleared, dt * cheats.slow);
+  if (paws && paws in SFX) audio.play(paws, { volume: 0.7 });
   if (boltHide > 0) boltHide -= dt;
   if (boltHide <= 0 && !boltEl.hidden) {
     boltEl.hidden = true;

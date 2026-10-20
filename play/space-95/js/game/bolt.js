@@ -118,6 +118,15 @@ const KITCHEN = [
 ];
 
 
+const RIDE = [
+  "Cell's cold. Ride's here. ...HOLD ON.", 
+  "She's heading for the GARDEN. The ship's on the windowsill - outside!", 
+  "Cat flap! Stay LOW - don't jump, don't jump!", 
+  'Wasps. With HER crest. ...Mandibella knows we are coming.', 
+  'The sill! Here comes the big one - ride it UP, Jo!', 
+];
+
+
 const TEACH = new Set([
   'noPoints',
   'pointsThrow',
@@ -191,6 +200,11 @@ export function createBoltVoice() {
         
         cooldown = 4;
         return { text: KITCHEN[e.step], beep: 'bolt_beep_happy', mood: 'happy' };
+      }
+      if (e.type === 'rideLine' && RIDE[e.step]) {
+        
+        cooldown = 4;
+        return { text: RIDE[e.step], beep: 'bolt_beep_happy', mood: e.step === 2 || e.step === 3 ? 'worried' : 'happy' };
       }
       if (e.type === 'capBounce' && !used.capBounce) {
         used.capBounce = 1; 

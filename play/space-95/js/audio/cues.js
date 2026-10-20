@@ -270,6 +270,10 @@ const CUES = {
   timerDing: ['egg_timer_ding', 'secret_glint'],
   rescueOffer: ['rescue_call', 'scan_beep'],
   rescued: ['rescue_zip', 'whoosh'],
+  
+  
+  maneWave: ['mane_whoosh', 'whoosh'],
+  maneSurf: ['mane_surf', 'web_boing', 'whoosh'],
 };
 
 
@@ -297,6 +301,9 @@ const SIGNAL_SOUNDS = {
   'audio:drip-echo': ['drip_echo', 'secret_glint'], 
   'audio:sugar-crunch': ['sugar_crunch', 'secret_glint'], 
   'audio:timer-tick': ['egg_timer_tick', 'watch_tick'], 
+  'audio:toy-squeak': ['toy_squeak', 'secret_glint'], 
+  'audio:comet-whine': ['comet_whine', 'wing_buzz', 'secret_glint'], 
+  'audio:bell-jingle': ['bell_jingle', 'secret_glint'], 
 };
 
 
@@ -366,6 +373,12 @@ export function cueFor(e, has = () => true) {
   
   if (e.type === 'thawWarn') return pick(e.heat ? ['thaw_hiss', 'whoosh'] : ['thaw_drip', 'enemy_daze']);
   if (e.type === 'telegraph' && e.attack === 'charge' && String(e.id).includes('weevil')) return pick(['weevil_snort', 'pillbug_alert']);
+  
+  
+  if (e.type === 'bonk' && e.soft) return pick(['bonk']); 
+  if (e.type === 'bonk' && e.skin) return pick(e.skin === 'flap' ? ['catflap_clack', 'bonk'] : ['lintel_thunk', 'bonk']);
+  if (e.type === 'maneSurf' && e.use === 'M5') return pick(['ruuma_leap', 'mane_surf', 'whoosh']);
+  if (e.type === 'rideLine' && e.step === 0) return pick(['ruuma_growl']);
   return CUES[e.type]?.find(has) ?? null;
 }
 
@@ -380,7 +393,32 @@ export const CUE_VARIANTS = {
   defeat: ['enemy_bonked'],
   thawWarn: ['thaw_hiss', 'thaw_drip'],
   telegraph: ['weevil_snort'],
+  bonk: ['lintel_thunk', 'catflap_clack'],
+  maneSurf: ['ruuma_leap'],
+  rideLine: ['ruuma_growl'],
 };
+
+
+
+
+
+const GALLOP_PERIOD = (2 * 60) / 152; 
+export function createGallop(period = GALLOP_PERIOD) {
+  let t = 0;
+  return {
+    
+    update(running, dt) {
+      if (!running) {
+        t = 0;
+        return null;
+      }
+      t += dt;
+      if (t < period) return null;
+      t -= period;
+      return 'ruuma_paws';
+    },
+  };
+}
 
 
 export function createFootsteps(surface = 'dirt') {

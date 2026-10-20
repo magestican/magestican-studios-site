@@ -53,7 +53,7 @@ const SHIFTS = {
 
 
 
-export const UNRENDERED = new Set( ([19])); 
+export const UNRENDERED = new Set( ([])); 
 
 
 export function loadLevel(key) {

@@ -30,6 +30,22 @@ export function buildL19() {
   const lintel = (x, skin = 'lintel') => L.putAt('obstacle', x, DECK + 1.4, { w: 1.6, h: 1.6, skin });
   const tall = (x, skin = 'pot') => L.putAt('obstacle', x, DECK, { w: 2.0, h: 4.0, skin });
   const wave = (x, use) => L.putAt('maneWave', x, DECK, { motif: 'mane', use });
+  
+  
+  const surfSeeds = (x) => {
+    for (const [dx, dy] of [
+      [0, 3.5],
+      [3, 5.5],
+      [6, 6.5],
+      [9, 5.5],
+      [12, 3.5],
+    ])
+      L.putAt('seed', x + dx, DECK + dy);
+  };
+  const seeds = (...pts) => {
+    for (const [x, y] of pts) L.putAt('seed', x, y);
+  };
+  const soft = (x, skin, y = DECK, h = 1.0) => L.putAt('obstacle', x, y, { w: 1.2, h, skin, soft: true });
   const line = (step, x0, x1) =>
     L.putAt('cameo', (x0 + x1) / 2, DECK, { event: 'rideLine', step, zone: { x0, x1, y0: DECK - 1, y1: DECK + 9 } });
 
@@ -54,15 +70,17 @@ export function buildL19() {
   line(0, 8, 30);
 
   
-  hurdle(50, 'crumb');
-  hurdle(70, 'crumb');
+  soft(50, 'crumb');
+  soft(70, 'crumb');
   L.landmarkAt('The kitchen', 40, 14, 'back');
   
-  lintel(110, 'door');
+  soft(110, 'beads', DECK + 1.4, 1.6); 
   hurdle(150, 'rug');
   wave(190, 'M1');
+  surfSeeds(190);
   tall(198, 'stool');
-  L.putAt('intel', 203, 12.4, {
+  L.putAt('intel', 198, 12.9, {
+    
     secret: 'cache',
     name: "The kid's toy astronaut",
     signals: ['visual:gold-glint', 'audio:toy-squeak'],
@@ -74,16 +92,21 @@ export function buildL19() {
   L.landmarkAt('The hallway', 200, 16, 'back');
   
   for (const x of [340, 346, 352, 358, 364]) lintel(x, 'flap');
-  line(2, 320, 336);
+  line(2, 296, 312); 
   L.landmarkAt('The cat flap', 352, 12, 'mid');
   
   L.beaconAt(430, DECK);
   
+  hurdle(460, 'chair');
+  lintel(490, 'chair'); 
   wave(512, 'M2');
+  surfSeeds(512);
   tall(520, 'pot');
   hurdle(600, 'chair');
   hurdle(640, 'chair');
   L.putAt('obstacle', 700, DECK, { w: 2.0, h: 3.5, skin: 'pot' }); 
+  seeds([730, 8.5], [750, 8.5]); 
+  hurdle(770, 'chair');
   L.landmarkAt('The patio', 600, 14, 'back');
   
   L.beaconAt(800, DECK);
@@ -92,9 +115,11 @@ export function buildL19() {
     [840, 15],
     [870, 16],
     [960, 15],
+    [1025, 15], 
   ])
     L.putAt('wasp', x, y, { wake: 14, wakeY: 14 });
   wave(900, 'M3');
+  surfSeeds(900);
   tall(908, 'sprinkler');
   L.putAt('perchBug', 911, 12.3, {
     specimen: true,
@@ -104,6 +129,7 @@ export function buildL19() {
   });
   hurdle(1000, 'gnome');
   hurdle(1050, 'gnome');
+  seeds([1055, 8.5], [1060, 8.5], [1065, 8.5], [1070, 8.5], [1075, 8.5]); 
   line(3, 790, 810);
   L.landmarkAt('The lawn', 950, 14, 'back');
   
@@ -111,17 +137,24 @@ export function buildL19() {
   
   for (const x of [1150, 1200, 1250]) lintel(x, 'sheet');
   wave(1300, 'M4');
+  surfSeeds(1300);
   tall(1308, 'pole');
   wave(1340, 'M4');
+  surfSeeds(1340);
   tall(1348, 'pole');
   L.landmarkAt('The washing line', 1250, 16, 'back');
   
-  L.beaconAt(1400, DECK);
+  lintel(1378, 'peg'); 
+  hurdle(1406, 'peg');
+  L.beaconAt(1425, DECK);
   
+  hurdle(1500, 'flowers');
   hurdle(1520, 'flowers');
   hurdle(1560, 'flowers');
   wave(1600, 'M5');
-  L.putAt('intel', 1690, 30.25, {
+  seeds([1605, 14], [1613, 18], [1621, 22], [1629, 26], [1637, 29], [1645, 31]); 
+  L.putAt('intel', 1690, 31.3, {
+    
     secret: 'deed',
     alive: false,
     condition: { noHurtFrom: 1100, at: 1650 },
@@ -129,7 +162,7 @@ export function buildL19() {
     signals: ['visual:gold-glint', 'audio:bell-jingle'],
     seenFrom: 'the sill: it drops there if no hurt since CK3',
   });
-  line(4, 1590, 1610);
+  line(4, 1525, 1545); 
   L.landmarkAt('The windowsill', 1700, 36, 'mid');
   L.putAt('finish', 1712, 30, { name: 'The windowsill' });
   return L.build();

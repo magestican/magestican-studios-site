@@ -12,16 +12,18 @@ import { sparkState } from '../sim/pins.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
 import { burrowEntityView, createBurrow } from './burrowView.js';
-import { createCameraRig, updateCameraRig } from './cameraRig.js';
+import { createCameraRig, rideLead, updateCameraRig } from './cameraRig.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
 import { createKitchen, kitchenEntityView } from './kitchenView.js';
 import { createNight, nightEntityView } from './nightView.js';
+import { createRide, rideEntityView } from './rideView.js';
 import { createSilk, silkEntityView } from './silkView.js';
 import { createSky, skyEntityView } from './skyView.js';
 import { createTrainView } from './trainView.js';
 
 const CAM_DIST = 20;
+const PORTRAIT_RIDE_PULL = 1.25;
 const TILE_DEPTH = 2.4;
 
 
@@ -110,6 +112,8 @@ export function createView(canvas, level, labels) {
   
   const kitchen = createKitchen(scene, level, { views: entityViews, spark: (...a) => spark(...a) });
   
+  const ride = createRide(scene, level, { views: entityViews });
+  
   const sky = createSky(scene, level, { jo, bolt, views: entityViews, spark: (...a) => spark(...a), kick: (a) => kick(a) });
 
   const rig = createCameraRig(0, 0);
@@ -132,12 +136,19 @@ export function createView(canvas, level, labels) {
     fx.push({ m, t: 0, life });
   };
 
+  let viewHalfW = 11;
+  let viewAspect = 16 / 9;
+  
+  
+  const camDist = () => (level.camDist ?? CAM_DIST) * (level.ride && viewAspect < 1 ? PORTRAIT_RIDE_PULL : 1);
   function resize() {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
     renderer.setSize(w, h, false);
     const aspect = w / Math.max(1, h);
     const visibleH = Math.max(12.4, 14 / aspect); 
+    viewHalfW = (visibleH * aspect) / 2; 
+    viewAspect = aspect;
     camera.aspect = aspect;
     camera.fov = (2 * Math.atan(visibleH / 2 / CAM_DIST) * 180) / Math.PI;
     camera.updateProjectionMatrix();
@@ -176,6 +187,7 @@ export function createView(canvas, level, labels) {
           descent: !!level.descent,
           webLaunch: !!p.webLaunch,
           drilling: p.drilling ?? null,
+          rideLead: level.ride ? rideLead((viewHalfW * camDist()) / CAM_DIST) : null,
         },
         dt,
         RUN_SPEED,
@@ -194,7 +206,7 @@ export function createView(canvas, level, labels) {
       shake *= Math.exp(-dt * 18);
       const sx0 = Math.sin(session.time * 91) * shake;
       const sy0 = Math.cos(session.time * 73) * shake;
-      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, (level.camDist ?? CAM_DIST) * (1 + 0.45 * frameK)); 
+      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, camDist() * (1 + 0.45 * frameK)); 
       camera.lookAt(camX + sx0, rig.y + hintDy + 0.6 + sy0, 0);
 
       squash *= Math.exp(-dt * 14);
@@ -242,6 +254,7 @@ export function createView(canvas, level, labels) {
       silk?.update(session, dt, camera);
       burrow?.update(session, dt);
       kitchen?.update(session, dt);
+      ride?.update(session);
       sky?.update(session, dt);
       for (let i = teles.length - 1; i >= 0; i--) {
         const T = teles[i];
@@ -384,7 +397,14 @@ export function entityView(e) {
   const g = new THREE.Group();
   const mat = (color) => new THREE.MeshLambertMaterial({ color });
   
-  if (nightEntityView(e, g) || silkEntityView(e, g) || burrowEntityView(e, g) || kitchenEntityView(e, g) || skyEntityView(e, g)) {
+  if (
+    nightEntityView(e, g) ||
+    silkEntityView(e, g) ||
+    burrowEntityView(e, g) ||
+    kitchenEntityView(e, g) ||
+    rideEntityView(e, g) ||
+    skyEntityView(e, g)
+  ) {
     
   } else if (e.kind === 'pebble') {
     const m = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat(0xb8b1a6));
@@ -1144,6 +1164,7 @@ function seaMeshes() {
       const list = session.rafts?.list ?? [];
       const seen = new Set();
       for (const r of list) {
+        if (session.level.ride && r.lane === session.level.ride) continue; 
         seen.add(r.id);
         let v = rafts.get(r.id);
         if (!v) {

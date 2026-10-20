@@ -37,6 +37,7 @@ export const SURFACE = {
   14: 'grass_blade', 
   15: 'silk', 
   16: 'dirt', 
+  19: 'fur', 
 }; 
 
 
@@ -59,6 +60,7 @@ const MUSIC = {
   16: 'deep-burrow',
   17: 'dogfight', 
   18: 'kitchen', 
+  19: 'stampede', 
 };
 
 
@@ -99,6 +101,7 @@ const delivered = ( n) => n in SFX;
 
 function variantFits( type,  level) {
   if (type === 'fling') return (level.webs?.length ?? 0) > 0;
+  if (type === 'bonk' || type === 'maneSurf' || type === 'rideLine') return !!level.ride; 
   if (type === 'ability' || type === 'defeat') return (level.entities ?? []).some((e) => e.kind === 'tower' || e.grant === 'drill');
   return true;
 }
@@ -117,6 +120,7 @@ export function shiftSounds(level) {
     if (n) names.add(n);
     for (const v of CUE_VARIANTS[type] ?? []) if (variantFits(type, level)) names.add(v);
   }
+  if (level.ride) names.add('ruuma_paws'); 
   for (const e of level.entities ?? []) if (e.signals) for (const n of signalSounds(e, delivered)) names.add(n);
   return [...names].filter(delivered).sort();
 }

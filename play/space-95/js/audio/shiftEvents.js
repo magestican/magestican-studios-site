@@ -652,6 +652,8 @@ export const SHIFT_EVENTS = {
     'packetBoard',
     'raftLand',
     'rideLine',
+    'secret',
+    'seed',
     'signal',
     'skid',
     'telegraph',

@@ -26,6 +26,16 @@ const WEB_LEAD_SPEED = 12;
 
 
 
+
+
+
+
+
+const RIDE_LEAD_SHARE = 0.6;
+
+
+export const rideLead = (halfW) => halfW * RIDE_LEAD_SHARE;
+
 export function createCameraRig(x, y) {
   return { x, y, focusY: y, ahead: 0, fallLook: 0, upLook: 0, wallT: 0 };
 }
@@ -41,7 +51,10 @@ export function updateCameraRig(cam, target, dt, runSpeed) {
   const vx = target.vx + (target.carryVx ?? 0);
   const boreSide = target.drilling === 'side';
   const speedFrac = boreSide ? 1 : Math.min(1, Math.abs(vx) / runSpeed);
-  const wantAhead = (boreSide ? Math.sign(target.facing) : Math.sign(vx || target.facing)) * LOOK_AHEAD * speedFrac;
+  const wantAhead =
+    target.rideLead != null
+      ? target.rideLead
+      : (boreSide ? Math.sign(target.facing) : Math.sign(vx || target.facing)) * LOOK_AHEAD * speedFrac;
   cam.ahead += (wantAhead - cam.ahead) * k(LOOK_AHEAD_RATE);
   cam.x = target.x + cam.ahead;
 

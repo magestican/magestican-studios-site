@@ -150,6 +150,7 @@
 
 body.is-title .hud,
 body.is-title .pause-btn,
-body.is-title .bolt-say {
+body.is-title .bolt-say,
+body.is-title .touch {
   visibility: hidden;
 }

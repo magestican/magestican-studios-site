@@ -131,7 +131,16 @@ registerKind('obstacle', {
   },
   step(e, ctx) {
     const p = ctx.player;
-    if (!overlaps(p, e)) return;
+    if (!overlaps(p, e)) {
+      e.touched = false;
+      return;
+    }
+    
+    if (e.soft) {
+      if (!e.touched) ctx.events.push({ type: 'bonk', id: e.id, skin: e.skin ?? 'crumb', soft: true, x: p.x, y: p.y });
+      e.touched = true;
+      return;
+    }
     if (hurtPlayer(ctx.session, p.x + 2)) ctx.events.push({ type: 'bonk', id: e.id, skin: e.skin ?? 'lintel', x: p.x, y: p.y });
   },
 });
