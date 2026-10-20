@@ -19,6 +19,10 @@
 
 
 
+
+
+
+
 import { contact, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { registerBossType, weakTo } from './boss.js';
@@ -26,6 +30,8 @@ import { registerBossType, weakTo } from './boss.js';
 const CHARGE = 11; 
 const SWOOP = 14; 
 const REACH = 2.5; 
+const SINK = 6; 
+const COLLAPSE_RECENT = 0.05; 
 const SOVEREIGN = Object.freeze({ FALLBACK: 12, WINDOW: 2.5 });
 
 registerBossType('sovereign', {
@@ -72,6 +78,14 @@ registerBossType('sovereign', {
       e.sinceHit = 0;
       e.interrupt = { recoverFor: SOVEREIGN.WINDOW, weakNow: true };
       ctx.events.push({ type: 'sovereignOpen', id: e.id, seconds: SOVEREIGN.WINDOW });
+      return;
+    }
+    
+    
+    const ph = e.phases[e.phase];
+    if (ph.windowY !== undefined && stage === 'recover' && e.weakNow === true) {
+      e.y += (ph.windowY - e.y) * Math.min(1, SINK * STEP);
+      e.lock = null; 
       return;
     }
     if (atk.kind === 'charge') {
@@ -139,6 +153,34 @@ function landing(e, ctx, ph) {
   if (cb) {
     e.sinceHit = 0;
     return 'callback';
+  }
+  
+  
+  
+  const col = e.collapseAt;
+  e.collapseAt = null;
+  if (col && cbs.includes('collapseHit') && ctx.session.time - col.t <= COLLAPSE_RECENT + 1e-9) {
+    ctx.events.push({ type: 'collapseHit', id: col.id, tag: col.tag, target: e.id, kind: 'boss', use: col.use ?? null, chain: col.chain });
+    e.sinceHit = 0;
+    return 'callback';
+  }
+  
+  
+  
+  if (cbs.includes('heaveLaunch')) {
+    const p = ctx.player;
+    if (p.events.some((ev) => ev.type === 'heaveLaunch')) e.heaveRide = true;
+    else if (p.grounded) e.heaveRide = false;
+    if (e.heaveRide && contact(p, e) === 'stomp') {
+      stompBounce(p);
+      
+      
+      
+      if (e.immune > 0) return null;
+      e.heaveRide = false;
+      e.sinceHit = 0;
+      return 'callback';
+    }
   }
   
   if (cbs.includes('flockBurst'))

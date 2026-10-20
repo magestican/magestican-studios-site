@@ -104,8 +104,12 @@ registerKind('finish', {
     const down = ctx.session.level.descent;
     const t = ctx.session?.train; 
     const pl = ctx.session?.plane; 
+    
+    
     const reached = pl
-      ? pl.landed
+      ? e.flyPast
+        ? pl.stage === 'fly' && p.x >= e.x
+        : pl.landed
       : t
         ? t.rail === e.rail && t.s >= e.s
         : e.axis === 'y'

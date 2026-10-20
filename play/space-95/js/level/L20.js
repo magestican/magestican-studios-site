@@ -48,6 +48,28 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { levelBuilder } from './dsl.js';
 
 const KIT = [
@@ -65,6 +87,31 @@ const BOSS = 'L20-boss-1';
 const AWNING = 94; 
 const CROWN_POST = { x: 164, y: AWNING + 2.5 }; 
 const TRAIN = 'L20-train';
+
+const BOWL = 32; 
+const RAFT_X = 186.5; 
+const BOX_E = 196; 
+const BOX_TOP = 35;
+const TOWER_X = 205.5; 
+const FLANK = [206, 210]; 
+const FLANK_PHASE = 0.15;
+const HULL_X = 217.5; 
+const HULL_TOP = 37;
+const BLOCK_U = 1.5; 
+
+const STAIR = [
+  [213.25, SILL],
+  [214.75, SILL],
+  [214.75, SILL + 1.5],
+  [216.25, SILL],
+  [216.25, SILL + 1.5],
+  [216.25, SILL + 3],
+];
+const DEED = 'L20-intel-2';
+
+
+const P3_INTRO = 4.9;
+const P3_POST = { x: 193, y: SILL + 7 }; 
 const CB = (use) => ({ motif: 'callback', use });
 const atk = (name, kind, telegraph, active, recover) => ({ name, kind, telegraph, active, recover });
 
@@ -98,7 +145,26 @@ const ROUTE = [
   
   { x: 169.5, y: AWNING, move: 'jump', via: { double: true }, bud: 'L20-bud-1' },
   
-  { x: 190, y: SILL, move: 'walk', maxS: 12 },
+  
+  { x: RAFT_X, y: BOWL + 0.5, move: 'walk', maxS: 12 },
+  
+  { x: 190, y: BOX_TOP, move: 'jump' },
+  { x: BOX_E - 1.5, y: BOX_TOP, move: 'walk' },
+  { x: BOX_E - 1.5, y: BOX_TOP, move: 'pound', via: { defeat: 'L20-wasp-8' } },
+  
+  { x: TOWER_X, y: SILL, move: 'pound' },
+  
+  
+  { x: 207.5, y: SILL + 0.75, move: 'walk' },
+  { x: 200.5, y: SILL + 0.5, move: 'jump', at: 207.5, via: { double: true, defeat: BOSS }, maxS: 10 },
+  
+  { x: 212.5, y: SILL, move: 'walk' },
+  { x: STAIR[0][0], y: SILL + BLOCK_U, move: 'jump' },
+  { x: STAIR[1][0], y: SILL + 2 * BLOCK_U, move: 'jump' },
+  { x: STAIR[3][0], y: SILL + 3 * BLOCK_U, move: 'jump' },
+  { x: HULL_X + 2, y: HULL_TOP, move: 'jump', via: { double: true } },
+  
+  { x: 222.5, y: HULL_TOP, move: 'surf' },
 ];
 
 export function buildL20() {
@@ -197,10 +263,27 @@ export function buildL20() {
         callbacks: ['flockBurst'],
         attacks: [atk('Cadet Dive', 'hover', 0.9, 0.5, 0.8)],
       },
+      {
+        
+        
+        
+        name: 'P3',
+        hp: 2,
+        intro: P3_INTRO,
+        post: P3_POST,
+        arena: { x0: 174, x1: 224, y0: 28, y1: 60 },
+        weakness: ['callback', 'stomp'],
+        callbacks: ['collapseHit', 'heaveLaunch'],
+        windowY: SILL + 1, 
+        deed: DEED,
+        attacks: [atk('Cadet Volley', 'hover', 0.8, 0.5, 0.8), atk('Crown Swoop', 'swoop', 1.0, 0.7, 1.0)],
+      },
     ],
   });
   L.beaconAt(151, SILL, { phase: `${BOSS}:1` }); 
   climb(L);
+  L.beaconAt(176, SILL, { phase: `${BOSS}:2` }); 
+  arena(L);
 
   const level = L.build();
   level.waypoints = ROUTE;
@@ -279,5 +362,83 @@ function climb(L) {
     [186, 33],
   ])
     L.putAt('seed', x, y);
-  L.putAt('finish', 190, SILL, { alive: false, bossGate: BOSS, name: 'TEMPORARY end of the P2 greybox' });
+}
+
+
+
+
+
+function arena(L) {
+  
+  
+  L.wall(178, 179, SILL, BOWL + 1).wall(188, 189, SILL, BOWL + 1); 
+  L.water(179, 188, BOWL);
+  L.putAt('raft', RAFT_X, BOWL + 0.5, { mode: 'pad', w: 2.5 });
+  for (const x of [180.5, 182.5, 184.5]) L.putAt('skiff', x, BOWL, { w: 1.5, skin: 'petal', dozing: true, anchored: true, ...CB('B12') });
+
+  
+  
+  L.wall(189, BOX_E, SILL, BOX_TOP); 
+  L.soil(BOX_E, BOX_E + 2, BOX_TOP - 1, BOX_TOP);
+  for (const [x, y] of [
+    [BOX_E + 0.5, BOX_TOP],
+    [BOX_E + 1.5, BOX_TOP],
+    [BOX_E + 0.5, BOX_TOP + 1],
+    [BOX_E + 1.5, BOX_TOP + 1],
+  ])
+    L.putAt('clod', x, y, { foes: ['wasp'], ...CB('B13') });
+  for (const [x, y] of [
+    [BOX_E + 0.5, SILL + 0.5],
+    [BOX_E + 1.5, SILL + 0.5],
+    [BOX_E + 0.5, SILL + 2],
+    [BOX_E + 1.5, SILL + 2],
+  ])
+    L.putAt('wasp', x, y, { wake: -1, ...CB('B13') }); 
+
+  
+  
+  L.tower(TOWER_X, SILL + 1, 6, { id: 'PT', lean: -1, foot: [TOWER_X - 0.5, TOWER_X + 0.5, SILL, SILL + 1], ...CB('B14') });
+
+  
+  
+  L.heaveAt(FLANK[0], FLANK[1], SILL, 1.5, FLANK_PHASE, { period: 1.5, taper: [1, 1], ...CB('B15') });
+  L.putAt('intel', STAIR[0][0], STAIR[0][1] + BLOCK_U + 0.3, {
+    id: DEED,
+    alive: false,
+    secret: 'deed',
+    name: "Mandibella's royal decree",
+    condition: { noDamageInPhase: 2 },
+    signals: ['visual:gold-glint', 'audio:paper-flutter'],
+    seenFrom: 'P3: she drops it at hit 2 if no heart was lost; it lands on the first ice stair',
+  });
+
+  
+  
+  
+  L.wall(HULL_X, 226, SILL, HULL_TOP);
+  L.cold(STAIR[5][0] - 0.75, STAIR[5][0] + 0.75, STAIR[5][1], STAIR[5][1] + BLOCK_U); 
+  L.putAt('freezeButton', 212, SILL, {
+    openAt: 207, 
+    seconds: 2,
+    zone: { x0: 211, x1: 219, y0: 37.5, y1: 42 },
+    slots: STAIR,
+    ...CB('B16'),
+  });
+  for (const [x, y] of [
+    [212, 38.5],
+    [213.5, 39.5],
+    [215, 38.5],
+    [216.5, 39.5],
+    [218, 38.5],
+    [214.25, 40.8],
+  ])
+    L.putAt('wasp', x, y, { wake: -1, ...CB('B16') });
+  L.putAt('hatch', HULL_X + 2, HULL_TOP, { box: 3, name: "The ship's fuel hatch" });
+
+  
+  
+  
+  L.putAt('board', 222.5, HULL_TOP, { surf: true, needBoxes: 3, name: 'The ship' });
+  L.putAt('finish', 236, HULL_TOP + 3, { flyPast: true, name: 'TEMPORARY end of the P3 greybox (P4 not built)' });
+  L.wall(258, 260, 0, 1); 
 }

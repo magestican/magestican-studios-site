@@ -7,6 +7,8 @@
 
 
 
+
+
 import { sweepY } from '../body.js';
 import { defeat } from '../combat.js';
 import { STEP } from '../constants.js';
@@ -113,7 +115,14 @@ registerKind('clod', {
     const my = sweepY(w, e, e.vy * STEP);
     e.y = my.y;
     for (const en of ctx.session.entities) {
-      if (!en.alive || !FOES.has(en.kind) || en.state === 'dazed' || en.state === 'scurry' || !overlaps(e, en)) continue;
+      if (
+        !en.alive ||
+        !(FOES.has(en.kind) || e.foes?.includes(en.kind)) ||
+        en.state === 'dazed' ||
+        en.state === 'scurry' ||
+        !overlaps(e, en)
+      )
+        continue;
       defeat(en, ctx, 'cave-in');
       e.buried += 1;
       ctx.events.push({ type: 'buried', id: e.id, target: en.id, x: en.x, y: en.y });
