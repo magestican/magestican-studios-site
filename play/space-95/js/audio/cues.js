@@ -255,6 +255,21 @@ const CUES = {
   touchdown: ['plane_touchdown', 'land_soft'],
   mothSwoop: ['moth_takeoff'],
   glasswingScan: ['glass_whistle', 'scan_beep'],
+  
+  freeze: ['freeze_tink', 'secret_glint'],
+  blockLand: ['ice_clonk', 'land_soft'],
+  thaw: ['thaw_drip', 'enemy_daze'],
+  hobWarn: ['hob_sizzle', 'boss_telegraph'],
+  hobLit: ['hob_whoomph', 'whoosh'],
+  burn: ['burn_tss', 'hurt'],
+  weevilCharge: ['weevil_charge', 'pillbug_alert'],
+  capBounce: ['cap_tonk', 'helmet_bonk', 'bonk'],
+  fastFreeze: ['fast_freeze', 'bowl_chime'],
+  gateOpen: ['freezer_drawer', 'bowl_chime'],
+  timerTick: ['egg_timer_tick', 'watch_tick'],
+  timerDing: ['egg_timer_ding', 'secret_glint'],
+  rescueOffer: ['rescue_call', 'scan_beep'],
+  rescued: ['rescue_zip', 'whoosh'],
 };
 
 
@@ -279,6 +294,9 @@ const SIGNAL_SOUNDS = {
   'audio:music-box': ['music_box', 'secret_glint'], 
   'audio:paper-flutter': ['paper_flutter', 'secret_glint'], 
   'audio:glass-whistle': ['glass_whistle', 'secret_glint'], 
+  'audio:drip-echo': ['drip_echo', 'secret_glint'], 
+  'audio:sugar-crunch': ['sugar_crunch', 'secret_glint'], 
+  'audio:timer-tick': ['egg_timer_tick', 'watch_tick'], 
 };
 
 
@@ -296,6 +314,7 @@ export function cueRate(e) {
   if (e.type === 'bowl' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'collapseHit' && e.n > 1) return 2 ** ((2 * Math.min(6, e.n - 1)) / 12); 
   if (e.type === 'graze' && e.n > 1) return 2 ** ((2 * Math.min(6, e.n - 1)) / 12); 
+  if (e.type === 'freeze' && e.n > 1) return 2 ** ((2 * Math.min(6, e.n - 1)) / 12); 
   return e.type === 'pebbleHit' && e.hits > 1 ? 2 ** ((2 * (e.hits - 1)) / 12) : 1;
 }
 
@@ -344,6 +363,9 @@ export function cueFor(e, has = () => true) {
   }
   if (e.type === 'ability' && e.grant === 'drill') return pick(['screw_fit', 'ability_get']);
   if (e.type === 'defeat' && e.how === 'collapse') return pick(['enemy_bonked', 'enemy_defeat_pop']);
+  
+  if (e.type === 'thawWarn') return pick(e.heat ? ['thaw_hiss', 'whoosh'] : ['thaw_drip', 'enemy_daze']);
+  if (e.type === 'telegraph' && e.attack === 'charge' && String(e.id).includes('weevil')) return pick(['weevil_snort', 'pillbug_alert']);
   return CUES[e.type]?.find(has) ?? null;
 }
 
@@ -356,6 +378,8 @@ export const CUE_VARIANTS = {
   drillBore: ['drill_bore'],
   ability: ['screw_fit'],
   defeat: ['enemy_bonked'],
+  thawWarn: ['thaw_hiss', 'thaw_drip'],
+  telegraph: ['weevil_snort'],
 };
 
 
