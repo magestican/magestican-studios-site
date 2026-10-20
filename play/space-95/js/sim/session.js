@@ -15,17 +15,20 @@ import { spawnEntities, stepEntities } from './entities.js';
 import { attachFans, createFans, stepFans } from './fan.js';
 import { attachHeaves, stepHeaves } from './heave.js';
 import { createLight, stepLight } from './light.js';
+import { stepChill } from './motifs/chill.js';
 import { createFlock, stepFlock } from './motifs/flock.js';
 import { stepWingman } from './motifs/wingman.js';
 import { touchPins } from './pins.js';
 import { respawnPlane, startPlane, stepPlane } from './plane.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
 import { attachRafts, createRafts, stepRafts } from './raft.js';
+import { offerRescue, stepRescue } from './rescue.js';
 import { createRipple, stepRipple } from './ripple.js';
 import { stepSecretSignals } from './secrets.js';
 import { stepShield } from './shield.js';
 import { createShoe, resetShoe, stepShoe } from './shoe.js';
 import { stepSurge } from './surge.js';
+import { stepTemperature } from './temperature.js';
 import { createTrain, defaultPoints, defaultSignals, rerailTrain, stepTrain, syncProxy } from './train.js';
 import { checkDunk, DUNK_TIME, fishOut, trackSafe } from './water.js';
 import { attachWebs, createWebs, stepDawn, stepWebs, trackFallSafe } from './web.js';
@@ -195,9 +198,11 @@ function sessionWorld(level) {
     level.fans?.length ||
     level.spins?.length ||
     level.blooms?.length ||
-    level.webs?.length;
+    level.webs?.length ||
+    level.colds?.length;
   const w = changes ? level.world.clone() : level.world;
   if ((level.entities ?? []).some((d) => d.kind === 'typeKey')) w.mutable = true; 
+  if (level.colds?.length) w.mutable = true; 
   if (level.honey) w.honey = level.honey; 
   if (windy) attachWind(w, level);
   if (level.heaves?.length) {
@@ -226,6 +231,7 @@ export function stepSession(s, input) {
   s.time += STEP;
   stepHeaves(s);
   stepWind(s);
+  stepRescue(s, input); 
   if (s.rafts) s.world.raftState = s.rafts; 
   if (s.hooks) s.world.hooks = s.hooks; 
   if (s.fans) {
@@ -265,7 +271,7 @@ export function stepSession(s, input) {
     stepPlane(s, input); 
   else {
     stepRafts(s);
-    stepPlayer(s.player, s.cleared ? NO_INPUT : input, s.world);
+    stepPlayer(s.player, s.cleared || s.calm ? NO_INPUT : input, s.world); 
     if (s.webs) stepWebs(s); 
     if (s.webs) stepDawn(s); 
   }
@@ -279,6 +285,8 @@ export function stepSession(s, input) {
     stepWingman(s); 
     stepAerodrome(s); 
   }
+  if (s.level.colds) stepChill(s); 
+  if (s.level.hobs || s.level.colds) stepTemperature(s); 
   stepArena(s); 
   if (s.snares.length) stepSnares(s); 
   if (s.flock) stepFlock(s); 
@@ -304,13 +312,15 @@ export function stepSession(s, input) {
     
     const passed = s.train
       ? c.rail === s.train.rail && Math.abs(s.train.s - c.s) < 2 
-      : s.level.descent
-        ? p.y <= c.y + 0.01 && Math.abs(p.x - c.x) < 4 
-        : s.level.vertical
-          ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4
-          : (s.level.dir ?? 1) > 0
-            ? p.x >= c.x
-            : p.x <= c.x;
+      : c.climb
+        ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4 
+        : s.level.descent
+          ? p.y <= c.y + 0.01 && Math.abs(p.x - c.x) < 4 
+          : s.level.vertical
+            ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4
+            : (s.level.dir ?? 1) > 0
+              ? p.x >= c.x
+              : p.x <= c.x;
     if (c.id > s.checkpoint && (p.grounded || s.plane) && passed) {
       s.checkpoint = c.id;
       s.respawnAt = { x: c.x, y: c.y };
@@ -389,10 +399,12 @@ function pitReturn(s) {
 function die(s) {
   s.dead = STEP;
   s.deaths++;
-  if (s.hearts <= 0) {
+  const lifeLost = s.hearts <= 0;
+  if (lifeLost) {
     s.lives -= 1;
     s.events.push({ type: 'lifeLost', lives: s.lives });
   }
+  offerRescue(s, lifeLost); 
 }
 
 function respawn(s) {
@@ -423,8 +435,17 @@ function respawn(s) {
       s.snares = [];
       s.dawn = false;
     }
+    if (s.level.colds) {
+      
+      s.world = sessionWorld(s.level);
+      s.extraCold = null;
+      s.freezeSlots = null;
+      s.deedFrom = null;
+      s.deedRang = false;
+    }
     s.aero = null; 
     s.deedLost = false;
+    s.rescue = null; 
     s.events.push({ type: 'gameOver' });
   }
   if (s.hearts <= 0) s.hearts = s.maxHearts;

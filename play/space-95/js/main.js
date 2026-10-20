@@ -21,6 +21,7 @@ import { site } from './site/adapter.js';
 import { createHud } from './ui/hud.js';
 import { KEY_ICON, LEVER_ICON } from './ui/icons.js';
 import { createPause } from './ui/pause.js';
+import { createRescuePrompt } from './ui/rescue.js';
 import { createTimesheet } from './ui/timesheet.js';
 import { showTitle } from './ui/title.js';
 
@@ -103,6 +104,7 @@ const input = createInput();
 mountTouchControls(document.body, input.touch);
 const view = createView(document.getElementById('stage'), level, labels);
 const hud = createHud(document.getElementById('hud'), labels, cheats.hud, title);
+const rescuePrompt = createRescuePrompt(document.body); 
 
 if (train) hud.update(session, 1 / 60);
 
@@ -272,6 +274,7 @@ function frame(now) {
   }
   view.render(session, acc / STEP, dt);
   hud.update(session, dt);
+  rescuePrompt.update(session);
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

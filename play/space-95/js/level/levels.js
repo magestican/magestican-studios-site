@@ -1,5 +1,6 @@
 
 import { CHALLENGES, gymWorld } from './gym.js';
+import { buildChillGym } from './gymChill.js';
 import { buildDrillGym } from './gymDrill.js';
 import { buildPlaneGym } from './gymPlane.js';
 import { buildTrainGym } from './gymTrain.js';
@@ -74,6 +75,11 @@ export function loadLevel(key) {
     
     const level = buildDrillGym();
     return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Drill gym' };
+  }
+  if (key === 'gym-chill') {
+    
+    const level = buildChillGym();
+    return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Chill gym' };
   }
   if (key === 'gym-plane') {
     

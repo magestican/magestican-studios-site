@@ -48,6 +48,9 @@ export function levelBuilder(meta) {
   const harps = []; 
   const hubs = []; 
   const softs = []; 
+  const colds = []; 
+  const heats = []; 
+  const hobs = []; 
   
   const track = { rails: [], points: [], diamonds: [], stations: [], signals: [], debris: [], peas: [], chevrons: [], props: [] };
   const builtRails = {};
@@ -208,6 +211,37 @@ export function levelBuilder(meta) {
     soft(x0, x1, y0, y1, opts = {}) {
       counters.soft = (counters.soft ?? 0) + 1;
       softs.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-soft-${counters.soft}`, skin: 'cloth', x0, x1, y0, y1, ...opts });
+      return api;
+    },
+    
+    cold(x0, x1, y0, y1, opts = {}) {
+      counters.cold = (counters.cold ?? 0) + 1;
+      colds.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-cold-${counters.cold}`, x0, x1, y0, y1, ...opts });
+      return api;
+    },
+    
+    heat(x0, x1, y0, y1, opts = {}) {
+      counters.heat = (counters.heat ?? 0) + 1;
+      heats.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-heat-${counters.heat}`, x0, x1, y0, y1, ...opts });
+      return api;
+    },
+    
+
+
+
+    hob(x0, x1, y, opts = {}) {
+      counters.hob = (counters.hob ?? 0) + 1;
+      hobs.push({
+        id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-hob-${counters.hob}`,
+        x0,
+        x1,
+        y,
+        period: 4,
+        on: 2,
+        at: 0,
+        skin: 'ring',
+        ...opts,
+      });
       return api;
     },
     
@@ -419,7 +453,13 @@ export function levelBuilder(meta) {
 
 
     beaconAt(x, y, opts = {}) {
-      checkpoints.push({ id: checkpoints.length + 1, x, y, ...(opts.phase ? { phase: opts.phase } : {}) });
+      checkpoints.push({
+        id: checkpoints.length + 1,
+        x,
+        y,
+        ...(opts.phase ? { phase: opts.phase } : {}),
+        ...(opts.climb ? { climb: true } : {}),
+      });
       return api;
     },
     
@@ -590,6 +630,10 @@ export function levelBuilder(meta) {
         ...(harps.length ? { harps } : {}),
         ...(hubs.length ? { hubs } : {}),
         ...(meta.fallReturn ? { fallReturn: meta.fallReturn } : {}),
+        
+        ...(colds.length ? { colds } : {}),
+        ...(heats.length ? { heats } : {}),
+        ...(hobs.length ? { hobs } : {}),
         ...(meta.sky ? { sky: meta.sky } : {}),
         
         ...(meta.mode === 'train' ? trainFields(meta, track, builtRails, trainStart, entities) : {}),

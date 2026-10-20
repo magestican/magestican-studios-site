@@ -361,3 +361,48 @@ kbd {
   font-size: 13px;
   line-height: 1;
 }
+
+
+.rescue {
+  position: fixed;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: var(--gold);
+  color: var(--ink);
+  text-align: center;
+  font-size: 1.05rem;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 25%);
+  pointer-events: none;
+}
+.rescue[hidden] {
+  display: none;
+}
+.rescue-bar {
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 15%);
+  overflow: hidden;
+}
+.rescue-bar i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+}
+@media (max-width: 480px) {
+  .rescue {
+    font-size: 0.95rem;
+    padding: 16px;
+  }
+}

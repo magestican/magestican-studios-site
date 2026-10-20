@@ -52,6 +52,7 @@ export function stepEntities(list, ctx) {
     if (e.swept) continue; 
     if (e.flip) continue; 
     if (e.spun !== undefined) continue; 
+    if (e.frozen) continue; 
     
     if (e.dozing && ctx.player.ab?.pound === 'fall' && overlaps(ctx.player, e)) e.dozing = false;
     if (e.dozing) {
