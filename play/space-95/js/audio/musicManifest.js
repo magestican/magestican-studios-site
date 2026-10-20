@@ -8,6 +8,7 @@ export const MUSIC_TRACKS = [
   'dogfight',
   'gardener',
   'honeycomb',
+  'kitchen',
   'long-way-home',
   'machine',
   'main-theme',

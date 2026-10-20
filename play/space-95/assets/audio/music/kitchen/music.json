@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "kitchen",
+      "title": "Kitchen of the Vast",
+      "files": {
+        "webm": "kitchen.webm",
+        "ogg": "kitchen.ogg",
+        "m4a": "kitchen.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 7150345,
+      "loopSeconds": 148.965521,
+      "bpm": 116,
+      "beats": 4,
+      "bars": 72,
+      "key": "A minor",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.75,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "kitchen.webm",
+          "decoded_samples": 7150345,
+          "corr": 0.9986,
+          "true_peak_db": -5.54,
+          "bytes": 3582187
+        },
+        "ogg": {
+          "file": "kitchen.ogg",
+          "decoded_samples": 7150345,
+          "corr": 0.9993,
+          "true_peak_db": -5.58,
+          "bytes": 3519347
+        },
+        "m4a": {
+          "file": "kitchen.m4a",
+          "decoded_samples": 7150345,
+          "corr": 0.9996,
+          "true_peak_db": -5.69,
+          "bytes": 4993842
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-kitchen, rework of the main theme (minor, transpose 4)",
+        "seed": 1952272092,
+        "cover_chord_agree": 0.83,
+        "cover_chroma_corr": 0.981,
+        "render": "D:\\magestican-dj\\renders\\space-95\\kitchen",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\kitchen\\space-95-bgm-city-pop-2.wav (seed 332189044, chord_agree 0.816)"
+        ]
+      }
+    }
+  ]
+}

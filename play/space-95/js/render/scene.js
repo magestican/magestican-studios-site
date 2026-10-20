@@ -15,6 +15,7 @@ import { burrowEntityView, createBurrow } from './burrowView.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
+import { createKitchen, kitchenEntityView } from './kitchenView.js';
 import { createNight, nightEntityView } from './nightView.js';
 import { createSilk, silkEntityView } from './silkView.js';
 import { createSky, skyEntityView } from './skyView.js';
@@ -41,7 +42,10 @@ export function createView(canvas, level, labels) {
   sun.position.set(-8, 14, 12);
   scene.add(sun);
 
-  scene.add(tileMeshes(level.world, level.darkTint === 'umber' ? 'bedrock' : null));
+  
+  const kitchenSkin = !!level.colds?.length;
+  scene.add(tileMeshes(level.world, level.darkTint === 'umber' ? 'bedrock' : kitchenSkin ? 'kitchen' : null));
+  if (kitchenSkin) scene.background = new THREE.Color(0x6cc7bd);
   scene.add(barkMeshes(level.world));
   const soil = soilMeshes(level.world);
   scene.add(soil.mesh);
@@ -103,6 +107,8 @@ export function createView(canvas, level, labels) {
     jo,
     soil,
   });
+  
+  const kitchen = createKitchen(scene, level, { views: entityViews, spark: (...a) => spark(...a) });
   
   const sky = createSky(scene, level, { jo, bolt, views: entityViews, spark: (...a) => spark(...a), kick: (a) => kick(a) });
 
@@ -235,6 +241,7 @@ export function createView(canvas, level, labels) {
       night?.update(session, dt, camera);
       silk?.update(session, dt, camera);
       burrow?.update(session, dt);
+      kitchen?.update(session, dt);
       sky?.update(session, dt);
       for (let i = teles.length - 1; i >= 0; i--) {
         const T = teles[i];
@@ -272,6 +279,7 @@ export function createView(canvas, level, labels) {
       night?.onEvent(e);
       silk?.onEvent(e);
       burrow?.onEvent(e);
+      kitchen?.onEvent(e);
       sky?.onEvent(e);
       if (e.type === 'jump') squash = -0.6;
       if (e.type === 'land') squash = Math.min(1, 0.25 + (e.fall ?? 0) * 0.12);
@@ -376,7 +384,7 @@ export function entityView(e) {
   const g = new THREE.Group();
   const mat = (color) => new THREE.MeshLambertMaterial({ color });
   
-  if (nightEntityView(e, g) || silkEntityView(e, g) || burrowEntityView(e, g) || skyEntityView(e, g)) {
+  if (nightEntityView(e, g) || silkEntityView(e, g) || burrowEntityView(e, g) || kitchenEntityView(e, g) || skyEntityView(e, g)) {
     
   } else if (e.kind === 'pebble') {
     const m = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat(0xb8b1a6));
@@ -859,8 +867,9 @@ function tileMeshes(world, skin = null) {
   const T = world.tile;
   const group = new THREE.Group();
   const rock = skin === 'bedrock';
-  const solidMat = new THREE.MeshLambertMaterial({ color: rock ? 0x6c7078 : 0x9a7bd8 });
-  const topMat = new THREE.MeshLambertMaterial({ color: rock ? 0x8fa6bf : 0x7ed957 });
+  const kitchen = skin === 'kitchen';
+  const solidMat = new THREE.MeshLambertMaterial({ color: rock ? 0x6c7078 : kitchen ? 0xb8875a : 0x9a7bd8 });
+  const topMat = new THREE.MeshLambertMaterial({ color: rock ? 0x8fa6bf : kitchen ? 0xece4d6 : 0x7ed957 });
   const oneWayMat = new THREE.MeshLambertMaterial({ color: 0xf2c879 });
   for (let r = 0; r < world.height; r++) {
     let c = 0;

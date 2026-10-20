@@ -1,0 +1,269 @@
+genre: city-pop
+style: space95-kitchen
+title: Kitchen of the Vast
+key: A minor
+bpm: 116
+beats: 4
+swing: 0.5
+language: en
+seed: 1396200398
+groove: space95-kitchen
+singer: none (instrumental)
+sections:
+- name: intro1
+  role: intro
+  bars: 4
+  energy: 0.3
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Dm7
+  - E7sus4
+  - Cmaj7
+  - E7
+  melody: D5:2 E5:2 F5:2 B4:2 A4:8 A4:2 B4:2 D5:2 A5:2 E5:6 r:2 Eb5:2 D5:2 C5:4 G5:2
+    Eb5:6 D5:2 C5:2 B4:2 F5:2 E5:6 r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: pizzicato
+    comp: marimba
+    bass: contrabass
+- name: verse1
+  role: verse
+  bars: 8
+  energy: 0.45
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bm7b5
+  - E7
+  - Am7
+  - F7
+  - Am7
+  - Am7
+  - Dm7
+  - E7
+  melody: B4:2 A4:4 F4:2 A4:4 D5:4 D5:2 C5:2 G4:2 F4:2 G4:6 r:2 G4:2 A4:4 C5:2 C5:4
+    A4:4 A4:2 A4:2 C5:2 C5:2 A4:6 r:2 A4:2 G4:2 A4:2 G4:2 A4:8 A4:2 G4:2 A4:2 G4:2
+    G4:6 r:2 F4:2 G4:4 B4:2 A4:4 F4:4 G4:2 F4:2 G4:2 F4:2 G4:6 r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: marimba
+    comp: pizzicato
+    bass: contrabass
+- name: pre1
+  role: pre
+  bars: 4
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bm7b5
+  - Cmaj7
+  - Dm7
+  - E7
+  melody: D5:6 E5:2 D5:2 A5:2 A5:4 G5:2 A5:2 G5:2 C5:2 Bb4:6 r:2 A4:2 G4:2 A4:4 D5:2
+    C5:6 B4:2 A4:2 G4:2 D5:2 B4:6 r:2
+  lyrics: []
+  lineup:
+    lead: trumpet
+    counter: clarinet
+    comp: pizzicato
+    bass: contrabass
+- name: chorus1
+  role: chorus
+  bars: 8
+  energy: 0.8
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Dm7
+  - E7
+  - Cmaj7
+  - Fmaj7
+  - Dm7
+  - C7
+  - Fmaj7
+  - Am
+  melody: D5:2 E5:2 D5:4 D5:2 C5:6 D5:2 E5:2 D5:2 E5:2 D5:6 r:2 C5:2 Bb4:2 C5:4 Bb4:2
+    C5:6 C5:2 B4:2 C5:2 B4:2 C5:6 r:2 D5:2 E5:2 D5:4 D5:2 C5:6 C5:2 C5:2 Bb4:2 C5:2
+    Bb4:6 r:2 Ab4:2 B4:2 Ab4:4 Ab4:2 B4:6 A4:2 B4:2 A4:2 B4:2 A4:6 r:2
+  lyrics: []
+  lineup:
+    lead: trumpet
+    counter: marimba
+    comp: strings
+    bass: contrabass
+- name: interlude1
+  role: interlude
+  bars: 8
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Fmaj7
+  - B7
+  - Bm7b5
+  - E7
+  - Dm7
+  - Cmaj7
+  - Bm7b5
+  - E7
+  melody: C5:4 Ab4:4 Ab4:2 C5:2 Ab4:4 A4:2 C5:2 Eb5:2 F5:2 B4:6 r:2 r:2 B4:2 D5:4
+    D5:2 B4:2 D5:4 D5:2 F5:2 E5:2 C5:2 E5:6 r:2 D5:2 B4:4 C5:2 D5:4 A4:4 G4:2 Bb4:2
+    C5:2 Eb5:2 Bb4:6 r:2 B4:2 G4:2 A4:2 C5:2 A4:8 G4:2 B4:2 G4:2 B4:2 E5:6 r:2
+  lyrics: []
+  lineup:
+    lead: marimba
+    counter: celesta
+    comp: pizzicato
+    bass: contrabass
+- name: verse2
+  role: verse
+  bars: 8
+  energy: 0.5
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bm7b5
+  - E7
+  - Am7
+  - F7
+  - Am7
+  - Am7
+  - Dm7
+  - E7
+  melody: B4:2 A4:4 F4:2 A4:4 D5:4 D5:2 C5:2 G4:2 F4:2 G4:3 B4:3 r:2 G4:2 A4:4 C5:2
+    C5:4 A4:4 A4:2 A4:2 C5:2 C5:2 A4:3 C5:3 r:2 A4:2 G4:2 A4:2 G4:2 A4:8 A4:2 G4:2
+    A4:2 G4:2 G4:3 A4:3 r:2 F4:2 G4:4 B4:2 A4:4 F4:4 G4:2 F4:2 G4:2 F4:2 G4:3 B4:3
+    r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: marimba
+    comp: pizzicato
+    bass: contrabass
+- name: pre2
+  role: pre
+  bars: 4
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bm7b5
+  - Cmaj7
+  - Dm7
+  - E7
+  melody: D5:6 E5:2 D5:2 A5:2 A5:4 G5:2 A5:2 G5:2 C5:2 Bb4:3 C5:3 r:2 A4:2 G4:2 A4:4
+    D5:2 C5:6 B4:2 A4:2 G4:2 D5:2 B4:3 D5:3 r:2
+  lyrics: []
+  lineup:
+    lead: trumpet
+    counter: clarinet
+    comp: pizzicato
+    bass: contrabass
+- name: chorus2
+  role: chorus
+  bars: 8
+  energy: 0.85
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Dm7
+  - E7
+  - Cmaj7
+  - Fmaj7
+  - Dm7
+  - C7
+  - Fmaj7
+  - Am
+  melody: D5:2 E5:2 D5:4 D5:2 C5:6 D5:2 E5:2 D5:2 E5:2 D5:6 r:2 C5:2 Bb4:2 C5:4 Bb4:2
+    C5:6 C5:2 B4:2 C5:2 B4:2 C5:6 r:2 D5:2 E5:2 D5:4 D5:2 C5:6 C5:2 C5:2 Bb4:2 C5:2
+    Bb4:6 r:2 Ab4:2 B4:2 Ab4:4 Ab4:2 B4:6 A4:2 B4:2 A4:2 B4:2 A4:6 r:2
+  lyrics: []
+  lineup:
+    lead: trumpet
+    counter: marimba
+    comp: strings
+    bass: contrabass
+- name: bridge1
+  role: bridge
+  bars: 8
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Cmaj7
+  - F7
+  - Bm7b5
+  - E7
+  - Fmaj7
+  - C7
+  - Dm7
+  - E7
+  melody: C5:4 Eb5:2 A4:2 C5:4 Bb4:4 A4:2 C5:2 F5:2 C5:2 A4:6 r:2 r:2 A4:2 D5:2 G4:2
+    D5:4 D5:4 D5:2 A4:2 E5:2 A5:2 G5:6 r:2 Ab4:2 D5:2 Ab5:4 Eb5:2 D5:6 C5:2 E5:2 G4:2
+    C5:2 Bb4:6 r:2 A4:4 D5:2 G4:2 C5:4 A4:4 G4:2 C5:2 G5:2 D5:2 B4:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: clarinet
+    comp: strings
+    bass: contrabass
+- name: chorus3
+  role: chorus
+  bars: 8
+  energy: 1.0
+  sung: false
+  hook: true
+  transpose: 1
+  chords:
+  - Ebm7
+  - F7
+  - C#maj7
+  - F#maj7
+  - Ebm7
+  - C#7
+  - F#maj7
+  - Bbm
+  melody: Eb5:2 F5:2 Eb5:4 Eb5:2 C#5:6 Eb5:2 F5:2 Eb5:2 F5:2 Eb5:6 r:2 C#5:2 B4:2
+    C#5:4 B4:2 C#5:6 C#5:2 C5:2 C#5:2 C5:2 C#5:6 r:2 Eb5:2 F5:2 Eb5:4 Eb5:2 C#5:6
+    C#5:2 C#5:2 B4:2 C#5:2 B4:6 r:2 A4:2 C5:2 A4:4 A4:2 C5:6 Bb4:2 C5:2 Bb4:2 C5:2
+    Bb4:6 r:2
+  lyrics: []
+  lineup:
+    lead: trumpet
+    counter: marimba
+    comp: strings
+    bass: contrabass
+- name: outro1
+  role: outro
+  bars: 4
+  energy: 0.4
+  sung: false
+  hook: false
+  transpose: 1
+  chords:
+  - Cm7b5
+  - F7
+  - Bbm7
+  - Bbm
+  melody: Eb5:2 C#5:2 Bb4:4 Eb5:2 Bb4:6 Ab4:2 F#4:2 C5:2 F#4:2 C5:6 r:2 Bb4:4 Ab4:4
+    C#5:2 Ab4:2 C#5:4 Bb4:2 Ab4:2 C#5:2 Ab4:2 Bb4:6 r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: pizzicato
+    comp: marimba
+    bass: contrabass

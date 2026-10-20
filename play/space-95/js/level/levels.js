@@ -22,6 +22,7 @@ import { buildL14 } from './L14.js';
 import { buildL15 } from './L15.js';
 import { buildL16 } from './L16.js';
 import { buildL17 } from './L17.js';
+import { buildL18 } from './L18.js';
 
 const SHIFTS = {
   1: buildL01,
@@ -41,6 +42,7 @@ const SHIFTS = {
   15: buildL15,
   16: buildL16,
   17: buildL17,
+  18: buildL18,
 };
 
 

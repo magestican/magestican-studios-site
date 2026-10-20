@@ -58,6 +58,7 @@ const MUSIC = {
   15: 'silk-span',
   16: 'deep-burrow',
   17: 'dogfight', 
+  18: 'kitchen', 
 };
 
 

@@ -229,7 +229,11 @@ export function stepChill(s) {
       continue;
     }
     if (e.state === 'dazed' || e.state === 'scurry') continue;
-    if (!e.awake) continue; 
+    
+    
+    const ec = s.extraCold;
+    const blasted = ec && s.time < ec.until && e.x >= ec.x0 && e.x < ec.x1 && e.y + e.h / 2 >= ec.y0 && e.y + e.h / 2 < ec.y1;
+    if (!e.awake && !blasted) continue;
     if (coldAt(s, e.x, e.y + e.h / 2) || touchingIce(s, e)) {
       e.chill = (e.chill ?? 0) + STEP;
       if (e.chill >= CHILL - 1e-9) freeze(s, e);

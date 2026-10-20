@@ -107,6 +107,17 @@ const BURROW = [
 ];
 
 
+const KITCHEN = [
+  "Big cold box. Door's open. Somebody's getting told off.",
+  "The cold got 'em. Ice cubes with faces. ...Steps!",
+  'Watch this. Let it come to you.',
+  'Hot top! Wait for it to go dark.',
+  'The rings light in a wave. Run behind it!',
+  "...It's a cathedral. Of LEFTOVERS.",
+  "That's their NEST. ...Big button! POUND IT!",
+];
+
+
 const TEACH = new Set([
   'noPoints',
   'pointsThrow',
@@ -175,6 +186,15 @@ export function createBoltVoice() {
         
         cooldown = 4;
         return { text: BURROW[e.step], beep: 'bolt_beep_happy', mood: e.step === 0 ? 'worried' : 'happy' };
+      }
+      if (e.type === 'kitchenLine' && KITCHEN[e.step]) {
+        
+        cooldown = 4;
+        return { text: KITCHEN[e.step], beep: 'bolt_beep_happy', mood: 'happy' };
+      }
+      if (e.type === 'capBounce' && !used.capBounce) {
+        used.capBounce = 1; 
+        return { text: "It's wearing a HAT. A metal hat. Try the cold.", beep: 'bolt_beep_happy', mood: 'worried' };
       }
       if (TEACH.has(e.type)) kind = teach ? e.type : null;
       
