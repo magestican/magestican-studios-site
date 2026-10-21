@@ -178,6 +178,29 @@ const CADETS = [
 const P4_POST = { x: 300, y: 60 }; 
 const FLEE_TO = { x: 720, y: 70 }; 
 const CB = (use) => ({ motif: 'callback', use });
+
+
+const STAMPS = [
+  ['B1', 1, 'KICKED PEBBLE', 'pebbleHit'],
+  ['B2', 11, 'KEYSTROKE', 'cursorLaser'],
+  ['B3', 8, 'HONEY TRAP', 'honeyStuck'],
+  ['B4', 7, 'SHOCKWAVE', 'flip'],
+  ['B5', 13, 'COW-CATCHER', 'fling'],
+  ['B6', 10, 'KICKED APPLE', 'fruitletCaught'],
+  ['B7', 2, 'DEW BOUNCE', 'dewBounce'],
+  ['B8', 3, 'SWEEP', 'lurch'],
+  ['B9', 15, 'WEB SLING', 'webLaunch'],
+  ['B10', 12, 'POWER SURGE', 'surgeHit'],
+  ['B11', 14, 'FIREFLY FLOCK', 'flockBurst'],
+  ['B12', 9, 'RIPPLE', 'capsize'],
+  ['B13', 4, 'CAVE-IN', 'buried'],
+  ['B14', 16, 'CHAIN COLLAPSE', 'collapseHit'],
+  ['B15', 5, 'BREATH LAUNCH', 'heaveLaunch'],
+  ['B16', 18, 'CHILL', 'freeze'],
+  ['callback:L19', 19, 'MANE SURF', 'maneSurf'],
+  ['B18', 6, 'SLIPSTREAM', 'slipstream'],
+  ['B19', 17, 'WINGMAN', 'turret'],
+].map(([use, shift, motif, on]) => ({ use, shift, motif, on: [on] }));
 const atk = (name, kind, telegraph, active, recover) => ({ name, kind, telegraph, active, recover });
 
 
@@ -258,6 +281,7 @@ export function buildL20() {
     pitCost: 'heart',
     height: 110,
     checklist: ['Clear the pad', 'Get the cell back', 'Fuel up', 'Take off'],
+    stamps: STAMPS,
   });
   L.wall(0, 226, 0, SILL); 
   L.spawnAt(4, SILL); 

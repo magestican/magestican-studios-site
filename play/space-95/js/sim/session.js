@@ -29,6 +29,7 @@ import { createRipple, stepRipple } from './ripple.js';
 import { stepSecretSignals } from './secrets.js';
 import { stepShield } from './shield.js';
 import { createShoe, resetShoe, stepShoe } from './shoe.js';
+import { stepStamps } from './stamps.js';
 import { stepSurge } from './surge.js';
 import { stepTemperature } from './temperature.js';
 import { createTrain, defaultPoints, defaultSignals, rerailTrain, stepTrain, syncProxy } from './train.js';
@@ -229,6 +230,13 @@ function sessionWorld(level) {
 
 
 export function stepSession(s, input) {
+  stepWorld(s, input);
+  stepStamps(s); 
+  return s;
+}
+
+
+function stepWorld(s, input) {
   s.events.length = 0;
   if (s.hitstop > 0) {
     s.hitstop -= STEP; 

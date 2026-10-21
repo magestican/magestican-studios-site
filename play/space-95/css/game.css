@@ -100,6 +100,47 @@ body {
   opacity: 0;
   transform: translateY(-6px);
 }
+
+.hud-stamps {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap);
+  padding-left: 2px; 
+}
+.hud-stamps:empty {
+  display: none;
+}
+.hud-stamp {
+  padding: 6px 14px;
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  animation: stamp 1s ease-out forwards;
+}
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.35) rotate(-2deg);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1) rotate(-1deg);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1) rotate(-1deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1) rotate(-1deg);
+  }
+}
 .hud-flash.is-on {
   animation: flash 1.2s ease-out forwards;
 }
@@ -232,6 +273,10 @@ kbd {
   }
   .hud-challenge strong {
     font-size: 15px;
+  }
+  .hud-stamp {
+    padding: 4px 12px;
+    font-size: 13px;
   }
   .help {
     display: none;

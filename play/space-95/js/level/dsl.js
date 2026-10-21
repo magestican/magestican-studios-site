@@ -633,6 +633,7 @@ export function levelBuilder(meta) {
         ...(hubs.length ? { hubs } : {}),
         ...(meta.fallReturn ? { fallReturn: meta.fallReturn } : {}),
         ...(meta.checklist ? { checklist: meta.checklist } : {}), 
+        ...(meta.stamps ? { stamps: meta.stamps } : {}), 
         ...(meta.ride ? { ride: meta.ride, camDist: meta.camDist ?? 20 } : {}), 
         
         ...(colds.length ? { colds } : {}),

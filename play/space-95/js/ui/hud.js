@@ -18,6 +18,7 @@ export function createHud(root, challenges, visible, title = 'Metrics gym') {
     <div class="hud-card hud-train" data-el="train" hidden></div>
     <div class="hud-card hud-challenge" data-el="challenge"></div>
     <div class="hud-card hud-stats" data-el="stats"></div>
+    <div class="hud-stamps" data-el="stamps"></div>
     <div class="hud-flash" data-el="flash"></div>`;
   const el = (k) => root.querySelector(`[data-el="${k}"]`);
   const stats = { jumpH: 0, air: 0, takeoff: 0, airStart: 0, airborne: false, fps: 60 };
@@ -33,6 +34,18 @@ export function createHud(root, challenges, visible, title = 'Metrics gym') {
     void f.offsetWidth;
     f.classList.add('is-on');
     flashT = 1.2;
+  };
+
+  
+  
+  const stamp = (text) => {
+    const box = el('stamps');
+    const d = document.createElement('div');
+    d.className = 'hud-stamp';
+    d.textContent = text;
+    d.addEventListener('animationend', () => d.remove());
+    box.append(d);
+    while (box.children.length > 3) box.firstElementChild.remove();
   };
 
   return {
@@ -65,6 +78,7 @@ export function createHud(root, challenges, visible, title = 'Metrics gym') {
         stats.air = s.time - stats.airStart;
         stats.jumpH = Math.max(0, (e.fall ?? 0) + s.player.y - stats.takeoff); 
       }
+      if (e.type === 'stamp') stamp(e.text);
       if (e.type === 'checkpoint') flash(`Clocked in: ${e.id}`);
       if (e.type === 'pit') flash('Oops');
       if (e.type === 'secret') flash(`Intel found: ${e.name ?? e.secret}`);

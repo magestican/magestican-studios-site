@@ -291,7 +291,7 @@ function tryJump(p) {
   
   const boost = p.grounded || fromCoyote ? Math.min(MAX_BOOST, (p.floorVs ?? 0) * LAUNCH_GAIN) : 0;
   p.vy = K.JUMP_VELOCITY + boost;
-  if (boost >= 2) p.events.push({ type: 'heaveLaunch', vs: boost });
+  if (boost >= 2) p.events.push({ type: 'heaveLaunch', vs: boost, id: p.floor?.id ?? null }); 
   p.grounded = false;
   p.jumpedThisAir = true;
   p.rising = true;

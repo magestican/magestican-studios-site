@@ -27,6 +27,7 @@ export function createTimesheet(root) {
             ${par ? `<div><dt>Par</dt><dd>${par.toFixed(0)} s${underPar ? ' <span class="sheet-gold">under par!</span>' : ''}</dd></div>` : ''}
             ${best ? `<div><dt>Best</dt><dd>${best.toFixed(1)} s</dd></div>` : ''}
             <div><dt>Intel filed</dt><dd>${s.found.size} / ${secretsTotal}</dd></div>
+            ${level.stamps ? `<div><dt>Callbacks</dt><dd>${s.stamped?.length ?? 0} / ${level.stamps.length}</dd></div>` : ''}
             <div><dt>Survey complete</dt><dd>${intelPercent(save).toFixed(1)} %</dd></div>
           </dl>
           ${review ? `<section class="sheet-review" aria-label="Performance review"><p class="sheet-k">HQ performance review</p><h3>${review.title}</h3><p>${review.line}</p></section>` : ''}

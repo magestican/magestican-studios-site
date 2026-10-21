@@ -755,6 +755,7 @@ export const SHIFT_EVENTS = {
     'sovereignOpen',
     'sovereignOutro',
     'sovereignSpiked',
+    'stamp',
     'stomp',
     'surge',
     'surgeHit',
