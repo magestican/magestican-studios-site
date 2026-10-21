@@ -1,0 +1,38 @@
+{
+ "name": "dazed",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 3,
+ "glb": "dustmite_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "dazed",
+  "octopod"
+ ],
+ "qa": {
+  "stance": {
+   "L1": "foot1.L",
+   "L2": "foot2.L",
+   "L3": "foot3.L",
+   "L4": "foot4.L",
+   "R1": "foot1.R",
+   "R2": "foot2.R",
+   "R3": "foot3.R",
+   "R4": "foot4.R"
+  },
+  "support": "feet",
+  "static": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "stomped or frizzed by the surge (combat.js defeat, 0.5 s): slumped low on its eight feet, the ball wobbling in a slow circle, head lolling (the game draws the stars)"
+}

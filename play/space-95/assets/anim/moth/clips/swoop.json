@@ -1,0 +1,27 @@
+{
+ "name": "swoop",
+ "fps": 24,
+ "frames": 5,
+ "loop": true,
+ "animation": 3,
+ "glb": "moth_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  2
+ ],
+ "tags": [
+  "fly",
+  "swoop"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the tail moth swooping in from behind at 20 u/s (tailMoth.js 'swoop'): nose down, wings swept up over its back with a quick flutter, antennae and legs streaming back"
+}

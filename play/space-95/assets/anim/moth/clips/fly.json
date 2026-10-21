@@ -1,0 +1,27 @@
+{
+ "name": "fly",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 1,
+ "glb": "moth_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "fly",
+  "flap"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "flapping along its path (slipstream.js 'fly' / 'return', tailMoth.js 'pass'): one big soft wing beat per 8 frames (up, level, down, level on twos), the body bobbing with it, legs dangling"
+}

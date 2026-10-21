@@ -30,7 +30,7 @@ export function createJoSprite(parent) {
       };
       if (!left) markLoaded();
       const textures = sheet.atlases.map((name) => {
-        const t = loader.load(ART + name, settle, undefined, settle);
+        const t = loader.load(v(ART + name), settle, undefined, settle);
         t.colorSpace = THREE.SRGBColorSpace;
         t.magFilter = THREE.LinearFilter;
         return t;

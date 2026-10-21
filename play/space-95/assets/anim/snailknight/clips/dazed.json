@@ -1,0 +1,24 @@
+{
+ "name": "dazed",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 2,
+ "glb": "snailknight_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "dazed"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the shell popped by a dash (combat.js defeat, 0.5 s): the soft snail wobbling in a slow circle, the eye stalks drooping and swirling (Artist leaves the shell out: it is the Shell Shield pickup now)"
+}

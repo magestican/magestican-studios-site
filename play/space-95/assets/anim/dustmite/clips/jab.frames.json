@@ -1,0 +1,50 @@
+{
+ "clip": "jab",
+ "fps": 12,
+ "frame_count": 7,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.076389,
+  0.125,
+  0.229167,
+  0.291667,
+  0.381944,
+  0.458333
+ ],
+ "key_poses": [
+  0,
+  2,
+  4,
+  6
+ ],
+ "events": [],
+ "duration_s": 0.5,
+ "time_scale": 1.0,
+ "time_stretch": 1.09091,
+ "snapped": [
+  {
+   "frame": 2,
+   "from": 0.15278,
+   "to": 0.125,
+   "why": "key"
+  },
+  {
+   "frame": 4,
+   "from": 0.30556,
+   "to": 0.29167,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "dustmite_clips.glb",
+  "animation": 2,
+  "fps": 24.0,
+  "frames": 12
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "dustmite",
+ "u_m": 1.7562
+}

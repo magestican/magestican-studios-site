@@ -1,0 +1,38 @@
+{
+ "name": "jab",
+ "fps": 24,
+ "frames": 12,
+ "loop": false,
+ "animation": 2,
+ "glb": "dustmite_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  3,
+  7,
+  11
+ ],
+ "tags": [
+  "attack",
+  "telegraph",
+  "octopod"
+ ],
+ "qa": {
+  "stance": {
+   "L2": "foot2.L",
+   "L3": "foot3.L",
+   "L4": "foot4.L",
+   "R2": "foot2.R",
+   "R3": "foot3.R",
+   "R4": "foot4.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the electric jab (JAB_TELE 0.5 s, indexed by e.jabT): rears back with the front pair raised, trembling while the spark builds (the game draws the pink spark), then lunges and jabs at the end"
+}

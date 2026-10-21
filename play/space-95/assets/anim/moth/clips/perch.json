@@ -1,0 +1,36 @@
+{
+ "name": "perch",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 0,
+ "glb": "moth_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8
+ ],
+ "tags": [
+  "idle",
+  "perch"
+ ],
+ "qa": {
+  "stance": {
+   "L1": "foot1.L",
+   "L2": "foot2.L",
+   "L3": "foot3.L",
+   "R1": "foot1.R",
+   "R2": "foot2.R",
+   "R3": "foot3.R"
+  },
+  "support": "feet",
+  "static": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "perched on its canopy (slipstream.js 'perch'): six feet planted, wings fanning slowly in a V over the back, antennae twitching; Jo airborne near it, or a stomp, sends it off"
+}

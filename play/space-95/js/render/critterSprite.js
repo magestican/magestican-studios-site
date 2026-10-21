@@ -69,6 +69,19 @@ const MAP = {
     rest: 'march',
     stage: {},
   },
+  
+  snailknight: {
+    state: { crawl: 'crawl', dazed: 'dazed', scurry: 'scurry', flipped: 'flipped', righting: 'righting' },
+    rest: 'crawl',
+    stage: {},
+  },
+  
+  dustmite: { state: { walk: 'walk', dazed: 'dazed', scurry: 'scurry' }, rest: 'walk', stage: {}, clock: ['jab', 'jabT'] },
+  
+  moth: {
+    state: { perch: 'perch', fly: 'fly', return: 'fly', pass: 'fly', swoop: 'swoop', tail: 'glide', lead: 'glide', peel: 'peel' },
+    rest: 'fly',
+  },
 };
 
 
@@ -76,7 +89,15 @@ export function hasCritterSprite(e) {
   if (e.kind === 'wasp') return !e.skin && !e.specimen; 
   if (e.kind === 'guard') return !e.velvet; 
   if (e.kind === 'antPorter') return !e.skin; 
-  return (e.kind === 'ladybot' && !e.skin) || (e.kind === 'pillbug' && !e.topiary) || e.kind === 'aphid' || e.kind === 'bandit';
+  if (e.kind === 'snailknight') return !e.specimen; 
+  if (e.kind === 'dustmite') return !!e.crew && !e.specimen && !e.rides; 
+  return (
+    (e.kind === 'ladybot' && !e.skin) ||
+    (e.kind === 'pillbug' && !e.topiary) ||
+    e.kind === 'aphid' ||
+    e.kind === 'bandit' ||
+    e.kind === 'moth'
+  );
 }
 
 
@@ -130,6 +151,8 @@ export function updateCritterSprite(g, e, dt) {
   else if (aphidHop && e.grounded && e.vx) clip = 'walk'; 
   const staged = map.stage && clip === map.rest ? (e.sleeping || e.dozing || e.asleep || !e.awake ? 'asleep' : map.stage[e.stage]) : null;
   if (staged) clip = staged;
+  const clocked = map.clock && clip === map.rest && e[map.clock[1]] >= 0; 
+  if (clocked) clip = map.clock[0];
   const c = v.sheet.clips[clip] ?? v.sheet.clips[map.rest];
   if (!c) return;
   if (clip !== v.clip) {
@@ -139,6 +162,7 @@ export function updateCritterSprite(g, e, dt) {
   v.t += dt;
   
   if (clip === 'hop' && e.kind === 'aphid') v.t = e.grounded === false ? Math.min(e.hopT, 0.55) : Math.max(e.hopT, 0.58);
+  else if (clocked) v.t = e[map.clock[1]];
   else if (staged && staged !== map.rest && staged === map.stage[e.stage]) v.t = e.st; 
   const n = c.frames.length;
   let i = Math.floor(v.t * c.fps);

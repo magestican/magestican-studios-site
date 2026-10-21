@@ -1,0 +1,154 @@
+{
+ "character": "snailknight",
+ "fps": 12,
+ "initial": "asleep",
+ "conditions": {
+  "wake": "sim event wake (entities.js: a `sleeps` kind wakes when Jo comes within its wake range)",
+  "pop": "sim event shellPop (snailknight.js popShell: a dash into it, or rings.js bowling it while flipped) - e.state = 'dazed', a Shell Shield drops",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the pop)",
+  "flip": "sim event flip (rings.js: the shoe's shockwave or a ripple) - e.state = 'flipped' for FLIP_TIME 4 s",
+  "right": "e.state turned 'righting' (RIGHTING_TIME 0.5 s, harmless, not bowlable)",
+  "righted": "sim event righted - e.state back to 'crawl'",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "crawl": {
+   "clip": "crawl",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "flipped": {
+   "clip": "flipped",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "righting": {
+   "clip": "righting",
+   "loop": false,
+   "hold": true,
+   "frames": 7
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "crawl",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "pop"
+  },
+  {
+   "from": "asleep",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "crawl",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "pop"
+  },
+  {
+   "from": "crawl",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "flipped",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "pop"
+  },
+  {
+   "from": "flipped",
+   "to": "righting",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "right"
+  },
+  {
+   "from": "righting",
+   "to": "crawl",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "righted"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  }
+ ],
+ "requires": [
+  [
+   "asleep",
+   "crawl"
+  ],
+  [
+   "crawl",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ],
+  [
+   "crawl",
+   "flipped"
+  ],
+  [
+   "flipped",
+   "righting"
+  ],
+  [
+   "righting",
+   "crawl"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

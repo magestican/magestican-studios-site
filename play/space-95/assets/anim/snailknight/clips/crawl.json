@@ -1,0 +1,26 @@
+{
+ "name": "crawl",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 1,
+ "glb": "snailknight_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 1.05372,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "gait",
+  "glide",
+  "patrol"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the knight's slow, proud advance at the sim's 0.6 u/s (12 frames, 6 sprites on twos): the foot gliding, the neck surging and the head nodding with each push, the eye stalks swaying out of step, the shield shell riding steady on its back"
+}

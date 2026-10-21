@@ -1,0 +1,28 @@
+{
+ "name": "peel",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 4,
+ "glb": "moth_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "fly",
+  "climb",
+  "exit"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the path's end: peeling up and away (2 s, then off screen): nose up, big strong wing beats"
+}

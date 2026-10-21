@@ -1,0 +1,129 @@
+{
+ "character": "dustmite",
+ "fps": 12,
+ "initial": "asleep",
+ "conditions": {
+  "wake": "sim event wake (dustmite.js stepCrew: Jo within e.wake ?? 14 u across and 9 u up / down)",
+  "jab_warn": "sim event crewJabWarn: e.jabT turned 0 (Jo within JAB_NEAR 1.5 u, the cooldown over) - the game indexes the clip by e.jabT and draws the pink spark",
+  "jab_done": "e.jabT back to -1 (JAB_TELE 0.5 s: the jab lands, reaching JAB_REACH 1.8 u)",
+  "defeat": "sim event defeat (a stomp, a pound, or the circuit's surge frizzing a crew whose lamp lead is clipped on) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "walk": {
+   "clip": "walk",
+   "loop": true,
+   "hold": false,
+   "frames": 3
+  },
+  "jab": {
+   "clip": "jab",
+   "loop": false,
+   "hold": true,
+   "frames": 7
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "asleep",
+   "to": "walk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "jab",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "jab",
+   "to": "walk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jab_done"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "walk",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "walk",
+   "to": "jab",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jab_warn"
+  }
+ ],
+ "requires": [
+  [
+   "asleep",
+   "walk"
+  ],
+  [
+   "walk",
+   "jab"
+  ],
+  [
+   "jab",
+   "walk"
+  ],
+  [
+   "walk",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

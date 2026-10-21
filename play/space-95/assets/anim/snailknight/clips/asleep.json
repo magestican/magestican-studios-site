@@ -1,0 +1,25 @@
+{
+ "name": "asleep",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 0,
+ "glb": "snailknight_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8
+ ],
+ "tags": [
+  "sleep",
+  "idle"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "asleep until Jo comes near (entities.js wake): head bowed under its helmet, eye stalks drooped forward, a slow breath (Artist shuts the eyes; the game draws the Zs)"
+}

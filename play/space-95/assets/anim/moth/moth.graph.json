@@ -1,0 +1,136 @@
+{
+ "character": "moth",
+ "fps": 12,
+ "initial": "perch",
+ "conditions": {
+  "takeoff": "sim: e.state turned 'fly' (slipstream.js takeOff: Jo airborne within 4 u of the perch or past its trigger, or a stomp on it)",
+  "path_end": "sim: e.state turned 'peel' (the end of its path; tailMoth.js: the end of the lead)",
+  "home": "sim: e.state turned 'perch' (back at its perch after 4 s without Jo, or re-perched out of sight after 'away')",
+  "tail_wake": "sim: e.state turned 'swoop' (tailMoth.js: the plane crossed tail.wakeWhen.x)",
+  "settle": "sim: e.state turned 'tail' (3 u off the plane's tail) or 'lead' (3 u ahead of it)",
+  "pass": "sim: e.state turned 'pass' (a plane loop, or tail.hold s) - flapping past the plane"
+ },
+ "states": {
+  "perch": {
+   "clip": "perch",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "fly": {
+   "clip": "fly",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "glide": {
+   "clip": "glide",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "swoop": {
+   "clip": "swoop",
+   "loop": true,
+   "hold": false,
+   "frames": 2
+  },
+  "peel": {
+   "clip": "peel",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  }
+ },
+ "transitions": [
+  {
+   "from": "fly",
+   "to": "glide",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "settle"
+  },
+  {
+   "from": "fly",
+   "to": "peel",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "path_end"
+  },
+  {
+   "from": "fly",
+   "to": "perch",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "home"
+  },
+  {
+   "from": "glide",
+   "to": "fly",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "pass"
+  },
+  {
+   "from": "glide",
+   "to": "peel",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "path_end"
+  },
+  {
+   "from": "peel",
+   "to": "perch",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "home"
+  },
+  {
+   "from": "perch",
+   "to": "fly",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "takeoff"
+  },
+  {
+   "from": "perch",
+   "to": "swoop",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "tail_wake"
+  },
+  {
+   "from": "swoop",
+   "to": "glide",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "settle"
+  }
+ ],
+ "requires": [
+  [
+   "perch",
+   "fly"
+  ],
+  [
+   "fly",
+   "peel"
+  ],
+  [
+   "perch",
+   "swoop"
+  ],
+  [
+   "swoop",
+   "glide"
+  ],
+  [
+   "glide",
+   "peel"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

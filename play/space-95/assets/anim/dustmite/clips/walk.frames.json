@@ -1,0 +1,50 @@
+{
+ "clip": "walk",
+ "fps": 12,
+ "frame_count": 3,
+ "loop": true,
+ "frame_times": [
+  0.0,
+  0.083333,
+  0.125
+ ],
+ "key_poses": [
+  0,
+  2
+ ],
+ "events": [
+  {
+   "type": "foot_l",
+   "frame": 0,
+   "time": 0.0
+  },
+  {
+   "type": "foot_r",
+   "frame": 2,
+   "time": 0.16667
+  }
+ ],
+ "duration_s": 0.25,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [
+  {
+   "frame": 2,
+   "from": 0.16667,
+   "to": 0.125,
+   "why": "foot_r"
+  }
+ ],
+ "source": {
+  "glb": "dustmite_clips.glb",
+  "animation": 1,
+  "fps": 24.0,
+  "frames": 7
+ },
+ "root_motion": "RM",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "dustmite",
+ "speed_u_s": 1.5,
+ "u_m": 1.7562
+}

@@ -1,0 +1,28 @@
+{
+ "name": "scurry",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 3,
+ "glb": "snailknight_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "flee",
+  "cartoon",
+  "airborne"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "shell-less and embarrassed: a frantic getaway, neck stretched forward, eye stalks streaming back (the sim zips it off at 7 u/s for 0.9 s; Artist leaves the shell out)"
+}
