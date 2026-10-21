@@ -70,6 +70,19 @@ export function loopEndSeconds(manifest, buffer, track = null) {
 
 
 
+export function loopStartSeconds(manifest, buffer, track = null) {
+  const rate = manifest?.sampleRate;
+  const samples = track?.loopStartSamples ?? manifest?.loopStartSamples;
+  if (!(rate > 0) || !(samples > 0)) return 0;
+  const start = samples / rate;
+  return start < loopEndSeconds(manifest, buffer, track) ? start : 0;
+}
+
+
+
+
+
+
 
 
 export function trackFrom(manifest, id = null) {
@@ -100,6 +113,7 @@ export function createLobbyMusic({ ctx, destination, manifestUrl, gain = 0.34, t
     muted: false,
     error: null,
     loopEnd: 0,
+    loopStart: 0,
     gain,
   };
   let buffer = null;
@@ -135,6 +149,7 @@ export function createLobbyMusic({ ctx, destination, manifestUrl, gain = 0.34, t
         if (!audioRes.ok) throw new Error(`${track.file} ${audioRes.status} at ${fileUrl}`);
         buffer = await ctx.decodeAudioData(await audioRes.arrayBuffer());
         st.loopEnd = loopEndSeconds(manifest, buffer, track);
+        st.loopStart = loopStartSeconds(manifest, buffer, track);
         st.loaded = true;
       } catch (err) {
         
@@ -150,7 +165,7 @@ export function createLobbyMusic({ ctx, destination, manifestUrl, gain = 0.34, t
     source = ctx.createBufferSource();
     source.buffer = buffer;
     source.loop = true;
-    source.loopStart = 0;
+    source.loopStart = st.loopStart;
     
     source.loopEnd = st.loopEnd;
     source.connect(bus);
