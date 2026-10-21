@@ -133,6 +133,7 @@ registerBossType('sovereign', {
     if (ph.crown) e.crowned = true; 
     e.post = { x: e.x, y: e.y };
     e.sinceHit = 0;
+    e.fallbackWindow = false;
   },
   intro(e, ctx, ph) {
     if (ph.perches && e.perchAt) hopOn(e); 
@@ -178,6 +179,7 @@ registerBossType('sovereign', {
       e.sinceHit = 0;
       e.interrupt = { recoverFor: SOVEREIGN.WINDOW, weakNow: true };
       e.spikeWindow = false;
+      e.fallbackWindow = true; 
       ctx.events.push({ type: 'sovereignOpen', id: e.id, seconds: SOVEREIGN.WINDOW });
       return;
     }
@@ -235,10 +237,14 @@ registerBossType('sovereign', {
     
     
     
-    if (how === 'stomp' && e.spikeWindow && e.hp > 1 && weakTo(ph, how) && !(e.immune > 0)) {
+    
+    if (how === 'stomp' && (e.spikeWindow || e.fallbackWindow) && e.hp > 1 && weakTo(ph, how) && !(e.immune > 0)) {
+      
+      
+      e.weakNow = !!e.fallbackWindow;
       e.spikeWindow = false;
+      e.fallbackWindow = false;
       e.recoverFor = SPIKE_BREATH;
-      e.weakNow = false;
     }
     
     if (how && ph.crown && e.hp === 1 && weakTo(ph, how) && !(e.immune > 0))

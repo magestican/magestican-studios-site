@@ -121,6 +121,7 @@
 
 
 
+
 import { levelBuilder } from './dsl.js';
 
 const KIT = [
@@ -166,7 +167,9 @@ const DEED = 'L20-intel-2';
 const P3_INTRO = 4.9;
 const P3_POST = { x: 193, y: SILL + 7 }; 
 
-const SKY_END = 800;
+
+const LINE_DX = 90;
+const SKY_END = 800 + LINE_DX;
 
 const MOTH_PATH = [
   [290, 58],
@@ -201,12 +204,12 @@ const SPECIMEN = { x: ESCORT.x0 - 2, y: lineY(ESCORT.x0) + ESCORT.above - 0.35 }
 const SCREEN_UP = 6;
 const SCREEN = [330, 430, 500].map((x) => ({ x, y: lineY(x) + SCREEN_UP - 0.35, at: x - 19 }));
 const CADETS = [
-  [610, 67.65],
-  [640, 68.65],
-  [670, 69.65],
+  [610 + LINE_DX, 67.65],
+  [640 + LINE_DX, 68.65],
+  [670 + LINE_DX, 69.65],
 ]; 
 const P4_POST = { x: 300, y: 60 }; 
-const FLEE_TO = { x: 720, y: 70 }; 
+const FLEE_TO = { x: 720 + LINE_DX, y: 70 }; 
 const CB = (use) => ({ motif: 'callback', use });
 
 
@@ -307,6 +310,21 @@ const ROUTE = [
 ];
 
 
+
+
+
+
+
+
+const WASH = { y0: 63, y1: 80, w: 8, xs: [578, 592, 606, 620, 634, 648] };
+const WASH_PLAN = [
+  { x: 572, y: 61.5, move: 'fly' },
+  { x: 600, y: 60.5, move: 'fly' },
+  { x: 650, y: 60.5, move: 'fly' },
+  { x: 664, y: 64, move: 'fly' },
+];
+
+
 const PLANE_PLAN = [
   { x: 262, y: 56, move: 'fly' }, 
   { x: 274, y: 57, move: 'fly' },
@@ -316,7 +334,8 @@ const PLANE_PLAN = [
   ...MOTH_PATH.slice(0, 2).map(([x, y]) => ({ x, y, move: 'fly' })),
   { x: 380, y: lineY(380) + 1.2, move: 'fly' },
   ...MOTH_PATH.slice(2).map(([x, y]) => ({ x, y, move: 'fly' })),
-  { x: 600, y: 67.5, move: 'fly' }, 
+  ...WASH_PLAN,
+  { x: 600 + LINE_DX, y: 67.5, move: 'fly' }, 
   { x: FLEE_TO.x + 2, y: FLEE_TO.y + 0.9, move: 'fly' },
   { x: SKY_END - 20, y: FLEE_TO.y + 1, move: 'clear' }, 
 ];
@@ -516,7 +535,10 @@ function climb(L) {
 
   
   L.web(150.5, 49.5, 160, 49.5, { use: 'B9', motif: 'callback' });
-  L.putAt('intel', 159.5, 58.5, {
+  
+  
+  
+  L.putAt('intel', 159.5, 59.6, {
     secret: 'cache',
     name: "The Vast's window-cleaning schedule",
     signals: ['visual:amber-glint', 'audio:hollow-knock'],
@@ -689,6 +711,8 @@ function sky(L) {
   });
   
   L.beaconAt(560, 66, { phase: `${BOSS}:3`, mode: 'plane', boxes: 3 });
+  
+  for (const x of WASH.xs) L.soft(x, x + WASH.w, WASH.y0, WASH.y1, { skin: 'cloth' });
   
   
   for (const [x, y] of CADETS) L.putAt('wasp', x, y, { asleep: true, hp: 9, wingman: true, ...CB('B19') });
