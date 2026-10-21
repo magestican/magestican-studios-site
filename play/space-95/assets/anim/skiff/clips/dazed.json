@@ -1,0 +1,24 @@
+{
+ "name": "dazed",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 4,
+ "glb": "skiff_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "dazed"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "capsized or stomped (combat.js defeat, 0.5 s): the upturned leaf bobbing, the sailor slumped on its keel, swaying, head lolling, oars limp (the game draws the stars)"
+}

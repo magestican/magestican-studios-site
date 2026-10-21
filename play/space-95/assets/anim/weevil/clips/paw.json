@@ -1,0 +1,39 @@
+{
+ "name": "paw",
+ "fps": 24,
+ "frames": 12,
+ "loop": false,
+ "animation": 2,
+ "glb": "weevil_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  2,
+  4,
+  6,
+  8,
+  11
+ ],
+ "tags": [
+  "attack",
+  "telegraph",
+  "hexapod"
+ ],
+ "qa": {
+  "stance": {
+   "L2": "foot2.L",
+   "L3": "foot3.L",
+   "R1": "foot1.R",
+   "R2": "foot2.R",
+   "R3": "foot3.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the charge's telegraph (0.5 s, indexed by e.st): rocks back, snout down, the near front foot paws the floor twice (the game puffs flour and plays the snort), then a crouch ready to charge"
+}

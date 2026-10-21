@@ -1,0 +1,26 @@
+{
+ "name": "windup",
+ "fps": 24,
+ "frames": 12,
+ "loop": false,
+ "animation": 1,
+ "glb": "skiff_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6,
+  11
+ ],
+ "tags": [
+  "telegraph",
+  "attack"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the oar flash (0.5 s): sitting up, both oars swung up high and forward, one arm raised - heave-ho! (the game lights the pink oar halo and plays the call)"
+}

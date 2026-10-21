@@ -1,0 +1,34 @@
+{
+ "name": "righting",
+ "fps": 24,
+ "frames": 12,
+ "loop": false,
+ "animation": 8,
+ "glb": "sprite_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  1,
+  3,
+  6,
+  11
+ ],
+ "tags": [
+  "on_back",
+  "getup",
+  "fly"
+ ],
+ "qa": {
+  "rest_on": "elytron",
+  "rest_frames": [
+   0,
+   3
+  ]
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "rock, rock, a roll over onto its feet, wings flicked open and up to flying height (0.5 s)"
+}

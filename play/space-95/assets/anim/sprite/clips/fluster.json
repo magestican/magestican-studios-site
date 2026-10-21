@@ -1,0 +1,27 @@
+{
+ "name": "fluster",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 4,
+ "glb": "sprite_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "flustered",
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "out-glowed by Jo's Lantern (sprite.js 'fluster', 1.2 s, then it flees): wobbling and rolling in the air, legs flailing, antennae wagging - embarrassed"
+}

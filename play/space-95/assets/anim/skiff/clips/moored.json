@@ -1,0 +1,25 @@
+{
+ "name": "moored",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 0,
+ "glb": "skiff_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8
+ ],
+ "tags": [
+  "idle",
+  "float"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "moored on its water strip (skiff.js 'moored'; M1's dozing skiff too): the leaf hull bobbing and rocking on the swell, the sailor leaning on its oars, head nodding"
+}

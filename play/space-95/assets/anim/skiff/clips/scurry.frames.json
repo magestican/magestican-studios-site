@@ -1,0 +1,32 @@
+{
+ "clip": "scurry",
+ "fps": 12,
+ "frame_count": 4,
+ "loop": true,
+ "frame_times": [
+  0.0,
+  0.083333,
+  0.166667,
+  0.25
+ ],
+ "key_poses": [
+  0,
+  2
+ ],
+ "events": [],
+ "duration_s": 0.33333,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "skiff_clips.glb",
+  "animation": 5,
+  "fps": 24.0,
+  "frames": 9
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "skiff",
+ "u_m": 1.7562
+}

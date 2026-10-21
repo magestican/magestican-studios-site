@@ -1,0 +1,30 @@
+{
+ "clip": "frozen",
+ "fps": 12,
+ "frame_count": 2,
+ "loop": true,
+ "frame_times": [
+  0.0,
+  0.083333
+ ],
+ "key_poses": [
+  0,
+  1
+ ],
+ "events": [],
+ "duration_s": 0.16667,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "weevil_clips.glb",
+  "animation": 5,
+  "fps": 24.0,
+  "frames": 5
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "weevil",
+ "u_m": 1.7562
+}

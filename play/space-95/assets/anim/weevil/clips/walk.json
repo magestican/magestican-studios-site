@@ -1,0 +1,36 @@
+{
+ "name": "walk",
+ "fps": 24,
+ "frames": 7,
+ "loop": true,
+ "animation": 1,
+ "glb": "weevil_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 3.5124,
+ "carrier": null,
+ "key_poses": [
+  0,
+  3
+ ],
+ "tags": [
+  "gait",
+  "hexapod",
+  "patrol"
+ ],
+ "qa": {
+  "stance": {
+   "L1": "foot1.L",
+   "L2": "foot2.L",
+   "L3": "foot3.L",
+   "R1": "foot1.R",
+   "R2": "foot2.R",
+   "R3": "foot3.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the patrol (and M4's march) at the sim's 2 u/s: an alternating tripod (L1 R2 L3, then R1 L2 R3), each pair on its own x, the round body rocking under its cap, antennae bobbing (6 frames, 3 sprites on twos)"
+}

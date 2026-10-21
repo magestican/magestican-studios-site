@@ -1,0 +1,161 @@
+{
+ "character": "skiff",
+ "fps": 12,
+ "initial": "moored",
+ "conditions": {
+  "wake": "skiff.js moored: wakeWhen fired (and not anchored) - e.state 'windup' (event skiffWindup: the pink oar halo + heave-ho)",
+  "windup_done": "e.state turned 'row' (ROW_WINDUP 0.5 s)",
+  "ring": "ripple.js hit: a ring reaches it - e.state 'capsizing' (ROLL_TIME 0.35 s)",
+  "rolled": "ripple.js: the roll is over - defeat 'capsize', e.state 'dazed'",
+  "defeat": "sim event defeat (a stomp on the sailor) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "moored": {
+   "clip": "moored",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "windup": {
+   "clip": "windup",
+   "loop": false,
+   "hold": true,
+   "frames": 7
+  },
+  "row": {
+   "clip": "row",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "capsize": {
+   "clip": "capsize",
+   "loop": false,
+   "hold": true,
+   "frames": 5
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  }
+ },
+ "transitions": [
+  {
+   "from": "capsize",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "rolled"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "moored",
+   "to": "capsize",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ring"
+  },
+  {
+   "from": "moored",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "moored",
+   "to": "windup",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "row",
+   "to": "capsize",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ring"
+  },
+  {
+   "from": "row",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "scurry",
+   "to": "moored",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "windup",
+   "to": "capsize",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ring"
+  },
+  {
+   "from": "windup",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "windup",
+   "to": "row",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "windup_done"
+  }
+ ],
+ "requires": [
+  [
+   "moored",
+   "windup"
+  ],
+  [
+   "windup",
+   "row"
+  ],
+  [
+   "row",
+   "capsize"
+  ],
+  [
+   "moored",
+   "capsize"
+  ],
+  [
+   "capsize",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

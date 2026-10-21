@@ -1,0 +1,212 @@
+{
+ "character": "weevil",
+ "fps": 12,
+ "initial": "asleep",
+ "conditions": {
+  "wake": "the sim wakes it (entities.js wake range, or M4's wakeWhen): e.awake",
+  "sees_jo": "weevil.js patrol: a `charge` weevil sees Jo on its floor within SIGHT 8 u ahead - e.stage 'telegraph' (event telegraph, flour puff + snort)",
+  "paw_done": "e.stage turned 'charge' (TELEGRAPH 0.5 s; the game indexes paw by e.st)",
+  "charge_done": "e.stage turned 'rest' (a wall, an edge or CHARGE_MAX 10 u)",
+  "rest_done": "e.stage back to 'patrol' (REST 0.8 s)",
+  "freeze": "motifs/chill.js freeze: e.frozen (the game draws the ice block; the clip is held by e.warm)",
+  "thaw": "chill.js thaw: e.frozen false and e.state 'dazed'",
+  "defeat": "sim event defeat (a stomp from behind or a pound) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "walk": {
+   "clip": "walk",
+   "loop": true,
+   "hold": false,
+   "frames": 3
+  },
+  "paw": {
+   "clip": "paw",
+   "loop": false,
+   "hold": true,
+   "frames": 7
+  },
+  "charge": {
+   "clip": "charge",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "rest": {
+   "clip": "rest",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "frozen": {
+   "clip": "frozen",
+   "loop": true,
+   "hold": false,
+   "frames": 2
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "asleep",
+   "to": "frozen",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "freeze"
+  },
+  {
+   "from": "asleep",
+   "to": "walk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "charge",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "charge",
+   "to": "rest",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "charge_done"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "frozen",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "thaw"
+  },
+  {
+   "from": "paw",
+   "to": "charge",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "paw_done"
+  },
+  {
+   "from": "paw",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "rest",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "rest",
+   "to": "walk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "rest_done"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "walk",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "walk",
+   "to": "frozen",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "freeze"
+  },
+  {
+   "from": "walk",
+   "to": "paw",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "sees_jo"
+  }
+ ],
+ "requires": [
+  [
+   "asleep",
+   "walk"
+  ],
+  [
+   "walk",
+   "paw"
+  ],
+  [
+   "paw",
+   "charge"
+  ],
+  [
+   "charge",
+   "rest"
+  ],
+  [
+   "rest",
+   "walk"
+  ],
+  [
+   "walk",
+   "frozen"
+  ],
+  [
+   "frozen",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

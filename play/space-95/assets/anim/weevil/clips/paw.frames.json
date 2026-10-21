@@ -1,0 +1,64 @@
+{
+ "clip": "paw",
+ "fps": 12,
+ "frame_count": 7,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.083333,
+  0.166667,
+  0.25,
+  0.333333,
+  0.381944,
+  0.458333
+ ],
+ "key_poses": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  6
+ ],
+ "events": [],
+ "duration_s": 0.5,
+ "time_scale": 1.0,
+ "time_stretch": 1.09091,
+ "snapped": [
+  {
+   "frame": 1,
+   "from": 0.07639,
+   "to": 0.08333,
+   "why": "key"
+  },
+  {
+   "frame": 2,
+   "from": 0.15278,
+   "to": 0.16667,
+   "why": "key"
+  },
+  {
+   "frame": 3,
+   "from": 0.22917,
+   "to": 0.25,
+   "why": "key"
+  },
+  {
+   "frame": 4,
+   "from": 0.30556,
+   "to": 0.33333,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "weevil_clips.glb",
+  "animation": 2,
+  "fps": 24.0,
+  "frames": 12
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "weevil",
+ "u_m": 1.7562
+}

@@ -1,0 +1,31 @@
+{
+ "clip": "flash",
+ "fps": 12,
+ "frame_count": 3,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.0625,
+  0.125
+ ],
+ "key_poses": [
+  0,
+  2
+ ],
+ "events": [],
+ "duration_s": 0.16667,
+ "time_scale": 1.0,
+ "time_stretch": 1.33333,
+ "snapped": [],
+ "source": {
+  "glb": "sprite_clips.glb",
+  "animation": 3,
+  "fps": 24.0,
+  "frames": 4
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "sprite",
+ "u_m": 1.7562
+}

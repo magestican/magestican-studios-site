@@ -82,6 +82,25 @@ const MAP = {
     state: { perch: 'perch', fly: 'fly', return: 'fly', pass: 'fly', swoop: 'swoop', tail: 'glide', lead: 'glide', peel: 'peel' },
     rest: 'fly',
   },
+  
+  weevil: {
+    state: { dazed: 'dazed', scurry: 'scurry' },
+    rest: 'walk',
+    stage: { patrol: 'walk', march: 'walk', telegraph: 'paw', charge: 'charge', rest: 'rest' },
+    clock: ['frozen', 'warm'],
+  },
+  
+  skiff: {
+    state: { moored: 'moored', windup: 'windup', row: 'row', ram: 'row', capsizing: 'capsize', dazed: 'dazed', scurry: 'scurry' },
+    rest: 'moored',
+  },
+  
+  sprite: {
+    state: { dazed: 'dazed', scurry: 'scurry', flipped: 'flipped', righting: 'righting' },
+    rest: 'hover',
+    stage: { hover: 'hover', telegraph: 'telegraph', flash: 'flash', fluster: 'fluster', flee: 'hover' },
+    keep: ['spriteGlow'],
+  },
 };
 
 
@@ -91,6 +110,9 @@ export function hasCritterSprite(e) {
   if (e.kind === 'antPorter') return !e.skin; 
   if (e.kind === 'snailknight') return !e.specimen; 
   if (e.kind === 'dustmite') return !!e.crew && !e.specimen && !e.rides; 
+  if (e.kind === 'weevil') return !e.specimen; 
+  if (e.kind === 'skiff') return !e.skin && !e.galleon && !e.toy && !e.empty; 
+  if (e.kind === 'sprite') return !e.ghost; 
   return (
     (e.kind === 'ladybot' && !e.skin) ||
     (e.kind === 'pillbug' && !e.topiary) ||
@@ -127,7 +149,7 @@ export function attachCritterSprite(g, e) {
     const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
     quad.position.z = 0.05;
     g.add(quad);
-    for (const child of g.children) if (child.userData.placeholder) child.visible = false;
+    for (const child of g.children) if (child.userData.placeholder && !map.keep?.includes(child.name)) child.visible = false;
     Object.assign(view, { ready: true, sheet, own, mat, quad });
   });
   g.userData.critter = view;

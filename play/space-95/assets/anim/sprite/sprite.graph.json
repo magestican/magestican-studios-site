@@ -1,0 +1,227 @@
+{
+ "character": "sprite",
+ "fps": 12,
+ "initial": "asleep",
+ "conditions": {
+  "wake": "the sim wakes it (entities.js wake range): e.awake",
+  "in_reach": "sprite.js hover: Jo within REACH 7 x 6 u, the cooldown over, DR9's flash gap kept - e.stage 'telegraph' (the game turns the glow hot pink, rising whine)",
+  "tele_done": "e.stage turned 'flash' (TELEGRAPH 0.8 s; the game indexes telegraph by e.st)",
+  "flash_done": "e.stage back to 'hover' (FLASH 0.15 s)",
+  "outglowed": "e.stage turned 'fluster' (Jo's raised Lantern held it in her light at the telegraph's end)",
+  "fluster_done": "e.stage 'flee' then back to 'hover' (FLUSTER 1.2 s, AWAY 5 s; flee draws the hover clip)",
+  "flip": "rings.js flip (a firefly-flock burst): e.state = 'flipped' (it falls, lies on its back)",
+  "flip_done": "e.state turned 'righting' (FLIP_TIME)",
+  "righted": "e.state back to its old one (RIGHTING_TIME 0.5 s)",
+  "defeat": "sim event defeat (a stomp) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "hover": {
+   "clip": "hover",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "telegraph": {
+   "clip": "telegraph",
+   "loop": false,
+   "hold": true,
+   "frames": 11
+  },
+  "flash": {
+   "clip": "flash",
+   "loop": false,
+   "hold": true,
+   "frames": 3
+  },
+  "fluster": {
+   "clip": "fluster",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "flipped": {
+   "clip": "flipped",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "righting": {
+   "clip": "righting",
+   "loop": false,
+   "hold": true,
+   "frames": 7
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "asleep",
+   "to": "hover",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "flash",
+   "to": "hover",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flash_done"
+  },
+  {
+   "from": "flipped",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "flipped",
+   "to": "righting",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip_done"
+  },
+  {
+   "from": "fluster",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "fluster",
+   "to": "hover",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "fluster_done"
+  },
+  {
+   "from": "hover",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "hover",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "hover",
+   "to": "telegraph",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "in_reach"
+  },
+  {
+   "from": "righting",
+   "to": "hover",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "righted"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "telegraph",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "telegraph",
+   "to": "flash",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "tele_done"
+  },
+  {
+   "from": "telegraph",
+   "to": "fluster",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "outglowed"
+  }
+ ],
+ "requires": [
+  [
+   "asleep",
+   "hover"
+  ],
+  [
+   "hover",
+   "telegraph"
+  ],
+  [
+   "telegraph",
+   "flash"
+  ],
+  [
+   "flash",
+   "hover"
+  ],
+  [
+   "telegraph",
+   "fluster"
+  ],
+  [
+   "hover",
+   "flipped"
+  ],
+  [
+   "flipped",
+   "righting"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

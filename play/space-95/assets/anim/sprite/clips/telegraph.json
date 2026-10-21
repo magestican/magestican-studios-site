@@ -1,0 +1,30 @@
+{
+ "name": "telegraph",
+ "fps": 24,
+ "frames": 20,
+ "loop": false,
+ "animation": 2,
+ "glb": "sprite_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8,
+  14,
+  19
+ ],
+ "tags": [
+  "attack",
+  "telegraph",
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the flash's telegraph (0.8 s, indexed by e.st): rearing back, the lantern curled up and round, trembling, wings buzzing (the game turns its glow hot pink and plays the rising whine)"
+}

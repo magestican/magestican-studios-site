@@ -1,0 +1,37 @@
+{
+ "name": "asleep",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 0,
+ "glb": "weevil_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8
+ ],
+ "tags": [
+  "sleep",
+  "idle",
+  "hexapod"
+ ],
+ "qa": {
+  "stance": {
+   "L1": "foot1.L",
+   "L2": "foot2.L",
+   "L3": "foot3.L",
+   "R1": "foot1.R",
+   "R2": "foot2.R",
+   "R3": "foot3.R"
+  },
+  "support": "feet",
+  "static": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "asleep until Jo comes near (entities.js wake; M4's dozing column): settled low under its cap, snout resting on the floor side, antennae folded, a slow breath (Artist shuts the eye; the game draws the Zs)"
+}

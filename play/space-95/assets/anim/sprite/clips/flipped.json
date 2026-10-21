@@ -1,0 +1,29 @@
+{
+ "name": "flipped",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 7,
+ "glb": "sprite_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  3,
+  6,
+  9
+ ],
+ "tags": [
+  "on_back",
+  "rocking"
+ ],
+ "qa": {
+  "rest_on": "elytron"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "flipped by a flock burst (rings.js, FLIP_TIME): fallen on its back on its wing cases, rocking, the six legs waving in the air"
+}

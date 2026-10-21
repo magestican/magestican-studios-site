@@ -1,0 +1,36 @@
+{
+ "name": "frozen",
+ "fps": 24,
+ "frames": 5,
+ "loop": true,
+ "animation": 5,
+ "glb": "weevil_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  2
+ ],
+ "tags": [
+  "frozen",
+  "hexapod"
+ ],
+ "qa": {
+  "stance": {
+   "L1": "foot1.L",
+   "L2": "foot2.L",
+   "L3": "foot3.L",
+   "R1": "foot1.R",
+   "R2": "foot2.R",
+   "R3": "foot3.R"
+  },
+  "support": "feet",
+  "static": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "frozen solid in the ice block (chill.js): hunched, legs drawn in, snout tucked, a shiver as it thaws"
+}

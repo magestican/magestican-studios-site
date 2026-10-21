@@ -1,0 +1,27 @@
+{
+ "name": "flash",
+ "fps": 24,
+ "frames": 4,
+ "loop": false,
+ "animation": 3,
+ "glb": "sprite_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  3
+ ],
+ "tags": [
+  "attack",
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the flash (0.15 s): the lantern thrust out at Jo, wings and legs flung wide (the game blooms the light)"
+}

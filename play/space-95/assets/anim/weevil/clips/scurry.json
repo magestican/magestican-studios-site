@@ -1,0 +1,28 @@
+{
+ "name": "scurry",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 7,
+ "glb": "weevil_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "flee",
+  "cartoon",
+  "airborne"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "defeated: a frantic getaway in the air, all six legs pedalling, antennae streaming back (the sim zips it off at 7 u/s for 0.9 s)"
+}

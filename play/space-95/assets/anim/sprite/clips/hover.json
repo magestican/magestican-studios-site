@@ -1,0 +1,27 @@
+{
+ "name": "hover",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 1,
+ "glb": "sprite_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "fly",
+  "hover"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "hovering at its post (sprite.js 'hover', also the flee home): wing cases up, the thin wings beating (one beat per 8 frames on twos), the lantern abdomen swinging gently, legs dangling (the sim bobs it)"
+}

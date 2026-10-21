@@ -1,0 +1,26 @@
+{
+ "name": "capsize",
+ "fps": 24,
+ "frames": 9,
+ "loop": false,
+ "animation": 3,
+ "glb": "skiff_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4,
+  8
+ ],
+ "tags": [
+  "capsize",
+  "hit"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "a ring capsizes it (ripple.js, 0.35 s): the leaf hull rolls right over, the sailor flung up flailing and landing sat on the upturned keel"
+}

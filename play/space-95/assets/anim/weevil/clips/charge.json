@@ -1,0 +1,38 @@
+{
+ "name": "charge",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 3,
+ "glb": "weevil_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 4.32,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "gait",
+  "hexapod",
+  "run",
+  "attack",
+  "cartoon"
+ ],
+ "qa": {
+  "stance": {
+   "L1": "foot1.L",
+   "L2": "foot2.L",
+   "L3": "foot3.L",
+   "R1": "foot1.R",
+   "R2": "foot2.R",
+   "R3": "foot3.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the charge (the sim slides it at 6 u/s; the legs scramble at 2.46 u/s, a cartoon dash): snout down like a battering ram, antennae swept back, the cap riding steady"
+}

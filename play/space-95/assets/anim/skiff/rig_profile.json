@@ -1,0 +1,563 @@
+{
+ "template": "critter",
+ "species": "skiff",
+ "height_m": 1.46,
+ "u_m": 1.7562,
+ "style": "cartoon",
+ "up_axis": "Y",
+ "weights": "rigid (one joint per vertex; 07-creatures 6.1: chitin does not bend)",
+ "joints": {
+  "DEF-body": {
+   "parent": null,
+   "bind": [
+    0.0,
+    0.36,
+    0.0
+   ],
+   "limits": {
+    "free": true
+   }
+  },
+  "DEF-sailor": {
+   "parent": "DEF-body",
+   "bind": [
+    0.0,
+    0.36,
+    0.15
+   ],
+   "limits": {
+    "pitch": [
+     -30,
+     30
+    ],
+    "roll": [
+     -180,
+     180
+    ],
+    "yaw": [
+     -20,
+     20
+    ]
+   }
+  },
+  "DEF-head": {
+   "parent": "DEF-sailor",
+   "bind": [
+    0.0,
+    1.16,
+    0.18
+   ],
+   "limits": {
+    "pitch": [
+     -35,
+     40
+    ],
+    "roll": [
+     -30,
+     30
+    ],
+    "yaw": [
+     -35,
+     35
+    ]
+   }
+  },
+  "DEF-oar.L": {
+   "parent": "DEF-sailor",
+   "bind": [
+    0.13,
+    0.98,
+    0.16
+   ],
+   "limits": {
+    "pitch": [
+     -25,
+     25
+    ],
+    "roll": [
+     -20,
+     80
+    ],
+    "yaw": [
+     -55,
+     55
+    ]
+   }
+  },
+  "DEF-oar.L.001": {
+   "parent": "DEF-oar.L",
+   "bind": [
+    0.78,
+    0.92,
+    0.16
+   ],
+   "limits": {
+    "pitch": [
+     -70,
+     70
+    ],
+    "roll": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-arm.L": {
+   "parent": "DEF-sailor",
+   "bind": [
+    0.12,
+    1.0,
+    0.3
+   ],
+   "limits": {
+    "pitch": [
+     -90,
+     60
+    ],
+    "roll": [
+     -40,
+     60
+    ]
+   }
+  },
+  "DEF-hind.L": {
+   "parent": "DEF-sailor",
+   "bind": [
+    0.12,
+    0.74,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     40
+    ],
+    "roll": [
+     -20,
+     40
+    ]
+   }
+  },
+  "DEF-oar.R": {
+   "parent": "DEF-sailor",
+   "bind": [
+    -0.13,
+    0.98,
+    0.16
+   ],
+   "limits": {
+    "pitch": [
+     -25,
+     25
+    ],
+    "roll": [
+     -80,
+     20
+    ],
+    "yaw": [
+     -55,
+     55
+    ]
+   }
+  },
+  "DEF-oar.R.001": {
+   "parent": "DEF-oar.R",
+   "bind": [
+    -0.78,
+    0.92,
+    0.16
+   ],
+   "limits": {
+    "pitch": [
+     -70,
+     70
+    ],
+    "roll": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-arm.R": {
+   "parent": "DEF-sailor",
+   "bind": [
+    -0.12,
+    1.0,
+    0.3
+   ],
+   "limits": {
+    "pitch": [
+     -90,
+     60
+    ],
+    "roll": [
+     -60,
+     40
+    ]
+   }
+  },
+  "DEF-hind.R": {
+   "parent": "DEF-sailor",
+   "bind": [
+    -0.12,
+    0.74,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     40
+    ],
+    "roll": [
+     -40,
+     20
+    ]
+   }
+  }
+ },
+ "parts": [
+  {
+   "name": "hull",
+   "joint": "DEF-body",
+   "verts": [
+    0,
+    680
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.36,
+     0.0
+    ],
+    "r": [
+     0.62,
+     0.36,
+     2.4
+    ]
+   }
+  },
+  {
+   "name": "bow",
+   "joint": "DEF-body",
+   "verts": [
+    680,
+    80
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.0,
+     0.5,
+     2.15
+    ],
+    "b": [
+     0.0,
+     0.74,
+     2.42
+    ],
+    "ra": 0.1,
+    "rb": 0.06
+   }
+  },
+  {
+   "name": "stern",
+   "joint": "DEF-body",
+   "verts": [
+    760,
+    80
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.0,
+     0.5,
+     -2.15
+    ],
+    "b": [
+     0.0,
+     0.72,
+     -2.44
+    ],
+    "ra": 0.1,
+    "rb": 0.06
+   }
+  },
+  {
+   "name": "sailor",
+   "joint": "DEF-sailor",
+   "verts": [
+    840,
+    330
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.92,
+     0.15
+    ],
+    "r": [
+     0.17,
+     0.28,
+     0.2
+    ]
+   }
+  },
+  {
+   "name": "head",
+   "joint": "DEF-head",
+   "verts": [
+    1170,
+    330
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     1.3,
+     0.24
+    ],
+    "r": [
+     0.17,
+     0.16,
+     0.16
+    ]
+   }
+  },
+  {
+   "name": "oar.L",
+   "joint": "DEF-oar.L",
+   "verts": [
+    1500,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.13,
+     0.98,
+     0.16
+    ],
+    "b": [
+     0.78,
+     0.92,
+     0.16
+    ],
+    "ra": 0.035,
+    "rb": 0.03
+   }
+  },
+  {
+   "name": "oar_shin.L",
+   "joint": "DEF-oar.L.001",
+   "verts": [
+    1548,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.78,
+     0.92,
+     0.16
+    ],
+    "b": [
+     1.12,
+     0.1,
+     0.16
+    ],
+    "ra": 0.03,
+    "rb": 0.022
+   }
+  },
+  {
+   "name": "blade.L",
+   "joint": "DEF-oar.L.001",
+   "verts": [
+    1596,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     1.12,
+     0.14,
+     0.16
+    ],
+    "r": [
+     0.035,
+     0.05,
+     0.13
+    ]
+   }
+  },
+  {
+   "name": "arm.L",
+   "joint": "DEF-arm.L",
+   "verts": [
+    1666,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.12,
+     1.0,
+     0.3
+    ],
+    "b": [
+     0.26,
+     0.8,
+     0.58
+    ],
+    "ra": 0.03,
+    "rb": 0.025
+   }
+  },
+  {
+   "name": "hind.L",
+   "joint": "DEF-hind.L",
+   "verts": [
+    1714,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.12,
+     0.74,
+     0.0
+    ],
+    "b": [
+     0.4,
+     0.73,
+     -1.35
+    ],
+    "ra": 0.028,
+    "rb": 0.02
+   }
+  },
+  {
+   "name": "oar.R",
+   "joint": "DEF-oar.R",
+   "verts": [
+    1762,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.13,
+     0.98,
+     0.16
+    ],
+    "b": [
+     -0.78,
+     0.92,
+     0.16
+    ],
+    "ra": 0.035,
+    "rb": 0.03
+   }
+  },
+  {
+   "name": "oar_shin.R",
+   "joint": "DEF-oar.R.001",
+   "verts": [
+    1810,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.78,
+     0.92,
+     0.16
+    ],
+    "b": [
+     -1.12,
+     0.1,
+     0.16
+    ],
+    "ra": 0.03,
+    "rb": 0.022
+   }
+  },
+  {
+   "name": "blade.R",
+   "joint": "DEF-oar.R.001",
+   "verts": [
+    1858,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -1.12,
+     0.14,
+     0.16
+    ],
+    "r": [
+     0.035,
+     0.05,
+     0.13
+    ]
+   }
+  },
+  {
+   "name": "arm.R",
+   "joint": "DEF-arm.R",
+   "verts": [
+    1928,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.12,
+     1.0,
+     0.3
+    ],
+    "b": [
+     -0.26,
+     0.8,
+     0.58
+    ],
+    "ra": 0.03,
+    "rb": 0.025
+   }
+  },
+  {
+   "name": "hind.R",
+   "joint": "DEF-hind.R",
+   "verts": [
+    1976,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.12,
+     0.74,
+     0.0
+    ],
+    "b": [
+     -0.4,
+     0.73,
+     -1.35
+    ],
+    "ra": 0.028,
+    "rb": 0.02
+   }
+  }
+ ],
+ "hip_height_m": 0.6,
+ "feet": {},
+ "rest_surface": null,
+ "overlap_ok": [],
+ "hitbox_u": [
+  3.0,
+  1.0
+ ]
+}
