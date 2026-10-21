@@ -54,6 +54,7 @@ function enterPhase(e, ctx, i) {
   e.recoverFor = undefined;
   e.weakNow = undefined;
   e.interrupt = null;
+  e.introFor = undefined;
   ctx.events.push({ type: 'bossPhase', id: e.id, phase: i, name: e.phases[i].name });
 }
 
@@ -92,6 +93,10 @@ registerKind('boss', {
     if (s.deaths !== e.deathsSeen) {
       e.deathsSeen = s.deaths;
       enterPhase(e, ctx, e.phase);
+      
+      
+      e.introFor = e.phases[e.phase].retryIntro;
+      impl.retry?.(e, ctx);
       ctx.events.push({ type: 'bossRetry', id: e.id, phase: e.phase });
       return;
     }
@@ -118,7 +123,7 @@ registerKind('boss', {
         seconds: e.recoverFor,
         weak: e.weakNow !== false,
       });
-    } else if (e.stage === 'intro' && e.t >= (ph.intro ?? INTRO_TIME)) {
+    } else if (e.stage === 'intro' && e.t >= (e.introFor ?? ph.intro ?? INTRO_TIME)) {
       e.stage = 'telegraph';
       e.t = 0;
       ctx.events.push({ type: 'telegraph', id: e.id, attack: atk.name, seconds: atk.telegraph, x: e.x, y: e.y });

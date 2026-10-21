@@ -36,8 +36,14 @@
 
 
 
+
+
+
+
 import { contact, hurtPlayer, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
+import { spawnEntities } from '../entities.js';
+import { restoreTower } from '../motifs/collapse.js';
 import { registerBossType, weakTo } from './boss.js';
 
 const CHARGE = 11; 
@@ -53,6 +59,29 @@ const FAN_R = 1.5;
 const SPIKE_BREATH = 0.3; 
 
 registerBossType('sovereign', {
+  retry(e, ctx) {
+    
+    if (e.phases[e.phase].post && !e.phases[e.phase].flee) e.from = { x: e.x, y: e.y };
+    const props = e.phases[e.phase].props;
+    if (!props) return;
+    const s = ctx.session;
+    const w = ctx.world;
+    const T = w.tile;
+    const p = ctx.player;
+    const defs = (s.level.entities ?? []).filter((d) => (props.ids ?? []).includes(d.id));
+    for (const fresh of spawnEntities(defs)) {
+      const i = s.entities.findIndex((o) => o.id === fresh.id);
+      if (i >= 0) s.entities[i] = fresh; 
+    }
+    for (const [x0, x1, y0, y1] of props.soil ?? [])
+      for (let c = Math.round(x0 / T); c < Math.round(x1 / T); c++)
+        for (let r = Math.round(y0 / T); r < Math.round(y1 / T); r++) {
+          const jo = p.x + p.w / 2 > c * T && p.x - p.w / 2 < (c + 1) * T && p.y + p.h > r * T && p.y < (r + 1) * T;
+          if (!jo) w.placeSoil(c, r);
+        }
+    for (const t of s.entities) if (t.kind === 'tower' && (props.towers ?? []).includes(t.tag)) restoreTower(t, w, p);
+    ctx.events.push({ type: 'propsReset', id: e.id, phase: e.phase });
+  },
   idle(e, ctx) {
     const ph = e.phases[e.phase];
     if (!ph.perches) return;
@@ -132,7 +161,7 @@ registerBossType('sovereign', {
       }
     }
     if (ph.post && e.from) {
-      const k = Math.min(1, e.t / (ph.intro ?? 1.2));
+      const k = Math.min(1, e.t / (e.introFor ?? ph.intro ?? 1.2));
       const ease = k * k * (3 - 2 * k);
       e.x = e.from.x + (e.post.x - e.from.x) * ease;
       e.y = e.from.y + (e.post.y - e.from.y) * ease;

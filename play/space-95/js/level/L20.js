@@ -108,6 +108,12 @@
 
 
 
+
+
+
+
+
+
 import { levelBuilder } from './dsl.js';
 
 const KIT = [
@@ -337,6 +343,10 @@ export function buildL20() {
           { at: 95, x: 124, y: SILL + 1, fan: true },
         ],
         land: { at: 121, x: 138, y: SILL }, 
+        
+        
+        spawn: { x: 124, y: SILL },
+        props: { ids: ['L20-fruitlet-1', 'L20-fruitlet-2'] },
         attacks: [atk('Glitter Fan', 'hover', 0.8, 0.5, 0.6), atk('Horn Charge', 'charge', 0.9, 0.6, 0.8)],
       },
       {
@@ -360,12 +370,19 @@ export function buildL20() {
         name: 'P3',
         hp: 2,
         intro: P3_INTRO,
+        retryIntro: 1.7, 
         post: P3_POST,
         arena: { x0: 174, x1: 224, y0: 28, y1: 60 },
         weakness: ['callback', 'stomp'],
         callbacks: ['collapseHit', 'heaveLaunch'],
         windowY: SILL + 1, 
         deed: DEED,
+        
+        props: {
+          ids: ['L20-clod-1', 'L20-clod-2', 'L20-clod-3', 'L20-clod-4', 'L20-wasp-5', 'L20-wasp-6', 'L20-wasp-7', 'L20-wasp-8'],
+          soil: [[BOX_E, BOX_E + 2, BOX_TOP - 1, BOX_TOP]],
+          towers: ['PT'],
+        },
         attacks: [atk('Cadet Volley', 'hover', 0.8, 0.5, 0.8), atk('Crown Swoop', 'swoop', 1.0, 0.7, 1.0)],
       },
       {
