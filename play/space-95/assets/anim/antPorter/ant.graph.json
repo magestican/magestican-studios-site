@@ -1,0 +1,211 @@
+{
+ "character": "ant",
+ "fps": 12,
+ "initial": "asleep",
+ "conditions": {
+  "end": "the clip showed its last frame (and nothing else applies)",
+  "wake": "sim event wake (entities.js: a `sleeps` kind wakes when Jo comes within its wake range; L7's dozer on a touch or a pound)",
+  "poke": "sim event poke (antPorter.js: Jo stomped it) - e.state 'shove' for SHOVE_TIME 1 s, facing Jo",
+  "calm": "sim: e.state back to 'march' (the grumpy second is over)",
+  "defeat": "sim event defeat (combat.defeat: a clod, a collapse, a shield bash) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "flip": "sim event flip (rings.js / shoe.js FLIPPABLE: the shoe's shockwave) - e.state = 'flipped'",
+  "bowl": "sim event bowl (rings.js: Jo touched it while flipped) - it tumbles off, e.state = 'scurry', never defeated",
+  "righting": "sim event righting (FLIP_TIME 4.0 s on its back) - e.state = 'righting'",
+  "flee": "sim event flee (righted with e.flee: it scurries off instead)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "march": {
+   "clip": "march",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "shove": {
+   "clip": "shove",
+   "loop": false,
+   "hold": true,
+   "frames": 13
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "flipped": {
+   "clip": "flipped",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "righting": {
+   "clip": "righting",
+   "loop": false,
+   "hold": false,
+   "frames": 7
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "asleep",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "asleep",
+   "to": "march",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "flipped",
+   "to": "righting",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "righting"
+  },
+  {
+   "from": "flipped",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "bowl"
+  },
+  {
+   "from": "march",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "march",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "march",
+   "to": "shove",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "poke"
+  },
+  {
+   "from": "righting",
+   "to": "march",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "righting",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flee"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "shove",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "shove",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "shove",
+   "to": "march",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "calm"
+  }
+ ],
+ "requires": [
+  [
+   "asleep",
+   "march"
+  ],
+  [
+   "march",
+   "shove"
+  ],
+  [
+   "shove",
+   "march"
+  ],
+  [
+   "march",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ],
+  [
+   "march",
+   "flipped"
+  ],
+  [
+   "flipped",
+   "scurry"
+  ],
+  [
+   "flipped",
+   "righting"
+  ],
+  [
+   "righting",
+   "march"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

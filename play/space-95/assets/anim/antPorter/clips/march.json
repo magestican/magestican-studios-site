@@ -1,0 +1,33 @@
+{
+ "name": "march",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 1,
+ "glb": "ant_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 3.5124,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "gait",
+  "biped",
+  "march",
+  "carry"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the porter's march at the sim's 2 u/s: quick short steps (duty 0.28), the crumb held up and bobbing, middle hands swinging, antennae bouncing (8 frames, 4 sprites on twos)"
+}

@@ -62,12 +62,19 @@ const MAP = {
     rest: 'patrol',
     stage: { patrol: 'patrol', windup: 'windup', charge: 'charge', stunned: 'stunned', stuck: 'stuck', shake: 'shake', halt: 'halt' },
   },
+  
+  antPorter: {
+    state: { march: 'march', shove: 'shove', dazed: 'dazed', scurry: 'scurry', flipped: 'flipped', righting: 'righting' },
+    rest: 'march',
+    stage: {},
+  },
 };
 
 
 export function hasCritterSprite(e) {
   if (e.kind === 'wasp') return !e.skin && !e.specimen; 
   if (e.kind === 'guard') return !e.velvet; 
+  if (e.kind === 'antPorter') return !e.skin; 
   return (e.kind === 'ladybot' && !e.skin) || (e.kind === 'pillbug' && !e.topiary) || e.kind === 'aphid' || e.kind === 'bandit';
 }
 

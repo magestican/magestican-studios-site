@@ -1,0 +1,36 @@
+{
+ "name": "shove",
+ "fps": 24,
+ "frames": 24,
+ "loop": false,
+ "animation": 2,
+ "glb": "ant_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4,
+  8,
+  14,
+  23
+ ],
+ "tags": [
+  "attack",
+  "biped",
+  "push",
+  "carry"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "grumpy after a poke (SHOVE_TIME 1 s, 24 frames): a huff and a stamp, two shoves with the middle hands (the sim pushes Jo away at 5 u/s on a touch), back to the porter stand; never damage"
+}

@@ -1,0 +1,32 @@
+{
+ "name": "dazed",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 3,
+ "glb": "ant_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "idle",
+  "biped"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet",
+  "static": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "dazed (combat.js defeat, 0.5 s): slumped, wobbling in a slow circle, head lolling, antennae drooped, still clutching the crumb (the game draws the stars)"
+}

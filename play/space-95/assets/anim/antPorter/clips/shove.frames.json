@@ -1,0 +1,69 @@
+{
+ "clip": "shove",
+ "fps": 12,
+ "frame_count": 13,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.079861,
+  0.166667,
+  0.239583,
+  0.333333,
+  0.399306,
+  0.479167,
+  0.583333,
+  0.638889,
+  0.71875,
+  0.798611,
+  0.878472,
+  0.958333
+ ],
+ "key_poses": [
+  0,
+  2,
+  4,
+  7,
+  12
+ ],
+ "events": [
+  {
+   "type": "foot_r",
+   "frame": 2,
+   "time": 0.16667
+  }
+ ],
+ "duration_s": 1.0,
+ "time_scale": 1.0,
+ "time_stretch": 1.04348,
+ "snapped": [
+  {
+   "frame": 2,
+   "from": 0.15972,
+   "to": 0.16667,
+   "why": "foot_r"
+  },
+  {
+   "frame": 4,
+   "from": 0.31944,
+   "to": 0.33333,
+   "why": "key"
+  },
+  {
+   "frame": 7,
+   "from": 0.55903,
+   "to": 0.58333,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "ant_clips.glb",
+  "animation": 2,
+  "fps": 24.0,
+  "frames": 24
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "ant",
+ "u_m": 1.7562
+}

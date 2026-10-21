@@ -1,0 +1,52 @@
+{
+ "name": "righting",
+ "fps": 24,
+ "frames": 13,
+ "loop": false,
+ "animation": 6,
+ "glb": "ant_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  2,
+  4,
+  6,
+  9,
+  12
+ ],
+ "tags": [
+  "on_back",
+  "getup"
+ ],
+ "qa": {
+  "rest_on": "gaster",
+  "rest_frames": [
+   0,
+   6
+  ],
+  "rolling": {
+   "part": "gaster",
+   "frames": [
+    0,
+    6
+   ]
+  },
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "stance_from": 9,
+  "support": "feet"
+ },
+ "extra": {
+  "events": [
+   {
+    "type": "land",
+    "frame": 9
+   }
+  ],
+  "time_scale": 1.0
+ },
+ "notes": "rock, rock, knees in, a big forward rock, feet down, up out of a squat (0.5 s), crumb held"
+}

@@ -1,0 +1,61 @@
+{
+ "clip": "righting",
+ "fps": 12,
+ "frame_count": 7,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.083333,
+  0.166667,
+  0.25,
+  0.375,
+  0.416667,
+  0.5
+ ],
+ "key_poses": [
+  1,
+  2,
+  3,
+  4,
+  6
+ ],
+ "events": [
+  {
+   "type": "foot_l",
+   "frame": 4,
+   "time": 0.33333
+  },
+  {
+   "type": "foot_r",
+   "frame": 4,
+   "time": 0.33333
+  },
+  {
+   "type": "land",
+   "frame": 4,
+   "time": 0.33333
+  }
+ ],
+ "duration_s": 0.5,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [
+  {
+   "frame": 4,
+   "from": 0.33333,
+   "to": 0.375,
+   "why": "foot_l"
+  }
+ ],
+ "source": {
+  "glb": "ant_clips.glb",
+  "animation": 6,
+  "fps": 24.0,
+  "frames": 13
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "ant",
+ "u_m": 1.7562
+}

@@ -1,0 +1,33 @@
+{
+ "name": "asleep",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 0,
+ "glb": "ant_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8
+ ],
+ "tags": [
+  "idle",
+  "sleep",
+  "biped"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet",
+  "static": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "dozing upright under its crumb: middle arms hanging, antennae drooped, the head nodding (the game draws the Zs)"
+}

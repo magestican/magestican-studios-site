@@ -35,5 +35,6 @@ registerKind('antPorter', {
       p.vx = Math.sign(p.x - e.x) * SHOVE_V;
       ctx.events.push({ type: 'shove', id: e.id });
     }
+    e.state = e.grumpy > 0 ? 'shove' : 'march'; 
   },
 });
