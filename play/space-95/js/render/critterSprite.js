@@ -41,11 +41,13 @@ const MAP = {
     rest: 'look',
     enter: { 'roll>uncurl': 'uncurl', 'uncurl>roll': 'curl', 'roll>dazed': 'uncurl', 'roll>flipped': 'uncurl' },
   },
+  
+  aphid: { state: { hop: 'hop', dazed: 'dazed', scurry: 'scurry', flipped: 'flipped', righting: 'righting' }, rest: 'hop' },
 };
 
 
 export function hasCritterSprite(e) {
-  return (e.kind === 'ladybot' && !e.skin) || (e.kind === 'pillbug' && !e.topiary);
+  return (e.kind === 'ladybot' && !e.skin) || (e.kind === 'pillbug' && !e.topiary) || e.kind === 'aphid';
 }
 
 
@@ -94,6 +96,9 @@ export function updateCritterSprite(g, e, dt) {
   }
   let clip = v.oneShot ?? map.state[e.state] ?? map.rest;
   if (e.kind === 'ladybot' && e.state === 'walk' && e.grounded === false) clip = 'hop';
+  const aphidHop = e.kind === 'aphid' && clip === 'hop';
+  if (aphidHop && e.dozing) clip = 'asleep';
+  else if (aphidHop && e.grounded && e.vx) clip = 'walk'; 
   const c = v.sheet.clips[clip] ?? v.sheet.clips[map.rest];
   if (!c) return;
   if (clip !== v.clip) {
@@ -101,6 +106,8 @@ export function updateCritterSprite(g, e, dt) {
     if (!v.oneShot) v.t = 0;
   }
   v.t += dt;
+  
+  if (clip === 'hop' && e.kind === 'aphid') v.t = e.grounded === false ? Math.min(e.hopT, 0.55) : Math.max(e.hopT, 0.58);
   const n = c.frames.length;
   let i = Math.floor(v.t * c.fps);
   if (i >= n) {

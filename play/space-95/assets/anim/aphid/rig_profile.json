@@ -1,0 +1,886 @@
+{
+ "template": "critter",
+ "species": "aphid",
+ "height_m": 0.795,
+ "u_m": 1.7562,
+ "style": "cartoon",
+ "up_axis": "Y",
+ "weights": "rigid (one joint per vertex; 07-creatures 6.1: chitin does not bend)",
+ "joints": {
+  "DEF-body": {
+   "parent": null,
+   "bind": [
+    0.0,
+    0.21,
+    0.0
+   ],
+   "limits": {
+    "free": true
+   }
+  },
+  "DEF-chest": {
+   "parent": "DEF-body",
+   "bind": [
+    0.0,
+    0.46,
+    0.02
+   ],
+   "limits": {
+    "pitch": [
+     -35,
+     35
+    ],
+    "roll": [
+     -25,
+     25
+    ],
+    "yaw": [
+     -30,
+     30
+    ]
+   }
+  },
+  "DEF-head": {
+   "parent": "DEF-chest",
+   "bind": [
+    0.0,
+    0.58,
+    0.07
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     40
+    ],
+    "roll": [
+     -35,
+     35
+    ],
+    "yaw": [
+     -45,
+     45
+    ]
+   }
+  },
+  "DEF-antenna.L": {
+   "parent": "DEF-head",
+   "bind": [
+    0.05,
+    0.77,
+    0.14
+   ],
+   "limits": {
+    "pitch": [
+     -80,
+     80
+    ],
+    "roll": [
+     -60,
+     60
+    ]
+   }
+  },
+  "DEF-antenna.L.001": {
+   "parent": "DEF-antenna.L",
+   "bind": [
+    0.07,
+    0.85,
+    0.16
+   ],
+   "limits": {
+    "pitch": [
+     -70,
+     70
+    ],
+    "roll": [
+     -45,
+     45
+    ]
+   }
+  },
+  "DEF-arm1.L": {
+   "parent": "DEF-chest",
+   "bind": [
+    0.115,
+    0.5,
+    0.12
+   ],
+   "limits": {
+    "pitch": [
+     -150,
+     100
+    ],
+    "roll": [
+     -15,
+     100
+    ],
+    "yaw": [
+     -50,
+     50
+    ]
+   }
+  },
+  "DEF-fore1.L": {
+   "parent": "DEF-arm1.L",
+   "bind": [
+    0.125,
+    0.42,
+    0.13
+   ],
+   "limits": {
+    "pitch": [
+     -135,
+     0
+    ]
+   }
+  },
+  "DEF-cornicle.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.08,
+    0.5,
+    -0.14
+   ],
+   "limits": {}
+  },
+  "DEF-puff.L": {
+   "parent": "DEF-cornicle.L",
+   "bind": [
+    0.1,
+    0.6,
+    -0.17
+   ],
+   "limits": {}
+  },
+  "DEF-thigh.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.075,
+    0.21,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     -110,
+     50
+    ],
+    "roll": [
+     -15,
+     40
+    ],
+    "yaw": [
+     -30,
+     30
+    ]
+   }
+  },
+  "DEF-shin.L": {
+   "parent": "DEF-thigh.L",
+   "bind": [
+    0.075,
+    0.135,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     0,
+     145
+    ]
+   }
+  },
+  "DEF-foot.L": {
+   "parent": "DEF-shin.L",
+   "bind": [
+    0.075,
+    0.06,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     -70,
+     60
+    ],
+    "roll": [
+     -25,
+     25
+    ],
+    "yaw": [
+     -20,
+     20
+    ]
+   }
+  },
+  "DEF-antenna.R": {
+   "parent": "DEF-head",
+   "bind": [
+    -0.05,
+    0.77,
+    0.14
+   ],
+   "limits": {
+    "pitch": [
+     -80,
+     80
+    ],
+    "roll": [
+     -60,
+     60
+    ]
+   }
+  },
+  "DEF-antenna.R.001": {
+   "parent": "DEF-antenna.R",
+   "bind": [
+    -0.07,
+    0.85,
+    0.16
+   ],
+   "limits": {
+    "pitch": [
+     -70,
+     70
+    ],
+    "roll": [
+     -45,
+     45
+    ]
+   }
+  },
+  "DEF-arm1.R": {
+   "parent": "DEF-chest",
+   "bind": [
+    -0.115,
+    0.5,
+    0.12
+   ],
+   "limits": {
+    "pitch": [
+     -150,
+     100
+    ],
+    "roll": [
+     -100,
+     15
+    ],
+    "yaw": [
+     -50,
+     50
+    ]
+   }
+  },
+  "DEF-fore1.R": {
+   "parent": "DEF-arm1.R",
+   "bind": [
+    -0.125,
+    0.42,
+    0.13
+   ],
+   "limits": {
+    "pitch": [
+     -135,
+     0
+    ]
+   }
+  },
+  "DEF-cornicle.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.08,
+    0.5,
+    -0.14
+   ],
+   "limits": {}
+  },
+  "DEF-puff.R": {
+   "parent": "DEF-cornicle.R",
+   "bind": [
+    -0.1,
+    0.6,
+    -0.17
+   ],
+   "limits": {}
+  },
+  "DEF-thigh.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.075,
+    0.21,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     -110,
+     50
+    ],
+    "roll": [
+     -40,
+     15
+    ],
+    "yaw": [
+     -30,
+     30
+    ]
+   }
+  },
+  "DEF-shin.R": {
+   "parent": "DEF-thigh.R",
+   "bind": [
+    -0.075,
+    0.135,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     0,
+     145
+    ]
+   }
+  },
+  "DEF-foot.R": {
+   "parent": "DEF-shin.R",
+   "bind": [
+    -0.075,
+    0.06,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     -70,
+     60
+    ],
+    "roll": [
+     -25,
+     25
+    ],
+    "yaw": [
+     -20,
+     20
+    ]
+   }
+  }
+ },
+ "parts": [
+  {
+   "name": "abdomen",
+   "joint": "DEF-body",
+   "verts": [
+    0,
+    532
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.35,
+     -0.06
+    ],
+    "r": [
+     0.19,
+     0.2,
+     0.2
+    ]
+   }
+  },
+  {
+   "name": "thorax",
+   "joint": "DEF-chest",
+   "verts": [
+    532,
+    234
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.52,
+     0.05
+    ],
+    "r": [
+     0.14,
+     0.11,
+     0.13
+    ]
+   }
+  },
+  {
+   "name": "head",
+   "joint": "DEF-head",
+   "verts": [
+    766,
+    360
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.66,
+     0.1
+    ],
+    "r": [
+     0.15,
+     0.135,
+     0.14
+    ]
+   }
+  },
+  {
+   "name": "antenna.L",
+   "joint": "DEF-antenna.L",
+   "verts": [
+    1126,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.05,
+     0.77,
+     0.14
+    ],
+    "b": [
+     0.07,
+     0.85,
+     0.16
+    ],
+    "ra": 0.013,
+    "rb": 0.011
+   }
+  },
+  {
+   "name": "antenna_tip.L",
+   "joint": "DEF-antenna.L.001",
+   "verts": [
+    1174,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.07,
+     0.85,
+     0.16
+    ],
+    "b": [
+     0.1,
+     0.92,
+     0.13
+    ],
+    "ra": 0.011,
+    "rb": 0.009
+   }
+  },
+  {
+   "name": "arm1.L",
+   "joint": "DEF-arm1.L",
+   "verts": [
+    1222,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.115,
+     0.5,
+     0.12
+    ],
+    "b": [
+     0.125,
+     0.42,
+     0.13
+    ],
+    "ra": 0.03,
+    "rb": 0.027
+   }
+  },
+  {
+   "name": "fore1.L",
+   "joint": "DEF-fore1.L",
+   "verts": [
+    1282,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.125,
+     0.42,
+     0.13
+    ],
+    "b": [
+     0.13,
+     0.35,
+     0.14
+    ],
+    "ra": 0.027,
+    "rb": 0.025
+   }
+  },
+  {
+   "name": "mitt1.L",
+   "joint": "DEF-fore1.L",
+   "verts": [
+    1342,
+    108
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.13,
+     0.33,
+     0.145
+    ],
+    "r": [
+     0.035,
+     0.038,
+     0.038
+    ]
+   }
+  },
+  {
+   "name": "cornicle.L",
+   "joint": "DEF-cornicle.L",
+   "verts": [
+    1450,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.08,
+     0.5,
+     -0.14
+    ],
+    "b": [
+     0.1,
+     0.6,
+     -0.17
+    ],
+    "ra": 0.024,
+    "rb": 0.019
+   }
+  },
+  {
+   "name": "puff.L",
+   "joint": "DEF-puff.L",
+   "verts": [
+    1510,
+    108
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.1,
+     0.612,
+     -0.174
+    ],
+    "r": [
+     0.032,
+     0.03,
+     0.032
+    ]
+   }
+  },
+  {
+   "name": "thigh.L",
+   "joint": "DEF-thigh.L",
+   "verts": [
+    1618,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.075,
+     0.21,
+     0.0
+    ],
+    "b": [
+     0.075,
+     0.135,
+     0.0
+    ],
+    "ra": 0.042,
+    "rb": 0.038
+   }
+  },
+  {
+   "name": "shin.L",
+   "joint": "DEF-shin.L",
+   "verts": [
+    1678,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.075,
+     0.135,
+     0.0
+    ],
+    "b": [
+     0.075,
+     0.06,
+     0.0
+    ],
+    "ra": 0.038,
+    "rb": 0.034
+   }
+  },
+  {
+   "name": "foot.L",
+   "joint": "DEF-foot.L",
+   "verts": [
+    1738,
+    176
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.075,
+     0.034,
+     0.03
+    ],
+    "r": [
+     0.05,
+     0.034,
+     0.07
+    ]
+   }
+  },
+  {
+   "name": "antenna.R",
+   "joint": "DEF-antenna.R",
+   "verts": [
+    1914,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.05,
+     0.77,
+     0.14
+    ],
+    "b": [
+     -0.07,
+     0.85,
+     0.16
+    ],
+    "ra": 0.013,
+    "rb": 0.011
+   }
+  },
+  {
+   "name": "antenna_tip.R",
+   "joint": "DEF-antenna.R.001",
+   "verts": [
+    1962,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.07,
+     0.85,
+     0.16
+    ],
+    "b": [
+     -0.1,
+     0.92,
+     0.13
+    ],
+    "ra": 0.011,
+    "rb": 0.009
+   }
+  },
+  {
+   "name": "arm1.R",
+   "joint": "DEF-arm1.R",
+   "verts": [
+    2010,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.115,
+     0.5,
+     0.12
+    ],
+    "b": [
+     -0.125,
+     0.42,
+     0.13
+    ],
+    "ra": 0.03,
+    "rb": 0.027
+   }
+  },
+  {
+   "name": "fore1.R",
+   "joint": "DEF-fore1.R",
+   "verts": [
+    2070,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.125,
+     0.42,
+     0.13
+    ],
+    "b": [
+     -0.13,
+     0.35,
+     0.14
+    ],
+    "ra": 0.027,
+    "rb": 0.025
+   }
+  },
+  {
+   "name": "mitt1.R",
+   "joint": "DEF-fore1.R",
+   "verts": [
+    2130,
+    108
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.13,
+     0.33,
+     0.145
+    ],
+    "r": [
+     0.035,
+     0.038,
+     0.038
+    ]
+   }
+  },
+  {
+   "name": "cornicle.R",
+   "joint": "DEF-cornicle.R",
+   "verts": [
+    2238,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.08,
+     0.5,
+     -0.14
+    ],
+    "b": [
+     -0.1,
+     0.6,
+     -0.17
+    ],
+    "ra": 0.024,
+    "rb": 0.019
+   }
+  },
+  {
+   "name": "puff.R",
+   "joint": "DEF-puff.R",
+   "verts": [
+    2298,
+    108
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.1,
+     0.612,
+     -0.174
+    ],
+    "r": [
+     0.032,
+     0.03,
+     0.032
+    ]
+   }
+  },
+  {
+   "name": "thigh.R",
+   "joint": "DEF-thigh.R",
+   "verts": [
+    2406,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.075,
+     0.21,
+     0.0
+    ],
+    "b": [
+     -0.075,
+     0.135,
+     0.0
+    ],
+    "ra": 0.042,
+    "rb": 0.038
+   }
+  },
+  {
+   "name": "shin.R",
+   "joint": "DEF-shin.R",
+   "verts": [
+    2466,
+    60
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.075,
+     0.135,
+     0.0
+    ],
+    "b": [
+     -0.075,
+     0.06,
+     0.0
+    ],
+    "ra": 0.038,
+    "rb": 0.034
+   }
+  },
+  {
+   "name": "foot.R",
+   "joint": "DEF-foot.R",
+   "verts": [
+    2526,
+    176
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.075,
+     0.034,
+     0.03
+    ],
+    "r": [
+     0.05,
+     0.034,
+     0.07
+    ]
+   }
+  }
+ ],
+ "hip_height_m": 0.21,
+ "feet": {
+  "L": "foot.L",
+  "R": "foot.R"
+ },
+ "rest_surface": "abdomen",
+ "overlap_ok": [],
+ "hitbox_u": [
+  0.45,
+  0.45
+ ]
+}

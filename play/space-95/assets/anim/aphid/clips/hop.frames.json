@@ -1,0 +1,86 @@
+{
+ "clip": "hop",
+ "fps": 24,
+ "frame_count": 29,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.041667,
+  0.083333,
+  0.125,
+  0.166667,
+  0.208333,
+  0.25,
+  0.291667,
+  0.333333,
+  0.375,
+  0.416667,
+  0.458333,
+  0.5,
+  0.541667,
+  0.583333,
+  0.625,
+  0.666667,
+  0.708333,
+  0.75,
+  0.791667,
+  0.833333,
+  0.875,
+  0.916667,
+  0.958333,
+  1.0,
+  1.041667,
+  1.083333,
+  1.125,
+  1.166667
+ ],
+ "key_poses": [
+  0,
+  7,
+  14,
+  28
+ ],
+ "events": [
+  {
+   "type": "takeoff",
+   "frame": 0,
+   "time": 0.0
+  },
+  {
+   "type": "foot_l",
+   "frame": 14,
+   "time": 0.58333
+  },
+  {
+   "type": "foot_r",
+   "frame": 14,
+   "time": 0.58333
+  },
+  {
+   "type": "land",
+   "frame": 14,
+   "time": 0.58333
+  }
+ ],
+ "duration_s": 1.16667,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "aphid_clips.glb",
+  "animation": 0,
+  "fps": 24.0,
+  "frames": 29
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "vy0_u_s": 17.3604,
+  "g_u_s2": 60.277,
+  "u_m": 1.7562,
+  "land_s": 0.576,
+  "note": "the game's own path: y(t) = vy0 t - g t^2 / 2 until land_s (flat ground), then 0"
+ },
+ "qa_status": "ok",
+ "character": "aphid",
+ "u_m": 1.7562
+}

@@ -1,0 +1,32 @@
+{
+ "name": "walk",
+ "fps": 24,
+ "frames": 5,
+ "loop": true,
+ "animation": 1,
+ "glb": "aphid_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 2.19525,
+ "carrier": null,
+ "key_poses": [
+  0,
+  2
+ ],
+ "tags": [
+  "gait",
+  "biped",
+  "scamper"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "L14's advancing aphids between hops: a 4-sprite scamper on stubby legs at 1.25 u/s (the sim walks them at 1 or 1.5 u/s)"
+}

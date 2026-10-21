@@ -1,0 +1,32 @@
+{
+ "name": "flipped",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 4,
+ "glb": "aphid_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4,
+  8,
+  12
+ ],
+ "tags": [
+  "on_back",
+  "rocking"
+ ],
+ "qa": {
+  "rest_on": "abdomen",
+  "rolling": {
+   "part": "abdomen"
+  }
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the shoe's shockwave: on its round back, rocking +-8 deg without slipping, legs and arms waving"
+}

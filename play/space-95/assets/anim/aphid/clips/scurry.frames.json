@@ -1,0 +1,32 @@
+{
+ "clip": "scurry",
+ "fps": 24,
+ "frame_count": 4,
+ "loop": true,
+ "frame_times": [
+  0.0,
+  0.041667,
+  0.083333,
+  0.125
+ ],
+ "key_poses": [
+  0,
+  2
+ ],
+ "events": [],
+ "duration_s": 0.16667,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "aphid_clips.glb",
+  "animation": 3,
+  "fps": 24.0,
+  "frames": 5
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "aphid",
+ "u_m": 1.7562
+}

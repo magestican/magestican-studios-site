@@ -1,0 +1,225 @@
+{
+ "character": "aphid",
+ "fps": 24,
+ "initial": "hop",
+ "conditions": {
+  "end": "the clip showed its last frame (and nothing else applies)",
+  "hop": "sim: e.hopT reset to 0 at a takeoff (js/sim/enemies/aphid.js: every HOP_EVERY 1.2 s while grounded); the game indexes the hop cycle by e.hopT",
+  "advance": "grounded with e.vx != 0 (L14 S7 `advance`: 1 or 1.5 u/s along its facing)",
+  "airborne": "e.grounded false (the hop's takeoff)",
+  "defeat": "sim event defeat (combat.defeat: stomp, pound, kick, bowl, pollen sneeze) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "flip": "sim event flip (rings.js: the shoe's shockwave / a ripple) - e.state = 'flipped'",
+  "righting": "sim event righting (FLIP_TIME 4.0 s on its back) - e.state = 'righting'",
+  "flee": "sim event flee (righted with e.flee: it scurries off instead)",
+  "wake": "sim event wake (entities.js: a dozing aphid woken by a pound within 8 u or a touch)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry); a scurried one is gone till then (a placed dozer dozes again)"
+ },
+ "states": {
+  "hop": {
+   "clip": "hop",
+   "loop": false,
+   "hold": true,
+   "frames": 29
+  },
+  "walk": {
+   "clip": "walk",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 12
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "flipped": {
+   "clip": "flipped",
+   "loop": true,
+   "hold": false,
+   "frames": 16
+  },
+  "righting": {
+   "clip": "righting",
+   "loop": false,
+   "hold": false,
+   "frames": 13
+  },
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 16
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "asleep",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "asleep",
+   "to": "hop",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "flipped",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "flipped",
+   "to": "righting",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "righting"
+  },
+  {
+   "from": "hop",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "hop",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "hop",
+   "to": "hop",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hop"
+  },
+  {
+   "from": "hop",
+   "to": "walk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "advance"
+  },
+  {
+   "from": "righting",
+   "to": "hop",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "righting",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flee"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "scurry",
+   "to": "hop",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "walk",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "walk",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "walk",
+   "to": "hop",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "airborne"
+  }
+ ],
+ "requires": [
+  [
+   "hop",
+   "walk"
+  ],
+  [
+   "walk",
+   "hop"
+  ],
+  [
+   "hop",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ],
+  [
+   "hop",
+   "flipped"
+  ],
+  [
+   "flipped",
+   "righting"
+  ],
+  [
+   "righting",
+   "hop"
+  ],
+  [
+   "flipped",
+   "dazed"
+  ],
+  [
+   "asleep",
+   "hop"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

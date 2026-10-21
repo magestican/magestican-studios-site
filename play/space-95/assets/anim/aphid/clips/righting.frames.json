@@ -1,0 +1,50 @@
+{
+ "clip": "righting",
+ "fps": 24,
+ "frame_count": 13,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.041667,
+  0.083333,
+  0.125,
+  0.166667,
+  0.208333,
+  0.25,
+  0.291667,
+  0.333333,
+  0.375,
+  0.416667,
+  0.458333,
+  0.5
+ ],
+ "key_poses": [
+  2,
+  4,
+  6,
+  9,
+  12
+ ],
+ "events": [
+  {
+   "type": "land",
+   "frame": 9,
+   "time": 0.375
+  }
+ ],
+ "duration_s": 0.5,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "aphid_clips.glb",
+  "animation": 5,
+  "fps": 24.0,
+  "frames": 13
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "aphid",
+ "u_m": 1.7562
+}

@@ -1,0 +1,50 @@
+{
+ "name": "hop",
+ "fps": 24,
+ "frames": 29,
+ "loop": false,
+ "animation": 0,
+ "glb": "aphid_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": {
+  "vy0_u_s": 17.3604,
+  "g_u_s2": 60.277,
+  "u_m": 1.7562,
+  "land_s": 0.576,
+  "note": "the game's own path: y(t) = vy0 t - g t^2 / 2 until land_s (flat ground), then 0"
+ },
+ "key_poses": [
+  0,
+  7,
+  14,
+  28
+ ],
+ "tags": [
+  "hop",
+  "carried",
+  "cycle"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "stance_from": 14,
+  "support": "feet"
+ },
+ "extra": {
+  "events": [
+   {
+    "type": "takeoff",
+    "frame": 0
+   },
+   {
+    "type": "land",
+    "frame": 14
+   }
+  ],
+  "time_scale": 1.0
+ },
+ "notes": "a hop every 1.2 s to 2.5 u (vy 17.36 u/s, 0.576 s up and down): the game indexes it by e.hopT; frames 14-28 land, settle and wind up"
+}
