@@ -1,0 +1,1133 @@
+{
+ "template": "critter",
+ "species": "wasp",
+ "height_m": 1.15,
+ "u_m": 1.7562,
+ "style": "cartoon",
+ "up_axis": "Y",
+ "weights": "rigid (one joint per vertex; 07-creatures 6.1: chitin does not bend)",
+ "joints": {
+  "DEF-body": {
+   "parent": null,
+   "bind": [
+    0.0,
+    0.66,
+    0.06
+   ],
+   "limits": {
+    "free": true
+   }
+  },
+  "DEF-head": {
+   "parent": "DEF-body",
+   "bind": [
+    0.0,
+    0.74,
+    0.24
+   ],
+   "limits": {
+    "pitch": [
+     -45,
+     50
+    ],
+    "roll": [
+     -35,
+     35
+    ],
+    "yaw": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-abdomen": {
+   "parent": "DEF-body",
+   "bind": [
+    0.0,
+    0.6,
+    -0.14
+   ],
+   "limits": {
+    "pitch": [
+     -110,
+     40
+    ],
+    "roll": [
+     -30,
+     30
+    ],
+    "yaw": [
+     -30,
+     30
+    ]
+   }
+  },
+  "DEF-sting": {
+   "parent": "DEF-abdomen",
+   "bind": [
+    0.0,
+    0.5,
+    -0.66
+   ],
+   "limits": {
+    "pitch": [
+     -45,
+     45
+    ]
+   }
+  },
+  "DEF-antenna.L": {
+   "parent": "DEF-head",
+   "bind": [
+    0.07,
+    0.97,
+    0.5
+   ],
+   "limits": {
+    "pitch": [
+     -80,
+     80
+    ],
+    "roll": [
+     -60,
+     60
+    ]
+   }
+  },
+  "DEF-antenna.L.001": {
+   "parent": "DEF-antenna.L",
+   "bind": [
+    0.11,
+    1.09,
+    0.61
+   ],
+   "limits": {
+    "pitch": [
+     -70,
+     70
+    ],
+    "roll": [
+     -45,
+     45
+    ]
+   }
+  },
+  "DEF-wing.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.1,
+    0.83,
+    0.1
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     100
+    ],
+    "roll": [
+     -30,
+     30
+    ]
+   }
+  },
+  "DEF-wing2.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.09,
+    0.82,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     100
+    ],
+    "roll": [
+     -30,
+     30
+    ]
+   }
+  },
+  "DEF-leg1.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.06,
+    0.52,
+    0.17
+   ],
+   "limits": {
+    "pitch": [
+     -130,
+     80
+    ],
+    "roll": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-shin1.L": {
+   "parent": "DEF-leg1.L",
+   "bind": [
+    0.06,
+    0.39,
+    0.17
+   ],
+   "limits": {
+    "pitch": [
+     -20,
+     140
+    ]
+   }
+  },
+  "DEF-leg2.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.09,
+    0.52,
+    0.09
+   ],
+   "limits": {
+    "pitch": [
+     -130,
+     80
+    ],
+    "roll": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-shin2.L": {
+   "parent": "DEF-leg2.L",
+   "bind": [
+    0.09,
+    0.39,
+    0.09
+   ],
+   "limits": {
+    "pitch": [
+     -20,
+     140
+    ]
+   }
+  },
+  "DEF-leg3.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.115,
+    0.52,
+    0.01
+   ],
+   "limits": {
+    "pitch": [
+     -130,
+     80
+    ],
+    "roll": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-shin3.L": {
+   "parent": "DEF-leg3.L",
+   "bind": [
+    0.115,
+    0.39,
+    0.01
+   ],
+   "limits": {
+    "pitch": [
+     -20,
+     140
+    ]
+   }
+  },
+  "DEF-antenna.R": {
+   "parent": "DEF-head",
+   "bind": [
+    -0.07,
+    0.97,
+    0.5
+   ],
+   "limits": {
+    "pitch": [
+     -80,
+     80
+    ],
+    "roll": [
+     -60,
+     60
+    ]
+   }
+  },
+  "DEF-antenna.R.001": {
+   "parent": "DEF-antenna.R",
+   "bind": [
+    -0.11,
+    1.09,
+    0.61
+   ],
+   "limits": {
+    "pitch": [
+     -70,
+     70
+    ],
+    "roll": [
+     -45,
+     45
+    ]
+   }
+  },
+  "DEF-wing.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.1,
+    0.83,
+    0.1
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     100
+    ],
+    "roll": [
+     -30,
+     30
+    ]
+   }
+  },
+  "DEF-wing2.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.09,
+    0.82,
+    0.0
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     100
+    ],
+    "roll": [
+     -30,
+     30
+    ]
+   }
+  },
+  "DEF-leg1.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.06,
+    0.52,
+    0.17
+   ],
+   "limits": {
+    "pitch": [
+     -130,
+     80
+    ],
+    "roll": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-shin1.R": {
+   "parent": "DEF-leg1.R",
+   "bind": [
+    -0.06,
+    0.39,
+    0.17
+   ],
+   "limits": {
+    "pitch": [
+     -20,
+     140
+    ]
+   }
+  },
+  "DEF-leg2.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.09,
+    0.52,
+    0.09
+   ],
+   "limits": {
+    "pitch": [
+     -130,
+     80
+    ],
+    "roll": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-shin2.R": {
+   "parent": "DEF-leg2.R",
+   "bind": [
+    -0.09,
+    0.39,
+    0.09
+   ],
+   "limits": {
+    "pitch": [
+     -20,
+     140
+    ]
+   }
+  },
+  "DEF-leg3.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.115,
+    0.52,
+    0.01
+   ],
+   "limits": {
+    "pitch": [
+     -130,
+     80
+    ],
+    "roll": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-shin3.R": {
+   "parent": "DEF-leg3.R",
+   "bind": [
+    -0.115,
+    0.39,
+    0.01
+   ],
+   "limits": {
+    "pitch": [
+     -20,
+     140
+    ]
+   }
+  }
+ },
+ "parts": [
+  {
+   "name": "thorax",
+   "joint": "DEF-body",
+   "verts": [
+    0,
+    330
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.66,
+     0.07
+    ],
+    "r": [
+     0.17,
+     0.17,
+     0.19
+    ]
+   }
+  },
+  {
+   "name": "head",
+   "joint": "DEF-head",
+   "verts": [
+    330,
+    442
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.8,
+     0.42
+    ],
+    "r": [
+     0.21,
+     0.22,
+     0.2
+    ]
+   }
+  },
+  {
+   "name": "abdomen",
+   "joint": "DEF-abdomen",
+   "verts": [
+    772,
+    442
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.53,
+     -0.42
+    ],
+    "r": [
+     0.21,
+     0.21,
+     0.28
+    ]
+   }
+  },
+  {
+   "name": "sting",
+   "joint": "DEF-sting",
+   "verts": [
+    1214,
+    80
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.0,
+     0.5,
+     -0.66
+    ],
+    "b": [
+     0.0,
+     0.47,
+     -0.8
+    ],
+    "ra": 0.05,
+    "rb": 0.016
+   }
+  },
+  {
+   "name": "antenna.L",
+   "joint": "DEF-antenna.L",
+   "verts": [
+    1294,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.07,
+     0.97,
+     0.5
+    ],
+    "b": [
+     0.11,
+     1.09,
+     0.61
+    ],
+    "ra": 0.018,
+    "rb": 0.015
+   }
+  },
+  {
+   "name": "antenna_tip.L",
+   "joint": "DEF-antenna.L.001",
+   "verts": [
+    1342,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.11,
+     1.09,
+     0.61
+    ],
+    "b": [
+     0.13,
+     1.12,
+     0.74
+    ],
+    "ra": 0.015,
+    "rb": 0.012
+   }
+  },
+  {
+   "name": "antenna_knob.L",
+   "joint": "DEF-antenna.L.001",
+   "verts": [
+    1390,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.13,
+     1.12,
+     0.74
+    ],
+    "r": [
+     0.03,
+     0.03,
+     0.03
+    ]
+   }
+  },
+  {
+   "name": "wing.L",
+   "joint": "DEF-wing.L",
+   "verts": [
+    1460,
+    220
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.115,
+     0.86,
+     -0.12
+    ],
+    "r": [
+     0.012,
+     0.085,
+     0.23
+    ]
+   }
+  },
+  {
+   "name": "wing2.L",
+   "joint": "DEF-wing2.L",
+   "verts": [
+    1680,
+    220
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.105,
+     0.84,
+     -0.15
+    ],
+    "r": [
+     0.012,
+     0.06,
+     0.16
+    ]
+   }
+  },
+  {
+   "name": "leg1.L",
+   "joint": "DEF-leg1.L",
+   "verts": [
+    1900,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.06,
+     0.52,
+     0.17
+    ],
+    "b": [
+     0.06,
+     0.39,
+     0.17
+    ],
+    "ra": 0.026,
+    "rb": 0.022
+   }
+  },
+  {
+   "name": "shin1.L",
+   "joint": "DEF-shin1.L",
+   "verts": [
+    1948,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.06,
+     0.39,
+     0.17
+    ],
+    "b": [
+     0.06,
+     0.27,
+     0.17
+    ],
+    "ra": 0.022,
+    "rb": 0.018
+   }
+  },
+  {
+   "name": "foot1.L",
+   "joint": "DEF-shin1.L",
+   "verts": [
+    1996,
+    56
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.06,
+     0.27,
+     0.18
+    ],
+    "r": [
+     0.026,
+     0.024,
+     0.03
+    ]
+   }
+  },
+  {
+   "name": "leg2.L",
+   "joint": "DEF-leg2.L",
+   "verts": [
+    2052,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.09,
+     0.52,
+     0.09
+    ],
+    "b": [
+     0.09,
+     0.39,
+     0.09
+    ],
+    "ra": 0.026,
+    "rb": 0.022
+   }
+  },
+  {
+   "name": "shin2.L",
+   "joint": "DEF-shin2.L",
+   "verts": [
+    2100,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.09,
+     0.39,
+     0.09
+    ],
+    "b": [
+     0.09,
+     0.27,
+     0.09
+    ],
+    "ra": 0.022,
+    "rb": 0.018
+   }
+  },
+  {
+   "name": "foot2.L",
+   "joint": "DEF-shin2.L",
+   "verts": [
+    2148,
+    56
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.09,
+     0.27,
+     0.1
+    ],
+    "r": [
+     0.026,
+     0.024,
+     0.03
+    ]
+   }
+  },
+  {
+   "name": "leg3.L",
+   "joint": "DEF-leg3.L",
+   "verts": [
+    2204,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.115,
+     0.52,
+     0.01
+    ],
+    "b": [
+     0.115,
+     0.39,
+     0.01
+    ],
+    "ra": 0.026,
+    "rb": 0.022
+   }
+  },
+  {
+   "name": "shin3.L",
+   "joint": "DEF-shin3.L",
+   "verts": [
+    2252,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.115,
+     0.39,
+     0.01
+    ],
+    "b": [
+     0.115,
+     0.27,
+     0.01
+    ],
+    "ra": 0.022,
+    "rb": 0.018
+   }
+  },
+  {
+   "name": "foot3.L",
+   "joint": "DEF-shin3.L",
+   "verts": [
+    2300,
+    56
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.115,
+     0.27,
+     0.02
+    ],
+    "r": [
+     0.026,
+     0.024,
+     0.03
+    ]
+   }
+  },
+  {
+   "name": "antenna.R",
+   "joint": "DEF-antenna.R",
+   "verts": [
+    2356,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.07,
+     0.97,
+     0.5
+    ],
+    "b": [
+     -0.11,
+     1.09,
+     0.61
+    ],
+    "ra": 0.018,
+    "rb": 0.015
+   }
+  },
+  {
+   "name": "antenna_tip.R",
+   "joint": "DEF-antenna.R.001",
+   "verts": [
+    2404,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.11,
+     1.09,
+     0.61
+    ],
+    "b": [
+     -0.13,
+     1.12,
+     0.74
+    ],
+    "ra": 0.015,
+    "rb": 0.012
+   }
+  },
+  {
+   "name": "antenna_knob.R",
+   "joint": "DEF-antenna.R.001",
+   "verts": [
+    2452,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.13,
+     1.12,
+     0.74
+    ],
+    "r": [
+     0.03,
+     0.03,
+     0.03
+    ]
+   }
+  },
+  {
+   "name": "wing.R",
+   "joint": "DEF-wing.R",
+   "verts": [
+    2522,
+    220
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.115,
+     0.86,
+     -0.12
+    ],
+    "r": [
+     0.012,
+     0.085,
+     0.23
+    ]
+   }
+  },
+  {
+   "name": "wing2.R",
+   "joint": "DEF-wing2.R",
+   "verts": [
+    2742,
+    220
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.105,
+     0.84,
+     -0.15
+    ],
+    "r": [
+     0.012,
+     0.06,
+     0.16
+    ]
+   }
+  },
+  {
+   "name": "leg1.R",
+   "joint": "DEF-leg1.R",
+   "verts": [
+    2962,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.06,
+     0.52,
+     0.17
+    ],
+    "b": [
+     -0.06,
+     0.39,
+     0.17
+    ],
+    "ra": 0.026,
+    "rb": 0.022
+   }
+  },
+  {
+   "name": "shin1.R",
+   "joint": "DEF-shin1.R",
+   "verts": [
+    3010,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.06,
+     0.39,
+     0.17
+    ],
+    "b": [
+     -0.06,
+     0.27,
+     0.17
+    ],
+    "ra": 0.022,
+    "rb": 0.018
+   }
+  },
+  {
+   "name": "foot1.R",
+   "joint": "DEF-shin1.R",
+   "verts": [
+    3058,
+    56
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.06,
+     0.27,
+     0.18
+    ],
+    "r": [
+     0.026,
+     0.024,
+     0.03
+    ]
+   }
+  },
+  {
+   "name": "leg2.R",
+   "joint": "DEF-leg2.R",
+   "verts": [
+    3114,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.09,
+     0.52,
+     0.09
+    ],
+    "b": [
+     -0.09,
+     0.39,
+     0.09
+    ],
+    "ra": 0.026,
+    "rb": 0.022
+   }
+  },
+  {
+   "name": "shin2.R",
+   "joint": "DEF-shin2.R",
+   "verts": [
+    3162,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.09,
+     0.39,
+     0.09
+    ],
+    "b": [
+     -0.09,
+     0.27,
+     0.09
+    ],
+    "ra": 0.022,
+    "rb": 0.018
+   }
+  },
+  {
+   "name": "foot2.R",
+   "joint": "DEF-shin2.R",
+   "verts": [
+    3210,
+    56
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.09,
+     0.27,
+     0.1
+    ],
+    "r": [
+     0.026,
+     0.024,
+     0.03
+    ]
+   }
+  },
+  {
+   "name": "leg3.R",
+   "joint": "DEF-leg3.R",
+   "verts": [
+    3266,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.115,
+     0.52,
+     0.01
+    ],
+    "b": [
+     -0.115,
+     0.39,
+     0.01
+    ],
+    "ra": 0.026,
+    "rb": 0.022
+   }
+  },
+  {
+   "name": "shin3.R",
+   "joint": "DEF-shin3.R",
+   "verts": [
+    3314,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.115,
+     0.39,
+     0.01
+    ],
+    "b": [
+     -0.115,
+     0.27,
+     0.01
+    ],
+    "ra": 0.022,
+    "rb": 0.018
+   }
+  },
+  {
+   "name": "foot3.R",
+   "joint": "DEF-shin3.R",
+   "verts": [
+    3362,
+    56
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.115,
+     0.27,
+     0.02
+    ],
+    "r": [
+     0.026,
+     0.024,
+     0.03
+    ]
+   }
+  }
+ ],
+ "hip_height_m": 0.615,
+ "feet": {},
+ "rest_surface": null,
+ "overlap_ok": [],
+ "hitbox_u": [
+  0.9,
+  0.7
+ ],
+ "flier": true
+}

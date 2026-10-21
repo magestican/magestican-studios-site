@@ -1,0 +1,37 @@
+{
+ "clip": "telegraph",
+ "fps": 12,
+ "frame_count": 8,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.083333,
+  0.166667,
+  0.25,
+  0.333333,
+  0.416667,
+  0.5,
+  0.583333
+ ],
+ "key_poses": [
+  0,
+  4,
+  7
+ ],
+ "events": [],
+ "duration_s": 0.58333,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "wasp_clips.glb",
+  "animation": 2,
+  "fps": 24.0,
+  "frames": 15
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "wasp",
+ "u_m": 1.7562
+}

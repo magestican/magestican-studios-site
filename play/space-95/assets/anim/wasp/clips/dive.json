@@ -1,0 +1,28 @@
+{
+ "name": "dive",
+ "fps": 24,
+ "frames": 5,
+ "loop": true,
+ "animation": 3,
+ "glb": "wasp_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  2
+ ],
+ "tags": [
+  "attack",
+  "fly",
+  "dive"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "diving at 14 u/s, stinger first: the stinger points -52 deg below the facing direction, wings swept back and buzzing, legs tucked, antennae streaming; the game turns the quad by (dive angle - DIVE_AIM) so it leads along the line"
+}

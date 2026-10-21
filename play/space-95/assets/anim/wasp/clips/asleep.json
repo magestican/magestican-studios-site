@@ -1,0 +1,27 @@
+{
+ "name": "asleep",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 0,
+ "glb": "wasp_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "sleep",
+  "idle"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "asleep (L17's sleepers; a cadet before Jo wakes it): wings folded back, head drooped to one side, legs limp, a slow breath (the game draws the Zs)"
+}

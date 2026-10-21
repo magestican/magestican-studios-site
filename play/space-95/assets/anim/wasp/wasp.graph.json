@@ -1,0 +1,223 @@
+{
+ "character": "wasp",
+ "fps": 12,
+ "initial": "asleep",
+ "conditions": {
+  "wake": "sim event wake (entities.js: a `sleeps` kind wakes when Jo comes within its wake range; L17's `asleep` cadets only by the plane's wake or a pea)",
+  "telegraph": "sim: e.stage turned 'telegraph' (wasp.js: Jo >= 2 u below and within 7 u across, or the practice point / the specimen's re-lock) - the game indexes the clip by e.st and draws the pink line",
+  "dive": "sim: e.stage turned 'dive' (TELEGRAPH 0.6 s; RE_TELEGRAPH 0.4 s) - the game turns the quad along e.dir",
+  "stick": "sim: e.stage turned 'stuck' (the dive hit a solid or one-way surface; STUCK 1.2 s, 1.6 s the specimen, HONEY_STUCK in honey)",
+  "relock": "sim: the specimen's double dive - e.stage back to 'telegraph' mid-dive",
+  "pull_up": "sim: e.stage turned 'return' (OPEN_AIR 10 u of dive without a hit, or the stuck time is over)",
+  "home": "sim: e.stage turned 'hover' (back at its post; COOLDOWN 1.0 s)",
+  "defeat": "sim event defeat (combat.defeat: a stomp while stuck, a pea, a pound, a plough, a punt) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "hover": {
+   "clip": "hover",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "telegraph": {
+   "clip": "telegraph",
+   "loop": false,
+   "hold": true,
+   "frames": 8
+  },
+  "dive": {
+   "clip": "dive",
+   "loop": true,
+   "hold": false,
+   "frames": 2
+  },
+  "stuck": {
+   "clip": "stuck",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "return": {
+   "clip": "return",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "asleep",
+   "to": "hover",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "dive",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "dive",
+   "to": "return",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "pull_up"
+  },
+  {
+   "from": "dive",
+   "to": "stuck",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "stick"
+  },
+  {
+   "from": "dive",
+   "to": "telegraph",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "relock"
+  },
+  {
+   "from": "hover",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "hover",
+   "to": "telegraph",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "telegraph"
+  },
+  {
+   "from": "return",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "return",
+   "to": "hover",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "home"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "stuck",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "stuck",
+   "to": "return",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "pull_up"
+  },
+  {
+   "from": "telegraph",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "telegraph",
+   "to": "dive",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "dive"
+  }
+ ],
+ "requires": [
+  [
+   "asleep",
+   "hover"
+  ],
+  [
+   "hover",
+   "telegraph"
+  ],
+  [
+   "telegraph",
+   "dive"
+  ],
+  [
+   "dive",
+   "stuck"
+  ],
+  [
+   "dive",
+   "return"
+  ],
+  [
+   "stuck",
+   "return"
+  ],
+  [
+   "return",
+   "hover"
+  ],
+  [
+   "stuck",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

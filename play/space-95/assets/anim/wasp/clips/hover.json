@@ -1,0 +1,28 @@
+{
+ "name": "hover",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 1,
+ "glb": "wasp_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "idle",
+  "fly",
+  "hover"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "at its post (the sim bobs it +-0.3 u over 1.2 s): wings buzzing (a 4-frame beat, up / down on twos), legs dangling and swaying, tail swinging gently"
+}

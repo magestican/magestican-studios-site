@@ -49,10 +49,18 @@ const MAP = {
     rest: 'idle',
     stage: { idle: 'idle', windup: 'windup', hop: 'hop', crouch: 'crouch', landed: 'crouch' },
   },
+  
+  wasp: {
+    state: { dazed: 'dazed', scurry: 'scurry' },
+    rest: 'hover',
+    stage: { hover: 'hover', telegraph: 'telegraph', dive: 'dive', stuck: 'stuck', return: 'return', sting: 'hover' },
+    aim: -0.9076,
+  },
 };
 
 
 export function hasCritterSprite(e) {
+  if (e.kind === 'wasp') return !e.skin && !e.specimen; 
   return (e.kind === 'ladybot' && !e.skin) || (e.kind === 'pillbug' && !e.topiary) || e.kind === 'aphid' || e.kind === 'bandit';
 }
 
@@ -105,7 +113,7 @@ export function updateCritterSprite(g, e, dt) {
   const aphidHop = e.kind === 'aphid' && clip === 'hop';
   if (aphidHop && e.dozing) clip = 'asleep';
   else if (aphidHop && e.grounded && e.vx) clip = 'walk'; 
-  const staged = map.stage && clip === map.rest ? (e.sleeping || e.dozing || !e.awake ? 'asleep' : map.stage[e.stage]) : null;
+  const staged = map.stage && clip === map.rest ? (e.sleeping || e.dozing || e.asleep || !e.awake ? 'asleep' : map.stage[e.stage]) : null;
   if (staged) clip = staged;
   const c = v.sheet.clips[clip] ?? v.sheet.clips[map.rest];
   if (!c) return;
@@ -141,4 +149,11 @@ export function updateCritterSprite(g, e, dt) {
   v.quad.scale.set(f.w / pxu, f.h / pxu, 1);
   v.quad.position.x = (f.ox + f.w / 2 - px) / pxu;
   v.quad.position.y = (py - f.oy - f.h / 2) / pxu;
+  
+  const d = clip === 'dive' && map.aim ? (e.dir ?? { x: e.vx, y: e.vy }) : null;
+  const a = d ? Math.atan2(d.y, Math.abs(d.x)) - map.aim : 0;
+  const qx = v.quad.position.x;
+  const qy = v.quad.position.y - e.h / 2;
+  v.quad.rotation.z = a;
+  if (a) v.quad.position.set(qx * Math.cos(a) - qy * Math.sin(a), e.h / 2 + qx * Math.sin(a) + qy * Math.cos(a), 0.05);
 }

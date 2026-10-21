@@ -1,0 +1,27 @@
+{
+ "name": "return",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 5,
+ "glb": "wasp_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "fly",
+  "retreat"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "pulled up / flying home to its post at 4 u/s: nose up, wings buzzing, legs trailing"
+}

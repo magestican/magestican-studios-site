@@ -1,0 +1,28 @@
+{
+ "name": "telegraph",
+ "fps": 24,
+ "frames": 15,
+ "loop": false,
+ "animation": 2,
+ "glb": "wasp_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8,
+  14
+ ],
+ "tags": [
+  "telegraph",
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the dive's wind-up: rears back with the stinger cocked forward under it, legs drawn up, buzzing hard; the game indexes it by e.st and draws the pink dotted line to the locked point"
+}

@@ -1,0 +1,30 @@
+{
+ "name": "stuck",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 4,
+ "glb": "wasp_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "stuck",
+  "vulnerable",
+  "fly"
+ ],
+ "qa": {
+  "embed": {
+   "sting": 0.03900000000000001
+  }
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "stinger planted 3.5 cm in the surface it hit (STUCK 1.2 s, 1.6 s the specimen, 4 s in honey - a loop): wings flailing, legs kicking, body wobbling round the stuck stinger; harmless (a stomp defeats it)"
+}

@@ -1,0 +1,28 @@
+{
+ "name": "scurry",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 7,
+ "glb": "wasp_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "flee",
+  "cartoon",
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "defeated: a frantic getaway, nose up, wings flat out, legs pedalling (the sim flies it off forward and up for 0.9 s)"
+}

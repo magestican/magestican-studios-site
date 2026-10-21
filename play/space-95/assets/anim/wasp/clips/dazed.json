@@ -1,0 +1,27 @@
+{
+ "name": "dazed",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 6,
+ "glb": "wasp_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "dazed",
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "stomped / downed: wobbling in a slow circle in the air, head lolling, wings drooped and fluttering slowly, legs limp (the game draws the stars)"
+}
