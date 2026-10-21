@@ -3,6 +3,7 @@
 
 import * as THREE from 'three';
 import { createAnimator, wantedState } from '../anim/animState.js';
+import { v } from '../site/assetUrl.js';
 
 const ART = 'assets/art/jo/';
 const GRAPH = 'assets/anim/jo/jo.graph.json';
@@ -20,7 +21,7 @@ export const joSpriteLoaded = new Promise((r) => {
 
 export function createJoSprite(parent) {
   const api = { ready: false, update() {} };
-  Promise.all([fetch(`${ART}jo.sprites.json`).then((r) => r.json()), fetch(GRAPH).then((r) => r.json())])
+  Promise.all([fetch(v(`${ART}jo.sprites.json`)).then((r) => r.json()), fetch(v(GRAPH)).then((r) => r.json())])
     .then(([sheet, graph]) => {
       const loader = new THREE.TextureLoader();
       let left = sheet.atlases.length;

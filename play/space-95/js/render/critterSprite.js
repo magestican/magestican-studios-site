@@ -3,13 +3,14 @@
 
 
 import * as THREE from 'three';
+import { v } from '../site/assetUrl.js';
 
 const sheets = new Map();
 
 function loadSheet(kind) {
   if (!sheets.has(kind)) {
     const base = `assets/art/${kind}/`;
-    const p = fetch(`${base}${kind}.sprites.json`)
+    const p = fetch(v(`${base}${kind}.sprites.json`))
       .then((r) => (r.ok ? r.json() : null))
       .then(async (sheet) => {
         if (!sheet) return null;
@@ -17,7 +18,7 @@ function loadSheet(kind) {
         
         const textures = await Promise.all(
           sheet.atlases.map(async (name) => {
-            const t = await loader.loadAsync(base + name);
+            const t = await loader.loadAsync(v(base + name));
             t.colorSpace = THREE.SRGBColorSpace;
             return t;
           }),

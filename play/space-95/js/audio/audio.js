@@ -2,6 +2,7 @@
 
 
 
+import { v } from '../site/assetUrl.js';
 import { createPicker } from './cues.js';
 import { MUSIC_TRACKS } from './musicManifest.js';
 import { SFX } from './sfxManifest.js';
@@ -71,7 +72,7 @@ export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX),
   const fetchOne = async ( t) => {
     const url = `${base}sfx/${t.name}/${t.file}.${ext}`;
     try {
-      const res = await fetch(url);
+      const res = await fetch(v(url));
       if (!res.ok) throw new Error(`${url}: ${res.status}`);
       const buf = await ctx.decodeAudioData(await res.arrayBuffer());
       const list = buffers.get(t.name) ?? [];
@@ -119,7 +120,7 @@ export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX),
   let musicWanted = null;
   const startMusic = () => {
     if (!musicWanted || musicEl) return;
-    musicEl = new Audio(`${base}music/${musicWanted}/${musicWanted}.${ext}`);
+    musicEl = new Audio(v(`${base}music/${musicWanted}/${musicWanted}.${ext}`));
     musicEl.loop = true;
     musicEl.crossOrigin = 'anonymous';
     ctx.createMediaElementSource(musicEl).connect(bus.music);

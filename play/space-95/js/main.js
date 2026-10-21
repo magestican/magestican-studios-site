@@ -18,6 +18,7 @@ import { placePlane } from './sim/plane.js';
 import { createSession, stepSession } from './sim/session.js';
 import { placeTrain } from './sim/train.js';
 import { site } from './site/adapter.js';
+import { v } from './site/assetUrl.js';
 import { createHud } from './ui/hud.js';
 import { KEY_ICON, LEVER_ICON } from './ui/icons.js';
 import { createPause } from './ui/pause.js';
@@ -137,7 +138,7 @@ const timesheet = createTimesheet(document.getElementById('timesheet'));
 const secretsTotal = (level.entities ?? []).filter((e) => e.kind === 'intel' || e.specimen).length;
 if (SHIFT_IDS.includes(level.id)) {
   
-  fetch(`js/level/ghosts/L${String(level.id).padStart(2, '0')}.json`)
+  fetch(v(`js/level/ghosts/L${String(level.id).padStart(2, '0')}.json`))
     .then((r) => (r.ok ? r.json() : null))
     .then((g) => {
       if (g) level.par = g.par;
