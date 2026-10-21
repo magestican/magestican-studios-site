@@ -18,9 +18,9 @@
       "title": "CUMBIA DEL ANCHO",
       "genre": "cumbia-villera",
       "file": "truco-local.webm",
-      "loopSamples": 5280000,
-      "seed": 1459399974,
-      "lufs": -17.4
+      "loopSamples": 5640000,
+      "seed": 11,
+      "lufs": -10.4
     }
   ]
 }
