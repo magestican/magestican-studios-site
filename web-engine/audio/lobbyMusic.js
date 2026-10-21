@@ -83,6 +83,22 @@ export function loopStartSeconds(manifest, buffer, track = null) {
 
 
 
+export const MANIFEST_CACHE = 'no-cache';
+export const AUDIO_CACHE = 'force-cache';
+
+
+export function trackFileUrl(track, manifestUrl) {
+  const url = new URL(track.file, manifestUrl);
+  const id = [track.seed, track.loopSamples].filter((v) => v != null).join('-');
+  if (id) url.searchParams.set('v', id);
+  return url.href;
+}
+
+
+
+
+
+
 
 
 export function trackFrom(manifest, id = null) {
@@ -135,7 +151,7 @@ export function createLobbyMusic({ ctx, destination, manifestUrl, gain = 0.34, t
     if (loading) return loading;
     loading = (async () => {
       try {
-        const res = await fetch(st.url, { cache: 'force-cache' });
+        const res = await fetch(st.url, { cache: MANIFEST_CACHE });
         if (!res.ok) throw new Error(`manifest ${res.status} at ${st.url}`);
         const manifest = await res.json();
         const track = trackFrom(manifest, trackId);
@@ -143,9 +159,9 @@ export function createLobbyMusic({ ctx, destination, manifestUrl, gain = 0.34, t
         st.track = track.id;
         
         
-        const fileUrl = new URL(track.file, st.url).href;
+        const fileUrl = trackFileUrl(track, st.url);
         st.fileUrl = fileUrl;
-        const audioRes = await fetch(fileUrl, { cache: 'force-cache' });
+        const audioRes = await fetch(fileUrl, { cache: AUDIO_CACHE });
         if (!audioRes.ok) throw new Error(`${track.file} ${audioRes.status} at ${fileUrl}`);
         buffer = await ctx.decodeAudioData(await audioRes.arrayBuffer());
         st.loopEnd = loopEndSeconds(manifest, buffer, track);
