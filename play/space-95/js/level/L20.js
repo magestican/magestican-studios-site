@@ -712,7 +712,11 @@ function sky(L) {
   
   L.beaconAt(560, 66, { phase: `${BOSS}:3`, mode: 'plane', boxes: 3 });
   
-  for (const x of WASH.xs) L.soft(x, x + WASH.w, WASH.y0, WASH.y1, { skin: 'cloth' });
+  
+  
+  for (const [i, x] of WASH.xs.entries()) {
+    L.soft(x, x + WASH.w, WASH.y0, WASH.y1, { skin: 'cloth', motif: 'washing-line', use: `W${1 + (i >> 1)}` });
+  }
   
   
   for (const [x, y] of CADETS) L.putAt('wasp', x, y, { asleep: true, hp: 9, wingman: true, ...CB('B19') });

@@ -58,6 +58,7 @@ const COUNTS = Object.freeze({
   noHitBoss: 's95NoHitBoss',
   trainClean: 's95TrainClean',
   aceSolo: 's95AceSolo',
+  fullResume: 's95FullResume', 
 });
 const MAX_IDS = 200;
 

@@ -8,7 +8,8 @@ import { readCheats } from './cheats.js';
 import { createBoltVoice } from './game/bolt.js';
 import { mergeIntoProgress, readProgress, recordShift, saveVariant } from './game/progress.js';
 import { createInput, mountTouchControls } from './input.js';
-import { buildShift, loadLevel, SHIFT_IDS } from './level/levels.js';
+import { SHIFT_IDS, SHIFT_NAMES } from './level/shiftList.js';
+import { loadLevel } from './level/shiftLoader.js';
 import { preloadCritterSprites } from './render/critterSprite.js';
 import { joSpriteLoaded } from './render/joSprite.js';
 import { createView } from './render/scene.js';
@@ -16,6 +17,7 @@ import { parseAbilities } from './sim/abilities.js';
 import { STEP } from './sim/constants.js';
 import { placePlane } from './sim/plane.js';
 import { createSession, stepSession } from './sim/session.js';
+import { fullResume } from './sim/stamps.js';
 import { placeTrain } from './sim/train.js';
 import { site } from './site/adapter.js';
 import { v } from './site/assetUrl.js';
@@ -34,7 +36,7 @@ site
   .catch(() => {});
 const urlVariant = new URLSearchParams(location.search).get('variant');
 document.documentElement.dataset.variant = urlVariant ? cheats.variant : readProgress().variant;
-const { level, labels, title } = loadLevel(cheats.level);
+const { level, labels, title } = await loadLevel(cheats.level); 
 
 const abilities = parseAbilities(cheats.abilities || (level.id ? '' : 'all'));
 let session = createSession(level, cheats.checkpoint, abilities);
@@ -190,7 +192,7 @@ if (paused) {
   
   const shifts = SHIFT_IDS.map((id) => ({
     id,
-    name: buildShift(id).name,
+    name: SHIFT_NAMES[id],
     unlocked: id === 1 || save.cleared[id - 2],
     current: id === level.id,
   }));
@@ -251,6 +253,7 @@ function frame(now) {
       }
       if (e.type === 'clear' && level.id) {
         const save = recordShift(level, session);
+        if (fullResume(level, session)) site.count('fullResume'); 
         const next = SHIFT_IDS.includes(level.id + 1) ? () => (location.search = `?level=${level.id + 1}&skip=1`) : null;
         site.shiftEnd({
           save,

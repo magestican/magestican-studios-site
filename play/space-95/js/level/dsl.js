@@ -644,6 +644,9 @@ export function levelBuilder(meta) {
         ...(meta.mode === 'train' ? trainFields(meta, track, builtRails, trainStart, entities) : {}),
         
         ...(meta.mode === 'plane' ? { mode: 'plane', camDist: meta.camDist ?? 28, ceiling: (meta.height ?? 24) - 8, softs } : {}),
+        
+        
+        ...(meta.mode !== 'plane' && softs.length ? { softs } : {}),
         dir: meta.dir ?? 1,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,

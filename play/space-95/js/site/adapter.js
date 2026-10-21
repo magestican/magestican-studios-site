@@ -12,12 +12,13 @@
 
 
 
+
 import { intelPercent } from '../sim/intel.js';
 
 export const SITE_PATH = '/play/space-95/';
 export const BRIDGE_PATH = '/web-engine/progress/space95.js';
 
-const COUNT_NAMES = ['pebbleKills', 'highFives', 'noHitBoss', 'trainClean', 'aceSolo'];
+const COUNT_NAMES = ['pebbleKills', 'highFives', 'noHitBoss', 'trainClean', 'aceSolo', 'fullResume'];
 const SEEN_KINDS = ['specimens', 'miniBosses', 'bigBosses'];
 
 

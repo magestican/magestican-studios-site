@@ -244,6 +244,7 @@ export const S95_STATS = Object.freeze([
   's95Plays', 's95LevelsCleared', 's95IntelPct', 's95Secrets', 's95Specimens',
   's95MiniBosses', 's95BigBosses', 's95MantisBeaten', 's95ParClears', 's95NoHitBoss',
   's95CoopClears', 's95PebbleKills', 's95TrainClean', 's95AceSolo', 's95HighFives',
+  's95FullResume',
 ]);
 
 
@@ -770,6 +771,10 @@ export const ACHIEVEMENTS = Object.freeze([
     desc: 'Clear a shift in online co-op.', stat: 's95CoopClears', atLeast: 1 }),
   A({ id: 's95-highfive', name: 'Watercooler Moment', game: 'space-95', tier: 'common', glyph: '◆',
     desc: 'High-five Bolt ten times.', stat: 's95HighFives', atLeast: 10 }),
+  
+  
+  A({ id: 's95-full-resume', name: 'Full Resume', game: 'space-95', tier: 'rare', glyph: '◆',
+    desc: 'Land all 19 callbacks in one run of Swarm Sovereign.', stat: 's95FullResume', atLeast: 1 }),
 ]);
 
 

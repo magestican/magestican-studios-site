@@ -157,7 +157,7 @@ const STORED_ONLY = Object.freeze({
   'space-95': [
     's95LevelsCleared', 's95IntelPct', 's95Specimens', 's95MiniBosses', 's95BigBosses',
     's95MantisBeaten', 's95NoHitBoss', 's95CoopClears', 's95TrainClean', 's95AceSolo',
-    's95HighFives',
+    's95HighFives', 's95FullResume',
   ],
 });
 

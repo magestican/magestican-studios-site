@@ -9,6 +9,13 @@
 
 
 
+
+
+
+
+
+export const fullResume = (level, s) => !!level.stamps?.length && (s.stamped?.length ?? 0) >= level.stamps.length;
+
 const USE_BY_ID = new WeakMap(); 
 
 function useById(level) {

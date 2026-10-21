@@ -1,4 +1,7 @@
 
+
+
+
 import { CHALLENGES, gymWorld } from './gym.js';
 import { buildChillGym } from './gymChill.js';
 import { buildDrillGym } from './gymDrill.js';
@@ -25,8 +28,12 @@ import { buildL17 } from './L17.js';
 import { buildL18 } from './L18.js';
 import { buildL19 } from './L19.js';
 import { buildL20 } from './L20.js';
+import { describeLevel, isShiftKey } from './shiftList.js';
 
-const SHIFTS = {
+export { ALL_SHIFT_IDS, GREYBOX, SHIFT_IDS, SHIFT_NAMES, UNRENDERED } from './shiftList.js';
+
+
+export const SHIFTS = {
   1: buildL01,
   2: buildL02,
   3: buildL03,
@@ -50,61 +57,19 @@ const SHIFTS = {
 };
 
 
-
-
-
-
-
-export const UNRENDERED = new Set( ([20])); 
-
-
-
-
-
-
-
-export const GREYBOX = new Set( ([20]));
+export const GYMS = {
+  'gym-train': buildTrainGym,
+  'gym-webs': buildWebGym,
+  'gym-drill': buildDrillGym,
+  'gym-chill': buildChillGym,
+  'gym-plane': buildPlaneGym,
+};
 
 
 export function loadLevel(key) {
-  if (key !== 'gym' && SHIFTS[key]) {
-    const level = SHIFTS[key]();
-    return {
-      level,
-      labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })),
-      title: `Shift ${level.id}: ${level.name}`,
-    };
-  }
-  if (key === 'gym-train') {
-    
-    const level = buildTrainGym();
-    return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: c.name, proves: '' })), title: 'Train gym' };
-  }
-  if (key === 'gym-webs') {
-    
-    const level = buildWebGym();
-    return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Web gym' };
-  }
-  if (key === 'gym-drill') {
-    
-    const level = buildDrillGym();
-    return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Drill gym' };
-  }
-  if (key === 'gym-chill') {
-    
-    const level = buildChillGym();
-    return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Chill gym' };
-  }
-  if (key === 'gym-plane') {
-    
-    const level = buildPlaneGym();
-    return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Plane gym' };
-  }
-  return { level: { ...gymWorld(), pitCost: 'none' }, labels: CHALLENGES, title: 'Metrics gym' };
+  if (isShiftKey(key)) return describeLevel(key, SHIFTS[key](), CHALLENGES);
+  if (Object.hasOwn(GYMS, key)) return describeLevel(key, GYMS[key](), CHALLENGES);
+  return describeLevel(key, { ...gymWorld(), pitCost: 'none' }, CHALLENGES);
 }
 
-
-export const ALL_SHIFT_IDS = Object.keys(SHIFTS).map(Number);
-
-export const SHIFT_IDS = ALL_SHIFT_IDS.filter((id) => !UNRENDERED.has(id));
 export const buildShift = (id) => SHIFTS[id]();
