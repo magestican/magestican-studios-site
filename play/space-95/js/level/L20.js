@@ -114,6 +114,13 @@
 
 
 
+
+
+
+
+
+
+
 import { levelBuilder } from './dsl.js';
 
 const KIT = [
@@ -169,7 +176,30 @@ const MOTH_PATH = [
   [520, 66],
   [560, 66],
 ];
-const SPECIMEN = { x: 370, y: 61 - 0.35 }; 
+
+function lineY(x) {
+  const i = MOTH_PATH.findIndex(([px]) => px >= x);
+  if (i <= 0) return MOTH_PATH[Math.max(i, 0)][1];
+  const [x0, y0] = MOTH_PATH[i - 1];
+  const [x1, y1] = MOTH_PATH[i];
+  return y0 + ((y1 - y0) * (x - x0)) / (x1 - x0);
+}
+
+
+
+
+
+
+const ESCORT = { x0: 345, x1: 415, above: 2.5 };
+const SPECIMEN = { x: ESCORT.x0 - 2, y: lineY(ESCORT.x0) + ESCORT.above - 0.35 }; 
+
+
+
+
+
+
+const SCREEN_UP = 6;
+const SCREEN = [330, 430, 500].map((x) => ({ x, y: lineY(x) + SCREEN_UP - 0.35, at: x - 19 }));
 const CADETS = [
   [610, 67.65],
   [640, 68.65],
@@ -268,7 +298,11 @@ const PLANE_PLAN = [
   { x: 262, y: 56, move: 'fly' }, 
   { x: 274, y: 57, move: 'fly' },
   { move: 'loop', via: { when: 'moth<=4' } }, 
-  ...MOTH_PATH.map(([x, y]) => ({ x, y, move: 'fly' })), 
+  
+  
+  ...MOTH_PATH.slice(0, 2).map(([x, y]) => ({ x, y, move: 'fly' })),
+  { x: 380, y: lineY(380) + 1.2, move: 'fly' },
+  ...MOTH_PATH.slice(2).map(([x, y]) => ({ x, y, move: 'fly' })),
   { x: 600, y: 67.5, move: 'fly' }, 
   { x: FLEE_TO.x + 2, y: FLEE_TO.y + 0.9, move: 'fly' },
   { x: SKY_END - 20, y: FLEE_TO.y + 1, move: 'clear' }, 
@@ -424,6 +458,8 @@ export function buildL20() {
         weakness: ['callback'],
         callbacks: ['turret'],
         flee: { at: 270, speed: 12, to: FLEE_TO, lead: 16 },
+        
+        props: { ids: ['L20-screencadet-1', 'L20-screencadet-2', 'L20-screencadet-3'] },
         outro: true,
         attacks: [atk('Cadet Screen', 'hover', 1.0, 0.5, 0.8)],
       },
@@ -625,11 +661,13 @@ function sky(L) {
   });
   
   
+  
   L.putAt('wasp', SPECIMEN.x, SPECIMEN.y, {
     asleep: true,
     hp: 9,
     wingman: true,
     specimen: true,
+    escort: { moth: 'L20-moth-1', ...ESCORT },
     name: 'The Crown Jewel Wasp',
     signals: ['visual:gold-glint', 'audio:glint-chime'],
     seenFrom: "the boarding pad (T3): it sparkles on the crown's top",
@@ -638,7 +676,20 @@ function sky(L) {
   
   L.beaconAt(560, 66, { phase: `${BOSS}:3`, mode: 'plane', boxes: 3 });
   
+  
   for (const [x, y] of CADETS) L.putAt('wasp', x, y, { asleep: true, hp: 9, wingman: true, ...CB('B19') });
+  
+  
+  
+  for (const [i, c] of SCREEN.entries())
+    L.putAt('wasp', c.x, c.y, {
+      id: `L20-screencadet-${i + 1}`,
+      wake: 999,
+      wakeY: 999,
+      hp: 9,
+      wingman: true,
+      screen: { at: c.at, tel: 1.0, fall: SCREEN_UP + 4 },
+    });
   
   L.putAt('finish', FLEE_TO.x - 20, FLEE_TO.y, {
     alive: false,

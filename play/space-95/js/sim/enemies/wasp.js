@@ -16,6 +16,7 @@ import { contact, defeat, hurtPlayer, stepDefeated, stompBounce } from '../comba
 import { STEP } from '../constants.js';
 import { overlaps, registerKind } from '../entities.js';
 import { HONEY_STUCK, honeyAt, honeyStuckEvent } from '../honey.js';
+import { LAG } from '../slipstream.js';
 
 const BOB = 0.3; 
 const BOB_PERIOD = 1.2; 
@@ -38,12 +39,84 @@ const SIGNALS = ['visual:pink-line', 'audio:rising-buzz'];
 
 const centre = (b) => ({ x: b.x, y: b.y + b.h / 2 });
 
-function telegraph(e, ctx, lock, seconds) {
+function telegraph(e, ctx, lock, seconds, attack = 'dive') {
   e.stage = 'telegraph';
   e.st = 0;
   e.tel = seconds;
   e.lock = lock;
-  ctx.events.push({ type: 'telegraph', id: e.id, attack: 'dive', seconds, x: e.x, y: e.y, tx: lock.x, ty: lock.y, signals: SIGNALS });
+  ctx.events.push({ type: 'telegraph', id: e.id, attack, seconds, x: e.x, y: e.y, tx: lock.x, ty: lock.y, signals: SIGNALS });
+}
+
+
+
+
+
+
+
+
+const SCREEN_DARTS = 3;
+const SCREEN_GAP = 0.15; 
+const SCREEN_DART_V = 18; 
+const SCREEN_DART_LIFE = 1.2; 
+const SCREEN_REACH = 30; 
+
+function screenSting(e, ctx) {
+  const c = e.screen;
+  const pl = ctx.session.plane;
+  e.x = e.post.x;
+  e.y = e.post.y;
+  if (pl?.stage !== 'fly') return;
+  if (e.stage === 'hover') {
+    if (e.fired || ctx.session.dead > 0 || pl.x < c.at || pl.x - c.at > SCREEN_REACH) return;
+    telegraph(e, ctx, { x: e.x, y: e.y - c.fall }, c.tel, 'sting');
+  } else if (e.stage === 'telegraph') {
+    e.st += STEP;
+    if (e.st >= e.tel - 1e-9) {
+      e.stage = 'sting';
+      e.st = 0;
+      e.shot = 0;
+    }
+  } else if (e.stage === 'sting') {
+    if (e.st >= e.shot * SCREEN_GAP - 1e-9) {
+      pl.darts.push({ x: e.x, y: e.y, vx: 0, vy: -SCREEN_DART_V, life: SCREEN_DART_LIFE, owner: e.id });
+      ctx.events.push({ type: 'stingFire', id: e.id, n: e.shot, x: e.x, y: e.y });
+      e.shot += 1;
+      if (e.shot >= SCREEN_DARTS) {
+        e.stage = 'hover';
+        e.fired = true;
+      }
+    }
+    e.st += STEP;
+  }
+}
+
+
+
+
+
+
+const ESCORT_PEEL = 6; 
+const ESCORT_GONE = 2; 
+
+function escortMoth(e, ctx) {
+  const c = e.escort;
+  const moth = ctx.session.entities.find((m) => m.id === c.moth);
+  if (e.peel !== undefined) {
+    e.peel += STEP;
+    e.y += ESCORT_PEEL * STEP;
+    if (e.peel >= ESCORT_GONE) e.alive = false;
+    return;
+  }
+  if (!moth || moth.x < c.x0) return;
+  if (moth.x > c.x1) {
+    e.peel = 0;
+    ctx.events.push({ type: 'specimenPeel', id: e.id, x: e.x, y: e.y });
+    return;
+  }
+  const x = moth.x - LAG;
+  e.facing = Math.sign(x - e.x) || e.facing;
+  e.x = x;
+  e.y = moth.y + moth.h / 2 + c.above - e.h / 2;
 }
 
 
@@ -145,8 +218,10 @@ registerKind('wasp', {
     const p = ctx.player;
     const s = ctx.session;
     
+    if (e.escort) return escortMoth(e, ctx);
     if (e.asleep) return;
     if (e.crown) return crownDive(e, ctx);
+    if (e.screen) return screenSting(e, ctx);
     e.st += STEP;
     const pc = centre(p);
     const ec = centre(e);

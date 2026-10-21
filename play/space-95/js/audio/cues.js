@@ -248,6 +248,7 @@ const CUES = {
   softBump: ['fur_fwump', 'boing'],
   aceWake: ['ace_buzz', 'wing_buzz'],
   aceFire: ['dart_tsew', 'wasp_dive'],
+  stingFire: ['dart_tsew', 'wasp_dive'], 
   aceDown: ['ace_down', 'enemy_defeat_pop'],
   scramble: ['ace_horn', 'wing_roar'],
   vReveal: ['ace_horn', 'wing_roar'],
