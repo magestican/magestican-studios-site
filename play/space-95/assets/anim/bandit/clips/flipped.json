@@ -1,0 +1,32 @@
+{
+ "name": "flipped",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 7,
+ "glb": "bandit_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  3,
+  6,
+  9
+ ],
+ "tags": [
+  "on_back",
+  "rocking"
+ ],
+ "qa": {
+  "rest_on": "abdomen",
+  "rolling": {
+   "part": "abdomen"
+  }
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the shoe's shockwave: on its long back, rocking +-6 deg without slipping, limbs waving"
+}

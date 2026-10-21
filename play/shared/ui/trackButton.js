@@ -35,7 +35,9 @@ export function wireTrackButton({ music, names, lang = globalThis.document?.docu
   btn.className = 'studio-track';
   const show = () => {
     const cur = music.track();
-    const other = cur === 'main' ? 'local' : 'main';
+    
+    const ids = music.trackIds?.() ?? ['main', 'local'];
+    const other = ids[(ids.indexOf(cur) + 1) % ids.length];
     const here = pick(names[cur], lang);
     const next = pick(names[other], lang);
     

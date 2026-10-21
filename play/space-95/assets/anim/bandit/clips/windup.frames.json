@@ -1,0 +1,41 @@
+{
+ "clip": "windup",
+ "fps": 12,
+ "frame_count": 5,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.09375,
+  0.1875,
+  0.25,
+  0.375
+ ],
+ "key_poses": [
+  0,
+  3,
+  4
+ ],
+ "events": [],
+ "duration_s": 0.33333,
+ "time_scale": 1.0,
+ "time_stretch": 0.88889,
+ "snapped": [
+  {
+   "frame": 3,
+   "from": 0.28125,
+   "to": 0.25,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "bandit_clips.glb",
+  "animation": 2,
+  "fps": 24.0,
+  "frames": 10
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "bandit",
+ "u_m": 1.7562
+}

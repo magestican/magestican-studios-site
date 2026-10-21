@@ -8,9 +8,9 @@
       "title": "QUIERO RETRUCO",
       "genre": "tango",
       "file": "truco-main.webm",
-      "loopSamples": 4766897,
-      "seed": 1201014123,
-      "lufs": -15.7
+      "loopSamples": 5561379,
+      "seed": 11,
+      "lufs": -10.4
     },
     {
       "id": "local",
@@ -21,6 +21,16 @@
       "loopSamples": 5640000,
       "seed": 11,
       "lufs": -10.4
+    },
+    {
+      "id": "bonus",
+      "side": "C",
+      "title": "TRUCO TRUCO BOLO YAARA",
+      "genre": "bollywood",
+      "file": "truco-bonus.webm",
+      "loopSamples": 5538462,
+      "seed": 11,
+      "lufs": -10.3
     }
   ]
 }

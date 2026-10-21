@@ -783,7 +783,7 @@ export function entityView(e) {
   }
   
   if (hasCritterSprite(e)) {
-    for (const child of g.children) child.userData.placeholder = true;
+    for (const child of g.children) if (child.name !== 'kickHalo') child.userData.placeholder = true; 
     attachCritterSprite(g, e);
   }
   return g;

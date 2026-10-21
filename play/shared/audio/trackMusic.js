@@ -30,8 +30,8 @@ export const LEVEL = 0.34;
 
 
 
-export function initialTrack({ saved = null, lang = '', homeLang = null } = {}) {
-  if (TRACK_IDS.includes(saved)) return saved;
+export function initialTrack({ saved = null, lang = '', homeLang = null, ids = TRACK_IDS } = {}) {
+  if (ids.includes(saved)) return saved;
   if (homeLang && String(lang).toLowerCase().split('-')[0] === homeLang) return 'local';
   return 'main';
 }
@@ -46,9 +46,11 @@ export function initialTrack({ saved = null, lang = '', homeLang = null } = {}) 
 
 
 
+
+
 export function createTrackMusic({
   game, manifestUrl, lang = globalThis.document?.documentElement?.lang ?? '', homeLang = null,
-  storage = null, createPlayer = createLobbyMusic,
+  storage = null, createPlayer = createLobbyMusic, trackIds = TRACK_IDS,
   makeContext = () => {
     const Ctor = globalThis.AudioContext || globalThis.webkitAudioContext;
     return Ctor ? new Ctor() : null;
@@ -61,7 +63,8 @@ export function createTrackMusic({
   let ctx = null;
   let master = null;
   let on = false;
-  let track = initialTrack({ saved: get(trackKey(game)), lang, homeLang });
+  const ids = Object.freeze([...trackIds]);
+  let track = initialTrack({ saved: get(trackKey(game)), lang, homeLang, ids });
   const players = new Map();
 
   function ensureContext() {
@@ -111,7 +114,7 @@ export function createTrackMusic({
 
   
   function setTrack(id) {
-    if (!TRACK_IDS.includes(id)) return track;
+    if (!ids.includes(id)) return track;
     set(trackKey(game), id);
     if (id === track) return track;
     if (on) players.get(track)?.stop();
@@ -138,7 +141,8 @@ export function createTrackMusic({
     duck,
     track: () => track,
     setTrack,
-    nextTrack: () => setTrack(track === 'main' ? 'local' : 'main'),
+    trackIds: () => [...ids],
+    nextTrack: () => setTrack(ids[(ids.indexOf(track) + 1) % ids.length]),
     state: () => ({
       on, track, context: ctx ? ctx.state : 'none',
       player: players.get(track)?.state?.() ?? null,

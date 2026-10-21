@@ -59,9 +59,10 @@ const DECK_URL = '../shared/cards/spanish40/deck.json';
 const lang = gameLang();
 
 
-const MUSIC_NAMES = { main: 'Tango', local: 'Cumbia' };
+
+const MUSIC_NAMES = { main: 'Tango', local: 'Cumbia', bonus: 'Bollywood' };
 const music = createTrackMusic({
-  game: 'truco', lang, homeLang: 'es',
+  game: 'truco', lang, homeLang: 'es', trackIds: ['main', 'local', 'bonus'],
   manifestUrl: new URL('../assets/music/music.json', import.meta.url),
 });
 

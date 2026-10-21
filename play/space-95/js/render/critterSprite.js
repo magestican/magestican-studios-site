@@ -43,11 +43,17 @@ const MAP = {
   },
   
   aphid: { state: { hop: 'hop', dazed: 'dazed', scurry: 'scurry', flipped: 'flipped', righting: 'righting' }, rest: 'hop' },
+  
+  bandit: {
+    state: { dazed: 'dazed', scurry: 'scurry', flipped: 'flipped', righting: 'righting' },
+    rest: 'idle',
+    stage: { idle: 'idle', windup: 'windup', hop: 'hop', crouch: 'crouch', landed: 'crouch' },
+  },
 };
 
 
 export function hasCritterSprite(e) {
-  return (e.kind === 'ladybot' && !e.skin) || (e.kind === 'pillbug' && !e.topiary) || e.kind === 'aphid';
+  return (e.kind === 'ladybot' && !e.skin) || (e.kind === 'pillbug' && !e.topiary) || e.kind === 'aphid' || e.kind === 'bandit';
 }
 
 
@@ -99,6 +105,8 @@ export function updateCritterSprite(g, e, dt) {
   const aphidHop = e.kind === 'aphid' && clip === 'hop';
   if (aphidHop && e.dozing) clip = 'asleep';
   else if (aphidHop && e.grounded && e.vx) clip = 'walk'; 
+  const staged = map.stage && clip === map.rest ? (e.sleeping || e.dozing || !e.awake ? 'asleep' : map.stage[e.stage]) : null;
+  if (staged) clip = staged;
   const c = v.sheet.clips[clip] ?? v.sheet.clips[map.rest];
   if (!c) return;
   if (clip !== v.clip) {
@@ -108,6 +116,7 @@ export function updateCritterSprite(g, e, dt) {
   v.t += dt;
   
   if (clip === 'hop' && e.kind === 'aphid') v.t = e.grounded === false ? Math.min(e.hopT, 0.55) : Math.max(e.hopT, 0.58);
+  else if (staged && staged !== map.rest && staged === map.stage[e.stage]) v.t = e.st; 
   const n = c.frames.length;
   let i = Math.floor(v.t * c.fps);
   if (i >= n) {

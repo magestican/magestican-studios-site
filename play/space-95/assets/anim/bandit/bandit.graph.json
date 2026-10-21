@@ -1,0 +1,267 @@
+{
+ "character": "bandit",
+ "fps": 12,
+ "initial": "asleep",
+ "conditions": {
+  "end": "the clip showed its last frame (and nothing else applies)",
+  "wake": "sim event wake (entities.js: a `sleeps` kind wakes when Jo comes within its wake range; L15's web sleepers never wake)",
+  "windup": "sim: e.stage turned 'windup' (bandit.js: after IDLE_T 0.6 s, if there is ground 6 u ahead) - the telegraph event; the game indexes the clip by e.st",
+  "takeoff": "sim: e.stage turned 'hop' (WINDUP_T 0.4 s); the game indexes the hop by e.st (1.0 s in the air) and carries the arc",
+  "land": "sim: e.stage turned 'crouch' (grounded again); the game indexes the crouch by e.st (CROUCH_T 0.8 s)",
+  "recover": "sim: e.stage turned 'idle' (CROUCH_T 0.8 s after the landing)",
+  "defeat": "sim event defeat (combat.defeat: stomp, pound, kick, bowl, fling) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "flip": "sim event flip (rings.js / shoe.js FLIPPABLE: the shoe's shockwave) - e.state = 'flipped'",
+  "righting": "sim event righting (FLIP_TIME 4.0 s on its back) - e.state = 'righting'",
+  "flee": "sim event flee (righted with e.flee: it scurries off instead)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry): asleep again until Jo comes near"
+ },
+ "states": {
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "idle": {
+   "clip": "idle",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "windup": {
+   "clip": "windup",
+   "loop": false,
+   "hold": true,
+   "frames": 5
+  },
+  "hop": {
+   "clip": "hop",
+   "loop": false,
+   "hold": true,
+   "frames": 13
+  },
+  "crouch": {
+   "clip": "crouch",
+   "loop": false,
+   "hold": true,
+   "frames": 10
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "flipped": {
+   "clip": "flipped",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "righting": {
+   "clip": "righting",
+   "loop": false,
+   "hold": false,
+   "frames": 7
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "asleep",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "asleep",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "crouch",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "crouch",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "crouch",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "recover"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "flipped",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "flipped",
+   "to": "righting",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "righting"
+  },
+  {
+   "from": "hop",
+   "to": "crouch",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "land"
+  },
+  {
+   "from": "hop",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "idle",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "idle",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "idle",
+   "to": "windup",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "windup"
+  },
+  {
+   "from": "righting",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "righting",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flee"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "windup",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "windup",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "windup",
+   "to": "hop",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "takeoff"
+  }
+ ],
+ "requires": [
+  [
+   "asleep",
+   "idle"
+  ],
+  [
+   "idle",
+   "windup"
+  ],
+  [
+   "windup",
+   "hop"
+  ],
+  [
+   "hop",
+   "crouch"
+  ],
+  [
+   "crouch",
+   "idle"
+  ],
+  [
+   "hop",
+   "dazed"
+  ],
+  [
+   "crouch",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ],
+  [
+   "idle",
+   "flipped"
+  ],
+  [
+   "flipped",
+   "righting"
+  ],
+  [
+   "righting",
+   "idle"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

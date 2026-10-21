@@ -1,0 +1,48 @@
+{
+ "name": "hop",
+ "fps": 24,
+ "frames": 24,
+ "loop": false,
+ "animation": 3,
+ "glb": "bandit_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": {
+  "vy0_u_s": 12.0,
+  "g_u_s2": 24.0,
+  "vx_u_s": 6.0,
+  "u_m": 1.7562,
+  "land_s": 1.0,
+  "note": "the game's own path (bandit.js): y(t) = vy0 t - g t^2 / 2 until land_s on flat ground"
+ },
+ "key_poses": [
+  0,
+  3,
+  8,
+  17,
+  23
+ ],
+ "tags": [
+  "hop",
+  "kick",
+  "carried",
+  "airborne"
+ ],
+ "qa": {
+  "support": "feet"
+ },
+ "extra": {
+  "events": [
+   {
+    "type": "takeoff",
+    "frame": 0
+   },
+   {
+    "type": "kick",
+    "frame": 8
+   }
+  ],
+  "time_scale": 1.0
+ },
+ "notes": "the 6 u hop (1 s, apex 3 u, vy 12 u/s under 24 u/s^2): push-off, tuck, the flying kick (frames 8-17), legs down to land; the game indexes it by e.st and holds the last frame on a longer fall"
+}

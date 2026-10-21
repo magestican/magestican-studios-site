@@ -1,0 +1,33 @@
+{
+ "name": "windup",
+ "fps": 24,
+ "frames": 10,
+ "loop": false,
+ "animation": 2,
+ "glb": "bandit_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6,
+  9
+ ],
+ "tags": [
+  "telegraph",
+  "crouch",
+  "biped"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the kick's telegraph: down into a deep coil (knees folded high), arms back, head up at Jo; the game indexes it by e.st and draws the pink halo"
+}
