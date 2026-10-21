@@ -80,6 +80,10 @@ export function stepEntities(list, ctx) {
         e.awake = true;
         ctx.events.push({ type: 'wake', id: e.id, yawn: !e.alert });
       }
+      
+      
+      const f = ctx.world.floorAt?.(e);
+      if (f && Math.abs(f.y - e.y) <= 4) e.y = f.y;
       continue;
     }
     if (impl.sleeps && !e.awake && ctx.session?.train) e.awake = true; 
