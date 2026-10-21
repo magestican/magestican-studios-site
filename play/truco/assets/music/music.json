@@ -10,7 +10,8 @@
       "file": "truco-main.webm",
       "loopSamples": 5561379,
       "seed": 11,
-      "lufs": -10.4
+      "lufs": -10.4,
+      "hash": "cf47dee0dbb2"
     },
     {
       "id": "local",
@@ -20,7 +21,8 @@
       "file": "truco-local.webm",
       "loopSamples": 5640000,
       "seed": 11,
-      "lufs": -10.4
+      "lufs": -10.4,
+      "hash": "bf770928739b"
     },
     {
       "id": "bonus",
@@ -30,7 +32,8 @@
       "file": "truco-bonus.webm",
       "loopSamples": 5538462,
       "seed": 11,
-      "lufs": -10.3
+      "lufs": -10.3,
+      "hash": "f04430aaae43"
     }
   ]
 }

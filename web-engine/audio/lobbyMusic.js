@@ -89,7 +89,8 @@ export const AUDIO_CACHE = 'force-cache';
 
 export function trackFileUrl(track, manifestUrl) {
   const url = new URL(track.file, manifestUrl);
-  const id = [track.seed, track.loopSamples].filter((v) => v != null).join('-');
+  
+  const id = track.hash ?? [track.seed, track.loopSamples].filter((v) => v != null).join('-');
   if (id) url.searchParams.set('v', id);
   return url.href;
 }
