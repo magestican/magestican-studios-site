@@ -1,0 +1,34 @@
+{
+ "name": "charge",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 3,
+ "glb": "guard_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 4.5600000000000005,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "gait",
+  "biped",
+  "run",
+  "attack",
+  "cartoon"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the charge (the sim slides it at 8 u/s; the legs run at 2.60 u/s, a cartoon scramble - no 0.46 m leg plants at 14 m/s): head down, mandibles levelled forward, arms pumping"
+}

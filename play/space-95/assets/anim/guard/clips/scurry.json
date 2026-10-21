@@ -1,0 +1,28 @@
+{
+ "name": "scurry",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 9,
+ "glb": "guard_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "on_back",
+  "cartoon",
+  "airborne"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "belly up, legs and arms pedalling (8 frames, 4 sprites on twos) while the game zips it off"
+}

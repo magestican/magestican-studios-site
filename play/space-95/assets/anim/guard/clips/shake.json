@@ -1,0 +1,33 @@
+{
+ "name": "shake",
+ "fps": 24,
+ "frames": 12,
+ "loop": false,
+ "animation": 6,
+ "glb": "guard_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4,
+  8,
+  11
+ ],
+ "tags": [
+  "recover",
+  "biped"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "shaking the honey off (SHAKE 0.5 s): a wet-dog wag, a flick of each foot, back to the sentry stand; indexed by e.st"
+}

@@ -1,0 +1,422 @@
+{
+ "character": "guard",
+ "fps": 12,
+ "initial": "asleep",
+ "conditions": {
+  "end": "the clip showed its last frame (and nothing else applies)",
+  "wake": "sim event wake (entities.js: a `sleeps` kind wakes when Jo comes within its wake range)",
+  "alert": "entities.js wakeWhen: Jo crossed the trigger x on its level - e.alert, straight into the windup (guard.js windup)",
+  "windup": "sim: e.stage turned 'windup' (Jo on its floor, |dy| <= 1.5, within 10 u, cooldown over) - the telegraph event; the game indexes the clip by e.st (WINDUP 0.6 s)",
+  "charge": "sim: e.stage turned 'charge' (WINDUP 0.6 s) - event guardCharge; the sim slides it at 8 u/s",
+  "wall": "sim: e.stage turned 'stunned' (a wall, or another guard in its path) - event guardStunned; STUNNED 1.5 s",
+  "stun": "sim: typeKey.js stunGuard (L20's phone flash) - e.stage 'stunned' for e.stunFor 2.5 s, from any stage, waking a doze",
+  "honey": "sim: e.stage turned 'stuck' (honey under it) - HONEY_STUCK 4.0 s",
+  "unstick": "sim: e.stage turned 'shake' (after HONEY_STUCK); the game indexes it by e.st (SHAKE 0.5 s)",
+  "edge": "sim: e.stage turned 'halt' (no ground ahead: never off an edge) - event guardHalt; indexed by e.st (HALT 0.8 s)",
+  "recover": "sim: e.stage turned 'patrol' (after stunned / shake / halt; COOLDOWN 1.5 s before the next windup)",
+  "defeat": "sim event defeat (combat.defeat: a stomp or pound while stunned or stuck, a pound on a doze, a pea, a plough) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "flip": "sim event flip (rings.js / shoe.js FLIPPABLE: the shoe's shockwave) - e.state = 'flipped'",
+  "righting": "sim event righting (FLIP_TIME 4.0 s on its back) - e.state = 'righting'",
+  "flee": "sim event flee (righted with e.flee: it scurries off instead)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry): dozing at its post again"
+ },
+ "states": {
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "patrol": {
+   "clip": "patrol",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "windup": {
+   "clip": "windup",
+   "loop": false,
+   "hold": true,
+   "frames": 8
+  },
+  "charge": {
+   "clip": "charge",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "stunned": {
+   "clip": "stunned",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "stuck": {
+   "clip": "stuck",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "shake": {
+   "clip": "shake",
+   "loop": false,
+   "hold": true,
+   "frames": 7
+  },
+  "halt": {
+   "clip": "halt",
+   "loop": false,
+   "hold": true,
+   "frames": 11
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "flipped": {
+   "clip": "flipped",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "righting": {
+   "clip": "righting",
+   "loop": false,
+   "hold": false,
+   "frames": 7
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "asleep",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "asleep",
+   "to": "patrol",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "asleep",
+   "to": "stunned",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "stun"
+  },
+  {
+   "from": "asleep",
+   "to": "windup",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "alert"
+  },
+  {
+   "from": "charge",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "charge",
+   "to": "halt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "edge"
+  },
+  {
+   "from": "charge",
+   "to": "stuck",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "honey"
+  },
+  {
+   "from": "charge",
+   "to": "stunned",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wall"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "flipped",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "flipped",
+   "to": "righting",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "righting"
+  },
+  {
+   "from": "halt",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "halt",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "halt",
+   "to": "patrol",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "recover"
+  },
+  {
+   "from": "halt",
+   "to": "stunned",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "stun"
+  },
+  {
+   "from": "patrol",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "patrol",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "patrol",
+   "to": "stunned",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "stun"
+  },
+  {
+   "from": "patrol",
+   "to": "windup",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "windup"
+  },
+  {
+   "from": "righting",
+   "to": "patrol",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "righting",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flee"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "shake",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "shake",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "shake",
+   "to": "patrol",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "recover"
+  },
+  {
+   "from": "stuck",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "stuck",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "stuck",
+   "to": "shake",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "unstick"
+  },
+  {
+   "from": "stunned",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "stunned",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "stunned",
+   "to": "patrol",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "recover"
+  },
+  {
+   "from": "windup",
+   "to": "charge",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "charge"
+  },
+  {
+   "from": "windup",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "windup",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "windup",
+   "to": "stunned",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "stun"
+  }
+ ],
+ "requires": [
+  [
+   "asleep",
+   "windup"
+  ],
+  [
+   "patrol",
+   "windup"
+  ],
+  [
+   "windup",
+   "charge"
+  ],
+  [
+   "charge",
+   "stunned"
+  ],
+  [
+   "charge",
+   "stuck"
+  ],
+  [
+   "charge",
+   "halt"
+  ],
+  [
+   "stuck",
+   "shake"
+  ],
+  [
+   "shake",
+   "patrol"
+  ],
+  [
+   "stunned",
+   "patrol"
+  ],
+  [
+   "halt",
+   "patrol"
+  ],
+  [
+   "stunned",
+   "dazed"
+  ],
+  [
+   "stuck",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ],
+  [
+   "patrol",
+   "flipped"
+  ],
+  [
+   "flipped",
+   "righting"
+  ],
+  [
+   "righting",
+   "patrol"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

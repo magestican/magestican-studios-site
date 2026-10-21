@@ -1,0 +1,33 @@
+{
+ "name": "stuck",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 5,
+ "glb": "guard_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "idle",
+  "biped",
+  "vulnerable",
+  "struggle"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "stuck in honey (HONEY_STUCK 4 s): feet glued, heaving forward against them and sagging back, arms reaching, mandibles clenching; a loop for the stage - the stomp window"
+}

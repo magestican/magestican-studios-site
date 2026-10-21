@@ -1,0 +1,35 @@
+{
+ "name": "halt",
+ "fps": 24,
+ "frames": 20,
+ "loop": false,
+ "animation": 7,
+ "glb": "guard_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  3,
+  7,
+  13,
+  19
+ ],
+ "tags": [
+  "recover",
+  "biped",
+  "teeter"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "halted at an edge (HALT 0.8 s): braced back, teetering forward over the drop with windmilling arms, a wobble, up into the sentry stand; indexed by e.st"
+}

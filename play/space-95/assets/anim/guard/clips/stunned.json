@@ -1,0 +1,33 @@
+{
+ "name": "stunned",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 4,
+ "glb": "guard_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "idle",
+  "biped",
+  "vulnerable"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet",
+  "static": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "stunned by a wall (STUNNED 1.5 s; stunFor 2.5 s): rocked back, head circling, mandibles slack; a loop for the whole stage (the game draws the stars) - the stomp window"
+}

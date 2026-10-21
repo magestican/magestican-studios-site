@@ -1,0 +1,32 @@
+{
+ "name": "patrol",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 1,
+ "glb": "guard_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 2.6343,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "gait",
+  "biped",
+  "march"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the patrol march at the sim's 1.5 u/s: short sturdy legs (duty 0.4), a proud chest-out waddle, fists swinging with the step (8 frames, 4 sprites on twos)"
+}

@@ -1,0 +1,61 @@
+{
+ "clip": "halt",
+ "fps": 12,
+ "frame_count": 11,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.079167,
+  0.125,
+  0.2375,
+  0.291667,
+  0.395833,
+  0.475,
+  0.541667,
+  0.633333,
+  0.7125,
+  0.791667
+ ],
+ "key_poses": [
+  0,
+  2,
+  4,
+  7,
+  10
+ ],
+ "events": [],
+ "duration_s": 0.83333,
+ "time_scale": 1.0,
+ "time_stretch": 1.05263,
+ "snapped": [
+  {
+   "frame": 2,
+   "from": 0.15833,
+   "to": 0.125,
+   "why": "key"
+  },
+  {
+   "frame": 4,
+   "from": 0.31667,
+   "to": 0.29167,
+   "why": "key"
+  },
+  {
+   "frame": 7,
+   "from": 0.55417,
+   "to": 0.54167,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "guard_clips.glb",
+  "animation": 7,
+  "fps": 24.0,
+  "frames": 20
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "guard",
+ "u_m": 1.7562
+}

@@ -1,0 +1,33 @@
+{
+ "name": "windup",
+ "fps": 24,
+ "frames": 15,
+ "loop": false,
+ "animation": 2,
+ "glb": "guard_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6,
+  10,
+  14
+ ],
+ "tags": [
+  "telegraph",
+  "biped"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "support": "feet"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the charge's telegraph (0.6 s): head down, mandibles lowered, the near foot scraping the floor twice; the game indexes it by e.st and draws the hot-pink horn halo"
+}
