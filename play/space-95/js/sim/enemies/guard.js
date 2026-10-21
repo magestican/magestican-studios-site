@@ -44,6 +44,7 @@ function to(e, stage) {
   e.stage = stage;
   e.st = 0;
   e.vx = 0;
+  e.stunFor = undefined; 
 }
 
 registerKind('guard', {
@@ -141,7 +142,7 @@ registerKind('guard', {
     } else {
       e.vx = 0;
       moveBody(e, w);
-      const done = { stunned: STUNNED, stuck: HONEY_STUCK, shake: SHAKE, halt: HALT }[e.stage];
+      const done = { stunned: e.stunFor ?? STUNNED, stuck: HONEY_STUCK, shake: SHAKE, halt: HALT }[e.stage];
       if (e.st >= done - 1e-9) {
         if (e.stage === 'stuck') to(e, 'shake');
         else {

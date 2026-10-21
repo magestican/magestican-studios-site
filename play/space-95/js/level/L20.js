@@ -240,6 +240,7 @@ const ROUTE = [
   { x: 43, y: SILL + 0.5, move: 'jump' }, 
   { x: 46.5, y: SILL + 0.5, move: 'jump' },
   { x: 50, y: SILL + 0.5, move: 'jump' },
+  { x: 56, y: SILL, move: 'jump', via: { defeat: 'L20-guard-2' } }, 
   { x: 66, y: SILL, move: 'walk' }, 
   { x: 69.9, y: SILL, move: 'pound', via: { defeat: 'L20-guard-3' } }, 
   { x: 93, y: SILL, move: 'walk' }, 
@@ -265,9 +266,12 @@ const ROUTE = [
   
   
   { x: 167.5, y: 62.5, move: 'jump', via: { double: true } },
-  ...[67, 71.5, 76, 80.5, 85, 89.5].map((y, i) =>
-    i % 2 ? { x: 166.5, y, move: 'jump', at: 158.6, via: { double: true } } : { x: 156, y, move: 'jump', at: 164.4, via: { double: true } },
-  ),
+  
+  
+  ...[67, 71.5, 76, 80.5, 85, 89.5].map((y, i) => {
+    const via = { double: true, safeFor: 0.3, waitMax: 1.5 };
+    return i % 2 ? { x: 166.5, y, move: 'jump', at: 158.6, via } : { x: 156, y, move: 'jump', at: 164.4, via };
+  }),
   
   { x: 169.5, y: AWNING, move: 'jump', via: { double: true }, bud: 'L20-bud-1' },
   
@@ -282,7 +286,16 @@ const ROUTE = [
   
   
   { x: 207.5, y: SILL + 0.75, move: 'walk' },
-  { x: 200.5, y: SILL + 0.5, move: 'jump', at: 207.5, via: { double: true, defeat: `${BOSS}:2` }, maxS: 10 },
+  
+  
+  {
+    x: 200.5,
+    y: SILL + 0.5,
+    move: 'jump',
+    at: 207.5,
+    via: { double: true, defeat: `${BOSS}:2`, waitMax: 1.5, safeFor: 0.05 },
+    maxS: 10,
+  },
   
   { x: 212.5, y: SILL, move: 'walk' },
   { x: STAIR[0][0], y: SILL + BLOCK_U, move: 'jump' },
@@ -337,12 +350,13 @@ export function buildL20() {
   L.putAt('guard', 36, SILL, { dozing: true, facing: -1, ...CB('B1') });
 
   
+  
   for (const [x, letter] of [
     [43, 'J'],
     [46.5, 'O'],
     [50, 'B'],
   ])
-    L.putAt('typeKey', x, SILL, { letter, w: 3, rise: 1, mode: 'one', reach: 16, screen: 'phone', ...CB('B2') });
+    L.putAt('typeKey', x, SILL, { letter, w: 3, rise: 1, mode: 'one', reach: 16, screen: 'phone', stun: 2.5, ...CB('B2') });
   L.putAt('guard', 56, SILL, { dozing: true, facing: -1, ...CB('B2') });
 
   

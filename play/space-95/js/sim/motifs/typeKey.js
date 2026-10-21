@@ -66,6 +66,18 @@ function keyTargets(e, entities) {
   return [ahead.reduce((m, o) => (Math.abs(o.x - e.x) < Math.abs(m.x - e.x) ? o : m))];
 }
 
+
+
+function stunGuard(o, e, ctx) {
+  o.dozing = false;
+  o.awake = true;
+  o.stage = 'stunned';
+  o.st = 0;
+  o.vx = 0;
+  o.stunFor = e.stun;
+  ctx.events.push({ type: 'guardStunned', id: o.id, x: o.x, y: o.y, by: e.id });
+}
+
 registerKind('typeKey', {
   create(e) {
     e.w ??= 3;
@@ -121,7 +133,8 @@ registerKind('typeKey', {
         for (const o of keyTargets(e, s.entities)) {
           const k = e.use ?? e.id;
           s.zaps[k] = (s.zaps[k] ?? 0) + 1;
-          defeat(o, ctx, 'zap');
+          if (e.stun && o.kind === 'guard') stunGuard(o, e, ctx);
+          else defeat(o, ctx, 'zap');
           ctx.events.push({
             type: 'cursorLaser',
             id: e.id,
