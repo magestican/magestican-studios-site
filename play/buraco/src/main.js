@@ -48,17 +48,24 @@ import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
+import { PACE, flyCard, rectOf, wait } from '../../shared/ui/cardFlight.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, cardName } from './strings.js';
 import { createNet, canPlayTogether } from './net.js';
 
 const GAME_ID = 'buraco';
-const SETTINGS_KEY = 'buracowise-settings-v1';
+
+
+
+const SETTINGS_KEY = 'buracowise-settings-v2';
 const SOLO = 'you';
 const HOST = 'host';      
-const BOT_MS = 750;       
-const BOT_PLAY_MS = 420;  
+
+
+
+const BOT_MS = PACE.think;
+const BOT_PLAY_MS = 700;
 const DECK_URL = '../shared/cards/french52/deck.json';
 
 const lang = gameLang();
@@ -128,13 +135,15 @@ for (const n of TARGETS) {
 const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {  } };
 const params = new URLSearchParams(location.search);
-const saved = load(SETTINGS_KEY, {});
+
+const v1 = load('buracowise-settings-v1', {}) || {};
+const saved = load(SETTINGS_KEY, null) || { size: v1.size, target: v1.target, sort: v1.sort };
 const pick = (v, list, d) => (list.includes(v) ? v : d);
 const modeParam = params.get('mode');
 const settings = {
   mode: 'bot',
   size: modeParam === '2v2' ? 4 : modeParam === '1v1' ? 2 : pick(saved.size, [2, 4], 2),
-  level: pick(params.get('level'), LEVELS, pick(saved.level, LEVELS, 'medium')),
+  level: pick(params.get('level'), LEVELS, pick(saved.level, LEVELS, 'easy')),
   target: pick(Number(params.get('to')), TARGETS, pick(saved.target, TARGETS, 3000)),
   sort: pick(saved.sort, ['suit', 'rank'], 'suit'),
 };
@@ -228,7 +237,60 @@ function newMatch({ cheats = false } = {}) {
 }
 
 
-function refresh() {
+
+function tableRects() {
+  const seats = {};
+  for (const b of seatsEl.querySelectorAll('[data-seat]')) seats[b.dataset.seat] = rectOf(b.querySelector('.bu-card') || b);
+  const hand = {};
+  for (const c of handEl.querySelectorAll('[data-id]')) hand[c.dataset.id] = rectOf(c);
+  return { stock: rectOf(centreEl.querySelector('.bu-stock .bu-card')), pile: rectOf(centreEl.querySelector('.bu-pile .top')), seats, hand, last: match?.game.events.at(-1) };
+}
+
+
+
+const newEvents = (events, last) => (last ? events.slice(events.lastIndexOf(last) + 1) : events);
+
+const seatTarget = (s) => {
+  const b = seatsEl.querySelector(`[data-seat="${s}"]`);
+  return b?.querySelector('.bu-card') || b;
+};
+
+
+
+async function flyEvents(events, before) {
+  const me = view ? view.you : -1;
+  for (const e of newEvents(events || [], before.last)) {
+    const mine = me >= 0 && e.seat === me;
+    const from = (c) => (mine ? before.hand[c] : before.seats[e.seat]);
+    if (e.type === 'draw' || e.type === 'take') {
+      const top = e.type === 'take' ? e.cards.at(-1) : null;
+      await flyCard({
+        ghost: top ? cardEl(top, { kind: 'pile' }) : cardEl('back', { kind: 'pile', faceDown: true }),
+        from: top ? before.pile : before.stock,
+        
+        target: mine ? ([...handEl.querySelectorAll('[data-id]')].find((el) => el.dataset.id === top)
+          || [...handEl.querySelectorAll('[data-id]')].find((el) => !before.hand[el.dataset.id])) : seatTarget(e.seat),
+      });
+    } else if (e.type === 'meld' || e.type === 'layoff') {
+      const box = meldsEl.querySelector(`[data-team="${teamOf(e.seat)}"][data-meld="${e.meld}"]`);
+      
+      await Promise.all(e.cards.map((c, i) => wait(i * 90).then(() => flyCard({
+        ghost: cardEl(c, { kind: 'meld' }),
+        from: from(c),
+        target: box?.querySelector(`[data-id="${c}"]`) || box,
+      }))));
+    } else if (e.type === 'discard') {
+      await flyCard({ ghost: cardEl(e.card, { kind: 'pile' }), from: from(e.card), target: centreEl.querySelector('.bu-pile .top') });
+    }
+  }
+}
+
+
+let flying = Promise.resolve();
+let timerGen = 0;
+
+
+function refresh(move = null) {
   if (!match) return;
   
   
@@ -237,11 +299,16 @@ function refresh() {
   pruneSelection();
   draw();
   stopTimers();
+  if (move) flying = flyEvents(move.events, move.before).catch(() => {}).then(() => wait(PACE.settle));
   const g = match.game;
-  if (g.over) { finished(); return; }
+  if (g.over) { flying.then(() => finished()); return; }
   if (g.hand.over) return;
   const id = actorId(match);
-  if (id !== null && isBot(id)) botTimer = setTimeout(botMove, g.hand.phase === 'draw' ? BOT_MS : BOT_PLAY_MS);
+  if (id !== null && isBot(id)) {
+    const gen = timerGen;
+    const ms = g.hand.phase === 'draw' ? BOT_MS : BOT_PLAY_MS;
+    flying.then(() => { if (gen === timerGen) botTimer = setTimeout(botMove, ms); });
+  }
 }
 
 function botMove() {
@@ -249,6 +316,7 @@ function botMove() {
   if (!match || match.game.over || match.game.hand.over) return;
   const id = actorId(match);
   if (!isBot(id)) return;
+  const before = tableRects();
   const seat = seatOf(match, id);
   const a = botAction(viewFor(match, seat), botLevel(id), botRng(id));
   let r = act(match, id, a);
@@ -261,7 +329,7 @@ function botMove() {
   match = r.match;
   sounds(match.game.events);
   noteEvents(match.game.events);
-  refresh();
+  refresh({ events: match.game.events, before });
 }
 
 function dealNext() {
@@ -278,6 +346,7 @@ function dealNext() {
 }
 
 function stopTimers() {
+  timerGen += 1; 
   if (botTimer) clearTimeout(botTimer);
   botTimer = null;
 }
@@ -313,13 +382,14 @@ function doAction(a) {
     draw();
     return true;
   }
+  const before = tableRects();
   const r = act(match, myId(), a);
   if (r.error) { flash(errorText(r.error)); playUi('error'); return false; }
   match = r.match;
   if (a.type !== 'draw' && a.type !== 'take') selected = new Set();
   sounds(match.game.events);
   noteEvents(match.game.events);
-  refresh();
+  refresh({ events: match.game.events, before });
   return true;
 }
 
@@ -524,6 +594,7 @@ function drawSeats() {
     box.classList.toggle('turn', !h.over && h.turn === s);
     box.classList.toggle('is-on', !h.over && h.turn === s);
     box.classList.toggle('partner', !watching && teamOf(s) === teamOf(view.you));
+    box.dataset.seat = String(s); 
     const name = document.createElement('span');
     name.className = 'bu-seat-name';
     name.textContent = seatName(s);
@@ -641,6 +712,7 @@ function drawMelds() {
       row.className = 'bu-meld-cards';
       for (const c of info.ok ? info.order : m) {
         const el = cardEl(c, { kind: 'meld' });
+        el.dataset.id = c; 
         if (info.wild === c) el.classList.add('wild');
         if (own && echoed(c)) el.classList.add('echo');
         row.append(el);

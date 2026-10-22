@@ -44,16 +44,22 @@ import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
+import { PACE, flyCard, rectOf, wait } from '../../shared/ui/cardFlight.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, cardName } from './strings.js';
 import { createNet, canPlayTogether } from './net.js';
 
 const GAME_ID = 'truco';
-const SETTINGS_KEY = 'trucowise-settings-v1';
+
+
+
+const SETTINGS_KEY = 'trucowise-settings-v2';
 const SOLO = 'you';
 const HOST = 'host';      
-const BOT_MS = 850;       
+
+
+const BOT_MS = PACE.think;
 const NEXT_MS = 2800;     
 const DECK_URL = '../shared/cards/spanish40/deck.json';
 
@@ -130,13 +136,15 @@ for (const n of [15, 30]) {
 const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {  } };
 const params = new URLSearchParams(location.search);
-const saved = load(SETTINGS_KEY, {});
+
+const v1 = load('trucowise-settings-v1', {}) || {};
+const saved = load(SETTINGS_KEY, null) || { size: v1.size, target: v1.target, flor: v1.flor, variant: v1.variant };
 const pick = (v, list, d) => (list.includes(v) ? v : d);
 const modeParam = params.get('mode');
 const settings = {
   mode: 'bot',
   size: modeParam === '2v2' ? 4 : modeParam === '1v1' ? 2 : pick(saved.size, [2, 4], 2),
-  level: pick(params.get('level'), LEVELS, pick(saved.level, LEVELS, 'medium')),
+  level: pick(params.get('level'), LEVELS, pick(saved.level, LEVELS, 'easy')),
   target: pick(Number(params.get('to')), [15, 30], pick(saved.target, [15, 30], 15)),
   flor: params.get('flor') !== null ? params.get('flor') === '1' : saved.flor === true,
   variant: pick(params.get('rules'), ['ar', 'uy'], pick(saved.variant, ['ar', 'uy'], 'ar')),
@@ -237,7 +245,43 @@ function newMatch({ keepHand = false } = {}) {
 }
 
 
-function refresh() {
+
+function tableRects() {
+  const seats = {};
+  const n = view?.game.opts.players || 0;
+  for (let s = 0; s < n; s++) {
+    const spot = $(spotFor((s - viewSeat() + n) % n, n));
+    seats[s] = rectOf(spot.querySelector('.tr-backs .tr-card:last-child') || spot);
+  }
+  const hand = {};
+  for (const c of handEl.querySelectorAll('[data-play]')) hand[c.dataset.play] = rectOf(c);
+  return { seats, hand };
+}
+
+
+
+
+async function flyEvents(events, before) {
+  const me = view ? view.you : -1;
+  for (const e of events || []) {
+    if (e.kind === 'play') {
+      const n = view.game.opts.players;
+      const spot = $(spotFor((e.seat - viewSeat() + n) % n, n));
+      await flyCard({
+        ghost: cardEl(e.card),
+        from: me >= 0 && e.seat === me ? before.hand[e.card] : before.seats[e.seat],
+        target: spot.querySelector(`.tr-played [data-id="${e.card}"]`),
+      });
+    } else if (e.kind === 'baza') await wait(PACE.baza);
+  }
+}
+
+
+let flying = Promise.resolve();
+let timerGen = 0;
+
+
+function refresh(move = null) {
   if (!match) return;
   
   
@@ -245,14 +289,16 @@ function refresh() {
   if (net?.hosting) net.publish();
   draw();
   stopTimers();
+  if (move) flying = flyEvents(move.events, move.before).catch(() => {}).then(() => wait(PACE.settle));
   const g = match.game;
-  if (g.over) { finished(); return; }
+  if (g.over) { flying.then(() => finished()); return; }
+  const gen = timerGen;
   if (g.hand.over) {
-    nextTimer = setTimeout(dealNext, NEXT_MS);
+    flying.then(() => { if (gen === timerGen) nextTimer = setTimeout(dealNext, NEXT_MS); });
     return;
   }
   const id = actorId(match);
-  if (id !== null && isBot(id)) botTimer = setTimeout(botMove, BOT_MS);
+  if (id !== null && isBot(id)) flying.then(() => { if (gen === timerGen) botTimer = setTimeout(botMove, BOT_MS); });
 }
 
 function botMove() {
@@ -260,6 +306,7 @@ function botMove() {
   if (!match || match.game.over || match.game.hand.over) return;
   const id = actorId(match);
   if (!isBot(id)) return;
+  const before = tableRects();
   const seat = seatOf(match, id);
   const d = chooseAction(viewFor(match, seat), { level: botLevel(id), rng: botRng(id) });
   if (!d) return;
@@ -268,7 +315,7 @@ function botMove() {
   match = r.match;
   sounds(match.game.events);
   noteEvents(match.game.events);
-  refresh();
+  refresh({ events: match.game.events, before });
 }
 
 function dealNext() {
@@ -285,6 +332,7 @@ function dealNext() {
 }
 
 function stopTimers() {
+  timerGen += 1; 
   if (botTimer) clearTimeout(botTimer);
   if (nextTimer) clearTimeout(nextTimer);
   botTimer = null;
@@ -310,12 +358,13 @@ function doAction(a) {
     draw();
     return;
   }
+  const before = tableRects();
   const r = act(match, myId(), a);
   if (r.error) { flash(r.error); playUi('error'); return; }
   match = r.match;
   sounds(match.game.events);
   noteEvents(match.game.events);
-  refresh();
+  refresh({ events: match.game.events, before });
 }
 
 function clearEcho() {
@@ -576,6 +625,7 @@ function drawTable() {
       const p = baza.find((x) => x.seat === s);
       if (!p) return;
       const el = cardEl(p.card);
+      el.dataset.id = p.card; 
       
       if (p.echo) el.classList.add('echo');
       const res = h.results[k];
