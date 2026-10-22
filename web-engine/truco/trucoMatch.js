@@ -18,7 +18,7 @@
 
 import { buildDeck, shuffle, deal } from '../cards/cards.js';
 import {
-  newGame, startHand, apply, actor, legalActions, isTrucoCard, envidoPoints, hasFlor,
+  newGame, startHand, apply, actor, legalActions, isTrucoCard, envidoPoints, hasFlor, florPoints,
 } from './trucoRules.js';
 
 
@@ -43,16 +43,8 @@ export function handSeed(seed, handNo) {
 
 
 
-export function dealHands(players, mano, seed, { fixed = null, fixedSeat = 0 } = {}) {
-  let deck = shuffle(buildDeck('spanish40'), seed);
-  let pre = null;
-  if (Array.isArray(fixed) && fixed.length === 3 && fixed.every(isTrucoCard) && new Set(fixed).size === 3) {
-    deck = deck.filter((c) => !fixed.includes(c));
-    pre = fixed.slice();
-  }
-  const { hands } = deal(deck, { hands: players, count: 3, start: mano });
-  if (pre) hands[fixedSeat] = pre;
-  return hands;
+export function dealHands(players, mano, seed, opts = {}) {
+  return dealTable(players, mano, seed, opts).hands;
 }
 
 
@@ -60,12 +52,34 @@ export function dealHands(players, mano, seed, { fixed = null, fixedSeat = 0 } =
 
 
 
-export function createMatch({ seats = [SOLO, 'bot:medium'], target = 15, flor = false, seed = 1, mano = 0, fixedHand = null } = {}) {
+
+export function dealTable(players, mano, seed, { fixed = null, fixedSeat = 0, fixedMuestra = null } = {}) {
+  let deck = shuffle(buildDeck('spanish40'), seed);
+  let pre = null;
+  if (Array.isArray(fixed) && fixed.length === 3 && fixed.every(isTrucoCard) && new Set(fixed).size === 3) {
+    deck = deck.filter((c) => !fixed.includes(c));
+    pre = fixed.slice();
+  }
+  const mFixed = isTrucoCard(fixedMuestra) && !(pre || []).includes(fixedMuestra) ? fixedMuestra : null;
+  if (mFixed) deck = deck.filter((c) => c !== mFixed);
+  const { hands, rest } = deal(deck, { hands: players, count: 3, start: mano });
+  if (pre) hands[fixedSeat] = pre;
+  return { hands, muestra: mFixed || rest[0] };
+}
+
+
+
+
+
+
+export function createMatch({
+  seats = [SOLO, 'bot:medium'], target, flor, variant = 'ar', seed = 1, mano = 0, fixedHand = null, fixedMuestra = null,
+} = {}) {
   const players = seats.length === 4 ? 4 : 2;
   const s = seats.slice(0, players);
-  let game = newGame({ players, target, flor, mano });
-  const hands = dealHands(players, game.mano, handSeed(seed, 0), { fixed: fixedHand, fixedSeat: 0 });
-  game = startHand(game, hands);
+  let game = newGame({ players, target, flor, mano, variant });
+  const t = dealTable(players, game.mano, handSeed(seed, 0), { fixed: fixedHand, fixedSeat: 0, fixedMuestra });
+  game = startHand(game, t.hands, t.muestra);
   return { seats: s, seed: seed >>> 0, game, history: [] };
 }
 
@@ -94,15 +108,15 @@ export function nextHand(match) {
   if (g.over || !g.hand || !g.hand.over) return match;
   const players = g.opts.players;
   const mano = (g.mano + 1) % players;
-  const hands = dealHands(players, mano, handSeed(match.seed, g.handNo + 1));
-  return { ...match, game: startHand(g, hands), history: [] };
+  const t = dealTable(players, mano, handSeed(match.seed, g.handNo + 1));
+  return { ...match, game: startHand(g, t.hands, t.muestra), history: [] };
 }
 
 
 export function rematch(match, seed) {
   const g = match.game;
   return createMatch({
-    seats: match.seats, target: g.opts.target, flor: g.opts.flor, seed, mano: (g.mano + 1) % g.opts.players,
+    seats: match.seats, target: g.opts.target, flor: g.opts.flor, variant: g.opts.variant, seed, mano: (g.mano + 1) % g.opts.players,
   });
 }
 
@@ -128,6 +142,7 @@ export function viewFor(match, seat) {
   const h = g.hand;
   const n = g.opts.players;
   const hand = h ? {
+    muestra: h.muestra || null, 
     hands: Array.from({ length: n }, (_, s) => (s === seat ? h.hands[s].slice() : h.hands[s].map(() => null))),
     dealt: Array.from({ length: n }, (_, s) => (s === seat ? h.dealt[s].slice() : null)),
     bazas: h.bazas.map((b) => b.map((p) => ({ seat: p.seat, card: p.card }))),
@@ -204,9 +219,9 @@ export function sanitiseView(v) {
     you: Number.isInteger(v.you) && v.you >= 0 && v.you < n ? v.you : -1,
     game: {
       ...g,
-      opts: { players: n, target: g.opts.target === 30 ? 30 : 15, flor: !!g.opts.flor },
+      opts: { players: n, target: g.opts.target === 30 ? 30 : 15, flor: !!g.opts.flor, variant: g.opts.variant === 'uy' ? 'uy' : 'ar' },
       scores: Array.isArray(g.scores) ? g.scores.slice(0, 2).map((x) => Math.max(0, Number(x) || 0)) : [0, 0],
-      hand: { ...h, hands: h.hands.map(cards), dealt: Array.isArray(h.dealt) ? h.dealt.map((d) => (d ? cards(d) : null)) : [] },
+      hand: { ...h, muestra: g.opts.variant === 'uy' && isTrucoCard(h.muestra) ? h.muestra : null, hands: h.hands.map(cards), dealt: Array.isArray(h.dealt) ? h.dealt.map((d) => (d ? cards(d) : null)) : [] },
       events: Array.isArray(g.events) ? g.events.slice(0, 20) : [],
     },
   };
@@ -267,7 +282,10 @@ export function myNumbers(view) {
   const h = view.game.hand;
   const mine = h && h.dealt[view.you];
   if (!mine) return null;
-  return { envido: envidoPoints(mine), flor: hasFlor(mine) };
+  const flor = hasFlor(mine, h.muestra);
+  
+  
+  return { envido: envidoPoints(mine, h.muestra), flor, florPoints: flor ? florPoints(mine, h.muestra) : 0 };
 }
 
 

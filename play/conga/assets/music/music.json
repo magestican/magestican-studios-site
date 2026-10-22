@@ -1,0 +1,28 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "LA CONGA DEL VERANO",
+      "genre": "candombe",
+      "file": "conga-main.webm",
+      "loopSamples": 7776000,
+      "seed": 22,
+      "lufs": -10.4,
+      "hash": "be436d886200"
+    },
+    {
+      "id": "local",
+      "side": "B",
+      "title": "MURGA DEL COMODÍN",
+      "genre": "murga",
+      "file": "conga-local.webm",
+      "loopSamples": 7753846,
+      "seed": 22,
+      "lufs": -10.4,
+      "hash": "a56d1d030be2"
+    }
+  ]
+}

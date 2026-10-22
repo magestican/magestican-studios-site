@@ -28,6 +28,14 @@ export const DECKS = Object.freeze({
     ranks: Object.freeze(['1', '2', '3', '4', '5', '6', '7', '10', '11', '12']),
     jokers: Object.freeze([]),
   }),
+  
+  
+  spanish50: Object.freeze({
+    id: 'spanish50',
+    suits: Object.freeze(['e', 'b', 'o', 'c']),
+    ranks: Object.freeze(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']),
+    jokers: Object.freeze(['JK1', 'JK2']),
+  }),
   french52: Object.freeze({
     id: 'french52',
     suits: Object.freeze(['S', 'H', 'D', 'C']),

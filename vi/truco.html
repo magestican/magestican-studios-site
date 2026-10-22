@@ -130,6 +130,14 @@
     },
     {
       "@type": "Question",
+      "name": "Có chơi được truco kiểu Uruguay không?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Có. Chọn Truco Uruguay trong menu Luật. Sau khi chia bài, một lá được lật ngửa, gọi là muestra, và các lá 2, 4, 5, 11 và 10 cùng chất với nó trở thành pieza: những lá cao nhất, được tính nhiều điểm hơn trong envido và flor. Truco Uruguay mặc định có flor và chơi đến 30 điểm."
+      }
+    },
+    {
+      "@type": "Question",
       "name": "Máy chơi mạnh cỡ nào?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -139,7 +147,7 @@
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=49d2cb64-20261021T224205Z">
+  <link rel="stylesheet" href="/styles.css?v=ac11bdc3-20261022T090650Z">
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     try {
@@ -199,6 +207,10 @@
     <h2>Flor</h2>
     <p>Flor là tùy chọn và mặc định tắt. Khi bật, ba lá cùng chất là flor: gọi trước lá đầu tiên để được 3 điểm, và envido bị hủy. Nếu bên kia cũng có flor, họ có thể trả lời <strong>Contraflor</strong> (flor cao hơn được 6), <strong>Contraflor al resto</strong> (flor cao hơn được số điểm còn lại của trận) hoặc <strong>Con flor me achico</strong> (lùi lại và bạn được 4).</p>
 
+    <h2>Truco Uruguay</h2>
+    <p>Trucowise: Truco cũng chơi được <strong>truco kiểu Uruguay</strong>: chọn trong menu Luật trước ván, hoặc mở thẳng <a href="/play/truco/?rules=uy&amp;lang=vi">truco Uruguay</a>. Sau khi chia bài, thêm một lá được lật ngửa, đó là <strong>muestra</strong>. Các lá 2, 4, 5, 11 và 10 cùng chất với nó là <strong>pieza</strong>, năm lá cao nhất theo đúng thứ tự đó, còn cao hơn cả át kiếm. Nếu chính muestra là một trong số đó, lá 12 cùng chất sẽ thế chỗ.</p>
+    <p>Trong envido, một lá pieza được 30, 29, 28, 27 hoặc 27, cộng thêm lá cao nhất trong các lá còn lại của bạn. Flor là ba lá cùng chất, một pieza với hai lá cùng chất, hoặc hai pieza. Truco Uruguay mặc định có flor và chơi đến 30 điểm; cả hai vẫn có thể đổi.</p>
+
     <h2>Điểm: chơi đến 15 hoặc 30</h2>
     <p>Điểm được cộng ngay khi thắng, và bên đầu tiên chạm đích thắng luôn. Trận đến 30 được chia thành <em>malas</em> (15 điểm đầu) và <em>buenas</em> (15 điểm sau). Tỉ số được vẽ theo kiểu truyền thống, mỗi ô vuông năm nét.</p>
 
@@ -229,7 +241,7 @@
 
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="Trang"><ul><li><a href="/vi/#games">Game</a></li><li><a href="/you.html">Trò chơi của bạn</a></li><li><a href="/vi/for-remote-teams.html">Cho các nhóm</a></li><li><a href="/vi/magazine/">Tạp chí</a></li><li><a href="/vi/about.html">Về chúng tôi</a></li><li><a href="/vi/reviews.html">Đánh giá</a></li></ul></nav>
-    <nav class="footer-games" aria-label="Tất cả trò chơi"><ul><li><a href="/vi/farmyshoot.html">Splatbarn</a></li><li><a href="/vi/farmy-uprising.html">Hoofrise</a></li><li><a href="/vi/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/vi/farmykart.html">Kartzoom: Đua Xe</a></li><li><a href="/vi/farmy-tiles.html">Letterloft: Xếp Chữ</a></li><li><a href="/vi/farmy-crosswords.html">Wordburrow: Ô Chữ</a></li><li><a href="/vi/co-vua-online.html">Rookwise: Cờ Vua</a></li><li><a href="/vi/farmy-checkers.html">Jumpwise: Cờ Đam</a></li><li><a href="/vi/co-ca-ngua-online.html">Pawnrush: Cờ Cá Ngựa</a></li><li><a href="/vi/do-min-online.html">Sweepwise: Dò Mìn</a></li><li><a href="/vi/co-caro-online.html">Gomowise: Cờ Caro</a></li><li><a href="/vi/noi-tu.html">Relaywise: Nối Từ</a></li><li><a href="/vi/truco.html">Trucowise: Truco</a></li><li><a href="/vi/buraco.html">Buracowise: Buraco</a></li><li><a href="/vi/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/vi/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/vi/farmy-moon-life.html">Moon Life</a></li><li><a href="/vi/silk-and-seam.html">Silk & Seam</a></li><li><a href="/vi/dachis.html">Dachis</a></li><li><a href="/vi/farmy-five.html">Guesswise: Đoán Chữ</a></li><li><a href="/vi/farmy-hive.html">Combword: Ghép Chữ</a></li><li><a href="/vi/farmy-herds.html">Groupseek: Nhóm Từ</a></li><li><a href="/vi/farmy-furrows.html">Gridseek: Tìm Chữ</a></li></ul></nav>
+    <nav class="footer-games" aria-label="Tất cả trò chơi"><ul><li><a href="/vi/farmyshoot.html">Splatbarn</a></li><li><a href="/vi/farmy-uprising.html">Hoofrise</a></li><li><a href="/vi/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/vi/farmykart.html">Kartzoom: Đua Xe</a></li><li><a href="/vi/farmy-tiles.html">Letterloft: Xếp Chữ</a></li><li><a href="/vi/farmy-crosswords.html">Wordburrow: Ô Chữ</a></li><li><a href="/vi/co-vua-online.html">Rookwise: Cờ Vua</a></li><li><a href="/vi/farmy-checkers.html">Jumpwise: Cờ Đam</a></li><li><a href="/vi/co-ca-ngua-online.html">Pawnrush: Cờ Cá Ngựa</a></li><li><a href="/vi/do-min-online.html">Sweepwise: Dò Mìn</a></li><li><a href="/vi/co-caro-online.html">Gomowise: Cờ Caro</a></li><li><a href="/vi/noi-tu.html">Relaywise: Nối Từ</a></li><li><a href="/vi/truco.html">Trucowise: Truco</a></li><li><a href="/vi/buraco.html">Buracowise: Buraco</a></li><li><a href="/vi/conga.html">Congawise: Conga</a></li><li><a href="/vi/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/vi/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/vi/farmy-moon-life.html">Moon Life</a></li><li><a href="/vi/silk-and-seam.html">Silk & Seam</a></li><li><a href="/vi/dachis.html">Dachis</a></li><li><a href="/vi/farmy-five.html">Guesswise: Đoán Chữ</a></li><li><a href="/vi/farmy-hive.html">Combword: Ghép Chữ</a></li><li><a href="/vi/farmy-herds.html">Groupseek: Nhóm Từ</a></li><li><a href="/vi/farmy-furrows.html">Gridseek: Tìm Chữ</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
     <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Bảo lưu mọi quyền.<br> Magestican Studios và logo Magestican Studios là thương hiệu của Ultra Task Pty Ltd, Australia.</p>
     <p class="colophon">
@@ -238,7 +250,7 @@
     <p class="footer-browse">Khám phá thêm: <a href="/vi/2-player-games-online.html">Game 2 người chơi online</a> &middot; <a href="/vi/multiplayer-browser-games.html">Game nhiều người chơi trên trình duyệt</a> &middot; <a href="/vi/board-games-with-friends.html">Game cờ bàn chơi cùng bạn bè</a> &middot; <a href="/vi/word-games.html">Game chữ miễn phí</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=49d2cb64-20261021T224205Z"></script>
+  <script type="module" src="/assets/site.js?v=ac11bdc3-20261022T090650Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {
@@ -246,7 +258,7 @@
       });
     }
   </script>
-  <script type="module" src="/assets/landing.js?v=49d2cb64-20261021T224205Z"></script>
+  <script type="module" src="/assets/landing.js?v=ac11bdc3-20261022T090650Z"></script>
   <p class="lang-note">Trang này bằng tiếng Việt. Bản thân các trò chơi bằng tiếng Anh; cờ vua, cờ đam và cờ cá ngựa hầu như không có chữ.</p>
 </body>
 </html>

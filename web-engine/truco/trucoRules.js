@@ -36,6 +36,23 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const SUITS = Object.freeze(['e', 'b', 'o', 'c']);
 export const RANKS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 10, 11, 12]);
 
@@ -64,26 +81,66 @@ const POWER = (() => {
 
 export const rankOf = (c) => Number(String(c).slice(0, -1));
 export const suitOf = (c) => String(c).slice(-1);
-export const power = (c) => POWER[c] || 0;
 export const isTrucoCard = (c) => Object.prototype.hasOwnProperty.call(POWER, c);
 export const ALL_CARDS = Object.freeze(Object.keys(POWER));
+
+export const VARIANTS = Object.freeze(['ar', 'uy']);
+const PIEZA_RANKS = Object.freeze([2, 4, 5, 11, 10]);
+const PIEZA_ENVIDO = Object.freeze([30, 29, 28, 27, 27]);
+
+
+export function piezasOf(muestra) {
+  if (!muestra || !isTrucoCard(muestra)) return [];
+  const s = suitOf(muestra);
+  const m = rankOf(muestra);
+  return PIEZA_RANKS.map((r) => `${r === m ? 12 : r}${s}`);
+}
+
+
+export const piezaIndex = (c, muestra) => (muestra ? piezasOf(muestra).indexOf(c) : -1);
+export const isPieza = (c, muestra) => piezaIndex(c, muestra) >= 0;
+
+
+export const power = (c, muestra) => {
+  const k = piezaIndex(c, muestra);
+  if (k >= 0) return 19 - k;
+  return POWER[c] || 0;
+};
 
 
 export const envidoValue = (c) => { const r = rankOf(c); return r >= 10 ? 0 : r; };
 
 
-export function envidoPoints(cards) {
+export function envidoPoints(cards, muestra) {
   let best = 0;
   for (const s of SUITS) {
     const vals = cards.filter((c) => suitOf(c) === s).map(envidoValue).sort((a, b) => b - a);
     if (vals.length >= 2) best = Math.max(best, 20 + vals[0] + vals[1]);
     else if (vals.length === 1) best = Math.max(best, vals[0]);
   }
+  if (muestra) {
+    
+    cards.forEach((c, i) => {
+      const k = piezaIndex(c, muestra);
+      if (k < 0) return;
+      const rest = cards.filter((_, j) => j !== i).map(envidoValue);
+      best = Math.max(best, PIEZA_ENVIDO[k] + (rest.length ? Math.max(...rest) : 0));
+    });
+  }
   return best;
 }
 
-export const hasFlor = (cards) => cards.length === 3 && cards.every((c) => suitOf(c) === suitOf(cards[0]));
-export const florPoints = (cards) => 20 + cards.reduce((a, c) => a + envidoValue(c), 0);
+export function hasFlor(cards, muestra) {
+  if (cards.length !== 3) return false;
+  
+  const plain = muestra ? cards.filter((c) => !isPieza(c, muestra)) : cards;
+  return plain.every((c) => suitOf(c) === suitOf(plain[0]));
+}
+
+export const florPoints = (cards, muestra) => 20 + cards.reduce((a, c) => {
+  const k = piezaIndex(c, muestra);
+  return a + (k >= 0 ? PIEZA_ENVIDO[k] - 20 : envidoValue(c));
+}, 0);
 
 export const team = (seat) => seat % 2;
 export const TRUCO_WORTH = Object.freeze([1, 2, 3, 4]);
@@ -91,9 +148,15 @@ const ENVIDO_WORTH = { envido: 2, real: 3 };
 export const TRUCO_CALLS = Object.freeze(['truco', 'retruco', 'vale4']);
 
 
-export function newGame({ players = 2, target = 15, flor = false, mano = 0 } = {}) {
+
+
+
+export function newGame({ players = 2, target, flor, mano = 0, variant = 'ar' } = {}) {
+  const uy = variant === 'uy';
+  const t = target === undefined ? (uy ? 30 : 15) : target;
+  const f = flor === undefined ? uy : flor;
   return {
-    opts: { players: players === 4 ? 4 : 2, target: target === 30 ? 30 : 15, flor: !!flor },
+    opts: { players: players === 4 ? 4 : 2, target: t === 30 ? 30 : 15, flor: !!f, variant: uy ? 'uy' : 'ar' },
     scores: [0, 0],
     handNo: 0,
     mano: mano % (players === 4 ? 4 : 2),
@@ -108,7 +171,8 @@ export function newGame({ players = 2, target = 15, flor = false, mano = 0 } = {
 
 
 
-export function startHand(game, hands) {
+
+export function startHand(game, hands, muestra = null) {
   if (game.over) return game;
   const n = game.opts.players;
   const mano = game.hand ? (game.mano + 1) % n : game.mano;
@@ -117,6 +181,7 @@ export function startHand(game, hands) {
     mano,
     handNo: game.handNo + (game.hand ? 1 : 0),
     hand: {
+      muestra: game.opts.variant === 'uy' && isTrucoCard(muestra) ? muestra : null,
       hands: hands.map((h) => h.slice()),
       dealt: hands.map((h) => h.slice()),
       bazas: [[]], 
@@ -200,7 +265,7 @@ function florOpen(game, seat) {
   if (!florAllowed(game) || h.flor.done || h.flor.sung.includes(seat)) return false;
   if (h.results.length > 0 || hasPlayed(h, seat, 0)) return false;
   const cards = h.hands[seat];
-  return Array.isArray(cards) && cards.length === 3 && cards.every(Boolean) && hasFlor(cards);
+  return Array.isArray(cards) && cards.length === 3 && cards.every(Boolean) && hasFlor(cards, h.muestra);
 }
 
 
@@ -208,7 +273,7 @@ function teamFlorSeats(game, t) {
   const h = game.hand;
   const out = [];
   for (let s = 0; s < game.opts.players; s++) {
-    if (team(s) === t && Array.isArray(h.dealt[s]) && h.dealt[s].every(Boolean) && hasFlor(h.dealt[s])) out.push(s);
+    if (team(s) === t && Array.isArray(h.dealt[s]) && h.dealt[s].every(Boolean) && hasFlor(h.dealt[s], h.muestra)) out.push(s);
   }
   return out;
 }
@@ -288,7 +353,7 @@ export function envidoWinner(game) {
   let seat = -1;
   for (let k = 0; k < n; k++) {
     const s = (game.mano + k) % n;
-    const pts = envidoPoints(h.dealt[s]);
+    const pts = envidoPoints(h.dealt[s], h.muestra);
     if (pts > best) { best = pts; seat = s; }
   }
   return { seat, team: team(seat), points: best };
@@ -301,8 +366,8 @@ function florWinner(game) {
   let seat = -1;
   for (let k = 0; k < n; k++) {
     const s = (game.mano + k) % n;
-    if (!hasFlor(h.dealt[s])) continue;
-    const pts = florPoints(h.dealt[s]);
+    if (!hasFlor(h.dealt[s], h.muestra)) continue;
+    const pts = florPoints(h.dealt[s], h.muestra);
     if (pts > best) { best = pts; seat = s; }
   }
   return { seat, team: team(seat), points: best };
@@ -363,13 +428,14 @@ function playCard(game, seat, card) {
   
   let top = -1;
   let winSeat = -1;
-  for (const p of cur) { const v = power(p.card); if (v > top) { top = v; winSeat = p.seat; } }
-  const topTeams = new Set(cur.filter((p) => power(p.card) === top).map((p) => team(p.seat)));
+  const pw = (c) => power(c, h.muestra);
+  for (const p of cur) { const v = pw(p.card); if (v > top) { top = v; winSeat = p.seat; } }
+  const topTeams = new Set(cur.filter((p) => pw(p.card) === top).map((p) => team(p.seat)));
   const res = topTeams.size > 1 ? 'parda' : team(winSeat);
   const results = [...h.results, res];
   const lead = h.leads[h.leads.length - 1];
   
-  const firstTop = cur.find((p) => power(p.card) === top).seat;
+  const firstTop = cur.find((p) => pw(p.card) === top).seat;
   const nextLead = res === 'parda' ? lead : firstTop;
   g = { ...g, hand: { ...g.hand, results }, events: [...g.events, { kind: 'baza', n: results.length, result: res, seat: res === 'parda' ? null : firstTop }] };
   const won = handWinnerFromBazas(results, team(game.mano));

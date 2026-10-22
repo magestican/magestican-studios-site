@@ -58,5 +58,7 @@ export function wireTrackButton({ music, names, lang = globalThis.document?.docu
   });
   musicBtn.insertAdjacentElement('afterend', btn);
   show();
+  
+  btn.refreshTrack = show;
   return btn;
 }

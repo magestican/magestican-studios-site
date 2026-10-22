@@ -34,6 +34,17 @@
       "seed": 11,
       "lufs": -10.3,
       "hash": "f04430aaae43"
+    },
+    {
+      "id": "uy",
+      "side": "D",
+      "title": "MILONGA DE LA MUESTRA",
+      "genre": "candombe-milonga",
+      "file": "truco-uy.webm",
+      "loopSamples": 7800000,
+      "seed": 22,
+      "lufs": -10.3,
+      "hash": "9bf5b6cc8f2b"
     }
   ]
 }

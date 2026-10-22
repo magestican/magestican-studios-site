@@ -50,6 +50,7 @@ export function unseenCards(view) {
   const h = view.game.hand;
   const mine = new Set(h.dealt[view.you] || []);
   const seen = new Set(played(h).map((p) => p.card));
+  if (h.muestra) seen.add(h.muestra); 
   return ALL_CARDS.filter((c) => !mine.has(c) && !seen.has(c));
 }
 
@@ -79,7 +80,7 @@ export function sampleDeals(view, rng, n, { useReveals = false } = {}) {
       while (hand.length < 3) hand.push(deck[k++]);
       dealt.push(hand);
     }
-    if (reveal && envidoPoints(dealt[reveal.seat]) !== reveal.points) continue;
+    if (reveal && envidoPoints(dealt[reveal.seat], h.muestra) !== reveal.points) continue;
     out.push(dealt);
   }
   
@@ -90,9 +91,10 @@ export function sampleDeals(view, rng, n, { useReveals = false } = {}) {
 const smooth = (lo, hi, x) => { const t = Math.min(1, Math.max(0, (x - lo) / (hi - lo))); return t * t * (3 - 2 * t); };
 
 
-export function trucoStrength(cards) {
-  const p = cards.map(power).sort((a, b) => b - a);
-  return ((p[0] || 0) + (p[1] || 0) * 0.7 + (p[2] || 0) * 0.3) / 26.7;
+export function trucoStrength(cards, muestra) {
+  const p = cards.map((c) => power(c, muestra)).sort((a, b) => b - a);
+  
+  return Math.min(1, ((p[0] || 0) + (p[1] || 0) * 0.7 + (p[2] || 0) * 0.3) / 26.7);
 }
 
 
@@ -113,7 +115,7 @@ export function signalWeights(view, deals, kind, floor = 0.15) {
   return deals.map((d) => {
     let w = 1;
     for (const s of seats) {
-      const x = kind === 'truco' ? smooth(0.4, 0.75, trucoStrength(d[s])) : smooth(22, 30, envidoPoints(d[s]));
+      const x = kind === 'truco' ? smooth(0.4, 0.75, trucoStrength(d[s], h.muestra)) : smooth(22, 30, envidoPoints(d[s], h.muestra));
       w *= floor + (1 - floor) * x;
     }
     return w;
@@ -133,7 +135,7 @@ export function envidoOdds(view, deals, weights = null) {
     let bestTeam = -1;
     for (let k = 0; k < n; k++) {
       const s = (view.game.mano + k) % n;
-      const p = envidoPoints(d[s]);
+      const p = envidoPoints(d[s], view.game.hand.muestra);
       if (p > best) { best = p; bestTeam = team(s); }
     }
     if (bestTeam === myTeam) wins += w;
@@ -143,21 +145,23 @@ export function envidoOdds(view, deals, weights = null) {
 
 
 
-function greedyCard(hand, cur, seat) {
+function greedyCard(hand, cur, seat, muestra) {
+  const pw = (c) => power(c, muestra);
   
   
-  const sorted = hand.slice().sort((a, b) => power(a) - power(b));
+  const sorted = hand.slice().sort((a, b) => pw(a) - pw(b));
   if (!cur.length) return sorted.length === 3 ? sorted[1] : sorted[sorted.length - 1];
   let top = -1;
   let topTeam = -1;
-  for (const p of cur) if (power(p.card) > top) { top = power(p.card); topTeam = team(p.seat); }
+  for (const p of cur) if (pw(p.card) > top) { top = pw(p.card); topTeam = team(p.seat); }
   if (topTeam === team(seat)) return sorted[0];
-  const win = sorted.find((c) => power(c) > top);
+  const win = sorted.find((c) => pw(c) > top);
   return win || sorted[0];
 }
 
 
 export function playOut(h, hands, players, mano, first = null) {
+  const pw = (c) => power(c, h.muestra);
   const hs = hands.map((x) => x.slice());
   let results = h.results.slice();
   let cur = (h.bazas[h.bazas.length - 1] || []).slice();
@@ -170,17 +174,17 @@ export function playOut(h, hands, players, mano, first = null) {
     if (cur.length === players) {
       let top = -1;
       let seat = -1;
-      for (const p of cur) if (power(p.card) > top) { top = power(p.card); seat = p.seat; }
-      const teams = new Set(cur.filter((p) => power(p.card) === top).map((p) => team(p.seat)));
+      for (const p of cur) if (pw(p.card) > top) { top = pw(p.card); seat = p.seat; }
+      const teams = new Set(cur.filter((p) => pw(p.card) === top).map((p) => team(p.seat)));
       const res = teams.size > 1 ? 'parda' : team(seat);
       results = [...results, res];
-      const next = res === 'parda' ? lead : cur.find((p) => power(p.card) === top).seat;
+      const next = res === 'parda' ? lead : cur.find((p) => pw(p.card) === top).seat;
       lead = next; turn = next; cur = [];
       continue;
     }
     const hand = hs[turn];
     if (!hand.length) return team(mano);
-    const card = forced && hand.includes(forced) ? forced : greedyCard(hand, cur, turn);
+    const card = forced && hand.includes(forced) ? forced : greedyCard(hand, cur, turn, h.muestra);
     forced = null;
     hand.splice(hand.indexOf(card), 1);
     cur.push({ seat: turn, card });
@@ -208,7 +212,7 @@ export function handOdds(view, deals, card = null, weights = null) {
 }
 
 
-const crudeStrength = (cards) => (cards.length ? cards.reduce((a, c) => a + power(c), 0) / (cards.length * 14) : 0.3);
+const crudeStrength = (cards, muestra) => (cards.length ? Math.min(1, cards.reduce((a, c) => a + power(c, muestra), 0) / (cards.length * 14)) : 0.3);
 
 
 
@@ -239,14 +243,14 @@ export function chooseAction(view, { level = 'medium', rng = Math.random } = {})
   const myNeed = g.opts.target - g.scores[myTeam];
   const myDealt = h.dealt[me];
   const result = (action, bluff, reason) => ({ action, bluff: !!bluff, reason });
-  const eOdds = () => (easy ? Math.min(1, envidoPoints(myDealt) / 33)
+  const eOdds = () => (easy ? Math.min(1, envidoPoints(myDealt, h.muestra) / 33)
     : envidoOdds(view, deals, hard ? signalWeights(view, deals, 'envido') : null));
-  const tOdds = (card = null, n = deals.length) => (easy ? crudeStrength(h.hands[me]) + 0.1
+  const tOdds = (card = null, n = deals.length) => (easy ? crudeStrength(h.hands[me], h.muestra) + 0.1
     : handOdds(view, deals.slice(0, n), card, hard ? signalWeights(view, deals.slice(0, n), 'truco') : null));
 
   
   if (pend && pend.kind === 'flor') {
-    const strong = florPoints(myDealt) >= 32;
+    const strong = florPoints(myDealt, h.muestra) >= 32;
     if (strong && has('contraflor', { resto: false })) return result(has('contraflor', { resto: false }), false, 'contraflor');
     return result(has('achico'), false, 'achico');
   }
@@ -314,7 +318,7 @@ export function chooseAction(view, { level = 'medium', rng = Math.random } = {})
     let best = plays[0];
     let bestP = -1;
     for (const a of plays) {
-      const p = tOdds(a.card, 60) - power(a.card) * 0.0005; 
+      const p = tOdds(a.card, 60) - power(a.card, h.muestra) * 0.0005; 
       if (p > bestP) { bestP = p; best = a; }
     }
     return result(best, false, 'rollout');
@@ -322,10 +326,10 @@ export function chooseAction(view, { level = 'medium', rng = Math.random } = {})
   const cur = h.bazas[h.bazas.length - 1];
   if (easy) {
     const cards = plays.map((a) => a.card);
-    const pick = cur.length ? greedyCard(cards, cur, me) : cards[Math.floor(rng() * cards.length)];
+    const pick = cur.length ? greedyCard(cards, cur, me, h.muestra) : cards[Math.floor(rng() * cards.length)];
     return result(plays.find((a) => a.card === pick), false, 'easy play');
   }
-  const pick = greedyCard(plays.map((a) => a.card), cur, me);
+  const pick = greedyCard(plays.map((a) => a.card), cur, me, h.muestra);
   return result(plays.find((a) => a.card === pick), false, 'greedy');
 }
 

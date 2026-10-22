@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "49d2cb64-20261021T224205Z",
+ "buildId": "ac11bdc3-20261022T090650Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -418,7 +418,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-10-15",
-   "bytes": 8632856
+   "bytes": 12213104
   },
   {
    "id": "buraco",
@@ -453,6 +453,38 @@
    "bytes": 5343353
   },
   {
+   "id": "conga",
+   "statsId": "conga",
+   "title": "Congawise",
+   "tagline": "Escaleras, piernas and the cut: the Uruguayan card game against the computer or friends.",
+   "description": "Free Uruguayan conga with the 50-card Spanish deck: build escaleras and piernas, cut with 5 or less left over, over 100 you are out. Three computer levels, or 2 to 4 friends in a room.",
+   "dir": "play/conga",
+   "path": "play/conga/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/conga.html",
+   "orientation": "any",
+   "players": "1-4",
+   "online": true,
+   "offline": true,
+   "cover": "assets/covers/conga-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/conga/0.webp",
+    "assets/shots/conga/1.webp"
+   ],
+   "accent": "#2A5DA8",
+   "glyph": "conga",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 14,
+   "addedAt": "2026-10-22",
+   "bytes": 7911475
+  },
+  {
    "id": "farmy-moon-life",
    "statsId": "farmy-moon-life",
    "title": "Moon Life",
@@ -480,7 +512,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 16,
+   "order": 17,
    "addedAt": "2026-09-14",
    "bytes": 778973
   },
@@ -511,7 +543,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 17,
+   "order": 18,
    "addedAt": "2026-09-25",
    "bytes": 12520070
   },
@@ -543,7 +575,7 @@
    "pack": "family",
    "age": 9,
    "ageNote": null,
-   "order": 18,
+   "order": 19,
    "addedAt": "2026-09-30",
    "bytes": 77953833
   },
@@ -575,7 +607,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 20,
+   "order": 21,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -607,7 +639,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 21,
+   "order": 22,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -639,7 +671,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 22,
+   "order": 23,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -671,7 +703,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 23,
+   "order": 24,
    "addedAt": "2026-09-21",
    "bytes": 211807
   }

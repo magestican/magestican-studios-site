@@ -41,6 +41,7 @@
   var NAMES = {
     truco: { en: 'Trucowise', es: 'Trucowise: Truco Argentino', pt: 'Trucowise: Truco', tl: 'Trucowise: Truco', ja: 'Trucowise \u30c8\u30a5\u30eb\u30fc\u30b3', ko: 'Trucowise \ud2b8\ub8e8\ucf54', id: 'Trucowise: Truco', vi: 'Trucowise: Truco' },
     buraco: { en: 'Buracowise', es: 'Buracowise: Burako', pt: 'Buracowise: Buraco', tl: 'Buracowise: Buraco', ja: 'Buracowise \u30d6\u30e9\u30fc\u30b3', ko: 'Buracowise \ubd80\ub77c\ucf54', id: 'Buracowise: Buraco', vi: 'Buracowise: Buraco' },
+    conga: { en: 'Congawise', es: 'Congawise: Conga uruguaya', pt: 'Congawise: Conga', tl: 'Congawise: Conga', ja: 'Congawise コンガ', ko: 'Congawise 콩가', id: 'Congawise: Conga', vi: 'Congawise: Conga' },
     gomoku: { en: 'Gomowise', es: 'Gomowise: Gomoku', pt: 'Gomowise: Gomoku', tl: 'Gomowise: Gomoku', ja: 'Gomowise \u4e94\u76ee\u4e26\u3079', ko: 'Gomowise \uc624\ubaa9', id: 'Gomowise: Gomoku', vi: 'Gomowise: C\u1edd Caro' },
     minesweeper: { en: 'Sweepwise', es: 'Sweepwise: Buscaminas', pt: 'Sweepwise: Campo Minado', tl: 'Sweepwise: Minesweeper', ja: 'Sweepwise \u30de\u30a4\u30f3\u30b9\u30a4\u30fc\u30d1\u30fc', ko: 'Sweepwise \uc9c0\ub8b0\ucc3e\uae30', id: 'Sweepwise: Minesweeper', vi: 'Sweepwise: D\u00f2 M\u00ecn' },
     'word-chain': { en: 'Relaywise', es: 'Relaywise: Palabras Encadenadas', pt: 'Relaywise: Palavras Encadeadas', tl: 'Relaywise: Word Chain', ja: 'Relaywise \u3057\u308a\u3068\u308a', ko: 'Relaywise \ub05d\ub9d0\uc787\uae30', id: 'Relaywise: Sambung Kata', vi: 'Relaywise: N\u1ed1i T\u1eeb' },
@@ -113,7 +114,7 @@
   
   
   
-  var KITS = { minesweeper: 'stone', gomoku: 'wood', truco: 'wood', buraco: 'wood', 'word-chain': 'parchment' };
+  var KITS = { minesweeper: 'stone', gomoku: 'wood', truco: 'wood', buraco: 'wood', conga: 'wood', 'word-chain': 'parchment' };
   var kit = data.kit || KITS[data.game] || '';
   if (/^(stone|wood|parchment)$/.test(kit) && me && me.src) {
     html.setAttribute('data-kit', kit);

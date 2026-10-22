@@ -180,6 +180,13 @@ body { display: flex; flex-direction: column; }
 .tr-table.two { grid-template-columns: 1fr; grid-template-areas: "top" "me"; }
 
 
+.tr-muestra {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 0; font-size: 15px; color: var(--fc-inkSoft);
+}
+.tr-muestra[hidden] { display: none; }
+
+
 
 
 html[data-scene] .tr-table {
@@ -301,6 +308,18 @@ html[data-scene] main > .tr-hud, html[data-scene] main > .tr-seat { padding: 12p
   .tr-score-row { gap: 5px; }
   .tr-tally { height: 17px; }
   .tr-status { font-size: 15px; }
+}
+
+
+
+
+@media (max-width: 480px) {
+  
+  .tr-hud .tr-score .tr-half { display: none !important; }
+  .tr-score-row { font-size: 14px; }
+  .tr-tally { height: 12px; }
+  .tr-score-n { font-size: 16px; min-width: 1.2em; }
+  .tr-score-name { font-size: 13px; }
 }
 
 

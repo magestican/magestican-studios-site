@@ -16,6 +16,7 @@
 
 
 
+
 import {
   createMatch, act, nextHand, rematch, viewFor, viewForPeer, actorId, seatOf, isBot, botLevel, seatsWith, myNumbers, echoView,
 } from '../../../web-engine/truco/trucoMatch.js';
@@ -60,9 +61,9 @@ const lang = gameLang();
 
 
 
-const MUSIC_NAMES = { main: 'Tango', local: 'Cumbia', bonus: 'Bollywood' };
+const MUSIC_NAMES = { main: 'Tango', local: 'Cumbia', bonus: 'Bollywood', uy: 'Candombe' };
 const music = createTrackMusic({
-  game: 'truco', lang, homeLang: 'es', trackIds: ['main', 'local', 'bonus'],
+  game: 'truco', lang, homeLang: 'es', trackIds: ['main', 'local', 'bonus', 'uy'],
   manifestUrl: new URL('../assets/music/music.json', import.meta.url),
 });
 
@@ -94,6 +95,7 @@ mountLevelScene({ levels: ['easy', 'medium', 'hard'] });
 const roomEl = $('room');
 const targetEl = $('target');
 const florEl = $('flor');
+const variantEl = $('variant');
 
 
 document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang;
@@ -109,6 +111,14 @@ $('rules-link').href = T.rules;
 handEl.setAttribute('aria-label', T.handLabel);
 $('table').setAttribute('aria-label', T.tableLabel);
 const GAME_NAME = localGameName(GAME_ID, lang);
+
+
+for (const [v, key] of [['ar', 'rulesAr'], ['uy', 'rulesUy']]) {
+  const o = document.createElement('option');
+  o.value = v;
+  o.textContent = T[key];
+  variantEl.append(o);
+}
 for (const n of [15, 30]) {
   const o = document.createElement('option');
   o.value = String(n);
@@ -129,10 +139,16 @@ const settings = {
   level: pick(params.get('level'), LEVELS, pick(saved.level, LEVELS, 'medium')),
   target: pick(Number(params.get('to')), [15, 30], pick(saved.target, [15, 30], 15)),
   flor: params.get('flor') !== null ? params.get('flor') === '1' : saved.flor === true,
+  variant: pick(params.get('rules'), ['ar', 'uy'], pick(saved.variant, ['ar', 'uy'], 'ar')),
 };
 
+if (params.get('rules') !== null) {
+  if (params.get('to') === null) settings.target = settings.variant === 'uy' ? 30 : 15;
+  if (params.get('flor') === null) settings.flor = settings.variant === 'uy';
+}
 
-const persist = () => save(SETTINGS_KEY, { size: settings.size, level: settings.level, target: settings.target, flor: settings.flor });
+
+const persist = () => save(SETTINGS_KEY, { size: settings.size, level: settings.level, target: settings.target, flor: settings.flor, variant: settings.variant });
 
 const seedParam = params.get('seed');
 let seedCounter = Number(seedParam) || 0;
@@ -141,6 +157,7 @@ function freshSeed() {
   try { return crypto.getRandomValues(new Uint32Array(1))[0] || 1; } catch { return (Math.random() * 2 ** 32) >>> 0 || 1; }
 }
 const handParam = (params.get('hand') ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+const muestraParam = params.get('muestra');
 
 
 let match = null;   
@@ -213,8 +230,9 @@ function newMatch({ keepHand = false } = {}) {
   const first = settings.mode === 'room' ? myId() : SOLO;
   const seats = settings.mode === 'room' && settings.size === 2 ? [first, ''] : botSeats(settings.size, settings.level, first);
   begin(createMatch({
-    seats, target: settings.target, flor: settings.flor, seed: freshSeed(),
+    seats, target: settings.target, flor: settings.flor, variant: settings.variant, seed: freshSeed(),
     fixedHand: keepHand && handParam.length === 3 ? handParam : null,
+    fixedMuestra: keepHand ? muestraParam : null,
   }));
 }
 
@@ -515,6 +533,10 @@ function drawTable() {
   for (const c of h.calls || []) lastCall.set(c.seat, c);
   const turnSeat = actor(g);
   $('table').classList.toggle('two', n === 2);
+  
+  const mu = $('muestra');
+  mu.hidden = !h.muestra;
+  $('muestra-card').replaceChildren(...(h.muestra ? [cardEl(h.muestra, { tiny: true })] : []));
   for (let s = 0; s < n; s++) {
     
     
@@ -574,7 +596,7 @@ function drawHand(legal) {
   handEl.replaceChildren();
   if (!view) return;
   const h = view.game.hand;
-  const cards = sortHand((h.hands[view.you] || []).filter(Boolean), { key: power });
+  const cards = sortHand((h.hands[view.you] || []).filter(Boolean), { key: (c) => power(c, h.muestra) });
   const playable = new Set(legal.filter((a) => a.type === 'play').map((a) => a.card));
   for (const c of cards) {
     if (!c) continue;
@@ -655,13 +677,14 @@ function draw() {
   for (const b of document.querySelectorAll('[data-level]')) b.setAttribute('aria-pressed', String(b.dataset.level === settings.level));
   targetEl.value = String(settings.target);
   florEl.checked = settings.flor;
+  variantEl.value = view ? view.game.opts.variant || 'ar' : settings.variant;
   roomEl.hidden = settings.mode !== 'room';
   $('room-start').hidden = room.active;
   $('room-live').hidden = !room.active;
   $('room-code').textContent = room.code ?? '-';
   const guest = isGuest();
   const watching = watcher();
-  for (const el of [targetEl, florEl]) el.disabled = guest || watching;
+  for (const el of [targetEl, florEl, variantEl]) el.disabled = guest || watching;
   
   $('copy-link').hidden = watching;
   const watchersEl = $('watchers');
@@ -677,7 +700,7 @@ function draw() {
   const nums = view && myNumbers(view);
   const h = view?.game.hand;
   if (nums && h && h.results.length === 0 && !h.over) {
-    mineEl.textContent = view.game.opts.flor && nums.flor ? fill(T.myFlor, { n: nums.envido }) : fill(T.myEnvido, { n: nums.envido });
+    mineEl.textContent = view.game.opts.flor && nums.flor ? fill(T.myFlor, { n: nums.florPoints }) : fill(T.myEnvido, { n: nums.envido });
   } else mineEl.textContent = '';
   
   nextEl.hidden = !(view && h && h.over && !view.game.over && !guest && !watching);
@@ -711,7 +734,7 @@ function finished() {
     if (arg) reportMatch(arg).catch(() => {});
   }
   trackEvent('truco_finished', {
-    mode: settings.mode, size: g.opts.players, level: settings.level, target: g.opts.target,
+    mode: settings.mode, size: g.opts.players, level: settings.level, target: g.opts.target, rules: g.opts.variant,
     flor: g.opts.flor, result, us: g.scores[team(me)], them: g.scores[1 - team(me)],
   });
 }
@@ -763,6 +786,17 @@ targetEl.addEventListener('change', () => {
 });
 florEl.addEventListener('change', () => {
   settings.flor = florEl.checked;
+  persist();
+  playUi('toggleOn');
+  if (settings.mode === 'bot') restartSolo(); else if (room.active && net?.hosting) newMatch();
+});
+variantEl.addEventListener('change', () => {
+  settings.variant = variantEl.value === 'uy' ? 'uy' : 'ar';
+  
+  
+  settings.target = settings.variant === 'uy' ? 30 : 15;
+  settings.flor = settings.variant === 'uy';
+  trackForRules(settings.variant);
   persist();
   playUi('toggleOn');
   if (settings.mode === 'bot') restartSolo(); else if (room.active && net?.hosting) newMatch();
@@ -854,13 +888,13 @@ function startNet() {
         const seats = seatsWith(match.seats, who, false);
         if (seats !== match.seats) {
           stopTimers();
-          begin(createMatch({ seats, target: match.game.opts.target, flor: match.game.opts.flor, seed: freshSeed() }));
+          begin(createMatch({ seats, target: match.game.opts.target, flor: match.game.opts.flor, variant: match.game.opts.variant, seed: freshSeed() }));
           return;
         }
       } else if (match.seats.includes('') && match.game.opts.players === 2) {
         
         stopTimers();
-        begin(createMatch({ seats: seatsWith(match.seats, who, false), target: match.game.opts.target, flor: match.game.opts.flor, seed: freshSeed() }));
+        begin(createMatch({ seats: seatsWith(match.seats, who, false), target: match.game.opts.target, flor: match.game.opts.flor, variant: match.game.opts.variant, seed: freshSeed() }));
         return;
       } else {
         queuedArrivals.push(who);
@@ -894,7 +928,7 @@ function startNet() {
       if (freshMatch(match)) {
         seats[k] = match.game.opts.players === 2 ? '' : `bot:${settings.level}#${k}`;
         stopTimers();
-        begin(createMatch({ seats, target: match.game.opts.target, flor: match.game.opts.flor, seed: freshSeed() }));
+        begin(createMatch({ seats, target: match.game.opts.target, flor: match.game.opts.flor, variant: match.game.opts.variant, seed: freshSeed() }));
         return;
       }
       seats[k] = `bot:${settings.level}#${k}`;
@@ -911,7 +945,7 @@ function startNet() {
         const seats = view.seats.map((s, i) => (s === detail.previousHost || !s ? `bot:${settings.level}#${i}` : s));
         settings.size = seats.length;
         flash(T.hostLeft, 5000);
-        begin(createMatch({ seats, target: view.game.opts.target, flor: view.game.opts.flor, seed: freshSeed() }));
+        begin(createMatch({ seats, target: view.game.opts.target, flor: view.game.opts.flor, variant: view.game.opts.variant, seed: freshSeed() }));
         return;
       }
       draw();
@@ -925,7 +959,7 @@ function openRoom() {
   room.active = true;
   settings.mode = 'room';
   const seats = settings.size === 2 ? [HOST, ''] : botSeats(4, settings.level, HOST);
-  begin(createMatch({ seats, target: settings.target, flor: settings.flor, seed: freshSeed() }));
+  begin(createMatch({ seats, target: settings.target, flor: settings.flor, variant: settings.variant, seed: freshSeed() }));
   startNet().host();
 }
 
@@ -992,7 +1026,19 @@ $('watch-link').addEventListener('click', () => {
 
 
 wireMusicButton({ music });
-wireTrackButton({ music, names: MUSIC_NAMES, lang });
+const trackBtn = wireTrackButton({ music, names: MUSIC_NAMES, lang });
+
+
+
+
+
+function trackForRules(variant) {
+  const cur = music.track();
+  if (variant === 'uy' && cur !== 'uy') music.setTrack('uy');
+  else if (variant !== 'uy' && cur === 'uy') music.setTrack('main');
+  trackBtn?.refreshTrack?.();
+}
+if (params.get('rules') !== null) trackForRules(settings.variant);
 
 foldSetup();
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Trucowise' });

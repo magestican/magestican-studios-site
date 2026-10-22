@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Congawise - free Uruguayan conga card game online</title>
+  <meta name="description" content="Congawise is free Uruguayan conga, the card game, in your browser: the 50-card Spanish deck, escaleras and piernas, cut with 5 or less left over, over 100 you are out. Play the computer or friends in a room.">
+  <meta name="keywords" content="congawise, conga, conga uruguaya, conga online, conga juego de cartas, jugar conga, chinchon">
+  <meta name="build" content="ac11bdc3-20261022T090650Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/conga/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Congawise - free Uruguayan conga card game online">
+  <meta property="og:description" content="Draw from the mazo or the pozo, build escaleras and piernas, cut with 5 or less left over: the computer at three levels, or 2 to 4 friends in a room.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/conga/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/conga.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Congawise - free Uruguayan conga card game online">
+  <meta name="twitter:description" content="Escaleras, piernas and the cut: the computer at three levels, or friends in a room.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/conga.jpg">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  
+
+  <script src="../shared/ui/boot.js?v=ac11bdc3-20261022T090650Z" data-game="conga" data-levels="easy,medium,hard" data-level-key="congawise-settings-v1" data-level-default="medium" data-deck="../shared/cards/spanish50/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=ac11bdc3-20261022T090650Z">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Congawise",
+    "alternateName": ["Conga", "Conga uruguaya", "Conga online"],
+    "url": "https://magesticanstudios.com/play/conga/",
+    "description": "Uruguayan conga, the card game, in the browser with the 50-card Spanish deck (1 to 12 in four suits and two comodines): take a card from the mazo or the pozo and throw one, build escaleras and piernas, cut with 5 points or less left over, -10 with all seven combined, over 100 points you are out, and a conga - seven in one escalera - wins the game. Two to four players: the computer at three levels, or friends in a peer-to-peer room where each player sees only their own cards.",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Card", "Strategy", "Casual"],
+    "gamePlatform": ["Web browser"],
+    "playMode": ["SinglePlayer", "MultiPlayer"],
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 4 },
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": ["en", "es", "pt-BR", "tl", "ja", "ko", "id", "vi"],
+    "datePublished": "2026-10-22",
+    "accessibilityFeature": ["highContrastDisplay", "structuralNavigation"],
+    "accessibilityHazard": ["noFlashingHazard", "noMotionSimulationHazard"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+  <script type="module" src="/web-engine/library/openHook.js?play=conga"></script>
+</head>
+<body>
+  
+
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+    <a class="studio-back" id="rules-link" href="/conga.html" data-t="back">How to play</a>
+    <button id="music-btn" class="studio-music" type="button"
+            aria-pressed="false" aria-label="Play music" title="Play music">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        <path class="mg-note" d="M18 6.5 L27 4.5 V17.2" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="mg-note" cx="15.4" cy="18.6" r="3.4" fill="currentColor"/>
+        <circle class="mg-note" cx="24.4" cy="16.6" r="3.4" fill="currentColor"/>
+        <path d="M3 12.5 H6.5 L11 8.5 V23.5 L6.5 19.5 H3 Z" fill="currentColor"/>
+        <path class="mg-slash" d="M4 27 L28 5" fill="none" stroke="currentColor"
+              stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <main class="cg">
+    <h1 data-game-name>Congawise</h1>
+
+    <div class="cg-row" role="group" aria-label="Mode">
+      <button class="cg-btn skin-wood-toggle mg-i mg-i-computer" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
+      <button class="cg-btn skin-wood-toggle mg-i mg-i-globe" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
+    </div>
+
+    <div class="cg-row" role="group" aria-label="Players">
+      <button class="cg-btn skin-wood-toggle" type="button" data-size="2" aria-pressed="true">2 players</button>
+      <button class="cg-btn skin-wood-toggle" type="button" data-size="3" aria-pressed="false">3 players</button>
+      <button class="cg-btn skin-wood-toggle" type="button" data-size="4" aria-pressed="false">4 players</button>
+    </div>
+
+    <div class="cg-row" id="opts-row">
+      <span class="cg-label" data-t="level">Level</span>
+      <button class="cg-btn skin-wood-toggle" type="button" data-level="easy" data-t="easy" aria-pressed="false">Easy</button>
+      <button class="cg-btn skin-wood-toggle" type="button" data-level="medium" data-t="medium" aria-pressed="true">Medium</button>
+      <button class="cg-btn skin-wood-toggle" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
+      <span class="cg-gap"></span>
+      <label class="cg-check"><input class="skin-wood-checkbox" type="checkbox" id="reenganche"> <span data-t="reenganche">Reenganche (one way back in)</span></label>
+    </div>
+
+    <section class="cg-room mg-own" id="room" hidden aria-label="Room">
+      <div class="cg-row" id="room-start">
+        <button class="cg-btn skin-wood-button_primary mg-i mg-i-two_players" type="button" id="create-room" data-t="createRoom">Create a room</button>
+        <form class="cg-row" id="join-form">
+          <input class="cg-code-input skin-wood-select" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
+          <button class="cg-btn skin-wood-button_secondary mg-i mg-i-link" type="submit" data-t="join">Join</button>
+        </form>
+      </div>
+      <div class="cg-row" id="room-live" hidden>
+        <span class="cg-label" data-t="roomCodeLabel">Code</span> <output class="cg-code" id="room-code">-</output>
+        <button class="cg-btn skin-wood-button_secondary mg-i mg-i-share" type="button" id="copy-link" data-t="copyLink">Share link</button>
+        <button class="cg-btn skin-wood-button_secondary mg-i mg-i-watch" type="button" id="watch-link" data-t="watchLink">Watch link</button>
+        <button class="cg-btn skin-wood-button_secondary mg-i mg-i-leave" type="button" id="leave-room" data-t="leave">Leave room</button>
+        <span class="cg-watchers skin-wood-chip mg-i mg-i-watchers" id="watchers" role="status" hidden></span>
+      </div>
+    </section>
+
+    
+    <div class="cg-hud">
+      <section class="cg-score" id="score" aria-label="Score"></section>
+      <p class="cg-status" id="status" role="status" aria-live="polite"></p>
+    </div>
+
+    <section class="cg-table mg-own" id="table" aria-label="Table">
+      <div class="cg-seats" id="seats"></div>
+      <div class="cg-centre" id="centre"></div>
+    </section>
+
+    
+    <section class="cg-seat-card" id="seat">
+      <p class="cg-flash" id="flash" aria-live="assertive"></p>
+      <div class="cg-actions" id="actions" role="group" aria-label="Moves"></div>
+      <div class="cg-hand" id="hand" role="group" aria-label="Your cards"></div>
+    </section>
+
+    <section class="cg-result mg-own skin-wood-plaque" id="result" hidden aria-live="polite"></section>
+
+    <div class="cg-foot">
+      <button class="cg-btn skin-wood-button_primary mg-i mg-i-rematch" id="next-hand" type="button" data-t="nextHand" hidden>Next hand</button>
+      <button class="cg-btn skin-wood-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+    </div>
+    <p class="cg-help" data-t="help">Take a card from the stock or the pile, then throw one. Make escaleras (3 or more in a row of one suit) and piernas (3 or 4 of one number); cut when what is left over adds up to 5 or less. Over 100 points you are out, and the last one in wins. A conga - all 7 in one escalera - wins at once.</p>
+  </main>
+
+  <noscript>
+    <p>Congawise is a conga card game and needs JavaScript; there is nothing to download.
+    <a href="/conga.html">How to play</a>.</p>
+  </noscript>
+
+  
+
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=ac11bdc3-20261022T090650Z"></script>
+  <script type="module" src="./src/main.js?v=ac11bdc3-20261022T090650Z"></script>
+</body>
+</html>

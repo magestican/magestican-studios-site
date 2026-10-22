@@ -53,6 +53,7 @@ export const LIVE_STATS_ID = Object.freeze({
   truco: 'truco',
   buraco: 'buraco',
   minesweeper: 'minesweeper',
+  conga: 'conga',
 });
 
 
@@ -77,6 +78,7 @@ export const LIVE_ACCENT = Object.freeze({
   buraco: '#1F6E4A',
   
   minesweeper: '#1D4E89',
+  conga: '#2A5DA8',
 });
 
 

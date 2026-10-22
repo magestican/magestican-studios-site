@@ -103,6 +103,9 @@ export const LIVE_GAMES = Object.freeze({
   
   
   minesweeper: 'Sweepwise',
+  
+  
+  conga: 'Congawise',
 });
 
 
@@ -131,7 +134,7 @@ export function isPublishableCode(game, code) {
   const c = String(code ?? '');
   const peer = PEER_PREFIX[game];
   if (peer) return c.startsWith(peer) && /^(fk|tb)-[a-z0-9]{6}$/.test(c);
-  return /^(fcx|fch|flu|fsc|fdr|fup|feh|fml|fgo|fwc|ftr|fbu|fms)-[ACDEFGHJKMNPRTUVWXY34679]{6}$/.test(c);
+  return /^(fcx|fch|flu|fsc|fdr|fup|feh|fml|fgo|fwc|ftr|fbu|fms|fcg)-[ACDEFGHJKMNPRTUVWXY34679]{6}$/.test(c);
 }
 
 
@@ -151,6 +154,7 @@ export const LIVE_PATH = Object.freeze({
   truco: '/play/truco/',
   buraco: '/play/buraco/',
   minesweeper: '/play/minesweeper/',
+  conga: '/play/conga/',
 });
 
 

@@ -130,6 +130,14 @@
     },
     {
       "@type": "Question",
+      "name": "Dá para jogar truco uruguaio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim. Escolha Truco uruguaio no menu Regras. Depois da distribuição uma carta é virada, a muestra, e o 2, o 4, o 5, o 11 e o 10 do naipe dela viram as piezas: as cartas mais altas, que valem mais no envido e na flor. O truco uruguaio usa flor e 30 pontos por padrão."
+      }
+    },
+    {
+      "@type": "Question",
       "name": "O computador é forte?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -139,7 +147,7 @@
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=49d2cb64-20261021T224205Z">
+  <link rel="stylesheet" href="/styles.css?v=ac11bdc3-20261022T090650Z">
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     try {
@@ -199,6 +207,10 @@
     <h2>Flor</h2>
     <p>A flor é opcional e vem desligada. Com flor, três cartas do mesmo naipe são flor: cante antes da sua primeira carta e ganhe 3 pontos, e o envido fica anulado. Se o outro lado também tiver flor, pode responder <strong>Contraflor</strong> (a melhor flor ganha 6), <strong>Contraflor al resto</strong> (a melhor flor ganha o que falta para fechar a partida) ou <strong>Con flor me achico</strong> (recua e você ganha 4).</p>
 
+    <h2>Truco uruguaio</h2>
+    <p>O Trucowise: Truco também joga <strong>truco uruguaio</strong>: escolha no menu Regras antes da partida, ou abra direto o <a href="/play/truco/?rules=uy&amp;lang=pt">truco uruguaio</a>. Depois da distribuição mais uma carta é virada para cima, a <strong>muestra</strong>. O 2, o 4, o 5, o 11 e o 10 do naipe dela são as <strong>piezas</strong>, as cinco cartas mais altas nessa ordem, acima do ás de espadas. Se a muestra for uma delas, o 12 do naipe ocupa o lugar dela.</p>
+    <p>No envido, uma pieza vale 30, 29, 28, 27 ou 27, mais a sua melhor carta entre as outras. Há flor com três cartas do mesmo naipe, com uma pieza e duas cartas de um mesmo naipe, ou com duas piezas. O truco uruguaio é jogado com flor e a 30 pontos por padrão; as duas coisas ainda podem ser mudadas.</p>
+
     <h2>Pontos: partidas de 15 ou 30</h2>
     <p>Os pontos contam assim que são ganhos, e quem chega primeiro ganha na hora. Uma partida de 30 se divide em <em>malas</em> (os primeiros 15) e <em>buenas</em> (os últimos 15). O placar é desenhado do jeito tradicional, em quadrados de cinco riscos.</p>
 
@@ -229,7 +241,7 @@
 
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="Site"><ul><li><a href="/pt/#games">Jogos</a></li><li><a href="/you.html">Seus jogos</a></li><li><a href="/pt/for-remote-teams.html">Para equipes</a></li><li><a href="/pt/magazine/">Revista</a></li><li><a href="/pt/about.html">Sobre</a></li><li><a href="/pt/reviews.html">Análises</a></li></ul></nav>
-    <nav class="footer-games" aria-label="Todos os jogos"><ul><li><a href="/pt/farmyshoot.html">Splatbarn</a></li><li><a href="/pt/farmy-uprising.html">Hoofrise</a></li><li><a href="/pt/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/pt/farmykart.html">Kartzoom: Corrida de Kart</a></li><li><a href="/pt/farmy-tiles.html">Letterloft: Tabuleiro de Palavras</a></li><li><a href="/pt/farmy-crosswords.html">Wordburrow: Palavras Cruzadas</a></li><li><a href="/pt/xadrez-online-gratis.html">Rookwise: Xadrez</a></li><li><a href="/pt/farmy-checkers.html">Jumpwise: Damas</a></li><li><a href="/pt/ludo-online-com-amigos.html">Pawnrush: Ludo</a></li><li><a href="/pt/campo-minado-online.html">Sweepwise: Campo Minado</a></li><li><a href="/pt/gomoku-online.html">Gomowise: Gomoku</a></li><li><a href="/pt/palavras-encadeadas.html">Relaywise: Palavras Encadeadas</a></li><li><a href="/pt/truco-argentino.html">Trucowise: Truco</a></li><li><a href="/pt/buraco.html">Buracowise: Buraco</a></li><li><a href="/pt/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/pt/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/pt/farmy-moon-life.html">Moon Life</a></li><li><a href="/pt/silk-and-seam.html">Silk & Seam</a></li><li><a href="/pt/dachis.html">Dachis</a></li><li><a href="/pt/farmy-five.html">Guesswise: Adivinhe a Palavra</a></li><li><a href="/pt/farmy-hive.html">Combword: Colmeia de Letras</a></li><li><a href="/pt/farmy-herds.html">Groupseek: Grupos de Palavras</a></li><li><a href="/pt/farmy-furrows.html">Gridseek: Caça-Palavras</a></li></ul></nav>
+    <nav class="footer-games" aria-label="Todos os jogos"><ul><li><a href="/pt/farmyshoot.html">Splatbarn</a></li><li><a href="/pt/farmy-uprising.html">Hoofrise</a></li><li><a href="/pt/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/pt/farmykart.html">Kartzoom: Corrida de Kart</a></li><li><a href="/pt/farmy-tiles.html">Letterloft: Tabuleiro de Palavras</a></li><li><a href="/pt/farmy-crosswords.html">Wordburrow: Palavras Cruzadas</a></li><li><a href="/pt/xadrez-online-gratis.html">Rookwise: Xadrez</a></li><li><a href="/pt/farmy-checkers.html">Jumpwise: Damas</a></li><li><a href="/pt/ludo-online-com-amigos.html">Pawnrush: Ludo</a></li><li><a href="/pt/campo-minado-online.html">Sweepwise: Campo Minado</a></li><li><a href="/pt/gomoku-online.html">Gomowise: Gomoku</a></li><li><a href="/pt/palavras-encadeadas.html">Relaywise: Palavras Encadeadas</a></li><li><a href="/pt/truco-argentino.html">Trucowise: Truco</a></li><li><a href="/pt/buraco.html">Buracowise: Buraco</a></li><li><a href="/pt/conga.html">Congawise: Conga</a></li><li><a href="/pt/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/pt/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/pt/farmy-moon-life.html">Moon Life</a></li><li><a href="/pt/silk-and-seam.html">Silk & Seam</a></li><li><a href="/pt/dachis.html">Dachis</a></li><li><a href="/pt/farmy-five.html">Guesswise: Adivinhe a Palavra</a></li><li><a href="/pt/farmy-hive.html">Combword: Colmeia de Letras</a></li><li><a href="/pt/farmy-herds.html">Groupseek: Grupos de Palavras</a></li><li><a href="/pt/farmy-furrows.html">Gridseek: Caça-Palavras</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
     <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Todos os direitos reservados.<br> Magestican Studios e o logotipo da Magestican Studios são marcas registradas da Ultra Task Pty Ltd, Austrália.</p>
     <p class="colophon">
@@ -238,7 +250,7 @@
     <p class="footer-browse">Navegue: <a href="/pt/2-player-games-online.html">Jogos online para 2 jogadores</a> &middot; <a href="/pt/multiplayer-browser-games.html">Jogos multijogador no navegador</a> &middot; <a href="/pt/board-games-with-friends.html">Jogos de tabuleiro com amigos</a> &middot; <a href="/pt/word-games.html">Jogos de palavras grátis</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=49d2cb64-20261021T224205Z"></script>
+  <script type="module" src="/assets/site.js?v=ac11bdc3-20261022T090650Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {
@@ -246,7 +258,7 @@
       });
     }
   </script>
-  <script type="module" src="/assets/landing.js?v=49d2cb64-20261021T224205Z"></script>
+  <script type="module" src="/assets/landing.js?v=ac11bdc3-20261022T090650Z"></script>
   <p class="lang-note">Esta página está em português. Os jogos em si estão em inglês; xadrez, damas e ludo quase não têm texto.</p>
 </body>
 </html>

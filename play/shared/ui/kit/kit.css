@@ -111,6 +111,26 @@ html[data-kit] .bu-result-table tr.total td, html[data-kit] .bu-result-table tr.
 html[data-kit] .bu-result-table tr.game td { color: #FFD36A; }
 
 
+html[data-kit] .cg-score-row { padding: 8px 16px 11px !important; }
+html[data-kit] .cg-score-name, html[data-kit] .cg-seat-name, html[data-kit] .cg-show-name { color: inherit; }
+html[data-kit] .cg-score-n { min-width: 56px; min-height: 30px; padding: 4px 10px 6px !important; font-size: 16px; text-align: center; }
+html[data-kit] .cg-seat .cg-score-n { min-width: 44px; min-height: 24px; padding: 2px 8px 4px !important; font-size: 12px; }
+html[data-kit] .cg-seat { padding: 8px 12px 11px !important; min-width: 0; }
+html[data-kit] .cg-seat.turn { border-color: transparent; }
+html[data-kit] .cg-known-label { color: inherit; opacity: .82; }
+html[data-kit] .cg-tag { background: none; color: inherit; font-size: 11px; min-height: 22px; padding: 2px 10px 5px !important; }
+html[data-kit] .cg-slot { padding: 6px !important; min-width: 0; min-height: 0; }
+html[data-kit] .cg-stock .cg-card.can, html[data-kit] .cg-pile .cg-card.can { outline: 0; }
+html[data-kit] .cg-result { border-width: 0; border-color: transparent; padding: 20px 22px 22px !important; }
+html[data-kit] .cg-show-label, html[data-kit] .cg-show-total, html[data-kit] .cg-none { color: inherit; }
+html[data-kit] .cg-show-points { min-height: 28px; padding: 3px 10px 5px !important; }
+html[data-kit] .cg-show-points.minus { color: #9FE3A8; }
+@media (max-width: 560px) {
+  html[data-kit] .cg-seat { padding: 6px 8px 9px !important; }
+  html[data-kit] .cg-score-row { padding: 6px 14px 9px !important; }
+}
+
+
 
 html[data-kit] .sw-counter { gap: 4px; color: inherit; }
 html[data-kit] .sw-counter output { background: none; border-radius: 6px; min-width: 76px; min-height: 40px;
