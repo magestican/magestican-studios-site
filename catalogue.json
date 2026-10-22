@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "afeb4890-20261022T143418Z",
+ "buildId": "c116addf-20261022T224920Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -418,7 +418,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-10-15",
-   "bytes": 12214741
+   "bytes": 12266924
   },
   {
    "id": "buraco",
@@ -450,7 +450,7 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-10-15",
-   "bytes": 5346090
+   "bytes": 5531737
   },
   {
    "id": "conga",
@@ -482,7 +482,7 @@
    "ageNote": null,
    "order": 14,
    "addedAt": "2026-10-22",
-   "bytes": 8412115
+   "bytes": 8520887
   },
   {
    "id": "farmy-moon-life",

@@ -89,7 +89,7 @@ const music = createTrackMusic({
 });
 
 
-const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['card', 'draw', 'win', 'lose']);
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['card', 'draw', 'win', 'lose'], { card: 4, draw: 4 });
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
