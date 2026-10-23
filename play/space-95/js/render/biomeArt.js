@@ -6,27 +6,61 @@ import * as THREE from 'three';
 import { v } from '../site/assetUrl.js';
 
 
-export const ART_BIOME = { 1: 'orchard', 7: 'orchard', 10: 'orchard' };
+export const ART_BIOME = {
+  1: 'orchard',
+  2: 'canopy',
+  5: 'stripecat',
+  6: 'canopy',
+  7: 'orchardDusk',
+  8: 'hive',
+  9: 'puddle',
+  10: 'canopy',
+  11: 'desk',
+};
+
+const B = 'assets/art/biome/';
+
+const tex = (dir, name, tint = 0xffffff, unit = 2) => ({
+  map: `${B}${dir}/${name}/texture.png`,
+  normal: `${B}${dir}/${name}/normal.png`,
+  tint,
+  unit,
+});
+
+
+const GRASS = tex('orchard', 'orchard-grass');
+const BARK = tex('orchard', 'orchard-bark', 0xb98be8, 4);
+
+const plate = (dir, name) => `${B}${dir}/${name}/plate.webp`;
 
 const BIOMES = {
-  orchard: {
-    plate: 'assets/art/biome/orchard/orchard-far/plate.webp',
+  orchard: { plate: plate('orchard', 'orchard-far'), plateAspect: 16 / 9, sky: 0xffe3c6, top: GRASS, solid: BARK },
+  
+  orchardDusk: { plate: plate('batch2', 'orchard-dusk-far'), plateAspect: 16 / 9, sky: 0xffb07a, top: GRASS, solid: BARK },
+  
+  canopy: { plate: plate('batch2', 'canopy-far'), plateAspect: 16 / 9, sky: 0xffe3c6, top: GRASS, solid: BARK },
+  stripecat: {
+    plate: plate('batch2', 'stripecat-far'),
     plateAspect: 16 / 9,
-    sky: 0xffe3c6, 
+    sky: 0xffe1c0,
+    top: tex('batch2', 'fur', 0xffe0bc, 4),
+    solid: tex('batch2', 'fur', 0xffcfa6, 6),
+  },
+  hive: {
+    plate: plate('batch2', 'hive-far'),
+    plateAspect: 16 / 9,
+    sky: 0xf3b44a,
     
-    
-    top: {
-      map: 'assets/art/biome/orchard/orchard-grass/texture.png',
-      normal: 'assets/art/biome/orchard/orchard-grass/normal.png',
-      tint: 0xffffff,
-      unit: 2,
-    },
-    solid: {
-      map: 'assets/art/biome/orchard/orchard-bark/texture.png',
-      normal: 'assets/art/biome/orchard/orchard-bark/normal.png',
-      tint: 0xb98be8,
-      unit: 4,
-    },
+    top: tex('batch2', 'wax', 0xffcf70, 4),
+    solid: tex('batch2', 'wax', 0xffc46a, 6),
+  },
+  puddle: { plate: plate('batch2', 'puddle-far'), plateAspect: 16 / 9, sky: 0xffe3c6, top: GRASS, solid: BARK },
+  desk: {
+    plate: plate('batch2', 'desk-far'),
+    plateAspect: 16 / 9,
+    sky: 0xf59a62,
+    top: tex('batch2', 'keycap'),
+    solid: tex('batch2', 'keycap', 0x8f86b0, 3),
   },
 };
 
