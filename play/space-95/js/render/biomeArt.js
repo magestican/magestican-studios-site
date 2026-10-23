@@ -19,6 +19,8 @@ export const ART_BIOME = {
   10: 'canopy',
   11: 'desk',
   12: 'machine',
+  14: 'nightGarden',
+  16: 'deepBurrow',
   18: 'kitchen',
 };
 
@@ -76,6 +78,9 @@ const BIOMES = {
   },
   
   kitchen: { plate: plate('batch3', 'kitchen-far'), plateAspect: 16 / 9, sky: 0xffd9a8, top: null, solid: null },
+  
+  nightGarden: { plate: plate('batch4', 'nightgarden-far'), plateAspect: 16 / 9, sky: 0x4a3f7a, top: null, solid: null },
+  deepBurrow: { plate: plate('batch4', 'deepburrow-far'), plateAspect: 16 / 9, sky: 0x5a3a22, top: null, solid: null },
   desk: {
     plate: plate('batch2', 'desk-far'),
     plateAspect: 16 / 9,
