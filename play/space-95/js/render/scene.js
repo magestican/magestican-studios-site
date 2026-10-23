@@ -11,6 +11,7 @@ import { heaveAt } from '../sim/heave.js';
 import { sparkState } from '../sim/pins.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
+import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js';
 import { burrowEntityView, createBurrow } from './burrowView.js';
 import { createCameraRig, rideLead, updateCameraRig } from './cameraRig.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
@@ -35,10 +36,13 @@ export function createView(canvas, level, labels) {
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
-  scene.background = skyTexture();
-  scene.fog = new THREE.Fog(0xbfe6ff, 30, 90);
+  const art = biomeArt(level); 
+  scene.background = art ? new THREE.Color(art.sky) : skyTexture();
+  scene.fog = new THREE.Fog(art ? art.sky : 0xbfe6ff, 30, 90);
 
   const camera = new THREE.PerspectiveCamera(35, 16 / 9, 0.5, 200);
+  const backdrop = art ? paintedBackdrop(camera, art) : null;
+  if (backdrop) scene.add(camera); 
   const hemi = new THREE.HemisphereLight(0xcfeaff, 0xffd9a8, 1.6);
   scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff1d6, 2.2);
@@ -47,7 +51,7 @@ export function createView(canvas, level, labels) {
 
   
   const kitchenSkin = !!level.colds?.length;
-  scene.add(tileMeshes(level.world, level.darkTint === 'umber' ? 'bedrock' : kitchenSkin ? 'kitchen' : null));
+  scene.add(tileMeshes(level.world, level.darkTint === 'umber' ? 'bedrock' : kitchenSkin ? 'kitchen' : null, art));
   if (kitchenSkin) scene.background = new THREE.Color(0x6cc7bd);
   scene.add(barkMeshes(level.world));
   const soil = soilMeshes(level.world);
@@ -80,7 +84,7 @@ export function createView(canvas, level, labels) {
     scene.add(m);
     teles.push({ m, t: 0, life });
   };
-  scene.add(farLayers(level.world));
+  if (!art) scene.add(farLayers(level.world));
   
   for (const cp of level.checkpoints.filter((c) => c.phase === undefined)) {
     const label = labels.find((l) => l.id === cp.id);
@@ -281,6 +285,7 @@ export function createView(canvas, level, labels) {
           fx.splice(i, 1);
         }
       }
+      backdrop?.update();
       renderer.render(scene, camera);
     },
     
@@ -886,13 +891,24 @@ function skyTexture() {
 
 
 
-function tileMeshes(world, skin = null) {
+
+function tileMeshes(world, skin = null, art = null) {
   const T = world.tile;
   const group = new THREE.Group();
   const rock = skin === 'bedrock';
   const kitchen = skin === 'kitchen';
   const solidMat = new THREE.MeshLambertMaterial({ color: rock ? 0x6c7078 : kitchen ? 0xb8875a : 0x9a7bd8 });
   const topMat = new THREE.MeshLambertMaterial({ color: rock ? 0x8fa6bf : kitchen ? 0xece4d6 : 0x7ed957 });
+  const painted = art && !skin;
+  if (painted) {
+    skinMaterial(solidMat, art.solid);
+    skinMaterial(topMat, art.top);
+  }
+  
+  const uv = (m, spec) => {
+    if (painted) worldUV(m.geometry, m.position, spec.unit * T);
+    return m;
+  };
   const oneWayMat = new THREE.MeshLambertMaterial({ color: 0xf2c879 });
   for (let r = 0; r < world.height; r++) {
     let c = 0;
@@ -913,7 +929,7 @@ function tileMeshes(world, skin = null) {
       } else {
         const m = new THREE.Mesh(new THREE.BoxGeometry(w, T, TILE_DEPTH), solidMat);
         m.position.set(c * T + w / 2, r * T + T / 2, -TILE_DEPTH / 2 + 0.3);
-        group.add(m);
+        group.add(uv(m, art?.solid));
         
         
         for (let k = c; k < end; ) {
@@ -926,7 +942,7 @@ function tileMeshes(world, skin = null) {
           const cw = (k2 - k) * T;
           const cap = new THREE.Mesh(new THREE.BoxGeometry(cw, T * 0.3, TILE_DEPTH + 0.02), topMat);
           cap.position.set(k * T + cw / 2, (r + 1) * T - T * 0.15 + 0.005, -TILE_DEPTH / 2 + 0.3);
-          group.add(cap);
+          group.add(uv(cap, art?.top));
           k = k2;
         }
       }
