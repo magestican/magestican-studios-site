@@ -899,7 +899,7 @@ function tileMeshes(world, skin = null, art = null) {
   const kitchen = skin === 'kitchen';
   const solidMat = new THREE.MeshLambertMaterial({ color: rock ? 0x6c7078 : kitchen ? 0xb8875a : 0x9a7bd8 });
   const topMat = new THREE.MeshLambertMaterial({ color: rock ? 0x8fa6bf : kitchen ? 0xece4d6 : 0x7ed957 });
-  const painted = art && !skin;
+  const painted = !!art?.solid && !skin; 
   if (painted) {
     skinMaterial(solidMat, art.solid);
     skinMaterial(topMat, art.top);

@@ -9,6 +9,8 @@ import { v } from '../site/assetUrl.js';
 export const ART_BIOME = {
   1: 'orchard',
   2: 'canopy',
+  3: 'antTrail',
+  4: 'vault',
   5: 'stripecat',
   6: 'canopy',
   7: 'orchardDusk',
@@ -16,6 +18,8 @@ export const ART_BIOME = {
   9: 'puddle',
   10: 'canopy',
   11: 'desk',
+  12: 'machine',
+  18: 'kitchen',
 };
 
 const B = 'assets/art/biome/';
@@ -55,6 +59,23 @@ const BIOMES = {
     solid: tex('batch2', 'wax', 0xffc46a, 6),
   },
   puddle: { plate: plate('batch2', 'puddle-far'), plateAspect: 16 / 9, sky: 0xffe3c6, top: GRASS, solid: BARK },
+  antTrail: { plate: plate('batch3', 'anttrail-far'), plateAspect: 16 / 9, sky: 0xffe3c6, top: GRASS, solid: BARK },
+  vault: {
+    plate: plate('batch3', 'vault-far'),
+    plateAspect: 16 / 9,
+    sky: 0x9a6a44,
+    top: tex('batch3', 'soil', 0xffffff, 3),
+    solid: tex('batch3', 'soil', 0xd8b090, 5),
+  },
+  machine: {
+    plate: plate('batch3', 'machine-far'),
+    plateAspect: 16 / 9,
+    sky: 0x6f6aa8,
+    top: tex('batch3', 'circuit', 0xffffff, 3),
+    solid: tex('batch3', 'circuit', 0xa8b8c0, 5),
+  },
+  
+  kitchen: { plate: plate('batch3', 'kitchen-far'), plateAspect: 16 / 9, sky: 0xffd9a8, top: null, solid: null },
   desk: {
     plate: plate('batch2', 'desk-far'),
     plateAspect: 16 / 9,
