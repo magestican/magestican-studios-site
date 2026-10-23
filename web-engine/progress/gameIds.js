@@ -152,6 +152,9 @@ export const PROFILE_GAME_IDS = Object.freeze([
   'farmy-moon-life',
   'silk-and-seam',
   'dachis',
+  
+  
+  'space-95',
   'farmy-five',
   'farmy-hive',
   'farmy-herds',
@@ -179,6 +182,7 @@ export const PROFILE_GAME_NAMES = Object.freeze({
   'farmy-moon-life': 'Moon Life',
   'silk-and-seam': 'Silk & Seam',
   dachis: 'Dachis',
+  'space-95': 'Space 95',
   'farmy-five': 'Guesswise',
   'farmy-hive': 'Combword',
   'farmy-herds': 'Groupseek',
@@ -201,6 +205,10 @@ export const PROFILE_GAME_NAMES = Object.freeze({
 
 
 
-export const PREVIEW_GAME_IDS = Object.freeze(['space-95']);
 
-export const PREVIEW_GAME_NAMES = Object.freeze({ 'space-95': 'Space 95' });
+
+
+
+export const PREVIEW_GAME_IDS = Object.freeze([]);
+
+export const PREVIEW_GAME_NAMES = Object.freeze({});

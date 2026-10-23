@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "c116addf-20261022T224920Z",
+ "buildId": "ca080787-20261023T121609Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -580,6 +580,38 @@
    "bytes": 77953833
   },
   {
+   "id": "space-95",
+   "statsId": "space-95",
+   "title": "Space 95",
+   "tagline": "A 9-to-5 survey job on a giant planet: run, jump and find its secrets.",
+   "description": "A 2.5D platformer: Jo and the android Bolt survey the giant planet Galaxa Z one shift at a time. Run, jump, glide, ride a train and fly a plane. Free, no download.",
+   "dir": "play/space-95",
+   "path": "play/space-95/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/space-95.html",
+   "orientation": "landscape",
+   "players": "1",
+   "online": false,
+   "offline": true,
+   "cover": "assets/covers/space-95-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/space-95/0.webp",
+    "assets/shots/space-95/1.webp"
+   ],
+   "accent": "#2fe0d0",
+   "glyph": "space-95",
+   "pack": "family",
+   "age": 7,
+   "ageNote": null,
+   "order": 20,
+   "addedAt": "2026-10-23",
+   "bytes": 323877512
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -607,7 +639,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 21,
+   "order": 22,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -639,7 +671,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 22,
+   "order": 23,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -671,7 +703,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 23,
+   "order": 24,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -703,7 +735,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 24,
+   "order": 25,
    "addedAt": "2026-09-21",
    "bytes": 211807
   }

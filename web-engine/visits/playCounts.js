@@ -149,6 +149,9 @@ export const COUNTED_GAME_IDS = Object.freeze([
   
   
   'dachis',
+  
+  
+  'space-95',
 ]);
 
 

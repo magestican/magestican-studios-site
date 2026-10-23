@@ -12,7 +12,7 @@ export const LIBRARY_GAME_IDS = Object.freeze([
   'team-bonding', 'farmy-uprising', 'farmy-evil-hills', 'farmykart', 'farmy-scrabble',
   'farmy-crosswords', 'farmy-chess', 'farmy-checkers', 'farmy-ludo', 'minesweeper', 'gomoku',
   'word-chain', 'truco', 'buraco', 'conga', 'zelakas', '2d-fighter-ex', 'farmy-moon-life',
-  'silk-and-seam', 'dachis', 'farmy-five', 'farmy-hive', 'farmy-herds', 'farmy-furrows',
+  'silk-and-seam', 'dachis', 'space-95', 'farmy-five', 'farmy-hive', 'farmy-herds', 'farmy-furrows',
 ]);
 
 const IDS = new Set(LIBRARY_GAME_IDS);
@@ -34,7 +34,7 @@ export const PLAY_DIRS = Object.freeze({
   'farmy-checkers': 'farmy-checkers', 'farmy-ludo': 'farmy-ludo', minesweeper: 'minesweeper',
   gomoku: 'gomoku', 'word-chain': 'word-chain', truco: 'truco', buraco: 'buraco', conga: 'conga',
   zelakas: 'zelakas', '2d-fighter-ex': '2d-fighter-ex', 'farmy-moon-life': 'farmy-moon-life',
-  'silk-and-seam': 'silk-and-seam', dachis: 'dachis',
+  'silk-and-seam': 'silk-and-seam', dachis: 'dachis', 'space-95': 'space-95',
 });
 
 
@@ -46,7 +46,7 @@ export const LANDING_PAGES = Object.freeze({
   'farmy-chess': 'farmy-chess', 'farmy-checkers': 'farmy-checkers', 'farmy-ludo': 'farmy-ludo',
   minesweeper: 'minesweeper', gomoku: 'gomoku', 'word-chain': 'word-chain', truco: 'truco', buraco: 'buraco', conga: 'conga',
   'zelakas-in-space': 'zelakas', '2d-fighter-ex': '2d-fighter-ex', 'farmy-moon-life': 'farmy-moon-life',
-  'silk-and-seam': 'silk-and-seam', dachis: 'dachis', 'farmy-five': 'farmy-five', 'farmy-hive': 'farmy-hive',
+  'silk-and-seam': 'silk-and-seam', dachis: 'dachis', 'space-95': 'space-95', 'farmy-five': 'farmy-five', 'farmy-hive': 'farmy-hive',
   'farmy-herds': 'farmy-herds', 'farmy-furrows': 'farmy-furrows',
 });
 

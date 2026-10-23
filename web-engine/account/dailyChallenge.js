@@ -143,9 +143,16 @@ const GOALS = Object.freeze({
   
   
   
+  
+  
+  
+  
+  
+  
+  
   'space-95': [
-    { metric: 's95ParClears', min: 1, max: 1, verb: 'Clear', noun: 'shift under par', nouns: 'shifts under par' },
-    { metric: 's95Secrets', min: 2, max: 2, verb: 'Find', noun: 'secret', nouns: 'secrets' },
+    { metric: 's95ShiftClears', min: 1, max: 2, verb: 'Clear', noun: 'shift', nouns: 'shifts' },
+    { metric: 's95ParRuns', min: 1, max: 1, verb: 'Clear', noun: 'shift under par', nouns: 'shifts under par' },
     { metric: 's95PebbleKills', min: 1, max: 1, verb: 'Kick', noun: 'enemy with a pebble', nouns: 'enemies with a pebble' },
   ],
 });
@@ -155,6 +162,9 @@ const GOALS = Object.freeze({
 
 const STORED_ONLY = Object.freeze({
   'space-95': [
+    
+    
+    's95ParClears', 's95Secrets',
     's95LevelsCleared', 's95IntelPct', 's95Specimens', 's95MiniBosses', 's95BigBosses',
     's95MantisBeaten', 's95NoHitBoss', 's95CoopClears', 's95TrainClean', 's95AceSolo',
     's95HighFives', 's95FullResume',

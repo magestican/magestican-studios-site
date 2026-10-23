@@ -62,6 +62,15 @@ const COUNTS = Object.freeze({
 });
 const MAX_IDS = 200;
 
+
+
+
+
+
+export const S95_EVENT_METRICS = Object.freeze([
+  ...Object.values(COUNTS), 's95CoopClears', 's95ShiftClears', 's95ParRuns',
+]);
+
 const int = (v) => {
   const x = Math.floor(Number(v));
   return Number.isFinite(x) && x > 0 ? Math.min(x, 1000000) : 0;
@@ -108,6 +117,16 @@ export function space95Step(slotRaw, msg) {
     if (add > 0) metrics[metric] = add;
   }
   if (m.shift && m.shift.coop === true && m.shift.cleared === true) metrics.s95CoopClears = 1;
+  
+  
+  
+  
+  
+  
+  if (m.shift && m.shift.cleared === true) {
+    metrics.s95ShiftClears = 1;
+    if (idList(m.ids?.underPar).length > 0) metrics.s95ParRuns = 1;
+  }
   const save = m.save ? mergeS95Saves(m.save, before.save) : before.save;
   return { slot: { save, stats, ids }, metrics };
 }
