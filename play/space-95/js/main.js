@@ -15,12 +15,14 @@ import { joSpriteLoaded } from './render/joSprite.js';
 import { createView } from './render/scene.js';
 import { parseAbilities } from './sim/abilities.js';
 import { STEP } from './sim/constants.js';
+import { endingTier } from './sim/intel.js';
 import { placePlane } from './sim/plane.js';
 import { createSession, stepSession } from './sim/session.js';
 import { fullResume } from './sim/stamps.js';
 import { placeTrain } from './sim/train.js';
 import { site } from './site/adapter.js';
 import { v } from './site/assetUrl.js';
+import { createEnding } from './ui/ending.js';
 import { createHud } from './ui/hud.js';
 import { KEY_ICON, LEVER_ICON } from './ui/icons.js';
 import { createPause } from './ui/pause.js';
@@ -137,6 +139,15 @@ const boltSay = (line) => {
 const levelMusic = musicOf(level);
 audio.musicFirst(levelMusic);
 const timesheet = createTimesheet(document.getElementById('timesheet'));
+
+const ending = createEnding(document.getElementById('ending'), audio);
+
+if (cheats.ending)
+  ending.play(
+    cheats.ending === 'none' ? null : cheats.ending,
+    level.checklist ?? ['Clear the pad', 'Get the cell back', 'Fuel up', 'Take off'],
+    () => {},
+  );
 const secretsTotal = (level.entities ?? []).filter((e) => e.kind === 'intel' || e.specimen).length;
 if (SHIFT_IDS.includes(level.id)) {
   
@@ -263,7 +274,10 @@ function frame(now) {
           underPar: !session.partial && !!level.par && session.time <= level.par,
           coop: false,
         });
-        timesheet.show(level, session, save, secretsTotal, { onReplay: restart, onNext: next });
+        const sheet = () => timesheet.show(level, session, save, secretsTotal, { onReplay: restart, onNext: next });
+        
+        if (level.id === 20) ending.play(endingTier(save), level.checklist ?? [], sheet);
+        else sheet();
       }
     }
     acc -= STEP;

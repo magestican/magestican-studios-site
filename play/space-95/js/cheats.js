@@ -46,6 +46,8 @@ export function readCheats(search) {
     y: q.has('y') ? num('y', 0) : null,
     heading: num('heading', 0),
     rail: q.get('rail') ?? null,
+    
+    ending: ['meets', 'exceeds', 'employee-of-the-year', 'none'].includes(q.get('ending') ?? '') ? q.get('ending') : null,
     s: q.has('s') ? num('s', 0) : null,
     points: q.has('points')
       ? Object.fromEntries(

@@ -135,6 +135,8 @@ export function createView(canvas, level, labels) {
   };
   
   const fx = [];
+  
+  let fall = null;
   const spark = (x, y, color, life, size) => {
     const m = new THREE.Mesh(new THREE.OctahedronGeometry(size), new THREE.MeshBasicMaterial({ color, transparent: true }));
     m.position.set(x, y, 0.5);
@@ -277,13 +279,26 @@ export function createView(canvas, level, labels) {
         const f = fx[i];
         f.t += dt;
         const k = f.t / f.life;
-        f.m.scale.setScalar(0.4 + k * 1.4);
+        if (f.vx !== undefined) {
+          
+          f.m.position.x += f.vx * dt;
+          f.m.position.y += (f.vy + Math.sin(f.t * 9 + f.w) * 1.6) * dt;
+        } else f.m.scale.setScalar(0.4 + k * 1.4);
         f.m.rotation.z += dt * 6;
         f.m.material.opacity = Math.max(0, 1 - k);
         if (k >= 1) {
           scene.remove(f.m);
           f.m.geometry.dispose();
           fx.splice(i, 1);
+        }
+      }
+      
+      if (fall) {
+        fall.t += dt;
+        const v = entityViews.get(fall.id);
+        if (v) {
+          v.position.y -= 4.5 * fall.t * fall.t;
+          v.rotation.z = fall.t * 7;
         }
       }
       backdrop?.update(!!session.plane); 
@@ -301,6 +316,16 @@ export function createView(canvas, level, labels) {
       burrow?.onEvent(e);
       kitchen?.onEvent(e);
       sky?.onEvent(e);
+      
+      
+      if (e.type === 'crownPop') {
+        for (let n = 0; n < 32; n++) {
+          spark(e.x + (Math.random() - 0.5) * 1.6, e.y + (Math.random() - 0.5) * 1.6, n % 3 ? 0xf2c230 : 0x2a2440, 3.2, 0.14);
+          Object.assign(fx[fx.length - 1], { vx: -7 - Math.random() * 6, vy: 1 + Math.random() * 3, w: Math.random() * 6 });
+        }
+        fall = { id: e.id, t: 0 };
+        kick(0.12);
+      }
       if (e.type === 'jump') squash = -0.6;
       if (e.type === 'land') squash = Math.min(1, 0.25 + (e.fall ?? 0) * 0.12);
       if (e.type === 'mantle') squash = -0.3;
