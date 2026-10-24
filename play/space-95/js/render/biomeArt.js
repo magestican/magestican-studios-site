@@ -22,6 +22,7 @@ export const ART_BIOME = {
   14: 'nightGarden',
   16: 'deepBurrow',
   18: 'kitchen',
+  20: 'sovereign',
 };
 
 const B = 'assets/art/biome/';
@@ -79,6 +80,16 @@ const BIOMES = {
   
   kitchen: { plate: plate('batch3', 'kitchen-far'), plateAspect: 16 / 9, sky: 0xffd9a8, top: null, solid: null },
   
+  sovereign: {
+    plate: plate('sovereign', 'windowsill-far'),
+    planePlate: plate('sovereign', 'morningsky-far'),
+    plateAspect: 16 / 9,
+    sky: 0x9fdcff,
+    
+    top: { ...tex('sovereign', 'sill', 0xfff6dc, 3), lift: 0x9a8450 },
+    solid: { ...tex('sovereign', 'sill', 0xffeec0, 5), lift: 0x8a7440 },
+  },
+  
   nightGarden: { plate: plate('batch4', 'nightgarden-far'), plateAspect: 16 / 9, sky: 0x4a3f7a, top: null, solid: null },
   deepBurrow: { plate: plate('batch4', 'deepburrow-far'), plateAspect: 16 / 9, sky: 0x5a3a22, top: null, solid: null },
   desk: {
@@ -121,6 +132,7 @@ export function skinMaterial(mat, spec) {
   load(spec.map, true, (t) => {
     mat.map = t;
     mat.color.set(spec.tint);
+    if (spec.lift) mat.emissive.set(spec.lift); 
     mat.needsUpdate = true;
   });
   load(spec.normal, false, (t) => {
@@ -162,28 +174,37 @@ const PARALLAX = 0.18;
 
 
 
+
+
 export function paintedBackdrop(camera, art) {
   const mat = new THREE.MeshBasicMaterial({ color: art.sky, fog: false, depthWrite: false });
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
   quad.position.set(0, 0, -BACKDROP_DIST);
   quad.renderOrder = -1;
   camera.add(quad);
-  let tex = null;
-  load(art.plate, true, (t) => {
-    t.wrapS = THREE.MirroredRepeatWrapping;
-    t.wrapT = THREE.ClampToEdgeWrapping;
-    tex = t;
-    mat.map = t;
-    mat.color.set(0xffffff);
-    mat.needsUpdate = true;
-  });
+  
+  const plates = {};
+  const want = (key, url) =>
+    load(url, true, (t) => {
+      t.wrapS = THREE.MirroredRepeatWrapping;
+      t.wrapT = THREE.ClampToEdgeWrapping;
+      plates[key] = t;
+    });
+  want('ground', art.plate);
+  if (art.planePlate) want('plane', art.planePlate);
   return {
-    update() {
+    update(flying = false) {
       const k = 2 * Math.tan((camera.fov * Math.PI) / 360);
       const h = k * BACKDROP_DIST * 1.02;
       const w = h * camera.aspect;
       quad.scale.set(w, h, 1);
+      const tex = (flying && plates.plane) || plates.ground;
       if (!tex) return;
+      if (mat.map !== tex) {
+        mat.map = tex;
+        mat.color.set(0xffffff);
+        mat.needsUpdate = true;
+      }
       
       const reps = camera.aspect / art.plateAspect;
       tex.repeat.set(reps, 1);

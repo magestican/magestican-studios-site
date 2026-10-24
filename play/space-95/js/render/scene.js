@@ -50,7 +50,8 @@ export function createView(canvas, level, labels) {
   scene.add(sun);
 
   
-  const kitchenSkin = !!level.colds?.length;
+  
+  const kitchenSkin = !!level.colds?.length && !art?.solid;
   scene.add(tileMeshes(level.world, level.darkTint === 'umber' ? 'bedrock' : kitchenSkin ? 'kitchen' : null, art));
   if (kitchenSkin) scene.background = new THREE.Color(0x6cc7bd);
   scene.add(barkMeshes(level.world));
@@ -285,7 +286,7 @@ export function createView(canvas, level, labels) {
           fx.splice(i, 1);
         }
       }
-      backdrop?.update();
+      backdrop?.update(!!session.plane); 
       renderer.render(scene, camera);
     },
     
