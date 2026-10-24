@@ -1,0 +1,27 @@
+{
+ "name": "pluck",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 4,
+ "glb": "aunt_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4,
+  8,
+  12
+ ],
+ "tags": [
+  "idle",
+  "perform"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "playing the harp from her twig (aunt.js 'pluck'; sim/web.js plucks the strands every 1.6 s): sat on her back legs, the four front legs strumming in turn, swaying to it"
+}

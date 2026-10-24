@@ -680,6 +680,15 @@ export function entityView(e) {
       const hat = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.2, 6), mat(0xff9fc4));
       hat.position.set(0.25, 0.55, 0);
       g.add(hat);
+    } else {
+      
+      const halo = new THREE.Mesh(
+        new THREE.RingGeometry(0.55, 0.68, 24),
+        new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, opacity: 0 }),
+      );
+      halo.position.set(0, 0.3, 0.5);
+      halo.name = 'kickHalo';
+      g.add(halo);
     }
   } else if (e.kind === 'skiff') {
     

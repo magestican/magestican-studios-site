@@ -32,6 +32,11 @@ function loadSheet(kind) {
 }
 
 
+const AUNT_THROW = 0.4;
+
+const ACE_SPIN = 14;
+
+
 const MAP = {
   ladybot: {
     state: { walk: 'walk', hop: 'hop', dazed: 'dazed', scurry: 'scurry', flipped: 'flipped', righting: 'righting' },
@@ -101,6 +106,50 @@ const MAP = {
     stage: { hover: 'hover', telegraph: 'telegraph', flash: 'flash', fluster: 'fluster', flee: 'hover' },
     keep: ['spriteGlow'],
   },
+  
+  strider: {
+    state: { idle: 'asleep', windup: 'windup', skate: 'skate', flipped: 'flipped', righting: 'righting', dazed: 'dazed', scurry: 'scurry' },
+    rest: 'skate',
+    pick: (e) => (e.state === 'windup' ? ['windup', e.t] : e.state === 'righting' && e.flip ? ['righting', e.flip.t] : null),
+  },
+  
+  aunt: {
+    by: 'mode',
+    state: { hidden: 'hang', tele: 'tele', drop: 'drop', dangle: 'hang', hang: 'hang', sit: 'sit', pluck: 'pluck', cut: 'cut' },
+    rest: 'hang',
+    pick: (e) =>
+      e.webFlung
+        ? ['cut', null]
+        : e.mode === 'tele'
+          ? ['tele', e.mt]
+          : e.throws > 0 && e.snareT < AUNT_THROW && e.mode !== 'cut'
+            ? ['throw', e.snareT]
+            : null,
+  },
+  
+  
+  
+  ace: {
+    state: { dazed: 'glide' },
+    rest: 'fly',
+    pick: (e) =>
+      e.spun !== undefined
+        ? ['spin', e.spun]
+        : e.sat
+          ? ['sat', null]
+          : e.stage === 'perch'
+            ? ['perch', null]
+            : e.fire
+              ? ['telegraph', e.fire.t]
+              : null,
+    turn: (e, clip) =>
+      clip === 'spin'
+        ? -e.spun * ACE_SPIN
+        : clip === 'fly' || clip === 'telegraph'
+          ? Math.atan2(Math.sin(e.dir), Math.abs(Math.cos(e.dir)))
+          : 0,
+    keep: ['aceTele'],
+  },
 };
 
 
@@ -113,6 +162,9 @@ export function hasCritterSprite(e) {
   if (e.kind === 'weevil') return !e.specimen; 
   if (e.kind === 'skiff') return !e.skin && !e.galleon && !e.toy && !e.empty; 
   if (e.kind === 'sprite') return !e.ghost; 
+  if (e.kind === 'strider') return !e.commodore && !e.specimen; 
+  if (e.kind === 'ace') return !e.leader && e.role !== 'leader'; 
+  if (e.kind === 'aunt') return true; 
   return (
     (e.kind === 'ladybot' && !e.skin) ||
     (e.kind === 'pillbug' && !e.topiary) ||
@@ -166,7 +218,7 @@ export function updateCritterSprite(g, e, dt) {
     v.t = 0;
     v.prev = e.state;
   }
-  let clip = v.oneShot ?? map.state[e.state] ?? map.rest;
+  let clip = v.oneShot ?? map.state[e[map.by ?? 'state']] ?? map.rest;
   if (e.kind === 'ladybot' && e.state === 'walk' && e.grounded === false) clip = 'hop';
   const aphidHop = e.kind === 'aphid' && clip === 'hop';
   if (aphidHop && e.dozing) clip = 'asleep';
@@ -175,6 +227,8 @@ export function updateCritterSprite(g, e, dt) {
   if (staged) clip = staged;
   const clocked = map.clock && clip === map.rest && e[map.clock[1]] >= 0; 
   if (clocked) clip = map.clock[0];
+  const picked = map.pick?.(e) ?? null; 
+  if (picked) clip = picked[0];
   const c = v.sheet.clips[clip] ?? v.sheet.clips[map.rest];
   if (!c) return;
   if (clip !== v.clip) {
@@ -184,6 +238,7 @@ export function updateCritterSprite(g, e, dt) {
   v.t += dt;
   
   if (clip === 'hop' && e.kind === 'aphid') v.t = e.grounded === false ? Math.min(e.hopT, 0.55) : Math.max(e.hopT, 0.58);
+  else if (picked && picked[1] !== null) v.t = picked[1];
   else if (clocked) v.t = e[map.clock[1]];
   else if (staged && staged !== map.rest && staged === map.stage[e.stage]) v.t = e.st; 
   const n = c.frames.length;
@@ -212,7 +267,7 @@ export function updateCritterSprite(g, e, dt) {
   v.quad.position.y = (py - f.oy - f.h / 2) / pxu;
   
   const d = clip === 'dive' && map.aim ? (e.dir ?? { x: e.vx, y: e.vy }) : null;
-  const a = d ? Math.atan2(d.y, Math.abs(d.x)) - map.aim : 0;
+  const a = map.turn ? map.turn(e, clip) : d ? Math.atan2(d.y, Math.abs(d.x)) - map.aim : 0;
   const qx = v.quad.position.x;
   const qy = v.quad.position.y - e.h / 2;
   v.quad.rotation.z = a;

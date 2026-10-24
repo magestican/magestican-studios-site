@@ -1,0 +1,27 @@
+{
+ "name": "glide",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 4,
+ "glb": "ace_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "dazed",
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "downed (ace.js stepDowned: e.state 'dazed', stage 'downed'): gliding down dazed at 4 u/s on, 3 u/s down - wings held out stiff and fluttering weakly, nose down, head lolling (the game draws the stars)"
+}

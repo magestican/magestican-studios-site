@@ -1,0 +1,29 @@
+{
+ "name": "telegraph",
+ "fps": 24,
+ "frames": 12,
+ "loop": false,
+ "animation": 2,
+ "glb": "ace_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6,
+  11
+ ],
+ "tags": [
+  "attack",
+  "telegraph",
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the volley's telegraph (0.5 s, by e.fire.t): hunched over its guns, head down behind the goggles, tail cocked, trembling, wings buzzing (the game: the hot-pink halo + the rising whine); held while it fires"
+}

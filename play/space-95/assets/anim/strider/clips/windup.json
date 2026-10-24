@@ -1,0 +1,26 @@
+{
+ "name": "windup",
+ "fps": 24,
+ "frames": 15,
+ "loop": false,
+ "animation": 1,
+ "glb": "strider_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  7,
+  14
+ ],
+ "tags": [
+  "telegraph",
+  "attack"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the skitter (0.6 s): rearing up, the front legs raised like fists, the long middle legs cocked forward and trembling on the water (the game lights the pink leg glint and plays the rising skitter)"
+}

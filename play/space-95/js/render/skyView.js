@@ -254,9 +254,10 @@ export function createSky(scene, level, h) {
         const v = h.views.get(e.id);
         if (!v || !e.alive) continue;
         if (e.kind === 'ace') {
-          v.scale.x = 1;
           const d = v.getObjectByName('ace');
           const dir = e.dir ?? Math.atan2(e.vy ?? 0, e.vx ?? 1);
+          
+          v.scale.x = v.userData.critter?.ready && Math.cos(dir) < 0 ? -1 : 1;
           const spun = (e.spun ?? 0) > 0 || e.stage === 'downed';
           d.rotation.z = spun ? s.time * 14 : dir;
           d.rotation.x = Math.cos(dir) < 0 ? Math.PI : 0; 

@@ -1,0 +1,187 @@
+{
+ "character": "strider",
+ "fps": 12,
+ "initial": "asleep",
+ "conditions": {
+  "wake": "entities.js: Jo crossed its wakeWhen line (dir 1) - dozing off, e.state 'idle' -> 'windup' (event striderWindup: the pink leg glint + the rising skitter)",
+  "windup_done": "e.state turned 'skate' (WINDUP 0.6 s)",
+  "ring": "ripple.js: a ring reaches it - rings.js flip, e.state 'flipped' (FLIP_TIME 4 s)",
+  "flip_done": "e.state turned 'righting' (rings.js)",
+  "righted": "rings.js: RIGHTING_TIME 0.5 s over - e.flee, so e.state 'scurry' (event flee)",
+  "bowl": "rings.js bowl: Jo touched it while flipped - defeat 'bowl', e.state 'dazed'",
+  "defeat": "sim event defeat (a stomp, or a pound on the sleeper) - e.state 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "asleep": {
+   "clip": "asleep",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "windup": {
+   "clip": "windup",
+   "loop": false,
+   "hold": true,
+   "frames": 8
+  },
+  "skate": {
+   "clip": "skate",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "flipped": {
+   "clip": "flipped",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "righting": {
+   "clip": "righting",
+   "loop": false,
+   "hold": true,
+   "frames": 7
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  }
+ },
+ "transitions": [
+  {
+   "from": "asleep",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "asleep",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ring"
+  },
+  {
+   "from": "asleep",
+   "to": "windup",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "flipped",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "bowl"
+  },
+  {
+   "from": "flipped",
+   "to": "righting",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip_done"
+  },
+  {
+   "from": "righting",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "righted"
+  },
+  {
+   "from": "scurry",
+   "to": "asleep",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "skate",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "skate",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ring"
+  },
+  {
+   "from": "windup",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "windup",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ring"
+  },
+  {
+   "from": "windup",
+   "to": "skate",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "windup_done"
+  }
+ ],
+ "requires": [
+  [
+   "asleep",
+   "windup"
+  ],
+  [
+   "windup",
+   "skate"
+  ],
+  [
+   "skate",
+   "flipped"
+  ],
+  [
+   "flipped",
+   "righting"
+  ],
+  [
+   "righting",
+   "scurry"
+  ],
+  [
+   "flipped",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

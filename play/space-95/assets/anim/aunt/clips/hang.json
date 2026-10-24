@@ -1,0 +1,25 @@
+{
+ "name": "hang",
+ "fps": 24,
+ "frames": 25,
+ "loop": true,
+ "animation": 0,
+ "glb": "aunt_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  12
+ ],
+ "tags": [
+  "idle",
+  "hang"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "dangling on her silk line (aunt.js 'dangle' / 'hang'; 'hidden' at her anchor): the round abdomen bobbing, the eight legs paddling the air in a slow wave, head turning to watch (the sim sways her +-1 u at 0.8 Hz)"
+}

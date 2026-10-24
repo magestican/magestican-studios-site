@@ -1,0 +1,26 @@
+{
+ "name": "tele",
+ "fps": 24,
+ "frames": 15,
+ "loop": false,
+ "animation": 1,
+ "glb": "aunt_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  10,
+  14
+ ],
+ "tags": [
+  "telegraph",
+  "attack"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the drop's telegraph (0.6 s, by e.mt): hunched at her anchor, legs drawn up tight, peering down at Jo and trembling, then flicked open (the game: the pink dot where she stops + the zzzip)"
+}

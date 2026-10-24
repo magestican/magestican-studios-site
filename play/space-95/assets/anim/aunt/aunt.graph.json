@@ -1,0 +1,201 @@
+{
+ "character": "aunt",
+ "fps": 12,
+ "initial": "hang",
+ "conditions": {
+  "spotted": "aunt.js 'hidden' (drawn as hang at her anchor): Jo within `trigger` u in x and under her - e.mode 'tele' (event auntTelegraph: the pink dot where she stops + the zzzip)",
+  "tele_done": "e.mode turned 'drop' (AUNT.TELE 0.6 s; the game indexes tele by e.mt)",
+  "arrived": "e.mode turned 'dangle' (her top reached drop.to; event auntDrop)",
+  "placed_sit": "the level places her on a web (`sitting`: e.mode 'sit' from create; `family` cameos too)",
+  "placed_pluck": "the level places her on the harp twig (`plucks`: e.mode 'pluck' from create)",
+  "snare": "aunt.js throwSnare: every 2.4 s with Jo within 8 u - e.snareT back to 0 (event snareThrow)",
+  "throw_done": "e.snareT past THROW_S 0.4 s: back to her mode's clip",
+  "cut": "cutAunt: Jo's dash through her or her line, or a flung body crossing it - e.mode 'cut' (event lineCut); a web's sling flinging her (e.webFlung) draws it too",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "hang": {
+   "clip": "hang",
+   "loop": true,
+   "hold": false,
+   "frames": 12
+  },
+  "tele": {
+   "clip": "tele",
+   "loop": false,
+   "hold": true,
+   "frames": 8
+  },
+  "drop": {
+   "clip": "drop",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "sit": {
+   "clip": "sit",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "pluck": {
+   "clip": "pluck",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "throw": {
+   "clip": "throw",
+   "loop": false,
+   "hold": true,
+   "frames": 5
+  },
+  "cut": {
+   "clip": "cut",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  }
+ },
+ "transitions": [
+  {
+   "from": "cut",
+   "to": "hang",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "drop",
+   "to": "cut",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "cut"
+  },
+  {
+   "from": "drop",
+   "to": "hang",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "arrived"
+  },
+  {
+   "from": "hang",
+   "to": "cut",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "cut"
+  },
+  {
+   "from": "hang",
+   "to": "pluck",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "placed_pluck"
+  },
+  {
+   "from": "hang",
+   "to": "sit",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "placed_sit"
+  },
+  {
+   "from": "hang",
+   "to": "tele",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "spotted"
+  },
+  {
+   "from": "hang",
+   "to": "throw",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "snare"
+  },
+  {
+   "from": "pluck",
+   "to": "cut",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "cut"
+  },
+  {
+   "from": "sit",
+   "to": "cut",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "cut"
+  },
+  {
+   "from": "sit",
+   "to": "throw",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "snare"
+  },
+  {
+   "from": "tele",
+   "to": "drop",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "tele_done"
+  },
+  {
+   "from": "throw",
+   "to": "cut",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "cut"
+  },
+  {
+   "from": "throw",
+   "to": "hang",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "throw_done"
+  },
+  {
+   "from": "throw",
+   "to": "sit",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "throw_done"
+  }
+ ],
+ "requires": [
+  [
+   "hang",
+   "tele"
+  ],
+  [
+   "tele",
+   "drop"
+  ],
+  [
+   "drop",
+   "hang"
+  ],
+  [
+   "hang",
+   "throw"
+  ],
+  [
+   "sit",
+   "throw"
+  ],
+  [
+   "hang",
+   "cut"
+  ],
+  [
+   "sit",
+   "cut"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

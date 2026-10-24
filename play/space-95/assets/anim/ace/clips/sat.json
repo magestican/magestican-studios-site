@@ -1,0 +1,27 @@
+{
+ "name": "sat",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 5,
+ "glb": "ace_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8
+ ],
+ "tags": [
+  "dazed",
+  "sit"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "landed (ace.js: e.sat, never squashed - BIBLE 8): sat dizzy on the first solid below, goggles askew (head tilted), wings drooping, tail on the ground, swaying"
+}

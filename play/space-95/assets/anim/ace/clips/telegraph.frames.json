@@ -1,0 +1,43 @@
+{
+ "clip": "telegraph",
+ "fps": 12,
+ "frame_count": 7,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.076389,
+  0.152778,
+  0.25,
+  0.305556,
+  0.381944,
+  0.458333
+ ],
+ "key_poses": [
+  0,
+  3,
+  6
+ ],
+ "events": [],
+ "duration_s": 0.5,
+ "time_scale": 1.0,
+ "time_stretch": 1.09091,
+ "snapped": [
+  {
+   "frame": 3,
+   "from": 0.22917,
+   "to": 0.25,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "ace_clips.glb",
+  "animation": 2,
+  "fps": 24.0,
+  "frames": 12
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "ace",
+ "u_m": 1.7562
+}

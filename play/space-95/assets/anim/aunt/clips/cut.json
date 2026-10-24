@@ -1,0 +1,28 @@
+{
+ "name": "cut",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 6,
+ "glb": "aunt_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "dazed",
+  "fall",
+  "airborne"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "her line cut (aunt.js 'cut': a dash, or a flung body crossing it): falling for 0.8 s, dazed, legs flailing up, head lolling - then she is gone (also drawn while a web's sling flings her)"
+}

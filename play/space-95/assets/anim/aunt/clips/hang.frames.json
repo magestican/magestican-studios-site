@@ -1,0 +1,40 @@
+{
+ "clip": "hang",
+ "fps": 12,
+ "frame_count": 12,
+ "loop": true,
+ "frame_times": [
+  0.0,
+  0.083333,
+  0.166667,
+  0.25,
+  0.333333,
+  0.416667,
+  0.5,
+  0.583333,
+  0.666667,
+  0.75,
+  0.833333,
+  0.916667
+ ],
+ "key_poses": [
+  0,
+  6
+ ],
+ "events": [],
+ "duration_s": 1.0,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "aunt_clips.glb",
+  "animation": 0,
+  "fps": 24.0,
+  "frames": 25
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "aunt",
+ "u_m": 1.7562
+}

@@ -1,0 +1,25 @@
+{
+ "name": "drop",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 2,
+ "glb": "aunt_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "fall",
+  "attack"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "dropping down her line at 14 u/s (aunt.js 'drop'): the legs flung up and out like a parachute, fluttering, head up, wide eyes on Jo"
+}

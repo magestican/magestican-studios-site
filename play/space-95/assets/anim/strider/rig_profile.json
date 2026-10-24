@@ -1,0 +1,656 @@
+{
+ "template": "critter",
+ "species": "strider",
+ "height_m": 0.68,
+ "u_m": 1.7562,
+ "style": "cartoon",
+ "up_axis": "Y",
+ "weights": "rigid (one joint per vertex; 07-creatures 6.1: chitin does not bend)",
+ "joints": {
+  "DEF-body": {
+   "parent": null,
+   "bind": [
+    0.0,
+    0.4,
+    0.0
+   ],
+   "limits": {
+    "free": true
+   }
+  },
+  "DEF-head": {
+   "parent": "DEF-body",
+   "bind": [
+    0.0,
+    0.43,
+    0.28
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     45
+    ],
+    "roll": [
+     -30,
+     30
+    ],
+    "yaw": [
+     -35,
+     35
+    ]
+   }
+  },
+  "DEF-arm.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.08,
+    0.36,
+    0.24
+   ],
+   "limits": {
+    "pitch": [
+     -100,
+     60
+    ],
+    "roll": [
+     -40,
+     60
+    ],
+    "yaw": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-mid.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.09,
+    0.37,
+    0.06
+   ],
+   "limits": {
+    "pitch": [
+     -45,
+     45
+    ],
+    "roll": [
+     -40,
+     80
+    ],
+    "yaw": [
+     -60,
+     60
+    ]
+   }
+  },
+  "DEF-mid.L.001": {
+   "parent": "DEF-mid.L",
+   "bind": [
+    0.42,
+    0.66,
+    0.36
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     40
+    ],
+    "roll": [
+     -50,
+     50
+    ]
+   }
+  },
+  "DEF-hind.L": {
+   "parent": "DEF-body",
+   "bind": [
+    0.08,
+    0.36,
+    -0.16
+   ],
+   "limits": {
+    "pitch": [
+     -45,
+     45
+    ],
+    "roll": [
+     -40,
+     80
+    ],
+    "yaw": [
+     -60,
+     60
+    ]
+   }
+  },
+  "DEF-hind.L.001": {
+   "parent": "DEF-hind.L",
+   "bind": [
+    0.36,
+    0.6,
+    -0.5
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     40
+    ],
+    "roll": [
+     -50,
+     50
+    ]
+   }
+  },
+  "DEF-arm.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.08,
+    0.36,
+    0.24
+   ],
+   "limits": {
+    "pitch": [
+     -100,
+     60
+    ],
+    "roll": [
+     -60,
+     40
+    ],
+    "yaw": [
+     -40,
+     40
+    ]
+   }
+  },
+  "DEF-mid.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.09,
+    0.37,
+    0.06
+   ],
+   "limits": {
+    "pitch": [
+     -45,
+     45
+    ],
+    "roll": [
+     -80,
+     40
+    ],
+    "yaw": [
+     -60,
+     60
+    ]
+   }
+  },
+  "DEF-mid.R.001": {
+   "parent": "DEF-mid.R",
+   "bind": [
+    -0.42,
+    0.66,
+    0.36
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     40
+    ],
+    "roll": [
+     -50,
+     50
+    ]
+   }
+  },
+  "DEF-hind.R": {
+   "parent": "DEF-body",
+   "bind": [
+    -0.08,
+    0.36,
+    -0.16
+   ],
+   "limits": {
+    "pitch": [
+     -45,
+     45
+    ],
+    "roll": [
+     -80,
+     40
+    ],
+    "yaw": [
+     -60,
+     60
+    ]
+   }
+  },
+  "DEF-hind.R.001": {
+   "parent": "DEF-hind.R",
+   "bind": [
+    -0.36,
+    0.6,
+    -0.5
+   ],
+   "limits": {
+    "pitch": [
+     -40,
+     40
+    ],
+    "roll": [
+     -50,
+     50
+    ]
+   }
+  }
+ },
+ "parts": [
+  {
+   "name": "body",
+   "joint": "DEF-body",
+   "verts": [
+    0,
+    420
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.4,
+     -0.08
+    ],
+    "r": [
+     0.12,
+     0.11,
+     0.4
+    ]
+   }
+  },
+  {
+   "name": "head",
+   "joint": "DEF-head",
+   "verts": [
+    420,
+    330
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.0,
+     0.53,
+     0.43
+    ],
+    "r": [
+     0.15,
+     0.14,
+     0.14
+    ]
+   }
+  },
+  {
+   "name": "arm.L",
+   "joint": "DEF-arm.L",
+   "verts": [
+    750,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.08,
+     0.36,
+     0.24
+    ],
+    "b": [
+     0.17,
+     0.22,
+     0.5
+    ],
+    "ra": 0.032,
+    "rb": 0.026
+   }
+  },
+  {
+   "name": "hand.L",
+   "joint": "DEF-arm.L",
+   "verts": [
+    798,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.17,
+     0.22,
+     0.5
+    ],
+    "r": [
+     0.035,
+     0.035,
+     0.035
+    ]
+   }
+  },
+  {
+   "name": "mid.L",
+   "joint": "DEF-mid.L",
+   "verts": [
+    868,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.09,
+     0.37,
+     0.06
+    ],
+    "b": [
+     0.42,
+     0.66,
+     0.36
+    ],
+    "ra": 0.032,
+    "rb": 0.026
+   }
+  },
+  {
+   "name": "mid_shin.L",
+   "joint": "DEF-mid.L.001",
+   "verts": [
+    916,
+    64
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.42,
+     0.66,
+     0.36
+    ],
+    "b": [
+     0.7,
+     0.04,
+     0.78
+    ],
+    "ra": 0.024,
+    "rb": 0.016
+   }
+  },
+  {
+   "name": "mid_pad.L",
+   "joint": "DEF-mid.L.001",
+   "verts": [
+    980,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.7,
+     0.026,
+     0.83
+    ],
+    "r": [
+     0.022,
+     0.014,
+     0.09
+    ]
+   }
+  },
+  {
+   "name": "hind.L",
+   "joint": "DEF-hind.L",
+   "verts": [
+    1050,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.08,
+     0.36,
+     -0.16
+    ],
+    "b": [
+     0.36,
+     0.6,
+     -0.5
+    ],
+    "ra": 0.032,
+    "rb": 0.026
+   }
+  },
+  {
+   "name": "hind_shin.L",
+   "joint": "DEF-hind.L.001",
+   "verts": [
+    1098,
+    64
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     0.36,
+     0.6,
+     -0.5
+    ],
+    "b": [
+     0.55,
+     0.04,
+     -0.98
+    ],
+    "ra": 0.024,
+    "rb": 0.016
+   }
+  },
+  {
+   "name": "hind_pad.L",
+   "joint": "DEF-hind.L.001",
+   "verts": [
+    1162,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     0.55,
+     0.026,
+     -1.03
+    ],
+    "r": [
+     0.022,
+     0.014,
+     0.09
+    ]
+   }
+  },
+  {
+   "name": "arm.R",
+   "joint": "DEF-arm.R",
+   "verts": [
+    1232,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.08,
+     0.36,
+     0.24
+    ],
+    "b": [
+     -0.17,
+     0.22,
+     0.5
+    ],
+    "ra": 0.032,
+    "rb": 0.026
+   }
+  },
+  {
+   "name": "hand.R",
+   "joint": "DEF-arm.R",
+   "verts": [
+    1280,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.17,
+     0.22,
+     0.5
+    ],
+    "r": [
+     0.035,
+     0.035,
+     0.035
+    ]
+   }
+  },
+  {
+   "name": "mid.R",
+   "joint": "DEF-mid.R",
+   "verts": [
+    1350,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.09,
+     0.37,
+     0.06
+    ],
+    "b": [
+     -0.42,
+     0.66,
+     0.36
+    ],
+    "ra": 0.032,
+    "rb": 0.026
+   }
+  },
+  {
+   "name": "mid_shin.R",
+   "joint": "DEF-mid.R.001",
+   "verts": [
+    1398,
+    64
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.42,
+     0.66,
+     0.36
+    ],
+    "b": [
+     -0.7,
+     0.04,
+     0.78
+    ],
+    "ra": 0.024,
+    "rb": 0.016
+   }
+  },
+  {
+   "name": "mid_pad.R",
+   "joint": "DEF-mid.R.001",
+   "verts": [
+    1462,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.7,
+     0.026,
+     0.83
+    ],
+    "r": [
+     0.022,
+     0.014,
+     0.09
+    ]
+   }
+  },
+  {
+   "name": "hind.R",
+   "joint": "DEF-hind.R",
+   "verts": [
+    1532,
+    48
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.08,
+     0.36,
+     -0.16
+    ],
+    "b": [
+     -0.36,
+     0.6,
+     -0.5
+    ],
+    "ra": 0.032,
+    "rb": 0.026
+   }
+  },
+  {
+   "name": "hind_shin.R",
+   "joint": "DEF-hind.R.001",
+   "verts": [
+    1580,
+    64
+   ],
+   "shape": {
+    "kind": "tube",
+    "a": [
+     -0.36,
+     0.6,
+     -0.5
+    ],
+    "b": [
+     -0.55,
+     0.04,
+     -0.98
+    ],
+    "ra": 0.024,
+    "rb": 0.016
+   }
+  },
+  {
+   "name": "hind_pad.R",
+   "joint": "DEF-hind.R.001",
+   "verts": [
+    1644,
+    70
+   ],
+   "shape": {
+    "kind": "ellipsoid",
+    "c": [
+     -0.55,
+     0.026,
+     -1.03
+    ],
+    "r": [
+     0.022,
+     0.014,
+     0.09
+    ]
+   }
+  }
+ ],
+ "hip_height_m": 0.4,
+ "feet": {},
+ "rest_surface": null,
+ "overlap_ok": [],
+ "hitbox_u": [
+  1.4,
+  0.6
+ ]
+}

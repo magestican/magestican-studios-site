@@ -1,0 +1,26 @@
+{
+ "name": "asleep",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 0,
+ "glb": "strider_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8
+ ],
+ "tags": [
+  "sleep",
+  "idle",
+  "float"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "dozing on the water (strider.js: dozing with its wakeWhen line, e.state 'idle'): legs spread flat on the skin, head nodding on its chest, the front legs tucked, slow breathing (Artist shuts the eye; the game draws the Zs)"
+}

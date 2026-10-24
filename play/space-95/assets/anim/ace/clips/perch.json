@@ -1,0 +1,27 @@
+{
+ "name": "perch",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 0,
+ "glb": "ace_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8
+ ],
+ "tags": [
+  "idle",
+  "perch"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "perched until the plane passes (ace.js 'perch'): legs gripping, the four wings held out flat and shivering, the long tail bobbing, head turning to scan the sky through its goggles"
+}

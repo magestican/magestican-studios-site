@@ -1,0 +1,26 @@
+{
+ "name": "throw",
+ "fps": 24,
+ "frames": 10,
+ "loop": false,
+ "animation": 5,
+ "glb": "aunt_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4,
+  9
+ ],
+ "tags": [
+  "attack",
+  "throw"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the snare lob (every 2.4 s while Jo is within 8 u): rearing back, the front mittens swing up and fling the sticky blob forward (the game draws the pink blob)"
+}

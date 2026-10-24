@@ -1,0 +1,162 @@
+{
+ "character": "ace",
+ "fps": 12,
+ "initial": "perch",
+ "conditions": {
+  "wake": "ace.js perch: the plane crossed wakeWhen.x (or the aerodrome scrambles) - e.stage toLane / chase / climb",
+  "in_cone": "ace.js startTelegraph: e.fire set (event telegraph, attack 'darts': the hot-pink halo + the rising whine); the game indexes it by e.fire.t",
+  "volley_done": "e.fire back to null (TELEGRAPH 0.5 s + three darts 0.15 s apart)",
+  "graze": "motifs/wingman.js: the plane's wake touched it - e.spun 0 .. 0.35 s + the turret (the game cartwheels the sprite)",
+  "downed": "combat.js defeat (the turret after a spin, or hp 0 by the nose gun) - e.state 'dazed', stage 'downed'",
+  "landed": "ace.js stepDowned: it reached the first solid below - e.sat",
+  "reset": "ace.js resetAces: the plane respawned - every Ace still flying back to its perch",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "perch": {
+   "clip": "perch",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  },
+  "fly": {
+   "clip": "fly",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "telegraph": {
+   "clip": "telegraph",
+   "loop": false,
+   "hold": true,
+   "frames": 7
+  },
+  "spin": {
+   "clip": "spin",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "glide": {
+   "clip": "glide",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "sat": {
+   "clip": "sat",
+   "loop": true,
+   "hold": false,
+   "frames": 8
+  }
+ },
+ "transitions": [
+  {
+   "from": "fly",
+   "to": "glide",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "downed"
+  },
+  {
+   "from": "fly",
+   "to": "perch",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "reset"
+  },
+  {
+   "from": "fly",
+   "to": "spin",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "graze"
+  },
+  {
+   "from": "fly",
+   "to": "telegraph",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "in_cone"
+  },
+  {
+   "from": "glide",
+   "to": "sat",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "landed"
+  },
+  {
+   "from": "perch",
+   "to": "fly",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "wake"
+  },
+  {
+   "from": "sat",
+   "to": "perch",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "spin",
+   "to": "glide",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "downed"
+  },
+  {
+   "from": "telegraph",
+   "to": "fly",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "volley_done"
+  },
+  {
+   "from": "telegraph",
+   "to": "glide",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "downed"
+  },
+  {
+   "from": "telegraph",
+   "to": "spin",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "graze"
+  }
+ ],
+ "requires": [
+  [
+   "perch",
+   "fly"
+  ],
+  [
+   "fly",
+   "telegraph"
+  ],
+  [
+   "telegraph",
+   "fly"
+  ],
+  [
+   "fly",
+   "spin"
+  ],
+  [
+   "spin",
+   "glide"
+  ],
+  [
+   "glide",
+   "sat"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

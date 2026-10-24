@@ -1,0 +1,28 @@
+{
+ "name": "fly",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 1,
+ "glb": "ace_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  2,
+  4,
+  6
+ ],
+ "tags": [
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "flying (every flying stage: toLane, headOn, chase, formation, pass, turnIn, climb, hold; the game turns the sprite along the heading): the fore and hind wing pairs beating in antiphase, two beats a loop - on twos they flicker past each other - legs tucked, the long tail streaming"
+}

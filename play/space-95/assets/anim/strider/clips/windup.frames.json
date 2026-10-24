@@ -1,0 +1,44 @@
+{
+ "clip": "windup",
+ "fps": 12,
+ "frame_count": 8,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.083333,
+  0.166667,
+  0.25,
+  0.291667,
+  0.416667,
+  0.5,
+  0.583333
+ ],
+ "key_poses": [
+  0,
+  4,
+  7
+ ],
+ "events": [],
+ "duration_s": 0.58333,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [
+  {
+   "frame": 4,
+   "from": 0.33333,
+   "to": 0.29167,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "strider_clips.glb",
+  "animation": 1,
+  "fps": 24.0,
+  "frames": 15
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "strider",
+ "u_m": 1.7562
+}

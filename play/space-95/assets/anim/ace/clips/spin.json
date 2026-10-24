@@ -1,0 +1,28 @@
+{
+ "name": "spin",
+ "fps": 24,
+ "frames": 9,
+ "loop": true,
+ "animation": 3,
+ "glb": "ace_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4
+ ],
+ "tags": [
+  "hit",
+  "spin",
+  "fly"
+ ],
+ "qa": {
+  "airborne": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "spun by the plane's wake (motifs/wingman.js: 0.35 s, then Bolt's turret finishes it; the game cartwheels the sprite): wings flung every which way, legs flailing, tail whipping"
+}

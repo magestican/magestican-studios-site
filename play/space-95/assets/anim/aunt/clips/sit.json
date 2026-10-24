@@ -1,0 +1,25 @@
+{
+ "name": "sit",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 3,
+ "glb": "aunt_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  8
+ ],
+ "tags": [
+  "idle",
+  "sit"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "sitting on her web (aunt.js 'sit'; the family cameos too): six mittens on the strands, breathing, the two front mitten-claws knitting away, head bobbing"
+}

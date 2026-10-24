@@ -1,0 +1,28 @@
+{
+ "name": "skate",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 2,
+ "glb": "strider_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  3,
+  6,
+  9
+ ],
+ "tags": [
+  "skate",
+  "gait",
+  "attack"
+ ],
+ "qa": {},
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "skating at Jo (strider.js 'skate' at 9 u/s): the long middle legs row - pads on the skin sweeping back (the drive), then lifted and swung forward - one stroke per 12 frames, the hind legs steering, the body surging, front legs up like a boxer"
+}
