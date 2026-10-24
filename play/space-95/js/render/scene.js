@@ -28,6 +28,11 @@ const CAM_DIST = 20;
 const PORTRAIT_RIDE_PULL = 1.25;
 const TILE_DEPTH = 2.4;
 
+export const VIEW_H = 7.5;
+export const VIEW_MIN_W = 12;
+
+const PLANE_PULL = 1.4;
+
 const FLIGHT_CARRY = 10;
 
 
@@ -139,6 +144,8 @@ export function createView(canvas, level, labels) {
   const fx = [];
   
   let fall = null;
+  
+  let planePull = 1;
   const spark = (x, y, color, life, size) => {
     const m = new THREE.Mesh(new THREE.OctahedronGeometry(size), new THREE.MeshBasicMaterial({ color, transparent: true }));
     m.position.set(x, y, 0.5);
@@ -156,7 +163,11 @@ export function createView(canvas, level, labels) {
     const h = canvas.clientHeight;
     renderer.setSize(w, h, false);
     const aspect = w / Math.max(1, h);
-    const visibleH = Math.max(12.4, 14 / aspect); 
+    
+    
+    
+    
+    const visibleH = Math.max(VIEW_H, VIEW_MIN_W / aspect);
     viewHalfW = (visibleH * aspect) / 2; 
     viewAspect = aspect;
     camera.aspect = aspect;
@@ -216,7 +227,10 @@ export function createView(canvas, level, labels) {
       shake *= Math.exp(-dt * 18);
       const sx0 = Math.sin(session.time * 91) * shake;
       const sy0 = Math.cos(session.time * 73) * shake;
-      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, camDist() * (1 + 0.45 * frameK)); 
+      
+      
+      planePull += ((session.plane && !level.camDist ? PLANE_PULL : 1) - planePull) * Math.min(1, dt * 2);
+      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, camDist() * planePull * (1 + 0.45 * frameK)); 
       camera.lookAt(camX + sx0, rig.y + hintDy + 0.6 + sy0, 0);
 
       squash *= Math.exp(-dt * 14);

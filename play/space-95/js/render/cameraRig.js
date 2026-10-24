@@ -3,7 +3,7 @@
 
 
 
-const LOOK_AHEAD = 3; 
+const LOOK_AHEAD = 4; 
 const LOOK_AHEAD_RATE = 2.5; 
 const DEAD_ZONE_UP = 1.6; 
 const DEAD_ZONE_DOWN = 0.6; 
