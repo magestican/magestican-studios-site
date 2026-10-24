@@ -57,6 +57,10 @@ if (train && (cheats.rail !== null || cheats.x !== null || cheats.points)) {
   session.partial = true;
   for (const d of level.entities ?? []) if (d.kind === 'ability') abilities.add(d.grant);
 } else if (cheats.x !== null) placeAt(session, cheats.x, cheats.y);
+
+
+const fleeTo = (level.entities ?? []).find((e) => e.kind === 'boss')?.phases?.find((p) => p.flee)?.flee.to;
+if (cheats.final && level.id === 20 && session.plane && fleeTo) placePlane(session, fleeTo.x - 30, fleeTo.y, 0);
 if (cheats.bossPhase !== null)
   for (const b of session.entities)
     if (b.kind === 'boss')

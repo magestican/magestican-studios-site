@@ -28,6 +28,8 @@ const CAM_DIST = 20;
 const PORTRAIT_RIDE_PULL = 1.25;
 const TILE_DEPTH = 2.4;
 
+const FLIGHT_CARRY = 10;
+
 
 export function createView(canvas, level, labels) {
   
@@ -282,6 +284,7 @@ export function createView(canvas, level, labels) {
         if (f.vx !== undefined) {
           
           f.m.position.x += f.vx * dt;
+          f.vx += (f.ax ?? 0) * dt;
           f.m.position.y += (f.vy + Math.sin(f.t * 9 + f.w) * 1.6) * dt;
         } else f.m.scale.setScalar(0.4 + k * 1.4);
         f.m.rotation.z += dt * 6;
@@ -297,7 +300,10 @@ export function createView(canvas, level, labels) {
         fall.t += dt;
         const v = entityViews.get(fall.id);
         if (v) {
-          v.position.y -= 4.5 * fall.t * fall.t;
+          
+          fall.base ??= { x: v.position.x, y: v.position.y };
+          v.position.x = fall.base.x + FLIGHT_CARRY * 0.8 * fall.t; 
+          v.position.y = fall.base.y - 4.5 * fall.t * fall.t;
           v.rotation.z = fall.t * 7;
         }
       }
@@ -319,9 +325,17 @@ export function createView(canvas, level, labels) {
       
       
       if (e.type === 'crownPop') {
-        for (let n = 0; n < 32; n++) {
-          spark(e.x + (Math.random() - 0.5) * 1.6, e.y + (Math.random() - 0.5) * 1.6, n % 3 ? 0xf2c230 : 0x2a2440, 3.2, 0.14);
-          Object.assign(fx[fx.length - 1], { vx: -7 - Math.random() * 6, vy: 1 + Math.random() * 3, w: Math.random() * 6 });
+        
+        
+        
+        for (let n = 0; n < 44; n++) {
+          spark(e.x + (Math.random() - 0.5) * 2.2, e.y + (Math.random() - 0.5) * 2.2, n % 3 ? 0xf2c230 : 0x2a2440, 3.6, 0.2);
+          Object.assign(fx[fx.length - 1], {
+            vx: FLIGHT_CARRY - 2 + Math.random() * 6,
+            ax: -8 - Math.random() * 3,
+            vy: 0.5 + Math.random() * 3.5,
+            w: Math.random() * 6,
+          });
         }
         fall = { id: e.id, t: 0 };
         kick(0.12);

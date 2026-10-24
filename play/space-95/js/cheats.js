@@ -35,7 +35,10 @@ export function readCheats(search) {
         : lv && /^\d+$/.test(lv)
           ? Number(lv)
           : 1,
-    checkpoint: Math.max(0, Math.floor(num('checkpoint', 0))),
+    
+    
+    final: q.get('final') === '1',
+    checkpoint: q.get('final') === '1' ? 5 : Math.max(0, Math.floor(num('checkpoint', 0))),
     variant,
     slow: Math.min(1, Math.max(0.05, num('slow', 1))),
     hud: q.get('hud') !== '0',
