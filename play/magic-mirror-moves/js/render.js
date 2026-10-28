@@ -4,26 +4,19 @@
 
 
 
-import { bodyUnit, hipCentre, shoulderCentre, torsoLength } from './pose/framing.js';
+import { hipCentre, shoulderCentre, torsoLength } from './pose/framing.js';
 import { seen } from './pose/pose.js';
 
 
 export const COSTUMES = {
-  wizard: { pieces: ['wizard_robe', 'wizard_hat', 'wizard_wand'] },
-  princess: { pieces: ['gown', 'crown', 'star_wand'] },
-  ghost: { pieces: ['ghost_sheet', 'ghost_hood'] },
-  fairy: { pieces: ['fairy_wings', 'flower_crown', 'star_wand'] },
-  dragon: { pieces: ['dragon_tail', 'dragon_wings', 'dragon_horns'] },
-  
-  ice_queen: { pieces: ['frost_cape', 'ice_crown', 'ice_wand'] },
-  astronaut: { pieces: ['jetpack', 'space_helmet', 'star_blaster'] },
-  
-  robot: { pieces: ['robot_chest', 'robot_upper_arm', 'robot_forearm', 'robot_thigh', 'robot_shin', 'robot_head'] },
+  wizard: { pieces: ['wizard_robe', 'wizard_hat', 'wizard_wand'], fire: 'flame', signature: 'flame' },
+  princess: { pieces: ['gown', 'crown', 'star_wand'], fire: 'sparkle', signature: 'petal' },
+  ghost: { pieces: ['ghost_sheet', 'ghost_hood'], fire: 'mini_ghost', signature: 'mini_ghost' },
+  fairy: { pieces: ['fairy_wings', 'flower_crown', 'star_wand'], fire: 'sparkle', signature: 'fairy' },
+  dragon: { pieces: ['dragon_tail', 'dragon_wings', 'dragon_horns'], fire: 'flame', signature: 'flame' },
 };
 
-const LAYER = { back: 0, body: 1, limb: 2, head: 3, hand: 4 };
-
-const BONE_ON = { upper_arm: ['shoulder', 'elbow'], forearm: ['elbow', 'wrist'], thigh: ['hip', 'knee'], shin: ['knee', 'ankle'] };
+const LAYER = { back: 0, body: 1, head: 2, hand: 3 };
 const SVG_PER_GRID = 2; 
 const HEAD_TOP = 0.85; 
 
@@ -56,24 +49,6 @@ export function landmarks(pose) {
     L.chest = along(0.3);
     L.waist = along(0.75);
     L.hip = { ...hc, angle: torsoAngle };
-  } else if (sc) {
-    
-    
-    const T = bodyUnit(pose) ?? 0;
-    const [a, b] = [pose.left_shoulder, pose.right_shoulder].sort((p, q) => p.x - q.x);
-    const w = dist(a, b);
-    if (T && w) {
-      const d = { x: -(b.y - a.y) / w, y: (b.x - a.x) / w };
-      torsoAngle = Math.atan2(-d.x, d.y);
-      measures.torso = T;
-      measures.shoulder_w = Math.max(w, 0.5 * T);
-      measures.hip_w = 0.8 * measures.shoulder_w;
-      const along = (k) => ({ x: sc.x + d.x * k * T, y: sc.y + d.y * k * T, angle: torsoAngle });
-      L.neck = { ...sc, angle: torsoAngle };
-      L.chest = along(0.3);
-      L.waist = along(0.75);
-      L.hip = along(1);
-    }
   }
 
   
@@ -101,16 +76,6 @@ export function landmarks(pose) {
     const tip = seen(pose[`${side}_index`]) ? pose[`${side}_index`] : w;
     L[`hand_${side}`] = { x: w.x, y: w.y, angle: Math.atan2(tip.x - e.x, -(tip.y - e.y)) };
   }
-  
-  for (const [on, [a, b]] of Object.entries(BONE_ON))
-    for (const side of ['left', 'right']) {
-      const p = pose[`${side}_${a}`];
-      const q = pose[`${side}_${b}`];
-      if (!seen(p) || !seen(q)) continue;
-      const len = dist(p, q);
-      if (len < 1) continue;
-      L[`${on}_${side}`] = { x: p.x, y: p.y, angle: Math.atan2(-(q.x - p.x), q.y - p.y), len };
-    }
   return { ...L, measures };
 }
 
@@ -124,9 +89,9 @@ export function landmarks(pose) {
 
 export function placePiece(icon, pose, opts = {}) {
   const L = opts.L ?? landmarks(pose);
-  const key = icon.on === 'hand' ? `hand_${opts.hand ?? 'right'}` : icon.on in BONE_ON ? `${icon.on}_${opts.side ?? 'left'}` : icon.on;
+  const key = icon.on === 'hand' ? `hand_${opts.hand ?? 'right'}` : icon.on;
   const at = L[key];
-  const measure = icon.measure === 'limb' ? at?.len : L.measures[icon.measure];
+  const measure = L.measures[icon.measure];
   if (!at || !measure) return null;
   const width = measure * icon.scale;
   const s = width / (icon.span * SVG_PER_GRID);
@@ -153,11 +118,7 @@ export function placeCostume(costume, pose, set, hand = 'right') {
   return COSTUMES[costume].pieces
     .map((id) => byId.get(id))
     .sort((a, b) => LAYER[a.group] - LAYER[b.group])
-    .flatMap((icon) =>
-      icon.on in BONE_ON
-        ? ['left', 'right'].map((side) => placePiece(icon, pose, { hand, side, L }))
-        : [placePiece(icon, pose, { hand, L })],
-    )
+    .map((icon) => placePiece(icon, pose, { hand, L }))
     .filter(Boolean);
 }
 
@@ -263,12 +224,7 @@ export function drawCostume(ctx, scratch, placed, images, back, pose) {
 
 export function drawMannequin(ctx, pose, colour = '#ffd9b8') {
   const T = torsoLength(pose);
-  if (!T) {
-    
-    const U = bodyUnit(pose);
-    if (U) drawFigure(ctx, pose, { colour, width: U * 0.28, head: headCircle(pose) });
-    return;
-  }
+  if (!T) return;
   const body = torsoOccluder(pose);
   ctx.save();
   ctx.fillStyle = colour;

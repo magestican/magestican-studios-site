@@ -5,23 +5,17 @@
 
 import { CLIPS, demoPose, makePose } from './demoPose.js';
 import { Effects } from './effects.js';
-import { createEvents, EVENT_HITS, EVENT_S, stepEvents } from './events.js';
 import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
-import { mirrorFrame, onlyInFrame, PoseSmoother, seen } from './pose/pose.js';
+import { mirrorFrame, PoseSmoother, seen } from './pose/pose.js';
 import { devicePlan, initialPower, initialQuality, LOW_CAMERA, LOW_PARTICLES, QUALITY, stepPower, stepQuality } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
-import { createSound, cuesForGame, cuesForWorld, namesFor } from './sound.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
-import { startVoice, voiceSupport } from './voice.js';
 
-const sound = createSound(window, (n) => {
-  document.getElementById('sound').dataset.played = String(n); 
-});
 const ART = new URL('../assets/costumes/costumes/', import.meta.url);
 const LABELS = {
-  arms_up: 'Put your arms up high!',
+  arms_up: 'Arms up high!',
   star: 'Star jump!',
   flap: 'Flap your wings!',
   jump: 'Jump!',
@@ -29,37 +23,10 @@ const LABELS = {
   twirl: 'Spin around!',
   wand: 'Point your wand!',
   boo: 'Boo!',
-  crown: 'Put your hands on your head!',
+  crown: 'Hands on your head!',
 };
-const CLOSE_START_S = 3; 
-const COSTUME_NAMES = {
-  wizard: 'Wizard',
-  princess: 'Princess',
-  ghost: 'Ghost',
-  fairy: 'Fairy',
-  dragon: 'Dragon',
-  ice_queen: 'Ice Queen',
-  astronaut: 'Astronaut',
-  robot: 'Robot',
-};
-const COSTUME_ICON = {
-  wizard: 'wizard_hat',
-  princess: 'crown',
-  ghost: 'ghost_hood',
-  fairy: 'flower_crown',
-  dragon: 'dragon_horns',
-  ice_queen: 'ice_crown',
-  astronaut: 'space_helmet',
-  robot: 'robot_head',
-};
-
-const WORLD_WIN = {
-  meteor_shower: 'Coins from the sky!',
-  storm_cloud: 'A rainbow!',
-  bubble_flood: 'Giant bubble pop!',
-  night_falls: 'Fireflies!',
-  power_up: 'Full power!',
-};
+const COSTUME_NAMES = { wizard: 'Wizard', princess: 'Princess', ghost: 'Ghost', fairy: 'Fairy', dragon: 'Dragon' };
+const COSTUME_ICON = { wizard: 'wizard_hat', princess: 'crown', ghost: 'ghost_hood', fairy: 'flower_crown', dragon: 'dragon_horns' };
 const JOINT_NAMES = {
   nose: 'Head',
   left_shoulder: 'Shoulder',
@@ -81,7 +48,6 @@ const opts = {
   mode: pick(q.get('mode'), ['show', 'mirror'], 'mirror'),
   level: pick(q.get('level'), ['little', 'big'], 'little'),
   body: pick(q.get('body'), ['child', 'adult'], 'child'),
-  close: q.get('close') === '1', 
   speed: Math.min(8, Math.max(1, Number(q.get('speed')) || 1)),
   
   render: pick(q.get('render'), ['2d', '3d'], '2d'),
@@ -136,19 +102,11 @@ const S = {
   fx: new Effects(7, plan.maxParticles),
   ask: { move: '', start: 0 },
   readyFor: 0,
-  closeFor: 0, 
   placed: 0,
   hits: 0,
   banner: 0,
   nearlyAt: -9,
   pieces3d: 0,
-  
-  hint: null,
-  
-  events: null,
-  eventsWon: 0,
-  
-  visible: new Set(),
   
   
   detect: { runs: 0, people: 0, joints: 0, at: -1, error: '' },
@@ -199,8 +157,6 @@ function setCostume(id) {
   opts.costume = id;
   overlay?.setCostume(id);
   syncChips();
-  sound.preload(namesFor(id));
-  sound.play([{ name: 'costume' }]);
 }
 
 function buildDressingRoom() {
@@ -230,37 +186,6 @@ function buildDressingRoom() {
     li.textContent = j.startsWith('left') ? `${name} (L)` : j.startsWith('right') ? `${name} (R)` : name;
     ul.append(li);
   }
-}
-
-async function wireVoice() {
-  if ((await voiceSupport(window)) === 'none') return;
-  const btn = $('voice');
-  btn.hidden = false;
-  layout();
-  let stop = null;
-  const set = (on) => {
-    btn.setAttribute('aria-pressed', String(on));
-    btn.setAttribute('aria-label', on ? 'Stop listening' : 'Say a costume');
-  };
-  btn.addEventListener('click', async () => {
-    if (stop) {
-      stop();
-      stop = null;
-      set(false);
-      return;
-    }
-    set(true);
-    try {
-      stop = await startVoice(window, (id) => {
-        if (id !== opts.costume) setCostume(id);
-      });
-    } catch (e) {
-      console.warn('Magic Mirror Moves: voice is off on this device.', e);
-      set(false);
-      btn.hidden = true;
-      layout();
-    }
-  });
 }
 
 function wire() {
@@ -318,32 +243,12 @@ function wire() {
       else (root.requestFullscreen ?? root.webkitRequestFullscreen).call(root);
     });
     const label = () => {
-      fs.setAttribute('aria-label', fsOn() ? 'Exit full screen' : 'Go full screen');
+      fs.setAttribute('aria-label', fsOn() ? 'Exit full screen' : 'Full screen');
       fs.setAttribute('aria-pressed', String(fsOn()));
     };
     document.addEventListener('fullscreenchange', label);
     document.addEventListener('webkitfullscreenchange', label);
   }
-  
-  const unlock = () => {
-    sound.unlock();
-    sound.preload(namesFor(opts.costume));
-  };
-  addEventListener('pointerdown', unlock, { capture: true });
-  addEventListener('keydown', unlock, { capture: true });
-  addEventListener('click', (e) => {
-    if ( (e.target).closest?.('button')) sound.play([{ name: 'click' }]);
-  });
-  const sb = $('sound');
-  sb.addEventListener('click', () => {
-    sound.setMuted(!sound.muted);
-    sb.innerHTML = sound.muted ? '&#x1F507;' : '&#x1F50A;';
-    sb.setAttribute('aria-pressed', String(sound.muted));
-    sb.setAttribute('aria-label', sound.muted ? 'Turn sound on' : 'Turn sound off');
-    sb.title = sb.getAttribute('aria-label') ?? '';
-  });
-  
-  wireVoice();
   
   let installer = null;
   addEventListener('beforeinstallprompt', (e) => {
@@ -410,7 +315,10 @@ async function startCamera() {
   } catch (err) {
     stopCamera();
     note.hidden = false;
-    note.textContent = err?.name === 'NotAllowedError' ? 'Camera off. Play the demo!' : 'No camera here. Play the demo!';
+    note.textContent =
+      err?.name === 'NotAllowedError'
+        ? 'The camera is switched off. You can still play with the demo player.'
+        : 'No camera found. You can still play with the demo player.';
     $('use-demo').hidden = false;
     return false;
   }
@@ -428,7 +336,7 @@ async function startCamera() {
         stopCamera();
         const note = $('frame-note');
         note.hidden = false;
-        note.textContent = 'The mirror is sleepy. Play the demo!';
+        note.textContent = 'The magic mirror is too tired on this device. You can still play with the demo player.';
         $('use-demo').hidden = false;
         if (S.screen !== 'frame') show('frame');
         return;
@@ -469,7 +377,6 @@ function stopCamera() {
 async function toFraming() {
   show('frame');
   S.readyFor = 0;
-  S.closeFor = 0;
   $('use-demo').hidden = true;
   if (!opts.demo) await startCamera();
 }
@@ -479,12 +386,10 @@ function beginRound({ tutorial = true } = {}) {
   S.tracker.reset();
   S.hits = 0;
   S.ask = { move: '', start: S.t };
-  S.events = opts.mode === 'mirror' ? createEvents(opts.demo ? 5 : (Date.now() & 0xffff) + 3) : null;
-  S.eventsWon = 0;
   show('play');
   $('card').style.visibility = opts.mode === 'mirror' ? 'hidden' : 'visible';
   $('time-bar').parentElement.hidden = opts.mode === 'mirror';
-  if (S.game.phase === 'tutorial') flash('Get ready! Arms up!');
+  if (S.game.phase === 'tutorial') flash('Ready? Arms up!');
 }
 
 function endRound() {
@@ -541,9 +446,14 @@ function layout() {
   const bar = $('bar');
   const top = bar.hidden ? 0 : Math.ceil(bar.getBoundingClientRect().bottom);
   
-  
-  
-  const dock = S.screen === 'play' ? $('card') : S.screen === 'frame' ? document.querySelector('#frame .dock') : null;
+  const dock =
+    S.screen === 'play'
+      ? opts.mode === 'mirror'
+        ? null
+        : $('card')
+      : S.screen === 'frame'
+        ? document.querySelector('#frame .dock')
+        : null;
   if (dock && !dock.hidden && dock.offsetHeight) dockH = Math.max(dockH, Math.ceil(innerHeight - dock.getBoundingClientRect().top) + 8);
   const style = document.documentElement.style;
   style.setProperty('--top', `${top}px`);
@@ -569,7 +479,6 @@ function frameSize() {
 }
 
 function demoPlace(fw, fh) {
-  if (opts.close) return { cx: fw / 2, ground: fh * 1.77, stature: fh * 1.42 }; 
   const stature = Math.min(fh * 0.66, fw * 0.9);
   
   return { cx: fw / 2, ground: fh * (fh > fw ? 0.8 : 0.9), stature };
@@ -579,8 +488,6 @@ function wanted() {
   const g = S.game;
   if (S.screen !== 'play' || !g) return null;
   if (g.card) return g.card.moves[g.card.step];
-  if (g.mode === 'mirror' && S.events?.active) return S.events.active.moves[0]; 
-  if (g.mode === 'mirror' && S.hint) return S.hint.move; 
   if (g.mode === 'mirror') return MOVES[Math.floor((S.t - S.ask.start) / 3.2) % MOVES.length];
   return null;
 }
@@ -595,7 +502,7 @@ function updateSeenLight() {
   const d = S.detect;
   let state = 'off';
   let text = 'Waking up the magic mirror...';
-  if (d.error) [state, text] = ['error', 'The mirror is stuck. Reload the page.'];
+  if (d.error) [state, text] = ['error', 'The magic mirror is stuck. Try reloading the page.'];
   else if (d.runs > 0 && S.t - d.at > 0.5) text = 'Looking for you...';
   else if (d.runs > 0) {
     const seenNow = Object.values(seenJoints(S.frame?.pose ?? null));
@@ -610,16 +517,13 @@ function updateSeenLight() {
 
 function tick(h) {
   S.t += h;
-  if (S.hint && S.t > S.hint.until) S.hint = null;
   updateSeenLight();
   const { fw, fh } = frameSize();
   if (S.source === 'demo') {
     const want = wanted();
     if (want !== S.ask.move && S.game?.mode !== 'mirror') S.ask = { move: want ?? '', start: S.t };
-    const since = S.hint ? S.t - S.hint.at : S.game?.mode === 'mirror' ? (S.t - S.ask.start) % 3.2 : S.t - S.ask.start;
-    const ask = want ? { move: want, since } : null;
-    const pose = demoPose(S.t, ask, demoPlace(fw, fh), opts.body);
-    S.frame = mirrorFrame({ pose: opts.close ? onlyInFrame(pose, fw, fh) : pose, width: fw, height: fh, t: S.t });
+    const ask = want ? { move: want, since: S.game?.mode === 'mirror' ? (S.t - S.ask.start) % 3.2 : S.t - S.ask.start } : null;
+    S.frame = mirrorFrame({ pose: demoPose(S.t, ask, demoPlace(fw, fh), opts.body), width: fw, height: fh, t: S.t });
     S.fresh = true;
   }
   const frame = S.frame;
@@ -627,19 +531,10 @@ function tick(h) {
   if (S.screen === 'frame' && frame) {
     const seen = seenJoints(frame.pose);
     for (const li of $('joints').children) li.classList.toggle('seen', !!seen[li.dataset.joint]);
-    const advice = framingAdvice(frame.pose, frame.width, frame.height);
-    const ready = advice === 'ready';
-    
-    
-    const close = advice === 'close' || advice === 'step-back';
-    $('frame-h').textContent = ready
-      ? 'Get ready, I can see you!'
-      : close
-        ? 'Step back for jumps, or play close up with your arms!'
-        : 'Step back until I can see you from head to feet';
+    const ready = framingAdvice(frame.pose, frame.width, frame.height) === 'ready';
+    $('frame-h').textContent = ready ? 'I can see you! Get ready...' : 'Step back until I can see you from head to feet';
     S.readyFor = ready ? S.readyFor + h : 0;
-    S.closeFor = close ? S.closeFor + h : 0;
-    if (S.readyFor > (opts.demo ? 1.2 : 1) || S.closeFor > CLOSE_START_S) beginRound();
+    if (S.readyFor > (opts.demo ? 1.2 : 1)) beginRound();
   }
 
   if (S.screen === 'play' && S.game && frame) {
@@ -648,21 +543,9 @@ function tick(h) {
       const res = S.tracker.update(frame);
       const visible = new Set(MOVES.filter((m) => moveVisible(frame.pose, m)));
       input = { hits: res.hits, partial: res.partial, visible };
-      S.visible = visible;
       S.fresh = false;
     }
-    const landed = [];
-    for (const ev of step(S.game, h, input)) {
-      onEvent(ev, frame);
-      if (ev.type === 'hit') landed.push(String(ev.move));
-    }
-    
-    if (S.events && S.game.phase === 'play') {
-      const stage = stageOf(frame);
-      const seenNow = S.source === 'demo' || (S.detect.runs > 0 && S.t - S.detect.at <= 0.5);
-      for (const ev of stepEvents(S.events, h, { seen: seenNow, visible: S.visible, hits: landed })) onWorld(ev, stage);
-      if (S.events.active && seenNow) S.fx.worldFlow(S.events.active.id, h, stage);
-    }
+    for (const ev of step(S.game, h, input)) onEvent(ev, frame);
   }
   S.fx.update(h);
   if (S.banner > 0) {
@@ -676,21 +559,15 @@ function stageOf(frame) {
   const T = torsoLength(p) ?? frame.height * 0.2;
   const centre = hipCentre(p) ?? shoulderCentre(p) ?? { x: frame.width / 2, y: frame.height / 2 };
   const feet = [p.left_ankle, p.right_ankle].filter((j) => j && j.score >= 0.5).map((j) => j.y);
-  
-  const head = p.nose && p.nose.score >= 0.5 ? { x: p.nose.x, y: p.nose.y } : undefined;
-  return { width: frame.width, height: frame.height, centre, ground: feet.length ? Math.max(...feet) : frame.height * 0.95, unit: T, head };
+  return { width: frame.width, height: frame.height, centre, ground: feet.length ? Math.max(...feet) : frame.height * 0.95, unit: T };
 }
 
 function onEvent(ev, frame) {
   const stage = stageOf(frame);
-  sound.play(cuesForGame(ev, opts.costume));
   if (ev.type === 'hit') {
     S.hits++;
     S.fx.trigger(ev, opts.costume, stage);
-    if (ev.name) {
-      flash(String(ev.name), 1.6); 
-      S.hint = null;
-    } else if (ev.power) flash('Power up!');
+    if (ev.power) flash('Power up!');
     else if (ev.combo >= 2) flash(`Combo x${ev.combo}!`, 0.9);
   } else if (ev.type === 'step') S.fx.trigger(ev, opts.costume, stage);
   else if (ev.type === 'nearly' && S.t - S.nearlyAt > 1.5) {
@@ -698,31 +575,9 @@ function onEvent(ev, frame) {
     S.fx.trigger(ev, opts.costume, stage);
     flash('Nearly!', 0.8);
   } else if (ev.type === 'miss') flash('Next one!', 0.8);
-  else if (ev.type === 'hint' && S.game?.mode === 'mirror')
-    
-    S.hint = { move: String(ev.next), at: S.t, until: S.t + Number(ev.for) };
   else if (ev.type === 'start') flash('Here we go!');
   else if (ev.type === 'finale') flash('Finale! Double magic!', 2);
   else if (ev.type === 'end') setTimeout(() => S.screen === 'play' && showResult(ev.score, ev.stars), 1200);
-}
-
-
-function onWorld(ev, stage) {
-  sound.play(cuesForWorld(ev));
-  if (ev.type === 'event_start') {
-    S.fx.worldStart(String(ev.id), stage);
-    flash(String(ev.name), 2.2);
-  } else if (ev.type === 'event_hit') {
-    S.fx.worldHit(String(ev.id), Number(ev.count), stage);
-    if (Number(ev.count) < Number(ev.of)) flash(`${ev.count} of ${ev.of}!`, 0.8);
-  } else if (ev.type === 'event_end') {
-    S.fx.worldEnd(String(ev.id), !!ev.success, stage);
-    if (ev.success) {
-      S.game.score += Number(ev.points);
-      S.eventsWon++;
-      flash(`${WORLD_WIN[String(ev.id)] ?? 'You did it!'} +${ev.points}`, 2);
-    } else flash('Bye bye! Good try!', 1.2); 
-  }
 }
 
 function updateHud() {
@@ -735,23 +590,6 @@ function updateHud() {
   const move = g.card ? g.card.moves[g.card.step] : null;
   const card = $('card');
   if (g.mode !== 'mirror') card.style.visibility = move ? 'visible' : 'hidden';
-  else {
-    
-    
-    const e = S.events?.active;
-    card.style.visibility = S.hint || e ? 'visible' : 'hidden';
-    if (e) {
-      const label = `${LABELS[e.moves[0]]} ${'●'.repeat(e.count)}${'○'.repeat(EVENT_HITS - e.count)}`;
-      if ($('card-label').textContent !== label) $('card-label').textContent = label;
-      $('card-bar').style.transform = `scaleX(${Math.max(0, 1 - e.age / EVENT_S)})`;
-      drawCardFigure(e.moves[0]);
-    } else if (S.hint) {
-      const label = `Now: ${LABELS[S.hint.move]}`;
-      if ($('card-label').textContent !== label) $('card-label').textContent = label;
-      $('card-bar').style.transform = `scaleX(${Math.max(0, (S.hint.until - S.t) / (S.hint.until - S.hint.at))})`;
-      drawCardFigure(S.hint.move);
-    }
-  }
   if (move) {
     const label = g.card.moves.length > 1 ? `${LABELS[g.card.moves[0]]} then ${LABELS[g.card.moves[1]]}` : LABELS[move];
     if ($('card-label').textContent !== label) $('card-label').textContent = label;
@@ -792,12 +630,6 @@ function draw() {
   const mirror = S.source === 'camera' && !!stream;
   if (video.hidden === mirror) video.hidden = !mirror;
   if (!mirror && frame) drawMannequin(ctx, frame.pose);
-  const night = S.events?.active ? S.fx.dim(S.events.active.id, S.events.active.count) * Math.min(1, S.events.active.age) : 0;
-  if (night > 0) {
-    
-    ctx.fillStyle = `rgba(12, 10, 40, ${night})`;
-    ctx.fillRect(0, 0, fw, fh);
-  }
   if (frame) {
     let placed = placeCostume(opts.costume, frame.pose, iconSet, 'right');
     if (overlay?.ready(opts.costume)) {
@@ -862,10 +694,6 @@ Object.defineProperty(window, '__mmm', {
         particles: S.fx.particles.length,
         placed: S.placed,
         pieces3d: S.pieces3d,
-        combos: g ? [...g.combos] : [],
-        hint: S.hint?.move ?? null,
-        event: S.events?.active ? { id: S.events.active.id, count: S.events.active.count } : null,
-        eventsWon: S.eventsWon,
         card: g?.card?.moves ?? null,
         detect: { ...S.detect, backend: estimator?.backend() ?? '' },
         perf: {
