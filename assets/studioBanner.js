@@ -190,6 +190,12 @@ export async function mountStudioBanner(doc = globalThis.document) {
 
   
   
+  
+  
+  
+  
+  
+  if (document.documentElement.hasAttribute('data-tracks-nothing')) return tools;
   try {
     const { mountLiveBadge } = await import(LIVE_SRC);
     mountLiveBadge({ host: tools });
