@@ -17,6 +17,7 @@ export const EVENTS = [
   { id: 'storm_cloud', name: 'Storm cloud! Zap it!', moves: ['wand', 'arms_up'] },
   { id: 'bubble_flood', name: 'Bubble flood! Pop them!', moves: ['squat', 'jump'] },
   { id: 'night_falls', name: 'Night falls! Bring the light!', moves: ['flap', 'twirl'] },
+  { id: 'power_up', name: 'Flat battery! Charge it up!', moves: ['squat', 'arms_up'] }, 
 ];
 
 function rng(seed) {

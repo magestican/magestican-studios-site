@@ -35,6 +35,7 @@ const COSTUME_NAMES = {
   dragon: 'Dragon',
   ice_queen: 'Ice Queen',
   astronaut: 'Astronaut',
+  robot: 'Robot',
 };
 const COSTUME_ICON = {
   wizard: 'wizard_hat',
@@ -44,6 +45,7 @@ const COSTUME_ICON = {
   dragon: 'dragon_horns',
   ice_queen: 'ice_crown',
   astronaut: 'space_helmet',
+  robot: 'robot_head',
 };
 
 const WORLD_WIN = {
@@ -51,6 +53,7 @@ const WORLD_WIN = {
   storm_cloud: 'A rainbow!',
   bubble_flood: 'Giant bubble pop!',
   night_falls: 'Fireflies!',
+  power_up: 'Full power!',
 };
 const JOINT_NAMES = {
   nose: 'Head',

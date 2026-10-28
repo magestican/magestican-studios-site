@@ -20,6 +20,7 @@ export const MAGIC = {
   dragon: { signature: 'flame', light: '#ff6a3d' },
   ice_queen: { signature: 'snowflake', light: '#bfefff' },
   astronaut: { signature: 'rocket', light: '#9ff3ff' },
+  robot: { signature: 'bolt', light: '#5cffc8' },
 };
 
 
@@ -33,6 +34,7 @@ export const COMBO_SHAPES = {
   royal_welcome: ['halo', 'rain', 'burst'],
   take_off: ['swarm', 'rise', 'shock'], 
   spooky_surprise: ['pop', 'orbit', 'burst'],
+  power_surge: ['halo', 'fountain', 'fountain', 'shock'], 
 };
 
 const s = (shape, kinds, extra = {}) => ({ shape, kinds, ...extra });
@@ -115,5 +117,17 @@ export const SPELLS = {
     wand: s('beam', ['comet']), 
     boo: s('pop', ['planet']), 
     crown: s('halo', ['planet']), 
+  },
+  
+  robot: {
+    arms_up: s('fountain', ['bolt']), 
+    star: s('burst', ['gear']), 
+    flap: s('swarm', ['bolt', 'gear']), 
+    jump: s('shock', ['gear']), 
+    squat: s('rise', ['bolt']), 
+    twirl: s('orbit', ['gear']), 
+    wand: s('beam', ['laser']), 
+    boo: s('pop', ['bolt', 'gear'], { light: '#ffffff' }), 
+    crown: s('halo', ['bolt']), 
   },
 };

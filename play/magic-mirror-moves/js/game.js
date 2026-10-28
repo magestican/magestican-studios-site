@@ -38,6 +38,7 @@ export const COMBOS = [
   { id: 'royal_welcome', first: 'arms_up', second: 'crown', name: 'Royal welcome!' },
   { id: 'take_off', first: 'flap', second: 'jump', name: 'Take-off!' },
   { id: 'spooky_surprise', first: 'boo', second: 'twirl', name: 'Spooky surprise!' },
+  { id: 'power_surge', first: 'crown', second: 'arms_up', name: 'Power surge!' }, 
 ];
 
 

@@ -315,6 +315,9 @@ export class Effects {
         life: 15,
         wobble: 1.2,
       });
+    if (id === 'power_up')
+      
+      this.add({ kind: 'battery', event: id, x: stage.width * 0.86, y: stage.height * 0.42, size: 1.5 * u, life: 15, wobble: 0.6 });
   }
 
   
@@ -355,11 +358,14 @@ export class Effects {
   
   worldHit(id, count, stage) {
     const u = stage.unit;
-    const cloud = this.particles.find((p) => p.event === id && p.kind === 'storm_cloud');
+    const cloud = this.particles.find((p) => p.event === id && (p.kind === 'storm_cloud' || p.kind === 'battery'));
     const at = cloud ?? { x: stage.centre.x, y: stage.height * 0.2 };
-    const colour = { storm_cloud: '#FFC83D', meteor_shower: '#FFE7A3', bubble_flood: '#8ED8FF', night_falls: '#FFF6E0' }[id] ?? '#ffffff';
+    const colour =
+      { storm_cloud: '#FFC83D', meteor_shower: '#FFE7A3', bubble_flood: '#8ED8FF', night_falls: '#FFF6E0', power_up: '#5CFFC8' }[id] ??
+      '#ffffff';
     this.rings.push({ x: at.x, y: at.y, r0: 0.2 * u, r1: (0.8 + 0.3 * count) * u, life: 0.6, age: 0, colour });
-    const kind = { storm_cloud: 'sparkle', meteor_shower: 'coin', bubble_flood: 'sparkle', night_falls: 'star' }[id] ?? 'sparkle';
+    const kind =
+      { storm_cloud: 'sparkle', meteor_shower: 'coin', bubble_flood: 'sparkle', night_falls: 'star', power_up: 'bolt' }[id] ?? 'sparkle';
     for (let i = 0; i < 6; i++) {
       const a = (Math.PI * 2 * i) / 6;
       this.add({ kind, x: at.x, y: at.y, vx: Math.cos(a) * 1.4 * u, vy: Math.sin(a) * 1.4 * u, size: 0.3 * u, life: 0.9, spin: 3 });
@@ -395,6 +401,12 @@ export class Effects {
       const y = stage.height * 0.3;
       this.add({ kind: 'bubble', x, y, size: 2.2 * u, life: 0.5 });
       burst(x, y, 'sparkle', 16, 2, 0.32);
+    } else if (id === 'power_up') {
+      
+      const b = props.find((p) => p.kind === 'battery') ?? { x: stage.width * 0.86, y: stage.height * 0.42 };
+      burst(b.x, b.y, 'bolt', 14, 1.8, 0.34);
+      for (let i = 0; i < 6; i++)
+        this.add({ kind: 'bolt', x: stage.width * r(), y: -0.3 * u, vy: (1.5 + r()) * u, size: 0.4 * u, life: 2.2, spin: 2 });
     } else if (id === 'night_falls') {
       
       for (let i = 0; i < 12; i++)

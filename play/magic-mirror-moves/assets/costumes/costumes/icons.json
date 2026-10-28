@@ -422,6 +422,124 @@
    "group": "fx",
    "width": 128,
    "height": 128
+  },
+  {
+   "id": "robot_head",
+   "label": "Robot head",
+   "group": "head",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    24
+   ],
+   "on": "head_top",
+   "span": 46,
+   "measure": "head_w",
+   "scale": 1.6
+  },
+  {
+   "id": "robot_chest",
+   "label": "Robot chest",
+   "group": "body",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    9
+   ],
+   "on": "neck",
+   "span": 44,
+   "measure": "shoulder_w",
+   "scale": 1.4
+  },
+  {
+   "id": "robot_upper_arm",
+   "label": "Robot upper arm",
+   "group": "limb",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    12
+   ],
+   "on": "upper_arm",
+   "span": 40,
+   "measure": "limb",
+   "scale": 1.0
+  },
+  {
+   "id": "robot_forearm",
+   "label": "Robot forearm",
+   "group": "limb",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    10
+   ],
+   "on": "forearm",
+   "span": 34,
+   "measure": "limb",
+   "scale": 1.0
+  },
+  {
+   "id": "robot_thigh",
+   "label": "Robot thigh",
+   "group": "limb",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    12
+   ],
+   "on": "thigh",
+   "span": 40,
+   "measure": "limb",
+   "scale": 1.0
+  },
+  {
+   "id": "robot_shin",
+   "label": "Robot shin",
+   "group": "limb",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    9
+   ],
+   "on": "shin",
+   "span": 36,
+   "measure": "limb",
+   "scale": 1.0
+  },
+  {
+   "id": "bolt",
+   "label": "Bolt",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "gear",
+   "label": "Gear",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "laser",
+   "label": "Laser",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "battery",
+   "label": "Battery",
+   "group": "fx",
+   "width": 128,
+   "height": 128
   }
  ]
 }

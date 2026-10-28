@@ -28,6 +28,9 @@ const WORDS = {
   space: 'astronaut',
   spaceman: 'astronaut',
   rocket: 'astronaut',
+  robot: 'robot',
+  robots: 'robot',
+  robo: 'robot',
 };
 
 const LANG = 'en-US';
