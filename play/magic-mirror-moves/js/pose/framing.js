@@ -13,6 +13,7 @@ const EDGE = 0.02;
 
 export function framingAdvice(pose, _width, height) {
   if (!pose || !seen(pose.left_shoulder) || !seen(pose.right_shoulder) || !seen(pose.nose)) return 'searching';
+  if (!seen(pose.left_hip) || !seen(pose.right_hip)) return 'close';
   for (const name of HEAD_TO_FEET) {
     const k = pose[name];
     if (!seen(k)) return 'step-back';
@@ -42,6 +43,21 @@ export function torsoLength(pose) {
   const h = mid(lh, rh);
   const len = Math.hypot(s.x - h.x, s.y - h.y);
   return len > 1 ? len : null;
+}
+
+
+const TORSO_PER_SHOULDER = 1.25;
+
+
+
+
+export function bodyUnit(pose) {
+  const T = torsoLength(pose);
+  if (T) return T;
+  const { left_shoulder: ls, right_shoulder: rs } = pose;
+  if (!seen(ls) || !seen(rs)) return null;
+  const w = Math.hypot(ls.x - rs.x, ls.y - rs.y);
+  return w > 1 ? TORSO_PER_SHOULDER * w : null;
 }
 
 

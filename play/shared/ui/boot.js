@@ -37,27 +37,17 @@
   var LOADING = {
     en: 'Loading...', es: 'Cargando...', pt: 'Carregando...', tl: 'Naglo-load...',
     ja: '\u8aad\u307f\u8fbc\u307f\u4e2d...', ko: '\ubd88\ub7ec\uc624\ub294 \uc911...', id: 'Memuat...', vi: '\u0110ang t\u1ea3i...',
-    'zh-Hant': '\u8f09\u5165\u4e2d...', 'zh-Hans': '\u52a0\u8f7d\u4e2d...',
   };
   var NAMES = {
     truco: { en: 'Trucowise', es: 'Trucowise: Truco Argentino', pt: 'Trucowise: Truco', tl: 'Trucowise: Truco', ja: 'Trucowise \u30c8\u30a5\u30eb\u30fc\u30b3', ko: 'Trucowise \ud2b8\ub8e8\ucf54', id: 'Trucowise: Truco', vi: 'Trucowise: Truco' },
     buraco: { en: 'Buracowise', es: 'Buracowise: Burako', pt: 'Buracowise: Buraco', tl: 'Buracowise: Buraco', ja: 'Buracowise \u30d6\u30e9\u30fc\u30b3', ko: 'Buracowise \ubd80\ub77c\ucf54', id: 'Buracowise: Buraco', vi: 'Buracowise: Buraco' },
     conga: { en: 'Congawise', es: 'Congawise: Conga uruguaya', pt: 'Congawise: Conga', tl: 'Congawise: Conga', ja: 'Congawise コンガ', ko: 'Congawise 콩가', id: 'Congawise: Conga', vi: 'Congawise: Conga' },
-    koikoi: { en: 'Hanawise', es: 'Hanawise: Koi-Koi', pt: 'Hanawise: Koi-Koi', tl: 'Hanawise: Koi-Koi', ja: 'Hanawise こいこい 花札', ko: 'Hanawise 하나후다 코이코이', id: 'Hanawise: Koi-Koi', vi: 'Hanawise: Koi-Koi', 'zh-Hant': 'Hanawise 花札 こいこい', 'zh-Hans': 'Hanawise 花札 こいこい' },
-    shogi: { en: 'Shogiwise', es: 'Shogiwise: Shogi', pt: 'Shogiwise: Shogi', tl: 'Shogiwise: Shogi', ja: 'Shogiwise 将棋', ko: 'Shogiwise 쇼기', id: 'Shogiwise: Shogi', vi: 'Shogiwise: Shogi', 'zh-Hant': 'Shogiwise 日本將棋', 'zh-Hans': 'Shogiwise 日本将棋' },
     gomoku: { en: 'Gomowise', es: 'Gomowise: Gomoku', pt: 'Gomowise: Gomoku', tl: 'Gomowise: Gomoku', ja: 'Gomowise \u4e94\u76ee\u4e26\u3079', ko: 'Gomowise \uc624\ubaa9', id: 'Gomowise: Gomoku', vi: 'Gomowise: C\u1edd Caro' },
     minesweeper: { en: 'Sweepwise', es: 'Sweepwise: Buscaminas', pt: 'Sweepwise: Campo Minado', tl: 'Sweepwise: Minesweeper', ja: 'Sweepwise \u30de\u30a4\u30f3\u30b9\u30a4\u30fc\u30d1\u30fc', ko: 'Sweepwise \uc9c0\ub8b0\ucc3e\uae30', id: 'Sweepwise: Minesweeper', vi: 'Sweepwise: D\u00f2 M\u00ecn' },
     'word-chain': { en: 'Relaywise', es: 'Relaywise: Palabras Encadenadas', pt: 'Relaywise: Palavras Encadeadas', tl: 'Relaywise: Word Chain', ja: 'Relaywise \u3057\u308a\u3068\u308a', ko: 'Relaywise \ub05d\ub9d0\uc787\uae30', id: 'Relaywise: Sambung Kata', vi: 'Relaywise: N\u1ed1i T\u1eeb' },
   };
 
-  
-  function zhScript(s) {
-    var c = String(s || '').toLowerCase();
-    if (c !== 'zh' && c.indexOf('zh-') !== 0 && c.indexOf('zh_') !== 0) return null;
-    return /hant|[-_](tw|hk|mo)\b/.test(c) ? 'zh-Hant' : 'zh-Hans';
-  }
   function norm(s) {
-    if (data.zh === '1' && zhScript(s)) return zhScript(s);
     var c = String(s || '').toLowerCase().split('-')[0];
     if (c === 'fil') c = 'tl';
     if (c === 'in') c = 'id';
@@ -124,7 +114,7 @@
   
   
   
-  var KITS = { minesweeper: 'stone', gomoku: 'wood', truco: 'wood', buraco: 'wood', conga: 'wood', koikoi: 'wood', shogi: 'wood', 'word-chain': 'parchment' };
+  var KITS = { minesweeper: 'stone', gomoku: 'wood', truco: 'wood', buraco: 'wood', conga: 'wood', 'word-chain': 'parchment' };
   var kit = data.kit || KITS[data.game] || '';
   if (/^(stone|wood|parchment)$/.test(kit) && me && me.src) {
     html.setAttribute('data-kit', kit);
