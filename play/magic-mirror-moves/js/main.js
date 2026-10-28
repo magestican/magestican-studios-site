@@ -17,7 +17,7 @@ import { startVoice, voiceSupport } from './voice.js';
 
 const ART = new URL('../assets/costumes/costumes/', import.meta.url);
 const LABELS = {
-  arms_up: 'Arms up high!',
+  arms_up: 'Put your arms up high!',
   star: 'Star jump!',
   flap: 'Flap your wings!',
   jump: 'Jump!',
@@ -25,7 +25,7 @@ const LABELS = {
   twirl: 'Spin around!',
   wand: 'Point your wand!',
   boo: 'Boo!',
-  crown: 'Hands on your head!',
+  crown: 'Put your hands on your head!',
 };
 const CLOSE_START_S = 3; 
 const COSTUME_NAMES = {
@@ -312,7 +312,7 @@ function wire() {
       else (root.requestFullscreen ?? root.webkitRequestFullscreen).call(root);
     });
     const label = () => {
-      fs.setAttribute('aria-label', fsOn() ? 'Exit full screen' : 'Full screen');
+      fs.setAttribute('aria-label', fsOn() ? 'Exit full screen' : 'Go full screen');
       fs.setAttribute('aria-pressed', String(fsOn()));
     };
     document.addEventListener('fullscreenchange', label);
@@ -386,10 +386,7 @@ async function startCamera() {
   } catch (err) {
     stopCamera();
     note.hidden = false;
-    note.textContent =
-      err?.name === 'NotAllowedError'
-        ? 'The camera is switched off. You can still play with the demo player.'
-        : 'No camera found. You can still play with the demo player.';
+    note.textContent = err?.name === 'NotAllowedError' ? 'Camera off. Play the demo!' : 'No camera here. Play the demo!';
     $('use-demo').hidden = false;
     return false;
   }
@@ -407,7 +404,7 @@ async function startCamera() {
         stopCamera();
         const note = $('frame-note');
         note.hidden = false;
-        note.textContent = 'The magic mirror is too tired on this device. You can still play with the demo player.';
+        note.textContent = 'The mirror is sleepy. Play the demo!';
         $('use-demo').hidden = false;
         if (S.screen !== 'frame') show('frame');
         return;
@@ -463,7 +460,7 @@ function beginRound({ tutorial = true } = {}) {
   show('play');
   $('card').style.visibility = opts.mode === 'mirror' ? 'hidden' : 'visible';
   $('time-bar').parentElement.hidden = opts.mode === 'mirror';
-  if (S.game.phase === 'tutorial') flash('Ready? Arms up!');
+  if (S.game.phase === 'tutorial') flash('Get ready! Arms up!');
 }
 
 function endRound() {
@@ -574,7 +571,7 @@ function updateSeenLight() {
   const d = S.detect;
   let state = 'off';
   let text = 'Waking up the magic mirror...';
-  if (d.error) [state, text] = ['error', 'The magic mirror is stuck. Try reloading the page.'];
+  if (d.error) [state, text] = ['error', 'The mirror is stuck. Reload the page.'];
   else if (d.runs > 0 && S.t - d.at > 0.5) text = 'Looking for you...';
   else if (d.runs > 0) {
     const seenNow = Object.values(seenJoints(S.frame?.pose ?? null));
@@ -612,7 +609,7 @@ function tick(h) {
     
     const close = advice === 'close' || advice === 'step-back';
     $('frame-h').textContent = ready
-      ? 'I can see you! Get ready...'
+      ? 'Get ready, I can see you!'
       : close
         ? 'Step back for jumps, or play close up with your arms!'
         : 'Step back until I can see you from head to feet';

@@ -33,7 +33,7 @@ export const COMBO_S = 2.5;
 const COMBO_BONUS = 250;
 export const COMBOS = [
   { id: 'lift_off', first: 'squat', second: 'jump', name: 'Lift-off!' },
-  { id: 'supernova', first: 'jump', second: 'star', name: 'Supernova!' },
+  { id: 'supernova', first: 'jump', second: 'star', name: 'Star burst!' },
   { id: 'spell_storm', first: 'twirl', second: 'wand', name: 'Spell storm!' },
   { id: 'royal_welcome', first: 'arms_up', second: 'crown', name: 'Royal welcome!' },
   { id: 'take_off', first: 'flap', second: 'jump', name: 'Take-off!' },
