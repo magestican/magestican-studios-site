@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Hanawise - free Koi-Koi hanafuda online</title>
+  <meta name="description" content="Hanawise is free Koi-Koi in your browser with the 48-card hanafuda deck: match the months, collect yaku, then stop or call koi-koi. Play the computer at three levels or a friend in a room.">
+  <meta name="keywords" content="hanawise, koi-koi, koi koi online, hanafuda, こいこい, 花札, 花札 線上, 花札在线">
+  <meta name="build" content="7277af70-20261028T231808Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/koikoi/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Hanawise - free Koi-Koi hanafuda online">
+  <meta property="og:description" content="Match the months of the hanafuda deck, collect yaku, then stop to score or call koi-koi and play on. The computer at three levels, or a friend in a room.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/koikoi/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/koikoi.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Hanawise - free Koi-Koi hanafuda online">
+  <meta name="twitter:description" content="Match the months, collect yaku, stop or call koi-koi: the hanafuda game against the computer or a friend.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/koikoi.jpg">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  
+
+  <script src="../shared/ui/boot.js?v=7277af70-20261028T231808Z" data-game="koikoi" data-zh="1" data-levels="easy,medium,hard" data-level-key="hanawise-settings-v1" data-level-default="easy" data-deck="../shared/cards/hanafuda48/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=7277af70-20261028T231808Z">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Hanawise",
+    "alternateName": ["Koi-Koi", "こいこい", "花札 こいこい", "Hanafuda Koi-Koi"],
+    "url": "https://magesticanstudios.com/play/koikoi/",
+    "description": "Koi-Koi in the browser with the 48-card hanafuda deck: match a card to the field by month, flip the draw pile, collect yaku such as Goko, Inoshikacho, Akatan and Aotan, then stop to score or call koi-koi to play for more. Games of 3, 6 or 12 months. Play the computer at three levels or a friend in a peer-to-peer room where each player sees only their own cards.",
+    "image": "https://magesticanstudios.com/assets/og/koikoi.jpg",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Card", "Strategy", "Casual"],
+    "gamePlatform": ["Web browser"],
+    "playMode": ["SinglePlayer", "MultiPlayer"],
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": ["en", "es", "pt-BR", "tl", "ja", "ko", "id", "vi", "zh-Hant", "zh-Hans"],
+    "datePublished": "2026-10-28",
+    "accessibilityFeature": ["highContrastDisplay", "structuralNavigation"],
+    "accessibilityHazard": ["noFlashingHazard", "noMotionSimulationHazard"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+  <script type="module" src="/web-engine/library/openHook.js?play=koikoi"></script>
+</head>
+<body>
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+    <a class="studio-back" id="rules-link" href="/koikoi.html" data-t="back">How to play</a>
+    <button id="music-btn" class="studio-music" type="button"
+            aria-pressed="false" aria-label="Play music" title="Play music">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        <path class="mg-note" d="M18 6.5 L27 4.5 V17.2" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="mg-note" cx="15.4" cy="18.6" r="3.4" fill="currentColor"/>
+        <circle class="mg-note" cx="24.4" cy="16.6" r="3.4" fill="currentColor"/>
+        <path d="M3 12.5 H6.5 L11 8.5 V23.5 L6.5 19.5 H3 Z" fill="currentColor"/>
+        <path class="mg-slash" d="M4 27 L28 5" fill="none" stroke="currentColor"
+              stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <main class="kk">
+    <h1 data-game-name>Hanawise</h1>
+
+    <div class="kk-row" role="group" aria-label="Mode">
+      <button class="kk-btn skin-wood-toggle mg-i mg-i-computer" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
+      <button class="kk-btn skin-wood-toggle mg-i mg-i-globe" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
+    </div>
+
+    <div class="kk-row" id="opts-row">
+      <span class="kk-label" data-t="level">Level</span>
+      <button class="kk-btn skin-wood-toggle" type="button" data-level="easy" data-t="easy" aria-pressed="true">Easy</button>
+      <button class="kk-btn skin-wood-toggle" type="button" data-level="medium" data-t="medium" aria-pressed="false">Medium</button>
+      <button class="kk-btn skin-wood-toggle" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
+      <span class="kk-gap"></span>
+      <label class="kk-row"><span class="kk-label" data-t="roundsLabel">Game of</span>
+        <select class="kk-select skin-wood-select" id="rounds"></select>
+      </label>
+    </div>
+
+    <section class="kk-room mg-own" id="room" hidden aria-label="Room">
+      <div class="kk-row" id="room-start">
+        <button class="kk-btn skin-wood-button_primary mg-i mg-i-two_players" type="button" id="create-room" data-t="createRoom">Create a room</button>
+        <form class="kk-row" id="join-form">
+          <input class="kk-code-input skin-wood-select" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
+          <button class="kk-btn skin-wood-button_secondary mg-i mg-i-link" type="submit" data-t="join">Join</button>
+        </form>
+      </div>
+      <div class="kk-row" id="room-live" hidden>
+        <span class="kk-label" data-t="roomCodeLabel">Code</span> <output class="kk-code" id="room-code">-</output>
+        <button class="kk-btn skin-wood-button_secondary mg-i mg-i-share" type="button" id="copy-link" data-t="copyLink">Share link</button>
+        <button class="kk-btn skin-wood-button_secondary mg-i mg-i-watch" type="button" id="watch-link" data-t="watchLink">Watch link</button>
+        <button class="kk-btn skin-wood-button_secondary mg-i mg-i-leave" type="button" id="leave-room" data-t="leave">Leave room</button>
+        <span class="kk-watchers skin-wood-chip mg-i mg-i-watchers" id="watchers" role="status" hidden></span>
+      </div>
+    </section>
+
+    <div class="kk-hud">
+      <section class="kk-score" id="score" aria-label="Score"></section>
+      <p class="kk-status" id="status" role="status" aria-live="polite"></p>
+    </div>
+
+    
+
+    <section class="kk-table mg-own" id="table" aria-label="Table">
+      <div class="kk-side kk-them" id="side-them"></div>
+      <div class="kk-middle">
+        <div class="kk-stock" id="stock" aria-label="Draw pile"></div>
+        <div class="kk-field" id="field" role="group" aria-label="Field"></div>
+      </div>
+      <div class="kk-side kk-me" id="side-me"></div>
+      <div class="kk-banner" id="banner" aria-hidden="true" hidden></div>
+    </section>
+
+    <section class="kk-seat" id="seat">
+      <div class="kk-hand" id="hand" role="group" aria-label="Your cards"></div>
+      <div class="kk-calls">
+        <div class="kk-actions" id="actions" role="group" aria-label="Calls"></div>
+        <button class="kk-btn skin-wood-button_primary mg-i mg-i-rematch" id="next-round" type="button" data-t="nextRound" hidden>Next month</button>
+      </div>
+      <p class="kk-flash" id="flash" aria-live="assertive"></p>
+    </section>
+
+    <div class="kk-foot">
+      <button class="kk-btn skin-wood-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+    </div>
+    <p class="kk-help" data-t="help">Match a card from your hand to a field card of the same month, then flip the draw pile. Collect yaku, then stop to score or call koi-koi to play for more.</p>
+  </main>
+
+  <noscript>
+    <p>Hanawise is a Koi-Koi card game and needs JavaScript; there is nothing to download.
+    <a href="/koikoi.html">How to play</a>.</p>
+  </noscript>
+
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=7277af70-20261028T231808Z"></script>
+  <script type="module" src="./src/main.js?v=7277af70-20261028T231808Z"></script>
+</body>
+</html>

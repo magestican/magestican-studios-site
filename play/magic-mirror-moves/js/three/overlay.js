@@ -110,9 +110,8 @@ export class CostumeOverlay {
 
   async build(costume) {
     const c = COSTUMES_3D[costume];
-    
-    const urls = c ? [new URL(c.mannequin, BASE), ...c.pieces.map((p) => new URL(`${costume}/${p.file}`, BASE))] : [];
-    const loaded = await Promise.all(urls.map((u) => loadGlb(u.href)));
+    const files = c ? [c.mannequin, ...c.pieces.map((p) => p.file)] : [];
+    const loaded = await Promise.all(files.map((f) => loadGlb(new URL(`${costume}/${f}`, BASE).href)));
     if (costume !== this.wanted) return; 
     this.clear();
     const [mannequin, ...pieceFiles] = loaded;
@@ -134,7 +133,7 @@ export class CostumeOverlay {
       const file = pieceFiles[i];
       if (!file || !hasSkin(file)) return;
       const copy = cloneSkinned(file);
-      recolour(copy, p.colours ?? c.colours);
+      recolour(copy, c.colours);
       rig.add(copy);
       if (bindSkinnedToRig(copy, this.rest.bones) > 0) this.pieces.push({ slot: p.slot, root: copy });
       else {

@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Shogi online miễn phí: cờ Nhật Bản, quân cờ và luật | Shogiwise</title>
+  <meta name="description" content="Chơi shogi online miễn phí, cờ Nhật Bản trên bàn 9x9. Thả lại quân đã ăn, phong cấp và chiếu hết vua, đấu với máy hoặc bạn bè. Không cần tải.">
+  <link rel="icon" href="/favicon.svg">
+  <meta name="robots" content="max-image-preview:large">
+  <link rel="canonical" href="https://magesticanstudios.com/vi/shogi.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/shogi.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/shogi.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/shogi.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/shogi.html">
+  <link rel="alternate" hreflang="ja" href="https://magesticanstudios.com/ja/shogi.html">
+  <link rel="alternate" hreflang="ko" href="https://magesticanstudios.com/ko/shogi.html">
+  <link rel="alternate" hreflang="id" href="https://magesticanstudios.com/id/shogi.html">
+  <link rel="alternate" hreflang="vi" href="https://magesticanstudios.com/vi/shogi.html">
+  <link rel="alternate" hreflang="zh-Hant" href="https://magesticanstudios.com/zh-hant/shogi.html">
+  <link rel="alternate" hreflang="zh-Hans" href="https://magesticanstudios.com/zh-hans/shogi.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/shogi.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  <meta name="keywords" content="shogi, shogi online, play shogi, how to play shogi, japanese chess, shogi rules, shogi pieces, shogiwise">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:title" content="Shogiwise - chơi shogi online miễn phí">
+  <meta property="og:description" content="Cờ Nhật Bản trên bàn 9x9: ăn một quân rồi thả lại lên bàn thành quân của mình. Đấu với máy hoặc bạn bè.">
+  <meta property="og:url" content="https://magesticanstudios.com/vi/shogi.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/shogi.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Shogiwise - chơi shogi online miễn phí">
+  <meta name="twitter:description" content="Shogi, cờ Nhật Bản, đấu với máy hoặc bạn bè. Không cần tải, không cần tài khoản.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/shogi.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Shogiwise: Shogi",
+  "alternateName": [
+    "Shogi",
+    "将棋",
+    "cờ Nhật Bản"
+  ],
+  "url": "https://magesticanstudios.com/play/shogi/",
+  "description": "Shogi, cờ Nhật Bản, ngay trên trình duyệt, trên bàn 9x9 đầy đủ với luật của Hiệp hội Shogi Nhật Bản: mỗi bên hai mươi quân, quân bị ăn đổi phe và có thể thả xuống bất kỳ ô trống nào, và quân được phong cấp ở ba hàng xa nhất. Không được có hai Tốt chưa phong cấp trên cùng một cột, không được thả Tốt để chiếu hết, thế cờ lặp lại lần thứ tư là hòa và chiếu liên tục thì thua. Hai người chơi: máy với ba cấp độ, có hướng dẫn nước đi cho người chưa đọc được chữ Hán, hoặc bạn bè trong phòng bạn chia sẻ bằng đường link hay mã.",
+  "image": "https://magesticanstudios.com/assets/covers/shogi-16x9.webp",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "genre": [
+    "Cờ bàn",
+    "Chiến thuật",
+    "Cổ điển"
+  ],
+  "gamePlatform": [
+    "Web browser",
+    "Mobile browser"
+  ],
+  "playMode": [
+    "SinglePlayer",
+    "MultiPlayer"
+  ],
+  "numberOfPlayers": {
+    "@type": "QuantitativeValue",
+    "minValue": 1,
+    "maxValue": 2
+  },
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "vi",
+  "accessibilityFeature": [
+    "highContrastDisplay",
+    "structuralNavigation"
+  ],
+  "accessibilityHazard": [
+    "noFlashingHazard",
+    "noMotionSimulationHazard"
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Shogiwise: Shogi có miễn phí không?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Có. Miễn phí, không cần đăng ký và không phải tải gì cả. Game mở ngay trong tab trình duyệt bạn đang dùng, trên máy tính, máy tính bảng hay điện thoại."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Làm sao để chơi shogi online với bạn bè?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Chọn Bạn bè online, bấm Tạo phòng rồi gửi đường link hoặc đọc mã sáu chữ cái. Bạn của bạn vào bằng trình duyệt của họ, và người khác có thể theo dõi ván cờ qua link xem."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Thả quân trong shogi là gì?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Quân bạn ăn được sẽ nằm trên kệ của bạn. Ở lượt sau, thay vì đi một quân, bạn có thể đặt nó vào bất kỳ ô trống nào như quân của mình. Bạn không được thả Tốt thứ hai chưa phong cấp vào một cột, thả Tốt để chiếu hết ngay, hoặc thả quân vào chỗ nó không bao giờ đi được."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quân cờ phong cấp trong shogi như thế nào?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ba hàng xa bạn nhất là vùng phong cấp. Quân đi vào, đi ra hoặc di chuyển bên trong vùng đó có thể lật mặt: Bạc, Mã, Hương và Tốt khi đó đi như Vàng, Xe được thêm bước chéo và Tượng được thêm bước thẳng. Vua và Vàng không bao giờ phong cấp."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Máy chơi mạnh cỡ nào?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dễ chỉ nhìn trước một nước và chọn trong nửa số nước tốt hơn, nên hay để quân bị ăn. Vừa nhìn trước hai nước và chọn trong ba nước tốt nhất. Khó tính sâu ba nước và đi nước tốt nhất nó tìm được."
+      }
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css?v=7277af70-20261028T231808Z">
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    try {
+      initAnalytics({ page: 'vi-shogi' });
+      trackPlayClicks();
+    } catch {  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="/vi/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/vi/#games">Game</a>
+      <a href="/you.html">Trò chơi của bạn</a>
+      <a href="/vi/for-remote-teams.html">Cho các nhóm</a>
+      <a href="/vi/magazine/">Tạp chí</a>
+      <a href="/vi/about.html">Về chúng tôi</a>
+      <a href="/vi/reviews.html">Đánh giá</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Ngôn ngữ: Tiếng Việt"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>VI</span></summary><ul><li><a href="/shogi.html" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en">English</a></li><li><a href="/es/shogi.html" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/shogi.html" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/shogi.html" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl">Tagalog</a></li><li><a href="/ja/shogi.html" hreflang="ja" onclick="try{localStorage.setItem('ms-lang','ja')}catch(e){}" lang="ja" data-lang="ja">日本語</a></li><li><a href="/ko/shogi.html" hreflang="ko" onclick="try{localStorage.setItem('ms-lang','ko')}catch(e){}" lang="ko" data-lang="ko">한국어</a></li><li><a href="/id/shogi.html" hreflang="id" onclick="try{localStorage.setItem('ms-lang','id')}catch(e){}" lang="id" data-lang="id">Bahasa Indonesia</a></li><li><a href="/vi/shogi.html" hreflang="vi" onclick="try{localStorage.setItem('ms-lang','vi')}catch(e){}" lang="vi" data-lang="vi" aria-current="page">Tiếng Việt</a></li><li><a href="/zh-hant/shogi.html" hreflang="zh-Hant" onclick="try{localStorage.setItem('ms-lang','zh-hant')}catch(e){}" lang="zh-Hant" data-lang="zh-hant">繁體中文</a></li><li><a href="/zh-hans/shogi.html" hreflang="zh-Hans" onclick="try{localStorage.setItem('ms-lang','zh-hans')}catch(e){}" lang="zh-Hans" data-lang="zh-hans">简体中文</a></li></ul></details>
+  </header>
+
+  <main>
+    <figure class="cover-hero">
+      <img class="cover-master" src="/assets/covers/shogi-16x9.webp" width="1920" height="1080" srcset="/assets/covers/shogi-960.webp 960w, /assets/covers/shogi-16x9.webp 1920w" sizes="(max-width: 800px) 92vw, (max-width: 1120px) calc(100vw - 64px), 1056px" fetchpriority="high" decoding="async" style="object-position: 50% 50%"
+           alt="Shogiwise: Shogi: một ván shogi trên bàn gỗ, với các quân đã ăn đặt trên kệ bên cạnh">
+    </figure>
+    <h1>Shogiwise: Shogi &mdash; chơi shogi online miễn phí</h1>
+    <p class="lede">Shogi là cờ Nhật Bản. Hai người đi quân trên bàn chín nhân chín ô, và ván cờ kết thúc khi một vua bị vây chặt. Khác biệt với cờ vua đến ngay lần ăn quân đầu tiên: quân bạn ăn được đổi phe, chờ trong tay bạn, rồi sau đó có thể thả lại lên bàn thành quân của bạn. Shogiwise: Shogi mang trò chơi này lên trình duyệt, đấu với máy hoặc bạn bè.</p>
+    <p class="your-line" data-page="shogi" hidden></p>
+    <p><a class="cta" href="/play/shogi/?lang=vi">Chơi shogi ngay &rarr;</a></p>
+
+    <ul class="cover-shots" tabindex="0" aria-label="Ảnh chụp màn hình Shogiwise: Shogi">
+      <li class="shot-land"><img src="/assets/shots/shogi/0.webp" width="1920" height="1080" srcset="/assets/shots/shogi/0-960.webp 960w, /assets/shots/shogi/0.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
+           alt="Một ván shogi đấu với máy, với hướng dẫn nước đi đánh dấu nơi mỗi quân có thể đến"></li>
+      <li class="shot-land"><img src="/assets/shots/shogi/1.webp" width="1920" height="1080" srcset="/assets/shots/shogi/1-960.webp 960w, /assets/shots/shogi/1.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
+           alt="Về cuối ván: các quân đã ăn chờ trên kệ, sẵn sàng thả lại lên bàn"></li>
+    </ul>
+
+    <h2>Bàn cờ và quân cờ</h2>
+    <p>Mỗi người bắt đầu với một Vua, một Xe, một Tượng, hai Vàng, hai Bạc, hai Mã, hai Hương và chín Tốt. Quân cờ là những miếng gỗ dẹt hình nêm có viết chữ Hán, và tất cả cùng một màu. Bạn phân biệt quân mình bằng hướng: quân của bạn quay mũi về phía đối thủ, còn quân đối thủ quay về phía bạn.</p>
+    <p>Nếu bạn chưa đọc được chữ Hán, hãy bật <strong>hướng dẫn nước đi</strong>. Nó đánh dấu trên mỗi quân những chấm nhỏ cho các ô quân có thể bước tới và những đường kẻ cho các hướng quân có thể đi xa, nên bạn có thể chơi ván đầu tiên mà không cần học một chữ nào.</p>
+
+    <h2>Cách đi của các quân</h2>
+    <table class="rules-table">
+      <thead><tr><th scope="col">Quân</th><th scope="col">Cách đi</th><th scope="col">Khi phong cấp</th></tr></thead>
+      <tbody>
+        <tr><td>Vua 王 / 玉</td><td>một ô theo mọi hướng</td><td>không phong cấp</td></tr>
+        <tr><td>Xe 飛</td><td>bao xa cũng được theo hàng ngang hoặc cột dọc</td><td>Rồng 龍: thêm một ô chéo</td></tr>
+        <tr><td>Tượng 角</td><td>bao xa cũng được theo đường chéo</td><td>Ngựa rồng 馬: thêm một ô thẳng</td></tr>
+        <tr><td>Vàng 金</td><td>một ô thẳng hoặc chéo về phía trước</td><td>không phong cấp</td></tr>
+        <tr><td>Bạc 銀</td><td>một ô chéo hoặc thẳng về phía trước</td><td>đi như Vàng</td></tr>
+        <tr><td>Mã 桂</td><td>tiến hai và sang ngang một, nhảy qua quân</td><td>đi như Vàng</td></tr>
+        <tr><td>Hương 香</td><td>bao xa cũng được thẳng về phía trước</td><td>đi như Vàng</td></tr>
+        <tr><td>Tốt 歩</td><td>một ô thẳng về phía trước</td><td>đi như Vàng (と)</td></tr>
+      </tbody>
+    </table>
+    <p>Tốt ăn quân theo đúng cách nó đi, thẳng phía trước. Mã, Hương và Tốt không bao giờ lùi lại được cho đến khi phong cấp.</p>
+
+    <h2>Thả quân: nước đi làm shogi khác biệt</h2>
+    <p>Khi bạn ăn một quân, nó vào kệ bên cạnh bàn, gọi là komadai của bạn. Ở bất kỳ lượt nào sau đó, thay vì đi một quân, bạn có thể <strong>thả</strong> một quân từ kệ xuống bất kỳ ô trống nào. Quân đó vào bàn ở mặt chưa phong cấp và từ đó chiến đấu cho bạn. Quân cờ gần như không bao giờ rời cuộc chơi, nên trận đấu càng về sau càng sôi động.</p>
+    <p>Có ba giới hạn. Bạn không được có <strong>hai Tốt chưa phong cấp</strong> của mình trên cùng một cột. Bạn không được thả Tốt để <strong>chiếu hết ngay lập tức</strong>. Và bạn không được thả quân vào chỗ nó không bao giờ đi tiếp được, như Tốt hay Hương ở hàng cuối, hoặc Mã ở hai hàng cuối.</p>
+
+    <h2>Phong cấp</h2>
+    <p><strong>Ba hàng xa bạn nhất</strong> là vùng phong cấp. Khi một quân đi vào, đi ra hoặc di chuyển bên trong vùng đó, bạn có thể lật nó sang mặt phong cấp. Shogiwise: Shogi hỏi bạn mỗi lần bằng một lựa chọn nhỏ bên dưới bàn cờ. Tốt, Hương hoặc Mã sẽ không còn nước đi thì bắt buộc phong cấp. Vua và Vàng không bao giờ phong cấp, và quân được thả luôn vào bàn ở mặt chưa phong cấp.</p>
+
+    <h2>Cách ván cờ kết thúc</h2>
+    <p>Bạn thắng bằng <strong>chiếu hết</strong>, khi vua đối thủ bị tấn công và không còn đường thoát. Bên nào cũng có thể xin thua. Nếu cùng một thế cờ, với cùng quân trong tay và cùng bên đến lượt, xuất hiện lần thứ tư, ván cờ hòa. Ngoại lệ là <strong>chiếu liên tục</strong>: nếu mọi nước của một người trong suốt lần lặp đó đều là chiếu, người đó thua. Shogiwise: Shogi cũng xử hòa ở nước thứ 256.</p>
+
+    <h2>Hai cách chơi</h2>
+    <p><strong>Khi đấu với máy</strong>, bạn chọn một trong ba cấp độ. Dễ chỉ nhìn trước một nước và chọn trong nửa số nước tốt hơn, nên hay để quân bị ăn. Vừa nhìn trước hai nước và chọn trong ba nước tốt nhất. Khó tính sâu ba nước và đi nước tốt nhất nó tìm được. Bạn cũng có thể chọn đi trước (sente) hoặc đi sau (gote).</p>
+    <p><strong>Bạn bè online</strong> mở một phòng cho hai người. Gửi đường link hoặc đọc mã sáu chữ cái, và bạn của bạn vào bằng trình duyệt của họ. Người khác có thể theo dõi ván cờ qua link xem. Không ai cần tài khoản.</p>
+
+    <h2>Mẹo chơi</h2>
+    <p>Hãy giữ vua trong thành lũy Vàng và Bạc trước khi tấn công. Đổi quân khi bạn đang dẫn, vì mỗi quân ăn được đều làm tay bạn mạnh thêm. Nhìn kệ của đối thủ trước mỗi nước: quân trong tay có thể rơi xuống bất kỳ ô trống nào, nên một khe hở cạnh vua bạn là một cánh cửa mở. Vì vậy quân trong tay thường đáng giá hơn chính quân đó trên bàn. Hiệp hội Shogi Nhật Bản, thành lập năm 1924, vẫn là nơi giữ luật mà trò chơi này tuân theo.</p>
+
+    <h2>Thêm game cờ và game bài</h2>
+    <p>Nếu muốn người anh em phương Tây của shogi, hãy thử <a href="/vi/co-vua-online.html">Rookwise: Cờ Vua</a> (cờ vua). Nếu muốn thêm một trò chơi từ Nhật, hãy thử <a href="/vi/koikoi.html">Hanawise: Koi-Koi</a>, với koi-koi và bài hoa hanafuda. Nếu muốn một game cờ nhanh cho hai người, hãy thử <a href="/vi/co-caro-online.html">Gomowise: Cờ Caro</a> (Gomoku, cờ caro năm ô).</p>
+
+    <p><a class="cta" href="/play/shogi/?lang=vi">Chơi shogi ngay &rarr;</a></p>
+    
+    <p class="more-like-this">Xem thêm: <a href="/vi/2-player-games-online.html">Game 2 người chơi online</a> &middot; <a href="/vi/multiplayer-browser-games.html">Game nhiều người chơi trên trình duyệt</a> &middot; <a href="/vi/board-games-with-friends.html">Game cờ bàn chơi cùng bạn bè</a></p>
+    
+    
+    <div class="play-bar" data-page="shogi">
+      <a class="cta cta-primary" href="/play/shogi/?lang=vi">Chơi ngay</a>
+      <ul class="play-facts"><li>Miễn phí</li><li>Không cần tải</li></ul>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Yêu thích</span></button>
+    </div>
+    <div id="landing-strings" hidden><span data-k="last">Chơi lần cuối</span><span data-k="matches">ván</span><span data-k="wins">thắng</span></div>
+    
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-nav" aria-label="Trang"><ul><li><a href="/vi/#games">Game</a></li><li><a href="/you.html">Trò chơi của bạn</a></li><li><a href="/vi/for-remote-teams.html">Cho các nhóm</a></li><li><a href="/vi/magazine/">Tạp chí</a></li><li><a href="/vi/about.html">Về chúng tôi</a></li><li><a href="/vi/reviews.html">Đánh giá</a></li></ul></nav>
+    <nav class="footer-games" aria-label="Tất cả trò chơi"><ul><li><a href="/vi/farmyshoot.html">Splatbarn</a></li><li><a href="/vi/farmy-uprising.html">Hoofrise</a></li><li><a href="/vi/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/vi/farmykart.html">Kartzoom: Đua Xe</a></li><li><a href="/vi/farmy-tiles.html">Letterloft: Xếp Chữ</a></li><li><a href="/vi/farmy-crosswords.html">Wordburrow: Ô Chữ</a></li><li><a href="/vi/co-vua-online.html">Rookwise: Cờ Vua</a></li><li><a href="/vi/farmy-checkers.html">Jumpwise: Cờ Đam</a></li><li><a href="/vi/co-ca-ngua-online.html">Pawnrush: Cờ Cá Ngựa</a></li><li><a href="/vi/do-min-online.html">Sweepwise: Dò Mìn</a></li><li><a href="/vi/co-caro-online.html">Gomowise: Cờ Caro</a></li><li><a href="/vi/noi-tu.html">Relaywise: Nối Từ</a></li><li><a href="/vi/truco.html">Trucowise: Truco</a></li><li><a href="/vi/buraco.html">Buracowise: Buraco</a></li><li><a href="/vi/conga.html">Congawise: Conga</a></li><li><a href="/vi/koikoi.html">Hanawise: Koi-Koi</a></li><li><a href="/vi/shogi.html">Shogiwise: Shogi</a></li><li><a href="/vi/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/vi/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/vi/farmy-moon-life.html">Moon Life</a></li><li><a href="/vi/silk-and-seam.html">Silk & Seam</a></li><li><a href="/vi/dachis.html">Dachis</a></li><li><a href="/vi/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/vi/farmy-five.html">Guesswise: Đoán Chữ</a></li><li><a href="/vi/farmy-hive.html">Combword: Ghép Chữ</a></li><li><a href="/vi/farmy-herds.html">Groupseek: Nhóm Từ</a></li><li><a href="/vi/farmy-furrows.html">Gridseek: Tìm Chữ</a></li></ul></nav>
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Bảo lưu mọi quyền.<br> Magestican Studios và logo Magestican Studios là thương hiệu của Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">
+      <a href="/vi/about.html">Về chúng tôi</a> &middot; <a href="/vi/privacy.html">Quyền riêng tư</a> &middot; <a href="/vi/terms.html">Điều khoản</a> &middot; <a href="https://www.youtube.com/@ameliagurl">Amelia trên YouTube</a> &middot; Trang tĩnh &middot; không cookie, chỉ đếm số liệu ẩn danh</p>
+    
+    <p class="footer-browse">Khám phá thêm: <a href="/vi/2-player-games-online.html">Game 2 người chơi online</a> &middot; <a href="/vi/multiplayer-browser-games.html">Game nhiều người chơi trên trình duyệt</a> &middot; <a href="/vi/board-games-with-friends.html">Game cờ bàn chơi cùng bạn bè</a> &middot; <a href="/vi/word-games.html">Game chữ miễn phí</a></p>
+    
+  </footer>
+  <script type="module" src="/assets/site.js?v=7277af70-20261028T231808Z"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <script type="module" src="/assets/landing.js?v=7277af70-20261028T231808Z"></script>
+  <p class="lang-note">Trang này bằng tiếng Việt. Bản thân các trò chơi bằng tiếng Anh; cờ vua, cờ đam và cờ cá ngựa hầu như không có chữ.</p>
+</body>
+</html>
