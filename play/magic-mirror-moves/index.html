@@ -8,16 +8,42 @@
   <meta name="referrer" content="no-referrer">
   <title>Magic Mirror Moves</title>
   <meta name="description" content="Dress up as a wizard, princess, ghost, fairy or dragon and move to make magic. Runs in your browser; the camera picture never leaves your device.">
-  <link rel="stylesheet" href="css/game.css?v=48274cc5-20261028T091751Z">
-  <script type="module" src="js/main.js?v=48274cc5-20261028T091751Z"></script>
+  <link rel="manifest" href="assets/app/app/manifest.webmanifest">
+  <link rel="icon" href="assets/app/app/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/app/app/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/app/app/apple-touch-icon.png">
+  <meta name="theme-color" content="#2B1B5E">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magic Mirror">
+  <link rel="stylesheet" href="css/game.css?v=2fd71418-20261028T095855Z">
+  <script type="module" src="js/main.js?v=2fd71418-20261028T095855Z"></script>
   <link rel="canonical" href="https://magesticanstudios.com/play/magic-mirror-moves/">
 </head>
 <body>
   <video id="cam" playsinline muted hidden></video>
   <canvas id="stage" aria-hidden="true"></canvas>
-  <p id="seen-light" class="seen-light" role="status" aria-live="polite" data-state="off" hidden>
-    <span class="dot" aria-hidden="true"></span><span id="seen-text">Looking for you...</span>
-  </p>
+  
+
+  <nav id="bar" class="bar" aria-label="Game" hidden>
+    <div id="bar-costumes" class="bar-costumes" role="radiogroup" aria-label="Costume"></div>
+    <p id="seen-light" class="seen-light" role="status" aria-live="polite" data-state="off" hidden>
+      <span class="dot" aria-hidden="true"></span><span id="seen-text">Looking for you...</span>
+    </p>
+    <div id="hud" class="hud">
+      <div class="stat"><span class="k">Score</span><span id="score" aria-live="polite">0</span></div>
+      <div class="stat"><span class="k">Combo</span><span id="combo">x1</span></div>
+      <div class="time" aria-hidden="true"><div id="time-bar"></div></div>
+      <button type="button" id="stop" class="ghost-btn small">Stop</button>
+    </div>
+    <div class="bar-tools">
+      <button type="button" id="mode-switch" class="ghost-btn small">Score points</button>
+      <button type="button" id="fullscreen" class="ghost-btn small icon" aria-label="Full screen" title="Full screen" hidden>&#x26F6;</button>
+      <button type="button" id="install" class="ghost-btn small" hidden>Install</button>
+      <button type="button" id="menu" class="ghost-btn small">Menu</button>
+      <button type="button" class="ghost-btn small icon" data-privacy aria-label="Privacy: the camera stays on this device" title="The camera stays on this device">&#x1F512;</button>
+    </div>
+  </nav>
 
   <section id="title" class="screen" aria-labelledby="title-h">
     <div class="panel">
@@ -61,12 +87,6 @@
   </section>
 
   <section id="play" class="screen overlay" aria-label="Round" hidden>
-    <header class="hud">
-      <div class="stat"><span class="k">Score</span><span id="score" aria-live="polite">0</span></div>
-      <div class="stat"><span class="k">Combo</span><span id="combo">x1</span></div>
-      <div class="time" aria-hidden="true"><div id="time-bar"></div></div>
-      <button type="button" id="stop" class="ghost-btn small">Stop</button>
-    </header>
     <p id="banner" class="banner" aria-live="assertive" hidden></p>
     <footer id="card" class="card">
       <canvas id="card-fig" width="160" height="160" aria-hidden="true"></canvas>

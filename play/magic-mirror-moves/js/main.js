@@ -39,12 +39,13 @@ const JOINT_NAMES = {
 
 
 
+
 const q = new URLSearchParams(location.search);
 const pick = (v, ok, d) => (ok.includes(v) ? v : d);
 const opts = {
   demo: q.get('demo') === '1',
   costume: pick(q.get('costume'), Object.keys(COSTUMES), 'wizard'),
-  mode: pick(q.get('mode'), ['show', 'mirror'], 'show'),
+  mode: pick(q.get('mode'), ['show', 'mirror'], 'mirror'),
   level: pick(q.get('level'), ['little', 'big'], 'little'),
   body: pick(q.get('body'), ['child', 'adult'], 'child'),
   speed: Math.min(8, Math.max(1, Number(q.get('speed')) || 1)),
@@ -129,12 +130,24 @@ function show(id) {
   for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== id;
   if (id !== 'play' && id !== 'frame') stopCamera();
   document.body.dataset.screen = id;
+  $('bar').hidden = id !== 'play' && id !== 'frame';
+  dockH = 0;
+  layout();
 }
 
 function syncChips() {
   for (const b of document.querySelectorAll('[data-mode]')) b.setAttribute('aria-pressed', String(b.dataset.mode === opts.mode));
   for (const b of document.querySelectorAll('[data-level]')) b.setAttribute('aria-pressed', String(b.dataset.level === opts.level));
   for (const b of document.querySelectorAll('.costume')) b.setAttribute('aria-checked', String(b.dataset.costume === opts.costume));
+  $('mode-switch').textContent = opts.mode === 'mirror' ? 'Score points' : 'Free play';
+  document.body.dataset.mode = opts.mode;
+  layout();
+}
+
+function setCostume(id) {
+  opts.costume = id;
+  overlay?.setCostume(id);
+  syncChips();
 }
 
 function buildDressingRoom() {
@@ -149,12 +162,13 @@ function buildDressingRoom() {
     img.src = new URL(`svg/sticker/${COSTUME_ICON[id]}.svg`, ART).href;
     img.alt = '';
     b.append(img, COSTUME_NAMES[id]);
-    b.addEventListener('click', () => {
-      opts.costume = id;
-      overlay?.setCostume(id);
-      syncChips();
-    });
+    b.addEventListener('click', () => setCostume(id));
     box.append(b);
+    const mini =  (b.cloneNode(true));
+    mini.classList.add('mini');
+    mini.setAttribute('aria-label', COSTUME_NAMES[id]);
+    mini.addEventListener('click', () => setCostume(id));
+    $('bar-costumes').append(mini);
   }
   const ul = $('joints');
   for (const [j, name] of Object.entries(JOINT_NAMES)) {
@@ -200,7 +214,49 @@ function wire() {
       if (S.screen === 'play') endRound();
     }
   });
-  addEventListener('resize', resize);
+  addEventListener('resize', layout);
+  const watch = new ResizeObserver(() => layout());
+  for (const el of [$('bar'), $('card'), document.querySelector('#frame .dock')]) if (el) watch.observe(el);
+  $('mode-switch').addEventListener('click', () => {
+    opts.mode = opts.mode === 'mirror' ? 'show' : 'mirror';
+    syncChips();
+    if (S.screen === 'play') beginRound({ tutorial: false });
+  });
+  $('menu').addEventListener('click', () => show('title'));
+  
+  const root =  (document.documentElement);
+  const fsOn = () => !!(document.fullscreenElement ||  (document).webkitFullscreenElement);
+  if (document.fullscreenEnabled ||  (document).webkitFullscreenEnabled) {
+    const fs = $('fullscreen');
+    fs.hidden = false;
+    fs.addEventListener('click', () => {
+      if (fsOn()) (document.exitFullscreen ??  (document).webkitExitFullscreen).call(document);
+      else (root.requestFullscreen ?? root.webkitRequestFullscreen).call(root);
+    });
+    const label = () => {
+      fs.setAttribute('aria-label', fsOn() ? 'Exit full screen' : 'Full screen');
+      fs.setAttribute('aria-pressed', String(fsOn()));
+    };
+    document.addEventListener('fullscreenchange', label);
+    document.addEventListener('webkitfullscreenchange', label);
+  }
+  
+  let installer = null;
+  addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installer = e;
+    $('install').hidden = false;
+  });
+  $('install').addEventListener('click', async () => {
+    if (!installer) return;
+    installer.prompt();
+    await installer.userChoice;
+    installer = null;
+    $('install').hidden = true;
+  });
+  addEventListener('appinstalled', () => {
+    $('install').hidden = true;
+  });
 }
 
 
@@ -355,12 +411,38 @@ function flash(text, seconds = 1.4) {
 
 const view = { fw: 720, fh: 540, scale: 1, ox: 0, oy: 0, cw: 1, ch: 1, dpr: 1 };
 
+
+
+let dockH = 0;
+function layout() {
+  const bar = $('bar');
+  const top = bar.hidden ? 0 : Math.ceil(bar.getBoundingClientRect().bottom);
+  
+  const dock =
+    S.screen === 'play'
+      ? opts.mode === 'mirror'
+        ? null
+        : $('card')
+      : S.screen === 'frame'
+        ? document.querySelector('#frame .dock')
+        : null;
+  if (dock && !dock.hidden && dock.offsetHeight) dockH = Math.max(dockH, Math.ceil(innerHeight - dock.getBoundingClientRect().top) + 8);
+  const style = document.documentElement.style;
+  style.setProperty('--top', `${top}px`);
+  style.setProperty('--bottom', `${dock ? dockH : 0}px`);
+  resize();
+}
+
 function resize() {
   view.dpr = Math.min(QUALITY[quality.level].pixelRatioCap, plan.maxPixelRatio, devicePixelRatio || 1);
-  view.cw = innerWidth;
-  view.ch = innerHeight;
-  canvas.width = Math.round(view.cw * view.dpr);
-  canvas.height = Math.round(view.ch * view.dpr);
+  view.cw = canvas.clientWidth || innerWidth;
+  view.ch = canvas.clientHeight || innerHeight;
+  
+  
+  const w = Math.round(view.cw * view.dpr);
+  const h = Math.round(view.ch * view.dpr);
+  if (canvas.width !== w) canvas.width = w;
+  if (canvas.height !== h) canvas.height = h;
 }
 
 function frameSize() {
@@ -618,7 +700,8 @@ async function boot() {
     beginRound({ tutorial: false });
     if (cheat === 'finale') S.game.clock = LEVELS[opts.level].round - FINALE_S - 0.5;
   } else if (cheat === 'result') showResult(LEVELS[opts.level].stars[0] + 1234, 2);
-  else show('title');
+  else if (cheat === 'menu') show('title');
+  else toFraming(); 
   document.body.dataset.ready = '1';
   requestAnimationFrame(loop);
 }

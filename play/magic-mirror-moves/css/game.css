@@ -30,9 +30,10 @@ body {
 
 #cam {
   position: fixed;
-  inset: 0;
+  left: 0;
+  top: var(--top, 0px);
   width: 100vw;
-  height: 100dvh;
+  height: calc(100dvh - var(--top, 0px) - var(--bottom, 0px));
   object-fit: cover;
   transform: scaleX(-1);
 }
@@ -43,9 +44,10 @@ body {
 
 #stage {
   position: fixed;
-  inset: 0;
+  left: 0;
+  top: var(--top, 0px);
   width: 100vw;
-  height: 100dvh;
+  height: calc(100dvh - var(--top, 0px) - var(--bottom, 0px));
   display: block;
 }
 
@@ -230,7 +232,7 @@ button:focus-visible {
 
 #play {
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: stretch;
   gap: 16px;
 }
@@ -303,8 +305,8 @@ button:focus-visible {
 }
 
 #card-fig {
-  width: 88px;
-  height: 88px;
+  width: 64px;
+  height: 64px;
   flex: none;
   border-radius: 14px;
   background: #2b1b5e;
@@ -318,7 +320,7 @@ button:focus-visible {
 }
 
 #card-label {
-  font-size: clamp(1.3rem, 5.5vw, 1.9rem);
+  font-size: clamp(1.1rem, 4.6vw, 1.6rem);
   font-weight: 800;
 }
 
@@ -405,11 +407,6 @@ dialog:focus-visible {
 
 
 .seen-light {
-  position: fixed;
-  z-index: 5;
-  top: max(var(--gutter), env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
   margin: 0;
   display: flex;
   align-items: center;
@@ -425,10 +422,6 @@ dialog:focus-visible {
 
 .seen-light[hidden] {
   display: none;
-}
-
-body[data-screen="play"] .seen-light {
-  top: calc(max(var(--gutter), env(safe-area-inset-top)) + 68px);
 }
 
 .seen-light .dot {
@@ -448,4 +441,120 @@ body[data-screen="play"] .seen-light {
 
 .seen-light[data-state="error"] .dot {
   background: #e0445a;
+}
+
+
+
+
+.bar {
+  position: fixed;
+  z-index: 6;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px var(--gap);
+  padding: max(8px, env(safe-area-inset-top)) var(--gutter) 8px;
+  background: var(--panel);
+  box-shadow: 0 2px 12px rgba(20, 8, 50, 0.3);
+}
+
+.bar[hidden] {
+  display: none;
+}
+
+.bar-costumes {
+  display: flex;
+  gap: 8px;
+}
+
+.costume.mini {
+  padding: 4px;
+  border-radius: 12px;
+  font-size: 0;
+}
+
+.costume.mini img {
+  width: 32px;
+  height: 32px;
+}
+
+.bar .hud {
+  padding: 0;
+  background: none;
+  flex: 1 1 200px;
+}
+
+.bar .stat {
+  font-size: 1.05rem;
+  min-width: 48px;
+}
+
+body:not([data-screen="play"]) .bar .hud {
+  display: none;
+}
+
+.bar-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.badge.small {
+  font-size: 0.85rem;
+  min-height: 40px;
+  padding: 6px 8px;
+}
+
+
+#play,
+#frame {
+  padding-top: 0;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+
+.ghost-btn.small.icon {
+  min-width: 40px;
+  padding: 6px 8px;
+  font-size: 1.1rem;
+}
+
+body[data-mode="mirror"] #stop,
+body[data-mode="mirror"] .bar .time {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .bar {
+    gap: 6px 8px;
+    padding: max(6px, env(safe-area-inset-top)) 12px 6px;
+  }
+  .bar-costumes {
+    gap: 6px;
+  }
+  .costume.mini img {
+    width: 26px;
+    height: 26px;
+  }
+  .bar .ghost-btn.small {
+    min-height: 36px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+  }
+  .bar .stat {
+    font-size: 0.95rem;
+    min-width: 40px;
+  }
+  .bar .seen-light {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+  .bar .hud {
+    flex: 0 1 auto;
+  }
 }
