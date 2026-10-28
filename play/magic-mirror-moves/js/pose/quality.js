@@ -30,18 +30,56 @@ const PHONE_UA = /Android|iPhone|iPad|iPod|Mobile/i;
 
 
 
-export function devicePlan({ coarse, ua, model }) {
+
+
+
+
+
+
+
+export function devicePlan({ coarse, ua, model, memory, cores, power }) {
   const phone = coarse || PHONE_UA.test(ua);
-  const landmark = model === 'lite' || model === 'full' ? model : phone ? 'lite' : 'full';
+  const weak = phone && ((memory != null && memory <= 3) || (cores != null && cores <= 4));
+  const lowPower = power === 'low' || (power !== 'normal' && weak);
+  const landmark = model === 'lite' || model === 'full' ? model : phone || lowPower ? 'lite' : 'full';
   return {
     phone,
+    lowPower,
     landmark,
-    camera: phone ? { width: { ideal: 640 }, height: { ideal: 480 } } : { width: { ideal: 960 }, height: { ideal: 720 } },
-     start: phone ? 'medium' : 'high',
-    cpuFallback: !phone,
+    camera: lowPower
+      ? LOW_CAMERA
+      : phone
+        ? { width: { ideal: 640 }, height: { ideal: 480 } }
+        : { width: { ideal: 960 }, height: { ideal: 720 } },
+     start: lowPower ? 'low' : phone ? 'medium' : 'high',
+    cpuFallback: !phone && !lowPower,
     
-    maxPixelRatio: phone ? 1.5 : 2,
+    maxPixelRatio: lowPower ? 1 : phone ? 1.5 : 2,
+    stickerPx: lowPower ? 192 : phone ? 256 : 384,
+    maxParticles: lowPower ? LOW_PARTICLES : 420,
+    allow3d: !lowPower,
   };
+}
+
+export const LOW_CAMERA = { width: { ideal: 480 }, height: { ideal: 360 } };
+export const LOW_PARTICLES = 140;
+const POWER_S = 6;
+
+
+
+export function initialPower() {
+  return { low: false, secs: 0 };
+}
+
+
+
+
+
+
+export function stepPower(p, q, dtS) {
+  if (p.low || !(dtS > 0) || dtS > 2) return p;
+  const secs = q.level === 'low' && q.fps < DOWN_FPS ? p.secs + dtS : 0;
+  return secs >= POWER_S ? { low: true, secs: 0 } : { low: false, secs };
 }
 
 

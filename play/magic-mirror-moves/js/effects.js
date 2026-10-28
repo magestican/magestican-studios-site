@@ -25,8 +25,10 @@ function rng(seed) {
 }
 
 export class Effects {
-  constructor(seed = 1) {
+  
+  constructor(seed = 1, max = MAX_PARTICLES) {
     this.rand = rng(seed);
+    this.max = max;
     
     this.particles = [];
     
@@ -34,8 +36,14 @@ export class Effects {
   }
 
   
+  
+  setMax(max) {
+    this.max = max;
+    if (this.particles.length > max) this.particles.splice(0, this.particles.length - max);
+  }
+
   add(p) {
-    if (this.particles.length >= MAX_PARTICLES) this.particles.shift();
+    if (this.particles.length >= this.max) this.particles.shift();
     this.particles.push({ vx: 0, vy: 0, g: 0, life: 1.4, age: 0, size: 40, rot: 0, spin: 0, wobble: 0, ...p });
   }
 

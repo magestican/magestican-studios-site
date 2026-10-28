@@ -9,7 +9,7 @@ import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
 import { mirrorFrame, PoseSmoother, seen } from './pose/pose.js';
-import { devicePlan, initialQuality, QUALITY, stepQuality } from './pose/quality.js';
+import { devicePlan, initialPower, initialQuality, LOW_CAMERA, LOW_PARTICLES, QUALITY, stepPower, stepQuality } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
 
@@ -54,7 +54,16 @@ const opts = {
 };
 const cheat = q.get('cheat');
 
-const plan = devicePlan({ coarse: matchMedia('(pointer: coarse)').matches, ua: navigator.userAgent, model: q.get('model') ?? '' });
+
+const plan = devicePlan({
+  coarse: matchMedia('(pointer: coarse)').matches,
+  ua: navigator.userAgent,
+  model: q.get('model') ?? '',
+  memory:  (navigator).deviceMemory,
+  cores: navigator.hardwareConcurrency,
+  power: q.get('power') ?? '',
+});
+if (!plan.allow3d) opts.render = '2d'; 
 
 const $ = (id) =>  (document.getElementById(id));
 const canvas =  ($('stage'));
@@ -69,7 +78,7 @@ const images = new Map();
 
 
 
-const STICKER_PX = plan.phone ? 256 : 384;
+const STICKER_PX = plan.stickerPx;
 function rasterise(img) {
   const c = document.createElement('canvas');
   c.width = STICKER_PX;
@@ -90,7 +99,7 @@ const S = {
   
   game: null,
   tracker: new MoveTracker(),
-  fx: new Effects(7),
+  fx: new Effects(7, plan.maxParticles),
   ask: { move: '', start: 0 },
   readyFor: 0,
   placed: 0,
@@ -268,6 +277,25 @@ let camRun = 0;
 const smoother = new PoseSmoother();
 let camFrames = 0;
 let quality = initialQuality(plan.start); 
+let power = { ...initialPower(), low: plan.lowPower };
+
+
+
+function enterLowPower() {
+  plan.maxPixelRatio = 1;
+  S.fx.setMax(LOW_PARTICLES);
+  if (overlay) {
+    overlay.clear();
+    overlay = null;
+    S.pieces3d = 0;
+  }
+  opts.render = '2d';
+  stream
+    ?.getVideoTracks()[0]
+    ?.applyConstraints(LOW_CAMERA)
+    .catch(() => {});
+  resize();
+}
 
 async function startCamera() {
   if (stream) return true;
@@ -636,6 +664,10 @@ function loop(now) {
     const was = quality.level;
     quality = stepQuality(quality, dt);
     if (quality.level !== was) resize();
+    if (!power.low) {
+      power = stepPower(power, quality, dt);
+      if (power.low) enterLowPower();
+    }
   }
   let remain = dt * (S.source === 'demo' ? opts.speed : 1);
   while (remain > 1e-6) {
@@ -666,6 +698,9 @@ Object.defineProperty(window, '__mmm', {
         detect: { ...S.detect, backend: estimator?.backend() ?? '' },
         perf: {
           quality: quality.level,
+          lowPower: power.low,
+          render: opts.render,
+          maxParticles: S.fx.max,
           fps: Math.round(quality.fps * 10) / 10,
           canvas: [canvas.width, canvas.height],
           model: estimator?.stats() ?? null,
@@ -681,6 +716,7 @@ async function start3d() {
     const { CostumeOverlay } = await import('./three/overlay.js');
     overlay = new CostumeOverlay();
     await overlay.setCostume(opts.costume);
+    if (power.low) enterLowPower(); 
   } catch (e) {
     console.warn('Magic Mirror Moves: 3D costumes are off on this device; stickers play instead.', e);
     overlay = null;
