@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "ef51ab36-20261028T162803Z",
+ "buildId": "ac703dac-20261028T181034Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -259,7 +259,7 @@
    "ageNote": null,
    "order": 7,
    "addedAt": "2026-09-06",
-   "bytes": 83702
+   "bytes": 83630
   },
   {
    "id": "farmy-ludo",
@@ -485,38 +485,6 @@
    "bytes": 8520887
   },
   {
-   "id": "koikoi",
-   "statsId": "koikoi",
-   "title": "Hanawise",
-   "tagline": "Flower cards, yaku and the koi-koi call: the Japanese hanafuda game against the computer or a friend.",
-   "description": "Free koi-koi with the 48-card hanafuda deck: match the months, collect brights, ribbons and animals into yaku, then stop or call koi-koi. Three computer levels, or a friend in a room.",
-   "dir": "play/koikoi",
-   "path": "play/koikoi/index.html",
-   "query": "",
-   "webUrl": "https://magesticanstudios.com/koikoi.html",
-   "orientation": "any",
-   "players": "1-2",
-   "online": true,
-   "offline": true,
-   "cover": "assets/covers/koikoi-16x9.webp",
-   "focus": [
-    0.5,
-    0.5
-   ],
-   "shots": [
-    "assets/shots/koikoi/0.webp",
-    "assets/shots/koikoi/1.webp"
-   ],
-   "accent": "#B3262E",
-   "glyph": "koikoi",
-   "pack": "family",
-   "age": 8,
-   "ageNote": null,
-   "order": 15,
-   "addedAt": "2026-10-28",
-   "bytes": 1277993
-  },
-  {
    "id": "farmy-moon-life",
    "statsId": "farmy-moon-life",
    "title": "Moon Life",
@@ -544,7 +512,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 18,
+   "order": 17,
    "addedAt": "2026-09-14",
    "bytes": 778973
   },
@@ -575,7 +543,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 19,
+   "order": 18,
    "addedAt": "2026-09-25",
    "bytes": 12520070
   },
@@ -607,7 +575,7 @@
    "pack": "family",
    "age": 9,
    "ageNote": null,
-   "order": 20,
+   "order": 19,
    "addedAt": "2026-09-30",
    "bytes": 77953833
   },
@@ -639,7 +607,7 @@
    "pack": "family",
    "age": 7,
    "ageNote": null,
-   "order": 21,
+   "order": 20,
    "addedAt": "2026-10-23",
    "bytes": 328574810
   },
@@ -671,9 +639,9 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 22,
+   "order": 21,
    "addedAt": "2026-10-28",
-   "bytes": 23728794
+   "bytes": 50784803
   },
   {
    "id": "farmy-five",
@@ -703,7 +671,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 24,
+   "order": 23,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -735,7 +703,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 25,
+   "order": 24,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -767,7 +735,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 26,
+   "order": 25,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -799,7 +767,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 27,
+   "order": 26,
    "addedAt": "2026-09-21",
    "bytes": 211807
   }

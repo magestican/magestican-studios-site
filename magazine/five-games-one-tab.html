@@ -98,8 +98,8 @@
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=ef51ab36-20261028T162803Z">
-  <link rel="stylesheet" href="/magazine.css?v=ef51ab36-20261028T162803Z">
+  <link rel="stylesheet" href="/styles.css?v=ac703dac-20261028T181034Z">
+  <link rel="stylesheet" href="/magazine.css?v=ac703dac-20261028T181034Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body class="mag-body">
@@ -193,7 +193,7 @@ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.c
 var chosen=localStorage.getItem('ms-lang');if(chosen)return;
 if(/bot|crawl|spider|slurp|google-inspectiontool|lighthouse|headlesschrome/i.test(navigator.userAgent||''))return;
 var langs=navigator.languages||[navigator.language||''];var code=null;
-for(var i=0;i<langs.length&&!code;i++){var p=String(langs[i]).toLowerCase().split('-')[0];if(p==='en')break;if(p==='fil')p='tl';if(p==='in')p='id';if(p==='zh')p=/hant|-(tw|hk|mo)(-|$)/.test(String(langs[i]).toLowerCase())?'zh-hant':'zh-hans';if(T[p])code=p;}
+for(var i=0;i<langs.length&&!code;i++){var p=String(langs[i]).toLowerCase().split('-')[0];if(p==='en')break;if(p==='fil')p='tl';if(p==='in')p='id';if(T[p])code=p;}
 if(!code)return;location.replace(T[code].href+location.search+location.hash);}catch(e){}})();
 </script>
 </body>

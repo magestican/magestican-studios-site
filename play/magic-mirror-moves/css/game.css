@@ -325,6 +325,23 @@ button:focus-visible {
 }
 
 
+
+body[data-mode="mirror"] .card {
+  padding: 8px 16px;
+  gap: 12px;
+}
+body[data-mode="mirror"] #card-fig {
+  width: 44px;
+  height: 44px;
+}
+body[data-mode="mirror"] .card-text {
+  gap: 6px;
+}
+body[data-mode="mirror"] #card-label {
+  font-size: clamp(0.95rem, 3.8vw, 1.25rem);
+}
+
+
 .stars {
   display: flex;
   gap: var(--gap);
@@ -524,6 +541,11 @@ body:not([data-screen="play"]) .bar .hud {
   font-size: 1.1rem;
 }
 
+#voice[aria-pressed="true"] {
+  background: #e0457b;
+  color: #fff;
+}
+
 body[data-mode="mirror"] #stop,
 body[data-mode="mirror"] .bar .time {
   display: none;
@@ -541,14 +563,18 @@ body[data-mode="mirror"] .bar .time {
     width: 26px;
     height: 26px;
   }
+  
   .bar .ghost-btn.small {
     min-height: 36px;
-    padding: 4px 10px;
-    font-size: 0.85rem;
+    padding: 4px 8px;
+    font-size: 0.78rem;
+  }
+  .bar-tools {
+    gap: 6px;
   }
   .bar .stat {
-    font-size: 0.95rem;
-    min-width: 40px;
+    font-size: 0.9rem;
+    min-width: 36px;
   }
   .bar .seen-light {
     padding: 4px 10px;
@@ -556,5 +582,13 @@ body[data-mode="mirror"] .bar .time {
   }
   .bar .hud {
     flex: 0 1 auto;
+    gap: 10px;
+  }
+  
+
+  .bar #score {
+    display: inline-block;
+    min-width: 3.6em;
+    font-variant-numeric: tabular-nums;
   }
 }

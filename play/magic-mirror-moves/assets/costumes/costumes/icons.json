@@ -268,6 +268,278 @@
    "group": "fx",
    "width": 128,
    "height": 128
+  },
+  {
+   "id": "ice_crown",
+   "label": "Ice crown",
+   "group": "head",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    52
+   ],
+   "on": "head_top",
+   "span": 40,
+   "measure": "head_w",
+   "scale": 1.0
+  },
+  {
+   "id": "frost_cape",
+   "label": "Frost cape",
+   "group": "back",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    12
+   ],
+   "on": "neck",
+   "span": 30,
+   "measure": "shoulder_w",
+   "scale": 1.0
+  },
+  {
+   "id": "ice_wand",
+   "label": "Ice wand",
+   "group": "hand",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    56
+   ],
+   "on": "hand",
+   "span": 48,
+   "measure": "torso",
+   "scale": 0.75,
+   "dir": [
+    0,
+    -1
+   ]
+  },
+  {
+   "id": "space_helmet",
+   "label": "Space helmet",
+   "group": "head",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    15
+   ],
+   "on": "head_top",
+   "span": 50,
+   "measure": "head_w",
+   "scale": 1.5
+  },
+  {
+   "id": "jetpack",
+   "label": "Jetpack",
+   "group": "back",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    26
+   ],
+   "on": "chest",
+   "span": 40,
+   "measure": "shoulder_w",
+   "scale": 1.35
+  },
+  {
+   "id": "star_blaster",
+   "label": "Star blaster",
+   "group": "hand",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    23,
+    48
+   ],
+   "on": "hand",
+   "span": 44,
+   "measure": "torso",
+   "scale": 0.6,
+   "dir": [
+    1,
+    0
+   ]
+  },
+  {
+   "id": "snowflake",
+   "label": "Snowflake",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "ice_shard",
+   "label": "Ice shard",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "rocket",
+   "label": "Rocket",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "comet",
+   "label": "Comet",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "planet",
+   "label": "Planet",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "storm_cloud",
+   "label": "Storm cloud",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "rainbow",
+   "label": "Rainbow",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "meteor",
+   "label": "Meteor",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "robot_head",
+   "label": "Robot head",
+   "group": "head",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    24
+   ],
+   "on": "head_top",
+   "span": 46,
+   "measure": "head_w",
+   "scale": 1.6
+  },
+  {
+   "id": "robot_chest",
+   "label": "Robot chest",
+   "group": "body",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    9
+   ],
+   "on": "neck",
+   "span": 44,
+   "measure": "shoulder_w",
+   "scale": 1.4
+  },
+  {
+   "id": "robot_upper_arm",
+   "label": "Robot upper arm",
+   "group": "limb",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    12
+   ],
+   "on": "upper_arm",
+   "span": 40,
+   "measure": "limb",
+   "scale": 1.0
+  },
+  {
+   "id": "robot_forearm",
+   "label": "Robot forearm",
+   "group": "limb",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    10
+   ],
+   "on": "forearm",
+   "span": 34,
+   "measure": "limb",
+   "scale": 1.0
+  },
+  {
+   "id": "robot_thigh",
+   "label": "Robot thigh",
+   "group": "limb",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    12
+   ],
+   "on": "thigh",
+   "span": 40,
+   "measure": "limb",
+   "scale": 1.0
+  },
+  {
+   "id": "robot_shin",
+   "label": "Robot shin",
+   "group": "limb",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    9
+   ],
+   "on": "shin",
+   "span": 36,
+   "measure": "limb",
+   "scale": 1.0
+  },
+  {
+   "id": "bolt",
+   "label": "Bolt",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "gear",
+   "label": "Gear",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "laser",
+   "label": "Laser",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "battery",
+   "label": "Battery",
+   "group": "fx",
+   "width": 128,
+   "height": 128
   }
  ]
 }
