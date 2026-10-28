@@ -11,6 +11,7 @@ import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } fro
 import { mirrorFrame, PoseSmoother } from './pose/pose.js';
 import { initialQuality, QUALITY, stepQuality } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
+import { COSTUMES_3D } from './three/costumes3d.js';
 
 const ART = new URL('../assets/costumes/costumes/', import.meta.url);
 const LABELS = {
@@ -47,6 +48,8 @@ const opts = {
   level: pick(q.get('level'), ['little', 'big'], 'little'),
   body: pick(q.get('body'), ['child', 'adult'], 'child'),
   speed: Math.min(8, Math.max(1, Number(q.get('speed')) || 1)),
+  
+  render: pick(q.get('render'), ['2d', '3d'], '2d'),
 };
 const cheat = q.get('cheat');
 
@@ -80,7 +83,11 @@ const S = {
   hits: 0,
   banner: 0,
   nearlyAt: -9,
+  pieces3d: 0,
 };
+
+
+let overlay = null;
 
 
 async function loadArt() {
@@ -128,6 +135,7 @@ function buildDressingRoom() {
     b.append(img, COSTUME_NAMES[id]);
     b.addEventListener('click', () => {
       opts.costume = id;
+      overlay?.setCostume(id);
       syncChips();
     });
     box.append(b);
@@ -454,7 +462,21 @@ function draw() {
     ctx.restore();
   } else if (frame) drawMannequin(ctx, frame.pose);
   if (frame) {
-    const placed = placeCostume(opts.costume, frame.pose, iconSet, 'right');
+    let placed = placeCostume(opts.costume, frame.pose, iconSet, 'right');
+    if (overlay?.ready(opts.costume)) {
+      
+      const drawn = overlay.render(mirrorFrame(frame).pose, fw, fh, view.scale * view.dpr);
+      S.pieces3d = overlay.visibleCount();
+      if (drawn) {
+        ctx.save();
+        ctx.translate(fw, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(overlay.canvas, 0, 0, fw, fh);
+        ctx.restore();
+        const gone = new Set(COSTUMES_3D[opts.costume].pieces.map((p) => p.replaces));
+        placed = placed.filter((p) => !gone.has(p.id));
+      }
+    }
     S.placed = placed.length;
     if (scratch.canvas.width !== canvas.width || scratch.canvas.height !== canvas.height) {
       scratch.canvas.width = canvas.width;
@@ -498,11 +520,24 @@ Object.defineProperty(window, '__mmm', {
         hits: S.hits,
         particles: S.fx.particles.length,
         placed: S.placed,
+        pieces3d: S.pieces3d,
         card: g?.card?.moves ?? null,
       };
     },
   }),
 });
+
+
+async function start3d() {
+  try {
+    const { CostumeOverlay } = await import('./three/overlay.js');
+    overlay = new CostumeOverlay();
+    await overlay.setCostume(opts.costume);
+  } catch (e) {
+    console.warn('Magic Mirror Moves: 3D costumes are off on this device; stickers play instead.', e);
+    overlay = null;
+  }
+}
 
 async function boot() {
   resize();
@@ -510,6 +545,7 @@ async function boot() {
   wire();
   syncChips();
   await loadArt();
+  if (opts.render === '3d') await start3d();
   if (cheat === 'play' || cheat === 'finale') {
     opts.demo = opts.demo || !navigator.mediaDevices;
     if (!opts.demo) await startCamera();

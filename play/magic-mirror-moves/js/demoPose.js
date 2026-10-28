@@ -70,7 +70,9 @@ export function makePose(a = {}, bodyName = 'adult', place = { cx: 320, ground: 
   const cx = place.cx;
   const sx = (b.shoulders / 2) * H * w;
   const hx = (b.hips / 2) * H * w;
-  const P = (x, y) => ({ x, y, score: 0.95 });
+  
+  
+  const P = (x, y) => ({ x, y, z: 0, score: 0.95 });
 
   const pose = {
     nose: P(cx, noseY),
