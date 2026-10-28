@@ -60,11 +60,24 @@ export class MoveTracker {
     this.booArmed = -1; 
     this.twirlCollapsed = -1; 
     this.prevT = null;
+    this.size = ''; 
   }
 
   
   update(frame) {
     const { pose, t } = frame;
+    
+    
+    
+    const size = `${frame.width}x${frame.height}`;
+    if (this.size && size !== this.size) {
+      this.torso = null;
+      this.baseHip = null;
+      this.baseShoulderW = null;
+      this.held = {};
+      this.flapSigns = [];
+    }
+    this.size = size;
     const dt = this.prevT === null ? 0 : Math.max(0, Math.min(0.25, t - this.prevT));
     this.prevT = t;
     
