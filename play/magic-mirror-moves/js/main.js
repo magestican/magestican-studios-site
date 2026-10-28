@@ -9,7 +9,7 @@ import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
 import { mirrorFrame, PoseSmoother, seen } from './pose/pose.js';
-import { initialQuality, QUALITY, stepQuality } from './pose/quality.js';
+import { devicePlan, initialQuality, QUALITY, stepQuality } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
 
@@ -53,6 +53,8 @@ const opts = {
 };
 const cheat = q.get('cheat');
 
+const plan = devicePlan({ coarse: matchMedia('(pointer: coarse)').matches, ua: navigator.userAgent, model: q.get('model') ?? '' });
+
 const $ = (id) =>  (document.getElementById(id));
 const canvas =  ($('stage'));
 const ctx =  (canvas.getContext('2d'));
@@ -63,6 +65,17 @@ const scratch =  (document.createElement('canvas').getContext('2d'));
 
 
 const images = new Map();
+
+
+
+const STICKER_PX = plan.phone ? 256 : 384;
+function rasterise(img) {
+  const c = document.createElement('canvas');
+  c.width = STICKER_PX;
+  c.height = STICKER_PX;
+   (c.getContext('2d')).drawImage(img, 0, 0, STICKER_PX, STICKER_PX);
+  return c;
+}
 let iconSet = { icons: [] };
 let BACK_PIECES = new Set();
 
@@ -102,7 +115,7 @@ async function loadArt() {
       img.src = new URL(`svg/sticker/${i.id}.svg`, ART).href;
       try {
         await img.decode();
-        images.set(i.id, img);
+        images.set(i.id, rasterise(img));
       } catch {
         console.warn(`Magic Mirror Moves: sticker ${i.id} did not load; the game goes on without it.`);
       }
@@ -198,7 +211,7 @@ let estimator = null;
 let camRun = 0;
 const smoother = new PoseSmoother();
 let camFrames = 0;
-let quality = initialQuality(); 
+let quality = initialQuality(plan.start); 
 
 async function startCamera() {
   if (stream) return true;
@@ -207,13 +220,13 @@ async function startCamera() {
     note.hidden = false;
     note.textContent = 'Asking for the camera...';
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 720 } },
+      video: { facingMode: 'user', ...plan.camera },
       audio: false,
     });
     video.srcObject = stream;
     await video.play();
     note.textContent = 'Waking up the magic mirror...';
-    if (!estimator) estimator = await (await import('./pose/detector.js')).createPoseEstimator();
+    if (!estimator) estimator = await (await import('./pose/detector.js')).createPoseEstimator(plan);
     note.hidden = true;
   } catch (err) {
     stopCamera();
@@ -234,6 +247,16 @@ async function startCamera() {
       
       const skip = ++camFrames % QUALITY[quality.level].detectEvery !== 0;
       const f = skip ? null : await estimator.estimate(video, performance.now() / 1000);
+      if (estimator.failed()) {
+        
+        stopCamera();
+        const note = $('frame-note');
+        note.hidden = false;
+        note.textContent = 'The magic mirror is too tired on this device. You can still play with the demo player.';
+        $('use-demo').hidden = false;
+        if (S.screen !== 'frame') show('frame');
+        return;
+      }
       if (!skip) {
         const d = S.detect;
         d.runs++;
@@ -333,7 +356,7 @@ function flash(text, seconds = 1.4) {
 const view = { fw: 720, fh: 540, scale: 1, ox: 0, oy: 0, cw: 1, ch: 1, dpr: 1 };
 
 function resize() {
-  view.dpr = Math.min(QUALITY[quality.level].pixelRatioCap, devicePixelRatio || 1);
+  view.dpr = Math.min(QUALITY[quality.level].pixelRatioCap, plan.maxPixelRatio, devicePixelRatio || 1);
   view.cw = innerWidth;
   view.ch = innerHeight;
   canvas.width = Math.round(view.cw * view.dpr);
@@ -491,14 +514,12 @@ function draw() {
   const k = view.dpr * view.scale;
   ctx.setTransform(k, 0, 0, k, view.ox * view.dpr, view.oy * view.dpr);
   const frame = S.frame;
-  if (S.source === 'camera' && stream) {
-    
-    ctx.save();
-    ctx.translate(fw, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0, fw, fh);
-    ctx.restore();
-  } else if (frame) drawMannequin(ctx, frame.pose);
+  
+  
+  
+  const mirror = S.source === 'camera' && !!stream;
+  if (video.hidden === mirror) video.hidden = !mirror;
+  if (!mirror && frame) drawMannequin(ctx, frame.pose);
   if (frame) {
     let placed = placeCostume(opts.costume, frame.pose, iconSet, 'right');
     if (overlay?.ready(opts.costume)) {
@@ -561,6 +582,12 @@ Object.defineProperty(window, '__mmm', {
         pieces3d: S.pieces3d,
         card: g?.card?.moves ?? null,
         detect: { ...S.detect, backend: estimator?.backend() ?? '' },
+        perf: {
+          quality: quality.level,
+          fps: Math.round(quality.fps * 10) / 10,
+          canvas: [canvas.width, canvas.height],
+          model: estimator?.stats() ?? null,
+        },
       };
     },
   }),

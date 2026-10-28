@@ -17,8 +17,31 @@ const UP_S = 5;
 
 
 
-export function initialQuality() {
-  return { level: 'high', fps: 30, below: 0, above: 0 };
+export function initialQuality(level = 'high') {
+  return { level, fps: 30, below: 0, above: 0 };
+}
+
+const PHONE_UA = /Android|iPhone|iPad|iPod|Mobile/i;
+
+
+
+
+
+
+
+
+export function devicePlan({ coarse, ua, model }) {
+  const phone = coarse || PHONE_UA.test(ua);
+  const landmark = model === 'lite' || model === 'full' ? model : phone ? 'lite' : 'full';
+  return {
+    phone,
+    landmark,
+    camera: phone ? { width: { ideal: 640 }, height: { ideal: 480 } } : { width: { ideal: 960 }, height: { ideal: 720 } },
+     start: phone ? 'medium' : 'high',
+    cpuFallback: !phone,
+    
+    maxPixelRatio: phone ? 1.5 : 2,
+  };
 }
 
 

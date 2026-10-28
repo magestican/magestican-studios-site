@@ -6,5 +6,9 @@
   "blazepose_landmark_full": {
     "model.json": "ff3aab1842ee48e17b144bbcb158b59ab29ab4fcf9023d3b30212316e9637567",
     "weights.bin": "5dd67d57f4886a2ddfdad4496217e7ce012fb8d2e8f87d475a8cc0220d89086c"
+  },
+  "blazepose_landmark_lite": {
+    "model.json": "9c9c061fc21c31319ad0e99c411487d2f39bbbd6f5c45edf4faf2b223292e2cf",
+    "weights.bin": "168a3dfa28aba0b543377670e1af1fec65fad837d033d45472ad946b480e31a4"
   }
 }

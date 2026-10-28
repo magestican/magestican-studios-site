@@ -26,6 +26,21 @@ body {
   background: linear-gradient(180deg, #2b1b5e 0%, #4b2a8a 55%, #7a3f9e 100%);
 }
 
+
+
+#cam {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+#cam[hidden] {
+  display: none;
+}
+
 #stage {
   position: fixed;
   inset: 0;
