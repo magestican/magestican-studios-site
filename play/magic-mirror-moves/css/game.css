@@ -385,3 +385,52 @@ dialog:focus-visible {
 #stop {
   margin-left: auto;
 }
+
+
+
+
+.seen-light {
+  position: fixed;
+  z-index: 5;
+  top: max(var(--gutter), env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--panel);
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.seen-light[hidden] {
+  display: none;
+}
+
+body[data-screen="play"] .seen-light {
+  top: calc(max(var(--gutter), env(safe-area-inset-top)) + 68px);
+}
+
+.seen-light .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f0a020;
+}
+
+.seen-light[data-state="seen"] .dot {
+  background: #2fbf71;
+}
+
+.seen-light[data-state="part"] .dot {
+  background: #ffd36b;
+}
+
+.seen-light[data-state="error"] .dot {
+  background: #e0445a;
+}

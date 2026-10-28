@@ -32,20 +32,31 @@ export async function createPoseEstimator() {
     });
   let detector = await create();
   let failures = 0;
+  let lastError = '';
   return {
     backend: () => tf.getBackend(),
+    lastError: () => lastError,
     async estimate(video, tS) {
       const width = video.videoWidth;
       const height = video.videoHeight;
       if (!width || !height) return null;
+      
+      
+      
+      if (video.width !== width || video.height !== height) {
+        video.width = width;
+        video.height = height;
+      }
       try {
         const poses = await detector.estimatePoses(video, { flipHorizontal: false }, tS * 1000);
         failures = 0;
+        lastError = '';
         const p = poses[0];
         if (!p) return null;
         return { pose: onlyInFrame(fromDetector(p.keypoints), width, height), width, height, t: tS };
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
+        lastError = msg;
         if (GPU_FAILURE.test(msg) && ++failures >= 3 && tf.getBackend() !== 'cpu') {
           console.warn('Magic Mirror Moves: WebGL kept failing; switching to the CPU backend.');
           detector.dispose();

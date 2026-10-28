@@ -8,7 +8,7 @@ import { Effects } from './effects.js';
 import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
-import { mirrorFrame, PoseSmoother } from './pose/pose.js';
+import { mirrorFrame, PoseSmoother, seen } from './pose/pose.js';
 import { initialQuality, QUALITY, stepQuality } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
@@ -84,6 +84,9 @@ const S = {
   banner: 0,
   nearlyAt: -9,
   pieces3d: 0,
+  
+  
+  detect: { runs: 0, people: 0, joints: 0, at: -1, error: '' },
 };
 
 
@@ -223,6 +226,7 @@ async function startCamera() {
     return false;
   }
   S.source = 'camera';
+  S.detect = { runs: 0, people: 0, joints: 0, at: -1, error: '' };
   smoother.reset();
   const run = ++camRun;
   const loop = async () => {
@@ -230,6 +234,16 @@ async function startCamera() {
       
       const skip = ++camFrames % QUALITY[quality.level].detectEvery !== 0;
       const f = skip ? null : await estimator.estimate(video, performance.now() / 1000);
+      if (!skip) {
+        const d = S.detect;
+        d.runs++;
+        d.error = estimator.lastError();
+        d.joints = f ? Object.values(f.pose).filter((j) => seen(j)).length : 0;
+        if (d.joints > 0) {
+          d.people++;
+          d.at = S.t;
+        }
+      }
       if (f) {
         S.frame = mirrorFrame(smoother.smooth(f));
         S.fresh = true;
@@ -345,8 +359,32 @@ function wanted() {
   return null;
 }
 
+
+
+function updateSeenLight() {
+  const el = $('seen-light');
+  const on = S.source === 'camera' && (S.screen === 'frame' || S.screen === 'play');
+  el.hidden = !on;
+  if (!on) return;
+  const d = S.detect;
+  let state = 'off';
+  let text = 'Waking up the magic mirror...';
+  if (d.error) [state, text] = ['error', 'The magic mirror is stuck. Try reloading the page.'];
+  else if (d.runs > 0 && S.t - d.at > 0.5) text = 'Looking for you...';
+  else if (d.runs > 0) {
+    const seenNow = Object.values(seenJoints(S.frame?.pose ?? null));
+    const all = seenNow.every(Boolean);
+    [state, text] = all ? ['seen', 'I can see you!'] : ['part', 'I can see part of you'];
+  }
+  if (el.dataset.state !== state || $('seen-text').textContent !== text) {
+    el.dataset.state = state;
+    $('seen-text').textContent = text;
+  }
+}
+
 function tick(h) {
   S.t += h;
+  updateSeenLight();
   const { fw, fh } = frameSize();
   if (S.source === 'demo') {
     const want = wanted();
@@ -522,6 +560,7 @@ Object.defineProperty(window, '__mmm', {
         placed: S.placed,
         pieces3d: S.pieces3d,
         card: g?.card?.moves ?? null,
+        detect: { ...S.detect, backend: estimator?.backend() ?? '' },
       };
     },
   }),
