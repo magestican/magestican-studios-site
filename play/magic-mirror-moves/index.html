@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob: mediastream:; connect-src 'self'; worker-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Magic Mirror Moves</title>
+  <meta name="description" content="Dress up as a wizard, princess, ghost, fairy or dragon and move to make magic. Runs in your browser; the camera picture never leaves your device.">
+  <link rel="stylesheet" href="css/game.css?v=bba68d76-20261028T041835Z">
+  <script type="module" src="js/main.js?v=bba68d76-20261028T041835Z"></script>
+  <link rel="canonical" href="https://magesticanstudios.com/play/magic-mirror-moves/">
+</head>
+<body>
+  <canvas id="stage" aria-hidden="true"></canvas>
+  <video id="cam" playsinline muted hidden></video>
+
+  <section id="title" class="screen" aria-labelledby="title-h">
+    <div class="panel">
+      <h1 id="title-h">Magic Mirror Moves</h1>
+      <p class="lead">Dress up and move to make magic.</p>
+      <div class="choice" role="group" aria-label="How to play">
+        <button type="button" class="chip" data-mode="show">Score points</button>
+        <button type="button" class="chip" data-mode="mirror">Free play</button>
+      </div>
+      <div class="choice" role="group" aria-label="Age">
+        <button type="button" class="chip" data-level="little">Little (4-6)</button>
+        <button type="button" class="chip" data-level="big">Big (7+)</button>
+      </div>
+      <button type="button" id="play" class="big">Play</button>
+      <button type="button" class="badge" data-privacy>The camera stays on this device</button>
+    </div>
+  </section>
+
+  <section id="dress" class="screen" aria-labelledby="dress-h" hidden>
+    <div class="panel">
+      <h2 id="dress-h">Pick your costume</h2>
+      <div id="costumes" class="costumes" role="radiogroup" aria-label="Costume"></div>
+      <div class="row">
+        <button type="button" class="ghost-btn" data-back="title">Back</button>
+        <button type="button" id="dress-next" class="big">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="frame" class="screen overlay" aria-labelledby="frame-h" hidden>
+    <div class="panel dock">
+      <h2 id="frame-h">Step back until I can see you from head to feet</h2>
+      <ul id="joints" class="joints" aria-label="What the camera can see"></ul>
+      <p id="frame-note" class="note" hidden></p>
+      <div class="row">
+        <button type="button" class="ghost-btn" data-back="dress">Back</button>
+        <button type="button" id="use-demo" class="ghost-btn" hidden>Play with the demo player</button>
+        <button type="button" id="start" class="big">Start</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="play" class="screen overlay" aria-label="Round" hidden>
+    <header class="hud">
+      <div class="stat"><span class="k">Score</span><span id="score" aria-live="polite">0</span></div>
+      <div class="stat"><span class="k">Combo</span><span id="combo">x1</span></div>
+      <div class="time" aria-hidden="true"><div id="time-bar"></div></div>
+      <button type="button" id="stop" class="ghost-btn small">Stop</button>
+    </header>
+    <p id="banner" class="banner" aria-live="assertive" hidden></p>
+    <footer id="card" class="card">
+      <canvas id="card-fig" width="160" height="160" aria-hidden="true"></canvas>
+      <div class="card-text">
+        <p id="card-label">Arms up high!</p>
+        <div class="window" aria-hidden="true"><div id="card-bar"></div></div>
+      </div>
+    </footer>
+  </section>
+
+  <section id="result" class="screen" aria-labelledby="result-h" hidden>
+    <div class="panel">
+      <h2 id="result-h">What magic!</h2>
+      <div id="stars" class="stars" role="img" aria-label="stars"></div>
+      <p class="big-score"><span id="final">0</span> points</p>
+      <p id="best" class="note"></p>
+      <div class="row">
+        <button type="button" class="ghost-btn" data-back="dress">Change costume</button>
+        <button type="button" id="again" class="big">Play again</button>
+      </div>
+      <button type="button" class="badge" data-privacy>The camera stays on this device</button>
+    </div>
+  </section>
+
+  <dialog id="privacy" aria-labelledby="privacy-h">
+    <h2 id="privacy-h">Privacy</h2>
+    <div class="facts" id="privacy-copy">
+      <p>The camera picture in Magic Mirror Moves stays on this device.</p>
+      <p>The whole game runs in this browser, and there is no server code. Each camera frame is used once to find your child's arms, legs and head, and then it is dropped.</p>
+      <p>The picture is never uploaded, recorded or saved. The game has no tracking, analytics, cookies or ads.</p>
+      <p>The game keeps one thing: the best score for each game mode, as a number, on this device. The &quot;Forget my scores&quot; button clears it.</p>
+      <p>The camera switches off when the round ends or you close the page.</p>
+    </div>
+    <div class="row">
+      <button type="button" id="forget" class="ghost-btn">Forget my scores</button>
+      <button type="button" id="privacy-close" class="big">OK</button>
+    </div>
+  </dialog>
+</body>
+</html>

@@ -1,0 +1,149 @@
+{
+ "bubble-sticker": {
+  "x": 0,
+  "y": 0,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "coin-sticker": {
+  "x": 130,
+  "y": 0,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "crown-sticker": {
+  "x": 260,
+  "y": 0,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "dragon_horns-sticker": {
+  "x": 390,
+  "y": 0,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "dragon_tail-sticker": {
+  "x": 520,
+  "y": 0,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "dragon_wings-sticker": {
+  "x": 0,
+  "y": 130,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "fairy-sticker": {
+  "x": 130,
+  "y": 130,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "fairy_wings-sticker": {
+  "x": 260,
+  "y": 130,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "flame-sticker": {
+  "x": 390,
+  "y": 130,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "flower_crown-sticker": {
+  "x": 520,
+  "y": 130,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "ghost_hood-sticker": {
+  "x": 0,
+  "y": 260,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "ghost_sheet-sticker": {
+  "x": 130,
+  "y": 260,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "gown-sticker": {
+  "x": 260,
+  "y": 260,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "mini_ghost-sticker": {
+  "x": 390,
+  "y": 260,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "petal-sticker": {
+  "x": 520,
+  "y": 260,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "sparkle-sticker": {
+  "x": 0,
+  "y": 390,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "star-sticker": {
+  "x": 130,
+  "y": 390,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "star_wand-sticker": {
+  "x": 260,
+  "y": 390,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "wizard_hat-sticker": {
+  "x": 390,
+  "y": 390,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "wizard_robe-sticker": {
+  "x": 520,
+  "y": 390,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "wizard_wand-sticker": {
+  "x": 0,
+  "y": 520,
+  "width": 128,
+  "height": 128,
+  "pixelRatio": 1
+ }
+}

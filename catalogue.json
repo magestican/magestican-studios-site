@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "cad5d259-20261026T220430Z",
+ "buildId": "bba68d76-20261028T041835Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -612,6 +612,38 @@
    "bytes": 328574810
   },
   {
+   "id": "magic-mirror-moves",
+   "statsId": "magic-mirror-moves",
+   "title": "Magic Mirror Moves",
+   "tagline": "Dress up in the camera and move to make magic.",
+   "description": "Kids dress up in the camera as a wizard, princess, ghost, fairy or dragon, then move to score points: arms up for flames, a flap for fairies. It runs only in your browser, the camera picture never leaves your device, and nothing is tracked. Free, no download.",
+   "dir": "play/magic-mirror-moves",
+   "path": "play/magic-mirror-moves/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/magic-mirror-moves.html",
+   "orientation": "any",
+   "players": "1",
+   "online": false,
+   "offline": true,
+   "cover": "assets/covers/magic-mirror-moves-16x9.webp",
+   "focus": [
+    0.5,
+    0.45
+   ],
+   "shots": [
+    "assets/shots/magic-mirror-moves/0.webp",
+    "assets/shots/magic-mirror-moves/1.webp"
+   ],
+   "accent": "#7b5cff",
+   "glyph": "magic-mirror-moves",
+   "pack": "family",
+   "age": 4,
+   "ageNote": null,
+   "order": 21,
+   "addedAt": "2026-10-28",
+   "bytes": 14330962
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -639,7 +671,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 22,
+   "order": 23,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -671,7 +703,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 23,
+   "order": 24,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -703,7 +735,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 24,
+   "order": 25,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -735,7 +767,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 25,
+   "order": 26,
    "addedAt": "2026-09-21",
    "bytes": 211807
   }
