@@ -5,6 +5,7 @@
 
 import { CLIPS, demoPose, makePose } from './demoPose.js';
 import { Effects } from './effects.js';
+import { createEvents, EVENT_HITS, EVENT_S, stepEvents } from './events.js';
 import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
@@ -25,8 +26,31 @@ const LABELS = {
   boo: 'Boo!',
   crown: 'Hands on your head!',
 };
-const COSTUME_NAMES = { wizard: 'Wizard', princess: 'Princess', ghost: 'Ghost', fairy: 'Fairy', dragon: 'Dragon' };
-const COSTUME_ICON = { wizard: 'wizard_hat', princess: 'crown', ghost: 'ghost_hood', fairy: 'flower_crown', dragon: 'dragon_horns' };
+const COSTUME_NAMES = {
+  wizard: 'Wizard',
+  princess: 'Princess',
+  ghost: 'Ghost',
+  fairy: 'Fairy',
+  dragon: 'Dragon',
+  ice_queen: 'Ice Queen',
+  astronaut: 'Astronaut',
+};
+const COSTUME_ICON = {
+  wizard: 'wizard_hat',
+  princess: 'crown',
+  ghost: 'ghost_hood',
+  fairy: 'flower_crown',
+  dragon: 'dragon_horns',
+  ice_queen: 'ice_crown',
+  astronaut: 'space_helmet',
+};
+
+const WORLD_WIN = {
+  meteor_shower: 'Coins from the sky!',
+  storm_cloud: 'A rainbow!',
+  bubble_flood: 'Giant bubble pop!',
+  night_falls: 'Fireflies!',
+};
 const JOINT_NAMES = {
   nose: 'Head',
   left_shoulder: 'Shoulder',
@@ -107,6 +131,13 @@ const S = {
   banner: 0,
   nearlyAt: -9,
   pieces3d: 0,
+  
+  hint: null,
+  
+  events: null,
+  eventsWon: 0,
+  
+  visible: new Set(),
   
   
   detect: { runs: 0, people: 0, joints: 0, at: -1, error: '' },
@@ -386,6 +417,8 @@ function beginRound({ tutorial = true } = {}) {
   S.tracker.reset();
   S.hits = 0;
   S.ask = { move: '', start: S.t };
+  S.events = opts.mode === 'mirror' ? createEvents(opts.demo ? 5 : (Date.now() & 0xffff) + 3) : null;
+  S.eventsWon = 0;
   show('play');
   $('card').style.visibility = opts.mode === 'mirror' ? 'hidden' : 'visible';
   $('time-bar').parentElement.hidden = opts.mode === 'mirror';
@@ -446,14 +479,9 @@ function layout() {
   const bar = $('bar');
   const top = bar.hidden ? 0 : Math.ceil(bar.getBoundingClientRect().bottom);
   
-  const dock =
-    S.screen === 'play'
-      ? opts.mode === 'mirror'
-        ? null
-        : $('card')
-      : S.screen === 'frame'
-        ? document.querySelector('#frame .dock')
-        : null;
+  
+  
+  const dock = S.screen === 'play' ? $('card') : S.screen === 'frame' ? document.querySelector('#frame .dock') : null;
   if (dock && !dock.hidden && dock.offsetHeight) dockH = Math.max(dockH, Math.ceil(innerHeight - dock.getBoundingClientRect().top) + 8);
   const style = document.documentElement.style;
   style.setProperty('--top', `${top}px`);
@@ -488,6 +516,8 @@ function wanted() {
   const g = S.game;
   if (S.screen !== 'play' || !g) return null;
   if (g.card) return g.card.moves[g.card.step];
+  if (g.mode === 'mirror' && S.events?.active) return S.events.active.moves[0]; 
+  if (g.mode === 'mirror' && S.hint) return S.hint.move; 
   if (g.mode === 'mirror') return MOVES[Math.floor((S.t - S.ask.start) / 3.2) % MOVES.length];
   return null;
 }
@@ -517,12 +547,14 @@ function updateSeenLight() {
 
 function tick(h) {
   S.t += h;
+  if (S.hint && S.t > S.hint.until) S.hint = null;
   updateSeenLight();
   const { fw, fh } = frameSize();
   if (S.source === 'demo') {
     const want = wanted();
     if (want !== S.ask.move && S.game?.mode !== 'mirror') S.ask = { move: want ?? '', start: S.t };
-    const ask = want ? { move: want, since: S.game?.mode === 'mirror' ? (S.t - S.ask.start) % 3.2 : S.t - S.ask.start } : null;
+    const since = S.hint ? S.t - S.hint.at : S.game?.mode === 'mirror' ? (S.t - S.ask.start) % 3.2 : S.t - S.ask.start;
+    const ask = want ? { move: want, since } : null;
     S.frame = mirrorFrame({ pose: demoPose(S.t, ask, demoPlace(fw, fh), opts.body), width: fw, height: fh, t: S.t });
     S.fresh = true;
   }
@@ -543,9 +575,21 @@ function tick(h) {
       const res = S.tracker.update(frame);
       const visible = new Set(MOVES.filter((m) => moveVisible(frame.pose, m)));
       input = { hits: res.hits, partial: res.partial, visible };
+      S.visible = visible;
       S.fresh = false;
     }
-    for (const ev of step(S.game, h, input)) onEvent(ev, frame);
+    const landed = [];
+    for (const ev of step(S.game, h, input)) {
+      onEvent(ev, frame);
+      if (ev.type === 'hit') landed.push(String(ev.move));
+    }
+    
+    if (S.events && S.game.phase === 'play') {
+      const stage = stageOf(frame);
+      const seenNow = S.source === 'demo' || (S.detect.runs > 0 && S.t - S.detect.at <= 0.5);
+      for (const ev of stepEvents(S.events, h, { seen: seenNow, visible: S.visible, hits: landed })) onWorld(ev, stage);
+      if (S.events.active && seenNow) S.fx.worldFlow(S.events.active.id, h, stage);
+    }
   }
   S.fx.update(h);
   if (S.banner > 0) {
@@ -559,7 +603,9 @@ function stageOf(frame) {
   const T = torsoLength(p) ?? frame.height * 0.2;
   const centre = hipCentre(p) ?? shoulderCentre(p) ?? { x: frame.width / 2, y: frame.height / 2 };
   const feet = [p.left_ankle, p.right_ankle].filter((j) => j && j.score >= 0.5).map((j) => j.y);
-  return { width: frame.width, height: frame.height, centre, ground: feet.length ? Math.max(...feet) : frame.height * 0.95, unit: T };
+  
+  const head = p.nose && p.nose.score >= 0.5 ? { x: p.nose.x, y: p.nose.y } : undefined;
+  return { width: frame.width, height: frame.height, centre, ground: feet.length ? Math.max(...feet) : frame.height * 0.95, unit: T, head };
 }
 
 function onEvent(ev, frame) {
@@ -567,7 +613,10 @@ function onEvent(ev, frame) {
   if (ev.type === 'hit') {
     S.hits++;
     S.fx.trigger(ev, opts.costume, stage);
-    if (ev.power) flash('Power up!');
+    if (ev.name) {
+      flash(String(ev.name), 1.6); 
+      S.hint = null;
+    } else if (ev.power) flash('Power up!');
     else if (ev.combo >= 2) flash(`Combo x${ev.combo}!`, 0.9);
   } else if (ev.type === 'step') S.fx.trigger(ev, opts.costume, stage);
   else if (ev.type === 'nearly' && S.t - S.nearlyAt > 1.5) {
@@ -575,9 +624,30 @@ function onEvent(ev, frame) {
     S.fx.trigger(ev, opts.costume, stage);
     flash('Nearly!', 0.8);
   } else if (ev.type === 'miss') flash('Next one!', 0.8);
+  else if (ev.type === 'hint' && S.game?.mode === 'mirror')
+    
+    S.hint = { move: String(ev.next), at: S.t, until: S.t + Number(ev.for) };
   else if (ev.type === 'start') flash('Here we go!');
   else if (ev.type === 'finale') flash('Finale! Double magic!', 2);
   else if (ev.type === 'end') setTimeout(() => S.screen === 'play' && showResult(ev.score, ev.stars), 1200);
+}
+
+
+function onWorld(ev, stage) {
+  if (ev.type === 'event_start') {
+    S.fx.worldStart(String(ev.id), stage);
+    flash(String(ev.name), 2.2);
+  } else if (ev.type === 'event_hit') {
+    S.fx.worldHit(String(ev.id), Number(ev.count), stage);
+    if (Number(ev.count) < Number(ev.of)) flash(`${ev.count} of ${ev.of}!`, 0.8);
+  } else if (ev.type === 'event_end') {
+    S.fx.worldEnd(String(ev.id), !!ev.success, stage);
+    if (ev.success) {
+      S.game.score += Number(ev.points);
+      S.eventsWon++;
+      flash(`${WORLD_WIN[String(ev.id)] ?? 'You did it!'} +${ev.points}`, 2);
+    } else flash('Bye bye! Good try!', 1.2); 
+  }
 }
 
 function updateHud() {
@@ -590,6 +660,23 @@ function updateHud() {
   const move = g.card ? g.card.moves[g.card.step] : null;
   const card = $('card');
   if (g.mode !== 'mirror') card.style.visibility = move ? 'visible' : 'hidden';
+  else {
+    
+    
+    const e = S.events?.active;
+    card.style.visibility = S.hint || e ? 'visible' : 'hidden';
+    if (e) {
+      const label = `${LABELS[e.moves[0]]} ${'●'.repeat(e.count)}${'○'.repeat(EVENT_HITS - e.count)}`;
+      if ($('card-label').textContent !== label) $('card-label').textContent = label;
+      $('card-bar').style.transform = `scaleX(${Math.max(0, 1 - e.age / EVENT_S)})`;
+      drawCardFigure(e.moves[0]);
+    } else if (S.hint) {
+      const label = `Now: ${LABELS[S.hint.move]}`;
+      if ($('card-label').textContent !== label) $('card-label').textContent = label;
+      $('card-bar').style.transform = `scaleX(${Math.max(0, (S.hint.until - S.t) / (S.hint.until - S.hint.at))})`;
+      drawCardFigure(S.hint.move);
+    }
+  }
   if (move) {
     const label = g.card.moves.length > 1 ? `${LABELS[g.card.moves[0]]} then ${LABELS[g.card.moves[1]]}` : LABELS[move];
     if ($('card-label').textContent !== label) $('card-label').textContent = label;
@@ -630,6 +717,12 @@ function draw() {
   const mirror = S.source === 'camera' && !!stream;
   if (video.hidden === mirror) video.hidden = !mirror;
   if (!mirror && frame) drawMannequin(ctx, frame.pose);
+  const night = S.events?.active ? S.fx.dim(S.events.active.id, S.events.active.count) * Math.min(1, S.events.active.age) : 0;
+  if (night > 0) {
+    
+    ctx.fillStyle = `rgba(12, 10, 40, ${night})`;
+    ctx.fillRect(0, 0, fw, fh);
+  }
   if (frame) {
     let placed = placeCostume(opts.costume, frame.pose, iconSet, 'right');
     if (overlay?.ready(opts.costume)) {
@@ -694,6 +787,10 @@ Object.defineProperty(window, '__mmm', {
         particles: S.fx.particles.length,
         placed: S.placed,
         pieces3d: S.pieces3d,
+        combos: g ? [...g.combos] : [],
+        hint: S.hint?.move ?? null,
+        event: S.events?.active ? { id: S.events.active.id, count: S.events.active.count } : null,
+        eventsWon: S.eventsWon,
         card: g?.card?.moves ?? null,
         detect: { ...S.detect, backend: estimator?.backend() ?? '' },
         perf: {

@@ -9,11 +9,14 @@ import { seen } from './pose/pose.js';
 
 
 export const COSTUMES = {
-  wizard: { pieces: ['wizard_robe', 'wizard_hat', 'wizard_wand'], fire: 'flame', signature: 'flame' },
-  princess: { pieces: ['gown', 'crown', 'star_wand'], fire: 'sparkle', signature: 'petal' },
-  ghost: { pieces: ['ghost_sheet', 'ghost_hood'], fire: 'mini_ghost', signature: 'mini_ghost' },
-  fairy: { pieces: ['fairy_wings', 'flower_crown', 'star_wand'], fire: 'sparkle', signature: 'fairy' },
-  dragon: { pieces: ['dragon_tail', 'dragon_wings', 'dragon_horns'], fire: 'flame', signature: 'flame' },
+  wizard: { pieces: ['wizard_robe', 'wizard_hat', 'wizard_wand'] },
+  princess: { pieces: ['gown', 'crown', 'star_wand'] },
+  ghost: { pieces: ['ghost_sheet', 'ghost_hood'] },
+  fairy: { pieces: ['fairy_wings', 'flower_crown', 'star_wand'] },
+  dragon: { pieces: ['dragon_tail', 'dragon_wings', 'dragon_horns'] },
+  
+  ice_queen: { pieces: ['frost_cape', 'ice_crown', 'ice_wand'] },
+  astronaut: { pieces: ['jetpack', 'space_helmet', 'star_blaster'] },
 };
 
 const LAYER = { back: 0, body: 1, head: 2, hand: 3 };
