@@ -4,7 +4,7 @@
 
 
 
-import { hipCentre, shoulderCentre, torsoLength } from './pose/framing.js';
+import { bodyUnit, hipCentre, shoulderCentre, torsoLength } from './pose/framing.js';
 import { seen } from './pose/pose.js';
 
 
@@ -56,6 +56,24 @@ export function landmarks(pose) {
     L.chest = along(0.3);
     L.waist = along(0.75);
     L.hip = { ...hc, angle: torsoAngle };
+  } else if (sc) {
+    
+    
+    const T = bodyUnit(pose) ?? 0;
+    const [a, b] = [pose.left_shoulder, pose.right_shoulder].sort((p, q) => p.x - q.x);
+    const w = dist(a, b);
+    if (T && w) {
+      const d = { x: -(b.y - a.y) / w, y: (b.x - a.x) / w };
+      torsoAngle = Math.atan2(-d.x, d.y);
+      measures.torso = T;
+      measures.shoulder_w = Math.max(w, 0.5 * T);
+      measures.hip_w = 0.8 * measures.shoulder_w;
+      const along = (k) => ({ x: sc.x + d.x * k * T, y: sc.y + d.y * k * T, angle: torsoAngle });
+      L.neck = { ...sc, angle: torsoAngle };
+      L.chest = along(0.3);
+      L.waist = along(0.75);
+      L.hip = along(1);
+    }
   }
 
   
@@ -245,7 +263,12 @@ export function drawCostume(ctx, scratch, placed, images, back, pose) {
 
 export function drawMannequin(ctx, pose, colour = '#ffd9b8') {
   const T = torsoLength(pose);
-  if (!T) return;
+  if (!T) {
+    
+    const U = bodyUnit(pose);
+    if (U) drawFigure(ctx, pose, { colour, width: U * 0.28, head: headCircle(pose) });
+    return;
+  }
   const body = torsoOccluder(pose);
   ctx.save();
   ctx.fillStyle = colour;

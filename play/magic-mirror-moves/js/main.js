@@ -9,7 +9,7 @@ import { createEvents, EVENT_HITS, EVENT_S, stepEvents } from './events.js';
 import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
-import { mirrorFrame, PoseSmoother, seen } from './pose/pose.js';
+import { mirrorFrame, onlyInFrame, PoseSmoother, seen } from './pose/pose.js';
 import { devicePlan, initialPower, initialQuality, LOW_CAMERA, LOW_PARTICLES, QUALITY, stepPower, stepQuality } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
@@ -27,6 +27,7 @@ const LABELS = {
   boo: 'Boo!',
   crown: 'Hands on your head!',
 };
+const CLOSE_START_S = 3; 
 const COSTUME_NAMES = {
   wizard: 'Wizard',
   princess: 'Princess',
@@ -76,6 +77,7 @@ const opts = {
   mode: pick(q.get('mode'), ['show', 'mirror'], 'mirror'),
   level: pick(q.get('level'), ['little', 'big'], 'little'),
   body: pick(q.get('body'), ['child', 'adult'], 'child'),
+  close: q.get('close') === '1', 
   speed: Math.min(8, Math.max(1, Number(q.get('speed')) || 1)),
   
   render: pick(q.get('render'), ['2d', '3d'], '2d'),
@@ -130,6 +132,7 @@ const S = {
   fx: new Effects(7, plan.maxParticles),
   ask: { move: '', start: 0 },
   readyFor: 0,
+  closeFor: 0, 
   placed: 0,
   hits: 0,
   banner: 0,
@@ -445,6 +448,7 @@ function stopCamera() {
 async function toFraming() {
   show('frame');
   S.readyFor = 0;
+  S.closeFor = 0;
   $('use-demo').hidden = true;
   if (!opts.demo) await startCamera();
 }
@@ -544,6 +548,7 @@ function frameSize() {
 }
 
 function demoPlace(fw, fh) {
+  if (opts.close) return { cx: fw / 2, ground: fh * 1.77, stature: fh * 1.42 }; 
   const stature = Math.min(fh * 0.66, fw * 0.9);
   
   return { cx: fw / 2, ground: fh * (fh > fw ? 0.8 : 0.9), stature };
@@ -592,7 +597,8 @@ function tick(h) {
     if (want !== S.ask.move && S.game?.mode !== 'mirror') S.ask = { move: want ?? '', start: S.t };
     const since = S.hint ? S.t - S.hint.at : S.game?.mode === 'mirror' ? (S.t - S.ask.start) % 3.2 : S.t - S.ask.start;
     const ask = want ? { move: want, since } : null;
-    S.frame = mirrorFrame({ pose: demoPose(S.t, ask, demoPlace(fw, fh), opts.body), width: fw, height: fh, t: S.t });
+    const pose = demoPose(S.t, ask, demoPlace(fw, fh), opts.body);
+    S.frame = mirrorFrame({ pose: opts.close ? onlyInFrame(pose, fw, fh) : pose, width: fw, height: fh, t: S.t });
     S.fresh = true;
   }
   const frame = S.frame;
@@ -600,10 +606,19 @@ function tick(h) {
   if (S.screen === 'frame' && frame) {
     const seen = seenJoints(frame.pose);
     for (const li of $('joints').children) li.classList.toggle('seen', !!seen[li.dataset.joint]);
-    const ready = framingAdvice(frame.pose, frame.width, frame.height) === 'ready';
-    $('frame-h').textContent = ready ? 'I can see you! Get ready...' : 'Step back until I can see you from head to feet';
+    const advice = framingAdvice(frame.pose, frame.width, frame.height);
+    const ready = advice === 'ready';
+    
+    
+    const close = advice === 'close' || advice === 'step-back';
+    $('frame-h').textContent = ready
+      ? 'I can see you! Get ready...'
+      : close
+        ? 'Step back for jumps, or play close up with your arms!'
+        : 'Step back until I can see you from head to feet';
     S.readyFor = ready ? S.readyFor + h : 0;
-    if (S.readyFor > (opts.demo ? 1.2 : 1)) beginRound();
+    S.closeFor = close ? S.closeFor + h : 0;
+    if (S.readyFor > (opts.demo ? 1.2 : 1) || S.closeFor > CLOSE_START_S) beginRound();
   }
 
   if (S.screen === 'play' && S.game && frame) {
