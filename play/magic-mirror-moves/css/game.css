@@ -541,6 +541,11 @@ body:not([data-screen="play"]) .bar .hud {
   font-size: 1.1rem;
 }
 
+#voice[aria-pressed="true"] {
+  background: #e0457b;
+  color: #fff;
+}
+
 body[data-mode="mirror"] #stop,
 body[data-mode="mirror"] .bar .time {
   display: none;

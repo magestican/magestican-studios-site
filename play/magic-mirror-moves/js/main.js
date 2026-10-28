@@ -13,6 +13,7 @@ import { mirrorFrame, PoseSmoother, seen } from './pose/pose.js';
 import { devicePlan, initialPower, initialQuality, LOW_CAMERA, LOW_PARTICLES, QUALITY, stepPower, stepQuality } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
+import { startVoice, voiceSupport } from './voice.js';
 
 const ART = new URL('../assets/costumes/costumes/', import.meta.url);
 const LABELS = {
@@ -219,6 +220,37 @@ function buildDressingRoom() {
   }
 }
 
+async function wireVoice() {
+  if ((await voiceSupport(window)) === 'none') return;
+  const btn = $('voice');
+  btn.hidden = false;
+  layout();
+  let stop = null;
+  const set = (on) => {
+    btn.setAttribute('aria-pressed', String(on));
+    btn.setAttribute('aria-label', on ? 'Stop listening' : 'Say a costume');
+  };
+  btn.addEventListener('click', async () => {
+    if (stop) {
+      stop();
+      stop = null;
+      set(false);
+      return;
+    }
+    set(true);
+    try {
+      stop = await startVoice(window, (id) => {
+        if (id !== opts.costume) setCostume(id);
+      });
+    } catch (e) {
+      console.warn('Magic Mirror Moves: voice is off on this device.', e);
+      set(false);
+      btn.hidden = true;
+      layout();
+    }
+  });
+}
+
 function wire() {
   for (const b of document.querySelectorAll('[data-mode]'))
     b.addEventListener('click', () => {
@@ -280,6 +312,8 @@ function wire() {
     document.addEventListener('fullscreenchange', label);
     document.addEventListener('webkitfullscreenchange', label);
   }
+  
+  wireVoice();
   
   let installer = null;
   addEventListener('beforeinstallprompt', (e) => {
