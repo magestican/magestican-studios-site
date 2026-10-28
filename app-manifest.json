@@ -1,8 +1,8 @@
 {
   "$comment": "Read by the Magestican Studios iOS apps to update their bundled games without an App Store release. See multi-game-madness/app/lib/services/game_updater.dart.",
-  "buildId": "c9e085f0-20261028T142551Z",
-  "builtAt": "2026-10-28T14:25:51Z",
-  "fileCount": 6428,
+  "buildId": "9083de1a-20261028T152427Z",
+  "builtAt": "2026-10-28T15:24:27Z",
+  "fileCount": 6585,
   "files": {
     "assets/apple-touch-icon.png": {
       "bytes": 10629,
@@ -934,7 +934,7 @@
     },
     "play/farmyshoot/index.html": {
       "bytes": 64942,
-      "sha256": "f7a0633248817660bf36470c34d695bdb65b3e7533259b3f33ad47d3714e7924"
+      "sha256": "0404d0564926f99e84ca90a4121a698db8c3d5a7b3db6d56b7ff4a77978ca0cf"
     },
     "play/farmyshoot/src/audio/announcerVoice.js": {
       "bytes": 8781,
@@ -1210,7 +1210,7 @@
     },
     "play/farmykart/index.html": {
       "bytes": 59237,
-      "sha256": "2e48937d4c3f80a3a4cf811bd72a7642de2d49f4d9323cc21080fff853bab1ce"
+      "sha256": "af438735991cbf0e55b3281758316c646035099bd48f11ceb185f0d7b5a44caa"
     },
     "play/farmykart/src/audio/music.js": {
       "bytes": 13073,
@@ -1430,7 +1430,7 @@
     },
     "play/farmy-evil-hills/index.html": {
       "bytes": 37943,
-      "sha256": "ae9d3b7e46057d082ff397d4b2fd7ea23c16d4b53b9ebe95425ddc69c115738e"
+      "sha256": "a2fe0a2c6e44a1eae22741398658cd6208368ea0eb49f9463c916220293f13ad"
     },
     "play/farmy-evil-hills/src/audio/mumble.js": {
       "bytes": 4922,
@@ -1654,7 +1654,7 @@
     },
     "play/farmy-uprising/index.html": {
       "bytes": 56562,
-      "sha256": "0a8adbf5469c2b4638d8e35733a7b3fc876fef2ace4102777b656a6dd8bede40"
+      "sha256": "82ef7c3c5396a6b23aca30bdee5541532abb9216f8a55f2589a91e3a0bc8ce69"
     },
     "play/farmy-uprising/src/animSprites.js": {
       "bytes": 1143,
@@ -2682,7 +2682,7 @@
     },
     "play/2d-fighter-ex/index.html": {
       "bytes": 8754,
-      "sha256": "347c91d174eaf6e224d3885471e95d2c26c24dbb4c6298553ec5c3d3e7ff724b"
+      "sha256": "43a113e6bb83118aad7ec857cea4c09e193460de83948f107f43f0401e6b14e0"
     },
     "play/2d-fighter-ex/src/animeRig.mjs": {
       "bytes": 60,
@@ -2758,7 +2758,7 @@
     },
     "play/farmy-crosswords/index.html": {
       "bytes": 5657,
-      "sha256": "1ce734ddadda6eb3c0d87cef3f5c2c74842d8b43e44f9c7928f8f94c40baa9c1"
+      "sha256": "d2bc02039436bcf2b4133f9b7098a0ebf0b7e06251b27078cbc8d8d140eecd45"
     },
     "play/farmy-crosswords/src/a11y.js": {
       "bytes": 1510,
@@ -2822,7 +2822,7 @@
     },
     "play/farmy-tiles/index.html": {
       "bytes": 5408,
-      "sha256": "da23eb24d6410acdd429f7a352d9eb53a7a01ee904de07dd7472cb9f47c4207c"
+      "sha256": "47262e72a879a7b93e280c530c0c778af86ad29f8e164f77a38e9e7e9d06f5e4"
     },
     "play/farmy-tiles/src/a11y.js": {
       "bytes": 1514,
@@ -2866,7 +2866,7 @@
     },
     "play/farmy-ludo/index.html": {
       "bytes": 5206,
-      "sha256": "d179b6841bbc78a5c62d217901d983f661a0fc796d403425a9f3f962637cada1"
+      "sha256": "bf4fad25ddf47302262593f41dbbda1892bc41f285f6dbe4d373c50f2b5a349f"
     },
     "play/farmy-ludo/src/a11y.js": {
       "bytes": 1510,
@@ -2898,7 +2898,7 @@
     },
     "play/farmy-chess/index.html": {
       "bytes": 5603,
-      "sha256": "07002b32c303fad94fae0203688ffcc0c5e604c5fd248f2856e2a8bf6883ab09"
+      "sha256": "6c76ad6d9140da7aaa7b691f2a35c1bba97d2bff4da6cd67fe7f247db1574be2"
     },
     "play/farmy-chess/src/a11y.js": {
       "bytes": 1563,
@@ -2938,7 +2938,7 @@
     },
     "play/farmy-checkers/index.html": {
       "bytes": 5581,
-      "sha256": "29491c20b072284784550f237a70025a314f990a6f20d10dae003bf99c594a3a"
+      "sha256": "fad0248d25139f744aebb8fb83e3013021f75ad002b0253608fb66bfe5b66a29"
     },
     "play/farmy-checkers/src/a11y.js": {
       "bytes": 1531,
@@ -3046,7 +3046,7 @@
     },
     "play/minesweeper/index.html": {
       "bytes": 11187,
-      "sha256": "d0568b34ca26ee23dd1fb58a202af9570d1a7c26823cc6077a31181f4b97ef75"
+      "sha256": "9335969617f2989671a58021f339e8a4381548cd5328f6dd561e0fbfd5c7943e"
     },
     "play/minesweeper/src/main.js": {
       "bytes": 34748,
@@ -3130,7 +3130,7 @@
     },
     "play/gomoku/index.html": {
       "bytes": 9382,
-      "sha256": "e88f87ac0d0689dd572fd8b7a53f8983eec9267b927a56a63494e88ea7274adb"
+      "sha256": "2903ae7d6d25e3a6ebe4a39d83a603a2f3bf1b37160dd7ffd9341089869fa1cc"
     },
     "play/gomoku/src/main.js": {
       "bytes": 26220,
@@ -3206,7 +3206,7 @@
     },
     "play/word-chain/index.html": {
       "bytes": 10496,
-      "sha256": "9c3bf0fea771d9c6a56f936587e703034438c96798ea78ac8764f060fe47d7dd"
+      "sha256": "c7bcdfe7b2b31a6a27908d2366c6dc0277e5dcd5f65176252f2de578d33751a6"
     },
     "play/word-chain/src/main.js": {
       "bytes": 30034,
@@ -3314,7 +3314,7 @@
     },
     "play/truco/index.html": {
       "bytes": 9849,
-      "sha256": "2a960ff882779e17d0243944f25029fa8e76e54205ffbf02f9865a69c5830b46"
+      "sha256": "e4fa8948f235747165d0f40677f45acdd42432d2913afc95f4ff7474c51a173a"
     },
     "play/truco/src/main.js": {
       "bytes": 37885,
@@ -3442,7 +3442,7 @@
     },
     "play/buraco/index.html": {
       "bytes": 9547,
-      "sha256": "23e139f39c438faad6b401c8c11fd54d768b8ded98731a361c6a8b219d35e5f9"
+      "sha256": "fba164437e229e216378617d59401c5b38e4869144e0a408948ca51e9956cfec"
     },
     "play/buraco/src/main.js": {
       "bytes": 42904,
@@ -3550,7 +3550,7 @@
     },
     "play/conga/index.html": {
       "bytes": 9682,
-      "sha256": "a2b361c5a5a22a1f1667b6e9b44115d805169796794469b71ecbb5cc53f77bce"
+      "sha256": "15ce870b17b3f246bf86602ea897dbbd9de594226ece1375079bf4ac865127a0"
     },
     "play/conga/src/main.js": {
       "bytes": 42203,
@@ -3570,7 +3570,7 @@
     },
     "play/silk-and-seam/index.html": {
       "bytes": 4396,
-      "sha256": "1e98859a343d2776b9f2ee8adf5cac7e385c73450adcb2d88e4347ea315d6247"
+      "sha256": "20b4386e989fb7b6e7aa879398f514f0a5771894baaab76bbec0ab5da3b9a838"
     },
     "play/silk-and-seam/css/scene-frames.css": {
       "bytes": 3171,
@@ -3950,7 +3950,7 @@
     },
     "play/dachis/index.html": {
       "bytes": 20568,
-      "sha256": "0f4b88d5ee562a2b0375d2e68803cd534989a913b9c8fdf82feb7983600c26f2"
+      "sha256": "340dff6ef7fda4eca4e9c8bec5b2d71b721c2c5ea43f9cc402347a83c2b319c6"
     },
     "play/dachis/css/game.css": {
       "bytes": 64435,
@@ -5982,7 +5982,7 @@
     },
     "play/space-95/index.html": {
       "bytes": 16940,
-      "sha256": "a8b0541a846cb75704c5a2d59d948465fec045ece8894d05c35d769ce7e5dca6"
+      "sha256": "74ad344d58904e0ac15060a555ab7dc3a4fec77f0b89fe633ff40f883baa0dcc"
     },
     "play/space-95/css/bolt.css": {
       "bytes": 842,
@@ -20573,8 +20573,8 @@
       "sha256": "2cd17b162d91693a60e346b49171bfaf12a01f3e4e22d76f26d1a55a43621315"
     },
     "play/magic-mirror-moves/index.html": {
-      "bytes": 7131,
-      "sha256": "5a5ea6f3d34eea6094b2e3645a5eeee7569be3b42b082f8ef1beae941c830b39"
+      "bytes": 7290,
+      "sha256": "a2234f1cfc6a3ff7b0939323c7f2f1a7315397a7ba3eeeee0b81c925d07e8d01"
     },
     "play/magic-mirror-moves/css/game.css": {
       "bytes": 8688,
@@ -20597,8 +20597,8 @@
       "sha256": "74e0bbc4554b855c09066eae9e4a3084d6993b8d31de292fc546b48a86a11fca"
     },
     "play/magic-mirror-moves/js/main.js": {
-      "bytes": 28815,
-      "sha256": "eb30489f34d2a001252c0fd8a01cbe49bc56df6d52d2433d440241c3d550bd7d"
+      "bytes": 29842,
+      "sha256": "6eb25df0a5b531f0f1d3e6152e6d3d02e8d566909ef8e1834f6fef63215973d2"
     },
     "play/magic-mirror-moves/js/moves.js": {
       "bytes": 6781,
@@ -20627,6 +20627,10 @@
     "play/magic-mirror-moves/js/render.js": {
       "bytes": 10162,
       "sha256": "3f731f7cf3f09ba3cff2d84632b31bb7df3c23b319b029219741a3087534039c"
+    },
+    "play/magic-mirror-moves/js/sound.js": {
+      "bytes": 4141,
+      "sha256": "45e72be0d08dc0f506350b0cfcf60a0709b35956e9de148d5306ace06c620930"
     },
     "play/magic-mirror-moves/js/spells.js": {
       "bytes": 3918,
@@ -20919,6 +20923,630 @@
     "play/magic-mirror-moves/assets/costumes/costumes/symbols-sticker.svg": {
       "bytes": 168347,
       "sha256": "ad5077ccb04012d5edfe336afc62226bedce9904a5808925508fd3c0f3f3af1c"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_cast/astronaut_cast_01.m4a": {
+      "bytes": 28853,
+      "sha256": "543323a9b5ce09740b92e7539344fac83cb8669629f602b15514eaad6d88fb15"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_cast/astronaut_cast_01.ogg": {
+      "bytes": 13083,
+      "sha256": "f49daf5c876c5bee7812622453896eee98d821faf0b997851d31a502de90e915"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_cast/astronaut_cast_02.m4a": {
+      "bytes": 29056,
+      "sha256": "10f157b8525f1317ea207959c4327268683fcc53d028c419e57b2a60f333f9c8"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_cast/astronaut_cast_02.ogg": {
+      "bytes": 13156,
+      "sha256": "a595a766046f2fad8c60da4aa2d506b49b6dedf295c5401c39c14516334e7435"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_cast/astronaut_cast_03.m4a": {
+      "bytes": 28985,
+      "sha256": "56b859425b92032ceb8bdf1589c7b9fc00aa43a5eb4a1596c35c215196be7258"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_cast/astronaut_cast_03.ogg": {
+      "bytes": 13213,
+      "sha256": "380139199bb7a596ef1a49f8294be0ef6a8e0a02b8d73d193a1a49e60682f049"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_wand/astronaut_wand_01.m4a": {
+      "bytes": 9903,
+      "sha256": "d340a95a502ac36a836b07e51a29c7077b11559c57f66a6c9206ef151901e4fe"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_wand/astronaut_wand_01.ogg": {
+      "bytes": 6967,
+      "sha256": "5e4d805ca6038e559409971b11ae9d27ffb365987c2cac16ff2f11ae8fc74723"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_wand/astronaut_wand_02.m4a": {
+      "bytes": 10045,
+      "sha256": "2a222347736e7ac0729d8721ead03352da5e3ce1a4738c4d7112ac1345b8a216"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_wand/astronaut_wand_02.ogg": {
+      "bytes": 6478,
+      "sha256": "4c0b7b9894e27f5e7d5a2ca5437c5a022d34cc7c83fb5380979d255dbae3df37"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_wand/astronaut_wand_03.m4a": {
+      "bytes": 9915,
+      "sha256": "0a480795b4372e278240599c8eb53c13d98c980f04c0a43d517d388d9eafdd64"
+    },
+    "play/magic-mirror-moves/assets/sound/astronaut_wand/astronaut_wand_03.ogg": {
+      "bytes": 6935,
+      "sha256": "e31eee4ddc2d297dca6bc800d6c98552c3fdf043c0b5a7333fcdab4cb2b6f079"
+    },
+    "play/magic-mirror-moves/assets/sound/click/click_01.m4a": {
+      "bytes": 2761,
+      "sha256": "e6400a099f441e8ec7e255721e178d468b1706c68e8284ac2991795b8b6266de"
+    },
+    "play/magic-mirror-moves/assets/sound/click/click_01.ogg": {
+      "bytes": 3013,
+      "sha256": "8090e30fccba2947f7548bef6cc5114f9da83969f7f9c16eee09af601185285b"
+    },
+    "play/magic-mirror-moves/assets/sound/click/click_02.m4a": {
+      "bytes": 2937,
+      "sha256": "035654a9831b44538e23a394b4c8b2c850a765c7d127a9616ba0c137f691a224"
+    },
+    "play/magic-mirror-moves/assets/sound/click/click_02.ogg": {
+      "bytes": 2907,
+      "sha256": "79d452df11701243ffcd581ef84b380e7e355604619e5243a3a2e31d94b5553b"
+    },
+    "play/magic-mirror-moves/assets/sound/click/click_03.m4a": {
+      "bytes": 2592,
+      "sha256": "a67e0aa19e3f810d6ba98aa6d7c2d9ea5e85bbab813a4dcabd559ff021c10116"
+    },
+    "play/magic-mirror-moves/assets/sound/click/click_03.ogg": {
+      "bytes": 3020,
+      "sha256": "5429be2c0265d7fa3180c1382b719c6ff8b9283f54747b2a29178fa4e1258ce2"
+    },
+    "play/magic-mirror-moves/assets/sound/combo/combo_01.m4a": {
+      "bytes": 43916,
+      "sha256": "312b37b0cc6e36dfb0e3ec9c416f914abfa952fd70eb04738550f21e30da328a"
+    },
+    "play/magic-mirror-moves/assets/sound/combo/combo_01.ogg": {
+      "bytes": 17945,
+      "sha256": "5e7c26a5ca1da385aca671a05d80a52e24fa1d5f13cf3cf3dc61bce8e3108e2d"
+    },
+    "play/magic-mirror-moves/assets/sound/combo/combo_02.m4a": {
+      "bytes": 43302,
+      "sha256": "452393fc561447dde80b0cbe96d3495004702462ef7742ff7a6dc22d02a414d5"
+    },
+    "play/magic-mirror-moves/assets/sound/combo/combo_02.ogg": {
+      "bytes": 19561,
+      "sha256": "84d6264f2ea7cd021f5adfe6120f49b6de5b259b23087a711c0a4a70a921d164"
+    },
+    "play/magic-mirror-moves/assets/sound/combo/combo_03.m4a": {
+      "bytes": 43335,
+      "sha256": "92766a6d8cbe83aca4f177da0ee90f81b65704dbd433788885865c179ed227eb"
+    },
+    "play/magic-mirror-moves/assets/sound/combo/combo_03.ogg": {
+      "bytes": 17950,
+      "sha256": "f3e5fe39573748ffab883df80b8d08a2d0f82623d99aace6ace05562b90ea164"
+    },
+    "play/magic-mirror-moves/assets/sound/costume/costume_01.m4a": {
+      "bytes": 11526,
+      "sha256": "90ecfc5624b833b814651e47f08578e0b58a2895d4155504263ccf10893c7387"
+    },
+    "play/magic-mirror-moves/assets/sound/costume/costume_01.ogg": {
+      "bytes": 9512,
+      "sha256": "39488f75bced8a6982484f5185a565ae6486e82e23f038acb79cddd29753dc91"
+    },
+    "play/magic-mirror-moves/assets/sound/costume/costume_02.m4a": {
+      "bytes": 15750,
+      "sha256": "3a5f2e7d96feaf502bf49afe35d9e10dd5898ce50f5306ff0e7b845c1028e9ba"
+    },
+    "play/magic-mirror-moves/assets/sound/costume/costume_02.ogg": {
+      "bytes": 11987,
+      "sha256": "6dda2dff2e0fde9db90132c9ce974ecc380a45f49eb91081a1b8dd02d43b1c43"
+    },
+    "play/magic-mirror-moves/assets/sound/costume/costume_03.m4a": {
+      "bytes": 13224,
+      "sha256": "4b455c27ad9cf1fe33738796fad89b8f6c617042d67beb63d7634e5c68bc1f00"
+    },
+    "play/magic-mirror-moves/assets/sound/costume/costume_03.ogg": {
+      "bytes": 9818,
+      "sha256": "8dc71781bfd36a8377d68e131ea97e4b8803cfb094043f0b6c9675b8d60456ba"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_cast/dragon_cast_01.m4a": {
+      "bytes": 23835,
+      "sha256": "6816f9612559ed52d281d2747ed5ff24453c42c79ce906f1db270dbda6bda98d"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_cast/dragon_cast_01.ogg": {
+      "bytes": 11344,
+      "sha256": "7cdb43ddeda27d54eda127eba10b57ddc8cde41f7c3de8946a6edce2f3be2814"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_cast/dragon_cast_02.m4a": {
+      "bytes": 23917,
+      "sha256": "ffdc3f2a7f387769d5eb2558914483238676a62a3e849b50672c873a6a2130c5"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_cast/dragon_cast_02.ogg": {
+      "bytes": 11269,
+      "sha256": "847d4132363b981e157cbf9d3a45473d26877d29f4c79f44e5e63e4630d83d11"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_cast/dragon_cast_03.m4a": {
+      "bytes": 23693,
+      "sha256": "51b00d6bc0f1a0640c13539240a4fc4ef5563429b8d8ee893eb19dc047de93ce"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_cast/dragon_cast_03.ogg": {
+      "bytes": 10994,
+      "sha256": "606fab314342e9aa5b7415a8bdd1076b92f4b983f176485f108acee4c71d44cf"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_wand/dragon_wand_01.m4a": {
+      "bytes": 35367,
+      "sha256": "f3c2c4c688c67a5fff30517bf61816b6219616f793d57d25b7fc467be68dafa5"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_wand/dragon_wand_01.ogg": {
+      "bytes": 15762,
+      "sha256": "10bcba00ebcf6e9b24c3f4c918059fa2375c0061b42e807582c333ba40c8b23c"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_wand/dragon_wand_02.m4a": {
+      "bytes": 35570,
+      "sha256": "1b6056f9051c7e412bb4b966c36309f0013117cca5cf45d930ff80696b3a905d"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_wand/dragon_wand_02.ogg": {
+      "bytes": 15626,
+      "sha256": "89d19f428c4ebf9ea77d79490056bf8ee2b765b1ecd0a5f7c4bb60a8d0f71be7"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_wand/dragon_wand_03.m4a": {
+      "bytes": 35568,
+      "sha256": "c301ae8f02f5cb114764c04f990fabf09ba02b7988453563e64abe6be72ee1ae"
+    },
+    "play/magic-mirror-moves/assets/sound/dragon_wand/dragon_wand_03.ogg": {
+      "bytes": 15820,
+      "sha256": "02c2f22e351d368fda2e750a81174050f8083029c9969108e8854e8ee5108092"
+    },
+    "play/magic-mirror-moves/assets/sound/event_lost/event_lost_01.m4a": {
+      "bytes": 20631,
+      "sha256": "18351acda90ca005a2e18de3b432f994ae7bb05bd9c214e89ebcb6e2c7d0b723"
+    },
+    "play/magic-mirror-moves/assets/sound/event_lost/event_lost_01.ogg": {
+      "bytes": 11534,
+      "sha256": "17659d5358940be8c7f7ae8ea798e34dd20b59fd6971d031f069aee9a624b7ba"
+    },
+    "play/magic-mirror-moves/assets/sound/event_lost/event_lost_02.m4a": {
+      "bytes": 20669,
+      "sha256": "9ddab910279dabbff3c12b5453d4dba1f01d676a24de48a886c60a10ae9ce952"
+    },
+    "play/magic-mirror-moves/assets/sound/event_lost/event_lost_02.ogg": {
+      "bytes": 11446,
+      "sha256": "e2ce14140b7d01907bf90f3df1c027b12ce3e3ecfc371efe95dc33097b16b00e"
+    },
+    "play/magic-mirror-moves/assets/sound/event_lost/event_lost_03.m4a": {
+      "bytes": 20664,
+      "sha256": "45b3aa763ba37bd238ff17a2e833d7474c960914572ea27459d3154a9291523d"
+    },
+    "play/magic-mirror-moves/assets/sound/event_lost/event_lost_03.ogg": {
+      "bytes": 11678,
+      "sha256": "c1a43c31b01706b874c579efa47d13cc47dc83e4a8fda2a0cd9b625339ad42e8"
+    },
+    "play/magic-mirror-moves/assets/sound/event_start/event_start_01.m4a": {
+      "bytes": 44796,
+      "sha256": "cf28e94afb04194667b3d2f2d2ac0e26bf96e3c0032821d17081355c69913b2b"
+    },
+    "play/magic-mirror-moves/assets/sound/event_start/event_start_01.ogg": {
+      "bytes": 20839,
+      "sha256": "51dbee2626ddab108b627cb05780bacbf99baed5cccd5fc6708d5c47ef3002f6"
+    },
+    "play/magic-mirror-moves/assets/sound/event_start/event_start_02.m4a": {
+      "bytes": 44698,
+      "sha256": "a8614692c89fe79aabe7b591d18d95050b2b4e72caff5b2829a6b609d9a4c462"
+    },
+    "play/magic-mirror-moves/assets/sound/event_start/event_start_02.ogg": {
+      "bytes": 20919,
+      "sha256": "006cdcc0655676a324d86067ae759f305f5bc3543f481f315f1cf1f73fb13d6e"
+    },
+    "play/magic-mirror-moves/assets/sound/event_start/event_start_03.m4a": {
+      "bytes": 43758,
+      "sha256": "2749f399e57921325f622e69b5abbf4fb1d8b15edde85e7b465e1f264d0f87a4"
+    },
+    "play/magic-mirror-moves/assets/sound/event_start/event_start_03.ogg": {
+      "bytes": 21158,
+      "sha256": "640e833964ecd55894aea724e9d7b4dbdc51e747a33eec52b3f7a2ebfbdf65b0"
+    },
+    "play/magic-mirror-moves/assets/sound/event_won/event_won_01.m4a": {
+      "bytes": 29288,
+      "sha256": "3254ffd5948d9a659365af7f2edf56b0de1ad7deacd3cc83a279e1f6feef4210"
+    },
+    "play/magic-mirror-moves/assets/sound/event_won/event_won_01.ogg": {
+      "bytes": 22622,
+      "sha256": "5d0924a13b1218d4599b8fdaed61139a2e9140a001bfa3a635687ca03c20f368"
+    },
+    "play/magic-mirror-moves/assets/sound/event_won/event_won_02.m4a": {
+      "bytes": 30154,
+      "sha256": "6fe33d8d3f7edd4b326de3f8d796318c6a66537216d91411b98cffb88581c824"
+    },
+    "play/magic-mirror-moves/assets/sound/event_won/event_won_02.ogg": {
+      "bytes": 22758,
+      "sha256": "9ef6c51f062a1a14440e707b4c707782c419c8621de2b6c1e466d09105257536"
+    },
+    "play/magic-mirror-moves/assets/sound/event_won/event_won_03.m4a": {
+      "bytes": 29223,
+      "sha256": "0e9517378988e7bdc9b6aeb22d1d8efec7d87f84666fe951e93362db8791e766"
+    },
+    "play/magic-mirror-moves/assets/sound/event_won/event_won_03.ogg": {
+      "bytes": 22555,
+      "sha256": "3beba5ea70c673bf0acbe7363a3913c9be01817fab304c2adef7a2155cc65442"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_cast/fairy_cast_01.m4a": {
+      "bytes": 27651,
+      "sha256": "7161a77b6854f5affe221a3617bd4edcc79d2e9d467a2cfe17490b0b0122d8f6"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_cast/fairy_cast_01.ogg": {
+      "bytes": 12360,
+      "sha256": "e2f28c8c698738989526c9bf0eac826eb30d03bb45ae04c15f0c751add45e8f6"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_cast/fairy_cast_02.m4a": {
+      "bytes": 27624,
+      "sha256": "8b8085992d2abbbcbc19b4fe411eed069e26b9c14c0c23b310abf9d43902925a"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_cast/fairy_cast_02.ogg": {
+      "bytes": 11972,
+      "sha256": "da9b39b8bf5f1aad693d4973f63559a571b834021135b99e788b0057e39435cc"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_cast/fairy_cast_03.m4a": {
+      "bytes": 27883,
+      "sha256": "788325add0bfd34d2e50bef1621dbd46f99c39754bfe3d07d62755eab070bec1"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_cast/fairy_cast_03.ogg": {
+      "bytes": 12163,
+      "sha256": "b2ec0b192a07f66fd1be365cabc23e0a7b7ee55c7ec2a3651e668b4a77b6f354"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_wand/fairy_wand_01.m4a": {
+      "bytes": 25570,
+      "sha256": "048142d6c5602de91ce45149353623104a5474df056d7f9dd4129442a5681493"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_wand/fairy_wand_01.ogg": {
+      "bytes": 10154,
+      "sha256": "063620a61b088e3c87b861e6e41ce16aa530b680362fe4d64a6d6545429169f2"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_wand/fairy_wand_02.m4a": {
+      "bytes": 25294,
+      "sha256": "c228272b8685f24b1783ecaf22dca3b2e2fa2d6520236ebd0e30a95bfc1e4792"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_wand/fairy_wand_02.ogg": {
+      "bytes": 10176,
+      "sha256": "65f7de62859406252b7322ed1eb85f28ab33d70552e8a1c3c50a1c53071f74fb"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_wand/fairy_wand_03.m4a": {
+      "bytes": 25348,
+      "sha256": "0a76e79b50309a4142293f78ea8b8d6f4d7cbb4608593edecba675d4800c95f5"
+    },
+    "play/magic-mirror-moves/assets/sound/fairy_wand/fairy_wand_03.ogg": {
+      "bytes": 10204,
+      "sha256": "3fb2451fb6de171487bc6087a86039a53f11cac8b55d78ec018e8b7ff2de6e47"
+    },
+    "play/magic-mirror-moves/assets/sound/finale/finale_01.m4a": {
+      "bytes": 55063,
+      "sha256": "c1adbde7476a611870cb88d8358fb746f63831f6801f92d6250dfc56e5cc45c0"
+    },
+    "play/magic-mirror-moves/assets/sound/finale/finale_01.ogg": {
+      "bytes": 35616,
+      "sha256": "54ccc8fba541b7db293f3ea986bedb94396d134b2333269e6f784f80be6f896b"
+    },
+    "play/magic-mirror-moves/assets/sound/finale/finale_02.m4a": {
+      "bytes": 54685,
+      "sha256": "a58b1f107becc374fe5027b2a5ac82ef8a7e3236afe1ef9851f55d88501b62bf"
+    },
+    "play/magic-mirror-moves/assets/sound/finale/finale_02.ogg": {
+      "bytes": 34721,
+      "sha256": "c34058149a5d948c131d26c6e0116a2e626dba87b2d08b6a2b0d4c0de9b6f91c"
+    },
+    "play/magic-mirror-moves/assets/sound/finale/finale_03.m4a": {
+      "bytes": 54685,
+      "sha256": "38cf955b119cc3ccb4c91aa95b522194ce7add0100bfe6587a812276b6c26320"
+    },
+    "play/magic-mirror-moves/assets/sound/finale/finale_03.ogg": {
+      "bytes": 35631,
+      "sha256": "dda757f0c4172e45fd8d246dcc19a9cc0aaae76e262f3c2310c8ed0a9ced90f8"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_cast/ghost_cast_01.m4a": {
+      "bytes": 30353,
+      "sha256": "763945bc149535011da6bb86514ae8a63b7b8bbcfeb2fafcd9088d28a7cb9663"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_cast/ghost_cast_01.ogg": {
+      "bytes": 12724,
+      "sha256": "9877ee3f85bc906c168763a24dad654a6f1f61aeb61726297385924990709336"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_cast/ghost_cast_02.m4a": {
+      "bytes": 29937,
+      "sha256": "04cfd9ee2e82bf49165c992c425f9c96f6d817911167e754fce30960a81201e8"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_cast/ghost_cast_02.ogg": {
+      "bytes": 12638,
+      "sha256": "279d916ce0d741ed91a37b400cad49e8cf73ffaf084c14fbdea4c58b5d88191a"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_cast/ghost_cast_03.m4a": {
+      "bytes": 30328,
+      "sha256": "43ce4a8b3c811c2a3610e47cf1918428d01e79188c6a7cf092406eadaa8f5e73"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_cast/ghost_cast_03.ogg": {
+      "bytes": 12639,
+      "sha256": "80db513916182cbdfd5deee84428ec001ae8cf4e13b859230d8fbf94062e3972"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_wand/ghost_wand_01.m4a": {
+      "bytes": 13263,
+      "sha256": "1c5d3009f5b7dcd5958e2ae117e7272fdb150a1d88e701ea55ef9a37b2b5a0b2"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_wand/ghost_wand_01.ogg": {
+      "bytes": 12408,
+      "sha256": "f73a022ac9517b08dd7ce73c6476da4feb596e5657749cb1a9aa2dfacab00ba5"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_wand/ghost_wand_02.m4a": {
+      "bytes": 13065,
+      "sha256": "68cee04133ff7218ba0b2299dce8b6b10367c7a5678043ff8384223b11682440"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_wand/ghost_wand_02.ogg": {
+      "bytes": 12291,
+      "sha256": "6e4b76db53bfc5e936f1f723f6e05bf1b22e9b57d14ff3d9d58cf3cd5fdf7960"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_wand/ghost_wand_03.m4a": {
+      "bytes": 12978,
+      "sha256": "3e995e7dcb528b1bb0c3f1d7fedcd737897bde52a2baf6063b23bb829561d408"
+    },
+    "play/magic-mirror-moves/assets/sound/ghost_wand/ghost_wand_03.ogg": {
+      "bytes": 12253,
+      "sha256": "5cb1d1ff188fce4f8e48f66c147ca3018976874fb600813b9d5f8cdb6643744f"
+    },
+    "play/magic-mirror-moves/assets/sound/hit/hit_01.m4a": {
+      "bytes": 6604,
+      "sha256": "6b069697945dca4516f376c17c1fb508de1a446ecbf5f7f914102dc2ac6df742"
+    },
+    "play/magic-mirror-moves/assets/sound/hit/hit_01.ogg": {
+      "bytes": 5355,
+      "sha256": "20848627a52840e15c9698e03340fc9c77b8b8cf6152f4d67b7b0203b844d3af"
+    },
+    "play/magic-mirror-moves/assets/sound/hit/hit_02.m4a": {
+      "bytes": 7297,
+      "sha256": "644cf1b86066000248a15054e65b9ff604762faeeb63bad6ca094fc2d7df0b0f"
+    },
+    "play/magic-mirror-moves/assets/sound/hit/hit_02.ogg": {
+      "bytes": 5959,
+      "sha256": "56c625d6c1afdb9d98ecd55aecf629ce21db61c3efc7a381a71e6763a55380dc"
+    },
+    "play/magic-mirror-moves/assets/sound/hit/hit_03.m4a": {
+      "bytes": 7402,
+      "sha256": "3dfd2b5b206322d0929ab3e38a25440ade57818d3c572d78de93a798850f09cc"
+    },
+    "play/magic-mirror-moves/assets/sound/hit/hit_03.ogg": {
+      "bytes": 5972,
+      "sha256": "f9e298af6a26210a1420dd238b16ec48f333f3a2933ec00df68b4b5f6258d178"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_cast/ice_queen_cast_01.m4a": {
+      "bytes": 28672,
+      "sha256": "58aa3c70554a584e12724a10d51324c624189156b442d7cf6cf101b202c2b9a3"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_cast/ice_queen_cast_01.ogg": {
+      "bytes": 11549,
+      "sha256": "917a7281891278ddd8c6899a85b9edf89ce2eabd6a90c8dd02ddb4e56e547075"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_cast/ice_queen_cast_02.m4a": {
+      "bytes": 28621,
+      "sha256": "e51dee1c2b10d7007a1c3c68a68c6914cdff9ac3b526bad490a7058ac50033d9"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_cast/ice_queen_cast_02.ogg": {
+      "bytes": 11790,
+      "sha256": "c3bed29b9bf3ce1f497245bdfba2ed115f9705b674f9b295cb503a6b05cfba22"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_cast/ice_queen_cast_03.m4a": {
+      "bytes": 28578,
+      "sha256": "b1b05a1ae5f4703c58a5722bdb67aea91ff95e64aac89de5c63dee2c35e81caa"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_cast/ice_queen_cast_03.ogg": {
+      "bytes": 11475,
+      "sha256": "d1aa643630153776d29126e46b3d0238f53905f1294080efd96a56d85d900f94"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_wand/ice_queen_wand_01.m4a": {
+      "bytes": 29240,
+      "sha256": "e63a1c0397bae5aad42868cbcb3c0cecd20d22023f6c6af26056a7147df47ec1"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_wand/ice_queen_wand_01.ogg": {
+      "bytes": 12011,
+      "sha256": "bc735eada124ff216c7411ff55a3bc704f2281c1289133a49d8d6d60786b6204"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_wand/ice_queen_wand_02.m4a": {
+      "bytes": 29293,
+      "sha256": "ea1942d91728fb412ccc844a4aaab3b3cbf8c7b1d0042a3fba9236913d4e02ad"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_wand/ice_queen_wand_02.ogg": {
+      "bytes": 12068,
+      "sha256": "4d3abceb43ce4ec1fc1b61b09fa1173aec778659c131b1576a0651568166f3d6"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_wand/ice_queen_wand_03.m4a": {
+      "bytes": 29196,
+      "sha256": "94aecd7b77bd5073861de1bfa9318f71db38e6b9d84270e41e19bbceaa93f780"
+    },
+    "play/magic-mirror-moves/assets/sound/ice_queen_wand/ice_queen_wand_03.ogg": {
+      "bytes": 12013,
+      "sha256": "0294ae18ea1505d856346cac5c2a53f2b2ecd0b3d4608c8ebce81b5a5cd12edb"
+    },
+    "play/magic-mirror-moves/assets/sound/power_up/power_up_01.m4a": {
+      "bytes": 39831,
+      "sha256": "9be1818bb6b1e274439f7fa83fceaf8c2346709d9c644102bed20addce49f023"
+    },
+    "play/magic-mirror-moves/assets/sound/power_up/power_up_01.ogg": {
+      "bytes": 15963,
+      "sha256": "0ca6dab431cfe69de63a4855b5421c6dd34cdb49ea44432286a6f855773866e4"
+    },
+    "play/magic-mirror-moves/assets/sound/power_up/power_up_02.m4a": {
+      "bytes": 39386,
+      "sha256": "6cd871d648617c3bd53e3471a7e3787a476dd27e2607fc1762087ee44ad06863"
+    },
+    "play/magic-mirror-moves/assets/sound/power_up/power_up_02.ogg": {
+      "bytes": 15897,
+      "sha256": "3bbd0bf789f84af53b1fe90420e79e67d79501e30e4a371b2700b07b63b4cb33"
+    },
+    "play/magic-mirror-moves/assets/sound/power_up/power_up_03.m4a": {
+      "bytes": 39850,
+      "sha256": "c5d0a14787a9e4f071d3ca0d39f3e2b238b8c9fab58be1612cffd75ad780169e"
+    },
+    "play/magic-mirror-moves/assets/sound/power_up/power_up_03.ogg": {
+      "bytes": 15895,
+      "sha256": "08a49413feeffe65f6bad97cfda97c186d366bc587afbbee1025644c446b5f41"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_cast/princess_cast_01.m4a": {
+      "bytes": 17603,
+      "sha256": "d7ffd807e95e68ca46c2d8182f860f5a88a0e22fb1371bfec3c9755d45bb1e38"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_cast/princess_cast_01.ogg": {
+      "bytes": 13259,
+      "sha256": "6bdd75d118b312b02600695113df30859ec66f6826020400dbd77bccba0e2ff0"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_cast/princess_cast_02.m4a": {
+      "bytes": 17845,
+      "sha256": "5abac5fe544d0891f8bfffaa22382d8b3cfad28a00a63b87c2d5273138a2d226"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_cast/princess_cast_02.ogg": {
+      "bytes": 13224,
+      "sha256": "deb2de5f843ae18687fd1cbfc53f464af69c95cde4c6035e29b05e27b025375d"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_cast/princess_cast_03.m4a": {
+      "bytes": 17644,
+      "sha256": "335351c9243adb50a18227df399c2e8468ccdd8790c36e670457ccc640636bbd"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_cast/princess_cast_03.ogg": {
+      "bytes": 13227,
+      "sha256": "05549199864f68bdfa3760a57dc615d4d405e1322dae23607dda1f31ecf72fd6"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_wand/princess_wand_01.m4a": {
+      "bytes": 25204,
+      "sha256": "70f852249ccfd1c6c45605ad5fed53eaed0e01993f63751749b6aa5d86469517"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_wand/princess_wand_01.ogg": {
+      "bytes": 10126,
+      "sha256": "cb1cb6f6ed524579ce83aec516f1cb7263d314c1d47b52c2b4af79deaca3c593"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_wand/princess_wand_02.m4a": {
+      "bytes": 25086,
+      "sha256": "461defe1bcd3efc7c3631217989a02232081214a2da761423b9e383a6be7da04"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_wand/princess_wand_02.ogg": {
+      "bytes": 10143,
+      "sha256": "7b7411dc8f5cdc477194b1dd693ecf94d663d18eec6520a7f542edaf92e2788e"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_wand/princess_wand_03.m4a": {
+      "bytes": 25371,
+      "sha256": "46339e29e597159160734856cae287df4610c2a5349b92753ac9b7fa58f4e7ce"
+    },
+    "play/magic-mirror-moves/assets/sound/princess_wand/princess_wand_03.ogg": {
+      "bytes": 10118,
+      "sha256": "c05bfce52696cd0f3f7debc6ef9700c4eee07299d2c045aea40f4a42e2045e45"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_cast/robot_cast_01.m4a": {
+      "bytes": 19374,
+      "sha256": "d3d93b2cfb0472ea1f76b30a2ef2e56893fda9f191e26d51412fa1ebcac1500d"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_cast/robot_cast_01.ogg": {
+      "bytes": 7556,
+      "sha256": "6ebcf0fe8dd16fde5c677a39a5860d37cf4fe173569f12c725691b149c841b54"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_cast/robot_cast_02.m4a": {
+      "bytes": 19530,
+      "sha256": "8fef8b334311e59d6fc0334305c1f08efab04c4b519d181dfb7dd2d9cc38d1fd"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_cast/robot_cast_02.ogg": {
+      "bytes": 7547,
+      "sha256": "06e2e8dd285d0c13e01010edf97f90998f1a8570a7cddec1c40bfa25e53b57e1"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_cast/robot_cast_03.m4a": {
+      "bytes": 19271,
+      "sha256": "d48ff891a9ee1b08f8c5d371b9ef0fbf057e443523240857349f07e1477a62d3"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_cast/robot_cast_03.ogg": {
+      "bytes": 7586,
+      "sha256": "5669629a93923e997847fcad7e1897e3cf07aff9224df94fab80f98f83e0e39e"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_stomp/robot_stomp_01.m4a": {
+      "bytes": 19828,
+      "sha256": "3763a4ffc671a4c76b29c7f58cc5511083663b83b3d202588fa136c6205eed48"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_stomp/robot_stomp_01.ogg": {
+      "bytes": 9921,
+      "sha256": "6c0bd630bea5f2c2956f40f3a39661c809e70067c3e97323f64f0e6bf8d9100d"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_stomp/robot_stomp_02.m4a": {
+      "bytes": 20107,
+      "sha256": "126e3b3dce249b5a6188e3432fcdd74e426d150fc098e84af62cd15fae983c55"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_stomp/robot_stomp_02.ogg": {
+      "bytes": 10491,
+      "sha256": "17542743ae0c54c9426dbdf0e03a85d56ad39644a330a20e332bacaadfda173e"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_stomp/robot_stomp_03.m4a": {
+      "bytes": 20089,
+      "sha256": "cde42b4489890e524b1334d093f7f4d31a82b8b176fc66196d327e6a15dee117"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_stomp/robot_stomp_03.ogg": {
+      "bytes": 9989,
+      "sha256": "4640f22059ae894e85d22c905e7aecba2b0b2a8ee4e3f9de43768f12b3281c63"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_wand/robot_wand_01.m4a": {
+      "bytes": 16108,
+      "sha256": "4285580614044d38f6c5ecfd6a3f460bd74bb62de84a38bae6adba82a15d0f6f"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_wand/robot_wand_01.ogg": {
+      "bytes": 7242,
+      "sha256": "e5f93468d2818620dcadcf11e25b28406246bac95909ffbc58f4dfa4557358c2"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_wand/robot_wand_02.m4a": {
+      "bytes": 16914,
+      "sha256": "36af1166b7f7c9298555c5667c543279acc942d4b316f590e086a6d49c6355c2"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_wand/robot_wand_02.ogg": {
+      "bytes": 7255,
+      "sha256": "19f3b0dc68099d5b8cc52bb55e7b5e7e0beab583a62da056663889e98ce1cf8f"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_wand/robot_wand_03.m4a": {
+      "bytes": 16562,
+      "sha256": "f089b8c7f8c462b6b93dacb53f15334c4c19cc2cadacfd2b019483e35cc30478"
+    },
+    "play/magic-mirror-moves/assets/sound/robot_wand/robot_wand_03.ogg": {
+      "bytes": 7662,
+      "sha256": "ece823b4c8f0272117278d864cb10f7be2c5fc27a94ce680963f9546b51219e9"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_cast/wizard_cast_01.m4a": {
+      "bytes": 28372,
+      "sha256": "ee1808332aa6e8632bc02600250e169473ace4d3b865e28f9e83af8c202184aa"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_cast/wizard_cast_01.ogg": {
+      "bytes": 10821,
+      "sha256": "fec61177c98164c12c52f6eea646a90daecfb77576c1d9b049b7ed2aa93c7b5c"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_cast/wizard_cast_02.m4a": {
+      "bytes": 28236,
+      "sha256": "cea7292004b9ddaa952ecb310ea3412140a83254d131784ca3b693836a5468c1"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_cast/wizard_cast_02.ogg": {
+      "bytes": 10910,
+      "sha256": "a4a4ae53272ad4770a0d48850cad856ebd006ef79dcd6b4964df68626370463d"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_cast/wizard_cast_03.m4a": {
+      "bytes": 28320,
+      "sha256": "7a689c08fd43ca28a0ce64be89e08f7430a1e62ae0144a8f1552367051621c85"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_cast/wizard_cast_03.ogg": {
+      "bytes": 10952,
+      "sha256": "e582a2f3ba786c81da47863727e71c82103f18da744310220811e227a599724a"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_wand/wizard_wand_01.m4a": {
+      "bytes": 24634,
+      "sha256": "533a8acca3b3ec5b1ed7e96ae5997bfc06c34a4944f2a8ef4918a09e130995f5"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_wand/wizard_wand_01.ogg": {
+      "bytes": 10098,
+      "sha256": "f5911ceccd4c9b8dae00a90788efb5b09017b45eaf4df417dce45ac452aefd2c"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_wand/wizard_wand_02.m4a": {
+      "bytes": 24888,
+      "sha256": "f66cabce7da78bfe86c21e2ce1c4833b3d8b05a3941c262f4e0cbdafd1795663"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_wand/wizard_wand_02.ogg": {
+      "bytes": 10224,
+      "sha256": "ab40749fe7de8de5498be22bae210a19f40f35ef95905c39181eabf43de453c1"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_wand/wizard_wand_03.m4a": {
+      "bytes": 24446,
+      "sha256": "d833cb2d0362126e141cc310e58edbc2db12b42b9ab851234d997459cfea3264"
+    },
+    "play/magic-mirror-moves/assets/sound/wizard_wand/wizard_wand_03.ogg": {
+      "bytes": 10136,
+      "sha256": "8b80ee774efb628c85634c44369b6510707d46bfaa4d5557fefbf6e30db21e96"
     },
     "play/magic-mirror-moves/models/costumes/wizard/mannequin.glb": {
       "bytes": 2053724,
@@ -22854,7 +23482,7 @@
     },
     "play/farmy-moon-life/index.html": {
       "bytes": 70012,
-      "sha256": "412f354e513f28ddfeec5743751634af2974af477203f941665facbcb47f7424"
+      "sha256": "5bd92cc286ad5acb7b7c089f0b91df1168be9f24b0aab8f9f4217bc7b0299af9"
     },
     "play/farmy-moon-life/src/install/icon-192.png": {
       "bytes": 1839,
@@ -24478,63 +25106,63 @@
     },
     "play/farmyshoot/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/farmykart/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/farmy-evil-hills/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/zelakas/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/2d-fighter-ex/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/farmy-crosswords/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/farmy-tiles/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/farmy-ludo/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/farmy-chess/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/minesweeper/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/gomoku/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/word-chain/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/truco/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/buraco/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "play/conga/version.json": {
       "bytes": 72,
-      "sha256": "fde5117597ec3a7b9aa8dc8add04b92e4ddf0670da81c0523fee892ea48aaa66"
+      "sha256": "5217287445157dcc8be9d57ffa2965bcdc69f2caaa27e908522b46a88d823c76"
     },
     "assets/badges/first-steps.svg": {
       "bytes": 764,
@@ -25714,7 +26342,7 @@
     },
     "catalogue.json": {
       "bytes": 22653,
-      "sha256": "d83ed4d6cd3b9c7d0bc8bbec9c08ec20bfce4ec3834a5626bf22720b553527e3"
+      "sha256": "4e7caf89d662f907ed6bfd54407885413d080f9a9c0e4cb150629c861c00171e"
     }
   }
 }

@@ -12,9 +12,13 @@ import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } fro
 import { mirrorFrame, onlyInFrame, PoseSmoother, seen } from './pose/pose.js';
 import { devicePlan, initialPower, initialQuality, LOW_CAMERA, LOW_PARTICLES, QUALITY, stepPower, stepQuality } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
+import { createSound, cuesForGame, cuesForWorld, namesFor } from './sound.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
 import { startVoice, voiceSupport } from './voice.js';
 
+const sound = createSound(window, (n) => {
+  document.getElementById('sound').dataset.played = String(n); 
+});
 const ART = new URL('../assets/costumes/costumes/', import.meta.url);
 const LABELS = {
   arms_up: 'Put your arms up high!',
@@ -195,6 +199,8 @@ function setCostume(id) {
   opts.costume = id;
   overlay?.setCostume(id);
   syncChips();
+  sound.preload(namesFor(id));
+  sound.play([{ name: 'costume' }]);
 }
 
 function buildDressingRoom() {
@@ -318,6 +324,24 @@ function wire() {
     document.addEventListener('fullscreenchange', label);
     document.addEventListener('webkitfullscreenchange', label);
   }
+  
+  const unlock = () => {
+    sound.unlock();
+    sound.preload(namesFor(opts.costume));
+  };
+  addEventListener('pointerdown', unlock, { capture: true });
+  addEventListener('keydown', unlock, { capture: true });
+  addEventListener('click', (e) => {
+    if ( (e.target).closest?.('button')) sound.play([{ name: 'click' }]);
+  });
+  const sb = $('sound');
+  sb.addEventListener('click', () => {
+    sound.setMuted(!sound.muted);
+    sb.innerHTML = sound.muted ? '&#x1F507;' : '&#x1F50A;';
+    sb.setAttribute('aria-pressed', String(sound.muted));
+    sb.setAttribute('aria-label', sound.muted ? 'Turn sound on' : 'Turn sound off');
+    sb.title = sb.getAttribute('aria-label') ?? '';
+  });
   
   wireVoice();
   
@@ -659,6 +683,7 @@ function stageOf(frame) {
 
 function onEvent(ev, frame) {
   const stage = stageOf(frame);
+  sound.play(cuesForGame(ev, opts.costume));
   if (ev.type === 'hit') {
     S.hits++;
     S.fx.trigger(ev, opts.costume, stage);
@@ -683,6 +708,7 @@ function onEvent(ev, frame) {
 
 
 function onWorld(ev, stage) {
+  sound.play(cuesForWorld(ev));
   if (ev.type === 'event_start') {
     S.fx.worldStart(String(ev.id), stage);
     flash(String(ev.name), 2.2);
