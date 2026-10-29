@@ -70,23 +70,6 @@ const BONE_NEEDS = {
 export const PIECE_BONES = {
   'wizard-hat': ['head'],
   'wizard-robe': ['chest', 'spine'],
-  crown: ['head'],
-  'ice-crown': ['head'],
-  'flower-crown': ['head'],
-  'dragon-horns': ['head'],
-  'ghost-hood': ['head'],
-  'space-helmet': ['head'],
-  'robot-head': ['head'],
-  'princess-gown': ['chest', 'spine'],
-  'ghost-sheet': ['chest', 'spine'],
-  'frost-cape': ['chest', 'spine'],
-  'robot-chest': ['chest', 'spine'],
-  'fairy-wings': ['chest'],
-  'dragon-wings': ['chest'],
-  jetpack: ['chest'],
-  'dragon-tail': ['hips'],
-  'robot-arms': ['upper_arm.L', 'upper_arm.R', 'forearm.L', 'forearm.R'],
-  'robot-legs': ['thigh.L', 'thigh.R', 'shin.L', 'shin.R'],
 };
 
 const V = (a) => new THREE.Vector3(a[0], a[1], a[2]);
