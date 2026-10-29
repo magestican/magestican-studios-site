@@ -21,6 +21,9 @@ export const MAGIC = {
   ice_queen: { signature: 'snowflake', light: '#bfefff' },
   astronaut: { signature: 'rocket', light: '#9ff3ff' },
   robot: { signature: 'bolt', light: '#5cffc8' },
+  pirate: { signature: 'cannonball', light: '#ffd36b' },
+  mermaid: { signature: 'wave', light: '#7fe8ff' },
+  superhero: { signature: 'pow', light: '#ff5a5a' },
 };
 
 
@@ -129,5 +132,39 @@ export const SPELLS = {
     wand: s('beam', ['laser']), 
     boo: s('pop', ['bolt', 'gear'], { light: '#ffffff' }), 
     crown: s('halo', ['bolt']), 
+  },
+  
+  pirate: {
+    arms_up: s('fountain', ['cannonball']), 
+    star: s('burst', ['coin', 'ship_anchor']), 
+    flap: s('swarm', ['coin']), 
+    jump: s('shock', ['cannonball']), 
+    squat: s('rise', ['coin']), 
+    twirl: s('orbit', ['ship_anchor']), 
+    wand: s('beam', ['cannonball']), 
+    boo: s('pop', ['cannonball']), 
+    crown: s('halo', ['coin']), 
+  },
+  mermaid: {
+    arms_up: s('fountain', ['wave']), 
+    star: s('burst', ['seashell']), 
+    flap: s('swarm', ['bubble']), 
+    jump: s('shock', ['wave']), 
+    squat: s('rise', ['seashell', 'bubble']), 
+    twirl: s('orbit', ['wave']), 
+    wand: s('beam', ['bubble']), 
+    boo: s('pop', ['seashell']), 
+    crown: s('halo', ['seashell']), 
+  },
+  superhero: {
+    arms_up: s('fountain', ['pow']), 
+    star: s('burst', ['pow', 'star']), 
+    flap: s('swarm', ['heart']), 
+    jump: s('shock', ['pow']), 
+    squat: s('rise', ['heart']), 
+    twirl: s('orbit', ['pow']), 
+    wand: s('beam', ['pow']), 
+    boo: s('pop', ['pow'], { light: '#ffffff' }), 
+    crown: s('halo', ['heart']), 
   },
 };

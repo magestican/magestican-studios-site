@@ -20,78 +20,92 @@
   "height": 256,
   "pixelRatio": 2
  },
- "coin-sticker": {
+ "cannonball-sticker": {
   "x": 774,
+  "y": 0,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "coin-sticker": {
+  "x": 1032,
   "y": 0,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "comet-sticker": {
-  "x": 1032,
+  "x": 1290,
   "y": 0,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "crown-sticker": {
-  "x": 1290,
+  "x": 1548,
+  "y": 0,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "cutlass-sticker": {
+  "x": 1806,
   "y": 0,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "dragon_horns-sticker": {
-  "x": 1548,
-  "y": 0,
-  "width": 256,
-  "height": 256,
-  "pixelRatio": 2
- },
- "dragon_tail-sticker": {
   "x": 0,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "dragon_wings-sticker": {
+ "dragon_tail-sticker": {
   "x": 258,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "fairy-sticker": {
+ "dragon_wings-sticker": {
   "x": 516,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "fairy_wings-sticker": {
+ "fairy-sticker": {
   "x": 774,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "flame-sticker": {
+ "fairy_wings-sticker": {
   "x": 1032,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "flower_crown-sticker": {
+ "flame-sticker": {
   "x": 1290,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "frost_cape-sticker": {
+ "flower_crown-sticker": {
   "x": 1548,
+  "y": 258,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "frost_cape-sticker": {
+  "x": 1806,
   "y": 258,
   "width": 256,
   "height": 256,
@@ -125,191 +139,282 @@
   "height": 256,
   "pixelRatio": 2
  },
- "ice_crown-sticker": {
+ "heart-sticker": {
   "x": 1032,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "ice_shard-sticker": {
+ "hero_cape-sticker": {
   "x": 1290,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "ice_wand-sticker": {
+ "hero_emblem-sticker": {
   "x": 1548,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "jetpack-sticker": {
+ "hero_mask-sticker": {
+  "x": 1806,
+  "y": 516,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "ice_crown-sticker": {
   "x": 0,
+  "y": 774,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "ice_shard-sticker": {
+  "x": 258,
+  "y": 774,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "ice_wand-sticker": {
+  "x": 516,
+  "y": 774,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "jetpack-sticker": {
+  "x": 774,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "laser-sticker": {
-  "x": 258,
+  "x": 1032,
+  "y": 774,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "mermaid_tail-sticker": {
+  "x": 1290,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "meteor-sticker": {
-  "x": 516,
+  "x": 1548,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "mini_ghost-sticker": {
-  "x": 774,
+  "x": 1806,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "petal-sticker": {
-  "x": 1032,
-  "y": 774,
+  "x": 0,
+  "y": 1032,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "pirate_coat-sticker": {
+  "x": 258,
+  "y": 1032,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "pirate_hat-sticker": {
+  "x": 516,
+  "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "planet-sticker": {
-  "x": 1290,
-  "y": 774,
+  "x": 774,
+  "y": 1032,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "pow-sticker": {
+  "x": 1032,
+  "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "rainbow-sticker": {
-  "x": 1548,
-  "y": 774,
+  "x": 1290,
+  "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "robot_chest-sticker": {
-  "x": 0,
+  "x": 1548,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "robot_forearm-sticker": {
-  "x": 258,
+  "x": 1806,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "robot_head-sticker": {
-  "x": 516,
-  "y": 1032,
+  "x": 0,
+  "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "robot_shin-sticker": {
-  "x": 774,
-  "y": 1032,
+  "x": 258,
+  "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "robot_thigh-sticker": {
-  "x": 1032,
-  "y": 1032,
+  "x": 516,
+  "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "robot_upper_arm-sticker": {
-  "x": 1290,
-  "y": 1032,
+  "x": 774,
+  "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "rocket-sticker": {
+  "x": 1032,
+  "y": 1290,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "seashell-sticker": {
+  "x": 1290,
+  "y": 1290,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "shell_tiara-sticker": {
   "x": 1548,
-  "y": 1032,
+  "y": 1290,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "ship_anchor-sticker": {
+  "x": 1806,
+  "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "snowflake-sticker": {
   "x": 0,
-  "y": 1290,
+  "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "space_helmet-sticker": {
   "x": 258,
-  "y": 1290,
+  "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "sparkle-sticker": {
   "x": 516,
-  "y": 1290,
+  "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "star-sticker": {
   "x": 774,
-  "y": 1290,
+  "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "star_blaster-sticker": {
   "x": 1032,
-  "y": 1290,
+  "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "star_wand-sticker": {
   "x": 1290,
-  "y": 1290,
+  "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "storm_cloud-sticker": {
   "x": 1548,
-  "y": 1290,
+  "y": 1548,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "trident-sticker": {
+  "x": 1806,
+  "y": 1548,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "wave-sticker": {
+  "x": 0,
+  "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "wizard_hat-sticker": {
-  "x": 0,
-  "y": 1548,
+  "x": 258,
+  "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "wizard_robe-sticker": {
-  "x": 258,
-  "y": 1548,
+  "x": 516,
+  "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "wizard_wand-sticker": {
-  "x": 516,
-  "y": 1548,
+  "x": 774,
+  "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2

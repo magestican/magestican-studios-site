@@ -31,6 +31,13 @@ const WORDS = {
   robot: 'robot',
   robots: 'robot',
   robo: 'robot',
+  pirate: 'pirate',
+  pirates: 'pirate',
+  mermaid: 'mermaid',
+  mermaids: 'mermaid',
+  superhero: 'superhero',
+  hero: 'superhero',
+  super: 'superhero',
 };
 
 const LANG = 'en-US';

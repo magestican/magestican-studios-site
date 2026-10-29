@@ -540,6 +540,191 @@
    "group": "fx",
    "width": 128,
    "height": 128
+  },
+  {
+   "id": "pirate_hat",
+   "label": "Pirate hat",
+   "group": "head",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    42
+   ],
+   "on": "head_top",
+   "span": 52,
+   "measure": "head_w",
+   "scale": 1.45
+  },
+  {
+   "id": "pirate_coat",
+   "label": "Pirate coat",
+   "group": "body",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    6
+   ],
+   "on": "neck",
+   "span": 48,
+   "measure": "shoulder_w",
+   "scale": 1.3
+  },
+  {
+   "id": "cutlass",
+   "label": "Cutlass",
+   "group": "hand",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    54
+   ],
+   "on": "hand",
+   "span": 48,
+   "measure": "torso",
+   "scale": 0.75,
+   "dir": [
+    0,
+    -1
+   ]
+  },
+  {
+   "id": "shell_tiara",
+   "label": "Shell tiara",
+   "group": "head",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    50
+   ],
+   "on": "head_top",
+   "span": 42,
+   "measure": "head_w",
+   "scale": 1.0
+  },
+  {
+   "id": "mermaid_tail",
+   "label": "Mermaid tail",
+   "group": "body",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    6
+   ],
+   "on": "waist",
+   "span": 24,
+   "measure": "hip_w",
+   "scale": 1.2
+  },
+  {
+   "id": "trident",
+   "label": "Trident",
+   "group": "hand",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    56
+   ],
+   "on": "hand",
+   "span": 48,
+   "measure": "torso",
+   "scale": 0.8,
+   "dir": [
+    0,
+    -1
+   ]
+  },
+  {
+   "id": "hero_mask",
+   "label": "Hero mask",
+   "group": "head",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    35
+   ],
+   "on": "face",
+   "span": 52,
+   "measure": "head_w",
+   "scale": 1.1
+  },
+  {
+   "id": "hero_cape",
+   "label": "Hero cape",
+   "group": "back",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    12
+   ],
+   "on": "neck",
+   "span": 30,
+   "measure": "shoulder_w",
+   "scale": 1.0
+  },
+  {
+   "id": "hero_emblem",
+   "label": "Hero emblem",
+   "group": "body",
+   "width": 128,
+   "height": 128,
+   "anchor": [
+    32,
+    30
+   ],
+   "on": "chest",
+   "span": 44,
+   "measure": "shoulder_w",
+   "scale": 0.6
+  },
+  {
+   "id": "cannonball",
+   "label": "Cannonball",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "ship_anchor",
+   "label": "Ship anchor",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "seashell",
+   "label": "Seashell",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "wave",
+   "label": "Wave",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "pow",
+   "label": "Pow",
+   "group": "fx",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "heart",
+   "label": "Heart",
+   "group": "fx",
+   "width": 128,
+   "height": 128
   }
  ]
 }

@@ -488,12 +488,23 @@ dialog:focus-visible {
   display: none;
 }
 
+
+
 .bar-costumes {
   display: flex;
   gap: 8px;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 2px;
+  scrollbar-width: none;
+}
+
+.bar-costumes::-webkit-scrollbar {
+  display: none;
 }
 
 .costume.mini {
+  flex: 0 0 auto;
   padding: 4px;
   border-radius: 12px;
   font-size: 0;

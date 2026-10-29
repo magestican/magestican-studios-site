@@ -87,6 +87,8 @@ export function stepPower(p, q, dtS) {
 }
 
 const THREE_D_S = 4;
+const THREE_D_OK_FPS = 20;
+
 
 
 
@@ -95,7 +97,9 @@ const THREE_D_S = 4;
 
 export function step3d(t, q, dtS) {
   if (t.off || !(dtS > 0) || dtS > 2) return t;
-  const secs = q.level === 'low' && q.fps < DOWN_FPS ? t.secs + dtS : 0;
+  let secs = 0;
+  if (q.level === 'low' && q.fps < DOWN_FPS) secs = t.secs + dtS;
+  else if (q.level === 'low' && q.fps < THREE_D_OK_FPS) secs = t.secs;
   return secs >= THREE_D_S ? { off: true, secs: 0 } : { off: false, secs };
 }
 

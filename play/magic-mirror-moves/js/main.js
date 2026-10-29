@@ -3,6 +3,7 @@
 
 
 
+import { costumeIcon, costumeName } from './costumes.js';
 import { CLIPS, demoPose, makePose } from './demoPose.js';
 import { Effects } from './effects.js';
 import { createEvents, EVENT_HITS, EVENT_S, stepEvents } from './events.js';
@@ -44,26 +45,6 @@ const LABELS = {
 };
 const CLOSE_START_S = 3; 
 const ALONE_START_S = 6; 
-const COSTUME_NAMES = {
-  wizard: 'Wizard',
-  princess: 'Princess',
-  ghost: 'Ghost',
-  fairy: 'Fairy',
-  dragon: 'Dragon',
-  ice_queen: 'Ice Queen',
-  astronaut: 'Astronaut',
-  robot: 'Robot',
-};
-const COSTUME_ICON = {
-  wizard: 'wizard_hat',
-  princess: 'crown',
-  ghost: 'ghost_hood',
-  fairy: 'flower_crown',
-  dragon: 'dragon_horns',
-  ice_queen: 'ice_crown',
-  astronaut: 'space_helmet',
-  robot: 'robot_head',
-};
 
 const WORLD_WIN = {
   meteor_shower: 'Coins from the sky!',
@@ -263,14 +244,14 @@ function buildDressingRoom() {
     b.dataset.costume = id;
     b.setAttribute('role', 'radio');
     const img = document.createElement('img');
-    img.src = new URL(`svg/sticker/${COSTUME_ICON[id]}.svg`, ART).href;
+    img.src = new URL(`svg/sticker/${costumeIcon(id)}.svg`, ART).href;
     img.alt = '';
-    b.append(img, COSTUME_NAMES[id]);
+    b.append(img, costumeName(id));
     b.addEventListener('click', () => setCostume(id));
     box.append(b);
     const mini =  (b.cloneNode(true));
     mini.classList.add('mini');
-    mini.setAttribute('aria-label', COSTUME_NAMES[id]);
+    mini.setAttribute('aria-label', costumeName(id));
     mini.addEventListener('click', () => setCostume(id));
     $('bar-costumes').append(mini);
   }
@@ -703,6 +684,11 @@ const view = { fw: 720, fh: 540, scale: 1, ox: 0, oy: 0, cw: 1, ch: 1, dpr: 1 };
 let dockH = 0;
 function layout() {
   const bar = $('bar');
+  
+  const worn =  (document.querySelector(`.bar-costumes [data-costume="${opts.costume}"]`));
+  const row = worn?.parentElement;
+  if (worn && row && row.scrollWidth > row.clientWidth)
+    row.scrollLeft = Math.max(0, worn.offsetLeft - row.offsetLeft - (row.clientWidth - worn.offsetWidth) / 2);
   const top = bar.hidden ? 0 : Math.ceil(bar.getBoundingClientRect().bottom);
   
   
@@ -1098,6 +1084,7 @@ Object.defineProperty(window, '__mmm', {
         score: g?.score ?? 0,
         hits: S.hits,
         particles: S.fx.particles.length,
+        fxKinds: [...new Set(S.fx.particles.map((p) => p.kind))], 
         placed: S.placed,
         pieces3d: S.pieces3d,
         combos: g ? [...g.combos] : [],

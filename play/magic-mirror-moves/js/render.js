@@ -19,6 +19,10 @@ export const COSTUMES = {
   astronaut: { pieces: ['jetpack', 'space_helmet', 'star_blaster'] },
   
   robot: { pieces: ['robot_chest', 'robot_upper_arm', 'robot_forearm', 'robot_thigh', 'robot_shin', 'robot_head'] },
+  
+  pirate: { pieces: ['pirate_coat', 'pirate_hat', 'cutlass'] },
+  mermaid: { pieces: ['mermaid_tail', 'shell_tiara', 'trident'] },
+  superhero: { pieces: ['hero_cape', 'hero_emblem', 'hero_mask'] },
 };
 
 const LAYER = { back: 0, body: 1, limb: 2, head: 3, hand: 4 };

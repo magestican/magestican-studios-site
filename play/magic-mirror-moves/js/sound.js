@@ -9,7 +9,19 @@
 
 
 export const VARIANTS = 3;
-export const COSTUMES = ['wizard', 'princess', 'ghost', 'fairy', 'dragon', 'ice_queen', 'astronaut', 'robot'];
+export const COSTUMES = [
+  'wizard',
+  'princess',
+  'ghost',
+  'fairy',
+  'dragon',
+  'ice_queen',
+  'astronaut',
+  'robot',
+  'pirate',
+  'mermaid',
+  'superhero',
+];
 export const SHARED = ['hit', 'combo', 'power_up', 'event_start', 'event_won', 'event_lost', 'finale', 'costume', 'click'];
 
 export const NAMES = [...SHARED, ...COSTUMES.flatMap((c) => [`${c}_cast`, `${c}_wand`]), 'robot_stomp'];
