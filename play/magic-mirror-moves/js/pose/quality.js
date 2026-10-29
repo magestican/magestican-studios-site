@@ -60,7 +60,8 @@ export function devicePlan({ coarse, ua, model, memory, cores, power }) {
     allow3d: !lowPower,
     
     
-    default3d: !phone && !lowPower,
+    
+    default3d: !lowPower,
   };
 }
 
@@ -83,6 +84,19 @@ export function stepPower(p, q, dtS) {
   if (p.low || !(dtS > 0) || dtS > 2) return p;
   const secs = q.level === 'low' && q.fps < DOWN_FPS ? p.secs + dtS : 0;
   return secs >= POWER_S ? { low: true, secs: 0 } : { low: false, secs };
+}
+
+const THREE_D_S = 4;
+
+
+
+
+
+
+export function step3d(t, q, dtS) {
+  if (t.off || !(dtS > 0) || dtS > 2) return t;
+  const secs = q.level === 'low' && q.fps < DOWN_FPS ? t.secs + dtS : 0;
+  return secs >= THREE_D_S ? { off: true, secs: 0 } : { off: false, secs };
 }
 
 

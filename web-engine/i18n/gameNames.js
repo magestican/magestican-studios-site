@@ -77,16 +77,6 @@ export const GAME_NAMES = Object.freeze({
   
   
   conga: { en: 'Congawise', es: 'Congawise: Conga uruguaya', pt: 'Congawise: Conga', tl: 'Congawise: Conga', ja: 'Congawise コンガ', ko: 'Congawise 콩가', id: 'Congawise: Conga', vi: 'Congawise: Conga' },
-  
-  
-  
-  koikoi: { en: 'Hanawise', es: 'Hanawise: Koi-Koi', pt: 'Hanawise: Koi-Koi', tl: 'Hanawise: Koi-Koi', ja: 'Hanawise こいこい 花札', ko: 'Hanawise 하나후다 코이코이', id: 'Hanawise: Koi-Koi', vi: 'Hanawise: Koi-Koi', 'zh-Hant': 'Hanawise 花札 こいこい', 'zh-Hans': 'Hanawise 花札 こいこい' },
-  
-  
-  shogi: { en: 'Shogiwise', es: 'Shogiwise: Shogi', pt: 'Shogiwise: Shogi', tl: 'Shogiwise: Shogi', ja: 'Shogiwise 将棋', ko: 'Shogiwise 쇼기', id: 'Shogiwise: Shogi', vi: 'Shogiwise: Shogi', 'zh-Hant': 'Shogiwise 日本將棋', 'zh-Hans': 'Shogiwise 日本将棋' },
-  
-  
-  xiangqi: { en: 'Xiangqiwise', es: 'Xiangqiwise: Xiangqi', pt: 'Xiangqiwise: Xiangqi', tl: 'Xiangqiwise: Xiangqi', ja: 'Xiangqiwise シャンチー', ko: 'Xiangqiwise 샹치', id: 'Xiangqiwise: Xiangqi', vi: 'Xiangqiwise: Cờ tướng', 'zh-Hant': 'Xiangqiwise 中國象棋', 'zh-Hans': 'Xiangqiwise 中国象棋' },
   minesweeper: { en: 'Sweepwise', es: 'Sweepwise: Buscaminas', pt: 'Sweepwise: Campo Minado', tl: 'Sweepwise: Minesweeper', ja: 'Sweepwise マインスイーパー', ko: 'Sweepwise 지뢰찾기', id: 'Sweepwise: Minesweeper', vi: 'Sweepwise: Dò Mìn' },
   'farmy-furrows': { en: 'Gridseek', es: 'Gridseek: Sopa de Letras', pt: 'Gridseek: Caça-Palavras', ja: 'Gridseek 単語探し', ko: 'Gridseek 단어 찾기', id: 'Gridseek: Cari Kata', vi: 'Gridseek: Tìm Chữ' },
 });
@@ -94,22 +84,8 @@ export const GAME_NAMES = Object.freeze({
 export const NAME_LANGS = Object.freeze(['en', 'es', 'pt', 'tl', 'ja', 'ko', 'id', 'vi']);
 
 
-
-
-
-export const ZH_LANGS = Object.freeze(['zh-Hant', 'zh-Hans']);
-export const ZH_GAMES = Object.freeze(['koikoi', 'shogi', 'xiangqi']);
-export function zhScript(s) {
-  const c = String(s || '').toLowerCase();
-  if (c !== 'zh' && !c.startsWith('zh-') && !c.startsWith('zh_')) return null;
-  if (/hant|[-_](tw|hk|mo)\b/.test(c)) return 'zh-Hant';
-  return 'zh-Hans';
-}
-
-
-export function gameLang(loc = globalThis.location, store = globalThis.localStorage, nav = globalThis.navigator, { zh = false } = {}) {
+export function gameLang(loc = globalThis.location, store = globalThis.localStorage, nav = globalThis.navigator) {
   const norm = (s) => {
-    if (zh && zhScript(s)) return zhScript(s);
     let c = String(s || '').toLowerCase().split('-')[0];
     if (c === 'fil') c = 'tl';
     if (c === 'in') c = 'id';

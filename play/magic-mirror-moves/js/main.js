@@ -10,11 +10,22 @@ import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
 import { mirrorFrame, onlyInFrame, PoseSmoother, seen } from './pose/pose.js';
-import { devicePlan, initialPower, initialQuality, LOW_CAMERA, LOW_PARTICLES, QUALITY, stepPower, stepQuality } from './pose/quality.js';
+import {
+  devicePlan,
+  initialPower,
+  initialQuality,
+  LOW_CAMERA,
+  LOW_PARTICLES,
+  QUALITY,
+  step3d,
+  stepPower,
+  stepQuality,
+} from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
 import { createSound, cuesForGame, cuesForWorld, namesFor } from './sound.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
 import { startVoice, voiceSupport } from './voice.js';
+import { localVoiceSupported, startLocalVoice } from './voiceLocal.js';
 
 const sound = createSound(window, (n) => {
   document.getElementById('sound').dataset.played = String(n); 
@@ -272,29 +283,71 @@ function buildDressingRoom() {
   }
 }
 
+
+function setMode(mode) {
+  if (opts.mode === mode) return;
+  opts.mode = mode;
+  syncChips();
+  if (S.screen === 'play') beginRound({ tutorial: false });
+}
+function setPlayers(n) {
+  if (opts.players === n) return;
+  opts.players = n;
+  S.p2.frame = null;
+  S.p2.smoother.reset();
+  syncChips();
+  if (S.screen === 'play') beginRound({ tutorial: false });
+}
+function setMuted(muted) {
+  sound.setMuted(muted);
+  const sb = $('sound');
+  sb.innerHTML = sound.muted ? '&#x1F507;' : '&#x1F50A;';
+  sb.setAttribute('aria-pressed', String(sound.muted));
+  sb.setAttribute('aria-label', sound.muted ? 'Turn sound on' : 'Turn sound off');
+  sb.title = sb.getAttribute('aria-label') ?? '';
+}
+
+function applyCommand(cmd) {
+  if (cmd.kind === 'costume' && cmd.value !== opts.costume) setCostume(cmd.value);
+  else if (cmd.kind === 'players') setPlayers(cmd.value);
+  else if (cmd.kind === 'mode') setMode(cmd.value);
+  else if (cmd.kind === 'sound' && sound.muted === cmd.value) setMuted(!cmd.value);
+}
+
+
+
 async function wireVoice() {
-  if ((await voiceSupport(window)) === 'none') return;
+  const engine = (await voiceSupport(window)) !== 'none' ? startVoice : localVoiceSupported(window) ? startLocalVoice : null;
+  if (!engine) return;
   const btn = $('voice');
   btn.hidden = false;
   layout();
   let stop = null;
+  let starting = 0; 
+  let starts = 0;
   const set = (on) => {
     btn.setAttribute('aria-pressed', String(on));
     btn.setAttribute('aria-label', on ? 'Stop listening' : 'Say a costume');
   };
   btn.addEventListener('click', async () => {
-    if (stop) {
-      stop();
+    if (stop || starting) {
+      stop?.();
       stop = null;
+      starting = 0;
       set(false);
       return;
     }
     set(true);
+    const me = ++starts;
+    starting = me;
     try {
-      stop = await startVoice(window, (id) => {
-        if (id !== opts.costume) setCostume(id);
-      });
+      const s = await engine(window, applyCommand);
+      if (starting !== me) return s(); 
+      starting = 0;
+      stop = s;
     } catch (e) {
+      if (starting !== me) return;
+      starting = 0;
       console.warn('Magic Mirror Moves: voice is off on this device.', e);
       set(false);
       btn.hidden = true;
@@ -346,18 +399,8 @@ function wire() {
   addEventListener('resize', layout);
   const watch = new ResizeObserver(() => layout());
   for (const el of [$('bar'), $('card'), document.querySelector('#frame .dock')]) if (el) watch.observe(el);
-  $('mode-switch').addEventListener('click', () => {
-    opts.mode = opts.mode === 'mirror' ? 'show' : 'mirror';
-    syncChips();
-    if (S.screen === 'play') beginRound({ tutorial: false });
-  });
-  $('players').addEventListener('click', () => {
-    opts.players = opts.players === 2 ? 1 : 2;
-    S.p2.frame = null;
-    S.p2.smoother.reset();
-    syncChips();
-    if (S.screen === 'play') beginRound({ tutorial: false });
-  });
+  $('mode-switch').addEventListener('click', () => setMode(opts.mode === 'mirror' ? 'show' : 'mirror'));
+  $('players').addEventListener('click', () => setPlayers(opts.players === 2 ? 1 : 2));
   $('menu').addEventListener('click', () => show('title'));
   
   const root =  (document.documentElement);
@@ -386,14 +429,7 @@ function wire() {
   addEventListener('click', (e) => {
     if ( (e.target).closest?.('button')) sound.play([{ name: 'click' }]);
   });
-  const sb = $('sound');
-  sb.addEventListener('click', () => {
-    sound.setMuted(!sound.muted);
-    sb.innerHTML = sound.muted ? '&#x1F507;' : '&#x1F50A;';
-    sb.setAttribute('aria-pressed', String(sound.muted));
-    sb.setAttribute('aria-label', sound.muted ? 'Turn sound on' : 'Turn sound off');
-    sb.title = sb.getAttribute('aria-label') ?? '';
-  });
+  $('sound').addEventListener('click', () => setMuted(!sound.muted));
   
   wireVoice();
   
@@ -432,7 +468,7 @@ function enterLowPower() {
   plan.maxPixelRatio = 1;
   S.fx.setMax(LOW_PARTICLES);
   if (overlay) {
-    overlay.clear();
+    overlay.dispose();
     overlay = null;
     S.pieces3d = 0;
   }
@@ -463,6 +499,19 @@ function loadEstimator() {
     throw err;
   });
   return estimatorLoad;
+}
+
+
+
+let threeD = { off: false, secs: 0 };
+function drop3d() {
+  if (!overlay) return;
+  overlay.dispose();
+  overlay = null;
+  S.pieces3d = 0;
+  opts.render = '2d';
+  quality = initialQuality('medium');
+  resize();
 }
 
 async function startCamera() {
@@ -1010,14 +1059,20 @@ function loop(now) {
 }
 
 function frame(now) {
-  const dt = Math.min(0.1, last ? (now - last) / 1000 : 0);
+  const wall = last ? (now - last) / 1000 : 0;
+  const dt = Math.min(0.1, wall); 
   last = now;
   if (S.source === 'camera') {
+    
+    
     const was = quality.level;
-    quality = stepQuality(quality, dt);
+    quality = stepQuality(quality, wall);
     if (quality.level !== was) resize();
-    if (!power.low) {
-      power = stepPower(power, quality, dt);
+    if (overlay) {
+      threeD = step3d(threeD, quality, wall);
+      if (threeD.off) drop3d();
+    } else if (!power.low) {
+      power = stepPower(power, quality, wall);
       if (power.low) enterLowPower();
     }
   }

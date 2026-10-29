@@ -1,0 +1,6 @@
+{
+  "source": "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip (Apache-2.0, Alpha Cephei; zip sha256 30f26242c4eb449f948e42cb302dd7a686cb29a3423a8367f99ff41780942498), repacked as ustar tar.gz for vosk-browser 2026-10-29",
+  "files": {
+    "en-small.tar.gz": "e56eab36b90762c7ec6d82008146bf9b9ad5e235c0a0eeedd7cad4ae31a71090"
+  }
+}

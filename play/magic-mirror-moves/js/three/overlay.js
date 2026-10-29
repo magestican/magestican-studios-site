@@ -156,6 +156,12 @@ export class CostumeOverlay {
   }
 
   
+  dispose() {
+    this.clear();
+    this.renderer.dispose();
+  }
+
+  
 
 
 
