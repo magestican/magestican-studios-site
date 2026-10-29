@@ -3,7 +3,7 @@
 
 
 
-import { hipCentre, shoulderCentre, torsoLength } from './pose/framing.js';
+import { bodyUnit, hipCentre, shoulderCentre } from './pose/framing.js';
 import { seen } from './pose/pose.js';
 
 export const MOVES = ['arms_up', 'star', 'flap', 'jump', 'squat', 'twirl', 'wand', 'boo', 'crown'];
@@ -16,16 +16,27 @@ export const MOVE_JOINTS = {
   jump: ['left_hip', 'right_hip', 'left_ankle', 'right_ankle'],
   squat: ['left_hip', 'right_hip', 'left_knee', 'right_knee'],
   twirl: ['left_shoulder', 'right_shoulder', 'left_hip', 'right_hip'],
-  wand: ['left_wrist', 'right_wrist', 'left_elbow', 'right_elbow', 'left_shoulder', 'right_shoulder'],
+  wand: ['left_shoulder', 'right_shoulder'], 
   boo: ['nose', 'left_wrist', 'right_wrist'],
   crown: ['nose', 'left_wrist', 'right_wrist', 'left_elbow', 'right_elbow'],
 };
 
+
+const ONE_OF = {
+  wand: [
+    ['left_elbow', 'left_wrist'],
+    ['right_elbow', 'right_wrist'],
+  ],
+};
+
 const COOLDOWN_S = 0.9; 
+const STEP_SCALE = 0.12; 
+const STEP_S = 0.5; 
 
 
 export function moveVisible(pose, move) {
-  return MOVE_JOINTS[move].every((j) => seen(pose[j]));
+  const any = ONE_OF[move];
+  return MOVE_JOINTS[move].every((j) => seen(pose[j])) && (!any || any.some((g) => g.every((j) => seen(pose[j]))));
 }
 
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -51,16 +62,30 @@ export class MoveTracker {
     this.booArmed = -1; 
     this.twirlCollapsed = -1; 
     this.prevT = null;
+    this.stepFor = 0; 
+    this.size = ''; 
   }
 
   
   update(frame) {
     const { pose, t } = frame;
+    
+    
+    
+    const size = `${frame.width}x${frame.height}`;
+    if (this.size && size !== this.size) {
+      this.torso = null;
+      this.baseHip = null;
+      this.baseShoulderW = null;
+      this.held = {};
+      this.flapSigns = [];
+    }
+    this.size = size;
     const dt = this.prevT === null ? 0 : Math.max(0, Math.min(0.25, t - this.prevT));
     this.prevT = t;
     
     const out = { hits: [], partial: [] };
-    const T0 = torsoLength(pose);
+    const T0 = bodyUnit(pose); 
     if (!T0) return out;
     
     this.torso = this.torso === null ? T0 : this.torso;
@@ -71,10 +96,27 @@ export class MoveTracker {
 
     
     
-    const standing = this.baseHip === null || Math.abs(hip.y - this.baseHip) < 0.08 * T;
+    
+    
+    
+    
+    const sT = T0 / T;
+    const sW = this.baseShoulderW ? shoulderW / this.baseShoulderW : 1;
+    const resized =
+      ((sT > 1 + STEP_SCALE && sW > 1 + STEP_SCALE) || (sT < 1 / (1 + STEP_SCALE) && sW < 1 / (1 + STEP_SCALE))) &&
+      Math.abs(sT / sW - 1) < 0.15;
+    this.stepFor = resized ? this.stepFor + dt : 0;
+    if (this.stepFor >= STEP_S) {
+      this.torso = T0;
+      this.baseHip = hip ? hip.y : null;
+      this.baseShoulderW = shoulderW;
+      this.held = {};
+      this.stepFor = 0;
+    }
+    const standing = !hip || this.baseHip === null || Math.abs(hip.y - this.baseHip) < 0.08 * T;
     if (standing) {
       const k = this.baseHip === null ? 1 : Math.min(1, dt * 1.5);
-      this.baseHip = this.baseHip === null ? hip.y : this.baseHip + (hip.y - this.baseHip) * k;
+      if (hip) this.baseHip = this.baseHip === null ? hip.y : this.baseHip + (hip.y - this.baseHip) * k;
       this.torso += (T0 - this.torso) * Math.min(1, dt * 0.8);
       if (this.baseShoulderW === null || shoulderW > this.baseShoulderW) this.baseShoulderW = shoulderW;
       else if (shoulderW > 0.7 * this.baseShoulderW) this.baseShoulderW += (shoulderW - this.baseShoulderW) * Math.min(1, dt * 0.3);
@@ -124,13 +166,13 @@ export class MoveTracker {
     }
 
     
-    if (moveVisible(pose, 'jump') && this.baseHip !== null) {
+    if (moveVisible(pose, 'jump') && this.baseHip !== null && !resized) {
       const rise = (this.baseHip - hip.y) / T;
       if (rise > 0.18) fire('jump', [pose.left_ankle, pose.right_ankle]);
     }
 
     
-    if (moveVisible(pose, 'squat') && this.baseHip !== null) {
+    if (moveVisible(pose, 'squat') && this.baseHip !== null && !resized) {
       const sink = (hip.y - this.baseHip) / T;
       if (hold('squat', sink > 0.3, 0.3)) fire('squat', [hip]);
       else if (sink > 0.15) out.partial.push('squat');
@@ -149,6 +191,7 @@ export class MoveTracker {
     
     if (moveVisible(pose, 'wand')) {
       const pointing = (s, e, w) => {
+        if (!seen(e) || !seen(w)) return { ok: false, near: false }; 
         const reach = dist(s, w) / (dist(s, e) + dist(e, w));
         const level = Math.abs(w.y - s.y) < 0.35 * dist(s, w);
         const out_ = dist(s, w) > 0.9 * T;

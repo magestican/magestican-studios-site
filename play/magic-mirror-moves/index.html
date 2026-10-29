@@ -16,8 +16,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Magic Mirror">
-  <link rel="stylesheet" href="css/game.css?v=6724c9a4-20261029T054713Z">
-  <script type="module" src="js/main.js?v=6724c9a4-20261029T054713Z"></script>
+  <link rel="stylesheet" href="css/game.css?v=e0b83979-20261029T090650Z">
+  <script type="module" src="js/main.js?v=e0b83979-20261029T090650Z"></script>
   <link rel="canonical" href="https://magesticanstudios.com/play/magic-mirror-moves/">
 </head>
 <body>
@@ -38,10 +38,13 @@
     </div>
     <div class="bar-tools">
       <button type="button" id="mode-switch" class="ghost-btn small">Score points</button>
-      <button type="button" id="fullscreen" class="ghost-btn small icon" aria-label="Full screen" title="Full screen" hidden>&#x26F6;</button>
+      <button type="button" id="players" class="ghost-btn small icon" aria-pressed="false" aria-label="Two players" title="Two players">&#x1F465;</button>
+      <button type="button" id="voice" class="ghost-btn small icon" aria-pressed="false" aria-label="Say a costume" title="Say a costume, like dragon!" hidden>&#x1F3A4;</button>
+      <button type="button" id="sound" class="ghost-btn small icon" aria-pressed="false" aria-label="Turn sound off" title="Turn sound off">&#x1F50A;</button>
+      <button type="button" id="fullscreen" class="ghost-btn small icon" aria-label="Go full screen" title="Go full screen" hidden>&#x26F6;</button>
       <button type="button" id="install" class="ghost-btn small" hidden>Install</button>
       <button type="button" id="menu" class="ghost-btn small">Menu</button>
-      <button type="button" class="ghost-btn small icon" data-privacy aria-label="Privacy: the camera stays on this device" title="The camera stays on this device">&#x1F512;</button>
+      <button type="button" class="ghost-btn small icon" data-privacy aria-label="Privacy" title="The camera stays on this device">&#x1F512;</button>
     </div>
   </nav>
 
@@ -80,7 +83,7 @@
       <p id="frame-note" class="note" hidden></p>
       <div class="row">
         <button type="button" class="ghost-btn" data-back="dress">Back</button>
-        <button type="button" id="use-demo" class="ghost-btn" hidden>Play with the demo player</button>
+        <button type="button" id="use-demo" class="ghost-btn" hidden>Play the demo</button>
         <button type="button" id="start" class="big">Start</button>
       </div>
     </div>
@@ -91,7 +94,7 @@
     <footer id="card" class="card">
       <canvas id="card-fig" width="160" height="160" aria-hidden="true"></canvas>
       <div class="card-text">
-        <p id="card-label">Arms up high!</p>
+        <p id="card-label">Put your arms up high!</p>
         <div class="window" aria-hidden="true"><div id="card-bar"></div></div>
       </div>
     </footer>

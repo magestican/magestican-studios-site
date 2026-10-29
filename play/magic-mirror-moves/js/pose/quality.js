@@ -58,6 +58,9 @@ export function devicePlan({ coarse, ua, model, memory, cores, power }) {
     stickerPx: lowPower ? 192 : phone ? 256 : 384,
     maxParticles: lowPower ? LOW_PARTICLES : 420,
     allow3d: !lowPower,
+    
+    
+    default3d: !phone && !lowPower,
   };
 }
 
