@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Weiqiwise - free Go online: weiqi, igo, baduk</title>
+  <meta name="description" content="Weiqiwise is free Go (weiqi, igo, baduk - 围棋, 囲碁, 바둑) in your browser on a kaya board with slate and shell stones: 9x9, 13x13 or 19x19, Japanese or Chinese counting, and a guide that shows atari and ko. Play the computer at three levels or a friend in a room.">
+  <meta name="keywords" content="weiqiwise, go, go game, weiqi, igo, baduk, go online, 围棋, 圍棋, 囲碁, 바둑, 围棋 在线, 圍棋 線上, cờ vây">
+  <meta name="build" content="5f068dc4-20261029T231538Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/go/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Weiqiwise - free Go online: weiqi, igo, baduk">
+  <meta property="og:description" content="Go on a kaya board with slate and shell stones: surround territory, capture groups out of liberties, fight the ko. The computer at three levels, or a friend in a room.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/go/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/go.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Weiqiwise - free Go online: weiqi, igo, baduk">
+  <meta name="twitter:description" content="Surround territory, capture by liberties, fight the ko: Go against the computer or a friend.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/go.jpg">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  
+
+  <script src="../shared/ui/boot.js?v=5f068dc4-20261029T231538Z" data-game="go" data-zh="1" data-levels="easy,medium,hard" data-level-key="weiqiwise-settings-v1" data-level-default="easy"></script>
+  <link rel="stylesheet" href="./src/style.css?v=5f068dc4-20261029T231538Z">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Weiqiwise",
+    "alternateName": ["Go", "Weiqi", "Igo", "Baduk", "围棋", "圍棋", "囲碁", "바둑", "Cờ vây"],
+    "url": "https://magesticanstudios.com/play/go/",
+    "description": "Go in the browser on a kaya board with slate and shell stones, on 9x9, 13x13 or 19x19. A group with no liberties is captured; suicide is not allowed; no whole-board position may repeat (superko). Two passes start the count: the engine marks the dead stones and both players accept, or play on to settle a dispute on the board. Japanese counting (territory and prisoners, komi 6.5) or Chinese counting (area, komi 7.5). A guide shows groups in atari and the points you may not play. Play the computer at three levels or a friend in a peer-to-peer room.",
+    "image": "https://magesticanstudios.com/assets/og/go.jpg",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Board", "Strategy"],
+    "gamePlatform": ["Web browser"],
+    "playMode": ["SinglePlayer", "MultiPlayer"],
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": ["en", "es", "pt-BR", "tl", "ja", "ko", "id", "vi", "zh-Hant", "zh-Hans"],
+    "datePublished": "2026-10-29",
+    "accessibilityFeature": ["highContrastDisplay", "structuralNavigation"],
+    "accessibilityHazard": ["noFlashingHazard", "noMotionSimulationHazard"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+  <script type="module" src="/web-engine/library/openHook.js?play=go"></script>
+</head>
+<body>
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+    <a class="studio-back" id="rules-link" href="/go.html" data-t="back">How to play</a>
+    <button id="music-btn" class="studio-music" type="button"
+            aria-pressed="false" aria-label="Play music" title="Play music">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        <path class="mg-note" d="M18 6.5 L27 4.5 V17.2" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="mg-note" cx="15.4" cy="18.6" r="3.4" fill="currentColor"/>
+        <circle class="mg-note" cx="24.4" cy="16.6" r="3.4" fill="currentColor"/>
+        <path d="M3 12.5 H6.5 L11 8.5 V23.5 L6.5 19.5 H3 Z" fill="currentColor"/>
+        <path class="mg-slash" d="M4 27 L28 5" fill="none" stroke="currentColor"
+              stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <main class="wq">
+    <h1 class="mg-own" data-game-name>Weiqiwise</h1>
+
+    <div class="wq-row" role="group" aria-label="Mode">
+      <button class="wq-btn skin-lacquer-toggle mg-i mg-i-computer" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
+      <button class="wq-btn skin-lacquer-toggle mg-i mg-i-globe" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
+    </div>
+
+    <div class="wq-row" id="opts-row">
+      <span class="wq-seg" role="group" aria-label="Level" id="level-seg">
+        <span class="wq-label" data-t="level">Level</span>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-level="easy" data-t="easy" aria-pressed="true">Easy</button>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-level="medium" data-t="medium" aria-pressed="false">Medium</button>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
+      </span>
+      <span class="wq-seg" role="group" aria-label="Side" id="side-seg">
+        <span class="wq-label" data-t="sideLabel">You play</span>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-side="b" data-t="sideBlack" aria-pressed="true">Black (first)</button>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-side="w" data-t="sideWhite" aria-pressed="false">White (second)</button>
+      </span>
+      <span class="wq-seg" role="group" aria-label="Board">
+        <span class="wq-label" data-t="sizeLabel">Board</span>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-size="9" aria-pressed="true">9x9</button>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-size="13" aria-pressed="false">13x13</button>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-size="19" aria-pressed="false">19x19</button>
+      </span>
+      <span class="wq-seg" role="group" aria-label="Count">
+        <span class="wq-label" data-t="countLabel">Count</span>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-rules="japanese" data-t="japanese" aria-pressed="true">Japanese</button>
+        <button class="wq-btn skin-lacquer-toggle" type="button" data-rules="chinese" data-t="chinese" aria-pressed="false">Chinese</button>
+      </span>
+      <span class="wq-seg">
+        <button class="wq-btn skin-lacquer-toggle mg-i mg-i-move_guide" type="button" id="guide" data-t="guide" aria-pressed="true">Move guide</button>
+      </span>
+    </div>
+
+    <section class="wq-room mg-own" id="room" hidden aria-label="Room">
+      <div class="wq-row" id="room-start">
+        <button class="wq-btn skin-lacquer-button_primary mg-i mg-i-two_players" type="button" id="create-room" data-t="createRoom">Create a room</button>
+        <form class="wq-row" id="join-form">
+          <input class="wq-code-input skin-lacquer-select" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
+          <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-link" type="submit" data-t="join">Join</button>
+        </form>
+      </div>
+      <div class="wq-row" id="room-live" hidden>
+        <span class="wq-label" data-t="roomCodeLabel">Code</span> <output class="wq-code" id="room-code">-</output>
+        <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-share" type="button" id="copy-link" data-t="copyLink">Share link</button>
+        <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-watch" type="button" id="watch-link" data-t="watchLink">Watch link</button>
+        <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-leave" type="button" id="leave-room" data-t="leave">Leave room</button>
+        <span class="wq-watchers skin-lacquer-chip mg-i mg-i-watchers" id="watchers" role="status" hidden></span>
+      </div>
+    </section>
+
+    <div class="wq-hud">
+      <p class="wq-status" id="status" role="status" aria-live="polite"></p>
+    </div>
+
+    
+
+
+
+    <section class="wq-table mg-own" id="table" aria-label="Go board" translate="no">
+      <div class="wq-bowl wq-them" id="bowl-them"></div>
+      <div class="wq-boardwrap">
+        <div class="wq-board" id="board" role="grid" aria-label="Go board"></div>
+      </div>
+      <div class="wq-bowl wq-me" id="bowl-me"></div>
+      <div class="wq-banner" id="banner" aria-hidden="true" hidden></div>
+    </section>
+
+    <section class="wq-seat" id="seat">
+      <p class="wq-flash" id="flash" aria-live="assertive"></p>
+      <p class="wq-count" id="count" hidden></p>
+      <div class="wq-foot">
+        <button class="wq-btn skin-lacquer-button_secondary" id="pass" type="button" data-t="pass">Pass</button>
+        <button class="wq-btn skin-lacquer-button_primary" id="accept" type="button" data-t="accept" hidden>Accept</button>
+        <button class="wq-btn skin-lacquer-button_secondary" id="resume" type="button" data-t="keepPlaying" hidden>Keep playing</button>
+        <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-give_up" id="resign" type="button" data-t="resign">Resign</button>
+        <button class="wq-btn skin-lacquer-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+      </div>
+    </section>
+    <p class="wq-help"><span data-t="help">Tap a point to place a stone. A group with no liberties is captured. When neither player has a useful move, both pass and the board is counted.</span>
+      <span data-t="note">No position may repeat (superko). In the Japanese count, points inside a seki are counted as territory.</span></p>
+  </main>
+
+  <noscript>
+    <p>Weiqiwise is a Go game and needs JavaScript; there is nothing to download.
+    <a href="/go.html">How to play</a>.</p>
+  </noscript>
+
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=5f068dc4-20261029T231538Z"></script>
+  <script type="module" src="./src/main.js?v=5f068dc4-20261029T231538Z"></script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="tl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Weiqiwise - Go (weiqi, baduk) online nang libre | Magestican Studios</title>
+  <meta name="description" content="Maglaro ng Go online nang libre: weiqi at baduk sa 9x9, 13x13 o 19x19 na board, may capture, ko at bilang na Japanese o Chinese. Laban sa computer o kaibigan.">
+  <link rel="icon" href="/favicon.svg">
+  <meta name="robots" content="max-image-preview:large">
+  <link rel="canonical" href="https://magesticanstudios.com/tl/go.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/go.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/go.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/go.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/go.html">
+  <link rel="alternate" hreflang="ja" href="https://magesticanstudios.com/ja/go.html">
+  <link rel="alternate" hreflang="ko" href="https://magesticanstudios.com/ko/go.html">
+  <link rel="alternate" hreflang="id" href="https://magesticanstudios.com/id/go.html">
+  <link rel="alternate" hreflang="vi" href="https://magesticanstudios.com/vi/go.html">
+  <link rel="alternate" hreflang="zh-Hant" href="https://magesticanstudios.com/zh-hant/go.html">
+  <link rel="alternate" hreflang="zh-Hans" href="https://magesticanstudios.com/zh-hans/go.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/go.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  <meta name="keywords" content="go, go online, play go, go board game, weiqi, weiqi online, baduk, baduk online, how to play go, go rules, weiqiwise">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tl_PH">
+  <meta property="og:title" content="Weiqiwise - maglaro ng Go online nang libre">
+  <meta property="og:description" content="Go, weiqi at baduk: naglalaban ang itim at puting bato para sa teritoryo sa board na may 9, 13 o 19 na linya. Laban sa computer o sa isang kaibigan.">
+  <meta property="og:url" content="https://magesticanstudios.com/tl/go.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/go.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Weiqiwise - maglaro ng Go online nang libre">
+  <meta name="twitter:description" content="Go, weiqi at baduk, laban sa computer o sa isang kaibigan. Walang download, walang account.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/go.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Weiqiwise: Go",
+  "alternateName": [
+    "Go",
+    "Weiqi",
+    "Baduk",
+    "Igo",
+    "围棋",
+    "圍棋",
+    "囲碁",
+    "바둑"
+  ],
+  "url": "https://magesticanstudios.com/play/go/",
+  "description": "Ang Go, na tinatawag na weiqi sa China at baduk sa Korea, sa browser sa 9x9, 13x13 o 19x19 na board: naglalagay ng bato ang Itim at Puti sa mga punto, nahuhuli ang grupong walang liberty, bawal ang suicide at pinipigilan ng ko rule na maulit ang isang capture. Natatapos ang laro sa dalawang pass; minamarkahan ang mga patay na bato at binibilang ang board sa paraang Japanese (komi 6.5) o Chinese (komi 7.5). Dalawang manlalaro: ang computer sa tatlong level na may move guide, o isang kaibigan sa room na ibinabahagi mo gamit ang link o code.",
+  "image": "https://magesticanstudios.com/assets/covers/go-16x9.webp",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "genre": [
+    "Board game",
+    "Estratehiya",
+    "Klasiko"
+  ],
+  "gamePlatform": [
+    "Web browser",
+    "Mobile browser"
+  ],
+  "playMode": [
+    "SinglePlayer",
+    "MultiPlayer"
+  ],
+  "numberOfPlayers": {
+    "@type": "QuantitativeValue",
+    "minValue": 1,
+    "maxValue": 2
+  },
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "tl",
+  "accessibilityFeature": [
+    "highContrastDisplay",
+    "structuralNavigation"
+  ],
+  "accessibilityHazard": [
+    "noFlashingHazard",
+    "noMotionSimulationHazard"
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Libre ba ang Weiqiwise: Go?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo. Libre, walang sign up at walang ida-download. Bubukas ito sa browser tab na gamit mo na, sa computer, tablet o phone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Paano maglaro ng Go kasama ang kaibigan online?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Piliin ang Friend online, pindutin ang Create a room at ipadala ang link o sabihin ang anim na letrang code. Papasok ang kaibigan mo sa sarili niyang browser, at puwedeng manood ang iba gamit ang watch link."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Paano nahuhuli ang mga bato sa Go?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ang mga bakanteng punto sa tabi ng isang bato, sa kahabaan ng mga linya, ay ang mga liberty nito, at pinaghahatian ito ng magkakadikit na bato na iisa ang kulay. Kapag napuno ng isang tira ang huling liberty ng grupo ng kalaban, aalis sa board ang buong grupo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Aling bilang ang gamit ng Weiqiwise: Go, Japanese o Chinese?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pareho. Ang bilang na Japanese, ang default, ay nagbibilang ng mga bakanteng puntong napalibutan at ng mga batong nahuli, na may 6.5 puntos na komi para sa Puti. Ang bilang na Chinese ay nagbibilang ng mga bakanteng puntong napalibutan at ng mga bato mo sa board, na may 7.5 puntos na komi."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Gaano kalakas ang computer?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bawat level ay naglalaro ng mga random na laro mula sa posisyon at pinipili ang tirang pinakamadalas manalo: 250 ang sinusubukan ng Easy, 2,500 ang Medium at 9,000 ang Hard. Sa mga test game sa 9x9, tinalo ng Medium ang Easy 4-0 at tinalo ng Hard ang Medium 4-0."
+      }
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css?v=5f068dc4-20261029T231538Z">
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    try {
+      initAnalytics({ page: 'tl-go' });
+      trackPlayClicks();
+    } catch {  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="/tl/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/tl/#games">Mga laro</a>
+      <a href="/you.html">Iyong mga laro</a>
+      <a href="/tl/for-remote-teams.html">Para sa mga team</a>
+      <a href="/tl/magazine/">Magazine</a>
+      <a href="/tl/about.html">Tungkol sa amin</a>
+      <a href="/tl/reviews.html">Mga review</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Wika: Tagalog"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>TL</span></summary><ul><li><a href="/go.html" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en">English</a></li><li><a href="/es/go.html" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/go.html" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/go.html" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl" aria-current="page">Tagalog</a></li><li><a href="/ja/go.html" hreflang="ja" onclick="try{localStorage.setItem('ms-lang','ja')}catch(e){}" lang="ja" data-lang="ja">日本語</a></li><li><a href="/ko/go.html" hreflang="ko" onclick="try{localStorage.setItem('ms-lang','ko')}catch(e){}" lang="ko" data-lang="ko">한국어</a></li><li><a href="/id/go.html" hreflang="id" onclick="try{localStorage.setItem('ms-lang','id')}catch(e){}" lang="id" data-lang="id">Bahasa Indonesia</a></li><li><a href="/vi/go.html" hreflang="vi" onclick="try{localStorage.setItem('ms-lang','vi')}catch(e){}" lang="vi" data-lang="vi">Tiếng Việt</a></li><li><a href="/zh-hant/go.html" hreflang="zh-Hant" onclick="try{localStorage.setItem('ms-lang','zh-hant')}catch(e){}" lang="zh-Hant" data-lang="zh-hant">繁體中文</a></li><li><a href="/zh-hans/go.html" hreflang="zh-Hans" onclick="try{localStorage.setItem('ms-lang','zh-hans')}catch(e){}" lang="zh-Hans" data-lang="zh-hans">简体中文</a></li></ul></details>
+  </header>
+
+  <main>
+    <figure class="cover-hero">
+      <img class="cover-master" src="/assets/covers/go-16x9.webp" width="1920" height="1080" srcset="/assets/covers/go-960.webp 960w, /assets/covers/go-16x9.webp 1920w" sizes="(max-width: 800px) 92vw, (max-width: 1120px) calc(100vw - 64px), 1056px" fetchpriority="high" decoding="async" style="object-position: 50% 50%"
+           alt="Weiqiwise: Go: isang laro ng Go sa kahoy na board, may itim at puting bato sa mga punto">
+    </figure>
+    <h1>Weiqiwise: Go &mdash; maglaro ng Go online nang libre</h1>
+    <p class="lede">Ang Go ay board game para sa dalawang manlalaro, Itim at Puti, na nagsasalitan sa paglalagay ng bato sa isang grid. Hindi na gumagalaw ang bato kapag nailagay na, pero nahuhuli ang isang grupo ng bato kapag napalibutan ito. Ang layunin ay tapusin ang laro na mas malaki ang bahagi ng board na nabakuran mo kaysa sa kalaban. Nagmula ang Go sa China mahigit 2,500 taon na ang nakalipas, kung saan weiqi ang tawag dito; igo ang tawag sa Japan at baduk sa Korea. Dinadala ito ng Weiqiwise: Go sa browser, laban sa computer o sa isang kaibigan.</p>
+    <p class="your-line" data-page="go" hidden></p>
+    <p><a class="cta" href="/play/go/?lang=tl">Maglaro ng Go ngayon &rarr;</a></p>
+
+    <ul class="cover-shots" tabindex="0" aria-label="Mga screenshot ng Weiqiwise: Go">
+      <li class="shot-land"><img src="/assets/shots/go/0.webp" width="1920" height="1080" srcset="/assets/shots/go/0-960.webp 960w, /assets/shots/go/0.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
+           alt="Isang laro ng Go sa 9x9 na board laban sa computer, naka-on ang move guide"></li>
+      <li class="shot-land"><img src="/assets/shots/go/1.webp" width="1920" height="1080" srcset="/assets/shots/go/1-960.webp 960w, /assets/shots/go/1.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
+           alt="Ang bilangan sa dulo ng laro: kupas ang mga patay na bato at may marka ang teritoryo ng bawat panig"></li>
+    </ul>
+
+    <h2>Ang board at ang mga bato</h2>
+    <p>Ang board ay grid ng mga linya, at inilalagay ang mga bato sa mga punto kung saan nagtatagpo ang dalawang linya, hindi sa loob ng mga kahon. 19 by 19 ang buong board, kaya may 361 punto ito. May 13 by 13 at 9 by 9 din ang Weiqiwise: Go. Ilang minuto lang ang isang laro sa 9 by 9, kaya ito ang karaniwang board para sa unang laro.</p>
+    <p>Ang Itim ang unang naglalagay ng bato, tapos nagsasalitan ang mga manlalaro. Puwede ka ring mag-<strong>pass</strong> sa halip na maglagay ng bato. Bawat batong nahuli mo ay napupunta sa mangkok mo, at ipinapakita ng mangkok sa sulok ng screen kung ilan na ang hawak mo.</p>
+    <p>Tumutulong ang <strong>move guide</strong> habang natututo ka. Naglalagay ito ng pulang bilog sa paligid ng anumang grupong isang tira na lang bago mahuli, at minamarkahan nito ng maliit na ekis ang bawat puntong hindi ka pinapayagang tumira ng mga patakaran.</p>
+
+    <h2>Mga liberty at pagkuha</h2>
+    <p>Ang mga bakanteng punto sa tabi ng isang bato, sa kahabaan ng mga linya, ay ang mga <strong>liberty</strong> nito. Sa gitna ng board, apat ang sa isang bato, tatlo sa gilid at dalawa sa sulok. Ang mga batong iisa ang kulay na magkadikit sa isang linya ay bumubuo ng grupo, at pinaghahatian ng grupo ang lahat ng liberty nito.</p>
+    <p>Kapag napuno ng tira mo ang huling liberty ng grupo ng kalaban, nahuhuli ang grupong iyon at inaalis sa board. Halimbawa, ang isang puting bato sa gilid na may itim na bato sa kaliwa at kanan nito ay may iisang liberty na lang. Kapag tumira ang Itim sa huling puntong iyon, aalisin ang puting bato at sa Itim na ito. Ang grupong may iisang liberty na lang ay nasa <strong>atari</strong>, at nagpapakita ang Weiqiwise: Go ng "Atari!" kapag nangyari iyon.</p>
+
+    <h2>Ang dalawang tirang bawal sa iyo</h2>
+    <p>Ang una ay <strong>suicide</strong>. Hindi ka puwedeng maglagay ng bato kung saan wala itong magiging liberty, maliban kung makakahuli ang tirang iyon ng bato ng kalaban at sa gayon ay magbubukas ng mga liberty para rito.</p>
+    <p>Ang ikalawa ay <strong>ko</strong>. Minsan, puwedeng sagutin agad ang isang capture sa pagkuha ng parehong bato, at puwedeng ulit-ulitin ng dalawang manlalaro ang palitang iyon nang walang katapusan. Pinipigilan ito ng ko rule: hindi ka puwedeng tumira ng tirang magbabalik sa isang posisyong nangyari na sa board. Kapag kinuha ng kalaban ang isang ko, tumira ka muna sa ibang lugar, saka mo pa lang ito mababawi.</p>
+
+    <h2>Paano natatapos ang laro</h2>
+    <p>Kapag magkasunod na nag-pass ang dalawang manlalaro, titigil ang laro. Itinuturing na patay ang mga batong hindi makakaligtas kung magpapatuloy ang laro. Minamarkahan at pinakukupas ng Weiqiwise: Go ang mga patay na bato, at tinatanggap ng dalawang manlalaro ang bilang. Kung hindi ka sang-ayon, piliin ang Keep playing at magpapatuloy ang laro. Puwede ka ring sumuko anumang oras.</p>
+    <p>May dagdag na puntos ang Puti na tinatawag na <strong>komi</strong>, dahil nauna ang Itim. May bilang na Japanese at bilang na Chinese ang Weiqiwise: Go, ang dalawang gamit ng karamihan, at ipinapakita ng talahanayan kung paano nagbibilang ang bawat isa:</p>
+    <table class="rules-table">
+      <thead><tr><th scope="col">Bilang</th><th scope="col">Ano ang may puntos</th><th scope="col">Komi para sa Puti</th></tr></thead>
+      <tbody>
+        <tr><td>Japanese</td><td>mga bakanteng puntong napalibutan mo, dagdag ang mga batong nahuli mo</td><td>6.5</td></tr>
+        <tr><td>Chinese</td><td>mga bakanteng puntong napalibutan mo, dagdag ang mga bato mo sa board</td><td>7.5</td></tr>
+      </tbody>
+    </table>
+    <p>Halos sa bawat laro, parehong panalo ang lumalabas sa dalawang bilang. Dahil sa kalahating puntos sa komi, hindi puwedeng mauwi sa tabla ang laro.</p>
+
+    <h2>Dalawang paraan ng paglalaro sa Weiqiwise: Go</h2>
+    <p>Puwede kang maglaro laban sa computer sa isa sa tatlong level, o laban sa isang kaibigan online sa isang room. Para sa <strong>computer</strong>, pumili ng Easy, Medium o Hard, Itim o Puti, at ang laki ng board. Ang Easy ang lugar para matutunan kung paano gumagana ang pagkuha, at patas na pagsubok ang Hard sa 9 by 9.</p>
+    <p>Para sa <strong>kaibigan</strong>, magbukas ng room at ipadala ang share link o ang anim na letrang code. Papasok ang kaibigan mo mula sa sarili niyang browser, at pinananatiling magkapareho ng laro ang dalawang board.</p>
+    <p>Sa phone, maliliit ang mga punto ng 19 by 19 na board. Ang unang tap ay nagpapakita ng malabong bato kung saan mapupunta ang sa iyo, at kapag tinap mo ulit ang puntong iyon, ilalagay na ito, kaya hindi ka matatalo dahil lang nadulas ang daliri mo.</p>
+
+    <h2>Mga tip para sa unang laro</h2>
+    <p>Magsimula sa 9 by 9 laban sa Easy, at i-on ang move guide. Kunin muna ang mga sulok, tapos ang mga gilid, saka ang gitna, dahil ang sulok ang nangangailangan ng pinakakaunting bato para mabakuran. Panatilihing magkakadugtong ang mga bato mo hangga't kaya, dahil mas mahirap hulihin ang isang malaking grupo kaysa sa dalawang maliit. Kapag may pulang bilog ang isang grupo mo, dagdagan ito ng liberty o idugtong ito bago ka gumawa ng iba pa.</p>
+    <p>Ang huling ideya ang nagpapalalim sa Go. Ang grupong may dalawang magkahiwalay na bakanteng punto sa loob nito, na tinatawag na <strong>mata</strong>, ay hindi kailanman mahuhuli, dahil hindi kayang punuin ng kalaban ang dalawa nang sabay at walang liberty ang batong ilalagay sa alinman sa mga ito. Gumawa ng dalawang mata at mabubuhay ang grupo mo hanggang matapos ang laro.</p>
+
+    <h2>Iba pang board game</h2>
+    <p>Para sa lima-sa-isang-linya sa grid na gaya ng sa Go, subukan ang <a href="/tl/gomoku.html">Gomowise: Gomoku</a> (Gomoku). Para sa chess ng China at ng Japan, subukan ang <a href="/tl/xiangqi.html">Xiangqiwise: Xiangqi</a> at <a href="/tl/shogi.html">Shogiwise: Shogi</a>.</p>
+
+    <p><a class="cta" href="/play/go/?lang=tl">Maglaro ng Go ngayon &rarr;</a></p>
+    
+    <p class="more-like-this">Iba pang katulad nito: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a></p>
+    
+    
+    <div class="play-bar" data-page="go">
+      <a class="cta cta-primary" href="/play/go/?lang=tl">Laruin na</a>
+      <ul class="play-facts"><li>Libre</li><li>Walang download</li></ul>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Paborito</span></button>
+    </div>
+    <div id="landing-strings" hidden><span data-k="last">Huling nilaro</span><span data-k="matches">laban</span><span data-k="wins">panalo</span></div>
+    
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-nav" aria-label="Site"><ul><li><a href="/tl/#games">Mga laro</a></li><li><a href="/you.html">Iyong mga laro</a></li><li><a href="/tl/for-remote-teams.html">Para sa mga team</a></li><li><a href="/tl/magazine/">Magazine</a></li><li><a href="/tl/about.html">Tungkol sa amin</a></li><li><a href="/tl/reviews.html">Mga review</a></li></ul></nav>
+    <nav class="footer-games" aria-label="Lahat ng laro"><ul><li><a href="/tl/farmyshoot.html">Splatbarn</a></li><li><a href="/tl/farmy-uprising.html">Hoofrise</a></li><li><a href="/tl/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/tl/farmykart.html">Kartzoom</a></li><li><a href="/tl/farmy-tiles.html">Letterloft</a></li><li><a href="/tl/farmy-crosswords.html">Wordburrow</a></li><li><a href="/tl/farmy-chess.html">Rookwise</a></li><li><a href="/tl/farmy-checkers.html">Jumpwise</a></li><li><a href="/tl/farmy-ludo.html">Pawnrush</a></li><li><a href="/tl/minesweeper.html">Sweepwise: Minesweeper</a></li><li><a href="/tl/gomoku.html">Gomowise: Gomoku</a></li><li><a href="/tl/word-chain.html">Relaywise: Word Chain</a></li><li><a href="/tl/truco.html">Trucowise: Truco</a></li><li><a href="/tl/buraco.html">Buracowise: Buraco</a></li><li><a href="/tl/conga.html">Congawise: Conga</a></li><li><a href="/tl/koikoi.html">Hanawise: Koi-Koi</a></li><li><a href="/tl/shogi.html">Shogiwise: Shogi</a></li><li><a href="/tl/xiangqi.html">Xiangqiwise: Xiangqi</a></li><li><a href="/tl/go.html">Weiqiwise: Go</a></li><li><a href="/tl/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/tl/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/tl/farmy-moon-life.html">Moon Life</a></li><li><a href="/tl/silk-and-seam.html">Silk & Seam</a></li><li><a href="/tl/dachis.html">Dachis</a></li><li><a href="/tl/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/tl/farmy-five.html">Guesswise</a></li><li><a href="/tl/farmy-hive.html">Combword</a></li><li><a href="/tl/farmy-herds.html">Groupseek</a></li><li><a href="/tl/farmy-furrows.html">Gridseek</a></li></ul></nav>
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Nakalaan ang lahat ng karapatan.<br> Ang Magestican Studios at ang logo ng Magestican Studios ay mga trademark ng Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">
+      <a href="/tl/about.html">Tungkol sa amin</a> &middot; <a href="/tl/privacy.html">Privacy</a> &middot; <a href="/tl/terms.html">Mga tuntunin</a> &middot; <a href="https://www.youtube.com/@ameliagurl">Si Amelia sa YouTube</a> &middot; Static ang site &middot; walang cookies, anonymous na bilang lang</p>
+    
+    <p class="footer-browse">Tumingin: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a> &middot; <a href="/tl/word-games.html">Libreng word games</a></p>
+    
+  </footer>
+  <script type="module" src="/assets/site.js?v=5f068dc4-20261029T231538Z"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <script type="module" src="/assets/landing.js?v=5f068dc4-20261029T231538Z"></script>
+  <p class="lang-note">Nasa Tagalog ang pahinang ito. Nasa English ang mismong mga laro; halos walang text ang chess, checkers at ludo.</p>
+</body>
+</html>

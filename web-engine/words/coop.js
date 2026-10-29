@@ -383,6 +383,18 @@ export const GAME_PREFIX = Object.freeze({
   
   
   minesweeper: 'fms-',
+  
+  
+  koikoi: 'fkk-',
+  
+  
+  shogi: 'fsg-',
+  
+  
+  xiangqi: 'fxq-',
+  
+  
+  go: 'fwq-',
 });
 
 
@@ -396,7 +408,7 @@ export const CODE_GAME_NAME = Object.freeze({
   crosswords: 'Wordburrow', chess: 'Rookwise', ludo: 'Pawnrush', scrabble: 'Letterloft',
   checkers: 'Jumpwise', uprising: 'Hoofrise', evilhills: 'Evil Hills', moonlife: 'Moon Life',
   gomoku: 'Gomowise', wordchain: 'Relaywise', truco: 'Trucowise', buraco: 'Buracowise', conga: 'Congawise',
-  minesweeper: 'Sweepwise',
+  minesweeper: 'Sweepwise', koikoi: 'Hanawise', shogi: 'Shogiwise', xiangqi: 'Xiangqiwise', go: 'Weiqiwise',
 });
 export const codeGameName = (key) => CODE_GAME_NAME[key] ?? key;
 
