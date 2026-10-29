@@ -1050,6 +1050,10 @@ pre.five-results { min-height: 2em; }
 .word-table th:first-child, .word-table td:first-child { width: 7.5em; }
 .word-table th, .word-table td { text-align: left; padding: 6px 18px 6px 0; border-bottom: 1px solid var(--line); }
 .word-table pre.five-word { font-weight: 700; }
+
+.rules-table { border-collapse: collapse; margin: 0 0 22px; font-size: 18px; width: 100%; }
+.rules-table th, .rules-table td { text-align: left; vertical-align: top; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
+.rules-table th:last-child, .rules-table td:last-child { text-align: right; padding-right: 0; white-space: nowrap; }
 .more-like-this { font-size: 18px; margin-top: 28px; }
 .browse-by {
   background: var(--paper-deep);

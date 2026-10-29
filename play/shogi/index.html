@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Shogiwise - free shogi online, Japanese chess</title>
+  <meta name="description" content="Shogiwise is free shogi in your browser: the 9x9 board, drops, promotion and the kanji pieces, with a move guide for beginners. Play the computer at three levels or a friend in a room.">
+  <meta name="keywords" content="shogiwise, shogi, shogi online, japanese chess, 将棋, 将棋 オンライン, 日本將棋, 日本将棋">
+  <meta name="build" content="97186bca-20261029T110806Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/shogi/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Shogiwise - free shogi online, Japanese chess">
+  <meta property="og:description" content="Shogi on a kaya board: drop captured pieces back in, promote in the far three rows, mate the king. The computer at three levels, or a friend in a room.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/shogi/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/shogi.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Shogiwise - free shogi online, Japanese chess">
+  <meta name="twitter:description" content="Drops, promotion and the kanji pieces: shogi against the computer or a friend.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/shogi.jpg">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  
+
+  <script src="../shared/ui/boot.js?v=97186bca-20261029T110806Z" data-game="shogi" data-zh="1" data-levels="easy,medium,hard" data-level-key="shogiwise-settings-v1" data-level-default="easy"></script>
+  <link rel="stylesheet" href="./src/style.css?v=97186bca-20261029T110806Z">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Shogiwise",
+    "alternateName": ["Shogi", "将棋", "Japanese chess", "日本將棋", "日本将棋"],
+    "url": "https://magesticanstudios.com/play/shogi/",
+    "description": "Shogi in the browser on a 9x9 kaya board with the kanji pieces: captured pieces change sides and can be dropped back in, pieces promote in the far three rows, and the game ends in checkmate. Nifu, uchifuzume and sennichite are enforced. A move guide shows how each piece moves. Play the computer at three levels or a friend in a peer-to-peer room.",
+    "image": "https://magesticanstudios.com/assets/og/shogi.jpg",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Board", "Strategy"],
+    "gamePlatform": ["Web browser"],
+    "playMode": ["SinglePlayer", "MultiPlayer"],
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": ["en", "es", "pt-BR", "tl", "ja", "ko", "id", "vi", "zh-Hant", "zh-Hans"],
+    "datePublished": "2026-10-29",
+    "accessibilityFeature": ["highContrastDisplay", "structuralNavigation"],
+    "accessibilityHazard": ["noFlashingHazard", "noMotionSimulationHazard"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+  <script type="module" src="/web-engine/library/openHook.js?play=shogi"></script>
+</head>
+<body>
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+    <a class="studio-back" id="rules-link" href="/shogi.html" data-t="back">How to play</a>
+    <button id="music-btn" class="studio-music" type="button"
+            aria-pressed="false" aria-label="Play music" title="Play music">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        <path class="mg-note" d="M18 6.5 L27 4.5 V17.2" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="mg-note" cx="15.4" cy="18.6" r="3.4" fill="currentColor"/>
+        <circle class="mg-note" cx="24.4" cy="16.6" r="3.4" fill="currentColor"/>
+        <path d="M3 12.5 H6.5 L11 8.5 V23.5 L6.5 19.5 H3 Z" fill="currentColor"/>
+        <path class="mg-slash" d="M4 27 L28 5" fill="none" stroke="currentColor"
+              stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <main class="sg">
+    <h1 class="mg-own" data-game-name>Shogiwise</h1>
+
+    <div class="sg-row" role="group" aria-label="Mode">
+      <button class="sg-btn skin-lacquer-toggle mg-i mg-i-computer" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
+      <button class="sg-btn skin-lacquer-toggle mg-i mg-i-globe" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
+    </div>
+
+    <div class="sg-row" id="opts-row">
+      <span class="sg-seg" role="group" aria-label="Level">
+        <span class="sg-label" data-t="level">Level</span>
+        <button class="sg-btn skin-lacquer-toggle" type="button" data-level="easy" data-t="easy" aria-pressed="true">Easy</button>
+        <button class="sg-btn skin-lacquer-toggle" type="button" data-level="medium" data-t="medium" aria-pressed="false">Medium</button>
+        <button class="sg-btn skin-lacquer-toggle" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
+      </span>
+      <span class="sg-seg" role="group" aria-label="Side">
+        <span class="sg-label" data-t="sideLabel">You play</span>
+        <button class="sg-btn skin-lacquer-toggle mg-i mg-i-koma" type="button" data-side="b" data-t="sideSente" aria-pressed="true">First (sente)</button>
+        <button class="sg-btn skin-lacquer-toggle mg-i mg-i-koma_gote" type="button" data-side="w" data-t="sideGote" aria-pressed="false">Second (gote)</button>
+      </span>
+      <span class="sg-seg">
+        <button class="sg-btn skin-lacquer-toggle mg-i mg-i-move_guide" type="button" id="guide" data-t="guide" aria-pressed="true">Move guide</button>
+      </span>
+    </div>
+
+    <section class="sg-room mg-own" id="room" hidden aria-label="Room">
+      <div class="sg-row" id="room-start">
+        <button class="sg-btn skin-lacquer-button_primary mg-i mg-i-two_players" type="button" id="create-room" data-t="createRoom">Create a room</button>
+        <form class="sg-row" id="join-form">
+          <input class="sg-code-input skin-lacquer-select" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
+          <button class="sg-btn skin-lacquer-button_secondary mg-i mg-i-link" type="submit" data-t="join">Join</button>
+        </form>
+      </div>
+      <div class="sg-row" id="room-live" hidden>
+        <span class="sg-label" data-t="roomCodeLabel">Code</span> <output class="sg-code" id="room-code">-</output>
+        <button class="sg-btn skin-lacquer-button_secondary mg-i mg-i-share" type="button" id="copy-link" data-t="copyLink">Share link</button>
+        <button class="sg-btn skin-lacquer-button_secondary mg-i mg-i-watch" type="button" id="watch-link" data-t="watchLink">Watch link</button>
+        <button class="sg-btn skin-lacquer-button_secondary mg-i mg-i-leave" type="button" id="leave-room" data-t="leave">Leave room</button>
+        <span class="sg-watchers skin-lacquer-chip mg-i mg-i-watchers" id="watchers" role="status" hidden></span>
+      </div>
+    </section>
+
+    <div class="sg-hud">
+      <p class="sg-status" id="status" role="status" aria-live="polite"></p>
+    </div>
+
+    
+
+
+
+
+    <section class="sg-table mg-own" id="table" aria-label="Shogi board" translate="no">
+      <div class="sg-stand sg-them" id="stand-them"></div>
+      <div class="sg-boardwrap">
+        <div class="sg-files" id="files" aria-hidden="true"></div>
+        <div class="sg-board" id="board" role="grid" aria-label="Shogi board"></div>
+        <div class="sg-ranks" id="ranks" aria-hidden="true"></div>
+      </div>
+      <div class="sg-stand sg-me" id="stand-me"></div>
+      <div class="sg-banner" id="banner" aria-hidden="true" hidden></div>
+      <div class="sg-promote" id="promote" role="dialog" aria-labelledby="promote-q" hidden>
+        <p id="promote-q" data-t="promoteQ">Promote this piece?</p>
+        <div class="sg-promote-row" id="promote-row"></div>
+      </div>
+    </section>
+
+    <section class="sg-seat" id="seat">
+      <p class="sg-flash" id="flash" aria-live="assertive"></p>
+      <div class="sg-foot">
+        <button class="sg-btn skin-lacquer-button_secondary mg-i mg-i-give_up" id="resign" type="button" data-t="resign">Resign</button>
+        <button class="sg-btn skin-lacquer-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+      </div>
+    </section>
+    <p class="sg-help" data-t="help">Tap a piece, then a square. A captured piece changes sides: tap it in your hand to drop it back on the board. Pieces may promote in the far three rows.</p>
+  </main>
+
+  <noscript>
+    <p>Shogiwise is a shogi game and needs JavaScript; there is nothing to download.
+    <a href="/shogi.html">How to play</a>.</p>
+  </noscript>
+
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=97186bca-20261029T110806Z"></script>
+  <script type="module" src="./src/main.js?v=97186bca-20261029T110806Z"></script>
+</body>
+</html>
