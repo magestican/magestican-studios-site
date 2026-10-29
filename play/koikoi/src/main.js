@@ -314,6 +314,11 @@ async function flyMoves(before) {
 
 async function dealIn() {
   if (reducedMotion()) return;
+  
+  
+  
+  
+  await new Promise((r) => { afterBoot(r); });
   const stock = rectOf(stockEl.querySelector('.kk-pile .kk-card') || stockEl);
   if (!stock) return;
   const cards = [...fieldEl.querySelectorAll('.kk-card'), ...$('side-them').querySelectorAll('.kk-backs .kk-card'), ...handEl.querySelectorAll('.kk-card')];

@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "f4cd7d4a-20261029T043336Z",
+ "buildId": "6724c9a4-20261029T054713Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -514,7 +514,7 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-10-28",
-   "bytes": 1280790
+   "bytes": 1280849
   },
   {
    "id": "shogi",
@@ -546,7 +546,7 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-10-29",
-   "bytes": 1260873
+   "bytes": 1260987
   },
   {
    "id": "farmy-moon-life",

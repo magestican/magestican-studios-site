@@ -154,7 +154,13 @@ html[data-scene] main > .sg-hud, html[data-scene] main > .sg-seat { padding: 12p
 
   .sg-table { --cell: calc(clamp(30px, min(calc((100vw - 84px) / 9), calc((100svh - 480px) / 9)), 64px) * var(--fit, 1)); }
   .sg-table { flex-direction: row; align-items: stretch; gap: 20px; padding: 16px 20px; }
-  .sg-stand { width: calc(var(--cell) * 2.7); }
+  
+
+
+
+  .sg-stand { width: max-content; min-width: calc(var(--cell) * 2.7); }
+  .sg-stand-head { white-space: nowrap; }
+  .sg-stand-row { contain: inline-size; }
   .sg-them { align-self: flex-start; }
   .sg-me { align-self: flex-end; }
 }
