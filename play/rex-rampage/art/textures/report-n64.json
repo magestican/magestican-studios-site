@@ -1,0 +1,398 @@
+{
+ "project": "rex-rampage",
+ "look": "custom-be7576b9",
+ "style": "default",
+ "seconds": 471.0,
+ "ok": false,
+ "contact_sheet": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\contact-sheet.png",
+ "assets": [
+  {
+   "name": "river_water",
+   "kind": "texture",
+   "ok": true,
+   "painted": true,
+   "notes": [
+    "candidate 0 (seed 21): row/column luminance range 0.12 (limit 0.3), CLIP 0.119",
+    "candidate 1 (seed 1021): row/column luminance range 0.01 (limit 0.3), CLIP 0.23",
+    "candidate 2 (seed 2021): row/column luminance range 0.18 (limit 0.3), CLIP 0.083",
+    "painted with sd15 (9.6 GB commit, 6.9 GB VRAM free); kept candidate 1"
+   ],
+   "files": {
+    "texture": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\river_water\\texture.png",
+    "height": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\river_water\\height.png",
+    "normal": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\river_water\\normal.png"
+   },
+   "checks": [
+    {
+     "name": "size:texture.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "detail:texture.png",
+     "ok": true,
+     "detail": "luminance std 0.146"
+    },
+    {
+     "name": "seamless:texture.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 1.12 (limit 2.5)"
+    },
+    {
+     "name": "uniform:texture.png",
+     "ok": true,
+     "detail": "row/column luminance range 0.01 (limit 0.3)"
+    },
+    {
+     "name": "size:normal.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "seamless:normal.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 0.99 (limit 3.0)"
+    },
+    {
+     "name": "guard:RG-101:power_of_two:texture.png",
+     "ok": true,
+     "detail": "512x512"
+    },
+    {
+     "name": "guard:RG-032:normal_unit:normal.png",
+     "ok": true,
+     "detail": "100.00% of texels unit length +/-0.05 with z>0 (need 99%)"
+    },
+    {
+     "name": "guard:RG-123:data_texture_linear:normal.png",
+     "ok": true,
+     "detail": "colour-space chunks: none"
+    }
+   ]
+  },
+  {
+   "name": "canyon_rock",
+   "kind": "texture",
+   "ok": true,
+   "painted": true,
+   "notes": [
+    "candidate 0 (seed 22): row/column luminance range 0.14 (limit 0.3), CLIP 0.154",
+    "candidate 1 (seed 1022): row/column luminance range 0.04 (limit 0.3), CLIP 0.222",
+    "candidate 2 (seed 2022): row/column luminance range 0.03 (limit 0.3), CLIP 0.137",
+    "painted with sd15 (already loaded); kept candidate 1"
+   ],
+   "files": {
+    "texture": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\canyon_rock\\texture.png",
+    "height": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\canyon_rock\\height.png",
+    "normal": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\canyon_rock\\normal.png"
+   },
+   "checks": [
+    {
+     "name": "size:texture.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "detail:texture.png",
+     "ok": true,
+     "detail": "luminance std 0.068"
+    },
+    {
+     "name": "seamless:texture.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 0.96 (limit 2.5)"
+    },
+    {
+     "name": "uniform:texture.png",
+     "ok": true,
+     "detail": "row/column luminance range 0.04 (limit 0.3)"
+    },
+    {
+     "name": "size:normal.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "seamless:normal.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 0.95 (limit 3.0)"
+    },
+    {
+     "name": "guard:RG-101:power_of_two:texture.png",
+     "ok": true,
+     "detail": "512x512"
+    },
+    {
+     "name": "guard:RG-032:normal_unit:normal.png",
+     "ok": true,
+     "detail": "100.00% of texels unit length +/-0.05 with z>0 (need 99%)"
+    },
+    {
+     "name": "guard:RG-123:data_texture_linear:normal.png",
+     "ok": true,
+     "detail": "colour-space chunks: none"
+    }
+   ]
+  },
+  {
+   "name": "visitor_wall",
+   "kind": "texture",
+   "ok": true,
+   "painted": true,
+   "notes": [
+    "candidate 0 (seed 23): row/column luminance range 0.35 (limit 0.3), CLIP 0.084",
+    "candidate 1 (seed 1023): row/column luminance range 0.20 (limit 0.3), CLIP 0.014",
+    "candidate 2 (seed 2023): row/column luminance range 0.13 (limit 0.3), CLIP -0.025",
+    "painted with sd15 (already loaded); kept candidate 1"
+   ],
+   "files": {
+    "texture": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\visitor_wall\\texture.png",
+    "height": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\visitor_wall\\height.png",
+    "normal": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\visitor_wall\\normal.png"
+   },
+   "checks": [
+    {
+     "name": "size:texture.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "detail:texture.png",
+     "ok": true,
+     "detail": "luminance std 0.217"
+    },
+    {
+     "name": "seamless:texture.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 0.67 (limit 2.5)"
+    },
+    {
+     "name": "uniform:texture.png",
+     "ok": true,
+     "detail": "row/column luminance range 0.20 (limit 0.3)"
+    },
+    {
+     "name": "size:normal.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "seamless:normal.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 0.64 (limit 3.0)"
+    },
+    {
+     "name": "guard:RG-101:power_of_two:texture.png",
+     "ok": true,
+     "detail": "512x512"
+    },
+    {
+     "name": "guard:RG-032:normal_unit:normal.png",
+     "ok": true,
+     "detail": "100.00% of texels unit length +/-0.05 with z>0 (need 99%)"
+    },
+    {
+     "name": "guard:RG-123:data_texture_linear:normal.png",
+     "ok": true,
+     "detail": "colour-space chunks: none"
+    }
+   ]
+  },
+  {
+   "name": "basalt_rock",
+   "kind": "texture",
+   "ok": true,
+   "painted": true,
+   "notes": [
+    "candidate 0 (seed 24): row/column luminance range 0.07 (limit 0.3), CLIP 0.209",
+    "candidate 1 (seed 1024): row/column luminance range 0.19 (limit 0.3), CLIP 0.192",
+    "candidate 2 (seed 2024): row/column luminance range 0.07 (limit 0.3), CLIP 0.191",
+    "painted with sd15 (already loaded); kept candidate 0"
+   ],
+   "files": {
+    "texture": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\basalt_rock\\texture.png",
+    "height": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\basalt_rock\\height.png",
+    "normal": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\basalt_rock\\normal.png"
+   },
+   "checks": [
+    {
+     "name": "size:texture.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "detail:texture.png",
+     "ok": true,
+     "detail": "luminance std 0.109"
+    },
+    {
+     "name": "seamless:texture.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 1.29 (limit 2.5)"
+    },
+    {
+     "name": "uniform:texture.png",
+     "ok": true,
+     "detail": "row/column luminance range 0.07 (limit 0.3)"
+    },
+    {
+     "name": "size:normal.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "seamless:normal.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 1.16 (limit 3.0)"
+    },
+    {
+     "name": "guard:RG-101:power_of_two:texture.png",
+     "ok": true,
+     "detail": "512x512"
+    },
+    {
+     "name": "guard:RG-032:normal_unit:normal.png",
+     "ok": true,
+     "detail": "100.00% of texels unit length +/-0.05 with z>0 (need 99%)"
+    },
+    {
+     "name": "guard:RG-123:data_texture_linear:normal.png",
+     "ok": true,
+     "detail": "colour-space chunks: none"
+    }
+   ]
+  },
+  {
+   "name": "stadium_stands",
+   "kind": "texture",
+   "ok": true,
+   "painted": true,
+   "notes": [
+    "candidate 0 (seed 25): row/column luminance range 0.06 (limit 0.3), CLIP 0.177",
+    "candidate 1 (seed 1025): row/column luminance range 0.07 (limit 0.3), CLIP 0.118",
+    "candidate 2 (seed 2025): row/column luminance range 0.16 (limit 0.3), CLIP -0.028",
+    "painted with sd15 (already loaded); kept candidate 0"
+   ],
+   "files": {
+    "texture": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\stadium_stands\\texture.png",
+    "height": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\stadium_stands\\height.png",
+    "normal": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64\\stadium_stands\\normal.png"
+   },
+   "checks": [
+    {
+     "name": "size:texture.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "detail:texture.png",
+     "ok": true,
+     "detail": "luminance std 0.222"
+    },
+    {
+     "name": "seamless:texture.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 0.94 (limit 2.5)"
+    },
+    {
+     "name": "uniform:texture.png",
+     "ok": true,
+     "detail": "row/column luminance range 0.06 (limit 0.3)"
+    },
+    {
+     "name": "size:normal.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "seamless:normal.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 1.02 (limit 3.0)"
+    },
+    {
+     "name": "guard:RG-101:power_of_two:texture.png",
+     "ok": true,
+     "detail": "512x512"
+    },
+    {
+     "name": "guard:RG-032:normal_unit:normal.png",
+     "ok": true,
+     "detail": "100.00% of texels unit length +/-0.05 with z>0 (need 99%)"
+    },
+    {
+     "name": "guard:RG-123:data_texture_linear:normal.png",
+     "ok": true,
+     "detail": "colour-space chunks: none"
+    }
+   ]
+  },
+  {
+   "name": "sky_sea",
+   "kind": "background",
+   "ok": false,
+   "painted": false,
+   "notes": [
+    "FAILED: unknown layout 'horizon' (available: jungle, town, temple, island, room, moon, stage, cave, desert, generic, forest, village, cottage, throne, kazan_village, kazan_path, falling, kazan_above, alley, alley_spiral, washitsu, teahouse, matsuri)"
+   ],
+   "files": {},
+   "checks": [
+    {
+     "name": "ran",
+     "ok": false,
+     "detail": "unknown layout 'horizon' (available: jungle, town, temple, island, room, moon, stage, cave, desert, generic, forest, village, cottage, throne, kazan_village, kazan_path, falling, kazan_above, alley, alley_spiral, washitsu, teahouse, matsuri)"
+    }
+   ]
+  },
+  {
+   "name": "sky_canyon",
+   "kind": "background",
+   "ok": false,
+   "painted": false,
+   "notes": [
+    "FAILED: unknown layout 'horizon' (available: jungle, town, temple, island, room, moon, stage, cave, desert, generic, forest, village, cottage, throne, kazan_village, kazan_path, falling, kazan_above, alley, alley_spiral, washitsu, teahouse, matsuri)"
+   ],
+   "files": {},
+   "checks": [
+    {
+     "name": "ran",
+     "ok": false,
+     "detail": "unknown layout 'horizon' (available: jungle, town, temple, island, room, moon, stage, cave, desert, generic, forest, village, cottage, throne, kazan_village, kazan_path, falling, kazan_above, alley, alley_spiral, washitsu, teahouse, matsuri)"
+    }
+   ]
+  },
+  {
+   "name": "sky_volcano",
+   "kind": "background",
+   "ok": false,
+   "painted": false,
+   "notes": [
+    "FAILED: unknown layout 'horizon' (available: jungle, town, temple, island, room, moon, stage, cave, desert, generic, forest, village, cottage, throne, kazan_village, kazan_path, falling, kazan_above, alley, alley_spiral, washitsu, teahouse, matsuri)"
+   ],
+   "files": {},
+   "checks": [
+    {
+     "name": "ran",
+     "ok": false,
+     "detail": "unknown layout 'horizon' (available: jungle, town, temple, island, room, moon, stage, cave, desert, generic, forest, village, cottage, throne, kazan_village, kazan_path, falling, kazan_above, alley, alley_spiral, washitsu, teahouse, matsuri)"
+    }
+   ]
+  },
+  {
+   "name": "sky_stadium",
+   "kind": "background",
+   "ok": false,
+   "painted": false,
+   "notes": [
+    "FAILED: unknown layout 'horizon' (available: jungle, town, temple, island, room, moon, stage, cave, desert, generic, forest, village, cottage, throne, kazan_village, kazan_path, falling, kazan_above, alley, alley_spiral, washitsu, teahouse, matsuri)"
+   ],
+   "files": {},
+   "checks": [
+    {
+     "name": "ran",
+     "ok": false,
+     "detail": "unknown layout 'horizon' (available: jungle, town, temple, island, room, moon, stage, cave, desert, generic, forest, village, cottage, throne, kazan_village, kazan_path, falling, kazan_above, alley, alley_spiral, washitsu, teahouse, matsuri)"
+    }
+   ]
+  }
+ ]
+}

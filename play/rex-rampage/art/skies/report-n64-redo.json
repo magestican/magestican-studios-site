@@ -1,0 +1,98 @@
+{
+ "project": "rex-rampage",
+ "look": "custom-be7576b9",
+ "style": "default",
+ "seconds": 14.7,
+ "ok": true,
+ "contact_sheet": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64sky2\\contact-sheet.png",
+ "assets": [
+  {
+   "name": "sky_canyon",
+   "kind": "background",
+   "ok": true,
+   "painted": true,
+   "notes": [
+    "layout horizon, seed 53, mood natural",
+    "painted with sd15 (already loaded)",
+    "CLIP similarity 0.297"
+   ],
+   "files": {
+    "background": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64sky2\\sky_canyon\\background.png",
+    "depth": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64sky2\\sky_canyon\\depth.png",
+    "walkmesh": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64sky2\\sky_canyon\\walkmesh.glb",
+    "camera": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64sky2\\sky_canyon\\camera.json"
+   },
+   "checks": [
+    {
+     "name": "size:background.png",
+     "ok": true,
+     "detail": "1024x384, wanted 1024x384"
+    },
+    {
+     "name": "detail:background.png",
+     "ok": true,
+     "detail": "luminance std 0.251"
+    },
+    {
+     "name": "depth",
+     "ok": true,
+     "detail": "(1024, 384) mode I;16 range 60863..65535"
+    },
+    {
+     "name": "json:camera.json",
+     "ok": true,
+     "detail": "ok"
+    },
+    {
+     "name": "walkmesh",
+     "ok": true,
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "name": "sky_volcano",
+   "kind": "background",
+   "ok": true,
+   "painted": true,
+   "notes": [
+    "layout horizon, seed 54, mood natural",
+    "painted with sd15 (already loaded)",
+    "CLIP similarity 0.316"
+   ],
+   "files": {
+    "background": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64sky2\\sky_volcano\\background.png",
+    "depth": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64sky2\\sky_volcano\\depth.png",
+    "walkmesh": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64sky2\\sky_volcano\\walkmesh.glb",
+    "camera": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\art\\_n64sky2\\sky_volcano\\camera.json"
+   },
+   "checks": [
+    {
+     "name": "size:background.png",
+     "ok": true,
+     "detail": "1024x384, wanted 1024x384"
+    },
+    {
+     "name": "detail:background.png",
+     "ok": true,
+     "detail": "luminance std 0.255"
+    },
+    {
+     "name": "depth",
+     "ok": true,
+     "detail": "(1024, 384) mode I;16 range 60863..65535"
+    },
+    {
+     "name": "json:camera.json",
+     "ok": true,
+     "detail": "ok"
+    },
+    {
+     "name": "walkmesh",
+     "ok": true,
+     "detail": ""
+    }
+   ]
+  }
+ ]
+}

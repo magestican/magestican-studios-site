@@ -1,8 +1,8 @@
 {
   "$comment": "Read by the Magestican Studios iOS apps to update their bundled games without an App Store release. See multi-game-madness/app/lib/services/game_updater.dart.",
-  "buildId": "c73a101e-20261030T072656Z",
-  "builtAt": "2026-10-30T07:26:56Z",
-  "fileCount": 6857,
+  "buildId": "2f3d173a-20261030T111252Z",
+  "builtAt": "2026-10-30T11:12:52Z",
+  "fileCount": 7118,
   "files": {
     "assets/apple-touch-icon.png": {
       "bytes": 10629,
@@ -1046,7 +1046,7 @@
     },
     "play/farmyshoot/index.html": {
       "bytes": 64942,
-      "sha256": "7589b9fb737de7464d82962eb78c95e5963709171776630583ba14a71ca27678"
+      "sha256": "e08c6c61f0a4af6ff24be6dad59ff37b9278957f5675b29695992abbe089f46e"
     },
     "play/farmyshoot/src/audio/announcerVoice.js": {
       "bytes": 8781,
@@ -1322,7 +1322,7 @@
     },
     "play/farmykart/index.html": {
       "bytes": 59237,
-      "sha256": "5391c79bccb7a56a00dd2c5e5ff981649489f7a98a00f3ab99133bb1ede5ed6e"
+      "sha256": "20191e12be083465362eccb91ea317c59843b25c07efe0c66ddae250e845537d"
     },
     "play/farmykart/src/audio/music.js": {
       "bytes": 13073,
@@ -1542,7 +1542,7 @@
     },
     "play/farmy-evil-hills/index.html": {
       "bytes": 37943,
-      "sha256": "d45424cdc714075f0030042e89480a1e9c5117ae5d7813e25dfdc5d1f1de3dd5"
+      "sha256": "e9b41173a6dee39269bcb7f78a86447e416d5dd46c9d945ef7ad0f7c29a33319"
     },
     "play/farmy-evil-hills/src/audio/mumble.js": {
       "bytes": 4922,
@@ -1766,7 +1766,7 @@
     },
     "play/farmy-uprising/index.html": {
       "bytes": 56562,
-      "sha256": "ae677e1c7ef3558ca15fa5b50356ee9f001c09ebc2e70ee9f25bd763b0dff977"
+      "sha256": "9d8c00365afc48684ee2c342e4176d61c1ea3f0a4cb891997f2bbd265c514d05"
     },
     "play/farmy-uprising/src/animSprites.js": {
       "bytes": 1143,
@@ -3022,7 +3022,7 @@
     },
     "play/2d-fighter-ex/index.html": {
       "bytes": 8754,
-      "sha256": "e11a7a76834d34fe45cca11b61cb455f63b4eaefb702a24bd8927a9008af54a2"
+      "sha256": "da9ef3730dfcefbcb1200ebb14f9c56d2145664323d972d78882d016eb7622d8"
     },
     "play/2d-fighter-ex/src/animeRig.mjs": {
       "bytes": 60,
@@ -3098,7 +3098,7 @@
     },
     "play/farmy-crosswords/index.html": {
       "bytes": 5657,
-      "sha256": "2c8d6650169a0db82e4a6e3f9da4565c218c1435e0182c840357370ee5dddd22"
+      "sha256": "2eb6f5578e09340ee77444538374a6f53446a988cde60b1e3d0623ed28b222b8"
     },
     "play/farmy-crosswords/src/a11y.js": {
       "bytes": 1510,
@@ -3162,7 +3162,7 @@
     },
     "play/farmy-tiles/index.html": {
       "bytes": 5408,
-      "sha256": "9a4598137e9c5365d1f92abb6705d114ae82c586bd808f7cd781359970c45dc2"
+      "sha256": "736a8819dae7676042b54a9fcb717198fb19c5d0ec0e8f6942c038bfab4d4767"
     },
     "play/farmy-tiles/src/a11y.js": {
       "bytes": 1514,
@@ -3206,7 +3206,7 @@
     },
     "play/farmy-ludo/index.html": {
       "bytes": 5206,
-      "sha256": "e9ef2c951f52e3db87fe962dd10a1676cc28560dfc594292c6e349e309e4f2b5"
+      "sha256": "7b492ddf5fd0cf703d8e15aadce57f9f3158794505839e9e3cab0438dd5b0468"
     },
     "play/farmy-ludo/src/a11y.js": {
       "bytes": 1510,
@@ -3238,7 +3238,7 @@
     },
     "play/farmy-chess/index.html": {
       "bytes": 5603,
-      "sha256": "a98267433050619f838e0c3b8eda6120231afaed680ce49cbeffad7cc54877d0"
+      "sha256": "6abd2eb44f73e7d1ca4cf95e48d425f71e5899999108defa72e78fd8be763c68"
     },
     "play/farmy-chess/src/a11y.js": {
       "bytes": 1563,
@@ -3278,7 +3278,7 @@
     },
     "play/farmy-checkers/index.html": {
       "bytes": 5581,
-      "sha256": "4dddb4fdccfefd6f600c6f3d3a9a001383b31c70863b9aecd9ab898de59cd97b"
+      "sha256": "142c50683134b8376fe7a2a52da31305830a6109dc16d8c4edc34e0b6fcdbf04"
     },
     "play/farmy-checkers/src/a11y.js": {
       "bytes": 1531,
@@ -3386,7 +3386,7 @@
     },
     "play/minesweeper/index.html": {
       "bytes": 11187,
-      "sha256": "e0f0e643b1c6aea53a677095df53f08998a1fcaeff08127e63b20bdde18892b4"
+      "sha256": "7028414ea873d5cca9faf011241217af3de59618f08da9a627c68f409794caa9"
     },
     "play/minesweeper/src/main.js": {
       "bytes": 34748,
@@ -3470,7 +3470,7 @@
     },
     "play/gomoku/index.html": {
       "bytes": 9382,
-      "sha256": "ffa024c8feb97090c091eaca46f08c9e28708d104ceceb1f831ae903a7702e08"
+      "sha256": "b40343f04125a75f2e8762e365e7d64b5db80002f867b2629eb29657c8d32ab6"
     },
     "play/gomoku/src/main.js": {
       "bytes": 26220,
@@ -3546,7 +3546,7 @@
     },
     "play/word-chain/index.html": {
       "bytes": 10496,
-      "sha256": "e8f37cffcc384e53d3bf29b89ef13c1f5812cb4ba497ea29b64ceb8a0e89a996"
+      "sha256": "fa541a4a1d7601dac91e197994098513976b5bea3b0092e0dd257dfac3800a6a"
     },
     "play/word-chain/src/main.js": {
       "bytes": 30034,
@@ -3654,7 +3654,7 @@
     },
     "play/truco/index.html": {
       "bytes": 9849,
-      "sha256": "35bc99db9428d4b931e42981ec6ef912fb3d7109dd4b8fd49a5b7f33a41b62a3"
+      "sha256": "d58538458fd731db9e8db080fd437dbc2f384f44ddceac7686ed2b5bad4a1eef"
     },
     "play/truco/src/main.js": {
       "bytes": 37885,
@@ -3782,7 +3782,7 @@
     },
     "play/buraco/index.html": {
       "bytes": 9547,
-      "sha256": "6746b0e4368e86f46735001c7130aab78b4b002c4fabe016535598c835cd0fde"
+      "sha256": "415741d2fb5a0fbfa4c21f5d553cf73674a10669024ec1d3fbad0ec7ae7e2255"
     },
     "play/buraco/src/main.js": {
       "bytes": 42904,
@@ -3890,7 +3890,7 @@
     },
     "play/conga/index.html": {
       "bytes": 9682,
-      "sha256": "28749b773e09e1d5f74b603279d9dbf605a62cd6e8041718319df944f0531edc"
+      "sha256": "9eec7c76d79c5110028f8645dde0b22eec6b60f347fd129ace85639e4b103b02"
     },
     "play/conga/src/main.js": {
       "bytes": 42203,
@@ -3946,7 +3946,7 @@
     },
     "play/koikoi/index.html": {
       "bytes": 9406,
-      "sha256": "060e799670ca8ec732ecd3c3974821a144a3894b9d65ff75e296c95a7c2914ea"
+      "sha256": "20474f24593040e59f0967841becf7b1d367de14b8f6abcf539204be951f0214"
     },
     "play/koikoi/src/main.js": {
       "bytes": 36770,
@@ -4002,7 +4002,7 @@
     },
     "play/shogi/index.html": {
       "bytes": 9885,
-      "sha256": "02726659683dbf9703126b5bc22ecfa7a711bd1d524cc81f0beded85a920729b"
+      "sha256": "457e3d5a8e95ca51bd84302686d0fbe6103e3ffb31381f78d0717542f8d2c836"
     },
     "play/shogi/src/main.js": {
       "bytes": 33562,
@@ -4054,7 +4054,7 @@
     },
     "play/xiangqi/index.html": {
       "bytes": 9996,
-      "sha256": "570f65c5ef15ee6fb1b4153c9bb01ab00b4f179f45446a6f899ccb5918dd5ce5"
+      "sha256": "d0c7c0578d696e5361fcc7da4c261d29c1bd14e0e58f7725687569b6ff49bcc2"
     },
     "play/xiangqi/src/guide.js": {
       "bytes": 878,
@@ -4114,7 +4114,7 @@
     },
     "play/go/index.html": {
       "bytes": 11292,
-      "sha256": "e14884b73d1e9304c9c0932bfdae3ef6f6098e463401dd0dc78b605abe2cd828"
+      "sha256": "426f0d5abbae5d4c919cdd2750f9266cfd57031b9d5a120781f753701c870525"
     },
     "play/go/src/confirm.js": {
       "bytes": 162,
@@ -4142,7 +4142,7 @@
     },
     "play/silk-and-seam/index.html": {
       "bytes": 4396,
-      "sha256": "fd1126eb79345f4bfdb1f4fd246818be87387902511e06590f3ce878421c3b29"
+      "sha256": "f910b7f2b7f34b72e08a4a3ae0bc36a87985b135674a1f35a9a227974d13e3ea"
     },
     "play/silk-and-seam/css/scene-frames.css": {
       "bytes": 3171,
@@ -4522,7 +4522,7 @@
     },
     "play/dachis/index.html": {
       "bytes": 20568,
-      "sha256": "d100f1d19077c84cefb3bd7480df9cb3e383c920d16114d0511ff096f6e1c62e"
+      "sha256": "7a4fe0bce3d62549647d01308ce552af38171f4df5c9738907dc71a1ca112447"
     },
     "play/dachis/css/game.css": {
       "bytes": 64435,
@@ -6554,7 +6554,7 @@
     },
     "play/space-95/index.html": {
       "bytes": 16940,
-      "sha256": "c7c0e79fd28455fcdcaed9e3db977ef9f8ece50112a9ad1d148b071d4cf4ee47"
+      "sha256": "e84e24712b5c8a9eac6dd37dbe90acdc9f20df7e06568667de53765f5e348a0e"
     },
     "play/space-95/css/bolt.css": {
       "bytes": 842,
@@ -21146,7 +21146,7 @@
     },
     "play/magic-mirror-moves/index.html": {
       "bytes": 7610,
-      "sha256": "5a102a2154e9e353a00545283632a87d5a8976efa2c73a196bf043df65244747"
+      "sha256": "4c1dd80290f22a9b550fd7b8c83ed15d8febedfaed8598259d62a157ee63b49e"
     },
     "play/magic-mirror-moves/css/game.css": {
       "bytes": 8983,
@@ -22483,6 +22483,1050 @@
     "play/magic-mirror-moves/models/voice/manifest.json": {
       "bytes": 352,
       "sha256": "07065fcf5ef159ab0ca3b811d72dcea9a35e6ed76dda73401e5c7fe4494dc5f7"
+    },
+    "play/rex-rampage/index.html": {
+      "bytes": 1065,
+      "sha256": "43007e08a9d6e7b1d0ff9ccd491d1445e0b526c4b688e8ae481dc43b48a45e32"
+    },
+    "play/rex-rampage/css/game.css": {
+      "bytes": 6916,
+      "sha256": "8e9e790eedf152096a060dc9960d1cc216a8286511c497781999957cc6b8902b"
+    },
+    "play/rex-rampage/js/audio/audioManifest.js": {
+      "bytes": 2948,
+      "sha256": "9f683a56b195b659a8f20c4f29104b6824c46c572283ff2a32d55eed1bb39bda"
+    },
+    "play/rex-rampage/js/audio/sound.js": {
+      "bytes": 4119,
+      "sha256": "2b837c03a2b70bc240fb0b1feb539d46d3ee68f43b5d307565c33716ac6cc093"
+    },
+    "play/rex-rampage/js/combat/damage.js": {
+      "bytes": 977,
+      "sha256": "7035dc6e1ce6d61c120260c6074da5d5be827a729922c0ea6b5ccce0d239d2aa"
+    },
+    "play/rex-rampage/js/combat/hits.js": {
+      "bytes": 906,
+      "sha256": "bcb349b934854a158aac66dc42c91f5148c91ff8eade3791311b3b6b984f6dca"
+    },
+    "play/rex-rampage/js/combat/score.js": {
+      "bytes": 985,
+      "sha256": "9f6714da42ef28624f577056ef0459074f103a1a949ab6d6ff5255e849f0cc99"
+    },
+    "play/rex-rampage/js/combat/vec.js": {
+      "bytes": 584,
+      "sha256": "5e34a9547f49f312d2bc502d6dfa0ab75d98dfd7a3888c44f3665ad3fa8e724d"
+    },
+    "play/rex-rampage/js/enemies/enemy.js": {
+      "bytes": 7032,
+      "sha256": "afce314e1d2693c6196507ff27b92dfdeafd6cbc6eddf8c908fa6f709207620f"
+    },
+    "play/rex-rampage/js/enemies/ironjaw.js": {
+      "bytes": 5426,
+      "sha256": "63cd4b4e687887221826c88c8950a55f28542af27c0125e0b49e8a10c0f8c4f5"
+    },
+    "play/rex-rampage/js/gun/gun.js": {
+      "bytes": 1348,
+      "sha256": "bbefaf6cc957dd076ee5789b7235ab5a1c204e2e91027d7a7fe69c3cca2fd975"
+    },
+    "play/rex-rampage/js/input/aim.js": {
+      "bytes": 1954,
+      "sha256": "088cd02ea5f12b93dada5bc03c28ca1553fe6f373132d20d9d02bcbd16039d5d"
+    },
+    "play/rex-rampage/js/input/demoHands.js": {
+      "bytes": 1040,
+      "sha256": "a1fd68a6d2c33474a98caf00e990e5367e266bab4016ddc91112c19b36000997"
+    },
+    "play/rex-rampage/js/input/hands.js": {
+      "bytes": 1523,
+      "sha256": "dd8035af2c8efbf363679cdd0a1c5b6783906c58cde64155548fba52f450fc5b"
+    },
+    "play/rex-rampage/js/input/mode.js": {
+      "bytes": 1208,
+      "sha256": "effe686008e0a946791ddd6f575e60dfb114e4ff499db138e54307451fa98879"
+    },
+    "play/rex-rampage/js/input/touch.js": {
+      "bytes": 1286,
+      "sha256": "23f8f5f30974be160ca7d60b04321e8422c65dec82ead5da3c5c9f89d7d055d9"
+    },
+    "play/rex-rampage/js/main.js": {
+      "bytes": 9570,
+      "sha256": "a2fe3535b17693da3ec443730b84a04f90cf9b30cbf22c58e7bc5373708b5f22"
+    },
+    "play/rex-rampage/js/net/bots.js": {
+      "bytes": 1880,
+      "sha256": "8bb90226bc6b58d479ee170606ec157c17163a2f4bf2861e566b3fd84b5a0832"
+    },
+    "play/rex-rampage/js/net/clock.js": {
+      "bytes": 473,
+      "sha256": "3e39b6a2a93b68922efe6fa8283da3f8fdfed6b1fff39b6db814a0e796a6246b"
+    },
+    "play/rex-rampage/js/net/config.js": {
+      "bytes": 324,
+      "sha256": "ea8e4948eb1198a2a06d236640b0e41ba729eb6f9baff3bb25f3ab9115eb0d0c"
+    },
+    "play/rex-rampage/js/net/firestore.js": {
+      "bytes": 5319,
+      "sha256": "0cbe63f1687f656369d2d4c9af5561c956829c9a168adf94e0fd48fa2dd6fc48"
+    },
+    "play/rex-rampage/js/net/hitsync.js": {
+      "bytes": 1723,
+      "sha256": "71833c6990ca82e05bb12cf465dc77e525cb6f03ece735c804b3e543beed3b8a"
+    },
+    "play/rex-rampage/js/net/localRoom.js": {
+      "bytes": 2532,
+      "sha256": "2bee669859225f04fc849b762755933fc56afbc07773503443d151e7387fcfd3"
+    },
+    "play/rex-rampage/js/net/lockstep.js": {
+      "bytes": 412,
+      "sha256": "3966b26e320c9090bfc9fd2596645729c49eca3ff1ee05fa1c8be194fbe7a16d"
+    },
+    "play/rex-rampage/js/net/room.js": {
+      "bytes": 1834,
+      "sha256": "f846ab01251d0353f8e2d2c17319c691a7ea20b40d894e5680425ac90d1fb82c"
+    },
+    "play/rex-rampage/js/net/scaling.js": {
+      "bytes": 284,
+      "sha256": "834e3af57b18713419324ad810c37d3b6f3839c65f0794c4c4a2ad8209d06e90"
+    },
+    "play/rex-rampage/js/pose/detector.js": {
+      "bytes": 2252,
+      "sha256": "4f5de4ec8c850152ab7ff02307267ae374311e3eb13f2cce70b00238a919b0f0"
+    },
+    "play/rex-rampage/js/pose/device.js": {
+      "bytes": 1059,
+      "sha256": "e731c2ae7d6cb2360fca3cf28b03414e0e13396540d5d5557a714acf763d901c"
+    },
+    "play/rex-rampage/js/pose/oneEuro.js": {
+      "bytes": 833,
+      "sha256": "735b8522bc0bc6a13ff586ca7b12fa3e7b3b438118bf05b8a9f4766a7b25ae48"
+    },
+    "play/rex-rampage/js/pose/pose.js": {
+      "bytes": 2082,
+      "sha256": "3c890f6d0c364b6a4b4fb11ad8a3b6ca15eefc6e387d0a594b5a56c90c5dbe3e"
+    },
+    "play/rex-rampage/js/rail/rail.js": {
+      "bytes": 2113,
+      "sha256": "680b9b229c9654bd9dfa32f6682475ab674834916f33032ff1a6d73698d617a1"
+    },
+    "play/rex-rampage/js/rail/stage.js": {
+      "bytes": 2531,
+      "sha256": "baa8f4187b7b2873d58d8ae792f169db373cdab6de60ecb2a528e5b11ec23ae3"
+    },
+    "play/rex-rampage/js/sim.js": {
+      "bytes": 11029,
+      "sha256": "59d432b28d6a3cef84adf0c8b3bf435518e52cb718f23d84372008391439ec26"
+    },
+    "play/rex-rampage/js/ui/confetti.js": {
+      "bytes": 775,
+      "sha256": "34781279d0c5738a43f9f53b9c31a17cb91ae65bde98d9c74805d22abb423269"
+    },
+    "play/rex-rampage/js/ui/hud.js": {
+      "bytes": 7757,
+      "sha256": "9f8983aca1ea6eea68e707b780949034c73d865097eec828a15b3090339d36c9"
+    },
+    "play/rex-rampage/js/ui/lines.js": {
+      "bytes": 216,
+      "sha256": "60b45858c658e146ad7959ad813b716c846fe5a2e3ab11f94c6ba8a98d0f639c"
+    },
+    "play/rex-rampage/js/ui/linesData.js": {
+      "bytes": 2903,
+      "sha256": "ebd4a47bed7a7f543e540c45dc2d55a18d02fe7c35e891fa4d828876c02825f1"
+    },
+    "play/rex-rampage/js/ui/lobby.js": {
+      "bytes": 2423,
+      "sha256": "10076b6c04da8acb20463ebeaceca60e886d52f7a50062a6b2c0ccd789adddbb"
+    },
+    "play/rex-rampage/js/ui/scoreboard.js": {
+      "bytes": 269,
+      "sha256": "5958457e01dc188b38ccb4c27d332122b3962ab5464b5fbfb6b25348bb482093"
+    },
+    "play/rex-rampage/js/vendor/firebase-vendor.js": {
+      "bytes": 560416,
+      "sha256": "e407ff4a88cb741dcc72c4928abe4eb26a4d714ff78d481b97848dce9da410ff"
+    },
+    "play/rex-rampage/js/vendor/pose-vendor.js": {
+      "bytes": 905150,
+      "sha256": "53513858edff9c0d7734363d2dab3581235619d9f12c5ac0cad008f5cefecf20"
+    },
+    "play/rex-rampage/js/vendor/three-vendor.js": {
+      "bytes": 774318,
+      "sha256": "f3c0f2c66613413038dadb6eeabfaedf25de09e69d59b92d474a3daf8ab9a780"
+    },
+    "play/rex-rampage/js/world/art.js": {
+      "bytes": 1942,
+      "sha256": "a250fe62ace4e00443dca85affe2b03da277ed6bc2f8ac2b420c1aecd5e7a6e3"
+    },
+    "play/rex-rampage/js/world/artManifest.js": {
+      "bytes": 4037,
+      "sha256": "3a49b9e5dc34a641d5f59cd8fbcf5fc25c8ca30b4b805885013d721fa35f1269"
+    },
+    "play/rex-rampage/js/world/dress.js": {
+      "bytes": 9136,
+      "sha256": "7852659744f4c6e1649233ca1df6ae008b8232167d59fa3027245608eb42d218"
+    },
+    "play/rex-rampage/js/world/props.js": {
+      "bytes": 10857,
+      "sha256": "47c8549b3fdee7e7d375fa7f38dd7f997dd44b7ef951562f24dbf64792973ecc"
+    },
+    "play/rex-rampage/js/world/scene.js": {
+      "bytes": 9470,
+      "sha256": "270aca5b9cb9eaffb67a87a72f96edf11bd6673c5ce0852c31a321d03a9d0a55"
+    },
+    "play/rex-rampage/js/world/terrain.js": {
+      "bytes": 2539,
+      "sha256": "da782ba0a1798f1abb6d54cf8b6337f2367a615bf927fbae8849c25d28bb4ea7"
+    },
+    "play/rex-rampage/js/world/viewmodel.js": {
+      "bytes": 2210,
+      "sha256": "1efb8afcff295b04f4e44b2b3c4e813e4b9e200ab99228f4cc871d6557deb4f6"
+    },
+    "play/rex-rampage/stages/s0-dropzone.json": {
+      "bytes": 7709,
+      "sha256": "007151ee17f71b09ac94af740769fd8a35afe9e9b9e1fb97680ae4904f7c6cb7"
+    },
+    "play/rex-rampage/stages/s1-jungle.json": {
+      "bytes": 22506,
+      "sha256": "330b0977fbab80d53ce84d83517c9e0889ad101cc71d759ee3af5376ba967680"
+    },
+    "play/rex-rampage/stages/s2-visitor.json": {
+      "bytes": 10448,
+      "sha256": "d67d2c51c802c3bebdc020568a33b845a3cbcc150b54de9844e076b009c2cfc3"
+    },
+    "play/rex-rampage/stages/s3-river.json": {
+      "bytes": 15373,
+      "sha256": "05f8dda8162cb8570f0e3ad79d2844692957d09c09a7201a7423a6c4a7591610"
+    },
+    "play/rex-rampage/stages/s4-volcano.json": {
+      "bytes": 15577,
+      "sha256": "58adacdb0c386ebb7c62c3c9d7f8b275e77d3f6506f55f0955e38566e1ae8156"
+    },
+    "play/rex-rampage/stages/s5-stadium.json": {
+      "bytes": 747,
+      "sha256": "5519085ecf67966dab8cfea1d8e51fd169ca2f1107e7a869f07bfc89bc4b47c7"
+    },
+    "play/rex-rampage/models/pose/blazepose_detector/model.json": {
+      "bytes": 130947,
+      "sha256": "03b0a2b491248969ff0f9058381ab5c286ee22ef5078ccfc3201aa2b6b121f3b"
+    },
+    "play/rex-rampage/models/pose/blazepose_detector/weights.bin": {
+      "bytes": 5928856,
+      "sha256": "8c637d3a05ef6ffd9d70cda55081ad9103bf87b73b6c65d7e8faa54e2cfe327e"
+    },
+    "play/rex-rampage/models/pose/blazepose_landmark_full/model.json": {
+      "bytes": 152970,
+      "sha256": "ff3aab1842ee48e17b144bbcb158b59ab29ab4fcf9023d3b30212316e9637567"
+    },
+    "play/rex-rampage/models/pose/blazepose_landmark_full/weights.bin": {
+      "bytes": 6339202,
+      "sha256": "5dd67d57f4886a2ddfdad4496217e7ce012fb8d2e8f87d475a8cc0220d89086c"
+    },
+    "play/rex-rampage/models/pose/blazepose_landmark_lite/model.json": {
+      "bytes": 140594,
+      "sha256": "9c9c061fc21c31319ad0e99c411487d2f39bbbd6f5c45edf4faf2b223292e2cf"
+    },
+    "play/rex-rampage/models/pose/blazepose_landmark_lite/weights.bin": {
+      "bytes": 2726402,
+      "sha256": "168a3dfa28aba0b543377670e1af1fec65fad837d033d45472ad946b480e31a4"
+    },
+    "play/rex-rampage/models/pose/manifest.json": {
+      "bytes": 622,
+      "sha256": "7b4a4a690a270ec313775ccfce66f5fa6c2549a45cfe21aa9291b88e69ffca71"
+    },
+    "play/rex-rampage/audio/imported.json": {
+      "bytes": 7954,
+      "sha256": "152891dbbb9fec37d5c7a7d4bec9daa1aa5bcd22e6ee6df5b874ade7bfcbfeb0"
+    },
+    "play/rex-rampage/audio/music/boss.m4a": {
+      "bytes": 833727,
+      "sha256": "e69c6d2e8212109ca9de33d2ef20fede4c7221733dd87a2062f1f8daa2da16d8"
+    },
+    "play/rex-rampage/audio/music/boss.webm": {
+      "bytes": 673224,
+      "sha256": "b0cbbddd69a74630f5af127df805ca95f0c494500ae620ea667d02b99ff412c8"
+    },
+    "play/rex-rampage/audio/music/jungle.m4a": {
+      "bytes": 979940,
+      "sha256": "3c7d2cfa1bcd9cb5eec9d927d80ea25227b1cb900abd7a40bca9af7784b7f489"
+    },
+    "play/rex-rampage/audio/music/jungle.webm": {
+      "bytes": 805487,
+      "sha256": "2be8212799161a73192d18188610fd9d2555cdb9c33e6d97000d1614ac6ad65e"
+    },
+    "play/rex-rampage/audio/music/menu.m4a": {
+      "bytes": 911059,
+      "sha256": "975de5122fa475718eac9ecbd2770491420a5a8843df3b6099dc8e15b2d59413"
+    },
+    "play/rex-rampage/audio/music/menu.webm": {
+      "bytes": 755283,
+      "sha256": "9e0433946a220708d0a68074804b9fc2127ef0e933c3c6a693f808e0ea841708"
+    },
+    "play/rex-rampage/audio/music/river.m4a": {
+      "bytes": 847244,
+      "sha256": "ad12a5fec9c9c96ec92d84c997d1783c7deffdbdcfeff1aba1e0f1f0879fb583"
+    },
+    "play/rex-rampage/audio/music/river.webm": {
+      "bytes": 630779,
+      "sha256": "cd59df4e0ad317b0bb47ee9e2b644315dfab907f0b5771d308cb562f1af52e97"
+    },
+    "play/rex-rampage/audio/music/victory.m4a": {
+      "bytes": 163299,
+      "sha256": "2ffb07964cf8c5a7092f7ec8a6c45ddd78a4458317295b597ee2c5388ad646fb"
+    },
+    "play/rex-rampage/audio/music/victory.webm": {
+      "bytes": 125713,
+      "sha256": "94660af433ac8dc193a1ea0fa8de59807532b8ce07e42e2d0859bb1e878df4b7"
+    },
+    "play/rex-rampage/audio/music/visitor.m4a": {
+      "bytes": 324874,
+      "sha256": "e5ae6fad52444d891ecab139f99b23fbf10e08bf8ac896da88d29551af517eda"
+    },
+    "play/rex-rampage/audio/music/visitor.webm": {
+      "bytes": 275890,
+      "sha256": "47a6d415ccbb0efa461f3844f0e254a448b1b2886df48d08cba0e0c5bea92530"
+    },
+    "play/rex-rampage/audio/music/volcano.m4a": {
+      "bytes": 923582,
+      "sha256": "20df4ff14c114ec6206361d22c1fa0f29b4883f51c8127f6fb1997cefaaeab5d"
+    },
+    "play/rex-rampage/audio/music/volcano.webm": {
+      "bytes": 755221,
+      "sha256": "537d49a284363f32898cdcf801ffd7d901c7fab6c859a58add92603f86ecc8f4"
+    },
+    "play/rex-rampage/audio/sfx/countdown/countdown.m4a": {
+      "bytes": 5020,
+      "sha256": "dc8d6a5fa7d0e2768c91cf97e7e18973422260f0e66af1c281336e975e6bfe3d"
+    },
+    "play/rex-rampage/audio/sfx/countdown/countdown.ogg": {
+      "bytes": 4626,
+      "sha256": "aa65d8585a7d148970f6b52f922c4fa72ac625a4b8ffa4a8d75ef05689f51364"
+    },
+    "play/rex-rampage/audio/sfx/enemy_down/enemy_down_01.m4a": {
+      "bytes": 18543,
+      "sha256": "a9d4ec281509f68d040d5e045cfed771480cc6a5ca7cd4accc171e369fd038d7"
+    },
+    "play/rex-rampage/audio/sfx/enemy_down/enemy_down_01.ogg": {
+      "bytes": 12445,
+      "sha256": "c2dcffd6c67cf8c71a67fbf4a6f3eb9ffabcc9800159de283e7ad97b60a187b1"
+    },
+    "play/rex-rampage/audio/sfx/enemy_down/enemy_down_02.m4a": {
+      "bytes": 18747,
+      "sha256": "1ac711c52977cd5eaeac5a534769696b061c1d902c1250cd9d0fba8249d68c29"
+    },
+    "play/rex-rampage/audio/sfx/enemy_down/enemy_down_02.ogg": {
+      "bytes": 13506,
+      "sha256": "aec278d7903e75628ba820f8b58db6759e059236fe1d1d0a17124c72126c7832"
+    },
+    "play/rex-rampage/audio/sfx/enemy_down/enemy_down_03.m4a": {
+      "bytes": 18365,
+      "sha256": "28f20cbf96b73366073d630dc13c449e206996dce5abc6350575c2331130589b"
+    },
+    "play/rex-rampage/audio/sfx/enemy_down/enemy_down_03.ogg": {
+      "bytes": 13529,
+      "sha256": "ab4ed4db12d86e16a580dd4381c92a2ab2f20077c0c73fac7aaf72104ddb9935"
+    },
+    "play/rex-rampage/audio/sfx/explosion/explosion_01.m4a": {
+      "bytes": 51320,
+      "sha256": "e2def449a093b9661bdff9435caeeed7c3f52fda9970062990b91b48317cb937"
+    },
+    "play/rex-rampage/audio/sfx/explosion/explosion_01.ogg": {
+      "bytes": 27407,
+      "sha256": "39560690aa015ddc44e9c90214f506eb97186a50bb5641f02862acf71724356a"
+    },
+    "play/rex-rampage/audio/sfx/explosion/explosion_02.m4a": {
+      "bytes": 49705,
+      "sha256": "fec5fc755491f62105edd3215d8d9521651aba648a94f92e44ccf92f410f8697"
+    },
+    "play/rex-rampage/audio/sfx/explosion/explosion_02.ogg": {
+      "bytes": 29620,
+      "sha256": "d3ae2d385398e7f975ce64935112ae895315d3e980250c09f9b6e977bbfefacb"
+    },
+    "play/rex-rampage/audio/sfx/explosion/explosion_03.m4a": {
+      "bytes": 50254,
+      "sha256": "c4f278e5de5748fa1e5816eacfff10172c36ad9891f051249a41eeef50fb1f0f"
+    },
+    "play/rex-rampage/audio/sfx/explosion/explosion_03.ogg": {
+      "bytes": 31110,
+      "sha256": "3f0dbfeab8c54c23c27e3248240859b08136c6f133eb36f6ec2a5714e81d3b20"
+    },
+    "play/rex-rampage/audio/sfx/gun_empty/gun_empty_01.m4a": {
+      "bytes": 2692,
+      "sha256": "635dd7a3058c832ca2b40e0cc77ca513cdba075da1eda45db53acf797c60655e"
+    },
+    "play/rex-rampage/audio/sfx/gun_empty/gun_empty_01.ogg": {
+      "bytes": 3509,
+      "sha256": "a9bde08ec6a47ca4a0330cd06aa953b61bc5b20f693e2a55301162e9d5693647"
+    },
+    "play/rex-rampage/audio/sfx/gun_empty/gun_empty_02.m4a": {
+      "bytes": 2666,
+      "sha256": "377c60603e05e9b0dcead11dc14ca6fc018ac0dad531cfcc39cb57f4f558a657"
+    },
+    "play/rex-rampage/audio/sfx/gun_empty/gun_empty_02.ogg": {
+      "bytes": 3308,
+      "sha256": "82ab4138b6b65fb523f5759f285750d2073c6f77f4b5554eeb8177ef4ad6cfb5"
+    },
+    "play/rex-rampage/audio/sfx/gun_empty/gun_empty_03.m4a": {
+      "bytes": 2635,
+      "sha256": "34bbc5bef1c13eff00d3b63d13778c8ec1f688c4f22ebf5f5478a3794f2a71ef"
+    },
+    "play/rex-rampage/audio/sfx/gun_empty/gun_empty_03.ogg": {
+      "bytes": 3350,
+      "sha256": "35b8574d25b75371894d19654d30d26a6b32c5ebe909a6e762b3ec1263de1710"
+    },
+    "play/rex-rampage/audio/sfx/gun_shot/gun_shot_01.m4a": {
+      "bytes": 8828,
+      "sha256": "b784d0584a80b377fa345b8c16f638fd11c6551173d7be4422d6c96ad75a86aa"
+    },
+    "play/rex-rampage/audio/sfx/gun_shot/gun_shot_01.ogg": {
+      "bytes": 4305,
+      "sha256": "fb73e951ec14c69480d4c329e94764d6949c6259325e77b1e30f47f0a096115f"
+    },
+    "play/rex-rampage/audio/sfx/gun_shot/gun_shot_02.m4a": {
+      "bytes": 8528,
+      "sha256": "82bad8c529a11d9aafe109d4a2dd8368ee5ce36b92f6e3a4766abbcd182a4a76"
+    },
+    "play/rex-rampage/audio/sfx/gun_shot/gun_shot_02.ogg": {
+      "bytes": 4360,
+      "sha256": "a35e319a64146a17598fe0f50bc2dcee24bbf5687568957760be4d10cc5cfc5c"
+    },
+    "play/rex-rampage/audio/sfx/gun_shot/gun_shot_03.m4a": {
+      "bytes": 8584,
+      "sha256": "aff89d49fb7a3f5494bb88b476dce6387e730c843fb230da426652795d6b67dc"
+    },
+    "play/rex-rampage/audio/sfx/gun_shot/gun_shot_03.ogg": {
+      "bytes": 4166,
+      "sha256": "18471b69d848e61674ed5dc795bcb63eb1a17edb9b0cdbe402eed777e05df158"
+    },
+    "play/rex-rampage/audio/sfx/gun_shot/gun_shot_04.m4a": {
+      "bytes": 8630,
+      "sha256": "fa3e0ee570856fc4476c78a23110d736ddd24846d5445b5ce7e69bc10262ea0a"
+    },
+    "play/rex-rampage/audio/sfx/gun_shot/gun_shot_04.ogg": {
+      "bytes": 4196,
+      "sha256": "d2d4126bb016b67fc8383b0c94f8466eb4710f93761883884f922b45ec734afa"
+    },
+    "play/rex-rampage/audio/sfx/heli_pass/heli_pass.m4a": {
+      "bytes": 53196,
+      "sha256": "7552efb76372d3f556dc15dd0d1ec24739c6577164850667bd80cc92bfee98b8"
+    },
+    "play/rex-rampage/audio/sfx/heli_pass/heli_pass.ogg": {
+      "bytes": 30605,
+      "sha256": "3f0f283958a9433cef114dbda3cfa5355c34883a43a49e8beb4bf70ffa075b19"
+    },
+    "play/rex-rampage/audio/sfx/hit/hit_01.m4a": {
+      "bytes": 3981,
+      "sha256": "899bc8a349f3b4027eadf71b18ce2adbf5dc62c8c21384f373c6964a26f6378b"
+    },
+    "play/rex-rampage/audio/sfx/hit/hit_01.ogg": {
+      "bytes": 4702,
+      "sha256": "adcdebf817801919b05ebf075b8a0b8702e276a5cd7786613658518aa4cdf336"
+    },
+    "play/rex-rampage/audio/sfx/hit/hit_02.m4a": {
+      "bytes": 3986,
+      "sha256": "e5ae2fa0d2b656c229f6a86cdbaad6c6068c08d71359c0d1901092d014c1404f"
+    },
+    "play/rex-rampage/audio/sfx/hit/hit_02.ogg": {
+      "bytes": 4879,
+      "sha256": "b29d94134bb933884327dcf1d64b72116ce4ec5eebdb0eda7de1638021ff9a01"
+    },
+    "play/rex-rampage/audio/sfx/hit/hit_03.m4a": {
+      "bytes": 4051,
+      "sha256": "20a10422721fa07bc8e039405530e30c607c391a928de3118fcf38fd2db663b4"
+    },
+    "play/rex-rampage/audio/sfx/hit/hit_03.ogg": {
+      "bytes": 4349,
+      "sha256": "f82c4382b5b854ff5a8fe26989089ed529b7bb70251d861299cabcf1836aa3b3"
+    },
+    "play/rex-rampage/audio/sfx/hit/hit_04.m4a": {
+      "bytes": 4003,
+      "sha256": "030f4e29371cff3b761fc33d0813e24c5b9f6feb7d317b3b38ceae5ef4ea5e07"
+    },
+    "play/rex-rampage/audio/sfx/hit/hit_04.ogg": {
+      "bytes": 4145,
+      "sha256": "ab092d80200b2de2c4049d88c10cb92d2765723c41efdc1beed53399c67fa8c0"
+    },
+    "play/rex-rampage/audio/sfx/hostage_saved/hostage_saved.m4a": {
+      "bytes": 14423,
+      "sha256": "4b5b585e197eae70966fc98de7fb4ce54a1ebb08c4f99f7e4016ffb2f1f7f0b2"
+    },
+    "play/rex-rampage/audio/sfx/hostage_saved/hostage_saved.ogg": {
+      "bytes": 14076,
+      "sha256": "0b1ca84fa27b3a1afa83b7e2b28b4948efd5a89d45a862433200fa6305dcdfff"
+    },
+    "play/rex-rampage/audio/sfx/low_ammo/low_ammo.m4a": {
+      "bytes": 6345,
+      "sha256": "37d0d8e84741c5754d8f5e7f6332eb75e9cde1c73fa5e6e4f6e2a9a4d588b9b1"
+    },
+    "play/rex-rampage/audio/sfx/low_ammo/low_ammo.ogg": {
+      "bytes": 6027,
+      "sha256": "98783778c1bae99f28bf6dd5ee82fad040626ba2ca084d01d0b4b0ae08291ce6"
+    },
+    "play/rex-rampage/audio/sfx/plate_break/plate_break_01.m4a": {
+      "bytes": 24069,
+      "sha256": "826f53719b1218cbcee77e258bbc1da2489b0a436e2422440a61c4142cfeaf27"
+    },
+    "play/rex-rampage/audio/sfx/plate_break/plate_break_01.ogg": {
+      "bytes": 13257,
+      "sha256": "c3fdd85fdd08d446bb960adff76a87e264e0d7555126169823cd12045e240e64"
+    },
+    "play/rex-rampage/audio/sfx/plate_break/plate_break_02.m4a": {
+      "bytes": 22700,
+      "sha256": "e0c63a59712b60c22078f65a3ae269be388eece277a714883f08d92e97c3559b"
+    },
+    "play/rex-rampage/audio/sfx/plate_break/plate_break_02.ogg": {
+      "bytes": 13056,
+      "sha256": "8a5c1a7f9fe49452898194018c45cd38f6439c1362b4fbf16a9d6add7e11a052"
+    },
+    "play/rex-rampage/audio/sfx/plate_break/plate_break_03.m4a": {
+      "bytes": 23851,
+      "sha256": "b6254fff37a95f09889fbe4d1742ccfb50f324523aa2fa2f37c17813ad5446e3"
+    },
+    "play/rex-rampage/audio/sfx/plate_break/plate_break_03.ogg": {
+      "bytes": 13430,
+      "sha256": "a4423ef0a2fc28379996edb08b5567034b322b6c465dd9e7a9e1092bbdcdea3e"
+    },
+    "play/rex-rampage/audio/sfx/player_hurt/player_hurt_01.m4a": {
+      "bytes": 8738,
+      "sha256": "e1de32a953fae7baf1bf6c69600b31960c2c2a239cb1be1f28a9dd781cdc7b77"
+    },
+    "play/rex-rampage/audio/sfx/player_hurt/player_hurt_01.ogg": {
+      "bytes": 7312,
+      "sha256": "c0484d2b864c163d2762ceb66c838498e1cb2ebfe1e3b38ab8b4a83b92281488"
+    },
+    "play/rex-rampage/audio/sfx/player_hurt/player_hurt_02.m4a": {
+      "bytes": 8446,
+      "sha256": "539342cc653bea79cf907ab24620aad644591aece72d4688faa09fde99df6ae1"
+    },
+    "play/rex-rampage/audio/sfx/player_hurt/player_hurt_02.ogg": {
+      "bytes": 7137,
+      "sha256": "9eeffafcbc3fef8617a4def3a2c4c26ef2c1de50ff73ca5dade1e596393a081a"
+    },
+    "play/rex-rampage/audio/sfx/player_hurt/player_hurt_03.m4a": {
+      "bytes": 8324,
+      "sha256": "f14abe8eac1157899eb74e6fb21126e1b7c2ca5604e2f9b1a442fcb73f36254b"
+    },
+    "play/rex-rampage/audio/sfx/player_hurt/player_hurt_03.ogg": {
+      "bytes": 7085,
+      "sha256": "93e3d2ff6cd14244d5d03708cdd1919e31aa6c6978040c00347fc758f90a551a"
+    },
+    "play/rex-rampage/audio/sfx/reload/reload_01.m4a": {
+      "bytes": 13922,
+      "sha256": "1d896cb7205635fc4ed266f03b18735c504715e2890485e87206d0d501fa10df"
+    },
+    "play/rex-rampage/audio/sfx/reload/reload_01.ogg": {
+      "bytes": 12931,
+      "sha256": "945cc58a503e23aeffc4132beaaa427c5b7e3bc30ebaa27937161298eff63774"
+    },
+    "play/rex-rampage/audio/sfx/reload/reload_02.m4a": {
+      "bytes": 13760,
+      "sha256": "2d21ea0465712fc223dfead375f61c2b045603cfcf96452f4d0f5799982abced"
+    },
+    "play/rex-rampage/audio/sfx/reload/reload_02.ogg": {
+      "bytes": 13047,
+      "sha256": "4667a38154f413033446bf8ee34bbac82cf04f9a215e05ac20b3b409d22d25b1"
+    },
+    "play/rex-rampage/audio/sfx/roar_raptor/roar_raptor_01.m4a": {
+      "bytes": 23655,
+      "sha256": "3d644f05c0fef92d5d7347c2e72a9ac135aac724a60fe6db5702a21e27e70f86"
+    },
+    "play/rex-rampage/audio/sfx/roar_raptor/roar_raptor_01.ogg": {
+      "bytes": 12232,
+      "sha256": "b5d36ae87d9de185a0a8ff1e97053f98a88c51dc14d6d17055bd13d2cfcd8107"
+    },
+    "play/rex-rampage/audio/sfx/roar_raptor/roar_raptor_02.m4a": {
+      "bytes": 24836,
+      "sha256": "1bc28717024f06b2d55b8bf745fefa3c4b1ab8aee9d62dfdba4bbcdff3312510"
+    },
+    "play/rex-rampage/audio/sfx/roar_raptor/roar_raptor_02.ogg": {
+      "bytes": 12137,
+      "sha256": "33c5e621b6e71f6a4adf37ce2fb748c205e53d9fbb68a28e0ebc06f257a6fc5e"
+    },
+    "play/rex-rampage/audio/sfx/roar_raptor/roar_raptor_03.m4a": {
+      "bytes": 23873,
+      "sha256": "208db58f1d7ecc0b31ebaa48740cd8b5a5ef1063e79b9cbe25794fae1f2d1b91"
+    },
+    "play/rex-rampage/audio/sfx/roar_raptor/roar_raptor_03.ogg": {
+      "bytes": 12205,
+      "sha256": "b15b971d3e2077e76920b2f6c38c8222816c69f782c67bfbf38e95c323a97dd1"
+    },
+    "play/rex-rampage/audio/sfx/roar_raptor/roar_raptor_04.m4a": {
+      "bytes": 23666,
+      "sha256": "9dfca2d482d595cbc24a71f47885c71494677033f73c11e7349c163dcb3e028f"
+    },
+    "play/rex-rampage/audio/sfx/roar_raptor/roar_raptor_04.ogg": {
+      "bytes": 12275,
+      "sha256": "1ad05856da8e1cf048cad211fd8f270dfc2499f134179d1bafb364772b2e138e"
+    },
+    "play/rex-rampage/audio/sfx/roar_trex/roar_trex_01.m4a": {
+      "bytes": 42592,
+      "sha256": "cf0596c65a151d16e329b4d49fd7184183061fc37028b2841fd04409b7eea188"
+    },
+    "play/rex-rampage/audio/sfx/roar_trex/roar_trex_01.ogg": {
+      "bytes": 27242,
+      "sha256": "53d51e6558753d8d5ce76f1d42b50dc22b6e6e5ee5e34d31e048d1ad08f0ffcc"
+    },
+    "play/rex-rampage/audio/sfx/roar_trex/roar_trex_02.m4a": {
+      "bytes": 42270,
+      "sha256": "0c7ef1073f372c1636d6426f403e25c099bae8fbb821f4cf52585f3c630afdfd"
+    },
+    "play/rex-rampage/audio/sfx/roar_trex/roar_trex_02.ogg": {
+      "bytes": 27150,
+      "sha256": "cfb34ecf05a4f1ab22422cbeab21b39d0282642b857062915edc0bc003f37d19"
+    },
+    "play/rex-rampage/audio/sfx/roar_trex/roar_trex_03.m4a": {
+      "bytes": 45459,
+      "sha256": "6d64bc0d2a0057d6348c11c66c358dd36932a1990cf0a7b5b38f31e8f170e95f"
+    },
+    "play/rex-rampage/audio/sfx/roar_trex/roar_trex_03.ogg": {
+      "bytes": 27177,
+      "sha256": "8b1fa847d76fd3155d5b786c050d4194498f739760a3c6a1691f8bf7d8fece3c"
+    },
+    "play/rex-rampage/audio/sfx/rock_break/rock_break_01.m4a": {
+      "bytes": 22169,
+      "sha256": "d2c9a3bc671a8d16aef31f9bf2c4a2ad09bec11f6d7a19fdc0e70d3ed1ae366b"
+    },
+    "play/rex-rampage/audio/sfx/rock_break/rock_break_01.ogg": {
+      "bytes": 12619,
+      "sha256": "42193d63cadd545fbd38eec41a80990f9c14aafbaf82a211376279c6ccfd1fdd"
+    },
+    "play/rex-rampage/audio/sfx/rock_break/rock_break_02.m4a": {
+      "bytes": 22959,
+      "sha256": "e7b7e744b3646fb68a0ab656816ca15bb6e649b5ec3aec11bf48b700fad19ad6"
+    },
+    "play/rex-rampage/audio/sfx/rock_break/rock_break_02.ogg": {
+      "bytes": 12686,
+      "sha256": "8d25b98c7300259620dd8e251e9a0e6e5e2a39f4697238c8f901839735f8857f"
+    },
+    "play/rex-rampage/audio/sfx/rock_break/rock_break_03.m4a": {
+      "bytes": 22362,
+      "sha256": "00938f7aa205e5f4b8e3679fee6cf0fedbbb74d291452a30697216ec6040ca5c"
+    },
+    "play/rex-rampage/audio/sfx/rock_break/rock_break_03.ogg": {
+      "bytes": 12166,
+      "sha256": "b372556da8b7137b2c177756d2c6f7946984b207e5148bbc74b6356b20e76454"
+    },
+    "play/rex-rampage/audio/sfx/ui_click/ui_click.m4a": {
+      "bytes": 1925,
+      "sha256": "83d1896ebce2a5c03ec45fe518e89b35d95ff0ab236d4398d2b5a43aa65e42e0"
+    },
+    "play/rex-rampage/audio/sfx/ui_click/ui_click.ogg": {
+      "bytes": 2001,
+      "sha256": "f5d7e1b0f9b81869df2f0b5309d8af273b843616951be646c1d5e9875e341e51"
+    },
+    "play/rex-rampage/audio/sfx/ui_confirm/ui_confirm.m4a": {
+      "bytes": 7132,
+      "sha256": "502c4e88cae282d1ec5e0fe05ed3c114e3371b4b431ae355d0bc7670c01580ec"
+    },
+    "play/rex-rampage/audio/sfx/ui_confirm/ui_confirm.ogg": {
+      "bytes": 6396,
+      "sha256": "9deaabca36bcfb049331faf3127a105cd9b460389284bfdbba6c879b0af0f7b9"
+    },
+    "play/rex-rampage/art/foliage/bush/sheet.json": {
+      "bytes": 140,
+      "sha256": "5bddf1fb7d63bd593cec46e381ebad00fcaea297609d598b149dbdf64a8aa778"
+    },
+    "play/rex-rampage/art/foliage/bush/sheet.png": {
+      "bytes": 5478,
+      "sha256": "540e3ca25b6f97b631f8c9616adfaadcc13a265a81e662653110b32e1d913795"
+    },
+    "play/rex-rampage/art/foliage/contact-sheet.png": {
+      "bytes": 48549,
+      "sha256": "227a2d6248fa81104c8bdab851b7e00d0832753fe2a4d54ae6139f269b3187c0"
+    },
+    "play/rex-rampage/art/foliage/fern/sheet.json": {
+      "bytes": 140,
+      "sha256": "5bddf1fb7d63bd593cec46e381ebad00fcaea297609d598b149dbdf64a8aa778"
+    },
+    "play/rex-rampage/art/foliage/fern/sheet.png": {
+      "bytes": 6395,
+      "sha256": "f797c5c384110076d1b7d936bb96bab852da84e822369e4c65493c6e96761be0"
+    },
+    "play/rex-rampage/art/foliage/jungle_tree/sheet.json": {
+      "bytes": 140,
+      "sha256": "cb9c87bf0b51be29b3fa9d4181dd34dc09de606305020b1baa057138fc70d5b7"
+    },
+    "play/rex-rampage/art/foliage/jungle_tree/sheet.png": {
+      "bytes": 12444,
+      "sha256": "499c7d72be9074379efb4d718593982a6ec731594d52827446ef5b2debd74c05"
+    },
+    "play/rex-rampage/art/foliage/palm/sheet.json": {
+      "bytes": 140,
+      "sha256": "cb9c87bf0b51be29b3fa9d4181dd34dc09de606305020b1baa057138fc70d5b7"
+    },
+    "play/rex-rampage/art/foliage/palm/sheet.png": {
+      "bytes": 15542,
+      "sha256": "c6e9211296e24f9d6628aa3c9f64a5ccba5128a5433ffcabcb604b8bb2d4608e"
+    },
+    "play/rex-rampage/art/foliage/tall_jungle_tree/sheet.json": {
+      "bytes": 140,
+      "sha256": "9d65b5c18fd304d7a83f1030ad74b213b2266ad282ee72ffb7b57de0ff8ac6b5"
+    },
+    "play/rex-rampage/art/foliage/tall_jungle_tree/sheet.png": {
+      "bytes": 11688,
+      "sha256": "3168d147ae41b4f7be6ec06dc76758c480cc2fb236d04e2a388737bbf0fdedcb"
+    },
+    "play/rex-rampage/art/props/barrel/barrel.glb": {
+      "bytes": 30784,
+      "sha256": "a7acb0545b5fa712b9e7de2e29ac83c1df11c8c9ad897103d98c3fc9b8dcb28d"
+    },
+    "play/rex-rampage/art/props/barrel/preview.png": {
+      "bytes": 72369,
+      "sha256": "10535508329e38928f669c7927de4d3ad5a22608cebdcd5c8bb885364d5f40ee"
+    },
+    "play/rex-rampage/art/props/basalt/basalt.glb": {
+      "bytes": 28828,
+      "sha256": "9520ddf0923afc669d7c6caf46b2c3a3dfc28a1c7898f0519c29ab124ce14a8a"
+    },
+    "play/rex-rampage/art/props/basalt/preview.png": {
+      "bytes": 14437,
+      "sha256": "028507377da97fac1deac30d8aa61d482006b066127b3fce8857a8960b062511"
+    },
+    "play/rex-rampage/art/props/boulder/boulder.glb": {
+      "bytes": 144512,
+      "sha256": "9b6313b9a36227ba8fb9c4993583e2c6986c4590e46d24580f25568c98e7fd91"
+    },
+    "play/rex-rampage/art/props/boulder/preview.png": {
+      "bytes": 52649,
+      "sha256": "d1e6852f9170f9c65dd3d0c9a2ae16200820f40b796d322f79bf963e5a713921"
+    },
+    "play/rex-rampage/art/props/contact-sheet.png": {
+      "bytes": 105161,
+      "sha256": "259ef779ba758e0c58be79ab2292c8bf8fe703c924d87e826570c471fa1e5257"
+    },
+    "play/rex-rampage/art/props/crate/crate.glb": {
+      "bytes": 51712,
+      "sha256": "6efdabef315d99b63208ea430245627bafd597b579fd27049cd28e1b13882647"
+    },
+    "play/rex-rampage/art/props/crate/preview.png": {
+      "bytes": 13076,
+      "sha256": "fbf5e53f1bb0409a3e1c3118ec959d550252b40e7c847720972387130b76a19b"
+    },
+    "play/rex-rampage/art/props/fence/fence.glb": {
+      "bytes": 24920,
+      "sha256": "771881bc2a67b238b5cda66f76dd09699c25a8f00a6c1e5a15f60ec385d5ed30"
+    },
+    "play/rex-rampage/art/props/fence/preview.png": {
+      "bytes": 25365,
+      "sha256": "5b95325ba18c26b366834b8994685e22469f138fdf9c417d5ebf4bb149e679f0"
+    },
+    "play/rex-rampage/art/props/lamppost/lamppost.glb": {
+      "bytes": 7208,
+      "sha256": "9b460405ef4b82349f7a1ea240160199b97d15b39c413fc7b821616551cd4b86"
+    },
+    "play/rex-rampage/art/props/lamppost/preview.png": {
+      "bytes": 11452,
+      "sha256": "a83b37b0b495872a93975afcf104d29c41539c2533367215bf97291eed41980c"
+    },
+    "play/rex-rampage/art/props/mine_rail/mine_rail.glb": {
+      "bytes": 156056,
+      "sha256": "1618d0639188642eaa0cd47dbabf8b91f49fee9550b9672e434c784d3a1d5f6e"
+    },
+    "play/rex-rampage/art/props/mine_rail/preview.png": {
+      "bytes": 18992,
+      "sha256": "49ab58b023981d91969032f0125862d74dcd804bd2c08ac510ba499a3f709a74"
+    },
+    "play/rex-rampage/art/props/rock/preview.png": {
+      "bytes": 88289,
+      "sha256": "916eb304854ce08323912d3c121f0a045ee27d94c13d808e92029497c7d44c50"
+    },
+    "play/rex-rampage/art/props/rock/rock.glb": {
+      "bytes": 28472,
+      "sha256": "f0404ca698dc894d3d42da3a3c6d67995d5ab332105c1a7157816fd41801a2b7"
+    },
+    "play/rex-rampage/art/skies/contact-sheet.png": {
+      "bytes": 533098,
+      "sha256": "8575b56d43b1206cf93e4ebb60ef84b9631698da51dde33cba5717040ef5a1b3"
+    },
+    "play/rex-rampage/art/skies/report-n64-redo.json": {
+      "bytes": 2563,
+      "sha256": "05334ad393a0094b27b0a4eccf51232491c38b50d35e355810e0dca1c7c3aa98"
+    },
+    "play/rex-rampage/art/skies/report-n64.json": {
+      "bytes": 4902,
+      "sha256": "ad025a5de0b9b340549a6e36fcb7a163d938a99eca28b2162f3c39f3b77e3f01"
+    },
+    "play/rex-rampage/art/skies/report-redo-jungle.json": {
+      "bytes": 3279,
+      "sha256": "d5a29df3e591d6975cb8471c09353a91e74e74b02d99b487adaee3b75dda2f9e"
+    },
+    "play/rex-rampage/art/skies/report-redo-stadium.json": {
+      "bytes": 1758,
+      "sha256": "2fad99a6bdb06701f3c4a925994fc29ada8a5ab2ae3cc56439473c2d11271d4d"
+    },
+    "play/rex-rampage/art/skies/sky_canyon/background.png": {
+      "bytes": 786797,
+      "sha256": "fd558b78738620f03de19b970bf9ed484a7139b119a51ef895004bfce3b194ec"
+    },
+    "play/rex-rampage/art/skies/sky_canyon/camera.json": {
+      "bytes": 828,
+      "sha256": "0de46c24a97aa8baed827a54a146d11935449324a8d6486c0c3a914415a49c13"
+    },
+    "play/rex-rampage/art/skies/sky_canyon/depth.png": {
+      "bytes": 29232,
+      "sha256": "9f0dfc903ab4849a011dc8717f829ad1473c3dc01e2d422b15d5cfdf48cad611"
+    },
+    "play/rex-rampage/art/skies/sky_canyon/walkmesh.glb": {
+      "bytes": 43112,
+      "sha256": "b36987bdafadd0934a58ba7f64d9404e511702fc5ad2c02b2d4441a1b9052568"
+    },
+    "play/rex-rampage/art/skies/sky_jungle/background.png": {
+      "bytes": 949717,
+      "sha256": "ecee1a62769f7e825464ba7cc10f2ca9cd9967420715795be3fb692dd07b1da6"
+    },
+    "play/rex-rampage/art/skies/sky_jungle/camera.json": {
+      "bytes": 828,
+      "sha256": "0de46c24a97aa8baed827a54a146d11935449324a8d6486c0c3a914415a49c13"
+    },
+    "play/rex-rampage/art/skies/sky_jungle/depth.png": {
+      "bytes": 32520,
+      "sha256": "3fb4a991152856f8bf255978d7c20da0e2b8429b904712ceec8185f7196f5d9c"
+    },
+    "play/rex-rampage/art/skies/sky_jungle/walkmesh.glb": {
+      "bytes": 43124,
+      "sha256": "4080505d6f771548ec242f212a38816d994c194db9c36f5c2bdd8527745d2ddd"
+    },
+    "play/rex-rampage/art/skies/sky_sea/background.png": {
+      "bytes": 635338,
+      "sha256": "2a5c9f7ab98f92ee867af6918f4d8c7d58df233fe31b7e112eeaad2ad2709e01"
+    },
+    "play/rex-rampage/art/skies/sky_sea/camera.json": {
+      "bytes": 828,
+      "sha256": "0de46c24a97aa8baed827a54a146d11935449324a8d6486c0c3a914415a49c13"
+    },
+    "play/rex-rampage/art/skies/sky_sea/depth.png": {
+      "bytes": 9490,
+      "sha256": "87bf75afb7575b591026421b0136fb0d0ad5a628240e7526847c7bc7497eb742"
+    },
+    "play/rex-rampage/art/skies/sky_sea/walkmesh.glb": {
+      "bytes": 24744,
+      "sha256": "f52c171affaa77b99971a88aecb53a809858cce3ffcc8d88be869cdfa4e23608"
+    },
+    "play/rex-rampage/art/skies/sky_stadium/background.png": {
+      "bytes": 697753,
+      "sha256": "7f44f46053cc1a3265da6bf65ddef42acf3cc2ab6f40c1e9205c773444672766"
+    },
+    "play/rex-rampage/art/skies/sky_stadium/camera.json": {
+      "bytes": 828,
+      "sha256": "0de46c24a97aa8baed827a54a146d11935449324a8d6486c0c3a914415a49c13"
+    },
+    "play/rex-rampage/art/skies/sky_stadium/depth.png": {
+      "bytes": 35852,
+      "sha256": "f68f604b603a01abd431966b27e9a7b1ade30737661422c8ab0bd685d76f5914"
+    },
+    "play/rex-rampage/art/skies/sky_stadium/walkmesh.glb": {
+      "bytes": 43108,
+      "sha256": "648250ddab68d8c234d5cb83c9c9f283716a9f7feb8d1f90ed63f9a4b3547d3f"
+    },
+    "play/rex-rampage/art/skies/sky_volcano/background.png": {
+      "bytes": 842511,
+      "sha256": "2947aab394bfd443ed8bbfdbe5a55d882b489b1e789b5c433c5ba5f28433e1a5"
+    },
+    "play/rex-rampage/art/skies/sky_volcano/camera.json": {
+      "bytes": 828,
+      "sha256": "0de46c24a97aa8baed827a54a146d11935449324a8d6486c0c3a914415a49c13"
+    },
+    "play/rex-rampage/art/skies/sky_volcano/depth.png": {
+      "bytes": 34796,
+      "sha256": "2e3c58558fa33cd97a1a1d3b7c0cc8092aa175cfbd8832a41a5df8c2bb13783c"
+    },
+    "play/rex-rampage/art/skies/sky_volcano/walkmesh.glb": {
+      "bytes": 43112,
+      "sha256": "b36987bdafadd0934a58ba7f64d9404e511702fc5ad2c02b2d4441a1b9052568"
+    },
+    "play/rex-rampage/art/textures/basalt_rock/height.png": {
+      "bytes": 152584,
+      "sha256": "89a5e060ef51d22469afca5afd5ac3d8b3daac2d6917a19d64d1c9b7fc875ae4"
+    },
+    "play/rex-rampage/art/textures/basalt_rock/normal.png": {
+      "bytes": 583543,
+      "sha256": "bf4b474be58408dc930019e20368e19b72550fe284db97f611a4e53d488976e8"
+    },
+    "play/rex-rampage/art/textures/basalt_rock/texture.png": {
+      "bytes": 679820,
+      "sha256": "a70a5fb1c0436813cb9f83fe3f45bc7345196362a3f74c031d661a263f79e6d0"
+    },
+    "play/rex-rampage/art/textures/canyon_rock/height.png": {
+      "bytes": 181605,
+      "sha256": "1dd1b213f13c278991cdb3d535b49560578aa7a64bfdbad8806a8f2cb8a361a8"
+    },
+    "play/rex-rampage/art/textures/canyon_rock/normal.png": {
+      "bytes": 752607,
+      "sha256": "e898d2a2442d8998e1bf8c6a66ae654b50349d3664b73c4153a297e29281232a"
+    },
+    "play/rex-rampage/art/textures/canyon_rock/texture.png": {
+      "bytes": 799390,
+      "sha256": "760fe932d149ccf9d6bce4909835337f9a901bdf672729924a62586c1600b6ca"
+    },
+    "play/rex-rampage/art/textures/concrete_floor/height.png": {
+      "bytes": 167362,
+      "sha256": "b74a7e74df3cae5267a6d040814cf9cd690f076123d1612ce06cd3784a874f80"
+    },
+    "play/rex-rampage/art/textures/concrete_floor/normal.png": {
+      "bytes": 641816,
+      "sha256": "10b4784b904981383f554d41d876ee9c5fef649dad8fb7f4870a01359d713cc3"
+    },
+    "play/rex-rampage/art/textures/concrete_floor/texture.png": {
+      "bytes": 752989,
+      "sha256": "e3a521dd6ca94bf8b6728535c70611c0d7bec02e9c8d32a225949a587c49347b"
+    },
+    "play/rex-rampage/art/textures/contact-sheet.png": {
+      "bytes": 2923613,
+      "sha256": "52f4c34c8750ba42dac288352d91ab7b2bfdfa1c0f899abd0f92d9d0b38c5f1d"
+    },
+    "play/rex-rampage/art/textures/dirt_road/height.png": {
+      "bytes": 183563,
+      "sha256": "82ea2e1393f0c96f4490fd1f7089d737e79fde440ed1a49455996766ba121f23"
+    },
+    "play/rex-rampage/art/textures/dirt_road/normal.png": {
+      "bytes": 708101,
+      "sha256": "f15145007a18e177f99eac65e7f79a26b43c86f8b9ab8204de998cc0dc0ee54e"
+    },
+    "play/rex-rampage/art/textures/dirt_road/texture.png": {
+      "bytes": 840092,
+      "sha256": "9e8dda34a60363abf9bea431827be60ecd33d3effdfd1a100a17bc4c6b82649d"
+    },
+    "play/rex-rampage/art/textures/jungle_floor/height.png": {
+      "bytes": 223428,
+      "sha256": "a2ca74e1af8ba9dddb77b06c2722f13f294b11b8663da342e869ba053aa8fa0f"
+    },
+    "play/rex-rampage/art/textures/jungle_floor/normal.png": {
+      "bytes": 897050,
+      "sha256": "23897c6c7ffcc8469cf9444b655648467819d22668ad79b78fab9bd1ce0d03cd"
+    },
+    "play/rex-rampage/art/textures/jungle_floor/texture.png": {
+      "bytes": 1012783,
+      "sha256": "b67daf2b85faa783dbff036c24f4050d42d17dfe6ec1d8704d0560806bb4304a"
+    },
+    "play/rex-rampage/art/textures/lava_crust/height.png": {
+      "bytes": 184746,
+      "sha256": "86750a4a8be6bfef0bcc8bf96d60d10487afbc75d093f6dd77989379d40fab4a"
+    },
+    "play/rex-rampage/art/textures/lava_crust/normal.png": {
+      "bytes": 748026,
+      "sha256": "ac1a05ea85f68bf6a97520faf83670d0cd18b357b258bf0e8ec1f61b92e70be6"
+    },
+    "play/rex-rampage/art/textures/lava_crust/texture.png": {
+      "bytes": 819806,
+      "sha256": "1630a872201f4c1d11922dee838043ab61146048532513706b8cf32871b98597"
+    },
+    "play/rex-rampage/art/textures/report-jungle_floor.json": {
+      "bytes": 2367,
+      "sha256": "3c42d6ac9d3ba227b0e873e42ca0c6e8844642fc461495f53cbf661ddf9ab69f"
+    },
+    "play/rex-rampage/art/textures/report-n64-redo.json": {
+      "bytes": 4141,
+      "sha256": "32b6774799be1213d1701b75e2d2bcac17f51bc874f52a9c45a6f8f7f74d672e"
+    },
+    "play/rex-rampage/art/textures/report-n64.json": {
+      "bytes": 12405,
+      "sha256": "2f2b50a61c35cd29f44dad832fb305f82d7f0a863f5adcf14fa10041a78a6fea"
+    },
+    "play/rex-rampage/art/textures/river_water/height.png": {
+      "bytes": 198456,
+      "sha256": "eb18561ee6ea90228f2da35493b17a79c7fc4da9273e781cd3ea3c24b8a350c4"
+    },
+    "play/rex-rampage/art/textures/river_water/normal.png": {
+      "bytes": 883051,
+      "sha256": "92059820168b752e428e00bf6b354fb7daf32e99deec784846bb3ba9d06410cb"
+    },
+    "play/rex-rampage/art/textures/river_water/texture.png": {
+      "bytes": 980618,
+      "sha256": "1bd078e534ba0db2788be9ad256fe24883cd4d4f7e0be1acbe1aa3babc6bdbfc"
+    },
+    "play/rex-rampage/art/textures/stadium_stands/height.png": {
+      "bytes": 149382,
+      "sha256": "c12ac9966657340a70289565328ab06dc126da94766e18e8ccb388d391665e60"
+    },
+    "play/rex-rampage/art/textures/stadium_stands/normal.png": {
+      "bytes": 561881,
+      "sha256": "415f570bf0238964cc686cfdd25ab4b447088994573f1b1332a0d80174c085fb"
+    },
+    "play/rex-rampage/art/textures/stadium_stands/texture.png": {
+      "bytes": 713078,
+      "sha256": "d33045989305cba8227d0704861e09e902da5e918ad239752159cbd1d7133096"
+    },
+    "play/rex-rampage/art/textures/stadium_turf/height.png": {
+      "bytes": 205893,
+      "sha256": "9400c853246aa8d533f92a868fdab6fa8eb8047dea6cc7e10ce2c9342cf30838"
+    },
+    "play/rex-rampage/art/textures/stadium_turf/normal.png": {
+      "bytes": 809089,
+      "sha256": "167561ac93ca02eceff7705e6adf563deb32fb34d55466fbb90e8c549de28ad9"
+    },
+    "play/rex-rampage/art/textures/stadium_turf/texture.png": {
+      "bytes": 885753,
+      "sha256": "aac1512c7e6138d399be186281c5ebed043701edab4e786f87523e1e86af0aea"
+    },
+    "play/rex-rampage/art/textures/visitor_wall/height.png": {
+      "bytes": 157622,
+      "sha256": "c3fe8f59b5bd4c0d42750b8784db213b0b97f0d0daa1e71a38dc9966103dade1"
+    },
+    "play/rex-rampage/art/textures/visitor_wall/normal.png": {
+      "bytes": 585644,
+      "sha256": "520ae1f847593234eca9e3ef301251cb50e896502f1fc65579808ae04a8dc615"
+    },
+    "play/rex-rampage/art/textures/visitor_wall/texture.png": {
+      "bytes": 697211,
+      "sha256": "3d3bbab4838a3183ea7d252b7c5afd79dab520ffdb031fa574e18a79a2c92ea6"
+    },
+    "play/rex-rampage/art/vehicles/contact-sheet.png": {
+      "bytes": 48899,
+      "sha256": "dab173bb2695806c86f88edcc92a8d032fd6fb94b791e6af724ecbdaea8e2f0f"
+    },
+    "play/rex-rampage/art/vehicles/helicopter_merc/helicopter_merc.glb": {
+      "bytes": 30980,
+      "sha256": "6197426e8c5943499f81ff7d68da9cf362131f356e3653a831f09cd792e4e3af"
+    },
+    "play/rex-rampage/art/vehicles/helicopter_merc/preview.png": {
+      "bytes": 12778,
+      "sha256": "86c53a58ee55b87ef5a353515d7d723c213c3c2231aa9cb17357f77f01270b7d"
+    },
+    "play/rex-rampage/art/vehicles/helicopter_rescue/helicopter_rescue.glb": {
+      "bytes": 30980,
+      "sha256": "6b535855364f3a7e905b74597942cc05af8b1d290cbd0725ec13569dbaa61b45"
+    },
+    "play/rex-rampage/art/vehicles/helicopter_rescue/preview.png": {
+      "bytes": 12915,
+      "sha256": "2355ad72e86ceadd63f40c546e48c5d5bb06abef20bfb544cef26b9340d3e24b"
+    },
+    "play/rex-rampage/art/vehicles/jeep/jeep.glb": {
+      "bytes": 67860,
+      "sha256": "073141691cdec6b0e8954d88407e0050830a13813dfa362630671279bc8f2bba"
+    },
+    "play/rex-rampage/art/vehicles/jeep/preview.png": {
+      "bytes": 21132,
+      "sha256": "441946b1dd80ef52c7c605ef2c9f3874f885eea1b7b5e041d4ddab83b59e7ae6"
+    },
+    "play/rex-rampage/art/vehicles/light_gun/light_gun.glb": {
+      "bytes": 16368,
+      "sha256": "e2b8a5456ecc0f5cd258c837d84cdf1889710dde91a4222338f3b9022f7a6ee9"
+    },
+    "play/rex-rampage/art/vehicles/light_gun/preview.png": {
+      "bytes": 14106,
+      "sha256": "61ac6d2515108c9a340349349147e66e55617896b7f292d1ed0116f4a0a08136"
+    },
+    "play/rex-rampage/art/vehicles/mine_cart/mine_cart.glb": {
+      "bytes": 41360,
+      "sha256": "d1a2c881c76438cd57db695c12796199b8aaf3529d351796db0a5705380012ca"
+    },
+    "play/rex-rampage/art/vehicles/mine_cart/preview.png": {
+      "bytes": 17345,
+      "sha256": "66572f825e5bc72ecdac8f6e1f143b4e8b9a066d7251fca86dc2616d9ec1da5d"
+    },
+    "play/rex-rampage/art/vehicles/river_boat/preview.png": {
+      "bytes": 17209,
+      "sha256": "1343dc695c16638b23ded74b4b898588f909b9efb7667890340013870e0aea87"
+    },
+    "play/rex-rampage/art/vehicles/river_boat/river_boat.glb": {
+      "bytes": 49600,
+      "sha256": "6f9988fe9926ddc69a75b9e06151b0d7ff4cbf8ebe123b13d9acd345823b9a7f"
+    },
+    "play/rex-rampage/art/vehicles/tank/preview.png": {
+      "bytes": 15043,
+      "sha256": "8c587ea45dcc35d667b8253e04ef106e95ba629cc635ac98dda813339aa11f88"
+    },
+    "play/rex-rampage/art/vehicles/tank/tank.glb": {
+      "bytes": 49764,
+      "sha256": "0ea73b46112b051b273e25e47b6ef5d30699d523edc19db81218942b6ddaa6ca"
     },
     "web-engine/account/account.js": {
       "bytes": 19448,
@@ -24454,7 +25498,7 @@
     },
     "play/farmy-moon-life/index.html": {
       "bytes": 70012,
-      "sha256": "be8eea792f105aa2b0a079e872ffcdc76a49061c821657dfb43217cd8a00b64c"
+      "sha256": "3871894d411b2bad12c08040cf47c2cbb2e60a0528ba85cac94318e259be2189"
     },
     "play/farmy-moon-life/src/install/icon-192.png": {
       "bytes": 1839,
@@ -26078,83 +27122,83 @@
     },
     "play/farmyshoot/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/farmykart/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/farmy-evil-hills/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/zelakas/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/2d-fighter-ex/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/farmy-crosswords/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/farmy-tiles/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/farmy-ludo/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/farmy-chess/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/minesweeper/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/gomoku/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/word-chain/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/truco/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/buraco/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/conga/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/koikoi/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/shogi/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/xiangqi/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/go/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "play/farmy-checkers/version.json": {
       "bytes": 72,
-      "sha256": "90734b1be14930de251d646faaf4c50725b6f01184ba0fb4480bd105a4fe0e72"
+      "sha256": "178ca3b007523d7921f87e7d368f2070b24cbf456744ab7c6cd58a5709b909fa"
     },
     "assets/badges/first-steps.svg": {
       "bytes": 764,
@@ -27430,7 +28474,7 @@
     },
     "catalogue.json": {
       "bytes": 26487,
-      "sha256": "097f7f5d6719b1f1514e6f4ca46dc4bfb6454fc9237bfbbe6b7e95609944ab23"
+      "sha256": "7852d745eba890259f25361c1c257f387b12dcab0a4e4603322c85b4ed80d9bf"
     }
   }
 }

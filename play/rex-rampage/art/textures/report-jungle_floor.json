@@ -1,0 +1,80 @@
+{
+ "project": "rex-rampage",
+ "look": "modern",
+ "style": "default",
+ "seconds": 14.1,
+ "ok": true,
+ "contact_sheet": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\.superpowers\\tx-jungle\\contact-sheet.png",
+ "assets": [
+  {
+   "name": "jungle_floor",
+   "kind": "texture",
+   "ok": true,
+   "painted": true,
+   "notes": [
+    "candidate 0 (seed 1): row/column luminance range 0.27 (limit 0.3), CLIP 0.157",
+    "candidate 1 (seed 1001): row/column luminance range 0.24 (limit 0.3), CLIP 0.14",
+    "candidate 2 (seed 2001): row/column luminance range 0.28 (limit 0.3), CLIP 0.064",
+    "candidate 3 (seed 3001): row/column luminance range 0.10 (limit 0.3), CLIP 0.211",
+    "painted with sd15 (already loaded); kept candidate 3"
+   ],
+   "files": {
+    "texture": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\.superpowers\\tx-jungle\\jungle_floor\\texture.png",
+    "height": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\.superpowers\\tx-jungle\\jungle_floor\\height.png",
+    "normal": "C:\\Users\\BryanArbelo\\projects\\rex-rampage\\.superpowers\\tx-jungle\\jungle_floor\\normal.png"
+   },
+   "checks": [
+    {
+     "name": "size:texture.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "detail:texture.png",
+     "ok": true,
+     "detail": "luminance std 0.137"
+    },
+    {
+     "name": "seamless:texture.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 0.94 (limit 2.5)"
+    },
+    {
+     "name": "uniform:texture.png",
+     "ok": true,
+     "detail": "row/column luminance range 0.10 (limit 0.3)"
+    },
+    {
+     "name": "size:normal.png",
+     "ok": true,
+     "detail": "512x512, wanted 512x512"
+    },
+    {
+     "name": "seamless:normal.png",
+     "ok": true,
+     "detail": "seam/interior step ratio 0.94 (limit 3.0)"
+    },
+    {
+     "name": "guard:RG-101:power_of_two:texture.png",
+     "ok": true,
+     "detail": "512x512"
+    },
+    {
+     "name": "guard:RG-021:base_colour_range:texture.png",
+     "ok": true,
+     "detail": "0.2% of texels outside sRGB 30-240 (limit 2%)"
+    },
+    {
+     "name": "guard:RG-032:normal_unit:normal.png",
+     "ok": true,
+     "detail": "100.00% of texels unit length +/-0.05 with z>0 (need 99%)"
+    },
+    {
+     "name": "guard:RG-123:data_texture_linear:normal.png",
+     "ok": true,
+     "detail": "colour-space chunks: none"
+    }
+   ]
+  }
+ ]
+}
