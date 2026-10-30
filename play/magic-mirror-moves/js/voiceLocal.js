@@ -42,7 +42,11 @@ export async function startLocalVoice(win, onCommand) {
   let stream = null;
   let recognizer = null;
   const parts = [];
+  let stopped = false;
   const stop = () => {
+    
+    
+    stopped = true;
     for (const p of parts) p.disconnect();
     for (const tr of stream?.getTracks() ?? []) tr.stop();
     recognizer?.remove();
@@ -70,7 +74,9 @@ export async function startLocalVoice(win, onCommand) {
     });
     const source = ctx.createMediaStreamSource(stream);
     const tap = ctx.createScriptProcessor(4096, 1, 1);
-    tap.onaudioprocess = (e) => recognizer.acceptWaveform(e.inputBuffer);
+    tap.onaudioprocess = (e) => {
+      if (!stopped) recognizer.acceptWaveform(e.inputBuffer);
+    };
     
     const mute = ctx.createGain();
     mute.gain.value = 0;
