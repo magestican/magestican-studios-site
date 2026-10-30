@@ -66,7 +66,7 @@
   }
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=1cd70197-20261030T140531Z">
+  <link rel="stylesheet" href="/styles.css?v=9930999c-20261030T142155Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -135,14 +135,29 @@
     <p>Ang Magestican Studios ay trading name ng <strong>Ultra Task Pty Ltd</strong>, nakarehistro sa Australia. Ang lahat ng kontrata, invoice at legal na korespondensiya ay sa Ultra Task Pty Ltd. Ang mga trademark — Magestican Studios at ang logo ng Magestican Studios — ay pag-aari ng Ultra Task Pty Ltd.</p>
 
     <h2>Makipag-ugnayan</h2>
-    <p>Makipag-ugnayan sa pamamagitan ng mga pampublikong channel ng studio kapag live na ang mga ito.</p>
+    <p>May tanong tungkol sa isang laro, bug na gustong i-report, o business enquiry? Magpadala ng mensahe at sasagot kami sa email.</p>
+    <form id="contact-form" class="contact-form" novalidate data-endpoint="https://bryanarbelo.com/api/contact">
+      <label>Pangalan<input name="name" autocomplete="name" maxlength="100" required></label>
+      <label>Email<input name="email" type="email" autocomplete="email" maxlength="200" required></label>
+      <label>Mensahe<textarea name="message" rows="6" maxlength="5000" required></textarea></label>
+      <label class="contact-hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+      <div class="contact-captcha" data-sitekey="6LcDSektAAAAAMQaYup_qnuWAqkj0oeSITf0WW5n"></div>
+      <button type="submit" class="contact-send">Ipadala</button>
+      <p class="contact-status" role="status" aria-live="polite"></p>
+      <p hidden data-msg="sending">Ipinapadala...</p>
+      <p hidden data-msg="sent">Salamat. Naipadala na ang mensahe mo, at sasagot kami sa email.</p>
+      <p hidden data-msg="missing">Pakilagay ang pangalan, email at mensahe mo.</p>
+      <p hidden data-msg="captcha">Pakilagyan ng tsek ang kahong "Hindi ako robot".</p>
+      <p hidden data-msg="failed">Paumanhin, hindi ito naipadala. Subukan ulit pagkalipas ng ilang minuto.</p>
+      <noscript><p>Kailangang naka-on ang JavaScript para sa contact form.</p></noscript>
+    </form>
 
     <p><a href="/tl/" class="more-link">← bumalik sa studio</a></p>
   </main>
 
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="Site"><ul><li><a href="/tl/#games">Mga laro</a></li><li><a href="/you.html">Iyong mga laro</a></li><li><a href="/tl/for-remote-teams.html">Para sa mga team</a></li><li><a href="/tl/magazine/">Magazine</a></li><li><a href="/tl/about.html">Tungkol sa amin</a></li><li><a href="/tl/reviews.html">Mga review</a></li></ul></nav>
-    <nav class="footer-games" aria-label="Lahat ng laro"><ul><li><a href="/tl/farmyshoot.html">Splatbarn</a></li><li><a href="/tl/farmy-uprising.html">Hoofrise</a></li><li><a href="/tl/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/tl/farmykart.html">Kartzoom</a></li><li><a href="/tl/farmy-tiles.html">Letterloft</a></li><li><a href="/tl/farmy-crosswords.html">Wordburrow</a></li><li><a href="/tl/farmy-chess.html">Rookwise</a></li><li><a href="/tl/farmy-checkers.html">Jumpwise</a></li><li><a href="/tl/farmy-ludo.html">Pawnrush</a></li><li><a href="/tl/minesweeper.html">Sweepwise: Minesweeper</a></li><li><a href="/tl/gomoku.html">Gomowise: Gomoku</a></li><li><a href="/tl/word-chain.html">Relaywise: Word Chain</a></li><li><a href="/tl/truco.html">Trucowise: Truco</a></li><li><a href="/tl/buraco.html">Buracowise: Buraco</a></li><li><a href="/tl/conga.html">Congawise: Conga</a></li><li><a href="/tl/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/tl/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/tl/farmy-moon-life.html">Moon Life</a></li><li><a href="/tl/silk-and-seam.html">Silk & Seam</a></li><li><a href="/tl/dachis.html">Dachis</a></li><li><a href="/tl/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/tl/farmy-five.html">Guesswise</a></li><li><a href="/tl/farmy-hive.html">Combword</a></li><li><a href="/tl/farmy-herds.html">Groupseek</a></li><li><a href="/tl/farmy-furrows.html">Gridseek</a></li></ul></nav>
+    <nav class="footer-games" aria-label="Lahat ng laro"><ul><li><a href="/tl/farmyshoot.html">Splatbarn</a></li><li><a href="/tl/farmy-uprising.html">Hoofrise</a></li><li><a href="/tl/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/tl/farmykart.html">Kartzoom</a></li><li><a href="/tl/farmy-tiles.html">Letterloft</a></li><li><a href="/tl/farmy-crosswords.html">Wordburrow</a></li><li><a href="/tl/farmy-chess.html">Rookwise</a></li><li><a href="/tl/farmy-checkers.html">Jumpwise</a></li><li><a href="/tl/farmy-ludo.html">Pawnrush</a></li><li><a href="/tl/minesweeper.html">Sweepwise: Minesweeper</a></li><li><a href="/tl/gomoku.html">Gomowise: Gomoku</a></li><li><a href="/tl/word-chain.html">Relaywise: Word Chain</a></li><li><a href="/tl/truco.html">Trucowise: Truco</a></li><li><a href="/tl/buraco.html">Buracowise: Buraco</a></li><li><a href="/tl/conga.html">Congawise: Conga</a></li><li><a href="/tl/koikoi.html">Hanawise: Koi-Koi</a></li><li><a href="/tl/shogi.html">Shogiwise: Shogi</a></li><li><a href="/tl/xiangqi.html">Xiangqiwise: Xiangqi</a></li><li><a href="/tl/go.html">Weiqiwise: Go</a></li><li><a href="/tl/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/tl/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/tl/farmy-moon-life.html">Moon Life</a></li><li><a href="/tl/silk-and-seam.html">Silk & Seam</a></li><li><a href="/tl/dachis.html">Dachis</a></li><li><a href="/tl/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/tl/farmy-five.html">Guesswise</a></li><li><a href="/tl/farmy-hive.html">Combword</a></li><li><a href="/tl/farmy-herds.html">Groupseek</a></li><li><a href="/tl/farmy-furrows.html">Gridseek</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
     <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Nakalaan ang lahat ng karapatan.<br> Ang Magestican Studios at ang logo ng Magestican Studios ay mga trademark ng Ultra Task Pty Ltd, Australia.</p>
     <p class="colophon">
@@ -151,7 +166,8 @@
     <p class="footer-browse">Tumingin: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a> &middot; <a href="/tl/word-games.html">Libreng word games</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=1cd70197-20261030T140531Z"></script>
+  <script type="module" src="/assets/site.js?v=9930999c-20261030T142155Z"></script>
+  <script type="module" src="/assets/contact-form.js?v=9930999c-20261030T142155Z"></script>
 
 
   <script type="module">

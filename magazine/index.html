@@ -100,8 +100,8 @@
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=1cd70197-20261030T140531Z">
-  <link rel="stylesheet" href="/magazine.css?v=1cd70197-20261030T140531Z">
+  <link rel="stylesheet" href="/styles.css?v=9930999c-20261030T142155Z">
+  <link rel="stylesheet" href="/magazine.css?v=9930999c-20261030T142155Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body class="mag-body">
@@ -130,7 +130,7 @@
     </div>
 
     <div class="mag-intro">
-      <p>Magestican Studios makes small games that open in the tab you are already in. No download, no launcher, no account, no waiting &mdash; you follow a link and you are playing, on whatever you happen to be holding. There are twenty-one you can play right now, one we are still fixing and one on the bench.</p>
+      <p>Magestican Studios makes small games that open in the tab you are already in. No download, no launcher, no account, no waiting &mdash; you follow a link and you are playing, on whatever you happen to be holding. There are twenty-five you can play right now, one we are still fixing and one on the bench.</p>
       <p>This is where we write about them: what is in an update and what it changed, how the games are meant to be played, what we are trying to do with them and what we have decided not to do. If you want to know whether a game is for you before you spend a click on it, start here.</p>
       <p>Everything we publish is playable for free in a browser. The quickest way to find out if any of it is any good is to open one.</p>
     </div>
@@ -187,6 +187,10 @@
         <li><a href="/truco.html">Trucowise</a> &mdash; Argentine truco with the Spanish deck: envido, truco and flor, 1 vs 1 or 2 vs 2.</li>
         <li><a href="/buraco.html">Buracowise</a> &mdash; Brazilian buraco with two decks and jokers: sequences, mortos and canastras, 1 vs 1 or 2 vs 2.</li>
         <li><a href="/conga.html">Congawise</a> &mdash; Uruguayan conga, the card game with the 50-card Spanish deck: escaleras, piernas and the cut, 2 to 4 players.</li>
+        <li><a href="/koikoi.html">Hanawise</a> &mdash; koi-koi with the 48-card hanafuda deck: match the months, collect yaku, then stop or call koi-koi, against the computer or a friend.</li>
+        <li><a href="/shogi.html">Shogiwise</a> &mdash; shogi, the Japanese chess where a captured piece changes sides and can be dropped back onto the board, against the computer or a friend.</li>
+        <li><a href="/xiangqi.html">Xiangqiwise</a> &mdash; xiangqi, the Chinese chess played on the points, with cannons that jump to capture and a river across the middle, against the computer or a friend.</li>
+        <li><a href="/go.html">Weiqiwise</a> &mdash; Go, the board game called weiqi in China and baduk in Korea: black and white stones, captured by surrounding, on a 9, 13 or 19 line board, against the computer or a friend.</li>
         <li><a href="/zelakas-in-space.html">Zelakas In Space</a> &mdash; the 2014 Flash original, running in a modern browser through Ruffle.</li>
         <li><a href="/2d-fighter-ex.html">2D Fighter EX</a> &mdash; an animation experiment recovered frame by frame from a screen recording.</li>
         <li><a href="/farmy-moon-life.html">Moon Life</a> &mdash; a cozy farming game on a tiny moon, in development and not playable yet.</li>
@@ -228,7 +232,7 @@ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.c
 var chosen=localStorage.getItem('ms-lang');if(chosen)return;
 if(/bot|crawl|spider|slurp|google-inspectiontool|lighthouse|headlesschrome/i.test(navigator.userAgent||''))return;
 var langs=navigator.languages||[navigator.language||''];var code=null;
-for(var i=0;i<langs.length&&!code;i++){var p=String(langs[i]).toLowerCase().split('-')[0];if(p==='en')break;if(p==='fil')p='tl';if(p==='in')p='id';if(T[p])code=p;}
+for(var i=0;i<langs.length&&!code;i++){var p=String(langs[i]).toLowerCase().split('-')[0];if(p==='en')break;if(p==='fil')p='tl';if(p==='in')p='id';if(p==='zh')p=/hant|-(tw|hk|mo)(-|$)/.test(String(langs[i]).toLowerCase())?'zh-hant':'zh-hans';if(T[p])code=p;}
 if(!code)return;location.replace(T[code].href+location.search+location.hash);}catch(e){}})();
 </script>
 </body>

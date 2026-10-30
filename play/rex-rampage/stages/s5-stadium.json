@@ -1,0 +1,18 @@
+{
+  "id": "s5-stadium",
+  "name": "The Stadium",
+  "theme": "stadium",
+  "vehicle": "on_foot",
+  "loop": true,
+  "arena": { "x": 0, "z": -36, "r": 36 },
+  "rail": [[0, 1.6, 0], [18, 1.6, -4.8], [31.2, 1.6, -18], [36, 1.6, -36], [31.2, 1.6, -54], [18, 1.6, -67.2], [0, 1.6, -72], [-18, 1.6, -67.2], [-31.2, 1.6, -54], [-36, 1.6, -36], [-31.2, 1.6, -18], [-18, 1.6, -4.8], [0, 1.6, 0]],
+  "speeds": [{ "d": 0, "v": 3 }],
+  "events": [
+    { "at": 0, "do": "music", "cue": "s5_boss" },
+    { "at": 0, "do": "checkpoint" },
+    { "at": 1, "do": "say", "line": "s5_varga_welcome" },
+    { "at": 3, "do": "shake", "power": 0.6, "s": 1.5 },
+    { "at": 4, "do": "boss", "id": "ironjaw" },
+    { "at": 6, "do": "say", "line": "s5_dispatch_plates" }
+  ]
+}

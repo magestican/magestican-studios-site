@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "1cd70197-20261030T140531Z",
+ "buildId": "9930999c-20261030T142155Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -259,7 +259,7 @@
    "ageNote": null,
    "order": 7,
    "addedAt": "2026-09-06",
-   "bytes": 83630
+   "bytes": 83702
   },
   {
    "id": "farmy-ludo",
@@ -485,6 +485,134 @@
    "bytes": 8520887
   },
   {
+   "id": "koikoi",
+   "statsId": "koikoi",
+   "title": "Hanawise",
+   "tagline": "Flower cards, yaku and the koi-koi call: the Japanese hanafuda game against the computer or a friend.",
+   "description": "Free koi-koi with the 48-card hanafuda deck: match the months, collect brights, ribbons and animals into yaku, then stop or call koi-koi. Three computer levels, or a friend in a room.",
+   "dir": "play/koikoi",
+   "path": "play/koikoi/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/koikoi.html",
+   "orientation": "any",
+   "players": "1-2",
+   "online": true,
+   "offline": true,
+   "cover": "assets/covers/koikoi-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/koikoi/0.webp",
+    "assets/shots/koikoi/1.webp"
+   ],
+   "accent": "#B3262E",
+   "glyph": "koikoi",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 15,
+   "addedAt": "2026-10-28",
+   "bytes": 1280849
+  },
+  {
+   "id": "shogi",
+   "statsId": "shogi",
+   "title": "Shogiwise",
+   "tagline": "Japanese chess on a wooden board: capture a piece, then drop it back in as your own.",
+   "description": "Free shogi online on the full 9x9 board: promote in the far three ranks, drop captured pieces back into play and checkmate the king. Three computer levels with a move guide, or a friend in a room.",
+   "dir": "play/shogi",
+   "path": "play/shogi/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/shogi.html",
+   "orientation": "any",
+   "players": "1-2",
+   "online": true,
+   "offline": true,
+   "cover": "assets/covers/shogi-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/shogi/0.webp",
+    "assets/shots/shogi/1.webp"
+   ],
+   "accent": "#8A5A2B",
+   "glyph": "shogi",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 16,
+   "addedAt": "2026-10-29",
+   "bytes": 1260987
+  },
+  {
+   "id": "xiangqi",
+   "statsId": "xiangqi",
+   "title": "Xiangqiwise",
+   "tagline": "Chinese chess across the river: cannons jump to capture and the general keeps to his palace.",
+   "description": "Free xiangqi (Chinese chess) online on the full board of points: cannons capture by jumping, horses can be blocked and the two generals may never face each other. Three computer levels with a move guide, or a friend in a room.",
+   "dir": "play/xiangqi",
+   "path": "play/xiangqi/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/xiangqi.html",
+   "orientation": "any",
+   "players": "1-2",
+   "online": true,
+   "offline": true,
+   "cover": "assets/covers/xiangqi-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/xiangqi/0.webp",
+    "assets/shots/xiangqi/1.webp"
+   ],
+   "accent": "#2E6B57",
+   "glyph": "xiangqi",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 17,
+   "addedAt": "2026-10-29",
+   "bytes": 1134796
+  },
+  {
+   "id": "go",
+   "statsId": "go",
+   "title": "Weiqiwise",
+   "tagline": "Go, weiqi and baduk: black and white stones fight for territory on a 9, 13 or 19 line board.",
+   "description": "Free Go (weiqi, baduk) online on a 9x9, 13x13 or 19x19 board: place stones, capture by surrounding and count the territory at the end. Three computer levels, two-tap moves on a phone, or a friend in a room.",
+   "dir": "play/go",
+   "path": "play/go/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/go.html",
+   "orientation": "any",
+   "players": "1-2",
+   "online": true,
+   "offline": true,
+   "cover": "assets/covers/go-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/go/0.webp",
+    "assets/shots/go/1.webp"
+   ],
+   "accent": "#3A4452",
+   "glyph": "go",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 18,
+   "addedAt": "2026-10-30",
+   "bytes": 1007834
+  },
+  {
    "id": "farmy-moon-life",
    "statsId": "farmy-moon-life",
    "title": "Moon Life",
@@ -512,7 +640,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 17,
+   "order": 21,
    "addedAt": "2026-09-14",
    "bytes": 778973
   },
@@ -543,7 +671,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 18,
+   "order": 22,
    "addedAt": "2026-09-25",
    "bytes": 12520070
   },
@@ -575,7 +703,7 @@
    "pack": "family",
    "age": 9,
    "ageNote": null,
-   "order": 19,
+   "order": 23,
    "addedAt": "2026-09-30",
    "bytes": 77953833
   },
@@ -607,7 +735,7 @@
    "pack": "family",
    "age": 7,
    "ageNote": null,
-   "order": 20,
+   "order": 24,
    "addedAt": "2026-10-23",
    "bytes": 328574810
   },
@@ -639,7 +767,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 21,
+   "order": 25,
    "addedAt": "2026-10-28",
    "bytes": 106598891
   },
@@ -671,7 +799,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 23,
+   "order": 27,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -703,7 +831,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 24,
+   "order": 28,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -735,7 +863,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 25,
+   "order": 29,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -767,7 +895,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 26,
+   "order": 30,
    "addedAt": "2026-09-21",
    "bytes": 211807
   }

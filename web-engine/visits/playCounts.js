@@ -134,6 +134,10 @@ export const COUNTED_GAME_IDS = Object.freeze([
   'truco',
   'buraco',
   'conga',
+  'koikoi',
+  'shogi',
+  'xiangqi',
+  'go',
   'zelakas',
   '2d-fighter-ex',
   

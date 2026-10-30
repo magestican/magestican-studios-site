@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Weiqiwise - 囲碁をオンラインで無料対局 | Magestican Studios</title>
+  <meta name="description" content="囲碁をオンラインで無料で。9路・13路・19路の碁盤で、石取り、コウ、日本ルールと中国ルールの数え方に対応。コンピューターとも友だちとも打てます。">
+  <link rel="icon" href="/favicon.svg">
+  <meta name="robots" content="max-image-preview:large">
+  <link rel="canonical" href="https://magesticanstudios.com/ja/go.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/go.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/go.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/go.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/go.html">
+  <link rel="alternate" hreflang="ja" href="https://magesticanstudios.com/ja/go.html">
+  <link rel="alternate" hreflang="ko" href="https://magesticanstudios.com/ko/go.html">
+  <link rel="alternate" hreflang="id" href="https://magesticanstudios.com/id/go.html">
+  <link rel="alternate" hreflang="vi" href="https://magesticanstudios.com/vi/go.html">
+  <link rel="alternate" hreflang="zh-Hant" href="https://magesticanstudios.com/zh-hant/go.html">
+  <link rel="alternate" hreflang="zh-Hans" href="https://magesticanstudios.com/zh-hans/go.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/go.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  <meta name="keywords" content="go, go online, play go, go board game, weiqi, weiqi online, baduk, baduk online, how to play go, go rules, weiqiwise">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:title" content="Weiqiwise - 囲碁をオンラインで無料対局">
+  <meta property="og:description" content="囲碁（weiqi・baduk）：黒石と白石が9路・13路・19路の盤で地を争う。コンピューターとも友だちとも。">
+  <meta property="og:url" content="https://magesticanstudios.com/ja/go.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/go.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Weiqiwise - 囲碁をオンラインで無料対局">
+  <meta name="twitter:description" content="囲碁をコンピューターや友だちと。ダウンロードもアカウントも不要。">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/go.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Weiqiwise 囲碁",
+  "alternateName": [
+    "Go",
+    "Weiqi",
+    "Baduk",
+    "Igo",
+    "围棋",
+    "圍棋",
+    "囲碁",
+    "바둑"
+  ],
+  "url": "https://magesticanstudios.com/play/go/",
+  "description": "中国では weiqi、韓国では baduk と呼ばれる囲碁を、9路・13路・19路の碁盤でブラウザから。黒と白が交点に石を置き、ダメのなくなった石は取られ、着手禁止点には打てず、コウのルールで同じ取り合いの繰り返しを防ぎます。二人続けてパスすると終局し、死に石を確認して日本ルール（コミ6目半）または中国ルール（コミ7目半）で数えます。対戦相手はコンピューター（3段階、着手ガイド付き）か、リンクやコードで招く友だちです。",
+  "image": "https://magesticanstudios.com/assets/covers/go-16x9.webp",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "genre": [
+    "ボード",
+    "戦略",
+    "クラシック"
+  ],
+  "gamePlatform": [
+    "Web browser",
+    "Mobile browser"
+  ],
+  "playMode": [
+    "SinglePlayer",
+    "MultiPlayer"
+  ],
+  "numberOfPlayers": {
+    "@type": "QuantitativeValue",
+    "minValue": 1,
+    "maxValue": 2
+  },
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "ja",
+  "accessibilityFeature": [
+    "highContrastDisplay",
+    "structuralNavigation"
+  ],
+  "accessibilityHazard": [
+    "noFlashingHazard",
+    "noMotionSimulationHazard"
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Weiqiwise 囲碁 は無料ですか？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "はい。無料で、登録もダウンロードも不要です。いま開いているブラウザのタブでそのまま遊べます。パソコン、タブレット、スマホに対応。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "友だちとオンラインで囲碁を打つには？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "「友だちとオンライン」を選び、「部屋を作る」を押して、リンクを送るか6文字のコードを伝えます。友だちは自分のブラウザで参加でき、ほかの人は観戦リンクから対局を見られます。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "囲碁では石はどうやって取りますか？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "石の線でつながった隣の空いた交点がその石のダメ（呼吸点）で、同じ色で接する石はダメを共有します。相手の石のかたまりの最後のダメに打つと、そのかたまり全体を盤から取り上げます。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Weiqiwise 囲碁 の数え方は日本ルール、中国ルールのどちら？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "どちらも選べます。初期設定の日本ルールは、囲んだ地にアゲハマを加えて数え、白にコミ6目半。中国ルールは、囲んだ地に盤上の自分の石を加えて数え、コミは7目半です。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "コンピューターはどれくらい強い？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "各レベルはその局面からランダムな対局を打ち切り、最もよく勝つ手を選びます。やさしいは250局、ふつうは2,500局、むずかしいは9,000局を試します。9路の試験対局では、ふつうがやさしいに4勝0敗、むずかしいがふつうに4勝0敗でした。"
+      }
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css?v=9930999c-20261030T142155Z">
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    try {
+      initAnalytics({ page: 'ja-go' });
+      trackPlayClicks();
+    } catch {  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="/ja/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/ja/#games">ゲーム</a>
+      <a href="/you.html">マイゲーム</a>
+      <a href="/ja/for-remote-teams.html">チーム向け</a>
+      <a href="/ja/magazine/">マガジン</a>
+      <a href="/ja/about.html">スタジオについて</a>
+      <a href="/ja/reviews.html">レビュー</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="言語: 日本語"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>JA</span></summary><ul><li><a href="/go.html" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en">English</a></li><li><a href="/es/go.html" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/go.html" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/go.html" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl">Tagalog</a></li><li><a href="/ja/go.html" hreflang="ja" onclick="try{localStorage.setItem('ms-lang','ja')}catch(e){}" lang="ja" data-lang="ja" aria-current="page">日本語</a></li><li><a href="/ko/go.html" hreflang="ko" onclick="try{localStorage.setItem('ms-lang','ko')}catch(e){}" lang="ko" data-lang="ko">한국어</a></li><li><a href="/id/go.html" hreflang="id" onclick="try{localStorage.setItem('ms-lang','id')}catch(e){}" lang="id" data-lang="id">Bahasa Indonesia</a></li><li><a href="/vi/go.html" hreflang="vi" onclick="try{localStorage.setItem('ms-lang','vi')}catch(e){}" lang="vi" data-lang="vi">Tiếng Việt</a></li><li><a href="/zh-hant/go.html" hreflang="zh-Hant" onclick="try{localStorage.setItem('ms-lang','zh-hant')}catch(e){}" lang="zh-Hant" data-lang="zh-hant">繁體中文</a></li><li><a href="/zh-hans/go.html" hreflang="zh-Hans" onclick="try{localStorage.setItem('ms-lang','zh-hans')}catch(e){}" lang="zh-Hans" data-lang="zh-hans">简体中文</a></li></ul></details>
+  </header>
+
+  <main>
+    <figure class="cover-hero">
+      <img class="cover-master" src="/assets/covers/go-16x9.webp" width="1920" height="1080" srcset="/assets/covers/go-960.webp 960w, /assets/covers/go-16x9.webp 1920w" sizes="(max-width: 800px) 92vw, (max-width: 1120px) calc(100vw - 64px), 1056px" fetchpriority="high" decoding="async" style="object-position: 50% 50%"
+           alt="Weiqiwise 囲碁：木の碁盤で打たれる囲碁、交点に並ぶ黒石と白石">
+    </figure>
+    <h1>Weiqiwise 囲碁 &mdash; 囲碁をオンラインで無料対局</h1>
+    <p class="lede">囲碁は黒と白の二人が交互に碁盤へ石を置いていくゲームです。置いた石は動きませんが、石のかたまりは囲まれると取られます。目的は、終局したときに相手より広い地を囲っていることです。囲碁は2,500年以上前に中国で生まれ、中国では weiqi、日本では囲碁、韓国では baduk と呼ばれます。Weiqiwise 囲碁 ではブラウザで、コンピューターや友だちと打てます。</p>
+    <p class="your-line" data-page="go" hidden></p>
+    <p><a class="cta" href="/play/go/?lang=ja">今すぐ囲碁を打つ &rarr;</a></p>
+
+    <ul class="cover-shots" tabindex="0" aria-label="Weiqiwise 囲碁 のスクリーンショット">
+      <li class="shot-land"><img src="/assets/shots/go/0.webp" width="1920" height="1080" srcset="/assets/shots/go/0-960.webp 960w, /assets/shots/go/0.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
+           alt="9路盤でコンピューターと対局中、着手ガイドを表示"></li>
+      <li class="shot-land"><img src="/assets/shots/go/1.webp" width="1920" height="1080" srcset="/assets/shots/go/1-960.webp 960w, /assets/shots/go/1.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
+           alt="終局後の整地：死に石は薄く表示され、それぞれの地に印が付く"></li>
+    </ul>
+
+    <h2>碁盤と碁石</h2>
+    <p>碁盤は線の格子で、石はマス目の中ではなく、2本の線が交わる交点に置きます。正式な盤は19路で、交点は361あります。Weiqiwise 囲碁 には13路と9路もあります。9路の対局は数分で終わるので、初めての一局によく使われます。</p>
+    <p>黒が最初の石を置き、その後は交互に打ちます。石を置く代わりに<strong>パス</strong>することもできます。取った石は自分の碁笥に入り、画面の隅の碁笥にいくつ持っているかが表示されます。</p>
+    <p><strong>着手ガイド</strong>は覚えるまでの手助けです。あと1手で取られる石のかたまりに赤い輪を付け、ルール上打てない交点には小さな×印を付けます。</p>
+
+    <h2>ダメと石取り</h2>
+    <p>石の隣にある、線でつながった空いた交点がその石の<strong>ダメ</strong>（呼吸点）です。盤の中央の石は4つ、辺の石は3つ、隅の石は2つ持っています。同じ色の石が線に沿って接するとひとつのかたまりになり、かたまりはダメをすべて共有します。</p>
+    <p>あなたの一手が相手のかたまりの最後のダメをふさぐと、そのかたまりは取られて盤から消えます。たとえば、辺にある白石の左右に黒石があれば、白石のダメは残り1つです。黒がその最後の点に打つと白石は取り上げられ、黒のアゲハマになります。ダメが残り1つのかたまりは<strong>アタリ</strong>で、そのとき Weiqiwise 囲碁 は「Atari!」の表示を出します。</p>
+
+    <h2>打ってはいけない2つの手</h2>
+    <p>ひとつ目は<strong>着手禁止点</strong>（自殺手）です。置いた石のダメがなくなる場所には打てません。ただし、その手で相手の石が取れてダメができる場合は打てます。</p>
+    <p>ふたつ目は<strong>コウ</strong>です。ある取りに対して、すぐに同じ石を取り返せる形があり、そのままでは二人が永遠に取り合いを続けられます。コウのルールはそれを止めます。盤面を一度あった局面に戻す手は打てません。相手がコウを取ったら、まず別の場所に打ち、それから取り返せます。</p>
+
+    <h2>対局の終わり方</h2>
+    <p>二人が続けてパスすると対局は止まります。打ち続けても生きられない石は死に石として数えます。Weiqiwise 囲碁 は死に石に印を付けて薄く表示し、二人とも結果を承認します。納得できないときは「打ち続ける」を選べば対局が続きます。投了はいつでもできます。</p>
+    <p>黒が先に打てるので、白は<strong>コミ</strong>という追加の点をもらいます。Weiqiwise 囲碁 では、多くの人が使う日本ルールと中国ルールの2つの数え方を選べます。それぞれの数え方は表のとおりです。</p>
+    <table class="rules-table">
+      <thead><tr><th scope="col">数え方</th><th scope="col">点になるもの</th><th scope="col">白のコミ</th></tr></thead>
+      <tbody>
+        <tr><td>日本ルール</td><td>囲んだ空き交点（地）と、取った石（アゲハマ）</td><td>6.5</td></tr>
+        <tr><td>中国ルール</td><td>囲んだ空き交点と、盤上の自分の石</td><td>7.5</td></tr>
+      </tbody>
+    </table>
+    <p>ほとんどの対局で、どちらの数え方でも勝者は同じです。コミに半目があるので、引き分けにはなりません。</p>
+
+    <h2>Weiqiwise 囲碁 の2つの遊び方</h2>
+    <p>コンピューターと3段階のレベルで、または友だちとオンラインの部屋で打てます。<strong>コンピューター</strong>と打つときは、やさしい・ふつう・むずかしい、黒か白、盤の大きさを選びます。やさしいは石の取り方を覚える場で、むずかしいは9路でちょうどよい腕試しです。</p>
+    <p><strong>友だち</strong>と打つときは、部屋を作って共有リンクか6文字のコードを送ります。友だちは自分のブラウザから入り、二人の盤面はいつも同じに保たれます。</p>
+    <p>スマートフォンでは19路盤の交点は小さくなります。1回目のタップで石を置く場所に薄い石が表示され、同じ交点をもう一度タップすると石が置かれるので、指が滑っても対局を落としません。</p>
+
+    <h2>初めての一局のコツ</h2>
+    <p>まずは9路盤で「やさしい」と打ち、着手ガイドをオンにしましょう。隅、辺、中央の順に打ちます。隅は最も少ない石で地を囲えるからです。できるだけ石をつなげておきましょう。大きなかたまりひとつは、小さなかたまりふたつより取られにくいものです。自分のかたまりに赤い輪が付いたら、ほかのことより先にダメを増やすか、つなげてください。</p>
+    <p>最後の考え方が、囲碁を奥深いものにしています。かたまりの内側に離れた空き交点がふたつあれば、それを<strong>眼</strong>と呼び、そのかたまりは決して取られません。相手はふたつ同時にはふさげず、どちらかに置いた石にはダメがないからです。二眼を作れば、その石は終局まで生き続けます。</p>
+
+    <h2>ほかのボードゲーム</h2>
+    <p>Go風の盤で五つ並べるなら<a href="/ja/gomoku-online.html">Gomowise 五目並べ</a>（五目並べ）を。中国と日本の将棋なら<a href="/ja/xiangqi.html">Xiangqiwise シャンチー</a>と<a href="/ja/shogi.html">Shogiwise 将棋</a>をどうぞ。</p>
+
+    <p><a class="cta" href="/play/go/?lang=ja">今すぐ囲碁を打つ &rarr;</a></p>
+    
+    <p class="more-like-this">こちらもおすすめ: <a href="/ja/2-player-games-online.html">2人で遊べるオンラインゲーム</a> &middot; <a href="/ja/multiplayer-browser-games.html">マルチプレイ ブラウザゲーム</a> &middot; <a href="/ja/board-games-with-friends.html">友達と遊べるボードゲーム</a></p>
+    
+    
+    <div class="play-bar" data-page="go">
+      <a class="cta cta-primary" href="/play/go/?lang=ja">今すぐプレイ</a>
+      <ul class="play-facts"><li>無料</li><li>ダウンロード不要</li></ul>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </div>
+    <div id="landing-strings" hidden><span data-k="last">最後のプレイ</span><span data-k="matches">試合</span><span data-k="wins">勝</span></div>
+    
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-nav" aria-label="サイト"><ul><li><a href="/ja/#games">ゲーム</a></li><li><a href="/you.html">マイゲーム</a></li><li><a href="/ja/for-remote-teams.html">チーム向け</a></li><li><a href="/ja/magazine/">マガジン</a></li><li><a href="/ja/about.html">スタジオについて</a></li><li><a href="/ja/reviews.html">レビュー</a></li></ul></nav>
+    <nav class="footer-games" aria-label="すべてのゲーム"><ul><li><a href="/ja/farmyshoot.html">Splatbarn</a></li><li><a href="/ja/farmy-uprising.html">Hoofrise</a></li><li><a href="/ja/farmy-evil-hills.html">イービルヒルズ</a></li><li><a href="/ja/farmykart.html">Kartzoom カートレース</a></li><li><a href="/ja/farmy-tiles.html">Letterloft 単語ボードゲーム</a></li><li><a href="/ja/farmy-crosswords.html">Wordburrow クロスワード</a></li><li><a href="/ja/farmy-chess.html">Rookwise チェス</a></li><li><a href="/ja/farmy-checkers.html">Jumpwise チェッカー</a></li><li><a href="/ja/farmy-ludo.html">Pawnrush ルドー</a></li><li><a href="/ja/minesweeper-online.html">Sweepwise マインスイーパー</a></li><li><a href="/ja/gomoku-online.html">Gomowise 五目並べ</a></li><li><a href="/ja/shiritori.html">Relaywise しりとり</a></li><li><a href="/ja/truco.html">Trucowise トゥルーコ</a></li><li><a href="/ja/buraco.html">Buracowise ブラーコ</a></li><li><a href="/ja/conga.html">Congawise コンガ</a></li><li><a href="/ja/koikoi.html">Hanawise こいこい 花札</a></li><li><a href="/ja/shogi.html">Shogiwise 将棋</a></li><li><a href="/ja/xiangqi.html">Xiangqiwise シャンチー</a></li><li><a href="/ja/go.html">Weiqiwise 囲碁</a></li><li><a href="/ja/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/ja/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/ja/farmy-moon-life.html">ムーンライフ</a></li><li><a href="/ja/silk-and-seam.html">Silk & Seam</a></li><li><a href="/ja/dachis.html">Dachis</a></li><li><a href="/ja/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/ja/farmy-five.html">Guesswise 単語当て</a></li><li><a href="/ja/farmy-hive.html">Combword ハチの巣パズル</a></li><li><a href="/ja/farmy-herds.html">Groupseek 仲間分け</a></li><li><a href="/ja/farmy-furrows.html">Gridseek 単語探し</a></li></ul></nav>
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br> Magestican StudiosおよびMagestican Studiosのロゴは、オーストラリアのUltra Task Pty Ltdの商標です。</p>
+    <p class="colophon">
+      <a href="/ja/about.html">スタジオについて</a> &middot; <a href="/ja/privacy.html">プライバシー</a> &middot; <a href="/ja/terms.html">利用規約</a> &middot; <a href="https://www.youtube.com/@ameliagurl">YouTubeのAmelia</a> &middot; 本サイトは静的サイトです &middot; クッキーなし、匿名の集計のみ</p>
+    
+    <p class="footer-browse">ブラウズ: <a href="/ja/2-player-games-online.html">2人で遊べるオンラインゲーム</a> &middot; <a href="/ja/multiplayer-browser-games.html">マルチプレイ ブラウザゲーム</a> &middot; <a href="/ja/board-games-with-friends.html">友達と遊べるボードゲーム</a> &middot; <a href="/ja/word-games.html">無料ワードゲーム</a></p>
+    
+  </footer>
+  <script type="module" src="/assets/site.js?v=9930999c-20261030T142155Z"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <script type="module" src="/assets/landing.js?v=9930999c-20261030T142155Z"></script>
+  <p class="lang-note">このページは日本語です。ゲーム本体は英語ですが、チェス・チェッカー・ルドーには文字がほとんどありません。</p>
+</body>
+</html>

@@ -66,7 +66,7 @@
   }
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=1cd70197-20261030T140531Z">
+  <link rel="stylesheet" href="/styles.css?v=9930999c-20261030T142155Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -135,14 +135,29 @@
     <p>Magestican Studios adalah nama dagang dari <strong>Ultra Task Pty Ltd</strong>, terdaftar di Australia. Semua kontrak, faktur, dan korespondensi hukum dilakukan dengan Ultra Task Pty Ltd. Merek dagang — Magestican Studios dan logo Magestican Studios — dimiliki oleh Ultra Task Pty Ltd.</p>
 
     <h2>Kontak</h2>
-    <p>Hubungi lewat kanal publik studio ini begitu sudah aktif.</p>
+    <p>Ada pertanyaan tentang game, laporan bug, atau urusan bisnis? Kirim pesan dan kami akan membalas lewat email.</p>
+    <form id="contact-form" class="contact-form" novalidate data-endpoint="https://bryanarbelo.com/api/contact">
+      <label>Nama<input name="name" autocomplete="name" maxlength="100" required></label>
+      <label>Email<input name="email" type="email" autocomplete="email" maxlength="200" required></label>
+      <label>Pesan<textarea name="message" rows="6" maxlength="5000" required></textarea></label>
+      <label class="contact-hp" aria-hidden="true">Situs web<input name="website" tabindex="-1" autocomplete="off"></label>
+      <div class="contact-captcha" data-sitekey="6LcDSektAAAAAMQaYup_qnuWAqkj0oeSITf0WW5n"></div>
+      <button type="submit" class="contact-send">Kirim</button>
+      <p class="contact-status" role="status" aria-live="polite"></p>
+      <p hidden data-msg="sending">Mengirim...</p>
+      <p hidden data-msg="sent">Terima kasih. Pesanmu sudah terkirim, dan kami akan membalas lewat email.</p>
+      <p hidden data-msg="missing">Isi nama, email, dan pesanmu.</p>
+      <p hidden data-msg="captcha">Centang kotak "Saya bukan robot".</p>
+      <p hidden data-msg="failed">Maaf, pesan tidak terkirim. Coba lagi beberapa menit lagi.</p>
+      <noscript><p>Formulir kontak memerlukan JavaScript yang aktif.</p></noscript>
+    </form>
 
     <p><a href="/id/" class="more-link">← kembali ke studio</a></p>
   </main>
 
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="Situs"><ul><li><a href="/id/#games">Game</a></li><li><a href="/you.html">Game kamu</a></li><li><a href="/id/for-remote-teams.html">Untuk tim</a></li><li><a href="/id/magazine/">Majalah</a></li><li><a href="/id/about.html">Tentang</a></li><li><a href="/id/reviews.html">Ulasan</a></li></ul></nav>
-    <nav class="footer-games" aria-label="Semua game"><ul><li><a href="/id/farmyshoot.html">Splatbarn</a></li><li><a href="/id/farmy-uprising.html">Hoofrise</a></li><li><a href="/id/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/id/farmykart.html">Kartzoom: Balap Kart</a></li><li><a href="/id/farmy-tiles.html">Letterloft: Susun Kata</a></li><li><a href="/id/farmy-crosswords.html">Wordburrow: Teka-Teki Silang</a></li><li><a href="/id/catur-online-gratis.html">Rookwise: Catur</a></li><li><a href="/id/farmy-checkers.html">Jumpwise: Catur Dam</a></li><li><a href="/id/ludo-online-dengan-teman.html">Pawnrush: Ludo</a></li><li><a href="/id/minesweeper-online.html">Sweepwise: Minesweeper</a></li><li><a href="/id/gomoku-online.html">Gomowise: Gomoku</a></li><li><a href="/id/sambung-kata.html">Relaywise: Sambung Kata</a></li><li><a href="/id/truco.html">Trucowise: Truco</a></li><li><a href="/id/buraco.html">Buracowise: Buraco</a></li><li><a href="/id/conga.html">Congawise: Conga</a></li><li><a href="/id/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/id/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/id/farmy-moon-life.html">Moon Life</a></li><li><a href="/id/silk-and-seam.html">Silk & Seam</a></li><li><a href="/id/dachis.html">Dachis</a></li><li><a href="/id/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/id/farmy-five.html">Guesswise: Tebak Kata</a></li><li><a href="/id/farmy-hive.html">Combword: Rangkai Kata</a></li><li><a href="/id/farmy-herds.html">Groupseek: Kelompok Kata</a></li><li><a href="/id/farmy-furrows.html">Gridseek: Cari Kata</a></li></ul></nav>
+    <nav class="footer-games" aria-label="Semua game"><ul><li><a href="/id/farmyshoot.html">Splatbarn</a></li><li><a href="/id/farmy-uprising.html">Hoofrise</a></li><li><a href="/id/farmy-evil-hills.html">Evil Hills</a></li><li><a href="/id/farmykart.html">Kartzoom: Balap Kart</a></li><li><a href="/id/farmy-tiles.html">Letterloft: Susun Kata</a></li><li><a href="/id/farmy-crosswords.html">Wordburrow: Teka-Teki Silang</a></li><li><a href="/id/catur-online-gratis.html">Rookwise: Catur</a></li><li><a href="/id/farmy-checkers.html">Jumpwise: Catur Dam</a></li><li><a href="/id/ludo-online-dengan-teman.html">Pawnrush: Ludo</a></li><li><a href="/id/minesweeper-online.html">Sweepwise: Minesweeper</a></li><li><a href="/id/gomoku-online.html">Gomowise: Gomoku</a></li><li><a href="/id/sambung-kata.html">Relaywise: Sambung Kata</a></li><li><a href="/id/truco.html">Trucowise: Truco</a></li><li><a href="/id/buraco.html">Buracowise: Buraco</a></li><li><a href="/id/conga.html">Congawise: Conga</a></li><li><a href="/id/koikoi.html">Hanawise: Koi-Koi</a></li><li><a href="/id/shogi.html">Shogiwise: Shogi</a></li><li><a href="/id/xiangqi.html">Xiangqiwise: Xiangqi</a></li><li><a href="/id/go.html">Weiqiwise: Go</a></li><li><a href="/id/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/id/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/id/farmy-moon-life.html">Moon Life</a></li><li><a href="/id/silk-and-seam.html">Silk & Seam</a></li><li><a href="/id/dachis.html">Dachis</a></li><li><a href="/id/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/id/farmy-five.html">Guesswise: Tebak Kata</a></li><li><a href="/id/farmy-hive.html">Combword: Rangkai Kata</a></li><li><a href="/id/farmy-herds.html">Groupseek: Kelompok Kata</a></li><li><a href="/id/farmy-furrows.html">Gridseek: Cari Kata</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
     <p>Hak cipta &copy; 2026 Ultra Task Pty Ltd. Semua hak dilindungi.<br> Magestican Studios dan logo Magestican Studios adalah merek dagang milik Ultra Task Pty Ltd, Australia.</p>
     <p class="colophon">
@@ -151,7 +166,8 @@
     <p class="footer-browse">Jelajahi: <a href="/id/2-player-games-online.html">Game online 2 pemain</a> &middot; <a href="/id/multiplayer-browser-games.html">Game browser multiplayer</a> &middot; <a href="/id/board-games-with-friends.html">Game papan berdua dengan teman</a> &middot; <a href="/id/word-games.html">Game kata gratis</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=1cd70197-20261030T140531Z"></script>
+  <script type="module" src="/assets/site.js?v=9930999c-20261030T142155Z"></script>
+  <script type="module" src="/assets/contact-form.js?v=9930999c-20261030T142155Z"></script>
 
 
   <script type="module">
