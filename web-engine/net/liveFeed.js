@@ -54,6 +54,10 @@ export const LIVE_STATS_ID = Object.freeze({
   buraco: 'buraco',
   minesweeper: 'minesweeper',
   conga: 'conga',
+  koikoi: 'koikoi',
+  shogi: 'shogi',
+  xiangqi: 'xiangqi',
+  go: 'go',
 });
 
 
@@ -79,6 +83,10 @@ export const LIVE_ACCENT = Object.freeze({
   
   minesweeper: '#1D4E89',
   conga: '#2A5DA8',
+  koikoi: '#B3262E',
+  shogi: '#8A5A2B',
+  xiangqi: '#2E6B57',
+  go: '#3A4452',
 });
 
 

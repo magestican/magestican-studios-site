@@ -11,7 +11,7 @@
 
 export function kitMaterial(doc = globalThis.document) {
   const m = doc?.documentElement?.getAttribute?.('data-kit');
-  return m && /^(stone|wood|parchment)$/.test(m) ? m : null;
+  return m && /^(stone|wood|parchment|lacquer)$/.test(m) ? m : null;
 }
 
 
