@@ -50,6 +50,7 @@ import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill } from './strings.js';
 import { guideFor, libertiesAt } from './guide.js';
+import { needsConfirm } from './confirm.js';
 import { createNet, canPlayTogether } from './net.js';
 
 const GAME_ID = 'go';
@@ -58,9 +59,6 @@ const SOLO = 'you';
 const HOST = 'host';
 const BANNER_MS = 1300;
 const FLY_MS = 480;
-
-
-const CONFIRM_BELOW_PX = 30;
 const BOWL_SHOWN = 24;
 
 const lang = gameLang(undefined, undefined, undefined, { zh: true });
@@ -488,7 +486,7 @@ function drawBoard() {
       el.style.setProperty('--i', String(p % 97));
     }
     if (view?.echo && p === last) el.classList.add('echo');
-    el.addEventListener('click', () => onPoint(p));
+    el.addEventListener('click', (e) => onPoint(p, e.pointerType));
     boardEl.append(el);
   }
 }
@@ -606,7 +604,7 @@ function cellPx() {
   return el ? el.getBoundingClientRect().width : 99;
 }
 
-function onPoint(p) {
+function onPoint(p, pointerType) {
   if (!live) return;
   const b = live.pos.board;
   if (b.cells[p]) {
@@ -623,7 +621,7 @@ function onPoint(p) {
     flash(whyNot(p) === 'ko' ? T.koHere : T.notHere, 3200);
     return;
   }
-  if (cellPx() < CONFIRM_BELOW_PX && ghost !== p) {
+  if (needsConfirm(cellPx(), pointerType) && ghost !== p) {
     ghost = p;
     shownLibs = -1;
     if (!toldTapAgain) { flash(T.tapAgain, 3200); toldTapAgain = true; }
