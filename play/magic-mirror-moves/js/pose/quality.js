@@ -39,7 +39,9 @@ const PHONE_UA = /Android|iPhone|iPad|iPod|Mobile/i;
 
 export function devicePlan({ coarse, ua, model, memory, cores, power }) {
   const phone = coarse || PHONE_UA.test(ua);
-  const weak = phone && ((memory != null && memory <= 3) || (cores != null && cores <= 4));
+  
+  
+  const weak = phone && memory != null && (memory <= 3 || (cores != null && cores <= 4));
   const lowPower = power === 'low' || (power !== 'normal' && weak);
   const landmark = model === 'lite' || model === 'full' ? model : phone || lowPower ? 'lite' : 'full';
   return {
@@ -101,6 +103,54 @@ export function step3d(t, q, dtS) {
   if (q.level === 'low' && q.fps < DOWN_FPS) secs = t.secs + dtS;
   else if (q.level === 'low' && q.fps < THREE_D_OK_FPS) secs = t.secs;
   return secs >= THREE_D_S ? { off: true, secs: 0 } : { off: false, secs };
+}
+
+export const TRY3D_S = 3;
+export const TRY3D_FPS = 24;
+
+export const TRY3D_READS = 4;
+const TRY3D_WINDOWS = 10;
+
+
+
+
+
+export function initialTry3d() {
+  return { secs: 0, frames: 0, runs0: null, windows: 0, fps: 0, reads: null, result: null };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export function stepTry3d(t, dtS, level, runs = null) {
+  if (t.result || !(dtS > 0) || dtS > 2) return t;
+  const runs0 = t.runs0 ?? runs;
+  const secs = t.secs + dtS;
+  const frames = t.frames + 1;
+  if (secs < TRY3D_S) return { ...t, secs, frames, runs0 };
+  const fps = frames / secs;
+  const reads = runs == null || runs0 == null ? null : (runs - runs0) / secs;
+  const windows = t.windows + 1;
+  const fresh = { secs: 0, frames: 0, runs0: null, windows, fps, reads };
+  if (fps >= TRY3D_FPS && (reads == null || reads >= TRY3D_READS) && level !== 'low') return { ...fresh, result: '3d' };
+  return { ...fresh, result: windows >= TRY3D_WINDOWS ? '2d' : null };
+}
+
+
+
+
+
+
+export function restartTry3d(t) {
+  return t.secs || t.frames || t.runs0 != null ? { ...t, secs: 0, frames: 0, runs0: null } : t;
 }
 
 

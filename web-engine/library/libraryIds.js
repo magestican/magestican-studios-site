@@ -11,7 +11,7 @@
 export const LIBRARY_GAME_IDS = Object.freeze([
   'team-bonding', 'farmy-uprising', 'farmy-evil-hills', 'farmykart', 'farmy-scrabble',
   'farmy-crosswords', 'farmy-chess', 'farmy-checkers', 'farmy-ludo', 'minesweeper', 'gomoku',
-  'word-chain', 'truco', 'buraco', 'conga', 'koikoi', 'shogi', 'xiangqi', 'go', 'zelakas', '2d-fighter-ex', 'farmy-moon-life',
+  'word-chain', 'truco', 'buraco', 'conga', 'zelakas', '2d-fighter-ex', 'farmy-moon-life',
   'silk-and-seam', 'dachis', 'space-95', 'farmy-five', 'farmy-hive', 'farmy-herds', 'farmy-furrows',
 ]);
 
@@ -32,7 +32,7 @@ export const PLAY_DIRS = Object.freeze({
   'farmy-evil-hills': 'farmy-evil-hills', farmykart: 'farmykart', 'farmy-tiles': 'farmy-scrabble',
   'farmy-crosswords': 'farmy-crosswords', 'farmy-chess': 'farmy-chess',
   'farmy-checkers': 'farmy-checkers', 'farmy-ludo': 'farmy-ludo', minesweeper: 'minesweeper',
-  gomoku: 'gomoku', 'word-chain': 'word-chain', truco: 'truco', buraco: 'buraco', conga: 'conga', koikoi: 'koikoi', shogi: 'shogi', xiangqi: 'xiangqi', go: 'go',
+  gomoku: 'gomoku', 'word-chain': 'word-chain', truco: 'truco', buraco: 'buraco', conga: 'conga',
   zelakas: 'zelakas', '2d-fighter-ex': '2d-fighter-ex', 'farmy-moon-life': 'farmy-moon-life',
   'silk-and-seam': 'silk-and-seam', dachis: 'dachis', 'space-95': 'space-95',
 });
@@ -44,7 +44,7 @@ export const LANDING_PAGES = Object.freeze({
   farmyshoot: 'team-bonding', 'farmy-uprising': 'farmy-uprising', 'farmy-evil-hills': 'farmy-evil-hills',
   farmykart: 'farmykart', 'farmy-tiles': 'farmy-scrabble', 'farmy-crosswords': 'farmy-crosswords',
   'farmy-chess': 'farmy-chess', 'farmy-checkers': 'farmy-checkers', 'farmy-ludo': 'farmy-ludo',
-  minesweeper: 'minesweeper', gomoku: 'gomoku', 'word-chain': 'word-chain', truco: 'truco', buraco: 'buraco', conga: 'conga', koikoi: 'koikoi', shogi: 'shogi', xiangqi: 'xiangqi', go: 'go',
+  minesweeper: 'minesweeper', gomoku: 'gomoku', 'word-chain': 'word-chain', truco: 'truco', buraco: 'buraco', conga: 'conga',
   'zelakas-in-space': 'zelakas', '2d-fighter-ex': '2d-fighter-ex', 'farmy-moon-life': 'farmy-moon-life',
   'silk-and-seam': 'silk-and-seam', dachis: 'dachis', 'space-95': 'space-95', 'farmy-five': 'farmy-five', 'farmy-hive': 'farmy-hive',
   'farmy-herds': 'farmy-herds', 'farmy-furrows': 'farmy-furrows',

@@ -301,39 +301,6 @@ main li { margin-bottom: 6px; }
 main section { margin-bottom: 60px; }
 main section:last-child { margin-bottom: 0; }
 
-
-
-
-.contact-form {
-  display: grid; gap: var(--gap);
-  max-width: var(--measure);
-  margin: var(--gap) 0 var(--stack);
-  padding: var(--inset);
-  background: var(--paper-lit);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-}
-.contact-form label { display: grid; gap: 6px; font-size: 18px; color: var(--ink-soft); }
-.contact-form input, .contact-form textarea {
-  font: inherit; font-size: 18px; color: var(--ink);
-  padding: 12px; min-width: 0;
-  background: #fff; border: 1px solid var(--line); border-radius: 10px;
-}
-.contact-form textarea { resize: vertical; min-height: 140px; }
-.contact-form input:focus-visible, .contact-form textarea:focus-visible { outline: 3px solid var(--gold); outline-offset: 1px; }
-.contact-form .contact-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-.contact-captcha:empty { display: none; }
-.contact-send {
-  justify-self: start;
-  font: inherit; font-weight: 700; color: var(--ink);
-  padding: 12px 28px; min-height: 48px;
-  background: var(--gold); border: 2px solid var(--ink); border-radius: 999px;
-  box-shadow: var(--shadow); cursor: pointer;
-}
-.contact-send:disabled { opacity: 0.6; cursor: progress; }
-.contact-status { margin: 0; color: var(--ink-soft); }
-.contact-status:empty { display: none; }
-
 .section-head {
   display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 16px;
   margin-bottom: 8px;
@@ -1083,10 +1050,6 @@ pre.five-results { min-height: 2em; }
 .word-table th:first-child, .word-table td:first-child { width: 7.5em; }
 .word-table th, .word-table td { text-align: left; padding: 6px 18px 6px 0; border-bottom: 1px solid var(--line); }
 .word-table pre.five-word { font-weight: 700; }
-
-.rules-table { border-collapse: collapse; margin: 0 0 22px; font-size: 18px; width: 100%; }
-.rules-table th, .rules-table td { text-align: left; vertical-align: top; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
-.rules-table th:last-child, .rules-table td:last-child { text-align: right; padding-right: 0; white-space: nowrap; }
 .more-like-this { font-size: 18px; margin-top: 28px; }
 .browse-by {
   background: var(--paper-deep);

@@ -10,17 +10,21 @@ import { createEvents, EVENT_HITS, EVENT_S, stepEvents } from './events.js';
 import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
+import { initialAuto, scoutCrop, secondPerson, stepAuto } from './pose/players.js';
 import { mirrorFrame, onlyInFrame, PoseSmoother, seen } from './pose/pose.js';
 import {
   devicePlan,
   initialPower,
   initialQuality,
+  initialTry3d,
   LOW_CAMERA,
   LOW_PARTICLES,
   QUALITY,
+  restartTry3d,
   step3d,
   stepPower,
   stepQuality,
+  stepTry3d,
 } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
 import { createSound, cuesForGame, cuesForWorld, namesFor } from './sound.js';
@@ -81,6 +85,9 @@ const opts = {
   
   
   players:  (q.get('players') === '2' ? 2 : 1),
+  
+  
+  autoPlayers: !q.has('players'),
 };
 const cheat = q.get('cheat');
 
@@ -95,6 +102,10 @@ const plan = devicePlan({
 });
 opts.render = pick(opts.render, ['2d', '3d'], plan.default3d ? '3d' : '2d');
 if (!plan.allow3d) opts.render = '2d'; 
+
+
+let try3d = opts.render === '3d' && q.get('render') !== '3d' ? initialTry3d() : null;
+if (try3d) opts.render = '2d';
 
 const $ = (id) =>  (document.getElementById(id));
 const canvas =  ($('stage'));
@@ -160,6 +171,8 @@ const S = {
     smoother: new PoseSmoother(),
     costume: 'princess',
   },
+  auto: initialAuto(), 
+  autoSwitched: false, 
 };
 S.p2.costume = otherCostume(opts.costume, q.get('costume2'));
 
@@ -271,13 +284,20 @@ function setMode(mode) {
   syncChips();
   if (S.screen === 'play') beginRound({ tutorial: false });
 }
-function setPlayers(n) {
+function setPlayers(n, { restart = true } = {}) {
   if (opts.players === n) return;
   opts.players = n;
   S.p2.frame = null;
   S.p2.smoother.reset();
+  S.p2.tracker.reset();
   syncChips();
-  if (S.screen === 'play') beginRound({ tutorial: false });
+  
+  if (S.screen === 'play' && restart) beginRound({ tutorial: false });
+}
+
+function choosePlayers(n) {
+  opts.autoPlayers = false;
+  setPlayers(n);
 }
 function setMuted(muted) {
   sound.setMuted(muted);
@@ -290,7 +310,7 @@ function setMuted(muted) {
 
 function applyCommand(cmd) {
   if (cmd.kind === 'costume' && cmd.value !== opts.costume) setCostume(cmd.value);
-  else if (cmd.kind === 'players') setPlayers(cmd.value);
+  else if (cmd.kind === 'players') choosePlayers(cmd.value);
   else if (cmd.kind === 'mode') setMode(cmd.value);
   else if (cmd.kind === 'sound' && sound.muted === cmd.value) setMuted(!cmd.value);
 }
@@ -381,7 +401,7 @@ function wire() {
   const watch = new ResizeObserver(() => layout());
   for (const el of [$('bar'), $('card'), document.querySelector('#frame .dock')]) if (el) watch.observe(el);
   $('mode-switch').addEventListener('click', () => setMode(opts.mode === 'mirror' ? 'show' : 'mirror'));
-  $('players').addEventListener('click', () => setPlayers(opts.players === 2 ? 1 : 2));
+  $('players').addEventListener('click', () => choosePlayers(opts.players === 2 ? 1 : 2));
   $('menu').addEventListener('click', () => show('title'));
   
   const root =  (document.documentElement);
@@ -590,6 +610,38 @@ async function startCamera() {
     if (f2) {
       S.p2.frame = mirrorFrame(S.p2.smoother.smooth(f2));
       S.p2.fresh = true;
+    }
+    if (!skip) await autoPlayers(f, f2);
+  };
+  
+  
+  const SCOUT_S = 0.5;
+  let scoutAt = 0;
+  let autoAt = 0;
+  const autoPlayers = async (f, f2) => {
+    if (!opts.autoPlayers || (S.screen !== 'frame' && S.screen !== 'play')) return;
+    const now = performance.now() / 1000;
+    if (opts.players === 1) {
+      if (now - scoutAt < SCOUT_S) return;
+      const dt = Math.min(1, scoutAt ? now - scoutAt : SCOUT_S);
+      scoutAt = now;
+      const crop = f ? scoutCrop(f.width, f.pose) : null;
+      const other = crop ? await estimator.scout(video, now, crop) : null;
+      if (!current()) return;
+      S.auto = stepAuto(S.auto, { players: 1, second: secondPerson(f?.pose ?? null, other, f?.height ?? 0) }, dt);
+      if (S.auto.want === 2) {
+        S.autoSwitched = true;
+        setPlayers(2, { restart: false });
+      }
+    } else if (S.autoSwitched) {
+      const dt = Math.min(1, autoAt ? now - autoAt : 0);
+      autoAt = now;
+      S.auto = stepAuto(S.auto, { players: 2, second: !!f2 }, dt);
+      if (S.auto.want === 1) {
+        S.autoSwitched = false;
+        scoutAt = 0;
+        setPlayers(1, { restart: false });
+      }
     }
   };
   loop();
@@ -1062,6 +1114,21 @@ function frame(now) {
       if (power.low) enterLowPower();
     }
   }
+  
+  
+  
+  
+  
+  const dressed = S.screen === 'frame' || S.screen === 'play';
+  if (try3d && !try3d.result && dressed && !power.low && !threeD.off) {
+    const reading = opts.demo || (S.source === 'camera' && S.detect.runs > 0);
+    if (!reading) try3d = restartTry3d(try3d);
+    else try3d = stepTry3d(try3d, wall, quality.level, opts.demo ? null : S.detect.runs);
+    if (try3d.result === '3d') {
+      opts.render = '3d';
+      start3d();
+    }
+  }
   let remain = dt * (S.source === 'demo' ? opts.speed : 1);
   while (remain > 1e-6) {
     const h = Math.min(1 / 30, remain);
@@ -1092,6 +1159,7 @@ Object.defineProperty(window, '__mmm', {
         event: S.events?.active ? { id: S.events.active.id, count: S.events.active.count } : null,
         eventsWon: S.eventsWon,
         players: opts.players,
+        autoPlayers: opts.autoPlayers,
         costumes: opts.players === 2 ? [opts.costume, S.p2.costume] : [opts.costume],
         
         seenAt: players().map((p) => {
@@ -1109,6 +1177,12 @@ Object.defineProperty(window, '__mmm', {
           quality: quality.level,
           lowPower: power.low,
           render: opts.render,
+          try3d: try3d && {
+            result: try3d.result,
+            windows: try3d.windows,
+            fps: Math.round(try3d.fps),
+            reads: try3d.reads == null ? null : Math.round(try3d.reads * 10) / 10,
+          },
           maxParticles: S.fx.max,
           fps: Math.round(quality.fps * 10) / 10,
           canvas: [canvas.width, canvas.height],

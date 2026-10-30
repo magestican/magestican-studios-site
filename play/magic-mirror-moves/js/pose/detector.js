@@ -120,6 +120,32 @@ export async function createPoseEstimator({ landmark, cpuFallback }) {
         return none;
       }
     },
+    
+
+
+
+
+    async scout(video, tS, crop) {
+      const height = video.videoHeight;
+      if (!height || video.width !== video.videoWidth) return null; 
+      try {
+        while (detectors.length < 2) detectors.push(await create());
+        const pic = tf.browser.fromPixels(video);
+        try {
+          const strip = tf.slice(pic, [0, crop.x, 0], [height, crop.w, 3]);
+          try {
+            const p = (await detectors[1].estimatePoses(strip, { flipHorizontal: false }, tS * 1000))[0];
+            return p ? shiftPose(onlyInFrame(fromDetector(p.keypoints), crop.w, height), crop.x) : null;
+          } finally {
+            strip.dispose();
+          }
+        } finally {
+          pic.dispose();
+        }
+      } catch {
+        return null; 
+      }
+    },
     dispose() {
       for (const d of detectors) d.dispose();
     },
