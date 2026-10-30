@@ -2,6 +2,7 @@
 
 
 
+
 const J = (x, y) => ({ x, y, score: 0.95 });
 
 
@@ -12,7 +13,7 @@ export function demoHands(tS) {
   const right = reload
     ? { wrist: J(258, 60), elbow: J(255, 120) }
     : (() => {
-        const wx = 240 + 100 * Math.sin(w * tS);
+        const wx = 371 + 54 * Math.sin(w * tS); 
         const wy = 186 + 32 * Math.sin(2.3 * w * tS);
         return { wrist: J(wx, wy), elbow: J(wx + 40, wy + 20) };
       })();
