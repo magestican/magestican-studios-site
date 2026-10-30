@@ -91,4 +91,47 @@ export const COSTUMES_3D = {
     
     colours: { primary: '#9aa7b8', secondary: '#3d4a5c', accent: '#3ef0ff' },
   },
+  
+  pirate: {
+    mannequin: MANNEQUIN,
+    pieces: [
+      { slot: 'pirate-coat', file: 'pirate-coat.glb', replaces: ['pirate_coat'] },
+      {
+        slot: 'pirate-hat',
+        file: 'pirate-hat.glb',
+        replaces: ['pirate_hat'],
+        colours: { primary: '#2b2b30', secondary: '#f0c030', accent: '#f4f0e6' },
+      },
+    ],
+    
+    colours: { primary: '#d8392b', secondary: '#f0c030', accent: '#241a2e' },
+  },
+  mermaid: {
+    mannequin: MANNEQUIN,
+    pieces: [
+      { slot: 'mermaid-tail', file: 'mermaid-tail.glb', replaces: ['mermaid_tail'] },
+      {
+        slot: 'shell-tiara',
+        file: 'shell-tiara.glb',
+        replaces: ['shell_tiara'],
+        colours: { primary: '#f070b0', secondary: '#f4f0f6', accent: '#ffd2e6' },
+      },
+    ],
+    
+    colours: { primary: '#20b0a0', secondary: '#c0b0f0', accent: '#f4f0f6' },
+  },
+  superhero: {
+    mannequin: MANNEQUIN,
+    pieces: [
+      { slot: 'hero-cape', file: 'hero-cape.glb', replaces: ['hero_cape'] },
+      {
+        slot: 'hero-mask',
+        file: 'hero-mask.glb',
+        replaces: ['hero_mask'],
+        colours: { primary: '#3070e0', secondary: '#202040', accent: '#3070e0' },
+      },
+    ],
+    
+    colours: { primary: '#d8283a', secondary: '#a01c2c', accent: '#f0c030' },
+  },
 };
