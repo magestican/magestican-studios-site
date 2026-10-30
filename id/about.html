@@ -66,7 +66,7 @@
   }
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2f3d173a-20261030T111252Z">
+  <link rel="stylesheet" href="/styles.css?v=24402c1c-20261030T133405Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -135,7 +135,22 @@
     <p>Magestican Studios adalah nama dagang dari <strong>Ultra Task Pty Ltd</strong>, terdaftar di Australia. Semua kontrak, faktur, dan korespondensi hukum dilakukan dengan Ultra Task Pty Ltd. Merek dagang — Magestican Studios dan logo Magestican Studios — dimiliki oleh Ultra Task Pty Ltd.</p>
 
     <h2>Kontak</h2>
-    <p>Hubungi lewat kanal publik studio ini begitu sudah aktif.</p>
+    <p>Ada pertanyaan tentang game, laporan bug, atau urusan bisnis? Kirim pesan dan kami akan membalas lewat email.</p>
+    <form id="contact-form" class="contact-form" novalidate data-endpoint="https://bryanarbelo.com/api/contact">
+      <label>Nama<input name="name" autocomplete="name" maxlength="100" required></label>
+      <label>Email<input name="email" type="email" autocomplete="email" maxlength="200" required></label>
+      <label>Pesan<textarea name="message" rows="6" maxlength="5000" required></textarea></label>
+      <label class="contact-hp" aria-hidden="true">Situs web<input name="website" tabindex="-1" autocomplete="off"></label>
+      <div class="contact-captcha" data-sitekey="6LcDSektAAAAAMQaYup_qnuWAqkj0oeSITf0WW5n"></div>
+      <button type="submit" class="contact-send">Kirim</button>
+      <p class="contact-status" role="status" aria-live="polite"></p>
+      <p hidden data-msg="sending">Mengirim...</p>
+      <p hidden data-msg="sent">Terima kasih. Pesanmu sudah terkirim, dan kami akan membalas lewat email.</p>
+      <p hidden data-msg="missing">Isi nama, email, dan pesanmu.</p>
+      <p hidden data-msg="captcha">Centang kotak "Saya bukan robot".</p>
+      <p hidden data-msg="failed">Maaf, pesan tidak terkirim. Coba lagi beberapa menit lagi.</p>
+      <noscript><p>Formulir kontak memerlukan JavaScript yang aktif.</p></noscript>
+    </form>
 
     <p><a href="/id/" class="more-link">← kembali ke studio</a></p>
   </main>
@@ -151,7 +166,8 @@
     <p class="footer-browse">Jelajahi: <a href="/id/2-player-games-online.html">Game online 2 pemain</a> &middot; <a href="/id/multiplayer-browser-games.html">Game browser multiplayer</a> &middot; <a href="/id/board-games-with-friends.html">Game papan berdua dengan teman</a> &middot; <a href="/id/word-games.html">Game kata gratis</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2f3d173a-20261030T111252Z"></script>
+  <script type="module" src="/assets/site.js?v=24402c1c-20261030T133405Z"></script>
+  <script type="module" src="/assets/contact-form.js?v=24402c1c-20261030T133405Z"></script>
 
 
   <script type="module">

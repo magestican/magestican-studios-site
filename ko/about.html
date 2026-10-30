@@ -66,7 +66,7 @@
   }
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2f3d173a-20261030T111252Z">
+  <link rel="stylesheet" href="/styles.css?v=24402c1c-20261030T133405Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -135,7 +135,22 @@
     <p>Magestican Studios는 호주에 등록된 <strong>Ultra Task Pty Ltd</strong>의 사업자명이에요. 모든 계약, 청구서, 법적 서신은 Ultra Task Pty Ltd 명의로 처리돼요. Magestican Studios와 Magestican Studios 로고 상표는 Ultra Task Pty Ltd가 소유하고 있어요.</p>
 
     <h2>문의</h2>
-    <p>스튜디오의 공식 채널이 열리면 그곳으로 연락해 주세요.</p>
+    <p>게임에 대한 질문, 버그 제보, 비즈니스 문의가 있으신가요? 메시지를 보내 주시면 이메일로 답장드립니다.</p>
+    <form id="contact-form" class="contact-form" novalidate data-endpoint="https://bryanarbelo.com/api/contact">
+      <label>이름<input name="name" autocomplete="name" maxlength="100" required></label>
+      <label>이메일<input name="email" type="email" autocomplete="email" maxlength="200" required></label>
+      <label>메시지<textarea name="message" rows="6" maxlength="5000" required></textarea></label>
+      <label class="contact-hp" aria-hidden="true">웹사이트<input name="website" tabindex="-1" autocomplete="off"></label>
+      <div class="contact-captcha" data-sitekey="6LcDSektAAAAAMQaYup_qnuWAqkj0oeSITf0WW5n"></div>
+      <button type="submit" class="contact-send">보내기</button>
+      <p class="contact-status" role="status" aria-live="polite"></p>
+      <p hidden data-msg="sending">보내는 중...</p>
+      <p hidden data-msg="sent">감사합니다. 메시지가 전송되었으며 이메일로 답장드리겠습니다.</p>
+      <p hidden data-msg="missing">이름, 이메일, 메시지를 입력해 주세요.</p>
+      <p hidden data-msg="captcha">"로봇이 아닙니다" 상자에 체크해 주세요.</p>
+      <p hidden data-msg="failed">죄송합니다. 전송하지 못했습니다. 몇 분 후에 다시 시도해 주세요.</p>
+      <noscript><p>문의 양식을 사용하려면 JavaScript를 켜 주세요.</p></noscript>
+    </form>
 
     <p><a href="/ko/" class="more-link">← 스튜디오로 돌아가기</a></p>
   </main>
@@ -151,7 +166,8 @@
     <p class="footer-browse">둘러보기: <a href="/ko/2-player-games-online.html">2인 온라인 게임</a> &middot; <a href="/ko/multiplayer-browser-games.html">멀티플레이어 브라우저 게임</a> &middot; <a href="/ko/board-games-with-friends.html">친구와 함께하는 보드게임</a> &middot; <a href="/ko/word-games.html">무료 단어 게임</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2f3d173a-20261030T111252Z"></script>
+  <script type="module" src="/assets/site.js?v=24402c1c-20261030T133405Z"></script>
+  <script type="module" src="/assets/contact-form.js?v=24402c1c-20261030T133405Z"></script>
 
 
   <script type="module">

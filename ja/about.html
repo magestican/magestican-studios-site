@@ -66,7 +66,7 @@
   }
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2f3d173a-20261030T111252Z">
+  <link rel="stylesheet" href="/styles.css?v=24402c1c-20261030T133405Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -135,7 +135,22 @@
     <p>Magestican Studiosは、オーストラリアに登記された<strong>Ultra Task Pty Ltd</strong>の商号です。すべての契約、請求書、法的連絡はUltra Task Pty Ltdとの間で行われます。Magestican StudiosとMagestican Studiosのロゴの商標はUltra Task Pty Ltdが所有しています。</p>
 
     <h2>お問い合わせ</h2>
-    <p>スタジオの公開チャンネルが開設され次第、そちらからご連絡ください。</p>
+    <p>ゲームについての質問、不具合の報告、ビジネスのお問い合わせは、こちらからメッセージをお送りください。メールでお返事します。</p>
+    <form id="contact-form" class="contact-form" novalidate data-endpoint="https://bryanarbelo.com/api/contact">
+      <label>お名前<input name="name" autocomplete="name" maxlength="100" required></label>
+      <label>メールアドレス<input name="email" type="email" autocomplete="email" maxlength="200" required></label>
+      <label>メッセージ<textarea name="message" rows="6" maxlength="5000" required></textarea></label>
+      <label class="contact-hp" aria-hidden="true">ウェブサイト<input name="website" tabindex="-1" autocomplete="off"></label>
+      <div class="contact-captcha" data-sitekey="6LcDSektAAAAAMQaYup_qnuWAqkj0oeSITf0WW5n"></div>
+      <button type="submit" class="contact-send">送信</button>
+      <p class="contact-status" role="status" aria-live="polite"></p>
+      <p hidden data-msg="sending">送信中...</p>
+      <p hidden data-msg="sent">ありがとうございます。メッセージを送信しました。メールでお返事します。</p>
+      <p hidden data-msg="missing">お名前、メールアドレス、メッセージを入力してください。</p>
+      <p hidden data-msg="captcha">「私はロボットではありません」にチェックを入れてください。</p>
+      <p hidden data-msg="failed">送信できませんでした。数分後にもう一度お試しください。</p>
+      <noscript><p>お問い合わせフォームを使うには JavaScript を有効にしてください。</p></noscript>
+    </form>
 
     <p><a href="/ja/" class="more-link">← スタジオへ戻る</a></p>
   </main>
@@ -151,7 +166,8 @@
     <p class="footer-browse">ブラウズ: <a href="/ja/2-player-games-online.html">2人で遊べるオンラインゲーム</a> &middot; <a href="/ja/multiplayer-browser-games.html">マルチプレイ ブラウザゲーム</a> &middot; <a href="/ja/board-games-with-friends.html">友達と遊べるボードゲーム</a> &middot; <a href="/ja/word-games.html">無料ワードゲーム</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2f3d173a-20261030T111252Z"></script>
+  <script type="module" src="/assets/site.js?v=24402c1c-20261030T133405Z"></script>
+  <script type="module" src="/assets/contact-form.js?v=24402c1c-20261030T133405Z"></script>
 
 
   <script type="module">

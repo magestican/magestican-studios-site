@@ -66,7 +66,7 @@
   }
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2f3d173a-20261030T111252Z">
+  <link rel="stylesheet" href="/styles.css?v=24402c1c-20261030T133405Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -135,7 +135,22 @@
     <p>Ang Magestican Studios ay trading name ng <strong>Ultra Task Pty Ltd</strong>, nakarehistro sa Australia. Ang lahat ng kontrata, invoice at legal na korespondensiya ay sa Ultra Task Pty Ltd. Ang mga trademark — Magestican Studios at ang logo ng Magestican Studios — ay pag-aari ng Ultra Task Pty Ltd.</p>
 
     <h2>Makipag-ugnayan</h2>
-    <p>Makipag-ugnayan sa pamamagitan ng mga pampublikong channel ng studio kapag live na ang mga ito.</p>
+    <p>May tanong tungkol sa isang laro, bug na gustong i-report, o business enquiry? Magpadala ng mensahe at sasagot kami sa email.</p>
+    <form id="contact-form" class="contact-form" novalidate data-endpoint="https://bryanarbelo.com/api/contact">
+      <label>Pangalan<input name="name" autocomplete="name" maxlength="100" required></label>
+      <label>Email<input name="email" type="email" autocomplete="email" maxlength="200" required></label>
+      <label>Mensahe<textarea name="message" rows="6" maxlength="5000" required></textarea></label>
+      <label class="contact-hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+      <div class="contact-captcha" data-sitekey="6LcDSektAAAAAMQaYup_qnuWAqkj0oeSITf0WW5n"></div>
+      <button type="submit" class="contact-send">Ipadala</button>
+      <p class="contact-status" role="status" aria-live="polite"></p>
+      <p hidden data-msg="sending">Ipinapadala...</p>
+      <p hidden data-msg="sent">Salamat. Naipadala na ang mensahe mo, at sasagot kami sa email.</p>
+      <p hidden data-msg="missing">Pakilagay ang pangalan, email at mensahe mo.</p>
+      <p hidden data-msg="captcha">Pakilagyan ng tsek ang kahong "Hindi ako robot".</p>
+      <p hidden data-msg="failed">Paumanhin, hindi ito naipadala. Subukan ulit pagkalipas ng ilang minuto.</p>
+      <noscript><p>Kailangang naka-on ang JavaScript para sa contact form.</p></noscript>
+    </form>
 
     <p><a href="/tl/" class="more-link">← bumalik sa studio</a></p>
   </main>
@@ -151,7 +166,8 @@
     <p class="footer-browse">Tumingin: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a> &middot; <a href="/tl/word-games.html">Libreng word games</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2f3d173a-20261030T111252Z"></script>
+  <script type="module" src="/assets/site.js?v=24402c1c-20261030T133405Z"></script>
+  <script type="module" src="/assets/contact-form.js?v=24402c1c-20261030T133405Z"></script>
 
 
   <script type="module">

@@ -66,7 +66,7 @@
   }
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2f3d173a-20261030T111252Z">
+  <link rel="stylesheet" href="/styles.css?v=24402c1c-20261030T133405Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -135,7 +135,22 @@
     <p>Magestican Studios es un nombre comercial de <strong>Ultra Task Pty Ltd</strong>, registrada en Australia. Todos los contratos, facturas y comunicaciones legales son con Ultra Task Pty Ltd. Las marcas — Magestican Studios y el logo de Magestican Studios — son propiedad de Ultra Task Pty Ltd.</p>
 
     <h2>Contacto</h2>
-    <p>Escríbenos por los canales públicos del estudio cuando estén activos.</p>
+    <p>¿Preguntas sobre un juego, un error que reportar o una consulta comercial? Envíanos un mensaje y te responderemos por correo.</p>
+    <form id="contact-form" class="contact-form" novalidate data-endpoint="https://bryanarbelo.com/api/contact">
+      <label>Nombre<input name="name" autocomplete="name" maxlength="100" required></label>
+      <label>Correo electrónico<input name="email" type="email" autocomplete="email" maxlength="200" required></label>
+      <label>Mensaje<textarea name="message" rows="6" maxlength="5000" required></textarea></label>
+      <label class="contact-hp" aria-hidden="true">Sitio web<input name="website" tabindex="-1" autocomplete="off"></label>
+      <div class="contact-captcha" data-sitekey="6LcDSektAAAAAMQaYup_qnuWAqkj0oeSITf0WW5n"></div>
+      <button type="submit" class="contact-send">Enviar</button>
+      <p class="contact-status" role="status" aria-live="polite"></p>
+      <p hidden data-msg="sending">Enviando...</p>
+      <p hidden data-msg="sent">Gracias. Tu mensaje se envió y te responderemos por correo.</p>
+      <p hidden data-msg="missing">Completa tu nombre, tu correo y el mensaje.</p>
+      <p hidden data-msg="captcha">Marca la casilla "No soy un robot".</p>
+      <p hidden data-msg="failed">Lo sentimos, no se pudo enviar. Inténtalo de nuevo en unos minutos.</p>
+      <noscript><p>El formulario de contacto necesita JavaScript activado.</p></noscript>
+    </form>
 
     <p><a href="/es/" class="more-link">← volver al estudio</a></p>
   </main>
@@ -151,7 +166,8 @@
     <p class="footer-browse">Explorar: <a href="/es/2-player-games-online.html">Juegos online para 2 jugadores</a> &middot; <a href="/es/multiplayer-browser-games.html">Juegos multijugador en el navegador</a> &middot; <a href="/es/board-games-with-friends.html">Juegos de mesa con amigos</a> &middot; <a href="/es/word-games.html">Juegos de palabras gratis</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2f3d173a-20261030T111252Z"></script>
+  <script type="module" src="/assets/site.js?v=24402c1c-20261030T133405Z"></script>
+  <script type="module" src="/assets/contact-form.js?v=24402c1c-20261030T133405Z"></script>
 
 
   <script type="module">
