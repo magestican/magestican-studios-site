@@ -3,6 +3,12 @@
 
 import { THREE } from '../vendor/three-vendor.js';
 
+export const FLASH_R = 0.1;
+
+export const FLASH_KICK = 0.2;
+const KICK_DECAY = 12;
+const SPOT = new THREE.Vector3();
+
 function gunMesh() {
   const g = new THREE.Group();
   const metal = new THREE.MeshLambertMaterial({ color: 0x2b2f33 });
@@ -12,8 +18,13 @@ function gunMesh() {
   const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.16, 0.08), grip);
   handle.position.set(0, -0.1, 0.02);
   handle.rotation.x = -0.25;
-  const flash = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffd26a, fog: false }));
-  flash.position.z = -0.34;
+  
+  const flash = new THREE.Mesh(
+    new THREE.SphereGeometry(FLASH_R, 8, 6),
+    new THREE.MeshBasicMaterial({ color: 0xffd26a, fog: false, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }),
+  );
+  flash.position.z = -0.4;
+  flash.renderOrder = 12;
   flash.visible = false;
   g.add(slide, handle, flash);
   g.userData.flash = flash;
@@ -32,6 +43,12 @@ export function createViewmodels(camera) {
   }
   return {
     
+    muzzle(side) {
+      const g = guns[side];
+      if (!g?.visible) return null;
+      return g.userData.flash.getWorldPosition(SPOT).clone();
+    },
+    
     setModel(model) {
       if (!model) return;
       for (const g of Object.values(guns)) {
@@ -40,7 +57,7 @@ export function createViewmodels(camera) {
         m.position.set(0, -0.17, 0.08);
         g.add(m);
         for (const b of g.userData.greybox) b.visible = false;
-        g.userData.flash.position.z = -0.25;
+        g.userData.flash.position.z = -0.34; 
       }
     },
     
@@ -54,13 +71,15 @@ export function createViewmodels(camera) {
         const s = state[side];
         g.visible = !!(s.ndc || s.up);
         if (!g.visible) continue;
-        kick[side] = Math.max(0, kick[side] - dt * 12);
+        kick[side] = Math.max(0, kick[side] - dt * KICK_DECAY);
         const x = s.ndc ? s.ndc.x : 0;
         const y = s.ndc ? s.ndc.y : 1;
         const base = side === 'right' ? 0.22 : -0.22;
         g.position.set(base + x * 0.12, -0.2 + y * 0.08 + (s.up ? 0.12 : 0), -0.45 + kick[side] * 0.04);
         g.rotation.set(s.up ? 1.2 : y * 0.45 + kick[side] * 0.25, -x * 0.6, 0);
-        g.userData.flash.visible = kick[side] > 0.6;
+        const f = g.userData.flash;
+        f.visible = kick[side] > FLASH_KICK;
+        if (f.visible) f.scale.setScalar(0.7 + 0.8 * kick[side] + 0.3 * Math.random());
       }
     },
   };

@@ -26,7 +26,7 @@ export function firstHit(ray, targets, volumeScale) {
       best = t;
     }
   }
-  return best;
+  return best ? { ...best, dist: bestT } : null;
 }
 
 

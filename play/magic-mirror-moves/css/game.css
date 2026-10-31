@@ -563,24 +563,6 @@ body:not([data-screen="play"]) .bar .hud {
   color: #fff;
 }
 
-
-#voice[data-state="loading"] {
-  animation: voice-wait 1.2s ease-in-out infinite;
-}
-
-@keyframes voice-wait {
-  50% {
-    opacity: 0.45;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #voice[data-state="loading"] {
-    animation: none;
-    opacity: 0.6;
-  }
-}
-
 body[data-mode="mirror"] #stop,
 body[data-mode="mirror"] .bar .time {
   display: none;

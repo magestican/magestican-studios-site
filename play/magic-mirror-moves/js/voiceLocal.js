@@ -39,8 +39,6 @@ function loadModel() {
 
 export async function startLocalVoice(win, onCommand) {
   const ctx = new (win.AudioContext ?? win.webkitAudioContext)();
-  
-  const unlocked = ctx.resume().catch(() => {});
   let stream = null;
   let recognizer = null;
   const parts = [];
@@ -60,12 +58,7 @@ export async function startLocalVoice(win, onCommand) {
       video: false,
     });
     const model = await loadModel();
-    await unlocked;
-    if (ctx.state !== 'running') await ctx.resume(); 
-    
-    ctx.addEventListener?.('statechange', () => {
-      if (!stopped && ctx.state !== 'running' && ctx.state !== 'closed') ctx.resume().catch(() => {});
-    });
+    await ctx.resume();
     recognizer = new model.KaldiRecognizer(ctx.sampleRate, JSON.stringify([...VOCABULARY, '[unk]']));
     let lastText = '';
     const heard = (text) => {

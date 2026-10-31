@@ -329,13 +329,9 @@ async function wireVoice() {
   const set = (on) => {
     btn.setAttribute('aria-pressed', String(on));
     btn.setAttribute('aria-label', on ? 'Stop listening' : 'Say a costume');
-    if (!on) delete btn.dataset.state;
   };
-  
-  
   btn.addEventListener('click', async () => {
     if (stop || starting) {
-      if (starting) S.banner = 0.01; 
       stop?.();
       stop = null;
       starting = 0;
@@ -343,25 +339,18 @@ async function wireVoice() {
       return;
     }
     set(true);
-    btn.dataset.state = 'loading';
     const me = ++starts;
     starting = me;
-    const slow = setTimeout(() => starting === me && flash('Getting my ears ready...', 30), 400);
     try {
       const s = await engine(window, applyCommand);
-      clearTimeout(slow);
       if (starting !== me) return s(); 
       starting = 0;
       stop = s;
-      delete btn.dataset.state;
-      flash('Say a costume, like dragon!', 3);
     } catch (e) {
-      clearTimeout(slow);
       if (starting !== me) return;
       starting = 0;
       console.warn('Magic Mirror Moves: voice is off on this device.', e);
       set(false);
-      flash('Voice is off. Tap a costume!', 4);
       btn.hidden = true;
       layout();
     }
