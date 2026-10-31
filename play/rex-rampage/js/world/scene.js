@@ -5,9 +5,7 @@ import { pixelRatioFor } from '../pose/device.js';
 import { THREE } from '../vendor/three-vendor.js';
 import { loadArt } from './art.js';
 import { dressProps } from './dress.js';
-import { LOOK_DROP, vfovFor } from './fov.js';
 import { buildProps } from './props.js';
-import { createTracers } from './tracers.js';
 
 
 const KIND_LOOK = {
@@ -40,7 +38,7 @@ const KIND_LOOK = {
 export function createScene(canvas, stage, plan) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(vfovFor(1), 1, 0.1, 600);
+  const camera = new THREE.PerspectiveCamera(70, 1, 0.1, 600);
   scene.add(camera);
   const hemi = new THREE.HemisphereLight(0xdfe9c8, 0x2a3320, 1.6);
   const sun = new THREE.DirectionalLight(0xfff1d0, 1.4);
@@ -67,8 +65,6 @@ export function createScene(canvas, stage, plan) {
   
   const fx = [];
   const sparkGeo = new THREE.SphereGeometry(1, 8, 6);
-  const tracers = createTracers(scene);
-  const stats = { tracers: 0, impacts: 0 };
   const ironJaw = bossBody();
   scene.add(ironJaw.group, ironJaw.gantry);
 
@@ -99,18 +95,6 @@ export function createScene(canvas, stage, plan) {
     fx.push({ mesh, t: 0, life, grow });
   }
 
-  
-  function shotFx(ev, game, muzzleOf) {
-    const e = game.enemies.find((x) => x.id === ev.hit);
-    const p = ev.at ?? e?.pos;
-    if (!p) return;
-    const to = new THREE.Vector3(p.x, p.y, p.z);
-    const from = muzzleOf?.(ev.side) ?? camera.localToWorld(new THREE.Vector3(ev.side === 'left' ? -0.25 : 0.25, -0.25, -0.7));
-    if (tracers.fire(from, to)) stats.tracers++;
-    tracers.impact(to, camera.position);
-    stats.impacts++;
-  }
-
   let shake = 0;
   let dark = false;
   let flash = 0;
@@ -119,14 +103,11 @@ export function createScene(canvas, stage, plan) {
     camera,
     renderer,
     
-    stats,
-    
     art,
     resize(w, h) {
       renderer.setPixelRatio(pixelRatioFor(w, h, window.devicePixelRatio, plan.maxPixelRatio));
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
-      camera.fov = vfovFor(w / h); 
       camera.updateProjectionMatrix();
     },
     
@@ -142,14 +123,11 @@ export function createScene(canvas, stage, plan) {
       return { x: v.x, y: v.y, z: v.z };
     },
     
-
-
-
-    draw(game, events, dt, muzzleOf) {
-      const shots = [];
+    draw(game, events, dt) {
       for (const ev of events) {
         if (ev.type === 'shot') {
-          shots.push(ev);
+          const e = game.enemies.find((x) => x.id === ev.hit);
+          if (e) burst(e.pos, 0xffe28a, 0.12 + 0.05 * Math.random(), 0.12, 2);
           flash = 1;
         } else if (ev.type === 'explode') {
           const p = ev.pos ?? game.cam.pos;
@@ -172,14 +150,11 @@ export function createScene(canvas, stage, plan) {
       const j = shake * 0.15;
       const y = pos.y - 0.8 * crouch;
       camera.position.set(pos.x + (Math.random() - 0.5) * j, y + (Math.random() - 0.5) * j, pos.z);
-      camera.lookAt(pos.x + fwd.x, y + fwd.y - LOOK_DROP, pos.z + fwd.z);
+      camera.lookAt(pos.x + fwd.x, y + fwd.y - 0.04, pos.z + fwd.z);
       camera.rotateZ(-(game.cam.roll ?? 0)); 
       if (props.groundFollows) props.ground.position.set(pos.x, pos.y - 1.62, pos.z);
       else props.ground.position.set(pos.x, props.ground.position.y, pos.z);
       dress?.follow(pos, fwd, game.vehicle);
-      camera.updateMatrixWorld();
-      for (const ev of shots) shotFx(ev, game, muzzleOf);
-      tracers.update(dt);
 
       ironJaw.update(game.boss, pos);
 

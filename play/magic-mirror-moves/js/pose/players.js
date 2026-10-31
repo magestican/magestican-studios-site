@@ -65,7 +65,9 @@ export function secondPerson(p1, other, height) {
 const SIDE = 0.7;
 
 export const AUTO_JOIN_S = 1;
-export const AUTO_LEAVE_S = 10;
+
+
+export const AUTO_LEAVE_S = 4;
 
 
 

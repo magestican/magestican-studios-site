@@ -5,12 +5,11 @@ import { checkpoint, createLife, DIFFICULTY, hurt } from './combat/damage.js';
 import { applyShots, firstHit, shouldFire } from './combat/hits.js';
 import { applyContinue, createScore, onDamage, onKill, onShots, rank } from './combat/score.js';
 import { norm, v3 } from './combat/vec.js';
-import { KINDS, leave, spawnEnemy, stepEnemy, windowFor } from './enemies/enemy.js';
+import { KINDS, leave, spawnEnemy, stepEnemy } from './enemies/enemy.js';
 import { createIronJaw, skipToPhase, stepIronJaw } from './enemies/ironjaw.js';
 import { createGun, stepGun } from './gun/gun.js';
 import { bossPlates, hpScaleFor } from './net/scaling.js';
 import { createStageRun, loadStage, stepStage } from './rail/stage.js';
-import { REF_VIEW } from './world/fov.js';
 
 const STEP = 0.1;
 const LOOK = { ahead: 0, left: 1.1, right: -1.1, back: Math.PI };
@@ -38,45 +37,6 @@ export function bankAt(stage, dist, roll, dt) {
   return roll + (want - roll) * Math.min(1, dt * 3);
 }
 
-
-
-
-
-const PAN_MAX = 1.25; 
-const PAN_HOLD_S = 1; 
-const PAN_DEAD = 0.45; 
-
-
-const bearing = (f, t) => Math.atan2(f.z * t.x - f.x * t.z, f.x * t.x + f.z * t.z);
-
-function autoPan(game, f, dt) {
-  const look = game.look;
-  if (game.stage.arena) return 0;
-  look.held = (look.held ?? 0) + dt;
-  const threats = game.enemies.filter(
-    (e) => !e.dead && (e.target === 'enemy' || KINDS[e.kind].proj) && e.state !== 'leave' && e.state !== 'part',
-  );
-  if (!threats.length) {
-    look.focus = null;
-    return 0;
-  }
-  const flat = (e) => Math.hypot(e.pos.x - game.cam.pos.x, e.pos.z - game.cam.pos.z);
-  const waiting = (e) => (e.seen ?? 0) < windowFor(e.kind, game.d);
-  let focus = threats.find((e) => e.id === look.focus);
-  if (!focus || (look.held >= PAN_HOLD_S && !waiting(focus))) {
-    const pool = threats.filter(waiting);
-    const next = (pool.length ? pool : threats).reduce((a, b) => (flat(a) <= flat(b) ? a : b));
-    if (next !== focus) {
-      focus = next;
-      look.focus = next.id;
-      look.held = 0;
-    }
-  }
-  const want = bearing(f, norm(v3(focus.pos.x - game.cam.pos.x, 0, focus.pos.z - game.cam.pos.z)));
-  if (Math.abs(want - look.yaw) < PAN_DEAD * REF_VIEW.h) return look.target;
-  return Math.max(-PAN_MAX, Math.min(PAN_MAX, want));
-}
-
 const yawed = (f, a) => norm(v3(f.x * Math.cos(a) + f.z * Math.sin(a), 0, -f.x * Math.sin(a) + f.z * Math.cos(a)));
 
 
@@ -102,8 +62,7 @@ export function createGame({ stage, difficulty, players = 1, godmode = false, au
     enemies: [],
     spawned: 0,
     cam: { pos: at.pos, fwd: at.tangent },
-    
-    look: { yaw: 0, target: 0, left: 0, focus:  (null), held: 0 },
+    look: { yaw: 0, target: 0, left: 0 },
     timeScale: 1,
     slowLeft: 0,
     vehicle: st.vehicle,
@@ -155,7 +114,7 @@ function step(game, dt, input) {
   
   const at = game.stage.rail.at(game.run.dist);
   game.look.left -= dt;
-  if (game.look.left <= 0) game.look.target = autoPan(game, facing(game.stage, at), dt);
+  if (game.look.left <= 0) game.look.target = 0;
   game.look.yaw += (game.look.target - game.look.yaw) * Math.min(1, dt * 4);
   const prev = game.cam?.pos ?? at.pos;
   const vel = dt > 0 ? v3((at.pos.x - prev.x) / dt, 0, (at.pos.z - prev.z) / dt) : v3(0, 0, 0);
@@ -189,9 +148,7 @@ function step(game, dt, input) {
     if (n && hit) {
       shots.set(hit.id, (shots.get(hit.id) ?? 0) + n);
       onShots(game.score, n, n);
-      
-      const at = ray ? v3(ray.o.x + ray.d.x * hit.dist, ray.o.y + ray.d.y * hit.dist, ray.o.z + ray.d.z * hit.dist) : null;
-      game.events.push({ type: 'shot', side, n, hit: hit.id, at });
+      game.events.push({ type: 'shot', side, n, hit: hit.id });
     }
   }
   kill(game, applyShots(game.enemies, shots).killed);

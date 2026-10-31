@@ -209,7 +209,7 @@ function frame(now) {
     events,
     dt,
   );
-  view.draw(game, events, dt, guns3d.muzzle);
+  view.draw(game, events, dt);
   hud.update(game, mode, state, events, dt, room ? roomView(room, now, view.project) : null);
   stats.frames++;
   stats.fps += (1 / Math.max(dt, 1e-3) - stats.fps) * 0.05;
@@ -230,9 +230,6 @@ Object.assign(window, {
     stats: () => ({
       ...stats,
       kills: game.score.kills,
-      tracers: view.stats.tracers,
-      impacts: view.stats.impacts,
-      fovAcross: (2 * Math.atan(Math.tan((view.camera.fov * Math.PI) / 360) * view.camera.aspect) * 180) / Math.PI,
       shots: game.score.shots,
       points: game.score.points,
       hearts: game.life.hearts,

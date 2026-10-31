@@ -329,9 +329,13 @@ async function wireVoice() {
   const set = (on) => {
     btn.setAttribute('aria-pressed', String(on));
     btn.setAttribute('aria-label', on ? 'Stop listening' : 'Say a costume');
+    if (!on) delete btn.dataset.state;
   };
+  
+  
   btn.addEventListener('click', async () => {
     if (stop || starting) {
+      if (starting) S.banner = 0.01; 
       stop?.();
       stop = null;
       starting = 0;
@@ -339,18 +343,25 @@ async function wireVoice() {
       return;
     }
     set(true);
+    btn.dataset.state = 'loading';
     const me = ++starts;
     starting = me;
+    const slow = setTimeout(() => starting === me && flash('Getting my ears ready...', 30), 400);
     try {
       const s = await engine(window, applyCommand);
+      clearTimeout(slow);
       if (starting !== me) return s(); 
       starting = 0;
       stop = s;
+      delete btn.dataset.state;
+      flash('Say a costume, like dragon!', 3);
     } catch (e) {
+      clearTimeout(slow);
       if (starting !== me) return;
       starting = 0;
       console.warn('Magic Mirror Moves: voice is off on this device.', e);
       set(false);
+      flash('Voice is off. Tap a costume!', 4);
       btn.hidden = true;
       layout();
     }
@@ -458,6 +469,7 @@ let stream = null;
 
 let estimator = null;
 let camRun = 0;
+let micAsked = false;
 const smoother = new PoseSmoother();
 let camFrames = 0;
 let quality = initialQuality(plan.start); 
@@ -527,10 +539,20 @@ async function startCamera() {
   try {
     note.hidden = false;
     note.textContent = 'Asking for the camera...';
-    const s = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', ...plan.camera },
-      audio: false,
-    });
+    const cam = { facingMode: 'user', ...plan.camera };
+    let s = null;
+    
+    
+    
+    if (!micAsked) {
+      micAsked = true;
+      s = await navigator.mediaDevices.getUserMedia({ video: cam, audio: true }).catch(() => null);
+      for (const tr of s?.getAudioTracks() ?? []) {
+        tr.stop();
+        s.removeTrack(tr);
+      }
+    }
+    s ??= await navigator.mediaDevices.getUserMedia({ video: cam, audio: false });
     if (!current()) {
       for (const tr of s.getTracks()) tr.stop();
       return false;
@@ -633,10 +655,14 @@ async function startCamera() {
         S.autoSwitched = true;
         setPlayers(2, { restart: false });
       }
-    } else if (S.autoSwitched) {
+    } else {
+      
+      
+      
       const dt = Math.min(1, autoAt ? now - autoAt : 0);
       autoAt = now;
-      S.auto = stepAuto(S.auto, { players: 2, second: !!f2 }, dt);
+      const two = !!f && !!f2 && secondPerson(f.pose, f2.pose, f.height);
+      S.auto = stepAuto(S.auto, { players: 2, second: two }, dt);
       if (S.auto.want === 1) {
         S.autoSwitched = false;
         scoutAt = 0;

@@ -20,6 +20,37 @@ const GPU_FAILURE = /link vertex and fragment shaders|compile (vertex|fragment) 
 
 
 
+
+
+
+
+
+
+async function compileAhead(tf, detector) {
+  const ua = globalThis.navigator?.userAgent ?? '';
+  if (!/AppleWebKit/.test(ua) || /Chrome\/|Chromium\/|Edg\//.test(ua)) return false;
+  const backend = tf.backend();
+  if (!backend?.gpgpu?.parallelCompilationExtension) return false;
+  const models = [detector.detectorModel, detector.landmarkModel].filter(Boolean);
+  tf.env().set('ENGINE_COMPILE_ONLY', true);
+  try {
+    for (const m of models) {
+      const shape = m.inputs[0].shape.map((n) => (n > 0 ? n : 1));
+      tf.tidy(() => m.execute(tf.zeros(shape)));
+    }
+  } finally {
+    tf.env().set('ENGINE_COMPILE_ONLY', false);
+  }
+  await backend.checkCompileCompletionAsync();
+  backend.getUniformLocations();
+  return true;
+}
+
+
+
+
+
+
 export async function createPoseEstimator({ landmark, cpuFallback }) {
   const { tf, poseDetection } = await import('../vendor/pose-vendor.js');
   await tf.ready();
@@ -40,6 +71,7 @@ export async function createPoseEstimator({ landmark, cpuFallback }) {
   
   
   let detectors = [await create()];
+  await compileAhead(tf, detectors[0]);
   let failures = 0;
   let lastError = '';
   
