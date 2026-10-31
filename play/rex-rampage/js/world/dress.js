@@ -4,7 +4,7 @@
 
 import { THREE } from '../vendor/three-vendor.js';
 import { rowColour } from './art.js';
-import { FOLIAGE, foliageCounts, groundOffset, PROPS, THEME_ART, themeFiles, VEHICLE_FILES } from './artManifest.js';
+import { FOLIAGE, foliageCounts, groundOffset, PROPS, SEAT_TURN, SEATS, seatPoint, THEME_ART, themeFiles } from './artManifest.js';
 
 
 function rng(seed) {
@@ -110,7 +110,8 @@ export function dressProps(scene, stage, built, art) {
   const dressed = [];
   let sky = null;
   let groundTile = 0;
-  let vehicle = null;
+  
+  const rides = new Map();
   if (a) {
     const f = themeFiles(stage.theme);
     const T = art.textures;
@@ -245,21 +246,22 @@ export function dressProps(scene, stage, built, art) {
       dressed.push(k);
     }
     
-    const vModel = a.vehicle && art.models[VEHICLE_FILES[a.vehicle]];
-    if (vModel) {
-      vehicle = new THREE.Group();
+    for (const kind of a.vehicles) {
+      const seat = SEATS[kind];
+      const vModel = art.models[seat.file];
+      if (!vModel) continue;
+      const ride = new THREE.Group();
       const body = vModel.clone();
-      body.rotation.y = Math.PI / 2; 
-      
-      
-      body.position.set(0.3, -0.25, -0.5);
+      body.rotation.y = SEAT_TURN;
+      body.position.set(...seatPoint(seat, [0, 0, 0]));
       body.traverse((o) => {
-        if (o.isMesh && /glass|frame/.test(o.material?.name ?? '')) o.visible = false;
+        if (o.isMesh && seat.hide?.test(o.material?.name ?? '')) o.visible = false;
       });
-      vehicle.add(body);
-      vehicle.userData.kind = a.vehicle;
-      scene.add(vehicle);
-      dressed.push(a.vehicle);
+      ride.add(body);
+      ride.visible = false;
+      scene.add(ride);
+      rides.set(kind, ride);
+      dressed.push(kind);
     }
   }
   return {
@@ -272,10 +274,11 @@ export function dressProps(scene, stage, built, art) {
         mat.normalMap?.offset.set(o.x, o.y);
       }
       if (sky) sky.position.set(pos.x, pos.y + sky.userData.lift, pos.z);
-      if (vehicle) {
-        vehicle.visible = ride === vehicle.userData.kind;
-        vehicle.position.set(pos.x, pos.y - 1.62, pos.z);
-        vehicle.rotation.y = Math.atan2(fwd.x, fwd.z);
+      for (const [kind, g] of rides) {
+        g.visible = ride === kind;
+        if (!g.visible) continue;
+        g.position.set(pos.x, pos.y - 1.62, pos.z);
+        g.rotation.y = Math.atan2(fwd.x, fwd.z);
       }
     },
   };

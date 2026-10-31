@@ -36,7 +36,7 @@ export const THEME_ART = {
     sky: 'sky_jungle',
     foliage: ['jungle_tree', 'tall_jungle_tree', 'palm', 'bush', 'fern'],
     props: ['boulder', 'rock', 'crate', 'barrel'],
-    vehicle: 'jeep',
+    vehicles: ['jeep'],
   },
   
   
@@ -47,7 +47,7 @@ export const THEME_ART = {
     sky: 'sky_sea',
     foliage: [],
     props: [],
-    vehicle: null,
+    vehicles: ['heli', 'jeep'],
     surfaces: { rock: { tex: 'canyon_rock', repeat: [2, 4] } },
   },
   interior: {
@@ -56,8 +56,8 @@ export const THEME_ART = {
     sky: null,
     foliage: [],
     props: ['crate', 'barrel'],
-    vehicle: null,
-    surfaces: { wall: { tex: 'visitor_wall', repeat: [1, 1] } },
+    vehicles: [],
+    surfaces: { wall: { tex: 'visitor_wall', repeat: [1, 1] }, ceiling: { tex: 'concrete_floor', repeat: [4, 1] } },
   },
   river: {
     ground: { tex: 'river_water', tile: 12 },
@@ -65,7 +65,7 @@ export const THEME_ART = {
     sky: 'sky_canyon',
     foliage: [],
     props: ['boulder', 'rock'],
-    vehicle: null,
+    vehicles: ['boat', 'heli'],
     surfaces: { rock: { tex: 'canyon_rock', repeat: [1, 3], tile: 14 } },
   },
   volcano: {
@@ -75,7 +75,7 @@ export const THEME_ART = {
     skyTint: 0xff8a66, 
     foliage: [],
     props: ['basalt', 'boulder'],
-    vehicle: null,
+    vehicles: ['cart', 'tank'],
     surfaces: { rock: { tex: 'basalt_rock', repeat: [2, 2] } },
   },
   stadium: {
@@ -84,12 +84,42 @@ export const THEME_ART = {
     sky: 'sky_stadium',
     foliage: [],
     props: [],
-    vehicle: null,
+    vehicles: [],
     surfaces: { stands: { tex: 'stadium_stands', repeat: [3, 3] } },
   },
 };
 
-export const VEHICLE_FILES = { jeep: 'vehicles/jeep/jeep.glb' };
+
+
+
+
+
+export const SEATS = {
+  
+  jeep: { file: 'vehicles/jeep/jeep.glb', eye: [0.15, 1.85, 0.45], hide: /glass|frame/ },
+  
+  boat: { file: 'vehicles/river_boat/river_boat.glb', eye: [1.1, 2.0, 0], hide: /window/ },
+  
+  heli: { file: 'vehicles/helicopter_rescue/helicopter_rescue.glb', eye: [3.0, 2.5, 0], hide: /glass|rotor/ },
+  
+  cart: { file: 'vehicles/mine_cart/mine_cart.glb', eye: [-0.1, 1.75, 0], hide: null },
+  
+  tank: { file: 'vehicles/tank/tank.glb', eye: [-0.4, 3.05, 0], hide: null },
+};
+
+export const SEAT_TURN = -Math.PI / 2;
+
+
+
+
+
+
+export function seatPoint(seat, p) {
+  const [ex, ey, ez] = seat.eye;
+  const [x, y, z] = p;
+  return [-(z - ez), y - ey + 1.62, x - ex];
+}
+
 export const GUN_FILE = 'vehicles/light_gun/light_gun.glb';
 
 
@@ -104,7 +134,7 @@ export function themeFiles(theme) {
     surfaces: Object.values(a.surfaces ?? {}).map((s) => `textures/${s.tex}/texture.png`),
     sprites: a.foliage.map((f) => `foliage/${f}/sheet.png`),
     sky: a.sky ? `skies/${a.sky}/background.png` : null,
-    models: [...a.props.map((p) => `props/${p}/${p}.glb`), ...(a.vehicle ? [VEHICLE_FILES[a.vehicle]] : []), GUN_FILE],
+    models: [...a.props.map((p) => `props/${p}/${p}.glb`), ...a.vehicles.map((v) => SEATS[v].file), GUN_FILE],
   };
 }
 

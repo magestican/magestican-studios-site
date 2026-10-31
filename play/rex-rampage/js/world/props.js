@@ -168,7 +168,8 @@ export function buildProps(scene, stage) {
           m.makeRotationY(Math.atan2(walls[i].x, walls[i].z)).setPosition(walls[i].x, walls[i].g + 2.5, walls[i].z),
         ),
       ),
-      ribbon(rail, theme.width + 1, 0x3b3833, { lift: 4.8 }),
+      
+      tag('ceiling', ribbon(rail, 26, 0x6a655c, { lift: 4.8 })),
     );
     
     for (const ev of stage.events) {
