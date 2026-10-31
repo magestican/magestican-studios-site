@@ -1038,7 +1038,7 @@
    "place": {
     "ahead": 16,
     "side": -3,
-    "up": 14
+    "up": 8
    },
    "spread": 8
   },
@@ -1056,7 +1056,7 @@
    "place": {
     "ahead": 16,
     "side": 3,
-    "up": 14
+    "up": 8
    },
    "spread": 8
   },
@@ -1095,7 +1095,7 @@
    "place": {
     "ahead": 18,
     "side": 0,
-    "up": 14
+    "up": 8
    },
    "spread": 6
   },
@@ -1293,7 +1293,7 @@
    "place": {
     "ahead": 16,
     "side": 0,
-    "up": 14
+    "up": 8
    },
    "spread": 10
   },
@@ -1360,7 +1360,7 @@
    "place": {
     "ahead": 34,
     "side": 4,
-    "up": 14
+    "up": 8
    }
   },
   {

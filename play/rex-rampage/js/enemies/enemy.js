@@ -5,6 +5,7 @@
 
 
 import { add, len, lerp, norm, scale, sub, v3 } from '../combat/vec.js';
+import { inView } from '../world/fov.js';
 
 const EYE = 1.6;
 const LEAP_S = 0.9;
@@ -40,6 +41,27 @@ export const KINDS = {
 
 
 
+
+
+
+
+
+
+export const SHOT_WINDOW = { close: 1.5, ranged: 2, proj: 0.9 };
+const RANGED = new Set(['merc', 'gunboat', 'heli', 'dilo']);
+
+
+export function windowFor(kind, d) {
+  const k = KINDS[kind];
+  if (k.proj) return Math.min(SHOT_WINDOW.proj, 0.9 * d.telegraph * k.flight);
+  return RANGED.has(kind) ? SHOT_WINDOW.ranged : SHOT_WINDOW.close;
+}
+
+const SLOT_MAX = 1.4;
+const SPOT_RAD = (20 * Math.PI) / 180;
+
+
+const ready = (e, d) => e.seen >= windowFor(e.kind, d) - (KINDS[e.kind].proj ? 0 : d.telegraph) - 1e-6;
 
 const rightOf = (fwd) => norm(v3(-fwd.z, 0, fwd.x));
 
@@ -84,6 +106,8 @@ export function spawnEnemy(ev, frame, index, hpScale, id) {
     t: 0,
     ring: 0,
     telegraphLeft: 0,
+    
+    seen: 0,
     slot: Math.max(-1.4, Math.min(1.4, lane * 0.7)),
     attacks: 0,
     gone: false,
@@ -95,7 +119,9 @@ export function spawnEnemy(ev, frame, index, hpScale, id) {
 function attackSpot(e, cam) {
   const k = KINDS[e.kind];
   const fwd = norm(v3(cam.fwd.x, 0, cam.fwd.z));
-  const p = add(add(cam.pos, scale(fwd, k.attackDist)), scale(rightOf(fwd), e.slot));
+  
+  const side = Math.max(-1, Math.min(1, e.slot / SLOT_MAX)) * Math.min(SLOT_MAX, Math.tan(SPOT_RAD) * k.attackDist);
+  const p = add(add(cam.pos, scale(fwd, k.attackDist)), scale(rightOf(fwd), side));
   return v3(p.x, k.fly ? cam.pos.y - 0.2 : cam.pos.y - EYE + k.r, p.z);
 }
 
@@ -111,6 +137,13 @@ function ridePos(e, cam) {
 
 
 export function stepEnemy(e, dt, cam, d) {
+  const r = move(e, dt, cam, d);
+  
+  e.seen = !e.dead && inView(cam, e.pos) ? (e.seen ?? 0) + dt : 0;
+  return r;
+}
+
+function move(e, dt, cam, d) {
   const k = KINDS[e.kind];
   if (e.dead) {
     e.state = 'dead';
@@ -128,16 +161,19 @@ export function stepEnemy(e, dt, cam, d) {
     return { attack: 0 };
   }
   if (e.state === 'incoming') {
+    
+    if (cam.vel) e.from = add(e.from, v3(cam.vel.x * dt, 0, cam.vel.z * dt));
     const u = Math.min(1, e.t / (d.telegraph * k.flight));
     e.pos = lerp(e.from, attackSpot(e, cam), u);
     e.ring = u;
     if (u < 1) return { attack: 0 };
     e.gone = true;
-    return { attack: k.attack };
+    return { attack: ready(e, d) ? k.attack : 0 }; 
   }
   if (k.fixed) {
     e.pos = ridePos(e, cam);
-    if (e.state === 'hold' && e.t >= HOLD_S) startTelegraph(e, d);
+    if (e.state === 'hold' && e.t >= HOLD_S && ready(e, d)) startTelegraph(e, d);
+    else if (e.state === 'telegraph' && !e.seen) cancelTelegraph(e, 'hold', HOLD_S);
     else if (e.state === 'telegraph') {
       e.telegraphLeft -= dt;
       e.ring = Math.min(1, 1 - e.telegraphLeft / d.telegraph);
@@ -158,7 +194,10 @@ export function stepEnemy(e, dt, cam, d) {
     const spot = attackSpot(e, cam);
     const p = lerp(e.from, spot, u);
     e.pos = v3(p.x, p.y + 3 * 4 * u * (1 - u), p.z);
-    if (u >= 1) startTelegraph(e, d);
+    if (u >= 1) {
+      if (ready(e, d)) startTelegraph(e, d);
+      else e.state = 'approach'; 
+    }
   } else if (e.state === 'approach') {
     const spot = attackSpot(e, cam);
     const to = sub(spot, e.pos);
@@ -166,9 +205,10 @@ export function stepEnemy(e, dt, cam, d) {
     const stepLen = k.speed * dt;
     if (dist <= Math.max(0.3, stepLen)) {
       e.pos = spot;
-      startTelegraph(e, d);
+      if (ready(e, d)) startTelegraph(e, d);
     } else e.pos = add(e.pos, scale(to, stepLen / dist));
-  } else if (e.state === 'telegraph') {
+  } else if (e.state === 'telegraph' && !e.seen) cancelTelegraph(e, 'approach', 0);
+  else if (e.state === 'telegraph') {
     e.pos = attackSpot(e, cam);
     e.telegraphLeft -= dt;
     e.ring = Math.min(1, 1 - e.telegraphLeft / d.telegraph);
@@ -198,6 +238,13 @@ export function leave(e) {
   if (e.dead || e.state === 'part' || e.state === 'incoming' || e.state === 'idle') return;
   e.state = 'leave';
   e.t = 0;
+  e.ring = 0;
+}
+
+
+function cancelTelegraph(e, state, t) {
+  e.state = state;
+  e.t = t;
   e.ring = 0;
 }
 
