@@ -655,8 +655,29 @@ body.tv[data-mode="mirror"] #card-fig {
 }
 
 
+
+
 @media (max-width: 599px) {
-  .bar #tv {
-    display: none;
+  .bar-tools {
+    gap: 4px;
+  }
+  .bar .ghost-btn.small.icon {
+    min-width: 32px;
+    padding: 4px;
+  }
+  .bar #mode-switch {
+    padding: 4px 6px;
+  }
+}
+
+@media (max-width: 379px) {
+  .bar .ghost-btn.small {
+    font-size: 0.72rem;
+    padding: 4px 5px;
+  }
+  .bar .ghost-btn.small.icon {
+    min-width: 30px;
+    padding: 4px 3px;
+    font-size: 1rem;
   }
 }

@@ -16,8 +16,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Magic Mirror">
-  <link rel="stylesheet" href="css/game.css?v=fcd828f7-20261031T044052Z">
-  <script type="module" src="js/main.js?v=fcd828f7-20261031T044052Z"></script>
+  <link rel="stylesheet" href="css/game.css?v=05c8d446-20261031T060130Z">
+  <script type="module" src="js/main.js?v=05c8d446-20261031T060130Z"></script>
   <link rel="canonical" href="https://magesticanstudios.com/play/magic-mirror-moves/">
 </head>
 <body>
@@ -63,6 +63,7 @@
       </div>
       <button type="button" id="play" class="big">Play</button>
       <button type="button" class="ghost-btn" data-tv>Play on TV</button>
+      <button type="button" class="ghost-btn" id="install-how">Install the game</button>
       <button type="button" class="badge" data-privacy>The camera stays on this device</button>
     </div>
   </section>
@@ -123,6 +124,14 @@
       <button type="button" id="tv-pick" class="ghost-btn" hidden>Pick your TV</button>
       <button type="button" id="tv-layout" class="ghost-btn" aria-pressed="false">Make it big</button>
       <button type="button" id="cast-close" class="big">OK</button>
+    </div>
+  </dialog>
+
+  <dialog id="install-help" aria-labelledby="install-h">
+    <h2 id="install-h">Put the game on your home screen</h2>
+    <ol class="facts steps" id="install-steps"></ol>
+    <div class="row">
+      <button type="button" id="install-close" class="big">OK</button>
     </div>
   </dialog>
 

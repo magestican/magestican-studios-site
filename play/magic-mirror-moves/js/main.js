@@ -3,12 +3,13 @@
 
 
 
-import { castFrame, castReceiver, castSender, initCast } from './cast.js';
+import { castFrame, castKind, castReceiver, castSender, initCast } from './cast.js';
 import { costumeIcon, costumeName } from './costumes.js';
 import { CLIPS, demoPose, makePose } from './demoPose.js';
 import { Effects } from './effects.js';
 import { createEvents, EVENT_HITS, EVENT_S, stepEvents } from './events.js';
 import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
+import { installed, installSteps } from './install.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
 import { initialAuto, scoutCrop, secondPerson, stepAuto } from './pose/players.js';
@@ -486,7 +487,26 @@ function wire() {
   });
   addEventListener('appinstalled', () => {
     $('install').hidden = true;
+    $('install-how').hidden = true;
   });
+  
+  const help =  ($('install-help'));
+  $('install-how').hidden = installed();
+  $('install-steps').replaceChildren(
+    ...installSteps(castKind(navigator.userAgent, navigator.maxTouchPoints || 0)).map((s) => {
+      const li = document.createElement('li');
+      li.textContent = s;
+      return li;
+    }),
+  );
+  $('install-how').addEventListener('click', async () => {
+    if (!installer) return help.showModal();
+    installer.prompt();
+    await installer.userChoice;
+    installer = null;
+    $('install').hidden = true;
+  });
+  $('install-close').addEventListener('click', () => help.close());
 }
 
 

@@ -33,7 +33,10 @@ export function castSteps(kind, api = false) {
       }[kind];
   const sideways =
     kind === 'chrome' ? 'Stand back so the camera sees you.' : 'Turn the phone sideways and stand back so the camera sees you.';
-  return [how, sideways, 'The camera stays on this device', 'The TV only shows this screen'];
+  
+  
+  const receiver = !api && kind === 'apple' ? ['Get the free AirScreen app if your TV is not listed.'] : [];
+  return [how, ...receiver, sideways, 'The camera stays on this device', 'The TV only shows this screen'];
 }
 
 
