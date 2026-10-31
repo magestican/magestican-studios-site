@@ -1,6 +1,6 @@
 {
-  "source": "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip (Apache-2.0, Alpha Cephei; zip sha256 30f26242c4eb449f948e42cb302dd7a686cb29a3423a8367f99ff41780942498), repacked as ustar tar.gz for vosk-browser 2026-10-29",
+  "source": "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip (Apache-2.0, Alpha Cephei; zip sha256 30f26242c4eb449f948e42cb302dd7a686cb29a3423a8367f99ff41780942498), repacked as ustar tar.gz for vosk-browser 2026-10-29; slimmed 2026-10-31 by scripts/slimVoiceModel.mjs (graph/words.txt from Gr.fst's word table, Gr.fst replaced by an empty FST because the game always decodes with a grammar), gzip -9: 41,206,753 -> 28,305,048 bytes",
   "files": {
-    "en-small.tar.gz": "e56eab36b90762c7ec6d82008146bf9b9ad5e235c0a0eeedd7cad4ae31a71090"
+    "en-small.tar.gz": "26999e13f1a2dfa6b87d8ea0851dd33d98f6b6b982de62a155f425ff2629e644"
   }
 }

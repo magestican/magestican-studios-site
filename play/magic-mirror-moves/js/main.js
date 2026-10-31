@@ -1201,8 +1201,10 @@ function frame(now) {
   if (S.screen === 'play') updateHud();
   
   
+  
   const settled = !try3d || !!try3d.result;
-  if (voiceAuto && settled && S.source === 'camera' && S.detect.runs >= VOICE_AUTO_RUNS && q.get('voice') !== 'off') {
+  const saveData = !!navigator.connection?.saveData;
+  if (voiceAuto && settled && !saveData && S.source === 'camera' && S.detect.runs >= VOICE_AUTO_RUNS && q.get('voice') !== 'off') {
     const start = voiceAuto;
     voiceAuto = null;
     start();
