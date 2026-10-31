@@ -633,3 +633,30 @@ body[data-mode="mirror"] .bar .time {
     font-variant-numeric: tabular-nums;
   }
 }
+
+
+
+dialog .steps {
+  padding-left: 1.4em;
+}
+body.tv .banner {
+  font-size: clamp(2rem, 8vw, 3.6rem);
+}
+body.tv #card-label,
+body.tv[data-mode="mirror"] #card-label {
+  font-size: clamp(1.4rem, 5.5vw, 2.6rem);
+}
+body.tv .bar .stat {
+  font-size: 1.5rem;
+}
+body.tv[data-mode="mirror"] #card-fig {
+  width: 72px;
+  height: 72px;
+}
+
+
+@media (max-width: 599px) {
+  .bar #tv {
+    display: none;
+  }
+}

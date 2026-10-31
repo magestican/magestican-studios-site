@@ -16,8 +16,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Magic Mirror">
-  <link rel="stylesheet" href="css/game.css?v=d9eb3cb7-20261031T010543Z">
-  <script type="module" src="js/main.js?v=d9eb3cb7-20261031T010543Z"></script>
+  <link rel="stylesheet" href="css/game.css?v=d92713a7-20261031T030832Z">
+  <script type="module" src="js/main.js?v=d92713a7-20261031T030832Z"></script>
   <link rel="canonical" href="https://magesticanstudios.com/play/magic-mirror-moves/">
 </head>
 <body>
@@ -42,6 +42,7 @@
       <button type="button" id="voice" class="ghost-btn small icon" aria-pressed="false" aria-label="Say a costume" title="Say a costume, like dragon!" hidden>&#x1F3A4;</button>
       <button type="button" id="sound" class="ghost-btn small icon" aria-pressed="false" aria-label="Turn sound off" title="Turn sound off">&#x1F50A;</button>
       <button type="button" id="fullscreen" class="ghost-btn small icon" aria-label="Go full screen" title="Go full screen" hidden>&#x26F6;</button>
+      <button type="button" id="tv" class="ghost-btn small icon" data-tv aria-label="Play on TV" title="Play on TV">&#x1F4FA;</button>
       <button type="button" id="install" class="ghost-btn small" hidden>Install</button>
       <button type="button" id="menu" class="ghost-btn small">Menu</button>
       <button type="button" class="ghost-btn small icon" data-privacy aria-label="Privacy" title="The camera stays on this device">&#x1F512;</button>
@@ -61,6 +62,7 @@
         <button type="button" class="chip" data-level="big">Big (7+)</button>
       </div>
       <button type="button" id="play" class="big">Play</button>
+      <button type="button" class="ghost-btn" data-tv>Play on TV</button>
       <button type="button" class="badge" data-privacy>The camera stays on this device</button>
     </div>
   </section>
@@ -114,6 +116,16 @@
     </div>
   </section>
 
+  <dialog id="cast" aria-labelledby="cast-h">
+    <h2 id="cast-h">Play on your TV</h2>
+    <ol class="facts steps" id="cast-steps"></ol>
+    <div class="row">
+      <button type="button" id="tv-pick" class="ghost-btn" hidden>Pick your TV</button>
+      <button type="button" id="tv-layout" class="ghost-btn" aria-pressed="false">Make it big</button>
+      <button type="button" id="cast-close" class="big">OK</button>
+    </div>
+  </dialog>
+
   <dialog id="privacy" aria-labelledby="privacy-h">
     <h2 id="privacy-h">Privacy</h2>
     <div class="facts" id="privacy-copy">
@@ -121,7 +133,8 @@
       <p>The whole game runs in this browser, and there is no server code. Each camera frame is used once to find your child's arms, legs and head, and then it is dropped.</p>
       <p>The picture is never uploaded, recorded or saved. The game has no tracking, analytics, cookies or ads.</p>
       <p>The game keeps one thing: the best score for each game mode, as a number, on this device. The &quot;Forget my scores&quot; button clears it.</p>
-      <p>Voice commands work the same way. When a player taps the mic, this page listens for the game's words, and the sound is never recorded or sent anywhere.</p>
+      <p>Voice commands work the same way. Once the game can see your child, this page listens for the game's words, such as dragon or fairy, and the sound is never recorded or sent anywhere. Tap the mic to stop it.</p>
+      <p>On a TV, the camera still stays on this device. The TV gets only the body points the game found, as numbers, and never the picture.</p>
       <p>The camera switches off when the round ends or you close the page.</p>
     </div>
     <div class="row">

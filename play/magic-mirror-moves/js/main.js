@@ -3,6 +3,7 @@
 
 
 
+import { castFrame, castReceiver, castSender, initCast } from './cast.js';
 import { costumeIcon, costumeName } from './costumes.js';
 import { CLIPS, demoPose, makePose } from './demoPose.js';
 import { Effects } from './effects.js';
@@ -89,6 +90,12 @@ const opts = {
   
   autoPlayers: !q.has('players'),
 };
+
+const receiver = q.get('receiver') === '1';
+if (receiver) opts.demo = true;
+const cast = receiver ? null : castSender();
+
+let remote = null;
 const cheat = q.get('cheat');
 
 
@@ -333,6 +340,12 @@ async function wireVoice() {
   };
   
   
+  
+  
+  
+  voiceAuto = () => {
+    if (!stop && !starting && btn.getAttribute('aria-pressed') !== 'true') btn.click();
+  };
   btn.addEventListener('click', async () => {
     if (stop || starting) {
       if (starting) S.banner = 0.01; 
@@ -415,6 +428,19 @@ function wire() {
   $('players').addEventListener('click', () => choosePlayers(opts.players === 2 ? 1 : 2));
   $('menu').addEventListener('click', () => show('title'));
   
+  initCast({
+    buttons: document.querySelectorAll('[data-tv]'),
+    dialog:  ($('cast')),
+    steps: $('cast-steps'),
+    layout: $('tv-layout'),
+    pick: $('tv-pick'),
+    close: $('cast-close'),
+    on: q.get('tv') === '1',
+    changed: layout,
+    sender: cast ?? castSender({ PresentationRequest: undefined }),
+    flash: (t) => flash(t, 3),
+  });
+  
   const root =  (document.documentElement);
   const fsOn = () => !!(document.fullscreenElement ||  (document).webkitFullscreenElement);
   if (document.fullscreenEnabled ||  (document).webkitFullscreenEnabled) {
@@ -470,6 +496,9 @@ let stream = null;
 let estimator = null;
 let camRun = 0;
 let micAsked = false;
+
+let voiceAuto = null;
+const VOICE_AUTO_RUNS = 30; 
 const smoother = new PoseSmoother();
 let camFrames = 0;
 let quality = initialQuality(plan.start); 
@@ -851,7 +880,14 @@ function tick(h) {
   if (S.hint && S.t > S.hint.until) S.hint = null;
   updateSeenLight();
   const { fw, fh } = frameSize();
-  if (S.source === 'demo') {
+  if (receiver) {
+    
+    const live = remote && performance.now() - remote.at < 1000;
+    S.frame = live ? castFrame(remote.f, fw, fh) : null;
+    S.p2.frame = live && opts.players === 2 ? castFrame(remote.f2, fw, fh) : null;
+    S.fresh = !!S.frame;
+    S.p2.fresh = !!S.p2.frame;
+  } else if (S.source === 'demo') {
     const want = wanted();
     if (want !== S.ask.move && S.game?.mode !== 'mirror') S.ask = { move: want ?? '', start: S.t };
     const since = S.hint ? S.t - S.hint.at : S.game?.mode === 'mirror' ? (S.t - S.ask.start) % 3.2 : S.t - S.ask.start;
@@ -1163,6 +1199,16 @@ function frame(now) {
   }
   draw();
   if (S.screen === 'play') updateHud();
+  
+  
+  const settled = !try3d || !!try3d.result;
+  if (voiceAuto && settled && S.source === 'camera' && S.detect.runs >= VOICE_AUTO_RUNS && q.get('voice') !== 'off') {
+    const start = voiceAuto;
+    voiceAuto = null;
+    start();
+  }
+  const p2 = opts.players === 2 ? S.p2.frame : null;
+  cast?.send({ frame: S.frame, frame2: p2, costume: opts.costume, costume2: S.p2.costume, players: opts.players });
 }
 
 
@@ -1233,6 +1279,13 @@ async function start3d() {
 }
 
 async function boot() {
+  if (receiver)
+    castReceiver((m) => {
+      remote = { f: m.f, f2: m.f2, at: performance.now() };
+      if ((m.p === 1 || m.p === 2) && m.p !== opts.players) setPlayers(m.p, { restart: false });
+      if (typeof m.c === 'string' && m.c in COSTUMES && m.c !== opts.costume) setCostume(m.c);
+      if (typeof m.c2 === 'string' && m.c2 in COSTUMES) S.p2.costume = m.c2;
+    });
   resize();
   buildDressingRoom();
   wire();
