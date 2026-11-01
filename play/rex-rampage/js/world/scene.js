@@ -4,7 +4,9 @@
 import { pixelRatioFor } from '../pose/device.js';
 import { THREE } from '../vendor/three-vendor.js';
 import { loadArt } from './art.js';
+import { ART_ROOT } from './artManifest.js';
 import { dressProps } from './dress.js';
+import { BOSS_SPRITE, SPRITE_FILL, SPRITES, spritePose } from './enemySprites.js';
 import { LOOK_DROP, vfovFor } from './fov.js';
 import { buildProps } from './props.js';
 import { createTracers } from './tracers.js';
@@ -61,6 +63,21 @@ export function createScene(canvas, stage, plan) {
     .catch(() => null);
 
   
+  
+  const sheets = {};
+  const texLoader = new THREE.TextureLoader();
+  for (const [kind, s] of Object.entries(SPRITES)) {
+    texLoader
+      .loadAsync(`${ART_ROOT}sprites/${s.sheet}/sheet.png`)
+      .then((tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.magFilter = THREE.NearestFilter;
+        sheets[kind] = { tex, names: s.frames };
+      })
+      .catch(() => {});
+  }
+
+  
   const meshes = new Map();
   const ringGeo = new THREE.TorusGeometry(1, 0.08, 6, 32);
   const ringMat = new THREE.MeshBasicMaterial({ color: 0xff2a1a, fog: false, depthTest: false, transparent: true });
@@ -70,10 +87,27 @@ export function createScene(canvas, stage, plan) {
   const tracers = createTracers(scene);
   const stats = { tracers: 0, impacts: 0 };
   const ironJaw = bossBody();
-  scene.add(ironJaw.group, ironJaw.gantry);
+  scene.add(ironJaw.group, ironJaw.gantry, ironJaw.billboard);
+  texLoader
+    .loadAsync(`${ART_ROOT}sprites/${BOSS_SPRITE.sheet}/sheet.png`)
+    .then((tex) => ironJaw.setSheet(tex, BOSS_SPRITE.frames))
+    .catch(() => {});
 
   function enemyMesh(e) {
     const look = KIND_LOOK[e.kind] ?? KIND_LOOK.raptor;
+    const sheet = sheets[e.kind];
+    if (sheet && e.state !== 'part') {
+      const side = SPRITES[e.kind].side;
+      const tex = sheet.tex.clone();
+      tex.repeat.set(1 / sheet.names.length, 1);
+      const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide });
+      const body = new THREE.Mesh(new THREE.PlaneGeometry(side, side), mat);
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.renderOrder = 10;
+      ring.visible = false;
+      scene.add(body, ring);
+      return { body, ring, hp: e.hp, hurtT: 0, sheet: { tex, names: sheet.names } };
+    }
     const shape = look.shape ?? 'capsule';
     const geo =
       shape === 'cyl'
@@ -88,7 +122,7 @@ export function createScene(canvas, stage, plan) {
     ring.renderOrder = 10;
     ring.visible = false;
     scene.add(body, ring);
-    return { body, ring, hp: e.hp };
+    return { body, ring, hp: e.hp, hurtT: 0 };
   }
 
   function burst(pos, color, size, life, grow) {
@@ -193,7 +227,9 @@ export function createScene(canvas, stage, plan) {
         }
         const h = KIND_LOOK[e.kind]?.h ?? 1;
         const centred = e.state === 'part' || KIND_LOOK[e.kind]?.shape === 'sphere';
-        m.body.position.set(e.pos.x, centred ? e.pos.y : e.pos.y + h / 2 - e.r, e.pos.z);
+        
+        const lift = m.sheet ? (SPRITES[e.kind].side * SPRITE_FILL) / 2 : h / 2;
+        m.body.position.set(e.pos.x, centred ? e.pos.y : e.pos.y + lift - e.r, e.pos.z);
         m.body.lookAt(pos.x, m.body.position.y, pos.z);
         if (e.dead) {
           m.body.rotation.x = Math.min(Math.PI / 2, e.deadT * 4);
@@ -201,8 +237,14 @@ export function createScene(canvas, stage, plan) {
         }
         if (m.hp !== e.hp) {
           m.hp = e.hp;
+          m.hurtT = 0.25;
           m.body.material.emissive?.setHex(0x662200);
         } else m.body.material.emissive?.multiplyScalar(0.8);
+        m.hurtT = Math.max(0, m.hurtT - dt);
+        if (m.sheet) {
+          const i = Math.max(0, m.sheet.names.indexOf(spritePose(e.kind, e, m.hurtT) ?? ''));
+          m.sheet.tex.offset.x = i / m.sheet.names.length;
+        }
         m.ring.visible = !e.dead && (e.state === 'telegraph' || e.state === 'incoming' || !!e.warn);
         if (m.ring.visible) {
           m.ring.position.copy(m.body.position);
@@ -215,6 +257,7 @@ export function createScene(canvas, stage, plan) {
         scene.remove(m.body, m.ring);
         m.body.geometry.dispose();
         m.body.material.dispose();
+        m.sheet?.tex.dispose();
         meshes.delete(id);
       }
       for (let i = fx.length - 1; i >= 0; i--) {
@@ -239,10 +282,13 @@ function bossBody() {
   const group = new THREE.Group();
   const hide = new THREE.MeshLambertMaterial({ color: 0x9a7a52 });
   const metal = new THREE.MeshLambertMaterial({ color: 0x8e979f });
+  
+  const blocks = [];
   const box = (w, h, d, mat, x, y, z) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
     m.position.set(x, y, z);
     group.add(m);
+    blocks.push(m);
     return m;
   };
   box(3, 3, 6, hide, 0, 3.2, 1); 
@@ -262,14 +308,42 @@ function bossBody() {
   group.visible = false;
   const gantry = new THREE.Mesh(new THREE.BoxGeometry(4, 1, 2), metal);
   gantry.visible = false;
+  
+  const billboard = new THREE.Group();
+  billboard.visible = false;
+  
+  let sheet = null;
   return {
     group,
     gantry,
+    billboard,
+    
+    setSheet(tex, names) {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.magFilter = THREE.NearestFilter;
+      tex.repeat.set(1 / names.length, 1);
+      const side = BOSS_SPRITE.side;
+      const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide });
+      const plane = new THREE.Mesh(new THREE.PlaneGeometry(side, side), mat);
+      plane.position.y = (side * SPRITE_FILL) / 2;
+      billboard.add(plane);
+      for (const b of blocks) b.visible = false;
+      sheet = { tex, names };
+    },
     
     update(boss, cam) {
       group.visible = !!boss;
       gantry.visible = !!boss?.parts.varga;
+      billboard.visible = !!boss && !!sheet;
       if (!boss) return;
+      if (sheet) {
+        billboard.position.set(boss.pos.x, boss.pos.y, boss.pos.z);
+        billboard.lookAt(cam.x, boss.pos.y, cam.z);
+        billboard.rotateZ(boss.down ? Math.PI / 2 : 0);
+        const roar = Math.sin(boss.t * 1.5) > 0.6;
+        const pose = boss.down ? BOSS_SPRITE.poses.hurt : roar ? BOSS_SPRITE.poses.attack : BOSS_SPRITE.poses.idle;
+        sheet.tex.offset.x = Math.max(0, sheet.names.indexOf(pose)) / sheet.names.length;
+      }
       group.position.set(boss.pos.x, boss.pos.y, boss.pos.z);
       
       group.rotation.set(0, Math.atan2(cam.x - boss.pos.x, cam.z - boss.pos.z) + Math.PI, boss.down ? Math.PI / 2 : 0);
