@@ -121,6 +121,8 @@ const smoother = new PoseSmoother();
 let hands = null;
 let estimator = null;
 
+const seen = { runs: 0, people: 0, raised: 0, up: 0, aimed: 0, minX: 1, maxX: -1, minY: 1, maxY: -1 };
+
 async function startCamera() {
   if (demo || q.get('nocamera') === '1' || !navigator.mediaDevices?.getUserMedia) return;
   try {
@@ -145,6 +147,10 @@ async function poseLoop() {
   const t = performance.now() / 1000;
   const f = await estimator.estimate(video, t);
   hands = f ? readHands(smoother.smooth(mirrorFrame(f)).pose) : null;
+  seen.runs++;
+  if (hands?.body) seen.people++;
+  if (hands?.left.raised || hands?.right.raised) seen.raised++;
+  if (hands?.left.up || hands?.right.up) seen.up++;
   
   setTimeout(poseLoop, mode.mode === 'camera' ? 0 : 200);
 }
@@ -174,6 +180,14 @@ function frame(now) {
     for (const side of  (['left', 'right'])) {
       const h = hands[side];
       state[side] = { ndc: h.up ? null : aim.point(side, h, t), up: h.up };
+      const p = state[side].ndc;
+      if (p) {
+        seen.aimed++;
+        seen.minX = Math.min(seen.minX, p.x);
+        seen.maxX = Math.max(seen.maxX, p.x);
+        seen.minY = Math.min(seen.minY, p.y);
+        seen.maxY = Math.max(seen.maxY, p.y);
+      }
     }
   } else {
     const p = touch.pointers();
@@ -241,6 +255,7 @@ Object.assign(window, {
       rank: game.rank,
       mode: mode.mode,
       hint: mode.hint,
+      camera: { ...seen, failed: !!estimator?.failed() },
       sound: sound.state(),
       enemies: game.enemies.length,
       stage: stageNo,

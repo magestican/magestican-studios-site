@@ -6,7 +6,7 @@ import { THREE } from '../vendor/three-vendor.js';
 import { loadArt } from './art.js';
 import { ART_ROOT } from './artManifest.js';
 import { dressProps } from './dress.js';
-import { BOSS_SPRITE, SPRITE_FILL, SPRITES, spritePose } from './enemySprites.js';
+import { BOSS_SPRITE, cellUV, SPRITE_FILL, SPRITES, spritePose } from './enemySprites.js';
 import { LOOK_DROP, vfovFor } from './fov.js';
 import { buildProps } from './props.js';
 import { createTracers } from './tracers.js';
@@ -242,8 +242,9 @@ export function createScene(canvas, stage, plan) {
         } else m.body.material.emissive?.multiplyScalar(0.8);
         m.hurtT = Math.max(0, m.hurtT - dt);
         if (m.sheet) {
-          const i = Math.max(0, m.sheet.names.indexOf(spritePose(e.kind, e, m.hurtT) ?? ''));
-          m.sheet.tex.offset.x = i / m.sheet.names.length;
+          const uv = cellUV(SPRITES[e.kind], spritePose(e.kind, e, m.hurtT) ?? '');
+          m.sheet.tex.repeat.x = uv.repeat;
+          m.sheet.tex.offset.x = uv.offset;
         }
         m.ring.visible = !e.dead && (e.state === 'telegraph' || e.state === 'incoming' || !!e.warn);
         if (m.ring.visible) {
@@ -342,7 +343,9 @@ function bossBody() {
         billboard.rotateZ(boss.down ? Math.PI / 2 : 0);
         const roar = Math.sin(boss.t * 1.5) > 0.6;
         const pose = boss.down ? BOSS_SPRITE.poses.hurt : roar ? BOSS_SPRITE.poses.attack : BOSS_SPRITE.poses.idle;
-        sheet.tex.offset.x = Math.max(0, sheet.names.indexOf(pose)) / sheet.names.length;
+        const uv = cellUV(BOSS_SPRITE, pose);
+        sheet.tex.repeat.x = uv.repeat;
+        sheet.tex.offset.x = uv.offset;
       }
       group.position.set(boss.pos.x, boss.pos.y, boss.pos.z);
       
