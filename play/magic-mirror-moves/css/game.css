@@ -656,6 +656,56 @@ body.tv[data-mode="mirror"] #card-fig {
 
 
 
+@media (orientation: landscape) and (max-height: 560px) {
+  body.tv .bar {
+    flex-wrap: nowrap;
+  }
+  body.tv .bar-costumes {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  body.tv .bar .hud,
+  body.tv .bar-tools {
+    flex: none;
+    flex-wrap: nowrap;
+  }
+  body.tv .bar-tools {
+    gap: 4px;
+    margin-left: 0;
+  }
+  body.tv .bar .stat {
+    font-size: 1.1rem;
+  }
+  
+
+  body.tv .bar .seen-light {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  body.tv .bar .seen-light[data-state="seen"] #seen-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  
+  body.tv .card {
+    width: min(640px, 100%);
+  }
+  body.tv #card-label,
+  body.tv[data-mode="mirror"] #card-label {
+    font-size: 1.5rem;
+  }
+  body.tv #card-fig,
+  body.tv[data-mode="mirror"] #card-fig {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+
+
 
 @media (max-width: 599px) {
   .bar-tools {

@@ -67,9 +67,24 @@ export function devicePlan({ coarse, ua, model, memory, cores, power }) {
   };
 }
 
+
 export const LOW_CAMERA = { width: { ideal: 480 }, height: { ideal: 360 } };
 export const LOW_PARTICLES = 140;
 const POWER_S = 6;
+
+
+export const TV_FRAME_MS = 30;
+
+
+
+
+
+
+
+export function tvSettings(normal, on) {
+  if (!on) return normal;
+  return { ...normal, camera: LOW_CAMERA, maxPixelRatio: 1, maxParticles: Math.min(normal.maxParticles, LOW_PARTICLES) };
+}
 
 
 

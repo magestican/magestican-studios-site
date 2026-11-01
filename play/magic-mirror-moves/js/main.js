@@ -27,6 +27,8 @@ import {
   stepPower,
   stepQuality,
   stepTry3d,
+  TV_FRAME_MS,
+  tvSettings,
 } from './pose/quality.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
 import { createSound, cuesForGame, cuesForWorld, namesFor } from './sound.js';
@@ -437,7 +439,10 @@ function wire() {
     pick: $('tv-pick'),
     close: $('cast-close'),
     on: q.get('tv') === '1',
-    changed: layout,
+    changed: () => {
+      setTvSaver(document.body.classList.contains('tv'));
+      layout();
+    },
     sender: cast ?? castSender({ PresentationRequest: undefined }),
     flash: (t) => flash(t, 3),
   });
@@ -538,6 +543,26 @@ function enterLowPower() {
   stream
     ?.getVideoTracks()[0]
     ?.applyConstraints(LOW_CAMERA)
+    .catch(() => {});
+  resize();
+}
+
+
+
+const planNormal = { camera: plan.camera, maxPixelRatio: plan.maxPixelRatio, maxParticles: plan.maxParticles };
+let tvSaver = false;
+function setTvSaver(on) {
+  const next = on && !receiver;
+  if (next === tvSaver) return;
+  tvSaver = next;
+  if (power.low) return;
+  const tv = tvSettings(planNormal, next);
+  plan.camera = tv.camera;
+  plan.maxPixelRatio = tv.maxPixelRatio;
+  S.fx.setMax(tv.maxParticles);
+  stream
+    ?.getVideoTracks()[0]
+    ?.applyConstraints(tv.camera)
     .catch(() => {});
   resize();
 }
@@ -1169,7 +1194,15 @@ let last = 0;
 
 
 let frameErrors = 0;
+let lastLoop = 0;
+let frames = 0;
 function loop(now) {
+  if (tvSaver && now - lastLoop < TV_FRAME_MS) {
+    requestAnimationFrame(loop);
+    return;
+  }
+  lastLoop = now;
+  frames++;
   try {
     frame(now);
   } catch (err) {
@@ -1270,6 +1303,8 @@ Object.defineProperty(window, '__mmm', {
         perf: {
           quality: quality.level,
           lowPower: power.low,
+          tvSaver,
+          frames,
           render: opts.render,
           try3d: try3d && {
             result: try3d.result,

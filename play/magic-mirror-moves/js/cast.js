@@ -13,6 +13,7 @@
 
 
 
+
 export function castKind(ua, touchPoints) {
   if (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && touchPoints > 1)) return 'apple';
   if (/Android/.test(ua)) return 'android';
@@ -122,7 +123,7 @@ export function castReceiver(onMessage, win = window) {
 export function initCast(ui) {
   const set = ( on) => {
     document.body.classList.toggle('tv', on);
-    ui.layout.textContent = on ? 'Make it small' : 'Make it big';
+    ui.layout.textContent = on ? 'Stop TV mode' : 'Start TV mode';
     ui.layout.setAttribute('aria-pressed', String(on));
     ui.changed();
   };
@@ -135,7 +136,13 @@ export function initCast(ui) {
       return li;
     }),
   );
-  for (const b of ui.buttons) b.addEventListener('click', () => ui.dialog.showModal());
+  
+  
+  for (const b of ui.buttons)
+    b.addEventListener('click', () => {
+      if (!ui.sender.supported) set(true);
+      ui.dialog.showModal();
+    });
   ui.layout.addEventListener('click', () => set(!document.body.classList.contains('tv')));
   ui.close.addEventListener('click', () => ui.dialog.close());
   ui.pick.addEventListener('click', async () => {
