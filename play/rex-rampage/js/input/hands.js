@@ -6,6 +6,11 @@ const BODY_SCORE = 0.4;
 
 
 
+const GUN_LOWEST = 0.55;
+const FOREARM_DROP = 0.2;
+
+
+
 
 const ok = (j, min) => !!j && j.score >= min && Number.isFinite(j.x) && Number.isFinite(j.y);
 const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
@@ -29,13 +34,13 @@ function hand(pose, side, torso) {
   const w = pose[`${side}_wrist`];
   const e = pose[`${side}_elbow`];
   const s = pose[`${side}_shoulder`];
-  const none = { raised: false, up: false, wrist: null, elbow: null };
+  const none = { raised: false, up: false, wrist: null, elbow: null, shoulder: null, torso };
   if (!torso || !ok(w, HAND_SCORE) || !ok(e, HAND_SCORE) || !ok(s, HAND_SCORE)) return none;
-  const raised = w.y < e.y && w.y < s.y + 0.2 * torso;
+  const raised = w.y < s.y + GUN_LOWEST * torso && w.y - e.y < FOREARM_DROP * torso;
   if (!raised) return none;
   const nose = pose.nose;
   const up = ok(nose, HAND_SCORE) && w.y < nose.y - 0.35 * torso && Math.abs(w.x - e.x) < 0.25 * torso;
-  return { raised, up, wrist: { x: w.x, y: w.y }, elbow: { x: e.x, y: e.y } };
+  return { raised, up, wrist: { x: w.x, y: w.y }, elbow: { x: e.x, y: e.y }, shoulder: { x: s.x, y: s.y }, torso };
 }
 
 

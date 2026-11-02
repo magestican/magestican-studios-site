@@ -115,7 +115,7 @@ if (skipTo || phase > 1) {
 }
 
 
-let aim = new Aim({ width: 640, height: 480 });
+let aim = new Aim();
 const smoother = new PoseSmoother();
 
 let hands = null;
@@ -130,7 +130,7 @@ async function startCamera() {
     video.srcObject = stream;
     await video.play();
     estimator = await createPoseEstimator(plan);
-    aim = new Aim({ width: video.videoWidth || 640, height: video.videoHeight || 480 });
+    aim = new Aim();
     mode.setCamera(true);
     poseLoop();
   } catch (err) {

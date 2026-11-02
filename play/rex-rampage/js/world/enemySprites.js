@@ -32,6 +32,8 @@ export const SPRITES = {
   
   plate: { sheet: 'iron-plate', side: 1.4, frames: ['plate'], poses: onePose('plate') },
   jaw: { sheet: 'iron-rig', side: 3, frames: ['rig'], poses: onePose('rig') },
+  
+  rocket: { sheet: 'rocket', side: 1.4, frames: ['rocket'], poses: onePose('rocket') },
 };
 
 
