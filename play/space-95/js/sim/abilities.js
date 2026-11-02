@@ -12,6 +12,10 @@ import { glideVy } from './wind.js';
 
 const ABILITIES = ['double', 'dash', 'wall', 'pound', 'glide', 'tether', 'lantern', 'drill'];
 
+
+
+export const TOOL_DEBUT = Object.freeze({ double: 3, pound: 4, dash: 5, glide: 6, wall: 8, tether: 11, lantern: 14, drill: 16 });
+
 const DOUBLE_JUMP_HEIGHT = 2.0; 
 const DOUBLE_JUMP_V = Math.sqrt(2 * GRAVITY * DOUBLE_JUMP_HEIGHT);
 const DASH_SPEED = 16; 

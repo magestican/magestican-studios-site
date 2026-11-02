@@ -4,6 +4,7 @@
 
 
 import './kinds.js';
+import { TOOL_DEBUT } from './abilities.js';
 import { attachArena, initArena, stepArena } from './arena.js';
 import { attachBlooms, createBlooms, stepBlooms } from './bloom.js';
 import { INVULN_TIME } from './combat.js';
@@ -66,6 +67,9 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
       (level.mode === 'train' || (level.descent ? start.y < d.y : level.vertical ? start.y > d.y : dir * (start.x - d.x) > 0))
     )
       abilities.add(d.grant);
+  
+  
+  for (const d of level.entities ?? []) if (d.kind === 'ability' && TOOL_DEBUT[d.grant] < level.id) abilities.add(d.grant);
   player.abilities = abilities;
   
   const [startBoss, startPhase] = start.phase ? start.phase.split(':') : [];

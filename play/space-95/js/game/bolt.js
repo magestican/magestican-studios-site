@@ -4,6 +4,8 @@
 
 
 
+import { TOOL_DEBUT } from '../sim/abilities.js';
+
 const LINES = {
   shiftStart: [
     'Clocking in. Coffee module: empty.',
@@ -186,10 +188,6 @@ const TEACH = new Set([
 
 
 
-const FIRST_GIVEN = { double: 3, pound: 4, dash: 5, glide: 6, wall: 8, tether: 11, lantern: 14, drill: 16 };
-
-
-
 
 
 export function createBoltVoice(shift = 0) {
@@ -205,7 +203,9 @@ export function createBoltVoice(shift = 0) {
     
     onEvent(e, dt = 0) {
       cooldown = Math.max(0, cooldown - dt);
-      if (e.type === 'ability' && shift > FIRST_GIVEN[e.grant]) return null;
+      
+      
+      if (e.type === 'ability' && shift > TOOL_DEBUT[e.grant]) return null;
       const teach = TEACH.has(e.type) && !used[e.type] && (e.type !== 'noPoints' || e.first !== false);
       const important =
         e.type === 'secret' ||

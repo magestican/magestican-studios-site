@@ -12,6 +12,7 @@ import { sparkState } from '../sim/pins.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
 import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js';
+import { bossLabelPosition } from './bossLabel.js';
 import { burrowEntityView, createBurrow } from './burrowView.js';
 import { createCameraRig, rideLead, updateCameraRig } from './cameraRig.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
@@ -660,7 +661,7 @@ export function entityView(e) {
     );
     halo.position.set(0, r, 0.5);
     halo.name = 'halo';
-    g.add(body, hat, halo, textSprite(e.name ?? 'Dustmite Matriarch'));
+    g.add(body, hat, halo, bossLabel(e.name ?? 'Dustmite Matriarch', r * 2.4));
   } else if (e.kind === 'hook') {
     
     const ring = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.05, 8, 20), mat(0xc9a45a));
@@ -731,7 +732,7 @@ export function entityView(e) {
     );
     halo.position.set(0, h / 2, 0.5);
     halo.name = 'halo';
-    g.add(body, head, hat, arms, halo, textSprite(e.name ?? 'The Gardener Mantis'));
+    g.add(body, head, hat, arms, halo, bossLabel(e.name ?? 'The Gardener Mantis', h * 1.05 + 0.06));
   } else if (e.kind === 'strider') {
     
     const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.6, 4, 8), mat(e.commodore ? 0xf4f0ff : 0x5a4a3a));
@@ -843,7 +844,7 @@ export function entityView(e) {
     );
     halo.position.set(0, (e.h ?? 1.6) / 2, 0.5);
     halo.name = 'halo';
-    g.add(body, crown, wings, halo, textSprite(e.name ?? 'Duchess Mandibella'));
+    g.add(body, crown, wings, halo, bossLabel(e.name ?? 'Duchess Mandibella', (e.h ?? 1.6) + 0.25));
   } else if (e.kind === 'boss') {
     
     const body = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), mat(0x6b4a2b));
@@ -857,7 +858,7 @@ export function entityView(e) {
     );
     halo.position.set(0, (e.h ?? 1.8) / 2, 0.5);
     halo.name = 'halo';
-    g.add(body, hat, halo, textSprite(e.name ?? 'Boss'));
+    g.add(body, hat, halo, bossLabel(e.name ?? 'Boss', (e.h ?? 1.8) * 0.95 + 0.5));
   } else {
     
     const m = new THREE.Mesh(new THREE.SphereGeometry(Math.max(0.15, (e.w ?? 0.4) / 2), 12, 8), mat(0x9aa3c7));
@@ -1564,6 +1565,14 @@ export function textSprite(text) {
   const scale = 0.011;
   s.scale.set(w * scale, 72 * scale, 1);
   s.position.set((w * scale) / 2 - 0.2, 2.4, 0);
+  return s;
+}
+
+
+function bossLabel( text,  top) {
+  const s = textSprite(text);
+  const { x, y } = bossLabelPosition(top);
+  s.position.set(x, y, 0);
   return s;
 }
 
