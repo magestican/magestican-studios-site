@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Lamplighters - a live picture logic duel, free online</title>
+  <meta name="description" content="Lamplighters is a picture logic duel on one shared tower: read the clues, light the right windows and close each line before your rival. Play a bot or a friend, free, with no download.">
+  <meta name="build" content="2a98c1c6-20261102T022341Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/lamplighters/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Lamplighters - a live picture logic duel">
+  <meta property="og:description" content="Two crews, one tower, one hidden picture. Read the clues, light the windows and close each line first.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/lamplighters/">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Play Lamplighters - a live picture logic duel">
+  <meta name="twitter:description" content="Two crews, one tower, one hidden picture. Read the clues, light the windows and close each line first.">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  
+
+  <script src="../shared/ui/boot.js?v=2a98c1c6-20261102T022341Z" data-game="lamplighters"></script>
+  <link rel="stylesheet" href="./src/style.css?v=2a98c1c6-20261102T022341Z">
+</head>
+<body>
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+    <a class="studio-back" id="rules-link" href="#how" data-t="how">How to play</a>
+  </div>
+
+  <main class="ll" id="app">
+    
+    <section class="ll-setup mg-own" id="setup" hidden>
+      <header class="ll-head">
+        <h1>Lamplighters</h1>
+        <p id="pitch"></p>
+      </header>
+
+      <div class="ll-card">
+        <h2 id="size-h"></h2>
+        <div class="ll-chips" id="sizes" role="group"></div>
+        <h2 id="tower-h"></h2>
+        <div class="ll-chips" id="towers" role="group"></div>
+      </div>
+
+      <div class="ll-card" id="solo-card">
+        <h2 id="rival-h"></h2>
+        <div class="ll-chips" id="rivals" role="group"></div>
+        <button class="ll-go skin-stone-button_primary" id="start-bot" type="button"></button>
+      </div>
+
+      <div class="ll-card" id="room-start">
+        <h2 id="friend-h"></h2>
+        <button class="ll-btn skin-stone-button_secondary" id="create-room" type="button"></button>
+        <form class="ll-join" id="join-form">
+          <input class="skin-stone-text_input" id="join-code" type="text" autocomplete="off" autocapitalize="characters" maxlength="24" aria-labelledby="friend-h">
+          <button class="ll-btn skin-stone-button_secondary" id="join-btn" type="submit"></button>
+        </form>
+      </div>
+
+      <div class="ll-card" id="room-live" hidden>
+        <h2 id="room-h"></h2>
+        <p class="ll-code"><span id="room-code">-</span> <span class="ll-pill" id="watchers" hidden></span></p>
+        <p class="ll-status" id="room-status" role="status"></p>
+        <div class="ll-row">
+          <button class="ll-btn skin-stone-button_secondary" id="copy-link" type="button"></button>
+          <button class="ll-btn skin-stone-button_secondary" id="watch-link" type="button"></button>
+          <button class="ll-btn skin-stone-button_secondary" id="leave-room" type="button"></button>
+        </div>
+        <button class="ll-go skin-stone-button_primary" id="start-room" type="button" hidden></button>
+      </div>
+
+      <div class="ll-card" id="how">
+        <h2 id="how-h"></h2>
+        <ul id="how-list"></ul>
+      </div>
+    </section>
+
+    
+    <section class="ll-match mg-own" id="match" hidden>
+      <div class="ll-title">
+        <span id="tower-label"></span>
+        <span class="ll-lastcall" id="lastcall" hidden></span>
+        <button class="ll-mini skin-stone-button_secondary" id="quit" type="button"></button>
+      </div>
+      <div class="ll-arena" id="arena">
+        <aside class="ll-crew" id="crew0" data-seat="0"></aside>
+        <div class="ll-boardwrap">
+          <div class="ll-board" id="board" role="grid"></div>
+          <div class="ll-count" id="countdown" aria-live="assertive" hidden></div>
+        </div>
+        <aside class="ll-crew" id="crew1" data-seat="1"></aside>
+      </div>
+      <div class="ll-tools" id="tools">
+        <div class="ll-toggle" role="group">
+          <button class="ll-tool skin-stone-toggle" id="mode-light" type="button"></button>
+          <button class="ll-tool skin-stone-toggle" id="mode-mark" type="button"></button>
+        </div>
+        <button class="ll-tool ll-commit skin-stone-button_primary" id="commit" type="button" hidden></button>
+        <span class="ll-hint" id="hint" role="status"></span>
+      </div>
+    </section>
+
+    
+    <section class="ll-end mg-own" id="end" hidden>
+      <div class="ll-reveal" id="reveal" role="img"></div>
+      <div class="ll-card ll-result">
+        <h2 id="end-title"></h2>
+        <p id="end-picture"></p>
+        <div class="ll-tally" id="tally"></div>
+        <p class="ll-status" id="end-status" role="status"></p>
+        <div class="ll-row" id="end-buttons"></div>
+      </div>
+    </section>
+
+    <p class="ll-toast mg-own" id="toast" role="status" hidden></p>
+  </main>
+
+  <noscript>
+    <p>Lamplighters is a picture logic duel and needs JavaScript; there is nothing to download.</p>
+  </noscript>
+
+  
+
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=2a98c1c6-20261102T022341Z"></script>
+  <script type="module" src="./src/main.js?v=2a98c1c6-20261102T022341Z"></script>
+</body>
+</html>

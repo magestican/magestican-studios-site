@@ -47,6 +47,7 @@
     shogi: { en: 'Shogiwise', es: 'Shogiwise: Shogi', pt: 'Shogiwise: Shogi', tl: 'Shogiwise: Shogi', ja: 'Shogiwise 将棋', ko: 'Shogiwise 쇼기', id: 'Shogiwise: Shogi', vi: 'Shogiwise: Shogi', 'zh-Hant': 'Shogiwise 日本將棋', 'zh-Hans': 'Shogiwise 日本将棋' },
     xiangqi: { en: 'Xiangqiwise', es: 'Xiangqiwise: Xiangqi', pt: 'Xiangqiwise: Xiangqi', tl: 'Xiangqiwise: Xiangqi', ja: 'Xiangqiwise シャンチー', ko: 'Xiangqiwise 샹치', id: 'Xiangqiwise: Xiangqi', vi: 'Xiangqiwise: Cờ tướng', 'zh-Hant': 'Xiangqiwise 中國象棋', 'zh-Hans': 'Xiangqiwise 中国象棋' },
     go: { en: 'Weiqiwise', es: 'Weiqiwise: Go', pt: 'Weiqiwise: Go', tl: 'Weiqiwise: Go', ja: 'Weiqiwise 囲碁', ko: 'Weiqiwise 바둑', id: 'Weiqiwise: Go', vi: 'Weiqiwise: Cờ vây', 'zh-Hant': 'Weiqiwise 圍棋', 'zh-Hans': 'Weiqiwise 围棋' },
+    lamplighters: { en: 'Lamplighters' },
     gomoku: { en: 'Gomowise', es: 'Gomowise: Gomoku', pt: 'Gomowise: Gomoku', tl: 'Gomowise: Gomoku', ja: 'Gomowise \u4e94\u76ee\u4e26\u3079', ko: 'Gomowise \uc624\ubaa9', id: 'Gomowise: Gomoku', vi: 'Gomowise: C\u1edd Caro' },
     minesweeper: { en: 'Sweepwise', es: 'Sweepwise: Buscaminas', pt: 'Sweepwise: Campo Minado', tl: 'Sweepwise: Minesweeper', ja: 'Sweepwise \u30de\u30a4\u30f3\u30b9\u30a4\u30fc\u30d1\u30fc', ko: 'Sweepwise \uc9c0\ub8b0\ucc3e\uae30', id: 'Sweepwise: Minesweeper', vi: 'Sweepwise: D\u00f2 M\u00ecn' },
     'word-chain': { en: 'Relaywise', es: 'Relaywise: Palabras Encadenadas', pt: 'Relaywise: Palavras Encadeadas', tl: 'Relaywise: Word Chain', ja: 'Relaywise \u3057\u308a\u3068\u308a', ko: 'Relaywise \ub05d\ub9d0\uc787\uae30', id: 'Relaywise: Sambung Kata', vi: 'Relaywise: N\u1ed1i T\u1eeb' },
@@ -126,7 +127,7 @@
   
   
   
-  var KITS = { minesweeper: 'stone', gomoku: 'wood', truco: 'wood', buraco: 'wood', conga: 'wood', koikoi: 'lacquer', shogi: 'lacquer', xiangqi: 'lacquer', go: 'lacquer', 'word-chain': 'parchment' };
+  var KITS = { lamplighters: 'stone', minesweeper: 'stone', gomoku: 'wood', truco: 'wood', buraco: 'wood', conga: 'wood', koikoi: 'lacquer', shogi: 'lacquer', xiangqi: 'lacquer', go: 'lacquer', 'word-chain': 'parchment' };
   var kit = data.kit || KITS[data.game] || '';
   if (/^(stone|wood|parchment|lacquer)$/.test(kit) && me && me.src) {
     html.setAttribute('data-kit', kit);
