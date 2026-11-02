@@ -163,7 +163,7 @@ registerKind('board', {
       s.plane.stage = 'taxi'; 
       s.plane.v = SURF.TAXI_V;
     }
-    ctx.events.push({ type: 'board', id: e.id, x: e.x, y: e.y });
+    ctx.events.push({ type: 'board', id: e.id, x: e.x, y: e.y, surf: !!e.surf });
   },
 });
 

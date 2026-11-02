@@ -14,6 +14,7 @@
 
 
 
+
 import { CUE_VARIANTS, cueFor, signalSounds } from './cues.js';
 import { MUSIC_TRACKS } from './musicManifest.js';
 import { SFX } from './sfxManifest.js';
@@ -95,6 +96,8 @@ const ALWAYS_EVENTS = [
   'secret',
   'clear',
 ];
+
+const KIND_EVENTS = { jetpack: ['jetpackOn', 'jetStart', 'jetEmpty'], seed: ['seed'] };
 const ALWAYS_SOUNDS = ['land_soft', 'land_run', 'land_hard', 'bark_climb', 'bolt_beep_happy', 'bolt_beep_curious', 'bolt_boop'];
 
 const delivered = ( n) => n in SFX;
@@ -119,7 +122,8 @@ export function shiftSounds(level) {
   const names = new Set(ALWAYS_SOUNDS);
   const surface = SURFACE[level.id ?? 0] ?? 'dirt';
   names.add(`footstep_${surface}_walk`).add(`footstep_${surface}_run`);
-  for (const type of [...ALWAYS_EVENTS, ...(SHIFT_EVENTS[level.id ?? 0] ?? [])]) {
+  const kinds = (level.entities ?? []).flatMap(( e) => KIND_EVENTS[e.kind] ?? []);
+  for (const type of [...ALWAYS_EVENTS, ...(SHIFT_EVENTS[level.id ?? 0] ?? []), ...new Set(kinds)]) {
     const n = cueFor({ type }, delivered);
     if (n) names.add(n);
     for (const v of CUE_VARIANTS[type] ?? []) if (variantFits(type, level)) names.add(v);

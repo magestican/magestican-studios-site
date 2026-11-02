@@ -124,7 +124,7 @@ const audio = createAudio(undefined, {
 const footsteps = createFootsteps(SURFACE[level.id] ?? 'dirt');
 const gallop = level.ride ? createGallop() : null; 
 const ladder = createLadder();
-const boltVoice = createBoltVoice();
+const boltVoice = createBoltVoice(level.id);
 const boltEl = document.getElementById('bolt');
 let boltHide = 0;
 const boltSay = (line) => {

@@ -18,6 +18,7 @@ import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './cr
 import { createJoSprite } from './joSprite.js';
 import { createKitchen, kitchenEntityView } from './kitchenView.js';
 import { createNight, nightEntityView } from './nightView.js';
+import { restartPosts } from './restartPosts.js';
 import { createRide, rideEntityView } from './rideView.js';
 import { createSilk, silkEntityView } from './silkView.js';
 import { createSky, skyEntityView } from './skyView.js';
@@ -98,6 +99,8 @@ export function createView(canvas, level, labels) {
     const label = labels.find((l) => l.id === cp.id);
     scene.add(beacon(cp, label ? `${cp.id}. ${label.label}` : `${cp.id}`));
   }
+  
+  for (const p of restartPosts(level)) scene.add(beacon(p));
 
   const jo = joPlaceholder();
   scene.add(jo.group);
@@ -256,6 +259,8 @@ export function createView(canvas, level, labels) {
       shoe.update(session, dt);
       sea.update(session);
       jo.shell.visible = !!session.shield;
+      jo.jet.visible = p.jetFuel > 0;
+      jo.jetFlame.visible = !!p.jetOn;
       jo.leaf.visible = !!p.gliding;
       const tt = p.tether;
       const hook = tt ? session.hooks?.find((h) => h.id === tt.hook) : null;
@@ -572,6 +577,16 @@ export function entityView(e) {
     halo.position.set(0, 0.6, 0.4);
     halo.name = 'kickHalo';
     g.add(body, halo);
+  } else if (e.kind === 'jetpack') {
+    
+    const pack = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 0.3, 6, 12), mat(0xf2efe6));
+    const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.2), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
+    core.position.z = 0.2;
+    const spin = new THREE.Group();
+    spin.position.y = 0.4;
+    spin.name = 'spin';
+    spin.add(pack, core);
+    g.add(spin);
   } else if (e.kind === 'shellShield' || e.kind === 'shellShot') {
     const m = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.14, 10, 18), mat(0x7d9bd6));
     m.position.y = 0.35;
@@ -1521,7 +1536,8 @@ function beacon(cp, text) {
   post.position.y = 0.8;
   const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
   lamp.position.y = 1.7;
-  g.add(post, lamp, textSprite(text));
+  g.add(post, lamp);
+  if (text) g.add(textSprite(text));
   g.position.set(cp.x - 0.6, cp.y, -0.2);
   return g;
 }
@@ -1580,6 +1596,16 @@ export function joPlaceholder() {
   shell.position.set(-BODY_W * 0.45, BODY_H * 0.55, -0.01);
   shell.visible = false;
   
+  const jet = new THREE.Group();
+  const jetPack = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.2, 6, 10), new THREE.MeshLambertMaterial({ color: 0xf2efe6 }));
+  const jetFlame = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.4, 10), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
+  jetFlame.position.y = -0.36;
+  jetFlame.rotation.x = Math.PI;
+  jetFlame.visible = false;
+  jet.add(jetPack, jetFlame);
+  jet.position.set(-BODY_W * 0.25, BODY_H * 0.55, -0.02); 
+  jet.visible = false;
+  
   const leaf = new THREE.Mesh(
     new THREE.PlaneGeometry(BODY_W * 2.4, BODY_W * 0.9),
     new THREE.MeshLambertMaterial({ color: 0x5fae3a, side: THREE.DoubleSide }),
@@ -1588,7 +1614,7 @@ export function joPlaceholder() {
   leaf.rotation.x = -Math.PI / 2.4;
   leaf.visible = false;
   for (const m of [suit, scarf, head, visor]) m.userData.placeholder = true; 
-  body.add(suit, scarf, head, visor, shell, leaf);
+  body.add(suit, scarf, head, visor, shell, jet, leaf);
   group.add(body);
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(BODY_W * 0.6, 24),
@@ -1597,5 +1623,5 @@ export function joPlaceholder() {
   shadow.rotation.x = -Math.PI / 2;
   shadow.position.set(0, 0.01, -0.2);
   group.add(shadow);
-  return { group, body, shell, leaf };
+  return { group, body, shell, jet, jetFlame, leaf };
 }

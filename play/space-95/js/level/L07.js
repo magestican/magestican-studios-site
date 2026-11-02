@@ -200,6 +200,9 @@ export function buildL07() {
   L.putAt('finish', 10, 2, { dir: -1 });
   L.landmarkAt('Ship', 7, 2);
 
+  
+  L.jetpackAt(31, 5);
+
   const level = L.build();
   level.waypoints = ROUTE;
   return level;

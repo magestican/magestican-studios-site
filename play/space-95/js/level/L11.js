@@ -228,6 +228,9 @@ export function buildL11() {
   L.putAt('cameo', 812, 12, { who: 'dustmite', zone: { x0: 804, x1: 820, y0: 11, y1: 16 } });
   L.putAt('finish', 812, 12, { name: 'The humming box' });
 
+  
+  L.jetpackAt(671, 21);
+
   const level = L.build();
   level.waypoints = route(hooks);
   level.hookTags = hooks;

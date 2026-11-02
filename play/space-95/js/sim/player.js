@@ -11,6 +11,7 @@ import * as K from './constants.js';
 import { drillStep } from './drill.js';
 import { snareStep } from './enemies/aunt.js';
 import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
+import { jetStep } from './jetpack.js';
 import { spinUnder } from './pins.js';
 import { raftById } from './raft.js';
 import { rideStep, wakeStep } from './slipstream.js';
@@ -53,6 +54,8 @@ export function createPlayer(x, y, facing = 1) {
     abilities: new Set(), 
     ab: abilityState(),
     vyLanding: 0, 
+    jetFuel: 0, 
+    jetOn: false, 
     gliding: false, 
     wasGliding: false,
     
@@ -127,7 +130,7 @@ export function stepPlayer(p, held, world) {
     tryJump(p);
     abilityJumps(p, input, world);
     variableHeight(p, input);
-    if (!abilityGravity(p, input, dir, world)) gravity(p, input);
+    if (!jetStep(p, input) && !abilityGravity(p, input, dir, world)) gravity(p, input);
     if (world.updrafts) windCushion(world, p);
   } else p.ab.glideArm = false;
 

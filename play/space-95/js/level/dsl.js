@@ -451,6 +451,15 @@ export function levelBuilder(meta) {
 
 
 
+    jetpackAt(x, y) {
+      api.putAt('jetpack', x, y);
+      for (const dx of [-6, -4, -2, 0, 2, 4, 6]) api.putAt('seed', x + dx, Math.round((y + 8 - (dx * dx) / 4.5) * 100) / 100);
+      return api;
+    },
+    
+
+
+
 
     beaconAt(x, y, opts = {}) {
       checkpoints.push({

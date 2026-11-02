@@ -280,6 +280,9 @@ export function buildL14() {
   L.putAt('finish', 872, 26, { alive: false, bloomGate: gate.id, name: 'Nav lamp' });
   L.landmarkAt('Giant moonflower', 872, 26);
 
+  
+  L.jetpackAt(411, 29);
+
   const level = L.build();
   level.waypoints = route(ids);
   level.flockTags = ids;

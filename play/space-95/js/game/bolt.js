@@ -140,7 +140,8 @@ const SILL = [
 const CELL = {
   cellSnatch: 'Box one. ...She took the CELL. Box two: get it back!', 
   box2: 'Box two! Box three: fuel. Get the cell into the hatch!', 
-  sovereignOutro: "Box four. ...Look at her go. Shift's over, Jo.", 
+  boarding: 'Box four. Get us OUT of here.', 
+  sovereignOutro: "Look at her go. Shift's over, Jo.", 
 };
 
 
@@ -184,7 +185,14 @@ const TEACH = new Set([
 ]);
 
 
-export function createBoltVoice() {
+
+const FIRST_GIVEN = { double: 3, pound: 4, dash: 5, glide: 6, wall: 8, tether: 11, lantern: 14, drill: 16 };
+
+
+
+
+
+export function createBoltVoice(shift = 0) {
   const used = {};
   let cooldown = 0;
   const pick = (kind, vars = {}) => {
@@ -197,6 +205,7 @@ export function createBoltVoice() {
     
     onEvent(e, dt = 0) {
       cooldown = Math.max(0, cooldown - dt);
+      if (e.type === 'ability' && shift > FIRST_GIVEN[e.grant]) return null;
       const teach = TEACH.has(e.type) && !used[e.type] && (e.type !== 'noPoints' || e.first !== false);
       const important =
         e.type === 'secret' ||
@@ -206,6 +215,7 @@ export function createBoltVoice() {
         e.type === 'bossDefeat' ||
         e.type === 'cellSnatch' || 
         (e.type === 'box' && e.n === 2) || 
+        (e.type === 'board' && e.surf) || 
         teach;
       if (cooldown > 0 && !important) return null;
       let kind = null;
@@ -245,6 +255,11 @@ export function createBoltVoice() {
         cooldown = 4;
         const snatch = e.type === 'cellSnatch';
         return { text: snatch ? CELL.cellSnatch : CELL.box2, beep: 'bolt_beep_happy', mood: snatch ? 'worried' : 'happy' };
+      }
+      if (e.type === 'board' && e.surf) {
+        
+        cooldown = 4;
+        return { text: CELL.boarding, beep: 'bolt_beep_happy', mood: 'worried' };
       }
       if (e.type === 'capBounce' && !used.capBounce) {
         used.capBounce = 1; 

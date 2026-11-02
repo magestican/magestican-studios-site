@@ -32,6 +32,7 @@ import './motifs/collapse.js';
 import './motifs/dew.js';
 import './motifs/flock.js';
 import './motifs/typeKey.js';
+import './jetpack.js';
 import './pickups.js';
 import './readArm.js';
 import './ride.js';
