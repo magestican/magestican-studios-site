@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "2a98c1c6-20261102T022341Z",
+ "buildId": "56af4345-20261102T031831Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -772,6 +772,38 @@
    "bytes": 93711357
   },
   {
+   "id": "rex-rampage",
+   "statsId": "rex-rampage",
+   "title": "Rex Rampage",
+   "tagline": "A dinosaur shooter you aim with your raised hands.",
+   "description": "An on-rails dinosaur shooter that runs in your browser, aimed with your raised hands in front of the camera or by touch. Six stages and a three-phase T. rex boss. Free, no download, and solo for now.",
+   "dir": "play/rex-rampage",
+   "path": "play/rex-rampage/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/rex-rampage.html",
+   "orientation": "any",
+   "players": "1",
+   "online": false,
+   "offline": false,
+   "cover": "assets/covers/rex-rampage-16x9.webp",
+   "focus": [
+    0.5,
+    0.45
+   ],
+   "shots": [
+    "assets/shots/rex-rampage/0.webp",
+    "assets/shots/rex-rampage/1.webp"
+   ],
+   "accent": "#ff5a4a",
+   "glyph": "rex-rampage",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 26,
+   "addedAt": "2026-11-02",
+   "bytes": 51429923
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -799,7 +831,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 27,
+   "order": 28,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -831,7 +863,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 28,
+   "order": 29,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -863,7 +895,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 29,
+   "order": 30,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -895,7 +927,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 30,
+   "order": 31,
    "addedAt": "2026-09-21",
    "bytes": 211807
   }
