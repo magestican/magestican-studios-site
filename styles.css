@@ -1492,7 +1492,19 @@ blockquote.pull {
   
 
   .slide:not(:first-child) .slide-line { display: none; }
+  
+
+
+
+  .slide:not(:first-child) .slide-name { grid-column: 1 / -1; grid-row: 1; }
+  .slide:not(:first-child) .tag-new { grid-column: 1; grid-row: 2; align-self: center; }
+  .slide:not(:first-child) .slide-play { grid-column: 2; grid-row: 2; }
   .feature-dots { display: none; }
+}
+
+
+@media (min-width: 900px) and (max-width: 1059px) {
+  .slide:not(:first-child) .tag-new { display: none; }
 }
 
 
