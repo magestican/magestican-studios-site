@@ -6,7 +6,7 @@ import { THREE } from '../vendor/three-vendor.js';
 import { loadArt } from './art.js';
 import { ART_ROOT } from './artManifest.js';
 import { dressProps } from './dress.js';
-import { BOSS_SPRITE, cellUV, SPRITE_FILL, SPRITES, spritePose } from './enemySprites.js';
+import { BOSS_SPRITE, cellUV, SPRITE_FILL, SPRITES, spritePose, tipsOver } from './enemySprites.js';
 import { LOOK_DROP, vfovFor } from './fov.js';
 import { buildProps } from './props.js';
 import { createTracers } from './tracers.js';
@@ -93,10 +93,17 @@ export function createScene(canvas, stage, plan) {
     .then((tex) => ironJaw.setSheet(tex, BOSS_SPRITE.frames))
     .catch(() => {});
 
+  function dropMesh(m) {
+    scene.remove(m.body, m.ring);
+    m.body.geometry.dispose();
+    m.body.material.dispose();
+    m.sheet?.tex.dispose();
+  }
+
   function enemyMesh(e) {
     const look = KIND_LOOK[e.kind] ?? KIND_LOOK.raptor;
     const sheet = sheets[e.kind];
-    if (sheet && e.state !== 'part') {
+    if (sheet) {
       const side = SPRITES[e.kind].side;
       const tex = sheet.tex.clone();
       tex.repeat.set(1 / sheet.names.length, 1);
@@ -221,6 +228,11 @@ export function createScene(canvas, stage, plan) {
       for (const e of game.enemies) {
         live.add(e.id);
         let m = meshes.get(e.id);
+        
+        if (m && !m.sheet && sheets[e.kind]) {
+          dropMesh(m);
+          m = undefined;
+        }
         if (!m) {
           m = enemyMesh(e);
           meshes.set(e.id, m);
@@ -232,8 +244,10 @@ export function createScene(canvas, stage, plan) {
         m.body.position.set(e.pos.x, centred ? e.pos.y : e.pos.y + lift - e.r, e.pos.z);
         m.body.lookAt(pos.x, m.body.position.y, pos.z);
         if (e.dead) {
-          m.body.rotation.x = Math.min(Math.PI / 2, e.deadT * 4);
-          m.body.position.y -= e.deadT * (e.state === 'part' ? 4 : 0.6);
+          const lying = m.sheet && !tipsOver(SPRITES[e.kind]);
+          if (!lying) m.body.rotation.x = Math.min(Math.PI / 2, e.deadT * 4);
+          if (e.state === 'part') m.body.position.y -= e.deadT * 4;
+          else if (!lying) m.body.position.y -= e.deadT * 0.6;
         }
         if (m.hp !== e.hp) {
           m.hp = e.hp;
@@ -255,10 +269,7 @@ export function createScene(canvas, stage, plan) {
       }
       for (const [id, m] of meshes) {
         if (live.has(id)) continue;
-        scene.remove(m.body, m.ring);
-        m.body.geometry.dispose();
-        m.body.material.dispose();
-        m.sheet?.tex.dispose();
+        dropMesh(m);
         meshes.delete(id);
       }
       for (let i = fx.length - 1; i >= 0; i--) {
