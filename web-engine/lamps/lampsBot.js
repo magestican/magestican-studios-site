@@ -10,6 +10,7 @@
 
 import { UNKNOWN, FILL, EMPTY, solveLine, propagate, rowCells, colCells } from './lampsLogic.js';
 import { CELL } from './lampsMatch.js';
+import { propagateBlock, solveBlockLine } from './lampsBlock.js';
 
 export const BOT_LEVELS = Object.freeze({
   
@@ -57,6 +58,10 @@ function learnPublic(bot, view) {
 
 
 function readLines(bot, view, count) {
+  if (view.kind === 'block') {
+    readBlockLines(bot, view, count);
+    return;
+  }
   const { rows, cols, rowClues, colClues } = view;
   if (count === Infinity) {
     const { grid, contradiction } = propagate(rowClues, colClues, bot.known);
@@ -77,19 +82,45 @@ function readLines(bot, view, count) {
 }
 
 
+function readBlockLines(bot, view, count) {
+  if (count === Infinity) {
+    const { grid, contradiction } = propagateBlock(view.lines, view.state.length, bot.known);
+    if (!contradiction) bot.known = grid;
+    return;
+  }
+  const open = view.lines.filter((l) => l.cells.some((i) => bot.known[i] === UNKNOWN));
+  for (let n = 0; n < count && open.length; n++) {
+    const k = Math.floor(bot.rand() * open.length);
+    const [line] = open.splice(k, 1);
+    const solved = solveBlockLine(line, line.cells.map((i) => bot.known[i]));
+    if (!solved) continue;
+    line.cells.forEach((i, x) => { if (solved[x] !== UNKNOWN) bot.known[i] = solved[x]; });
+  }
+}
+
+
 function remaining(view, cells, clue) {
   const need = clue.reduce((a, b) => a + b, 0);
   return need - cells.filter((i) => view.state[i] === CELL.LIT).length;
 }
 
-function scoreCell(view, cell, pick) {
+
+function leftOn(view, cell) {
+  if (view.kind === 'block') {
+    return view.lines.filter((l) => l.cells.includes(cell))
+      .map((l) => l.count - l.cells.filter((i) => view.state[i] === CELL.LIT).length);
+  }
   const { rows, cols, rowClues, colClues } = view;
   const r = Math.floor(cell / cols);
   const c = cell % cols;
-  const left = [
+  return [
     remaining(view, rowCells(r, rows, cols), rowClues[r]),
     remaining(view, colCells(c, rows, cols), colClues[c]),
   ];
+}
+
+function scoreCell(view, cell, pick) {
+  const left = leftOn(view, cell);
   const closes = left.filter((n) => n === 1).length;
   if (pick === 'closer') return closes * 100;
   

@@ -21,14 +21,15 @@ import { CHEAT_STATES, applyCheat } from '../../../web-engine/lamps/lampsCheats.
 import { ROLE, roomFromHref, watchLinkFor, watchingLabel } from '../../../web-engine/net/watchers.js';
 import { shareLinkFor } from '../../../web-engine/words/coop.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
-import { applyGameName } from '../../../web-engine/i18n/gameNames.js';
+import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { playUi } from '../../../web-engine/brand/uiSound.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
+import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { createNet, canPlayTogether } from './net.js';
 import { availableBoard, layoutBoard } from './layout.js';
-import { T, count, fill } from './strings.js';
+import { stringsFor, pictureName, count, fill } from './strings.js';
 
 const GAME_ID = 'lamplighters';
 const SETUP_KEY = 'lamplighters-setup-v1';
@@ -46,6 +47,9 @@ const reducedMotion = () => globalThis.matchMedia?.('(prefers-reduced-motion: re
 const codeOf = (id) => String(id ?? '').replace(/^flt-/i, '').toUpperCase();
 const sum = (clue) => clue.reduce((a, b) => a + b, 0);
 
+const lang = gameLang();
+const T = stringsFor(lang);
+document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang;
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
 startVersionChecker({ versionUrl: './version.json', label: 'A new version of Lamplighters is available.' });
@@ -561,10 +565,10 @@ function showEnd() {
     }
   }
   rev.replaceChildren(frag);
-  rev.setAttribute('aria-label', finished ? fill(T.revealAlt, { name: picture.name }) : T.noPicture);
+  rev.setAttribute('aria-label', finished ? fill(T.revealAlt, { name: pictureName(lang, picture) }) : T.noPicture);
 
   $('end-title').textContent = endTitle();
-  $('end-picture').textContent = finished ? fill(T.pictureWas, { name: picture.name }) : T.noPicture;
+  $('end-picture').textContent = finished ? fill(T.pictureWas, { name: pictureName(lang, picture) }) : T.noPicture;
   $('tally').replaceChildren(...[0, 1].map((seat) => {
     const el = document.createElement('div');
     const name = document.createElement('span');
@@ -1037,8 +1041,7 @@ if (linkRoom) {
 bootDone();
 
 
-
-
+mountLevelScene({ levels: ['night'], base: './assets/scene' });
 
 
 globalThis.lamplighters = Object.freeze({

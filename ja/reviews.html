@@ -129,8 +129,8 @@
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=3ee51d10-20261102T220834Z">
-  <link rel="stylesheet" href="/magazine.css?v=3ee51d10-20261102T220834Z">
+  <link rel="stylesheet" href="/styles.css?v=ae0a6899-20261102T225711Z">
+  <link rel="stylesheet" href="/magazine.css?v=ae0a6899-20261102T225711Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body class="mag-body">
@@ -203,6 +203,7 @@
         <li><a href="#space-95">Space 95</a> &mdash; 宇宙での9時5時のお仕事を描く2.5D横スクロールアクション、まだ評価していません</li>
         <li><a href="#magic-mirror-moves">Magic Mirror Moves</a> &mdash; 子ども向けのカメラで変身して体を動かすゲーム、まだ評価していません</li>
         <li><a href="#rex-rampage">Rex Rampage</a> &mdash; 両手を上げて狙う恐竜レールシューティング、今は1人用</li>
+        <li><a href="#lamplighters">Lamplighters お絵かきロジック</a> &mdash; 1つのタワーを共有し、ライバルチームや友だちと競う絵のロジック対決</li>
       </ul>
       <p>以下の各項目では、そのゲームの内容、うまくいっていると思う点、そして現時点で問題がある点を記しています。最後の部分だけが書く上で何かを差し出す必要があるものであり、このページが存在する理由でもあります。</p>
     </section>
@@ -947,6 +948,38 @@
       <p><a class="rev-play" href="/play/rex-rampage/?lang=ja">Rex Rampage をプレイ &rarr;</a> &middot; <a href="/rex-rampage.html">詳しく見る</a></p>
     </article>
 
+    
+    <article class="rev-game" id="lamplighters">
+      <h2>Lamplighters お絵かきロジック</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">今すぐプレイ可能</span>
+        <span>パズル &middot; 1&ndash;2人 &middot; ライバルチームまたはオンラインの友だち</span>
+      </p>
+
+      <h3>概要</h3>
+      <p>Lamplighters お絵かきロジック は絵のロジック対決です。2つのチームが隠れた1枚の絵を同時に灯し、ライバルチームか友だちと競います。先に評価を言うと、10 x 10 のタワーはプレッシャーの中で読み合う本物の勝負で、いちばん小さなタワーはそれを見せるには短すぎます。</p>
+
+      <h3>対応環境</h3>
+      <ul>
+        <li><strong>列を閉じる得点があるので、どの窓を選ぶかが重要です。</strong> 行か列を閉じると2点なので、確定できる窓でも相手にお膳立てしてしまうなら悪手になります。10 x 10 では、そのお膳立てを避けるだけのテスト相手が、同じ強さの相手に81パーセントの試合で勝ちました。</li>
+        <li><strong>ヒューズがあるので、当てずっぽうは得策ではありません。</strong> ミスのたびに長く止まり、消えた窓を相手に無料で見せることになります。300ミリ秒ごとにやみくもにタップするスクリプトは、10 x 10 では点灯夫に10試合中9試合で負け、15 x 15 では全試合で負けました。</li>
+        <li><strong>ラストコールが終盤をひっくり返します。</strong> 点灯が75パーセントを超えると、ラインボーナスが2倍になり、ミスすると自分の窓が1つ消えることがあります。テスト試合では、その時点でリードしていた側が約3回に1回は負けました。</li>
+      </ul>
+
+      <h3>問題点</h3>
+      <ul>
+        <li><strong>5 x 5 のタワーは物足りません。</strong> ここではやみくもなタップが点灯夫におよそ半分の確率で勝ちます。長い停止が来る前に窓がなくなるからです。ルールを覚えるのに使ったら、上のサイズへ進んでください。</li>
+        <li><strong>相手の速さはスクリプトで決めました。</strong> 人のプレイは反映していないので、見習いの強さが合わないと感じるかもしれません。</li>
+        <li><strong>まだ何も得られません。</strong> このサイトではプレイ回数を数えておらず、ゲームにバッジもありません。ゲームの文章は8言語ありますが、英語以外の7言語はネイティブの読者が確認していません。</li>
+      </ul>
+
+      <div class="rev-verdict">
+        <strong>総評</strong>
+        <p>10 x 10 のタワーで点灯夫と戦ってから、友だちに招待リンクを送ってください。悔しがってくれる相手とのレースのほうが楽しいからです。ルールを覚えたら 5 x 5 のタワーは飛ばしましょう。</p>
+      </div>
+      <p><a class="rev-play" href="/play/lamplighters/?lang=ja">Lamplighters お絵かきロジック をプレイ &rarr;</a> &middot; <a href="/lamplighters.html">詳しく見る</a></p>
+    </article>
+
     <section class="rev-game" id="method">
       <h2>このページに点数がない理由</h2>
       <p>星評価も、10点満点の点数も、平均点もありません。これは見落としではなく、その不在が目立つため説明しておく価値があります。</p>
@@ -967,7 +1000,7 @@
 
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="サイト"><ul><li><a href="/ja/#games">ゲーム</a></li><li><a href="/you.html">マイゲーム</a></li><li><a href="/ja/for-remote-teams.html">チーム向け</a></li><li><a href="/ja/magazine/">マガジン</a></li><li><a href="/ja/about.html">スタジオについて</a></li><li><a href="/ja/reviews.html">レビュー</a></li></ul></nav>
-    <nav class="footer-games" aria-label="すべてのゲーム"><ul><li><a href="/ja/farmyshoot.html">Splatbarn</a></li><li><a href="/ja/farmy-uprising.html">Hoofrise</a></li><li><a href="/ja/farmy-evil-hills.html">イービルヒルズ</a></li><li><a href="/ja/farmykart.html">Kartzoom カートレース</a></li><li><a href="/ja/farmy-tiles.html">Letterloft 単語ボードゲーム</a></li><li><a href="/ja/farmy-crosswords.html">Wordburrow クロスワード</a></li><li><a href="/ja/farmy-chess.html">Rookwise チェス</a></li><li><a href="/ja/farmy-checkers.html">Jumpwise チェッカー</a></li><li><a href="/ja/farmy-ludo.html">Pawnrush ルドー</a></li><li><a href="/ja/minesweeper-online.html">Sweepwise マインスイーパー</a></li><li><a href="/ja/gomoku-online.html">Gomowise 五目並べ</a></li><li><a href="/ja/shiritori.html">Relaywise しりとり</a></li><li><a href="/ja/truco.html">Trucowise トゥルーコ</a></li><li><a href="/ja/buraco.html">Buracowise ブラーコ</a></li><li><a href="/ja/conga.html">Congawise コンガ</a></li><li><a href="/ja/koikoi.html">Hanawise こいこい 花札</a></li><li><a href="/ja/shogi.html">Shogiwise 将棋</a></li><li><a href="/ja/xiangqi.html">Xiangqiwise シャンチー</a></li><li><a href="/ja/go.html">Weiqiwise 囲碁</a></li><li><a href="/ja/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/ja/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/ja/farmy-moon-life.html">ムーンライフ</a></li><li><a href="/ja/silk-and-seam.html">Silk & Seam</a></li><li><a href="/ja/dachis.html">Dachis</a></li><li><a href="/ja/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/rex-rampage.html">Rex Rampage</a></li><li><a href="/ja/farmy-five.html">Guesswise 単語当て</a></li><li><a href="/ja/farmy-hive.html">Combword ハチの巣パズル</a></li><li><a href="/ja/farmy-herds.html">Groupseek 仲間分け</a></li><li><a href="/ja/farmy-furrows.html">Gridseek 単語探し</a></li></ul></nav>
+    <nav class="footer-games" aria-label="すべてのゲーム"><ul><li><a href="/ja/farmyshoot.html">Splatbarn</a></li><li><a href="/ja/farmy-uprising.html">Hoofrise</a></li><li><a href="/ja/farmy-evil-hills.html">イービルヒルズ</a></li><li><a href="/ja/farmykart.html">Kartzoom カートレース</a></li><li><a href="/ja/farmy-tiles.html">Letterloft 単語ボードゲーム</a></li><li><a href="/ja/farmy-crosswords.html">Wordburrow クロスワード</a></li><li><a href="/ja/farmy-chess.html">Rookwise チェス</a></li><li><a href="/ja/farmy-checkers.html">Jumpwise チェッカー</a></li><li><a href="/ja/farmy-ludo.html">Pawnrush ルドー</a></li><li><a href="/ja/minesweeper-online.html">Sweepwise マインスイーパー</a></li><li><a href="/ja/gomoku-online.html">Gomowise 五目並べ</a></li><li><a href="/ja/shiritori.html">Relaywise しりとり</a></li><li><a href="/ja/truco.html">Trucowise トゥルーコ</a></li><li><a href="/ja/buraco.html">Buracowise ブラーコ</a></li><li><a href="/ja/conga.html">Congawise コンガ</a></li><li><a href="/ja/koikoi.html">Hanawise こいこい 花札</a></li><li><a href="/ja/shogi.html">Shogiwise 将棋</a></li><li><a href="/ja/xiangqi.html">Xiangqiwise シャンチー</a></li><li><a href="/ja/go.html">Weiqiwise 囲碁</a></li><li><a href="/ja/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/ja/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/ja/farmy-moon-life.html">ムーンライフ</a></li><li><a href="/ja/silk-and-seam.html">Silk & Seam</a></li><li><a href="/ja/dachis.html">Dachis</a></li><li><a href="/ja/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/rex-rampage.html">Rex Rampage</a></li><li><a href="/lamplighters.html">Lamplighters お絵かきロジック</a></li><li><a href="/ja/farmy-five.html">Guesswise 単語当て</a></li><li><a href="/ja/farmy-hive.html">Combword ハチの巣パズル</a></li><li><a href="/ja/farmy-herds.html">Groupseek 仲間分け</a></li><li><a href="/ja/farmy-furrows.html">Gridseek 単語探し</a></li></ul></nav>
     <p>Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br> Magestican StudiosおよびMagestican Studiosのロゴは、オーストラリアのUltra Task Pty Ltdの商標です。</p>
     <p class="colophon">このサイトは静的です &middot; クッキーなし、匿名の集計のみ(<a href="/ja/privacy.html">詳しく</a>) &middot; <a href="https://www.youtube.com/@ameliagurl">AmeliaのYouTube</a>
     </p>
@@ -983,7 +1016,7 @@
     initAnalytics({ page: 'ja-reviews' });
     trackPlayClicks();
   </script>
-  <script type="module" src="/assets/studioBanner.js?v=3ee51d10-20261102T220834Z"></script>
+  <script type="module" src="/assets/studioBanner.js?v=ae0a6899-20261102T225711Z"></script>
   <script>
     
     

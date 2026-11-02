@@ -90,6 +90,9 @@ export const GAME_NAMES = Object.freeze({
   
   
   go: { en: 'Weiqiwise', es: 'Weiqiwise: Go', pt: 'Weiqiwise: Go', tl: 'Weiqiwise: Go', ja: 'Weiqiwise 囲碁', ko: 'Weiqiwise 바둑', id: 'Weiqiwise: Go', vi: 'Weiqiwise: Cờ vây', 'zh-Hant': 'Weiqiwise 圍棋', 'zh-Hans': 'Weiqiwise 围棋' },
+  
+  
+  lamplighters: { en: 'Lamplighters', es: 'Lamplighters: Nonogramas', pt: 'Lamplighters: Nonogramas', tl: 'Lamplighters: Nonogram', ja: 'Lamplighters お絵かきロジック', ko: 'Lamplighters 네모로직', id: 'Lamplighters: Nonogram', vi: 'Lamplighters: Nonogram' },
   minesweeper: { en: 'Sweepwise', es: 'Sweepwise: Buscaminas', pt: 'Sweepwise: Campo Minado', tl: 'Sweepwise: Minesweeper', ja: 'Sweepwise マインスイーパー', ko: 'Sweepwise 지뢰찾기', id: 'Sweepwise: Minesweeper', vi: 'Sweepwise: Dò Mìn' },
   'farmy-furrows': { en: 'Gridseek', es: 'Gridseek: Sopa de Letras', pt: 'Gridseek: Caça-Palavras', ja: 'Gridseek 単語探し', ko: 'Gridseek 단어 찾기', id: 'Gridseek: Cari Kata', vi: 'Gridseek: Tìm Chữ' },
 });

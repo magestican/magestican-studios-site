@@ -25,6 +25,8 @@ const CREW_GAP_PX = 24;
 const PHONE_CHROME_PX = 254;
 const DESK_CHROME_PX = 184;
 
+export const BOARD_SLAB_PX = 6;
+
 const DIGIT_EM = 0.62;
 const NUMBER_GAP_EM = 0.45;
 const LINE_EM = 1.2;
@@ -55,8 +57,8 @@ export function availableBoard(viewW, viewH) {
   const sides = crewsBeside ? 2 * (CREW_PANEL_PX + CREW_GAP_PX) : 0;
   return {
     crewsBeside,
-    width: Math.max(0, viewW - 2 * PAGE_GUTTER_PX - sides),
-    height: Math.max(0, viewH - (crewsBeside ? DESK_CHROME_PX : PHONE_CHROME_PX)),
+    width: Math.max(0, viewW - 2 * PAGE_GUTTER_PX - sides - 2 * BOARD_SLAB_PX),
+    height: Math.max(0, viewH - (crewsBeside ? DESK_CHROME_PX : PHONE_CHROME_PX) - 2 * BOARD_SLAB_PX),
   };
 }
 

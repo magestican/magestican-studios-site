@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "3ee51d10-20261102T220834Z",
+ "buildId": "ae0a6899-20261102T225711Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -804,6 +804,38 @@
    "bytes": 51442688
   },
   {
+   "id": "lamplighters",
+   "statsId": "lamplighters",
+   "title": "Lamplighters",
+   "tagline": "A picture logic duel: two crews race to light one hidden picture.",
+   "description": "A picture logic duel that runs in your browser: two crews race to light the same hidden picture on one night-time tower, at the same moment, with no turns. Three tower sizes, three rival crews, or a friend in a room.",
+   "dir": "play/lamplighters",
+   "path": "play/lamplighters/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/lamplighters.html",
+   "orientation": "any",
+   "players": "1-2",
+   "online": true,
+   "offline": false,
+   "cover": "assets/covers/lamplighters-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/lamplighters/0.webp",
+    "assets/shots/lamplighters/1.webp"
+   ],
+   "accent": "#ffb547",
+   "glyph": "lamplighters",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 27,
+   "addedAt": "2026-11-02",
+   "bytes": 312928
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -831,7 +863,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 28,
+   "order": 29,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -863,7 +895,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 29,
+   "order": 30,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -895,7 +927,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 30,
+   "order": 31,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -927,7 +959,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 31,
+   "order": 32,
    "addedAt": "2026-09-21",
    "bytes": 211807
   }

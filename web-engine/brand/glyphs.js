@@ -94,6 +94,8 @@ export const GLYPHS = Object.freeze({
   
   'rex-rampage': 'M12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM12 2v6M12 16v6M2 12h6M16 12h6',
   
+  lamplighters: 'M6 3h12v18H6zM12 3v18M6 12h12',
+  
   'farmy-five': 'M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM14.5 7.5h-5l-.5 4.5c1.5-1 5-1 5 2.25S10.5 18 9 16.5',
   
   'farmy-hive': 'M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9zM12 8.5l3 1.75v3.5L12 15.5l-3-1.75v-3.5z',

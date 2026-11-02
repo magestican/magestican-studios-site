@@ -25,6 +25,7 @@
 
 
 import { cluesOf, rowCells, colCells } from './lampsLogic.js';
+import { dimsOf, shownLines, solutionOf } from './lampsBlock.js';
 
 export const CELL = Object.freeze({
   DARK: 0,  
@@ -54,44 +55,70 @@ export function freezeMsFor(nth, rules = DEFAULT_RULES) {
 export const lastCallAt = (total, rules = DEFAULT_RULES) => Math.ceil(total * rules.lastCallShare);
 
 
-export function createMatch({ lines, rules = DEFAULT_RULES }) {
-  const rows = lines.length;
-  const cols = lines[0].length;
-  const { rowClues, colClues } = cluesOf(lines);
-  const solution = [...lines.join('')].map((ch) => ch === '#');
+
+
+function matchOn({ solution, defs, rules, shape }) {
   const m = {
-    rows,
-    cols,
-    rowClues,
-    colClues,
+    ...shape,
     rules,
     solution,
     total: solution.filter(Boolean).length,
-    state: new Array(rows * cols).fill(CELL.DARK),
-    owner: new Array(rows * cols).fill(-1),
+    state: new Array(solution.length).fill(CELL.DARK),
+    owner: new Array(solution.length).fill(-1),
     order: [], 
     litCount: 0,
     scores: [0, 0],
     wrong: [0, 0],
     frozenUntil: [0, 0],
-    closedRows: new Array(rows).fill(false),
-    closedCols: new Array(cols).fill(false),
+    lineDefs: defs,
+    closedLines: new Array(defs.length).fill(false),
+    linesOf: solution.map(() => []),
     lastCall: false,
     finished: false,
     winner: null,
     draw: false,
   };
+  defs.forEach((d, li) => d.cells.forEach((i) => m.linesOf[i].push(li)));
   
   
-  rowClues.forEach((clue, r) => { if (!clue.length) closeLine(m, rowCells(r, rows, cols), m.closedRows, r); });
-  colClues.forEach((clue, c) => { if (!clue.length) closeLine(m, colCells(c, rows, cols), m.closedCols, c); });
+  defs.forEach((d, li) => { if (d.empty) closeLine(m, li); });
   return m;
 }
 
-function closeLine(m, cells, closed, index) {
-  closed[index] = true;
+
+export function createMatch({ lines, rules = DEFAULT_RULES }) {
+  const rows = lines.length;
+  const cols = lines[0].length;
+  const { rowClues, colClues } = cluesOf(lines);
+  const closedRows = new Array(rows).fill(false);
+  const closedCols = new Array(cols).fill(false);
+  const defs = [
+    ...rowClues.map((clue, r) => ({ cells: rowCells(r, rows, cols), empty: !clue.length, flags: closedRows, kind: 'rows', index: r })),
+    ...colClues.map((clue, c) => ({ cells: colCells(c, rows, cols), empty: !clue.length, flags: closedCols, kind: 'cols', index: c })),
+  ];
+  return matchOn({
+    solution: [...lines.join('')].map((ch) => ch === '#'),
+    defs,
+    rules,
+    shape: { rows, cols, rowClues, colClues, closedRows, closedCols },
+  });
+}
+
+
+export function createBlockMatch({ model, rules = DEFAULT_RULES }) {
+  const dims = dimsOf(model);
+  const solution = solutionOf(model);
+  const clued = shownLines(model);
+  const defs = clued.map((l) => ({ cells: l.cells, empty: l.count === 0, flags: null, kind: null, index: 0 }));
+  return matchOn({ solution, defs, rules, shape: { kind: 'block', dims, blockLines: clued } });
+}
+
+function closeLine(m, li) {
+  const def = m.lineDefs[li];
+  m.closedLines[li] = true;
+  if (def.flags) def.flags[def.index] = true;
   const shut = [];
-  for (const i of cells) {
+  for (const i of def.cells) {
     if (m.state[i] === CELL.DARK) { m.state[i] = CELL.SHUT; shut.push(i); }
   }
   return shut;
@@ -117,23 +144,25 @@ export function fill(m, seat, cell, now) {
 }
 
 function light(m, seat, cell) {
-  const { rules, rows, cols } = m;
+  const { rules } = m;
   m.state[cell] = CELL.LIT;
   m.owner[cell] = seat;
   m.order.push({ seat, cell });
   m.litCount++;
 
-  const r = Math.floor(cell / cols);
-  const c = cell % cols;
   const closed = { rows: [], cols: [] };
+  const closedLines = [];
   const shut = [];
-  const rowLine = rowCells(r, rows, cols);
-  const colLine = colCells(c, rows, cols);
-  if (!m.closedRows[r] && lineDone(m, rowLine)) { closed.rows.push(r); shut.push(...closeLine(m, rowLine, m.closedRows, r)); }
-  if (!m.closedCols[c] && lineDone(m, colLine)) { closed.cols.push(c); shut.push(...closeLine(m, colLine, m.closedCols, c)); }
+  for (const li of m.linesOf[cell]) {
+    const def = m.lineDefs[li];
+    if (m.closedLines[li] || !lineDone(m, def.cells)) continue;
+    closedLines.push(li);
+    if (def.kind) closed[def.kind].push(def.index);
+    shut.push(...closeLine(m, li));
+  }
 
   const bonus = rules.lineBonus * (m.lastCall ? rules.lastCallMultiplier : 1);
-  const points = rules.windowPoints + bonus * (closed.rows.length + closed.cols.length);
+  const points = rules.windowPoints + bonus * closedLines.length;
   m.scores[seat] += points;
 
   
@@ -143,7 +172,7 @@ function light(m, seat, cell) {
 
   const finished = m.litCount === m.total;
   if (finished) finish(m);
-  return { ok: true, correct: true, cell, points, closed, shut, lastCallStarted, finished };
+  return { ok: true, correct: true, cell, points, closed, closedLines, shut, lastCallStarted, finished };
 }
 
 function blow(m, seat, cell, now) {
@@ -160,7 +189,7 @@ function switchOff(m, seat) {
   for (let k = m.order.length - 1; k >= 0; k--) {
     const { seat: s, cell } = m.order[k];
     if (s !== seat) continue;
-    if (m.closedRows[Math.floor(cell / m.cols)] || m.closedCols[cell % m.cols]) continue;
+    if (m.linesOf[cell].some((li) => m.closedLines[li])) continue;
     m.order.splice(k, 1);
     m.state[cell] = CELL.OFF;
     m.owner[cell] = -1;
@@ -185,6 +214,25 @@ function finish(m) {
 
 
 export function publicView(m) {
+  if (m.kind === 'block') {
+    return {
+      kind: 'block',
+      dims: [...m.dims],
+      lines: m.blockLines.map((l) => ({ axis: l.axis, cells: [...l.cells], count: l.count, groups: l.groups })),
+      total: m.total,
+      state: [...m.state],
+      owner: [...m.owner],
+      litCount: m.litCount,
+      scores: [...m.scores],
+      wrong: [...m.wrong],
+      frozenUntil: [...m.frozenUntil],
+      closedLines: [...m.closedLines],
+      lastCall: m.lastCall,
+      finished: m.finished,
+      winner: m.winner,
+      draw: m.draw,
+    };
+  }
   return {
     rows: m.rows,
     cols: m.cols,

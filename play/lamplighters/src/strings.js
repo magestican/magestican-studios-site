@@ -1,6 +1,7 @@
 
 
 
+import { TRANSLATIONS } from './translations.js';
 
 export const T = Object.freeze({
   pitch: 'Race a rival crew to light a hidden picture. Closed lines pay.',
@@ -88,6 +89,14 @@ export const T = Object.freeze({
   emptyClue: 'none',
   revealAlt: 'The finished tower shows {name}',
 });
+
+export const STRINGS = Object.freeze({ en: T, ...TRANSLATIONS });
+
+
+export const stringsFor = (lang) => STRINGS[lang] ?? T;
+
+
+export const pictureName = (lang, picture) => TRANSLATIONS[lang]?.pictures[picture.id] ?? picture.name;
 
 export const fill = (template, vars) => String(template).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
 
