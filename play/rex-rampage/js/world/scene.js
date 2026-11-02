@@ -6,7 +6,20 @@ import { THREE } from '../vendor/three-vendor.js';
 import { loadArt } from './art.js';
 import { ART_ROOT } from './artManifest.js';
 import { dressProps } from './dress.js';
-import { BOSS_SPRITE, cellUV, SPRITE_FILL, SPRITES, spritePose, tipsOver } from './enemySprites.js';
+import {
+  BOSS_DOWN,
+  BOSS_SPRITE,
+  bossAnchor,
+  bossPose,
+  cellUV,
+  GANTRY,
+  gantryPlaneY,
+  RIDER_LIFT,
+  SPRITE_FILL,
+  SPRITES,
+  spritePose,
+  tipsOver,
+} from './enemySprites.js';
 import { LOOK_DROP, vfovFor } from './fov.js';
 import { buildProps } from './props.js';
 import { createTracers } from './tracers.js';
@@ -88,9 +101,15 @@ export function createScene(canvas, stage, plan) {
   const stats = { tracers: 0, impacts: 0 };
   const ironJaw = bossBody();
   scene.add(ironJaw.group, ironJaw.gantry, ironJaw.billboard);
-  texLoader
-    .loadAsync(`${ART_ROOT}sprites/${BOSS_SPRITE.sheet}/sheet.png`)
-    .then((tex) => ironJaw.setSheet(tex, BOSS_SPRITE.frames))
+  const sheetOf = (s) => texLoader.loadAsync(`${ART_ROOT}sprites/${s.sheet}/sheet.png`);
+  Promise.all([sheetOf(BOSS_SPRITE), sheetOf(BOSS_DOWN)])
+    .then(([tex, down]) => ironJaw.setSheet(tex, down))
+    .catch(() => {});
+  sheetOf(SPRITES.varga)
+    .then((tex) => ironJaw.setRider(tex))
+    .catch(() => {});
+  sheetOf(GANTRY)
+    .then((tex) => ironJaw.setGantry(tex))
     .catch(() => {});
 
   function dropMesh(m) {
@@ -290,6 +309,18 @@ export function createScene(canvas, stage, plan) {
 }
 
 
+function sheetPlane(tex, sprite) {
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.magFilter = THREE.NearestFilter;
+  tex.repeat.set(1 / sprite.frames.length, 1);
+  const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide });
+  return new THREE.Mesh(new THREE.PlaneGeometry(sprite.side, sprite.side), mat);
+}
+
+
+
+
+
 function bossBody() {
   const group = new THREE.Group();
   const hide = new THREE.MeshLambertMaterial({ color: 0x9a7a52 });
@@ -318,29 +349,47 @@ function bossBody() {
   varga.position.set(0, 4.7, 1);
   group.add(varga);
   group.visible = false;
-  const gantry = new THREE.Mesh(new THREE.BoxGeometry(4, 1, 2), metal);
+  const gantry = new THREE.Group();
   gantry.visible = false;
-  
+  const gantryBox = new THREE.Mesh(new THREE.BoxGeometry(4, 1, 2), metal);
+  gantryBox.position.y = -0.5;
+  gantry.add(gantryBox);
   const billboard = new THREE.Group();
   billboard.visible = false;
   
   let sheet = null;
+  
+  let rider = null;
   return {
     group,
     gantry,
     billboard,
     
-    setSheet(tex, names) {
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.magFilter = THREE.NearestFilter;
-      tex.repeat.set(1 / names.length, 1);
-      const side = BOSS_SPRITE.side;
-      const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide });
-      const plane = new THREE.Mesh(new THREE.PlaneGeometry(side, side), mat);
-      plane.position.y = (side * SPRITE_FILL) / 2;
-      billboard.add(plane);
+    setSheet(tex, downTex) {
+      const plane = sheetPlane(tex, BOSS_SPRITE);
+      const down = sheetPlane(downTex, BOSS_DOWN);
+      plane.position.y = (BOSS_SPRITE.side * SPRITE_FILL) / 2;
+      down.position.y = (BOSS_DOWN.side * SPRITE_FILL) / 2;
+      billboard.add(plane, down);
       for (const b of blocks) b.visible = false;
-      sheet = { tex, names };
+      sheet = { plane, tex, down };
+    },
+    
+    setRider(tex) {
+      const plane = sheetPlane(tex, SPRITES.varga);
+      plane.position.z = 0.1;
+      const uv = cellUV(SPRITES.varga, SPRITES.varga.poses.idle);
+      tex.repeat.x = uv.repeat;
+      tex.offset.x = uv.offset;
+      billboard.add(plane);
+      rider = { plane, tex };
+    },
+    
+    setGantry(tex) {
+      const plane = sheetPlane(tex, GANTRY);
+      plane.position.set(0, gantryPlaneY(), -0.2);
+      gantry.add(plane);
+      gantryBox.visible = false;
     },
     
     update(boss, cam) {
@@ -348,23 +397,34 @@ function bossBody() {
       gantry.visible = !!boss?.parts.varga;
       billboard.visible = !!boss && !!sheet;
       if (!boss) return;
+      const pose = bossPose(boss);
       if (sheet) {
         billboard.position.set(boss.pos.x, boss.pos.y, boss.pos.z);
         billboard.lookAt(cam.x, boss.pos.y, cam.z);
-        billboard.rotateZ(boss.down ? Math.PI / 2 : 0);
-        const roar = Math.sin(boss.t * 1.5) > 0.6;
-        const pose = boss.down ? BOSS_SPRITE.poses.hurt : roar ? BOSS_SPRITE.poses.attack : BOSS_SPRITE.poses.idle;
-        const uv = cellUV(BOSS_SPRITE, pose);
-        sheet.tex.repeat.x = uv.repeat;
-        sheet.tex.offset.x = uv.offset;
+        sheet.down.visible = boss.down;
+        sheet.plane.visible = !boss.down;
+        if (!boss.down) {
+          const uv = cellUV(BOSS_SPRITE, pose);
+          sheet.tex.repeat.x = uv.repeat;
+          sheet.tex.offset.x = uv.offset;
+        }
+      }
+      if (rider) {
+        rider.plane.visible = !boss.parts.varga;
+        const feet = bossAnchor(pose, 'feet');
+        rider.plane.position.x = feet.x;
+        rider.plane.position.y = feet.y + RIDER_LIFT;
       }
       group.position.set(boss.pos.x, boss.pos.y, boss.pos.z);
       
       group.rotation.set(0, Math.atan2(cam.x - boss.pos.x, cam.z - boss.pos.z) + Math.PI, boss.down ? Math.PI / 2 : 0);
-      varga.visible = !boss.parts.varga;
+      varga.visible = !boss.parts.varga && !rider;
       cigar.material.color.setHex(Math.sin(boss.t * 6) > 0 ? 0xff7a1a : 0xffc04a);
       const v = boss.parts.varga;
-      if (v) gantry.position.set(v.pos.x, v.pos.y - 1.4, v.pos.z);
+      if (v) {
+        gantry.position.set(v.pos.x, v.pos.y - RIDER_LIFT, v.pos.z);
+        gantry.lookAt(cam.x, gantry.position.y, cam.z);
+      }
     },
   };
 }

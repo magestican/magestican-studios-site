@@ -29,7 +29,15 @@ export const SPRITES = {
   },
   merc: { sheet: 'merc', side: 2, frames: PERSON, poses: { idle: 'idle', move: 'walk', attack: 'idle', hurt: 'hurt', dead: 'down' } },
   varga: { sheet: 'varga', side: 2.1, frames: PERSON, poses: { idle: 'idle', move: 'walk', attack: 'idle', hurt: 'hurt', dead: 'down' } },
+  
+  plate: { sheet: 'iron-plate', side: 1.4, frames: ['plate'], poses: onePose('plate') },
+  jaw: { sheet: 'iron-rig', side: 3, frames: ['rig'], poses: onePose('rig') },
 };
+
+
+function onePose(frame) {
+  return { idle: frame, move: frame, attack: frame, hurt: frame, dead: frame };
+}
 
 
 export const BOSS_SPRITE = {
@@ -39,6 +47,61 @@ export const BOSS_SPRITE = {
   flipped: ['hurt'],
   poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt' },
 };
+
+
+export const BOSS_DOWN = { sheet: 'iron-jaw-down', side: 13, frames: ['down'], poses: { dead: 'down' } };
+
+
+export const GANTRY = { sheet: 'gantry', side: 7.3, frames: ['gantry'], poses: { idle: 'gantry' }, deck: [128, 62] };
+
+const CELL = 256;
+
+
+
+
+
+
+
+export const BOSS_ANCHORS = {
+  idle: { head: [196, 172], jaw: [205, 195], feet: [132, 148] },
+  walk: { head: [214, 168], jaw: [212, 185], feet: [150, 157] },
+  attack: { head: [200, 130], jaw: [205, 150], feet: [126, 147] },
+  hurt: { head: [50, 178], jaw: [40, 190], feet: [90, 150] },
+  down: { head: [216, 180], jaw: [222, 200], feet: [156, 186] },
+};
+
+
+export const RIDER_LIFT = (SPRITES.varga.side * SPRITE_FILL) / 2;
+
+
+
+
+
+export function bossAnchor(pose, which) {
+  const { side, flipped } = BOSS_SPRITE;
+  const [px, py] = BOSS_ANCHORS[pose][which];
+  const x = (px / CELL - 0.5) * side;
+  return { x: flipped.includes(pose) ? -x : x, y: (1 - py / CELL) * side - (side * (1 - SPRITE_FILL)) / 2 };
+}
+
+
+
+
+
+export function bossPose(boss) {
+  const { poses } = BOSS_SPRITE;
+  const { state, staggered } = boss.charge;
+  if (boss.down) return BOSS_DOWN.poses.dead;
+  if (state === 'warn') return poses.attack;
+  if (state === 'back' && staggered) return poses.hurt;
+  if (state === 'closing' || state === 'back') return poses.move;
+  return Math.sin(boss.t * 1.5) > 0.6 ? poses.attack : poses.idle;
+}
+
+
+export function gantryPlaneY() {
+  return (GANTRY.deck[1] / CELL - 0.5) * GANTRY.side;
+}
 
 
 
@@ -62,7 +125,7 @@ const MOVING = new Set(['approach', 'enter', 'leave', 'retreat', 'incoming']);
 
 
 export function spriteFiles() {
-  return [...new Set([...Object.values(SPRITES), BOSS_SPRITE].map((s) => `sprites/${s.sheet}/sheet.png`))];
+  return [...new Set([...Object.values(SPRITES), BOSS_SPRITE, BOSS_DOWN, GANTRY].map((s) => `sprites/${s.sheet}/sheet.png`))];
 }
 
 

@@ -6,11 +6,14 @@
 
 
 import { add, scale, v3 } from '../combat/vec.js';
+import { bossAnchor, bossPose } from '../world/enemySprites.js';
 import { spawnEnemy } from './enemy.js';
 
 const FAR = 22; 
 const NEAR = 7; 
 const JAW_UP = 4.2;
+const HEAD_SIDE = bossAnchor('idle', 'head').x; 
+const IN_FRONT = 0.2; 
 const IDLE_S = 2.5;
 const CLOSE_S = 1.2;
 const BACK_S = 1.5;
@@ -50,7 +53,7 @@ export function createIronJaw({ hpScale, makeId, plates = 4 }) {
     adds: [],
     
     parts: { plates: [], jaw: null, varga: null },
-    charge: { state: 'idle', t: 0, hpAtWarn: 0 },
+    charge: { state: 'idle', t: 0, hpAtWarn: 0, staggered: false },
     throwT: 2,
     thrown: 0,
     rocketT: 1.5,
@@ -103,7 +106,7 @@ export function stepIronJaw(boss, dt, cam, d) {
   if (boss.phase === 1 && parts.plates.every((p) => p.dead)) {
     boss.phase = 2;
     parts.jaw = parts.jaw ?? part(boss, 'jaw');
-    boss.charge = { state: 'idle', t: 0, hpAtWarn: 0 };
+    boss.charge = { state: 'idle', t: 0, hpAtWarn: 0, staggered: false };
     events.push({ type: 'boss_phase', phase: 2 });
   }
   if (boss.phase === 2 && parts.jaw?.dead) {
@@ -140,6 +143,7 @@ export function stepIronJaw(boss, dt, cam, d) {
       if (c.hpAtWarn - jaw.hp >= STAGGER_HITS) {
         events.push({ type: 'stagger', pos: jaw.pos });
         endWarn(c, jaw);
+        c.staggered = true;
       } else if (c.t >= d.telegraph) {
         attack = d.rexBite;
         events.push({ type: 'bite', pos: jaw.pos });
@@ -190,6 +194,7 @@ export function stepIronJaw(boss, dt, cam, d) {
 function next(c, state) {
   c.state = state;
   c.t = 0;
+  c.staggered = false;
 }
 
 function endWarn(c, jaw) {
@@ -199,13 +204,27 @@ function endWarn(c, jaw) {
 }
 
 
+
+
+
+
 function place(boss, cam) {
   boss.sway = boss.down ? 0 : 3 * Math.sin(0.6 * boss.t);
-  boss.pos = ahead(cam, boss.dist, boss.sway, 0);
-  const jaw = ahead(cam, boss.dist - 2.2, boss.sway, JAW_UP);
+  boss.pos = ahead(cam, boss.dist, boss.down ? 0 : boss.sway - HEAD_SIDE, 0);
+  const pose = bossPose(boss);
+  const head = bossAnchor(pose, 'head');
+  const jaw = bossAnchor(pose, 'jaw');
   boss.parts.plates.forEach((p, i) => {
-    if (!p.dead) p.pos = ahead(cam, boss.dist - 2.6, boss.sway + PLATE_AT[i][0], JAW_UP + PLATE_AT[i][1]);
+    if (!p.dead) p.pos = onBillboard(boss.pos, cam, head.x + PLATE_AT[i][0], head.y + PLATE_AT[i][1]);
   });
-  if (boss.parts.jaw && !boss.parts.jaw.dead) boss.parts.jaw.pos = jaw;
+  if (boss.parts.jaw && !boss.parts.jaw.dead) boss.parts.jaw.pos = onBillboard(boss.pos, cam, jaw.x, jaw.y);
   if (boss.parts.varga && !boss.parts.varga.dead) boss.parts.varga.pos = ahead(cam, 18, -3, 6);
+}
+
+
+function onBillboard(feet, cam, x, y) {
+  const dx = cam.pos.x - feet.x;
+  const dz = cam.pos.z - feet.z;
+  const l = Math.hypot(dx, dz) || 1;
+  return v3(feet.x + (dz / l) * x + (dx / l) * IN_FRONT, feet.y + y, feet.z - (dx / l) * x + (dz / l) * IN_FRONT);
 }
