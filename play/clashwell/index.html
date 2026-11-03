@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Play Clashwell - a falling-gem duel, free online</title>
+  <meta name="description" content="Clashwell is a falling-gem duel: stack gems, throw punches and hit back in time to clash. Play the CPU or a friend, free, with no download.">
+  <meta name="build" content="a17dbf67-20261103T154546Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/clashwell/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Clashwell - a falling-gem duel">
+  <meta property="og:description" content="Stack gems, throw punches and hit back in time to clash.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/clashwell/">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Play Clashwell - a falling-gem duel">
+  <meta name="twitter:description" content="Stack gems, throw punches and hit back in time to clash.">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  
+
+  <script src="../shared/ui/boot.js?v=a17dbf67-20261103T154546Z" data-game="clashwell"></script>
+  <link rel="stylesheet" href="./src/style.css?v=a17dbf67-20261103T154546Z">
+</head>
+<body>
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+  </div>
+
+  <main class="cw" id="app">
+    <section class="cw-page" id="title" hidden>
+      <header class="cw-head">
+        <h1>Clashwell</h1>
+        <p id="pitch"></p>
+      </header>
+      <button class="cw-go" id="play-now" type="button"></button>
+      <div class="cw-card">
+        <h2 id="friend-h"></h2>
+        <button class="cw-btn" id="create-room" type="button"></button>
+        <form class="cw-join" id="join-form">
+          <input id="join-code" type="text" autocomplete="off" autocapitalize="characters" maxlength="24" aria-labelledby="friend-h">
+          <button class="cw-btn" id="join-btn" type="submit"></button>
+        </form>
+      </div>
+      <div class="cw-card">
+        <h2 id="how-h"></h2>
+        <ul id="how-list"></ul>
+        <p class="cw-dim" id="keys-line"></p>
+        <p class="cw-dim" id="keys-drop"></p>
+      </div>
+    </section>
+
+    <section class="cw-page" id="select" hidden>
+      <div class="cw-card">
+        <h2 id="select-h"></h2>
+        <div class="cw-fighters" id="fighters" role="group"></div>
+        <p class="cw-dim" id="fighter-note"></p>
+      </div>
+      <div class="cw-card">
+        <h2 id="level-h"></h2>
+        <div class="cw-chips" id="levels" role="group"></div>
+      </div>
+      <button class="cw-go" id="fight" type="button"></button>
+      <button class="cw-btn" id="select-back" type="button"></button>
+    </section>
+
+    <section class="cw-page" id="room" hidden>
+      <div class="cw-card">
+        <h2 id="room-h"></h2>
+        <p class="cw-code"><span id="room-code">-</span> <span class="cw-pill" id="watchers" hidden></span></p>
+        <p class="cw-status" id="room-status" role="status"></p>
+        <div class="cw-row" id="host-links">
+          <button class="cw-btn" id="copy-link" type="button"></button>
+          <button class="cw-btn" id="watch-link" type="button"></button>
+        </div>
+      </div>
+      <button class="cw-go" id="start-room" type="button" hidden></button>
+      <button class="cw-btn" id="leave-room" type="button"></button>
+    </section>
+
+    <section class="cw-match" id="match" hidden>
+      <canvas id="stage" aria-label="Clashwell match"></canvas>
+      <div class="cw-matchbar">
+        <span class="cw-pill" id="match-watch" hidden></span>
+        <button class="cw-mini" id="cheer" type="button" hidden></button>
+        <button class="cw-mini" id="quit" type="button"></button>
+      </div>
+      <div class="cw-pad" id="pad" hidden>
+        <button type="button" data-key="left" aria-label="Move left">&#9664;</button>
+        <button type="button" data-key="right" aria-label="Move right">&#9654;</button>
+        <button type="button" data-key="cw" aria-label="Turn">&#8635;</button>
+        <button type="button" data-key="soft" aria-label="Drop faster">&#9660;</button>
+        <button type="button" data-key="hard" aria-label="Drop at once">&#10515;</button>
+      </div>
+    </section>
+
+    <section class="cw-page" id="end" hidden>
+      <div class="cw-card cw-result">
+        <h2 id="end-title"></h2>
+        <p class="cw-score" id="end-score"></p>
+        <p class="cw-status" id="end-note" role="status"></p>
+      </div>
+      <button class="cw-go" id="rematch" type="button"></button>
+      <button class="cw-btn" id="to-title" type="button"></button>
+    </section>
+
+    <p class="cw-toast" id="toast" role="status" hidden></p>
+  </main>
+
+  
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=a17dbf67-20261103T154546Z"></script>
+  <script type="module" src="./src/main.js?v=a17dbf67-20261103T154546Z"></script>
+</body>
+</html>

@@ -9,6 +9,7 @@ export const MUSIC = {
   s2_visitor: 'visitor',
   s3_river: 'river',
   s4_volcano: 'volcano',
+  s4b_ash: 'volcano',
   s5_boss: 'boss',
   stage_clear: 'victory',
 };

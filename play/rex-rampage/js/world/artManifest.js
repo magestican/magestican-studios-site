@@ -75,7 +75,7 @@ export const THEME_ART = {
     skyTint: 0xff8a66, 
     foliage: [],
     props: ['basalt', 'boulder'],
-    vehicles: ['cart', 'tank'],
+    vehicles: ['cart', 'tank', 'jeep', 'heli'],
     surfaces: { rock: { tex: 'basalt_rock', repeat: [2, 2] } },
   },
   stadium: {

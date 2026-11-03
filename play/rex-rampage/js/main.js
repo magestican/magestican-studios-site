@@ -29,9 +29,10 @@ const demo = q.get('demo') === '1';
 const forced = q.get('input');
 const DIFFICULTIES = ['easy', 'normal', 'hard'];
 const urlDifficulty = DIFFICULTIES.includes(q.get('difficulty') ?? '') ? q.get('difficulty') : 'easy';
-const STAGES = ['s0-dropzone', 's1-jungle', 's2-visitor', 's3-river', 's4-volcano', 's5-stadium'];
+const STAGES = ['s0-dropzone', 's1-jungle', 's2-visitor', 's3-river', 's4-volcano', 's4b-ash-road', 's5-stadium'];
+const BOSS_STAGE = STAGES.length - 1;
 const cheat = q.get('cheat');
-const urlStage = cheat === 'boss' ? 5 : Math.min(5, Math.max(0, Math.floor(Number(q.get('stage') ?? 1)) || 0));
+const urlStage = cheat === 'boss' ? BOSS_STAGE : Math.min(BOSS_STAGE, Math.max(0, Math.floor(Number(q.get('stage') ?? 1)) || 0));
 
 
 
@@ -46,7 +47,7 @@ async function openOnline(code) {
 const difficulty =  (
   online && DIFFICULTIES.includes(online.difficulty) ? online.difficulty : urlDifficulty
 );
-const stageNo = online ? Math.min(5, Math.max(0, online.stage)) : urlStage;
+const stageNo = online ? Math.min(BOSS_STAGE, Math.max(0, online.stage)) : urlStage;
 const MAX_SKIP_S = 600; 
 
 
@@ -92,7 +93,7 @@ const hud = createHud( (document.getElementById('hud')), {
   sound,
   onSkip: () => goToStage(stageNo + 1),
   
-  onNext: stageNo < 5 && !online ? () => goToStage(stageNo + 1) : null,
+  onNext: stageNo < BOSS_STAGE && !online ? () => goToStage(stageNo + 1) : null,
 });
 const touch = createTouch(canvas);
 const mode = createModeSwitch({ cameraAvailable: demo });
