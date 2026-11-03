@@ -44,6 +44,17 @@ const IS_PEER_AVAILABLE = () => typeof window !== 'undefined' && !!window.Peer;
 const HEARTBEAT = '__hb';
 
 
+const BYE = '__bye';
+const BYE_FLUSH_MS = 150;
+
+
+
+
+
+
+export const PEER_TIMEOUT_MS = 15000;
+
+
 
 
 
@@ -127,6 +138,9 @@ export class PeerMesh extends EventTarget {
       this._dispatch('error', { message: String(err.type || err) });
     });
     this.peer.on('connection', (conn) => this._onIncoming(conn));
+    
+    this._onPageHide = () => this.broadcast({ t: BYE });
+    globalThis.addEventListener?.('pagehide', this._onPageHide);
   }
 
   host() {
@@ -219,10 +233,7 @@ export class PeerMesh extends EventTarget {
   
   
   _onConnectionGone(id, reason) {
-    const known = this.connections.has(id) || this._peers.has(id);
-    this.connections.delete(id);
-    this._peers.delete(id);
-    if (known) this._dispatch('peer-left', { id });
+    this._forget(id);
     
     
     
@@ -231,12 +242,24 @@ export class PeerMesh extends EventTarget {
     if (change) this._applyHostChange(change);
   }
 
+  
+  _forget(id) {
+    const known = this.connections.has(id) || this._peers.has(id);
+    this.connections.delete(id);
+    this._peers.delete(id);
+    if (known) this._dispatch('peer-left', { id });
+  }
+
   _onData(fromId, msg) {
     
     
     
     this._watch?.see(fromId, this._now());
     if (msg && msg.t === HEARTBEAT) return;
+    if (msg && msg.t === BYE) {
+      this._onConnectionGone(fromId, 'left');
+      return;
+    }
     if (msg && msg.t === 'peer-list') {
       
       for (const pid of msg.peers) {
@@ -292,8 +315,15 @@ export class PeerMesh extends EventTarget {
       if (change) {
         
         
-        if (change.previousHost) this._dispatch('peer-left', { id: change.previousHost });
+        if (change.previousHost) this._forget(change.previousHost);
         this._applyHostChange(change);
+      }
+      for (const id of this._watch?.silentPeers(this._now(), PEER_TIMEOUT_MS, [...this.connections.keys()]) ?? []) {
+        
+        
+        const conn = this.connections.get(id);
+        this._onConnectionGone(id, 'timeout');
+        try { conn?.close(); } catch {  }
       }
     }, HOST_HEARTBEAT_MS);
   }
@@ -313,13 +343,20 @@ export class PeerMesh extends EventTarget {
   
   
   destroy() {
+    if (this._destroyed) return;
+    this.broadcast({ t: BYE });
+    this._destroyed = true;
     clearInterval(this._heartbeatTimer);
     clearInterval(this._pollTimer);
     this._heartbeatTimer = null;
     this._pollTimer = null;
+    if (this._joinTimer) { clearTimeout(this._joinTimer); this._joinTimer = null; }
+    globalThis.removeEventListener?.('pagehide', this._onPageHide);
+    setTimeout(() => { try { this.peer.destroy(); } catch {  } }, BYE_FLUSH_MS);
   }
 
   _dispatch(type, detail) {
+    if (this._destroyed) return;
     this.dispatchEvent(new CustomEvent(type, { detail }));
   }
 }

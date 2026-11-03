@@ -57,20 +57,6 @@ export function groundBeside(stage, d, off) {
 
 
 
-export function rockFreeAt(windows, d, side) {
-  return (windows ?? []).some((w) => w.side === side && d >= w.from && d <= w.to);
-}
-
-
-export function groundAcross(ground, d, off, r) {
-  const ys = [ground(d, off - r), ground(d, off), ground(d, off + r)];
-  return { low: Math.min(...ys), high: Math.max(...ys) };
-}
-
-
-
-
-
 export function terrainStrip(rail, terrain, half, tile = 8) {
   const cols = [
     ...OUTER.map((o) => -(half + SHOULDER_M + o)).reverse(),

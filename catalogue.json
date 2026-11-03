@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "97322042-20261103T124355Z",
+ "buildId": "72ffc605-20261103T145926Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -776,7 +776,7 @@
    "statsId": "rex-rampage",
    "title": "Rex Rampage",
    "tagline": "A dinosaur shooter you aim with your raised hands.",
-   "description": "An on-rails dinosaur shooter that runs in your browser, aimed with your raised hands in front of the camera or by touch. Seven stages and a three-phase T. rex boss. Free, no download, and solo for now.",
+   "description": "An on-rails dinosaur shooter that runs in your browser, aimed with your raised hands in front of the camera or by touch. Six stages and a three-phase T. rex boss. Free, no download, and solo for now.",
    "dir": "play/rex-rampage",
    "path": "play/rex-rampage/index.html",
    "query": "",
@@ -801,7 +801,7 @@
    "ageNote": null,
    "order": 26,
    "addedAt": "2026-11-02",
-   "bytes": 51462946
+   "bytes": 51442688
   },
   {
    "id": "lamplighters",

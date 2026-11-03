@@ -50,14 +50,6 @@ export function loadStage(json) {
     arena: json.arena ?? null,
     
     terrain: json.terrain ?? null,
-    
-    fog: json.fog ?? null,
-    
-    cone: json.cone ?? true,
-    
-    rockFree: json.rockFree ?? null,
-    
-    flares: json.flares ?? null,
   };
 }
 

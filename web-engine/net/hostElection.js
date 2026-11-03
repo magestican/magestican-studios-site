@@ -227,12 +227,33 @@ export class HostWatch {
 
   poll(now) {
     if (this.hostId == null) return null;
+    
     if (this.iAmHost) return null;          
     if (!this.peers.has(this.hostId)) return this._settle('timeout', now);
     if (this.hostSilenceMs(now) <= this.timeoutMs) return null;
     this.peers.delete(this.hostId);
     this.lastSeen.delete(this.hostId);
     return this._settle('timeout', now);
+  }
+
+  
+
+
+
+
+
+
+
+
+  silentPeers(now, timeoutMs, open) {
+    const out = [];
+    for (const raw of open) {
+      const id = String(raw);
+      if (id === this.self || id === this.hostId) continue;
+      const at = this.lastSeen.get(id);
+      if (at != null && now - at > timeoutMs) out.push(id);
+    }
+    return out;
   }
 
   

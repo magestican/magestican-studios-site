@@ -112,42 +112,6 @@ export const LINES = {
     who: 'Dispatch',
     text: "He's running for the stadium. End it there.",
   },
-  s4b_marshal_jeep: {
-    who: 'Marshal',
-    text: "Tank's too slow. Took his jeep.",
-  },
-  s4b_dispatch_convoy: {
-    who: 'Dispatch',
-    text: "Convoy's right below you. Road doubles back.",
-  },
-  s4b_marshal_below: {
-    who: 'Marshal',
-    text: 'Shooting uphill. Bad habit.',
-  },
-  s4b_marshal_eruption: {
-    who: 'Marshal',
-    text: "Mountain's blowing. Even the raptors are running.",
-  },
-  s4b_dispatch_quiet: {
-    who: 'Dispatch',
-    text: "Road's clear, Marshal. Too clear.",
-  },
-  s4b_hawk_rex: {
-    who: 'Hawk',
-    text: "Big fella behind you! Don't look back!",
-  },
-  s4b_marshal_road: {
-    who: 'Marshal',
-    text: "Road's gone. Hawk, any time now.",
-  },
-  s4b_hawk_grab: {
-    who: 'Hawk',
-    text: "Got you, cowboy. That's two you owe me.",
-  },
-  s4b_dispatch_gate: {
-    who: 'Dispatch',
-    text: 'Stadium gate dead ahead. Knock.',
-  },
   s5_varga_welcome: {
     who: 'Varga',
     text: 'Welcome, cowboy. My pet is hungry.',

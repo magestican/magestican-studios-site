@@ -2,7 +2,7 @@
 
 
 import { THREE } from '../vendor/three-vendor.js';
-import { DEFAULT_HALF_M, groundAcross, groundBeside, rockFreeAt, terrainStrip } from './terrain.js';
+import { DEFAULT_HALF_M, groundBeside, terrainStrip } from './terrain.js';
 
 export const THEMES = {
   jungle: { sky: 0x48624a, fog: [18, 130], ground: 0x3f5a2c, path: 0x8a6a45, width: 7 },
@@ -70,7 +70,7 @@ function besideRail(rail, rand, n, near, far, ground = rail.ground ?? ((d, _off)
     const side = rand() < 0.5 ? -1 : 1;
     const off = side * (near + rand() * (far - near));
     const l = Math.hypot(tangent.x, tangent.z) || 1;
-    out.push({ x: pos.x + (-tangent.z / l) * off, z: pos.z + (tangent.x / l) * off, g: ground(d, off), side, d, off });
+    out.push({ x: pos.x + (-tangent.z / l) * off, z: pos.z + (tangent.x / l) * off, g: ground(d, off), side });
   }
   return out;
 }
@@ -93,9 +93,7 @@ function trees(rail, rand, n, near, far) {
 
 
 export function buildProps(scene, stage) {
-  const base = THEMES[stage.theme] ?? THEMES.jungle;
-  
-  const theme = stage.fog ? { ...base, fog: stage.fog } : base;
+  const theme = THEMES[stage.theme] ?? THEMES.jungle;
   const { rail } = stage;
   const rand = rng(7);
   const add = (...o) => scene.add(...o);
@@ -209,57 +207,29 @@ export function buildProps(scene, stage) {
     const near = [];
     for (let d = 0; d <= rail.length; d += 8) near.push(rail.at(d).pos);
     const clear = (gap) => (r) => near.every((p) => Math.hypot(p.x - r.x, p.z - r.z) > gap);
-    const rocks = besideRail(rail, rng(19), Math.ceil(rail.length / 4), 7, 40)
-      .filter(clear(7))
-      .filter((r) => !rockFreeAt(stage.rockFree, r.d, r.side));
+    const rocks = besideRail(rail, rng(19), Math.ceil(rail.length / 4), 7, 40).filter(clear(7));
     add(
       tag(
         'rock',
         instances(new THREE.ConeGeometry(3, 8, 6), lambert(0x3b2f2a), rocks.length, (i, m) => {
           const s = 0.6 + (i % 7) * 0.25;
-          
-          const { low } = groundAcross(rail.ground, rocks[i].d, rocks[i].off, 3 * s);
-          m.makeScale(s, s, s).setPosition(rocks[i].x, low + 4 * s, rocks[i].z);
+          m.makeScale(s, s, s).setPosition(rocks[i].x, rocks[i].g + 4 * s, rocks[i].z);
         }),
       ),
     );
-    const level = (r) => {
-      const { low, high } = groundAcross(rail.ground, r.d, r.off, 4);
-      return high - low < 0.4;
-    };
-    const lava = besideRail(rail, rng(23), Math.ceil(rail.length / 25), 9, 30)
-      .filter(clear(9))
-      .filter(level);
+    const lava = besideRail(rail, rng(23), Math.ceil(rail.length / 25), 9, 30).filter(clear(9));
     add(
       instances(new THREE.CylinderGeometry(4, 4, 0.2, 10), new THREE.MeshBasicMaterial({ color: 0xff5a14 }), lava.length, (i, m) =>
         m.makeScale(1, 1, 1).setPosition(lava[i].x, lava[i].g + 0.05, lava[i].z),
       ),
     );
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(120, 110, 10), lambert(0x2a1d18));
     
-    
-    if (stage.flares) {
-      const edge = (stage.terrain?.half ?? DEFAULT_HALF_M) + 1;
-      const lights = [];
-      for (let d = 0; d < rail.length; d += stage.flares) {
-        const { pos, tangent } = rail.at(d);
-        const l = Math.hypot(tangent.x, tangent.z) || 1;
-        for (const side of [-1, 1])
-          lights.push(pos.x + (-tangent.z / l) * side * edge, rail.ground(d, side * edge) + 0.6, pos.z + (tangent.x / l) * side * edge);
-      }
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(lights), 3));
-      
-      add(new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffc04d, size: 4, sizeAttenuation: false, fog: false })));
-    }
-    if (stage.cone !== false) {
-      const cone = new THREE.Mesh(new THREE.ConeGeometry(120, 110, 10), lambert(0x2a1d18));
-      
-      const { pos: end, tangent: t } = rail.at(rail.length);
-      const tl = Math.hypot(t.x, t.z) || 1;
-      const [fx, fz] = [t.x / tl, t.z / tl];
-      cone.position.set(end.x + fx * 180 + fz * 60, end.y + 30, end.z + fz * 180 - fx * 60);
-      add(tag('rock', cone));
-    }
+    const { pos: end, tangent: t } = rail.at(rail.length);
+    const tl = Math.hypot(t.x, t.z) || 1;
+    const [fx, fz] = [t.x / tl, t.z / tl];
+    cone.position.set(end.x + fx * 180 + fz * 60, end.y + 30, end.z + fz * 180 - fx * 60);
+    add(tag('rock', cone));
   } else if (stage.theme === 'stadium' && stage.arena) {
     const { x, z, r } = stage.arena;
     const tiers = 6;
