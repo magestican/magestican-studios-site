@@ -34,7 +34,16 @@ export const SPRITES = {
   jaw: { sheet: 'iron-rig', side: 3, frames: ['rig'], poses: onePose('rig') },
   
   rocket: { sheet: 'rocket', side: 1.4, frames: ['rocket'], poses: onePose('rocket') },
+  
+  
+  gunboat: { sheet: 'gunboat', side: 9, base: 204, frames: ['gunboat'], poses: onePose('gunboat') },
+  heli: { sheet: 'heli', side: 14, centred: true, frames: ['heli'], poses: onePose('heli') },
 };
+
+
+export function spriteLift(s) {
+  return s.base === undefined ? (s.side * SPRITE_FILL) / 2 : (s.side * (s.base - CELL / 2)) / CELL;
+}
 
 
 function onePose(frame) {

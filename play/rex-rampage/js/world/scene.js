@@ -17,6 +17,7 @@ import {
   RIDER_LIFT,
   SPRITE_FILL,
   SPRITES,
+  spriteLift,
   spritePose,
   tipsOver,
 } from './enemySprites.js';
@@ -257,9 +258,9 @@ export function createScene(canvas, stage, plan) {
           meshes.set(e.id, m);
         }
         const h = KIND_LOOK[e.kind]?.h ?? 1;
-        const centred = e.state === 'part' || KIND_LOOK[e.kind]?.shape === 'sphere';
+        const centred = e.state === 'part' || KIND_LOOK[e.kind]?.shape === 'sphere' || (m.sheet && SPRITES[e.kind].centred);
         
-        const lift = m.sheet ? (SPRITES[e.kind].side * SPRITE_FILL) / 2 : h / 2;
+        const lift = m.sheet ? spriteLift(SPRITES[e.kind]) : h / 2;
         m.body.position.set(e.pos.x, centred ? e.pos.y : e.pos.y + lift - e.r, e.pos.z);
         m.body.lookAt(pos.x, m.body.position.y, pos.z);
         if (e.dead) {
