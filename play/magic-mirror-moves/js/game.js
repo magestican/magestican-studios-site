@@ -4,32 +4,34 @@
 
 export const LEVELS = {
   little: {
-    window: 7,
+    window: 9,
     round: 75,
     deck: ['arms_up', 'star', 'jump', 'squat', 'crown', 'flap'],
-    stars: [4000, 10000], 
+    stars: [3000, 7000], 
     twistAt: Number.POSITIVE_INFINITY,
   },
   big: {
-    window: 4.5,
+    window: 6.5,
     round: 60,
     deck: ['arms_up', 'star', 'flap', 'jump', 'squat', 'twirl', 'wand', 'boo', 'crown'],
-    stars: [5000, 12000], 
+    stars: [3000, 7000], 
     twistAt: 30,
   },
 };
 
 export const FINALE_S = 10; 
-const GAP_S = 0.8; 
+
+
+export const GAP_S = 2.5; 
 const POWER_EVERY = 5; 
 const COMBO_CAP = 4;
-const MIRROR_COMBO_S = 4; 
+const MIRROR_COMBO_S = 6; 
 const TUTORIAL_GIVE_UP_S = 15; 
 
 
 
 
-export const COMBO_S = 2.5;
+export const COMBO_S = GAP_S + 3; 
 const COMBO_BONUS = 250;
 export const COMBOS = [
   { id: 'lift_off', first: 'squat', second: 'jump', name: 'Lift-off!' },
@@ -107,7 +109,7 @@ function deal(s, visible) {
   };
   const twist = s.clock >= L.twistAt && pickFrom.length > 1 && s.rand() < 0.5;
   const moves = twist ? [pick(), pick()] : [pick()];
-  const window = L.window * (twist ? 1.6 : 1) * (s.finale ? 0.8 : 1);
+  const window = L.window * (twist ? 1.6 : 1);
   s.card = { moves, step: 0, age: 0, window };
   return { type: 'card', moves, window };
 }
@@ -222,7 +224,7 @@ export function step(s, dt, input = {}) {
     s.streak = 0;
     ev.push({ type: 'miss', moves: card.moves });
     s.card = null;
-    s.gap = GAP_S * 0.5;
+    s.gap = GAP_S;
   } else if (input.partial?.includes(want)) ev.push({ type: 'nearly', move: want });
   return ev;
 }

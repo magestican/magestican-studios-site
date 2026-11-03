@@ -19,6 +19,7 @@
 
 
 import { cluesOf } from './lampsLogic.js';
+import { dimsOf, shownLines, solutionOf } from './lampsBlock.js';
 import { CELL } from './lampsMatch.js';
 
 export const LMSG = Object.freeze({
@@ -60,15 +61,8 @@ export function packView(view, now) {
 const isPair = (a, test) => Array.isArray(a) && a.length === 2 && a.every(test);
 
 
-
-
-
-
-export function unpackView(pack, lines, now) {
+function readCells(pack, size) {
   if (!pack || typeof pack !== 'object') return null;
-  const rows = lines.length;
-  const cols = lines[0].length;
-  const size = rows * cols;
   const { s, o, sc, w, fz, lc, f, wi } = pack;
   if (typeof s !== 'string' || s.length !== size || typeof o !== 'string' || o.length !== size) return null;
   if (!isPair(sc, Number.isInteger)) return null;
@@ -89,6 +83,58 @@ export function unpackView(pack, lines, now) {
     if ((state[i] === CELL.LIT) !== (owner[i] >= 0)) return null;
     if (state[i] === CELL.LIT) litCount += 1;
   }
+  return { state, owner, litCount };
+}
+
+
+
+
+
+
+function unpackBlock(pack, model, now) {
+  const dims = dimsOf(model);
+  const solution = solutionOf(model);
+  const cells = readCells(pack, solution.length);
+  if (!cells) return null;
+  const { state, owner, litCount } = cells;
+  const total = solution.filter(Boolean).length;
+  if (litCount > total) return null;
+  const lines = shownLines(model).map((l) => ({ axis: l.axis, cells: [...l.cells], count: l.count, groups: l.groups }));
+  return {
+    kind: 'block',
+    dims,
+    lines,
+    total,
+    state,
+    owner,
+    litCount,
+    scores: [...pack.sc],
+    wrong: [...pack.w],
+    frozenUntil: pack.fz.map((ms) => (ms > 0 ? now + ms : 0)),
+    closedLines: lines.map((l) => l.cells.filter((i) => state[i] === CELL.LIT).length === l.count),
+    lastCall: pack.lc === 1,
+    finished: pack.f === 1,
+    winner: pack.wi,
+    draw: pack.f === 1 && pack.wi === null,
+  };
+}
+
+
+
+
+
+
+
+export function unpackView(pack, board, now) {
+  if (!Array.isArray(board)) return unpackBlock(pack, board, now);
+  const lines = board;
+  const rows = lines.length;
+  const cols = lines[0].length;
+  const size = rows * cols;
+  const cells = readCells(pack, size);
+  if (!cells) return null;
+  const { sc, w, fz, lc, f, wi } = pack;
+  const { state, owner, litCount } = cells;
   const { rowClues, colClues } = cluesOf(lines);
   const sum = (clue) => clue.reduce((a, b) => a + b, 0);
   const total = rowClues.reduce((a, clue) => a + sum(clue), 0);
@@ -137,6 +183,7 @@ export function diffViews(prev, next) {
     shut: [],
     closedRows: [],
     closedCols: [],
+    closedLines: [],
     gained: [0, 0],
     lastCallStarted: false,
     finished: false,
@@ -149,8 +196,9 @@ export function diffViews(prev, next) {
     else if (st === CELL.OFF) out.off.push(i);
     else if (st === CELL.SHUT) out.shut.push(i);
   });
-  next.closedRows.forEach((on, r) => { if (on && !prev.closedRows[r]) out.closedRows.push(r); });
-  next.closedCols.forEach((on, c) => { if (on && !prev.closedCols[c]) out.closedCols.push(c); });
+  next.closedRows?.forEach((on, r) => { if (on && !prev.closedRows[r]) out.closedRows.push(r); });
+  next.closedCols?.forEach((on, c) => { if (on && !prev.closedCols[c]) out.closedCols.push(c); });
+  next.closedLines?.forEach((on, li) => { if (on && !prev.closedLines[li]) out.closedLines.push(li); });
   out.gained = next.scores.map((n, seat) => n - prev.scores[seat]);
   out.lastCallStarted = next.lastCall && !prev.lastCall;
   out.finished = next.finished && !prev.finished;

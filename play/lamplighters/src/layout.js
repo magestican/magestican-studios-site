@@ -63,6 +63,25 @@ export function availableBoard(viewW, viewH) {
 }
 
 
+const CUT_ROW_PX = 56;
+
+const BLOCK_MAX_ASPECT = 1.4;
+
+
+
+
+
+
+export const BLOCK_HINT_ROW_PX = 42;
+
+
+export function layoutBlock(viewW, viewH) {
+  const area = availableBoard(viewW, viewH);
+  const height = Math.max(0, area.height - CUT_ROW_PX - (area.crewsBeside ? 0 : BLOCK_HINT_ROW_PX));
+  return { crewsBeside: area.crewsBeside, height, width: Math.min(area.width, Math.round(height * BLOCK_MAX_ASPECT)) };
+}
+
+
 export function layoutBoard({ rows, cols, rowClues, colClues }, width, height) {
   let chosen = null;
   for (let fontPx = MAX_FONT_PX; fontPx >= MIN_FONT_PX; fontPx -= 1) {

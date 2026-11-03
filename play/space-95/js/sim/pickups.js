@@ -119,6 +119,7 @@ registerKind('finish', {
             : p.x >= e.x;
     if (!ctx.session.cleared && reached) {
       ctx.session.cleared = true;
+      ctx.session.clearTime = ctx.session.time;
       ctx.events.push({ type: 'clear', time: ctx.session.time });
     }
   },

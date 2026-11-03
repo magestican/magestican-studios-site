@@ -7,7 +7,7 @@
 
 
 const towers = [
-  { id: 'mushroom', name: 'Mushroom', size: 'b4',
+  { id: 'block-mushroom', name: 'Mushroom', size: 'b4',
     colours: { s: '#efe3c8', r: '#d8402f', w: '#fff6e3' },
     floors: [
       ['....', '.ss.', '.ss.', '....'],
@@ -15,7 +15,7 @@ const towers = [
       ['rwrr', 'rrrr', 'rrrw', 'wrrr'],
       ['.rr.', 'rrwr', 'rrrr', '.rr.'],
     ] },
-  { id: 'pine', name: 'Pine', size: 'b4',
+  { id: 'block-pine', name: 'Pine', size: 'b4',
     colours: { t: '#7a5230', g: '#2f8a4e', d: '#1f6b3b' },
     floors: [
       ['....', '.tt.', '.tt.', '....'],
@@ -23,15 +23,16 @@ const towers = [
       ['....', '.gd.', '.dg.', '....'],
       ['....', '.g..', '.gg.', '....'],
     ] },
-  { id: 'mug', name: 'Mug', size: 'b4',
-    colours: { c: '#e8ecf2', b: '#6b4226' },
+  
+  { id: 'block-chair', name: 'Chair', size: 'b4',
+    colours: { w: '#9a6a3c', r: '#c8402f' },
     floors: [
-      ['.cc.', 'cccc', 'cccc', '.cc.'],
-      ['.cc.', 'c..c', 'c..c', '.cc.'],
-      ['.cc.', 'c..c', 'cb.c', '.cc.'],
-      ['.cc.', 'cb.c', 'c.bc', '.cc.'],
+      ['w..w', '....', '....', 'w..w'],
+      ['rrrr', 'rrrr', 'rrrr', 'wrrw'],
+      ['....', '....', '....', 'w..w'],
+      ['....', '....', '....', 'wwww'],
     ] },
-  { id: 'duck', name: 'Duck', size: 'b5',
+  { id: 'block-duck', name: 'Duck', size: 'b5',
     colours: { y: '#f4c430', o: '#ee7a1f', k: '#20242c', w: '#ffe27a' },
     floors: [
       ['.....', '.yyy.', '.yyy.', '.yyy.', '.....'],
@@ -40,7 +41,7 @@ const towers = [
       ['..o..', '.kyk.', '.yyy.', '.....', '.....'],
       ['.....', '.yyy.', '..y..', '.....', '.....'],
     ] },
-  { id: 'apple', name: 'Apple', size: 'b5',
+  { id: 'block-apple', name: 'Apple', size: 'b5',
     colours: { r: '#d9342b', p: '#f0574a', n: '#6a4323', g: '#4fa64a' },
     floors: [
       ['.....', '..r..', '.rrr.', '..r..', '.....'],
@@ -49,16 +50,16 @@ const towers = [
       ['.....', '.rrr.', '.r.r.', '.rrr.', '.....'],
       ['.....', '.....', '..n..', '..ng.', '.....'],
     ] },
-  { id: 'cat', name: 'Cat', size: 'b5',
+  { id: 'block-cat', name: 'Cat', size: 'b5',
     colours: { c: '#e69a3a', w: '#fff1dc', k: '#22252c', p: '#f08aa0' },
     floors: [
-      ['ww.ww', 'c...c', 'c...c', 'ccccc', 'ccccc'],
-      ['.....', 'ccccc', 'cc.cc', 'ccccc', '....c'],
-      ['.ccc.', 'kcpck', 'ccccc', '.....', '....c'],
-      ['.ccc.', 'ccccc', 'ccccc', '.....', '.....'],
-      ['.c.c.', 'c...c', '.....', '.....', '.....'],
+      ['.w.w.', '.ccc.', '.ccc.', '.ccc.', '..cc.'],
+      ['.....', '.www.', '.ccc.', '.ccc.', '...c.'],
+      ['ccpcc', 'ccccc', '.ccc.', '.....', '...c.'],
+      ['ckckc', 'ccccc', '.....', '.....', '.....'],
+      ['c...c', 'c...c', '.....', '.....', '.....'],
     ] },
-  { id: 'lighthouse', name: 'Lighthouse', size: 'b6',
+  { id: 'block-lighthouse', name: 'Lighthouse', size: 'b6',
     colours: { r: '#c8352b', w: '#f2efe6', y: '#ffd76a', k: '#2c3038', g: '#6f7a86' },
     floors: [
       ['..gg..', '.gggg.', 'gg..gg', 'gg..gg', '.gggg.', '..gg..'],
@@ -68,17 +69,18 @@ const towers = [
       ['......', '..ww..', '.w..w.', '.w..w.', '..ww..', '......'],
       ['..kk..', '.kyyk.', 'ky..yk', 'ky..yk', '.kyyk.', '..kk..'],
     ] },
-  { id: 'rocket', name: 'Rocket', size: 'b6',
-    colours: { w: '#eef1f6', r: '#d93a30', b: '#2f6fd0', o: '#f59a23', g: '#9aa5b4' },
+  { id: 'block-rocket', name: 'Rocket', size: 'b6',
+    
+    colours: { w: '#eef1f6', r: '#d93a30', b: '#2f6fd0', o: '#f59a23' },
     floors: [
-      ['..rr..', '......', 'r.oo.r', 'r.oo.r', '......', '..rr..'],
-      ['..rr..', '.gggg.', 'rgoogr', 'rgoogr', '.gggg.', '..rr..'],
-      ['......', '.wwww.', '.w..w.', '.w..w.', '.wwww.', '......'],
-      ['......', '.wbbw.', '.b..b.', '.b..b.', '.wbbw.', '......'],
-      ['......', '..rr..', '.rrrr.', '.rrrr.', '..rr..', '......'],
-      ['......', '......', '..rr..', '..rr..', '......', '......'],
+      ['..r...', '.ooo..', 'rooor.', '.ooo..', '..r...', '......'],
+      ['..r...', '.www..', 'rwwwr.', '.www..', '..r...', '......'],
+      ['......', '.www..', '.www..', '.www..', '......', '......'],
+      ['......', '.wbw..', '.bbb..', '.wbw..', '......', '......'],
+      ['......', '..r...', '.rrr..', '..r...', '......', '......'],
+      ['......', '......', '..r...', '......', '......', '......'],
     ] },
-  { id: 'castle', name: 'Castle', size: 'b6',
+  { id: 'block-castle', name: 'Castle', size: 'b6',
     colours: { s: '#b9bcc4', d: '#8d919b', r: '#b5392e', k: '#30343c', f: '#e7b53c' },
     floors: [
       ['ss..ss', 'sskkss', '.ssss.', '.ssss.', 'ssssss', 'ss..ss'],

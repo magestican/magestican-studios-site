@@ -76,7 +76,7 @@ export async function createPoseEstimator({ landmark, cpuFallback }) {
   let lastError = '';
   
   let failed = false; 
-  const stats = { landmark, runs: 0, ms: 0, msAvg: 0, gpuFailures: 0, cpuFallback: false };
+  const stats = { landmark, runs: 0, ms: 0, msAvg: 0, gpuFailures: 0, cpuFallback: false, scoutForgets: 0 };
   return {
     backend: () => tf.getBackend(),
     lastError: () => lastError,
@@ -177,6 +177,11 @@ export async function createPoseEstimator({ landmark, cpuFallback }) {
       } catch {
         return null; 
       }
+    },
+    
+    forgetScout() {
+      stats.scoutForgets++;
+      detectors[1]?.reset();
     },
     dispose() {
       for (const d of detectors) d.dispose();

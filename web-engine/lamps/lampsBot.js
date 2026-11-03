@@ -23,7 +23,13 @@ export const BOT_LEVELS = Object.freeze({
 
 
 
-export const SIZE_PACE = Object.freeze({ 5: 0.5, 10: 0.8, 15: 1 });
+
+
+
+
+export const SIZE_PACE = Object.freeze({ 5: 0.5, 10: 0.8, 15: 1, b4: 1.2, b5: 1.4, b6: 1.6 });
+
+export const MIN_BLOCK_APPRENTICE_MS = 6000;
 export const thinkMsFor = (cfg, size) => cfg.thinkMs * (cfg.sizePace?.[size] ?? SIZE_PACE[size] ?? 1);
 
 function mulberry32(seed) {

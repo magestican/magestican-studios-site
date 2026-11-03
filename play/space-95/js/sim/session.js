@@ -108,6 +108,8 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     hitstop: 0,
     cleared: false,
     
+    clearTime: null,
+    
     found: new Set(),
     time: 0,
     

@@ -36,6 +36,36 @@ const RIDE_LEAD_SHARE = 0.6;
 
 export const rideLead = (halfW) => halfW * RIDE_LEAD_SHARE;
 
+
+
+
+
+
+
+export const framePull = (frame, viewW, viewH) => Math.max(1, (frame.x1 - frame.x0) / viewW, (frame.y1 - frame.y0) / viewH);
+
+
+
+const HINT_KEEP = 2;
+
+
+export const hintDyCap = (dy, viewH) => {
+  const most = Math.max(0, viewH / 2 - HINT_KEEP);
+  return Math.min(most, Math.max(-most, dy));
+};
+
+
+
+
+
+
+
+
+export const frameLift = (frameH, viewH, topShare, bottomShare) => {
+  const room = Math.max(0, (viewH - frameH) / 2);
+  return Math.min(room, Math.max(-room, ((bottomShare - topShare) / 2) * viewH));
+};
+
 export function createCameraRig(x, y) {
   return { x, y, focusY: y, ahead: 0, fallLook: 0, upLook: 0, wallT: 0 };
 }

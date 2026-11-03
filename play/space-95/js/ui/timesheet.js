@@ -12,10 +12,10 @@ export function createTimesheet(root) {
 
 
 
-    show(level, s, save, secretsTotal, { onReplay, onNext }) {
+    show(level, s, save, secretsTotal, { onReplay, onNext, onTitle }) {
       const best = save.bestTimes[level.id - 1];
       const par = level.par;
-      const underPar = par && !s.partial && s.time <= par;
+      const underPar = par && !s.partial && s.clearTime <= par;
       
       const review = level.id === 20 ? reviewFor(endingTier(save)) : null;
       root.innerHTML = `
@@ -23,7 +23,7 @@ export function createTimesheet(root) {
           <p class="sheet-k">Space 95 Survey Co. - Timesheet</p>
           <h2>Shift ${level.id}: ${level.name}</h2>
           <dl class="sheet-rows">
-            <div><dt>Time on shift</dt><dd>${s.time.toFixed(1)} s</dd></div>
+            <div><dt>Time on shift</dt><dd>${s.clearTime.toFixed(1)} s</dd></div>
             ${par ? `<div><dt>Par</dt><dd>${par.toFixed(0)} s${underPar ? ' <span class="sheet-gold">under par!</span>' : ''}</dd></div>` : ''}
             ${best ? `<div><dt>Best</dt><dd>${best.toFixed(1)} s</dd></div>` : ''}
             <div><dt>Intel filed</dt><dd>${s.found.size} / ${secretsTotal}</dd></div>
@@ -34,6 +34,7 @@ export function createTimesheet(root) {
           <div class="sheet-actions">
             <button type="button" data-act="replay">Clock in again</button>
             ${onNext ? '<button type="button" data-act="next" class="is-primary">Next shift</button>' : ''}
+            ${onTitle ? '<button type="button" data-act="title" class="is-primary">Back to title</button>' : ''}
           </div>
         </div>`;
       root.hidden = false;
@@ -42,6 +43,7 @@ export function createTimesheet(root) {
         onReplay();
       });
       root.querySelector('[data-act="next"]')?.addEventListener('click', () => onNext?.());
+      root.querySelector('[data-act="title"]')?.addEventListener('click', () => onTitle?.());
       root.querySelector('button')?.focus();
     },
     hide() {

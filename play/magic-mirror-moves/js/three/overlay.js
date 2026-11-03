@@ -69,9 +69,10 @@ function disposeTree(root) {
 }
 
 export class CostumeOverlay {
-  constructor() {
+  
+  constructor(antialias) {
     this.canvas = document.createElement('canvas');
-    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias });
     this.renderer.setClearColor(0x000000, 0);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;

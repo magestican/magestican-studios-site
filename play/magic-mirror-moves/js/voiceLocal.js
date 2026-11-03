@@ -5,7 +5,7 @@
 
 
 
-import { heardCommand, VOCABULARY } from './voice.js';
+import { believedCommand, VOCABULARY } from './voice.js';
 
 const MODEL_URL = new URL('../models/voice/en-small.tar.gz', import.meta.url).href;
 
@@ -67,17 +67,12 @@ export async function startLocalVoice(win, onCommand) {
       if (!stopped && ctx.state !== 'running' && ctx.state !== 'closed') ctx.resume().catch(() => {});
     });
     recognizer = new model.KaldiRecognizer(ctx.sampleRate, JSON.stringify([...VOCABULARY, '[unk]']));
-    let lastText = '';
-    const heard = (text) => {
-      if (!text || text === lastText) return;
-      lastText = text;
-      const cmd = heardCommand(text);
-      if (cmd) onCommand(cmd);
-    };
-    recognizer.on('partialresult', (m) => heard(m.result?.partial));
+    recognizer.setWords(true); 
+    
+    
     recognizer.on('result', (m) => {
-      heard(m.result?.text);
-      lastText = ''; 
+      const cmd = believedCommand(m.result?.result);
+      if (cmd) onCommand(cmd);
     });
     const source = ctx.createMediaStreamSource(stream);
     const tap = ctx.createScriptProcessor(4096, 1, 1);

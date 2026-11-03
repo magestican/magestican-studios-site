@@ -278,7 +278,9 @@ function frame(now) {
           underPar: !session.partial && !!level.par && session.time <= level.par,
           coop: false,
         });
-        const sheet = () => timesheet.show(level, session, save, secretsTotal, { onReplay: restart, onNext: next });
+        
+        const onTitle = next ? undefined : () => (location.search = '?level=1');
+        const sheet = () => timesheet.show(level, session, save, secretsTotal, { onReplay: restart, onNext: next, onTitle });
         
         if (level.id === 20) ending.play(endingTier(save), level.checklist ?? [], sheet);
         else sheet();

@@ -9,9 +9,11 @@
 
 
 
-import { CELL, createMatch, fill as fillMatch, publicView } from '../../../web-engine/lamps/lampsMatch.js';
+import { CELL, createBlockMatch, createMatch, fill as fillMatch, publicView } from '../../../web-engine/lamps/lampsMatch.js';
 import { BOT_LEVELS, createBot, thinkMove, thinkMsFor } from '../../../web-engine/lamps/lampsBot.js';
-import { PICTURES, picturesOfSize, pictureById } from '../../../web-engine/lamps/pictures.js';
+import { TOWERS, blockSide, groupOf, isBlock, towerById, towersOfGroup } from '../../../web-engine/lamps/towers.js';
+import { BLOCK_SIZES } from '../../../web-engine/lamps/blocks.js';
+import { roomAt, roomIndex } from '../../../web-engine/lamps/lampsBlock.js';
 import { diffViews } from '../../../web-engine/lamps/lampsWire.js';
 import {
   COUNTDOWN_MS, GUEST, canStart, createRoom, freeSeatsOf, isRealSeat, leftResult, matchRunning,
@@ -28,12 +30,20 @@ import { playUi } from '../../../web-engine/brand/uiSound.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { createNet, canPlayTogether } from './net.js';
-import { availableBoard, layoutBoard } from './layout.js';
+import { AIM_BELOW_PX, availableBoard, layoutBlock, layoutBoard } from './layout.js';
+import { NO_CUT, maxCut } from './blockView.js';
 import { stringsFor, pictureName, count, fill } from './strings.js';
 
 const GAME_ID = 'lamplighters';
 const SETUP_KEY = 'lamplighters-setup-v1';
-const SIZES = [5, 10, 15];
+
+function canDrawBlocks() {
+  try {
+    return !!document.createElement('canvas').getContext('webgl2');
+  } catch { return false; }
+}
+const SIZES = [5, 10, 15, ...(canDrawBlocks() ? BLOCK_SIZES : [])];
+const CUT_AXES = [['y', 'cutTop'], ['x', 'cutSide'], ['z', 'cutFront']];
 const LEVELS = Object.keys(BOT_LEVELS);
 const PENDING_MS = 1500;
 const LONG_PRESS_MS = 420;
@@ -63,10 +73,10 @@ function loadSetup() {
 const saved = loadSetup();
 const setup = {
   size: SIZES.includes(saved.size) ? saved.size : 5,
-  picture: pictureById(saved.picture) ? saved.picture : picturesOfSize(5)[0].id,
+  picture: towerById(saved.picture) ? saved.picture : towersOfGroup(5)[0].id,
   rival: LEVELS.includes(saved.rival) ? saved.rival : 'apprentice',
 };
-if (pictureById(setup.picture).lines.length !== setup.size) setup.picture = picturesOfSize(setup.size)[0].id;
+if (groupOf(towerById(setup.picture)) !== setup.size) setup.picture = towersOfGroup(setup.size)[0].id;
 const saveSetup = () => { try { localStorage.setItem(SETUP_KEY, JSON.stringify(setup)); } catch {  } };
 
 
@@ -94,6 +104,15 @@ const marks = new Set();
 const pending = new Map();
 const anim = new Map();
 
+
+let blockMod = null;
+let blockLoad = null;
+let blockScene = null;
+let blockCut = NO_CUT;
+let blockCursor = -1;
+let blockSig = '';
+let viewStamp = 0;
+
 let net = null;
 let room = createRoom();
 const roomUi = { active: false, me: null, peers: [], code: null, watching: false, asked: false, gone: false };
@@ -107,6 +126,7 @@ const viewer = () => mode === 'room' && mySeat() < 0;
 
 function show(which) {
   screen = which;
+  if (which === 'setup') disposeBlock();
   for (const id of ['setup', 'match', 'end']) $(id).hidden = id !== which;
   
   $('rules-link').hidden = which !== 'setup';
@@ -123,8 +143,22 @@ function toast(text, ms = 3000) {
 
 
 function towerNumber(id) {
-  const p = pictureById(id);
-  return p ? picturesOfSize(p.lines.length).findIndex((x) => x.id === id) + 1 : 0;
+  const t = towerById(id);
+  return t ? towersOfGroup(groupOf(t)).findIndex((x) => x.id === id) + 1 : 0;
+}
+
+const groupLabel = (group) => {
+  const side = blockSide(group);
+  return side ? fill(T.blockSize, { n: side }) : fill(T.towerSize, { n: group });
+};
+
+
+function loadBlockMod() {
+  if (!blockLoad) {
+    blockLoad = import('./blockScene.js').then((mod) => { blockMod = mod; return mod; });
+    blockLoad.catch(() => { blockLoad = null; });
+  }
+  return blockLoad;
 }
 
 function chip(label, pressed, locked, onPick) {
@@ -144,8 +178,10 @@ function chip(label, pressed, locked, onPick) {
 
 function pickPicture(id) {
   setup.picture = id;
-  setup.size = pictureById(id).lines.length;
+  setup.size = groupOf(towerById(id));
   saveSetup();
+  
+  if (isBlock(towerById(id))) loadBlockMod().catch(() => {});
   if (roomUi.active && net?.hosting) {
     room = { ...room, picture: id };
     net.publish();
@@ -157,11 +193,11 @@ function drawSetup() {
   const inRoom = roomUi.active;
   const locked = inRoom && (!net?.hosting || matchRunning(room));
   const shown = inRoom && room.picture ? room.picture : setup.picture;
-  const size = pictureById(shown).lines.length;
-  $('sizes').replaceChildren(...SIZES.map((n) => chip(fill(T.towerSize, { n }), n === size, locked, () => {
-    pickPicture(picturesOfSize(n)[0].id);
+  const size = groupOf(towerById(shown));
+  $('sizes').replaceChildren(...SIZES.map((n) => chip(groupLabel(n), n === size, locked, () => {
+    pickPicture(towersOfGroup(n)[0].id);
   })));
-  $('towers').replaceChildren(...picturesOfSize(size).map((p, i) => chip(String(i + 1), p.id === shown, locked, () => {
+  $('towers').replaceChildren(...towersOfGroup(size).map((p, i) => chip(String(i + 1), p.id === shown, locked, () => {
     pickPicture(p.id);
   })));
   $('rivals').replaceChildren(...LEVELS.map((lv) => chip(T.rivals[lv], lv === setup.rival, false, () => {
@@ -203,7 +239,7 @@ function clearMatchTimers() {
 }
 
 function enterMatch(pictureId) {
-  picture = pictureById(pictureId);
+  picture = towerById(pictureId);
   view = null;
   aimCell = -1;
   inputMode = 'light';
@@ -211,17 +247,40 @@ function enterMatch(pictureId) {
   pending.clear();
   anim.clear();
   endShownFor = 0;
-  buildBoard();
+  disposeBlock();
+  const block = isBlock(picture);
+  $('board').hidden = block;
+  $('block').hidden = !block;
+  $('cut').hidden = !block;
+  $('block').parentElement.classList.toggle('block', block);
+  if (block) buildBlock();
+  else buildBoard();
   show('match');
   relayout();
 }
 
+const newMatchOn = (id) => {
+  const t = towerById(id);
+  return isBlock(t) ? createBlockMatch({ model: t }) : createMatch({ lines: t.lines });
+};
+
+
+
+
+
+function waitForBlockMod(id, again) {
+  if (!isBlock(towerById(id)) || blockMod) return false;
+  loadBlockMod().then(again, () => toast(T.noBlock, 4000));
+  return true;
+}
+
 function startBotMatch(pictureId, level, cheat = null) {
+  if (waitForBlockMod(pictureId, () => startBotMatch(pictureId, level, cheat))) return;
   clearMatchTimers();
   mode = 'bot';
   botLevel = level;
   round += 1;
-  match = createMatch({ lines: pictureById(pictureId).lines });
+  match = newMatchOn(pictureId);
   bot = createBot(level, (Date.now() ^ (round * 2654435761)) >>> 0);
   const now = Date.now();
   const cheated = cheat ? applyCheat(match, cheat, now) : false;
@@ -247,7 +306,127 @@ function scheduleBot(extra) {
       onView(publicView(match));
     }
     scheduleBot(0);
-  }, extra + botPause(match.rows));
+  }, extra + botPause(isBlock(picture) ? picture.size : match.rows));
+}
+
+
+function disposeBlock() {
+  blockScene?.dispose();
+  blockScene = null;
+  blockSig = '';
+}
+
+
+function buildBlock() {
+  cellEls = [];
+  rowClueEls = [];
+  colClueEls = [];
+  cellClass.length = 0;
+  shape = { block: true, rows: picture.floors.length, layout: { aim: false } };
+  blockCut = NO_CUT;
+  blockCursor = -1;
+  drawCut();
+  const model = picture;
+  if (blockMod) { makeBlockScene(); return; }
+  loadBlockMod().then(() => {
+    if (picture !== model || blockScene) return;
+    makeBlockScene();
+    relayout();
+    if (screen === 'end') revealBlock();
+  }, () => toast(T.noBlock, 4000));
+}
+
+function makeBlockScene() {
+  try {
+    blockScene = blockMod.createBlockScene($('block'), {
+      model: picture,
+      on: { tap: (room, type) => activate(room, type), mark: (room) => toggleMark(room) },
+    });
+  } catch {
+    
+    blockScene = null;
+    toast(T.noBlock, 4000);
+  }
+  blockSig = '';
+}
+
+function paintBlock() {
+  if (!blockScene || !view) return;
+  const frozen = frozenLeft(mySeat()) > 0;
+  const sig = [viewStamp, [...marks].join(), [...pending.keys()].join(), blockCut.axis, blockCut.layers, aimCell, blockCursor, frozen, veiled()].join('|');
+  if (sig === blockSig) return;
+  blockSig = sig;
+  blockScene.update(view, { marks, pending, cut: blockCut, aim: aimCell, cursor: blockCursor, frozen, veiled: veiled() });
+}
+
+function drawCut() {
+  const axis = blockCut.axis ?? 'y';
+  $('cut-axes').replaceChildren(...CUT_AXES.map(([a, key]) => {
+    const b = chip(T[key], a === axis, false, () => {
+      blockCut = { axis: a, layers: 0 };
+      drawCut();
+      paint();
+    });
+    b.classList.add('ll-tool');
+    return b;
+  }));
+  const range = $('cut-range');
+  range.setAttribute('aria-label', T.cutH);
+  const dims = view?.dims ?? [picture.floors[0][0].length, picture.floors.length, picture.floors[0].length];
+  range.max = String(maxCut(dims, axis));
+  range.value = String(blockCut.layers);
+}
+
+function moveCursor(key) {
+  const { dims } = view;
+  const [x, y, z] = blockCursor >= 0 ? roomAt(dims, blockCursor) : [0, dims[1] - 1, 0];
+  const at = [x, y, z];
+  if (blockCursor >= 0) {
+    if (key === 'ArrowLeft') at[0] -= 1;
+    if (key === 'ArrowRight') at[0] += 1;
+    if (key === 'ArrowUp') at[2] += 1; 
+    if (key === 'ArrowDown') at[2] -= 1;
+    if (key === 'PageUp') at[1] += 1;
+    if (key === 'PageDown') at[1] -= 1;
+  }
+  const next = at.map((v, k) => Math.max(0, Math.min(dims[k] - 1, v)));
+  blockCursor = roomIndex(dims, next[0], next[1], next[2]);
+  $('block-live').textContent = labelFor(blockCursor);
+  paint();
+}
+
+function wireBlockInput() {
+  const host = $('block');
+  host.addEventListener('keydown', (e) => {
+    if (!view || !shape?.block) return;
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'].includes(e.key)) {
+      e.preventDefault();
+      moveCursor(e.key);
+    } else if (blockCursor >= 0 && (e.key === ' ' || e.key === 'Enter')) {
+      e.preventDefault();
+      if (inputMode === 'mark') toggleMark(blockCursor);
+      else lightWindow(blockCursor);
+      $('block-live').textContent = labelFor(blockCursor);
+    } else if (blockCursor >= 0 && (e.key === 'x' || e.key === 'X')) {
+      e.preventDefault();
+      toggleMark(blockCursor);
+      $('block-live').textContent = labelFor(blockCursor);
+    }
+  });
+  $('cut-range').addEventListener('input', (e) => {
+    blockCut = { axis: blockCut.axis ?? 'y', layers: Number(e.target.value) };
+    paint();
+  });
+}
+
+
+function revealBlock() {
+  if (!blockScene) return;
+  blockCursor = -1; 
+  const { clientWidth, clientHeight } = document.documentElement;
+  blockScene.moveTo($('reveal'));
+  blockScene.resize(Math.min(clientWidth - 32, 620), Math.min(Math.round(clientHeight * 0.5), 520));
+  blockScene.reveal({ finished: !!view?.finished });
 }
 
 
@@ -326,6 +505,19 @@ function relayout() {
   
   
   const { clientWidth, clientHeight } = document.documentElement;
+  if (shape.block) {
+    if (screen === 'end') { revealBlock(); return; }
+    const b = layoutBlock(clientWidth, clientHeight);
+    const host = $('block');
+    host.style.width = `${b.width}px`;
+    host.style.height = `${b.height}px`;
+    blockScene?.resize(b.width, b.height);
+    
+    shape.layout = { aim: !!blockScene && blockScene.pxPerRoom() < AIM_BELOW_PX };
+    $('arena').classList.toggle('beside', b.crewsBeside);
+    paint();
+    return;
+  }
   const area = availableBoard(clientWidth, clientHeight);
   const l = layoutBoard(shape, area.width, area.height);
   shape.layout = l;
@@ -374,14 +566,22 @@ function classFor(i) {
 }
 
 function labelFor(i) {
-  const { cols } = shape;
-  const at = { r: Math.floor(i / cols) + 1, c: (i % cols) + 1 };
+  let at;
+  let floor = '';
+  if (shape.block) {
+    const [x, y, z] = roomAt(view.dims, i);
+    at = { r: z + 1, c: x + 1 };
+    floor = `${fill(T.floor, { f: y + 1 })}, `;
+  } else {
+    const { cols } = shape;
+    at = { r: Math.floor(i / cols) + 1, c: (i % cols) + 1 };
+  }
   const st = view ? view.state[i] : CELL.DARK;
-  if (st === CELL.LIT) return fill(T.cellLit, { ...at, crew: crewName(view.owner[i]) });
-  if (st === CELL.SHUT) return fill(T.cellShut, at);
-  if (st === CELL.FUSED) return fill(T.cellFused, at);
-  if (st === CELL.OFF) return fill(T.cellOff, at);
-  return fill(marks.has(i) ? T.cellMarked : T.cellDark, at);
+  if (st === CELL.LIT) return floor + fill(T.cellLit, { ...at, crew: crewName(view.owner[i]) });
+  if (st === CELL.SHUT) return floor + fill(T.cellShut, at);
+  if (st === CELL.FUSED) return floor + fill(T.cellFused, at);
+  if (st === CELL.OFF) return floor + fill(T.cellOff, at);
+  return floor + fill(marks.has(i) ? T.cellMarked : T.cellDark, at);
 }
 
 function crewName(seat) {
@@ -396,7 +596,8 @@ const frozenLeft = (seat) => (view && seat >= 0 ? Math.max(0, view.frozenUntil[s
 
 
 function paintClues() {
-  if (!view) return;
+  
+  if (!view || shape.block) return;
   const { rows, cols } = shape;
   const litIn = (start, step, count) => {
     let n = 0;
@@ -441,10 +642,12 @@ function paintTools() {
   $('mode-light').setAttribute('aria-pressed', String(inputMode === 'light'));
   $('mode-mark').setAttribute('aria-pressed', String(inputMode === 'mark'));
   $('commit').hidden = watching || aimCell < 0 || inputMode !== 'light';
-  let hint = T.hintMouse;
+  const block = !!shape?.block;
+  let hint = block ? T.hintBlockMouse : T.hintMouse;
   const touch = globalThis.matchMedia?.('(pointer: coarse)').matches;
-  if (touch) hint = shape?.layout?.aim ? T.hintAim : T.hintTouch;
-  if (touch && inputMode === 'mark') hint = T.hintMark;
+  if (touch && block) hint = shape.layout?.aim ? T.hintBlockAim : T.hintBlockTouch;
+  else if (touch) hint = shape?.layout?.aim ? T.hintAim : T.hintTouch;
+  if (touch && inputMode === 'mark') hint = block ? T.hintBlockMark : T.hintMark;
   if (frozenLeft(mySeat()) > 0) hint = T.hintFrozen;
   if (watching) hint = T.hintWatch;
   const el = $('hint');
@@ -463,12 +666,14 @@ function paint() {
   paintClues();
   paintCrews();
   paintTools();
-  $('tower-label').textContent = `${fill(T.towerName, { n: towerNumber(picture.id) })} · ${fill(T.towerSize, { n: shape.rows })}`;
+  $('tower-label').textContent = `${fill(T.towerName, { n: towerNumber(picture.id) })} · ${groupLabel(groupOf(picture))}`;
   $('lastcall').hidden = !view?.lastCall;
   $('lastcall').textContent = T.lastCall;
   const board = $('board');
   board.classList.toggle('veiled', veiled());
   board.classList.toggle('frozen', frozenLeft(mySeat()) > 0);
+  $('block').classList.toggle('veiled', veiled());
+  paintBlock();
   const count = $('countdown');
   count.hidden = !veiled();
   if (veiled()) count.textContent = String(Math.max(1, Math.ceil((goAt - Date.now()) / 1000)));
@@ -483,13 +688,16 @@ function flash(i, cls) {
 function onView(next) {
   const diff = diffViews(view, next);
   view = next;
+  viewStamp += 1;
   next.state.forEach((st, i) => { if (st !== CELL.DARK) marks.delete(i); });
   if (aimCell >= 0 && next.state[aimCell] !== CELL.DARK && next.state[aimCell] !== CELL.OFF) aimCell = -1;
   if (!diff.fresh) {
     const me = mySeat();
-    diff.lit.forEach(({ cell }) => flash(cell, 'pop'));
-    diff.fused.forEach((cell) => flash(cell, 'blow'));
-    const closes = diff.closedRows.length + diff.closedCols.length;
+    if (!shape.block) {
+      diff.lit.forEach(({ cell }) => flash(cell, 'pop'));
+      diff.fused.forEach((cell) => flash(cell, 'blow'));
+    }
+    const closes = diff.closedRows.length + diff.closedCols.length + diff.closedLines.length;
     if (diff.finished) {
       
     } else if (diff.lastCallStarted) playUi('badge');
@@ -498,6 +706,8 @@ function onView(next) {
     else if (diff.lit.length > 0) playUi(diff.lit.some((l) => l.seat === me) ? 'tap' : 'tick');
   }
   paint();
+  
+  if (!diff.fresh) blockScene?.announce(diff);
   if (next.finished) beginEnd();
 }
 
@@ -509,6 +719,7 @@ function beginEnd() {
   
   $('board').classList.add('blackout');
   $('board').classList.remove('frozen', 'veiled');
+  blockScene?.blackout();
   endTimer = setTimeout(() => {
     endTimer = null;
     showEnd();
@@ -538,20 +749,16 @@ function endButton(label, go, onClick) {
 }
 
 function nextTowerId(id) {
-  const same = picturesOfSize(pictureById(id).lines.length);
+  const same = towersOfGroup(groupOf(towerById(id)));
   return same[(same.findIndex((p) => p.id === id) + 1) % same.length].id;
 }
 
-function showEnd() {
-  endShownFor = round;
-  const me = mySeat();
-  const finished = !!view?.finished;
+function drawFlatReveal(rev, finished) {
   const lines = picture.lines;
   const rows = lines.length;
   const cols = lines[0].length;
   const { clientWidth, clientHeight } = document.documentElement;
   const px = Math.max(4, Math.min(16, Math.floor(Math.min(clientWidth - 56, clientHeight * 0.32) / Math.max(rows, cols))));
-  const rev = $('reveal');
   rev.style.setProperty('--cols', cols);
   rev.style.setProperty('--px', `${px}px`);
   
@@ -565,10 +772,22 @@ function showEnd() {
     }
   }
   rev.replaceChildren(frag);
+}
+
+function showEnd() {
+  endShownFor = round;
+  const me = mySeat();
+  const finished = !!view?.finished;
+  const block = isBlock(picture);
+  const rev = $('reveal');
+  rev.classList.toggle('block', block);
+  if (block) rev.replaceChildren();
+  else drawFlatReveal(rev, finished);
   rev.setAttribute('aria-label', finished ? fill(T.revealAlt, { name: pictureName(lang, picture) }) : T.noPicture);
 
   $('end-title').textContent = endTitle();
-  $('end-picture').textContent = finished ? fill(T.pictureWas, { name: pictureName(lang, picture) }) : T.noPicture;
+  const was = block ? T.modelWas : T.pictureWas;
+  $('end-picture').textContent = finished ? fill(was, { name: pictureName(lang, picture) }) : T.noPicture;
   $('tally').replaceChildren(...[0, 1].map((seat) => {
     const el = document.createElement('div');
     const name = document.createElement('span');
@@ -584,6 +803,7 @@ function showEnd() {
   if (me >= 0) playUi(won ? 'trophy' : 'levelUp');
   drawEndButtons();
   show('end');
+  if (block) revealBlock();
   if (mode === 'bot') trackEvent('game_end', { game: GAME_ID, level: botLevel, won });
 }
 
@@ -770,6 +990,7 @@ function roomSnapshot() {
 
 function startRoomRound(pictureId) {
   if (!net?.hosting || mySeat() < 0) return;
+  if (waitForBlockMod(pictureId, () => startRoomRound(pictureId))) return;
   clearMatchTimers();
   mode = 'room';
   const base = { ...room, picture: pictureId };
@@ -779,9 +1000,9 @@ function startRoomRound(pictureId) {
   roomUi.asked = false;
   roomUi.gone = false;
   setup.picture = pictureId;
-  setup.size = pictureById(pictureId).lines.length;
+  setup.size = groupOf(towerById(pictureId));
   saveSetup();
-  match = createMatch({ lines: pictureById(pictureId).lines });
+  match = newMatchOn(pictureId);
   goAt = Date.now() + COUNTDOWN_MS;
   enterMatch(pictureId);
   onView(publicView(match));
@@ -1002,6 +1223,7 @@ function wireButtons() {
   $('mode-mark').addEventListener('click', () => { playUi('toggleOn'); inputMode = 'mark'; aimCell = -1; paint(); });
   $('commit').addEventListener('click', () => { if (aimCell >= 0) lightWindow(aimCell); });
   wireBoardInput();
+  wireBlockInput();
 
   let queued = false;
   addEventListener('resize', () => {
@@ -1026,11 +1248,11 @@ const params = new URLSearchParams(location.search);
 const linkRoom = roomFromHref(location.href);
 if (linkRoom) {
   joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH });
-} else if (params.get('picture') && pictureById(params.get('picture'))) {
+} else if (params.get('picture') && towerById(params.get('picture'))) {
   
   const id = params.get('picture');
   setup.picture = id;
-  setup.size = pictureById(id).lines.length;
+  setup.size = groupOf(towerById(id));
   drawSetup();
   const asked = params.get('state');
   const level = params.get('bot');
@@ -1055,8 +1277,14 @@ globalThis.lamplighters = Object.freeze({
   marks: () => [...marks],
   pending: () => [...pending.keys()],
   room: () => ({ ...room, seats: [...room.seats], hosting: !!net?.hosting, code: roomUi.code, watchers: net?.watchers ?? 0, id: net?.id ?? null }),
-  pictures: () => PICTURES.map((p) => p.id),
+  pictures: () => TOWERS.map((p) => p.id),
+  block: () => blockScene,
   cellRect: (i) => {
+    if (blockScene) {
+      const p = blockScene.roomOnScreen(i);
+      const w = blockScene.pxPerRoom();
+      return { x: p.x - w / 2 + scrollX, y: p.y - w / 2 + scrollY, w, h: w };
+    }
     const r = cellEls[i]?.getBoundingClientRect();
     return r ? { x: r.x + scrollX, y: r.y + scrollY, w: r.width, h: r.height } : null;
   },

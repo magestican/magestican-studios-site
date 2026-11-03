@@ -62,6 +62,9 @@ export function devicePlan({ coarse, ua, model, memory, cores, power }) {
     allow3d: !lowPower,
     
     
+    antialias3d: !phone,
+    
+    
     
     default3d: !lowPower,
   };

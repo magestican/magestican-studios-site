@@ -71,10 +71,21 @@ export function namesFor(costume) {
   return [...SHARED, `${costume}_cast`, `${costume}_wand`, ...(costume === 'robot' ? ['robot_stomp'] : [])];
 }
 
+
+
+
+
+export const MUSIC = { file: 'round', loopSeconds: 66.206896, gain: 0.35 };
+
 const BASE = new URL('../assets/sound/', import.meta.url);
+const MUSIC_BASE = new URL('../assets/music/', import.meta.url);
+const FADE_S = 0.25;
 
 
-export function createSound(win, onPlay = (_n) => {}) {
+
+
+
+export function createSound(win, onPlay = (_n) => {}, onMusic = (_on) => {}) {
   
   let ctx = null;
   
@@ -88,6 +99,59 @@ export function createSound(win, onPlay = (_n) => {}) {
   const turn = new Map();
   
   const lastAt = new Map();
+  let musicWanted = false;
+  
+  let musicBuffer = null;
+  
+  let track = null;
+  let musicTurn = 0; 
+
+  async function getMusic(e) {
+    const res = await win.fetch(new URL(`${MUSIC.file}.${e}`, MUSIC_BASE));
+    if (!res.ok) throw new Error(`music: ${res.status}`);
+    return ctx.decodeAudioData(await res.arrayBuffer());
+  }
+
+  function loadMusic() {
+    musicBuffer ??= getMusic(ext).catch(() => {
+      if (ext === 'm4a') return null;
+      ext = 'm4a';
+      return getMusic(ext).catch(() => null);
+    });
+    return musicBuffer;
+  }
+
+  function stopTrack() {
+    musicTurn++;
+    if (!track) return;
+    const { src, gain } = track;
+    track = null;
+    gain.gain.setTargetAtTime(0, ctx.currentTime, FADE_S / 3);
+    src.stop(ctx.currentTime + FADE_S);
+    onMusic(false);
+  }
+
+  
+  function syncMusic() {
+    if (!ctx) return;
+    if (!musicWanted || muted) return stopTrack();
+    if (track) return;
+    const mine = ++musicTurn;
+    loadMusic().then((buffer) => {
+      if (!buffer || mine !== musicTurn) return;
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      src.loop = true;
+      src.loopEnd = Math.min(MUSIC.loopSeconds, buffer.duration);
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+      gain.gain.setTargetAtTime(MUSIC.gain, ctx.currentTime, FADE_S / 3);
+      src.connect(gain).connect(out);
+      src.start();
+      track = { src, gain };
+      onMusic(true);
+    });
+  }
 
   async function getTake(name, n, e) {
     const res = await win.fetch(new URL(`${name}/${name}_0${n}.${e}`, BASE));
@@ -122,6 +186,15 @@ export function createSound(win, onPlay = (_n) => {}) {
       out.connect(ctx.destination);
       const probe = win.document?.createElement?.('audio');
       ext = probe?.canPlayType?.('audio/ogg; codecs=opus') ? 'ogg' : 'm4a';
+      syncMusic();
+    },
+    
+    setMusic(on) {
+      musicWanted = !!on;
+      syncMusic();
+    },
+    get musicOn() {
+      return !!track;
     },
     
     preload(names) {
@@ -154,6 +227,7 @@ export function createSound(win, onPlay = (_n) => {}) {
     setMuted(m) {
       muted = !!m;
       if (out) out.gain.value = muted ? 0 : 1;
+      syncMusic();
     },
     get muted() {
       return muted;

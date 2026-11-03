@@ -14,10 +14,11 @@ import { zoneOn } from '../sim/wind.js';
 import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js';
 import { bossLabelPosition } from './bossLabel.js';
 import { burrowEntityView, createBurrow } from './burrowView.js';
-import { createCameraRig, rideLead, updateCameraRig } from './cameraRig.js';
+import { createCameraRig, frameLift, framePull, hintDyCap, rideLead, updateCameraRig } from './cameraRig.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
 import { createKitchen, kitchenEntityView } from './kitchenView.js';
+import { clampLabelToView } from './labelClamp.js';
 import { createNight, nightEntityView } from './nightView.js';
 import { restartPosts } from './restartPosts.js';
 import { createRide, rideEntityView } from './rideView.js';
@@ -174,12 +175,23 @@ export function createView(canvas, level, labels) {
     const visibleH = Math.max(VIEW_H, VIEW_MIN_W / aspect);
     viewHalfW = (visibleH * aspect) / 2; 
     viewAspect = aspect;
+    if (lastFrame) frameInsets = arenaInsets(); 
     camera.aspect = aspect;
     camera.fov = (2 * Math.atan(visibleH / 2 / CAM_DIST) * 180) / Math.PI;
     camera.updateProjectionMatrix();
   }
   resize();
   window.addEventListener('resize', resize);
+  
+  
+  const arenaInsets = () => {
+    const buttons = [...document.querySelectorAll('.touch button')].map((b) => b.getBoundingClientRect()).filter((r) => r.height > 0);
+    if (!buttons.length) return { top: 0, bottom: 0 };
+    const h = Math.max(1, canvas.clientHeight);
+    const hud = document.querySelector('.hud')?.getBoundingClientRect();
+    return { top: (hud?.bottom ?? 0) / h, bottom: 1 - Math.min(...buttons.map((r) => r.top)) / h };
+  };
+  let frameInsets = { top: 0, bottom: 0 };
 
   return {
     
@@ -220,13 +232,19 @@ export function createView(canvas, level, labels) {
       
       aheadK += ((hint?.ahead === 0 ? 0 : 1) - aheadK) * (1 - Math.exp(-dt * 3));
       
+      
       const fr = hint?.frame;
       frameK += ((fr ? 1 : 0) - frameK) * (1 - Math.exp(-dt * 2.5));
+      if (fr && fr !== lastFrame) frameInsets = arenaInsets();
       if (fr) lastFrame = fr;
       const followX = hint?.lock ? hint.lock.x : x + rig.ahead * aheadK;
       const camX = lastFrame ? followX + ((lastFrame.x0 + lastFrame.x1) / 2 - followX) * frameK : followX;
-      const frameDy = lastFrame ? ((lastFrame.y0 + lastFrame.y1) / 2 - rig.y) * frameK : 0;
-      hintDy += ((hint?.lock ? hint.lock.y - rig.y : (hint?.dy ?? 0) + frameDy) - hintDy) * (1 - Math.exp(-dt * 4));
+      const viewW = (2 * viewHalfW * camDist()) / CAM_DIST;
+      const frameViewH = lastFrame ? (viewW / viewAspect) * framePull(lastFrame, viewW, viewW / viewAspect) : 0;
+      const lift = lastFrame ? frameLift(lastFrame.y1 - lastFrame.y0, frameViewH, frameInsets.top, frameInsets.bottom) : 0;
+      const frameDy = lastFrame ? ((lastFrame.y0 + lastFrame.y1) / 2 - lift - rig.y) * frameK : 0;
+      hintDy +=
+        ((hint?.lock ? hint.lock.y - rig.y : hintDyCap(hint?.dy ?? 0, viewW / viewAspect) + frameDy) - hintDy) * (1 - Math.exp(-dt * 4));
       
       shake *= Math.exp(-dt * 18);
       const sx0 = Math.sin(session.time * 91) * shake;
@@ -234,7 +252,8 @@ export function createView(canvas, level, labels) {
       
       
       planePull += ((session.plane && !level.camDist ? PLANE_PULL : 1) - planePull) * Math.min(1, dt * 2);
-      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, camDist() * planePull * (1 + 0.45 * frameK)); 
+      const arenaPull = lastFrame ? 1 + (framePull(lastFrame, viewW, viewW / viewAspect) - 1) * frameK : 1;
+      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, camDist() * planePull * arenaPull); 
       camera.lookAt(camX + sx0, rig.y + hintDy + 0.6 + sy0, 0);
 
       squash *= Math.exp(-dt * 14);
@@ -1565,6 +1584,7 @@ export function textSprite(text) {
   const scale = 0.011;
   s.scale.set(w * scale, 72 * scale, 1);
   s.position.set((w * scale) / 2 - 0.2, 2.4, 0);
+  s.onBeforeRender = clampLabelToView;
   return s;
 }
 

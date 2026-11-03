@@ -214,27 +214,6 @@ button:focus-visible {
   width: min(640px, 100%);
 }
 
-.joints {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-}
-
-.joints li {
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: #e6e0f0;
-  font-size: 0.9rem;
-}
-
-.joints li.seen {
-  background: #8de5a1;
-}
-
 
 #play {
   flex-direction: column;
@@ -538,6 +517,19 @@ body:not([data-screen="play"]) .bar .hud {
   margin-left: auto;
 }
 
+.bar-more {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.bar-more[hidden] {
+  display: none;
+}
+
 .badge.small {
   font-size: 0.85rem;
   min-height: 40px;
@@ -549,6 +541,26 @@ body:not([data-screen="play"]) .bar .hud {
 #frame {
   padding-top: 0;
   padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+
+#frame .panel {
+  gap: 10px;
+  padding: 16px;
+}
+
+#frame h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+
+
+body[data-cam-wait="asking"] #frame-h,
+body[data-cam-wait="refused"] #frame-h,
+body[data-cam-wait="asking"] #frame .row,
+body[data-cam-wait="refused"] #start {
+  display: none;
 }
 
 
@@ -617,13 +629,26 @@ body[data-mode="mirror"] .bar .time {
     font-size: 0.9rem;
     min-width: 36px;
   }
+  
   .bar .seen-light {
-    padding: 4px 10px;
+    padding: 0;
+    background: none;
     font-size: 0.8rem;
+    white-space: normal;
+  }
+  .bar .seen-light:not([data-state="error"]) #seen-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
   .bar .hud {
-    flex: 0 1 auto;
-    gap: 10px;
+    flex: 1 1 0;
+    gap: 8px;
+  }
+  .bar .time {
+    min-width: 32px;
   }
   
 

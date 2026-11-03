@@ -16,8 +16,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Magic Mirror">
-  <link rel="stylesheet" href="css/game.css?v=ae0a6899-20261102T225711Z">
-  <script type="module" src="js/main.js?v=ae0a6899-20261102T225711Z"></script>
+  <link rel="stylesheet" href="css/game.css?v=f9035e3e-20261103T084045Z">
+  <script type="module" src="js/main.js?v=f9035e3e-20261103T084045Z"></script>
   <link rel="canonical" href="https://magesticanstudios.com/play/magic-mirror-moves/">
 </head>
 <body>
@@ -34,15 +34,19 @@
       <div class="stat"><span class="k">Score</span><span id="score" aria-live="polite">0</span></div>
       <div class="stat"><span class="k">Combo</span><span id="combo">x1</span></div>
       <div class="time" aria-hidden="true"><div id="time-bar"></div></div>
-      <button type="button" id="stop" class="ghost-btn small">Stop</button>
     </div>
     <div class="bar-tools">
-      <button type="button" id="mode-switch" class="ghost-btn small">Score points</button>
-      <button type="button" id="players" class="ghost-btn small icon" aria-pressed="false" aria-label="Two players" title="Two players">&#x1F465;</button>
       <button type="button" id="voice" class="ghost-btn small icon" aria-pressed="false" aria-label="Say a costume" title="Say a costume, like dragon!" hidden>&#x1F3A4;</button>
       <button type="button" id="sound" class="ghost-btn small icon" aria-pressed="false" aria-label="Turn sound off" title="Turn sound off">&#x1F50A;</button>
-      <button type="button" id="fullscreen" class="ghost-btn small icon" aria-label="Go full screen" title="Go full screen" hidden>&#x26F6;</button>
       <button type="button" id="tv" class="ghost-btn small icon" data-tv aria-label="Play on TV" title="Play on TV">&#x1F4FA;</button>
+      <button type="button" id="more" class="ghost-btn small icon" aria-expanded="false" aria-controls="bar-more" aria-label="More" title="More">&#x22EF;</button>
+    </div>
+    
+    <div id="bar-more" class="bar-more" hidden>
+      <button type="button" id="stop" class="ghost-btn small">Stop</button>
+      <button type="button" id="mode-switch" class="ghost-btn small">Score points</button>
+      <button type="button" id="players" class="ghost-btn small icon" aria-pressed="false" aria-label="Two players" title="Two players">&#x1F465;</button>
+      <button type="button" id="fullscreen" class="ghost-btn small icon" aria-label="Go full screen" title="Go full screen" hidden>&#x26F6;</button>
       <button type="button" id="install" class="ghost-btn small" hidden>Install</button>
       <button type="button" id="menu" class="ghost-btn small">Menu</button>
       <button type="button" class="ghost-btn small icon" data-privacy aria-label="Privacy" title="The camera stays on this device">&#x1F512;</button>
@@ -82,12 +86,11 @@
   <section id="frame" class="screen overlay" aria-labelledby="frame-h" hidden>
     <div class="panel dock">
       <h2 id="frame-h">Step back until I can see you from head to feet</h2>
-      <ul id="joints" class="joints" aria-label="What the camera can see"></ul>
       <p id="frame-note" class="note" hidden></p>
       <div class="row">
-        <button type="button" class="ghost-btn" data-back="dress">Back</button>
-        <button type="button" id="use-demo" class="ghost-btn" hidden>Play the demo</button>
-        <button type="button" id="start" class="big">Start</button>
+        <button type="button" class="ghost-btn small" data-back="dress">Back</button>
+        <button type="button" id="use-demo" class="ghost-btn small" hidden>Play the demo</button>
+        <button type="button" id="start" class="ghost-btn small">Start</button>
       </div>
     </div>
   </section>

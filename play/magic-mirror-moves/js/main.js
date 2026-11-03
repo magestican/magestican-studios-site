@@ -12,7 +12,7 @@ import { createGame, FINALE_S, LEVELS, step, timeLeft } from './game.js';
 import { installed, installSteps } from './install.js';
 import { MOVES, MoveTracker, moveVisible } from './moves.js';
 import { framingAdvice, hipCentre, seenJoints, shoulderCentre, torsoLength } from './pose/framing.js';
-import { initialAuto, scoutCrop, secondPerson, stepAuto } from './pose/players.js';
+import { initialAuto, judgeLook, scoutCrop, secondPerson, stepAuto, stepLock, wrongBody } from './pose/players.js';
 import { mirrorFrame, onlyInFrame, PoseSmoother, seen } from './pose/pose.js';
 import {
   devicePlan,
@@ -36,9 +36,15 @@ import { COSTUMES_3D } from './three/costumes3d.js';
 import { startVoice, voiceSupport } from './voice.js';
 import { localVoiceSupported, startLocalVoice } from './voiceLocal.js';
 
-const sound = createSound(window, (n) => {
-  document.getElementById('sound').dataset.played = String(n); 
-});
+const sound = createSound(
+  window,
+  (n) => {
+    document.getElementById('sound').dataset.played = String(n); 
+  },
+  (on) => {
+    document.getElementById('sound').dataset.music = on ? 'on' : 'off'; 
+  },
+);
 const ART = new URL('../assets/costumes/costumes/', import.meta.url);
 const LABELS = {
   arms_up: 'Put your arms up high!',
@@ -61,23 +67,16 @@ const WORLD_WIN = {
   night_falls: 'Fireflies!',
   power_up: 'Full power!',
 };
-const JOINT_NAMES = {
-  nose: 'Head',
-  left_shoulder: 'Shoulder',
-  right_shoulder: 'Shoulder',
-  left_hip: 'Hip',
-  right_hip: 'Hip',
-  left_ankle: 'Foot',
-  right_ankle: 'Foot',
-};
 
 
 
 
 const q = new URLSearchParams(location.search);
+
+const debug = q.get('debug') === '1';
 const pick = (v, ok, d) => (ok.includes(v) ? v : d);
 const opts = {
-  demo: q.get('demo') === '1',
+  demo: q.get('demo') === '1' || debug,
   costume: pick(q.get('costume'), Object.keys(COSTUMES), 'wizard'),
   mode: pick(q.get('mode'), ['show', 'mirror'], 'mirror'),
   level: pick(q.get('level'), ['little', 'big'], 'little'),
@@ -99,7 +98,7 @@ if (receiver) opts.demo = true;
 const cast = receiver ? null : castSender();
 
 let remote = null;
-const cheat = q.get('cheat');
+const cheat = q.get('cheat') ?? (debug ? 'play' : null);
 
 
 const plan = devicePlan({
@@ -143,7 +142,10 @@ let BACK_PIECES = new Set();
 
 const S = {
   screen: 'title',
-  source: 'demo', 
+  
+  
+  
+  source:  (opts.demo ? 'demo' : 'off'),
   t: 0,
   
   frame: null,
@@ -182,6 +184,7 @@ const S = {
     costume: 'princess',
   },
   auto: initialAuto(), 
+  scout: { runs: 0, second: 0 }, 
   autoSwitched: false, 
 };
 S.p2.costume = otherCostume(opts.costume, q.get('costume2'));
@@ -222,14 +225,26 @@ async function loadArt() {
 }
 
 
+
+const syncMusic = () => sound.setMusic(S.screen === 'play' && !document.hidden);
+
 function show(id) {
   S.screen = id;
   for (const el of document.querySelectorAll('.screen')) el.hidden = el.id !== id;
   if (id !== 'play' && id !== 'frame') stopCamera();
+  syncMusic();
   document.body.dataset.screen = id;
-  $('bar').hidden = id !== 'play' && id !== 'frame';
+  
+  $('bar').hidden = id !== 'play';
+  showMore(false);
   dockH = 0;
   layout();
+}
+
+
+function showMore(open) {
+  $('bar-more').hidden = !open;
+  $('more').setAttribute('aria-expanded', String(open));
 }
 
 function syncChips() {
@@ -277,13 +292,6 @@ function buildDressingRoom() {
     mini.setAttribute('aria-label', costumeName(id));
     mini.addEventListener('click', () => setCostume(id));
     $('bar-costumes').append(mini);
-  }
-  const ul = $('joints');
-  for (const [j, name] of Object.entries(JOINT_NAMES)) {
-    const li = document.createElement('li');
-    li.dataset.joint = j;
-    li.textContent = j.startsWith('left') ? `${name} (L)` : j.startsWith('right') ? `${name} (R)` : name;
-    ul.append(li);
   }
 }
 
@@ -403,6 +411,7 @@ function wire() {
   $('stop').addEventListener('click', () => endRound());
   $('use-demo').addEventListener('click', () => {
     opts.demo = true;
+    S.source = 'demo';
     toFraming();
   });
   const dlg =  ($('privacy'));
@@ -418,8 +427,11 @@ function wire() {
     if (!document.hidden && !opts.demo && (S.screen === 'frame' || S.screen === 'play')) startCamera();
   };
   addEventListener('pagehide', stopCamera);
+  addEventListener('pagehide', () => sound.setMusic(false));
   addEventListener('pageshow', resume);
+  addEventListener('pageshow', syncMusic);
   document.addEventListener('visibilitychange', () => {
+    syncMusic();
     if (!document.hidden) return resume();
     stopCamera();
     if (S.screen === 'play' && opts.mode !== 'mirror') endRound();
@@ -430,6 +442,7 @@ function wire() {
   $('mode-switch').addEventListener('click', () => setMode(opts.mode === 'mirror' ? 'show' : 'mirror'));
   $('players').addEventListener('click', () => choosePlayers(opts.players === 2 ? 1 : 2));
   $('menu').addEventListener('click', () => show('title'));
+  $('more').addEventListener('click', () => showMore($('bar-more').hidden));
   
   initCast({
     buttons: document.querySelectorAll('[data-tv]'),
@@ -601,9 +614,17 @@ function drop3d() {
   resize();
 }
 
+
+function setCamWait(state) {
+  document.body.dataset.camWait = state;
+  layout();
+}
+
 async function startCamera() {
   if (stream) return true;
   const note = $('frame-note');
+  $('use-demo').hidden = true;
+  setCamWait('asking');
   
   
   
@@ -651,9 +672,13 @@ async function startCamera() {
           ? 'Camera off. Play the demo!'
           : 'No camera here. Play the demo!';
     $('use-demo').hidden = false;
+    setCamWait('refused');
+    
+    if (S.screen !== 'frame') show('frame');
     return false;
   }
   S.source = 'camera';
+  setCamWait('');
   S.detect = { runs: 0, people: 0, joints: 0, at: -1, error: '', both: 0, at2: -1 };
   smoother.reset();
   S.p2.smoother.reset();
@@ -663,6 +688,7 @@ async function startCamera() {
     note.hidden = false;
     note.textContent = 'The mirror is sleepy. Play the demo!';
     $('use-demo').hidden = false;
+    setCamWait('refused');
     if (S.screen !== 'frame') show('frame');
   };
   let oops = 0; 
@@ -714,21 +740,42 @@ async function startCamera() {
   const SCOUT_S = 0.5;
   let scoutAt = 0;
   let autoAt = 0;
+  let lockRun = 0;
+  
+  let scoutPlace = null;
+  
+  let look = null;
   const autoPlayers = async (f, f2) => {
     if (!opts.autoPlayers || (S.screen !== 'frame' && S.screen !== 'play')) return;
     const now = performance.now() / 1000;
     if (opts.players === 1) {
+      
+      
+      if (look) {
+        const { second, place } = judgeLook(look.p1, look.other, f?.pose ?? null, f?.height ?? 0, scoutPlace);
+        scoutPlace = place;
+        const dt = look.dt;
+        look = null;
+        S.scout.runs++;
+        if (second) S.scout.second++;
+        S.auto = stepAuto(S.auto, { players: 1, second }, dt);
+        if (S.auto.want === 2) {
+          scoutPlace = null;
+          S.autoSwitched = true;
+          setPlayers(2, { restart: false });
+          return;
+        }
+      }
       if (now - scoutAt < SCOUT_S) return;
       const dt = Math.min(1, scoutAt ? now - scoutAt : SCOUT_S);
       scoutAt = now;
       const crop = f ? scoutCrop(f.width, f.pose) : null;
       const other = crop ? await estimator.scout(video, now, crop) : null;
       if (!current()) return;
-      S.auto = stepAuto(S.auto, { players: 1, second: secondPerson(f?.pose ?? null, other, f?.height ?? 0) }, dt);
-      if (S.auto.want === 2) {
-        S.autoSwitched = true;
-        setPlayers(2, { restart: false });
-      }
+      const lock = stepLock(lockRun, wrongBody(f?.pose ?? null, other));
+      lockRun = lock.run;
+      if (lock.forget) estimator.forgetScout();
+      look = { p1: f?.pose ?? null, other, dt };
     } else {
       
       
@@ -754,7 +801,7 @@ function stopCamera() {
   stream = null;
   video.srcObject = null;
   if (S.source === 'camera') {
-    S.source = 'demo';
+    S.source = opts.demo ? 'demo' : 'off';
     S.frame = null;
     S.p2.frame = null;
   }
@@ -767,7 +814,8 @@ async function toFraming() {
   S.closeFor = 0;
   S.aloneFor = 0;
   $('use-demo').hidden = true;
-  if (!opts.demo) await startCamera();
+  if (opts.demo) setCamWait('');
+  else await startCamera();
 }
 
 function beginRound({ tutorial = true } = {}) {
@@ -845,7 +893,8 @@ function layout() {
   
   
   
-  const dock = S.screen === 'play' ? $('card') : S.screen === 'frame' ? document.querySelector('#frame .dock') : null;
+  const scoreCard = S.screen === 'play' && opts.mode !== 'mirror';
+  const dock = scoreCard ? $('card') : S.screen === 'frame' ? document.querySelector('#frame .dock') : null;
   if (dock && !dock.hidden && dock.offsetHeight) dockH = Math.max(dockH, Math.ceil(innerHeight - dock.getBoundingClientRect().top) + 8);
   const style = document.documentElement.style;
   style.setProperty('--top', `${top}px`);
@@ -951,8 +1000,6 @@ function tick(h) {
   const frame = S.frame ?? (opts.players === 2 ? S.p2.frame : null);
 
   if (S.screen === 'frame' && frame) {
-    const seen = seenJoints(frame.pose);
-    for (const li of $('joints').children) li.classList.toggle('seen', !!seen[li.dataset.joint]);
     const advice = framingAdvice(frame.pose, frame.width, frame.height);
     
     const advice2 = opts.players === 2 ? (S.p2.frame ? framingAdvice(S.p2.frame.pose, fw, fh) : 'searching') : 'ready';
@@ -1287,6 +1334,7 @@ Object.defineProperty(window, '__mmm', {
         eventsWon: S.eventsWon,
         players: opts.players,
         autoPlayers: opts.autoPlayers,
+        scout: S.scout,
         costumes: opts.players === 2 ? [opts.costume, S.p2.costume] : [opts.costume],
         
         seenAt: players().map((p) => {
@@ -1306,6 +1354,7 @@ Object.defineProperty(window, '__mmm', {
           tvSaver,
           frames,
           render: opts.render,
+          antialias3d: overlay?.renderer.getContext().getContextAttributes().antialias ?? null,
           try3d: try3d && {
             result: try3d.result,
             windows: try3d.windows,
@@ -1326,7 +1375,7 @@ Object.defineProperty(window, '__mmm', {
 async function start3d() {
   try {
     const { CostumeOverlay } = await import('./three/overlay.js');
-    overlay = new CostumeOverlay();
+    overlay = new CostumeOverlay(plan.antialias3d);
     await overlay.setCostume(opts.costume);
     if (power.low) enterLowPower(); 
   } catch (e) {
@@ -1350,10 +1399,16 @@ async function boot() {
   await loadArt();
   if (opts.render === '3d') await start3d();
   if (cheat === 'play' || cheat === 'finale') {
-    opts.demo = opts.demo || !navigator.mediaDevices;
-    if (!opts.demo) await startCamera();
-    beginRound({ tutorial: false });
-    if (cheat === 'finale') S.game.clock = LEVELS[opts.level].round - FINALE_S - 0.5;
+    if (!navigator.mediaDevices) {
+      opts.demo = true;
+      S.source = 'demo';
+    }
+    show('frame');
+    
+    if (opts.demo || (await startCamera())) {
+      beginRound({ tutorial: false });
+      if (cheat === 'finale') S.game.clock = LEVELS[opts.level].round - FINALE_S - 0.5;
+    }
   } else if (cheat === 'result') showResult(LEVELS[opts.level].stars[0] + 1234, 2);
   else if (cheat === 'menu') show('title');
   else toFraming(); 
