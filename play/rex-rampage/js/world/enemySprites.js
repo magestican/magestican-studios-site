@@ -27,6 +27,8 @@ export const SPRITES = {
     flipped: ['walk', 'attack'],
     poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt', dead: 'hurt' },
   },
+  
+  trike: { sheet: 'trike', side: 5, frames: DINO, poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt', dead: 'hurt' } },
   merc: { sheet: 'merc', side: 2, frames: PERSON, poses: { idle: 'idle', move: 'walk', attack: 'idle', hurt: 'hurt', dead: 'down' } },
   varga: { sheet: 'varga', side: 2.1, frames: PERSON, poses: { idle: 'idle', move: 'walk', attack: 'idle', hurt: 'hurt', dead: 'down' } },
   
