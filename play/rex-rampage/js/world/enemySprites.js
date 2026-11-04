@@ -42,6 +42,9 @@ export const SPRITES = {
     frames: DINO,
     poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt', dead: 'hurt' },
   },
+  ankylo: { sheet: 'ankylo', side: 5, frames: DINO, poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt', dead: 'hurt' } },
+  
+  hostage: { sheet: 'hostage', side: 1.9, frames: ['idle'], poses: onePose('idle') },
   merc: { sheet: 'merc', side: 2, frames: PERSON, poses: { idle: 'idle', move: 'walk', attack: 'idle', hurt: 'hurt', dead: 'down' } },
   varga: { sheet: 'varga', side: 2.1, frames: PERSON, poses: { idle: 'idle', move: 'walk', attack: 'idle', hurt: 'hurt', dead: 'down' } },
   
