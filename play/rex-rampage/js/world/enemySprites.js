@@ -29,6 +29,19 @@ export const SPRITES = {
   },
   
   trike: { sheet: 'trike', side: 5, frames: DINO, poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt', dead: 'hurt' } },
+  
+  compy: { sheet: 'compy', side: 1.5, frames: DINO, poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt', dead: 'hurt' } },
+  dilo: { sheet: 'dilo', side: 4, frames: DINO, poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt', dead: 'hurt' } },
+  spino: { sheet: 'spino', side: 8.5, frames: DINO, poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt', dead: 'hurt' } },
+  
+  pteranodon: {
+    sheet: 'pteranodon',
+    side: 3.5,
+    centred: true,
+    hang: 200,
+    frames: DINO,
+    poses: { idle: 'idle', move: 'walk', attack: 'attack', hurt: 'hurt', dead: 'hurt' },
+  },
   merc: { sheet: 'merc', side: 2, frames: PERSON, poses: { idle: 'idle', move: 'walk', attack: 'idle', hurt: 'hurt', dead: 'down' } },
   varga: { sheet: 'varga', side: 2.1, frames: PERSON, poses: { idle: 'idle', move: 'walk', attack: 'idle', hurt: 'hurt', dead: 'down' } },
   
@@ -45,6 +58,11 @@ export const SPRITES = {
 
 export function spriteLift(s) {
   return s.base === undefined ? (s.side * SPRITE_FILL) / 2 : (s.side * (s.base - CELL / 2)) / CELL;
+}
+
+
+export function spriteHang(s) {
+  return s.hang === undefined ? 0 : (s.side * (s.hang - CELL / 2)) / CELL;
 }
 
 

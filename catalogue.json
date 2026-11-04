@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "cf9d1065-20261104T084202Z",
+ "buildId": "0380b26b-20261104T101236Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -801,7 +801,7 @@
    "ageNote": null,
    "order": 26,
    "addedAt": "2026-11-02",
-   "bytes": 51646102
+   "bytes": 51954161
   },
   {
    "id": "lamplighters",
@@ -836,6 +836,38 @@
    "bytes": 365152
   },
   {
+   "id": "fossick",
+   "statsId": "fossick",
+   "title": "Fossick",
+   "tagline": "An excavation puzzle: tap the rock away until the specimen stands clear.",
+   "description": "An excavation puzzle that runs in your browser: a fossil sits inside a stack of tiny stone cubes, and you turn the stack and tap the rock away until the specimen stands clear.",
+   "dir": "play/fossick",
+   "path": "play/fossick/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/fossick.html",
+   "orientation": "any",
+   "players": "1",
+   "online": false,
+   "offline": false,
+   "cover": "assets/covers/fossick-16x9.webp",
+   "focus": [
+    0.66,
+    0.55
+   ],
+   "shots": [
+    "assets/shots/fossick/0.webp",
+    "assets/shots/fossick/1.webp"
+   ],
+   "accent": "#c49a3c",
+   "glyph": "fossick",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 28,
+   "addedAt": "2026-11-04",
+   "bytes": 2195711
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -863,7 +895,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 29,
+   "order": 30,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -895,7 +927,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 30,
+   "order": 31,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -927,7 +959,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 31,
+   "order": 32,
    "addedAt": "2026-09-21",
    "bytes": 211807
   },
@@ -959,7 +991,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 32,
+   "order": 33,
    "addedAt": "2026-09-21",
    "bytes": 211807
   }

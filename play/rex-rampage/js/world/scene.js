@@ -17,6 +17,7 @@ import {
   RIDER_LIFT,
   SPRITE_FILL,
   SPRITES,
+  spriteHang,
   spriteLift,
   spritePose,
   tipsOver,
@@ -261,7 +262,8 @@ export function createScene(canvas, stage, plan) {
         const centred = e.state === 'part' || KIND_LOOK[e.kind]?.shape === 'sphere' || (m.sheet && SPRITES[e.kind].centred);
         
         const lift = m.sheet ? spriteLift(SPRITES[e.kind]) : h / 2;
-        m.body.position.set(e.pos.x, centred ? e.pos.y : e.pos.y + lift - e.r, e.pos.z);
+        const hang = m.sheet ? spriteHang(SPRITES[e.kind]) : 0;
+        m.body.position.set(e.pos.x, centred ? e.pos.y + hang : e.pos.y + lift - e.r, e.pos.z);
         m.body.lookAt(pos.x, m.body.position.y, pos.z);
         if (e.dead) {
           const lying = m.sheet && !tipsOver(SPRITES[e.kind]);

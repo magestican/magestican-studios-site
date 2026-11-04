@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Fossick - free a specimen from the rock, one cube at a time</title>
+  <meta name="description" content="Fossick is a careful excavation game: turn a block of rock on a brass cradle and tap a specimen free, without bringing it all down.">
+  <meta name="build" content="0380b26b-20261104T101236Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/fossick/">
+  <link rel="icon" href="./assets/icons/ammonite-coil-icon/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./assets/icons/ammonite-coil-icon/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="./assets/icons/ammonite-coil-icon/apple-touch-icon.png">
+  <script type="importmap">
+  {"imports":{"three":"../../web-engine/vendor/three-0.161.0/three.module.js"}}
+  </script>
+  <link rel="stylesheet" href="./src/style.css?v=0380b26b-20261104T101236Z">
+</head>
+<body>
+  
+  <canvas id="plate" aria-label="The block of rock on its brass cradle"></canvas>
+
+  
+  <section class="sheet title-page" id="title" hidden>
+    <div class="plate-mark">
+      <div class="frontis" id="title-stage"></div>
+      <div class="title-block">
+        <h1 id="t-title"></h1>
+        <p class="sub" id="t-sub"></p>
+        <div class="rule-orn" aria-hidden="true"></div>
+        <p class="blurb" id="t-blurb"></p>
+        <button class="cartouche" id="t-open" type="button"></button>
+        <p class="imprint" id="t-imprint"></p>
+      </div>
+    </div>
+  </section>
+
+  
+  <section class="cabinet-room" id="cabinet" hidden>
+    <header class="cab-head">
+      <div>
+        <h2 id="c-title"></h2>
+        <p id="c-sub"></p>
+      </div>
+      <div class="cab-marks" id="c-sound">
+        <a class="home-mark" id="c-home" href="/"></a>
+      </div>
+    </header>
+    <div class="cabinet" id="drawers"></div>
+  </section>
+
+  
+  <section class="bench" id="hud" hidden>
+    <button class="back-tab" id="h-back" type="button"></button>
+
+    <div class="tag" id="h-tag">
+      <div class="tag-text">
+        <p class="tag-plate" id="h-plate"></p>
+        <h2 id="h-name"></h2>
+        <p class="tag-left" id="h-left"></p>
+      </div>
+      <div class="seals" id="h-seals" role="img"></div>
+    </div>
+
+    <div class="stage" id="stage">
+      <p class="caption" id="h-hint" aria-live="polite"></p>
+    </div>
+
+    <div class="tools" id="h-tools">
+      <div class="roll" role="radiogroup" id="h-roll"></div>
+      <button class="lever" id="h-lever" type="button" aria-pressed="false">
+        <span class="lever-slot" aria-hidden="true"><span class="lever-arm"></span></span>
+        <span class="lever-text"><b id="h-lever-name"></b><i id="h-lever-note"></i></span>
+      </button>
+    </div>
+
+    <div class="seismo" id="h-seismo">
+      <canvas id="seismo" width="600" height="80" aria-hidden="true"></canvas>
+      <span class="seismo-note" id="h-seismo-note"></span>
+    </div>
+
+    
+    <div class="museum" id="result" hidden>
+      <div class="stamp" id="r-stamp"></div>
+      <p class="m-kicker" id="r-plate"></p>
+      <h2 id="r-name"></h2>
+      <p class="m-line" id="r-line"></p>
+      <p class="m-stats" id="r-stats"></p>
+      <div class="m-actions">
+        <button class="cartouche" id="r-next" type="button"></button>
+        <button class="cartouche quiet" id="r-again" type="button"></button>
+        <button class="cartouche quiet" id="r-cabinet" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="./src/main.js?v=0380b26b-20261104T101236Z"></script>
+</body>
+</html>

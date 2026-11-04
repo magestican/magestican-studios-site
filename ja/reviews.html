@@ -129,8 +129,8 @@
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=cf9d1065-20261104T084202Z">
-  <link rel="stylesheet" href="/magazine.css?v=cf9d1065-20261104T084202Z">
+  <link rel="stylesheet" href="/styles.css?v=0380b26b-20261104T101236Z">
+  <link rel="stylesheet" href="/magazine.css?v=0380b26b-20261104T101236Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body class="mag-body">
@@ -204,6 +204,7 @@
         <li><a href="#magic-mirror-moves">Magic Mirror Moves</a> &mdash; 子ども向けのカメラで変身して体を動かすゲーム、まだ評価していません</li>
         <li><a href="#rex-rampage">Rex Rampage</a> &mdash; 両手を上げて狙う恐竜レールシューティング、今は1人用</li>
         <li><a href="#lamplighters">Lamplighters お絵かきロジック</a> &mdash; 1つのタワーを共有し、ライバルチームや友だちと競う絵のロジック対決</li>
+        <li><a href="#fossick">Fossick 化石発掘</a> &mdash; 発掘パズル：石の立方体でできた塊を回し、中の化石を掘り出す</li>
       </ul>
       <p>以下の各項目では、そのゲームの内容、うまくいっていると思う点、そして現時点で問題がある点を記しています。最後の部分だけが書く上で何かを差し出す必要があるものであり、このページが存在する理由でもあります。</p>
     </section>
@@ -980,6 +981,39 @@
       <p><a class="rev-play" href="/play/lamplighters/?lang=ja">Lamplighters お絵かきロジック をプレイ &rarr;</a> &middot; <a href="/lamplighters.html">詳しく見る</a></p>
     </article>
 
+    
+    <article class="rev-game" id="fossick">
+      <h2>Fossick 化石発掘</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">今すぐプレイ可能</span>
+        <span>パズル &middot; 1人用 &middot; ブラウザで無料</span>
+      </p>
+
+      <h3>概要</h3>
+      <p>Fossick 化石発掘 は発掘パズルです。小さな石の立方体でできた塊を回し、岩を少しずつ叩いて中の化石を取り出します。先に結論を言うと、塊の重さのおかげで慎重に掘ることに意味があり、バランスにはまだ人の手による確認が必要です。</p>
+
+      <h3>対応環境</h3>
+      <ul>
+        <li><strong>掘る順番で勝負が決まります。</strong>立方体は隣どうしで支え合っているので、薄い壁や細いくびれには、ぎっしり詰まった岩よりずっと大きな負担がかかります。テストでは、まっすぐトンネルを掘ってから塊を転がすと12個中7個が崩れました。一方、化石から一番遠いところを先に掘るスクリプトは、シダと叉骨を無傷で取り出しました。</li>
+        <li><strong>手を止めることも立派な一手です。</strong>疲れた塊はきしみ、岩が疲れるのは手を加えている間だけです。12個すべてから手を離したところ、90秒後もどれも立っていました。きしみが聞こえたら手を止めて、よく見てください。</li>
+        <li><strong>調査の引き出しでは問いが変わります。</strong>最後の3つの化石には色がありません。各面がその奥にあるものを数えて示すので、すべての面を読み、自分の答えのまわりを掘ります。</li>
+      </ul>
+
+      <h3>問題点</h3>
+      <ul>
+        <li><strong>バランスはスクリプトで調整しました。</strong>人のプレイは反映されていないので、化石によっては引き出しの印象より難しく、または易しく感じるかもしれません。</li>
+        <li><strong>実機のスマートフォンでは動かしていません。</strong>速度を4分の1に落としたデスクトップで、最大の化石は1ティックあたり4.22ミリ秒でした。101ミリ秒の突出が1回あり、原因はまだわかっていません。</li>
+        <li><strong>誰もまだ音を聞いていません。</strong>岩ごとに音がありますが、音量は測定でしか確かめていません。音楽はありません。</li>
+        <li><strong>今のところ得られるものはありません。</strong>このサイトでは Fossick 化石発掘 のプレイ回数を記録しておらず、バッジもありません。ゲームの文章は8言語ありますが、英語以外の7言語はネイティブの確認を受けていません。</li>
+      </ul>
+
+      <div class="rev-verdict">
+        <strong>総評</strong>
+        <p>まずチョークの引き出しで塊が手にどう応えるかを覚え、次に石灰岩の叉骨に挑戦してください。不注意なトンネルを掘ると塊が崩れます。自分の目に自信がつくまで木槌は使わないでください。化石のそばでは本当に傷をつけます。</p>
+      </div>
+      <p><a class="rev-play" href="/play/fossick/?lang=ja">Fossick 化石発掘 をプレイ &rarr;</a> &middot; <a href="/fossick.html">詳しく見る</a></p>
+    </article>
+
     <section class="rev-game" id="method">
       <h2>このページに点数がない理由</h2>
       <p>星評価も、10点満点の点数も、平均点もありません。これは見落としではなく、その不在が目立つため説明しておく価値があります。</p>
@@ -1000,7 +1034,7 @@
 
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="サイト"><ul><li><a href="/ja/#games">ゲーム</a></li><li><a href="/you.html">マイゲーム</a></li><li><a href="/ja/for-remote-teams.html">チーム向け</a></li><li><a href="/ja/magazine/">マガジン</a></li><li><a href="/ja/about.html">スタジオについて</a></li><li><a href="/ja/reviews.html">レビュー</a></li></ul></nav>
-    <nav class="footer-games" aria-label="すべてのゲーム"><ul><li><a href="/ja/farmyshoot.html">Splatbarn</a></li><li><a href="/ja/farmy-uprising.html">Hoofrise</a></li><li><a href="/ja/farmy-evil-hills.html">イービルヒルズ</a></li><li><a href="/ja/farmykart.html">Kartzoom カートレース</a></li><li><a href="/ja/farmy-tiles.html">Letterloft 単語ボードゲーム</a></li><li><a href="/ja/farmy-crosswords.html">Wordburrow クロスワード</a></li><li><a href="/ja/farmy-chess.html">Rookwise チェス</a></li><li><a href="/ja/farmy-checkers.html">Jumpwise チェッカー</a></li><li><a href="/ja/farmy-ludo.html">Pawnrush ルドー</a></li><li><a href="/ja/minesweeper-online.html">Sweepwise マインスイーパー</a></li><li><a href="/ja/gomoku-online.html">Gomowise 五目並べ</a></li><li><a href="/ja/shiritori.html">Relaywise しりとり</a></li><li><a href="/ja/truco.html">Trucowise トゥルーコ</a></li><li><a href="/ja/buraco.html">Buracowise ブラーコ</a></li><li><a href="/ja/conga.html">Congawise コンガ</a></li><li><a href="/ja/koikoi.html">Hanawise こいこい 花札</a></li><li><a href="/ja/shogi.html">Shogiwise 将棋</a></li><li><a href="/ja/xiangqi.html">Xiangqiwise シャンチー</a></li><li><a href="/ja/go.html">Weiqiwise 囲碁</a></li><li><a href="/ja/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/ja/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/ja/farmy-moon-life.html">ムーンライフ</a></li><li><a href="/ja/silk-and-seam.html">Silk & Seam</a></li><li><a href="/ja/dachis.html">Dachis</a></li><li><a href="/ja/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/rex-rampage.html">Rex Rampage</a></li><li><a href="/lamplighters.html">Lamplighters お絵かきロジック</a></li><li><a href="/ja/farmy-five.html">Guesswise 単語当て</a></li><li><a href="/ja/farmy-hive.html">Combword ハチの巣パズル</a></li><li><a href="/ja/farmy-herds.html">Groupseek 仲間分け</a></li><li><a href="/ja/farmy-furrows.html">Gridseek 単語探し</a></li></ul></nav>
+    <nav class="footer-games" aria-label="すべてのゲーム"><ul><li><a href="/ja/farmyshoot.html">Splatbarn</a></li><li><a href="/ja/farmy-uprising.html">Hoofrise</a></li><li><a href="/ja/farmy-evil-hills.html">イービルヒルズ</a></li><li><a href="/ja/farmykart.html">Kartzoom カートレース</a></li><li><a href="/ja/farmy-tiles.html">Letterloft 単語ボードゲーム</a></li><li><a href="/ja/farmy-crosswords.html">Wordburrow クロスワード</a></li><li><a href="/ja/farmy-chess.html">Rookwise チェス</a></li><li><a href="/ja/farmy-checkers.html">Jumpwise チェッカー</a></li><li><a href="/ja/farmy-ludo.html">Pawnrush ルドー</a></li><li><a href="/ja/minesweeper-online.html">Sweepwise マインスイーパー</a></li><li><a href="/ja/gomoku-online.html">Gomowise 五目並べ</a></li><li><a href="/ja/shiritori.html">Relaywise しりとり</a></li><li><a href="/ja/truco.html">Trucowise トゥルーコ</a></li><li><a href="/ja/buraco.html">Buracowise ブラーコ</a></li><li><a href="/ja/conga.html">Congawise コンガ</a></li><li><a href="/ja/koikoi.html">Hanawise こいこい 花札</a></li><li><a href="/ja/shogi.html">Shogiwise 将棋</a></li><li><a href="/ja/xiangqi.html">Xiangqiwise シャンチー</a></li><li><a href="/ja/go.html">Weiqiwise 囲碁</a></li><li><a href="/ja/zelakas-in-space.html">Zelakas In Space</a></li><li><a href="/ja/2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="/ja/farmy-moon-life.html">ムーンライフ</a></li><li><a href="/ja/silk-and-seam.html">Silk & Seam</a></li><li><a href="/ja/dachis.html">Dachis</a></li><li><a href="/ja/space-95.html">Space 95</a></li><li><a href="/magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="/rex-rampage.html">Rex Rampage</a></li><li><a href="/lamplighters.html">Lamplighters お絵かきロジック</a></li><li><a href="/fossick.html">Fossick 化石発掘</a></li><li><a href="/ja/farmy-five.html">Guesswise 単語当て</a></li><li><a href="/ja/farmy-hive.html">Combword ハチの巣パズル</a></li><li><a href="/ja/farmy-herds.html">Groupseek 仲間分け</a></li><li><a href="/ja/farmy-furrows.html">Gridseek 単語探し</a></li></ul></nav>
     <p>Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br> Magestican StudiosおよびMagestican Studiosのロゴは、オーストラリアのUltra Task Pty Ltdの商標です。</p>
     <p class="colophon">このサイトは静的です &middot; クッキーなし、匿名の集計のみ(<a href="/ja/privacy.html">詳しく</a>) &middot; <a href="https://www.youtube.com/@ameliagurl">AmeliaのYouTube</a>
     </p>
@@ -1016,7 +1050,7 @@
     initAnalytics({ page: 'ja-reviews' });
     trackPlayClicks();
   </script>
-  <script type="module" src="/assets/studioBanner.js?v=cf9d1065-20261104T084202Z"></script>
+  <script type="module" src="/assets/studioBanner.js?v=0380b26b-20261104T101236Z"></script>
   <script>
     
     

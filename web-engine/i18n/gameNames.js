@@ -93,6 +93,8 @@ export const GAME_NAMES = Object.freeze({
   
   
   lamplighters: { en: 'Lamplighters', es: 'Lamplighters: Nonogramas', pt: 'Lamplighters: Nonogramas', tl: 'Lamplighters: Nonogram', ja: 'Lamplighters お絵かきロジック', ko: 'Lamplighters 네모로직', id: 'Lamplighters: Nonogram', vi: 'Lamplighters: Nonogram' },
+  
+  fossick: { en: 'Fossick', es: 'Fossick: Caza de fósiles', pt: 'Fossick: Caça aos fósseis', tl: 'Fossick: Hukay ng Fossil', ja: 'Fossick 化石発掘', ko: 'Fossick 화석 발굴', id: 'Fossick: Gali Fosil', vi: 'Fossick: Đào hóa thạch' },
   minesweeper: { en: 'Sweepwise', es: 'Sweepwise: Buscaminas', pt: 'Sweepwise: Campo Minado', tl: 'Sweepwise: Minesweeper', ja: 'Sweepwise マインスイーパー', ko: 'Sweepwise 지뢰찾기', id: 'Sweepwise: Minesweeper', vi: 'Sweepwise: Dò Mìn' },
   'farmy-furrows': { en: 'Gridseek', es: 'Gridseek: Sopa de Letras', pt: 'Gridseek: Caça-Palavras', ja: 'Gridseek 単語探し', ko: 'Gridseek 단어 찾기', id: 'Gridseek: Cari Kata', vi: 'Gridseek: Tìm Chữ' },
 });
