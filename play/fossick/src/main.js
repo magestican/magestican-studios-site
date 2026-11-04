@@ -3,7 +3,7 @@
 
 import RAPIER from '../../../web-engine/vendor/rapier-0.14.0/rapier.es.js';
 import { Game, DT, mul, conj, normalize } from './game.js';
-import { DRAWERS, LEVELS, buildSpec } from './levels.js';
+import { COLLECTIONS, LEVELS, levelsOf, buildSpec } from './levels.js';
 import { TREASURE, ROCK, FATIGUE_FROM } from './structure.js';
 import { PlateView } from './view.js';
 import { stringsFor, fill, count } from './strings.js';
@@ -48,8 +48,9 @@ const GRADE_RANK = { worn: 1, fine: 2, mint: 3 };
 const unlockAll = !!cheats.drawer;
 const isOpen = (level) => {
   if (unlockAll) return true;
-  const at = LEVELS.findIndex((l) => l.id === level.id);
-  return at === 0 || !!save.best[LEVELS[at - 1].id];
+  const list = levelsOf(level.collection);
+  const at = list.findIndex((l) => l.id === level.id);
+  return at === 0 || !!save.best[list[at - 1].id];
 };
 
 
@@ -161,7 +162,7 @@ const startGame = (level, opts = {}) => {
   reframe();
   view.fit = { ...view.fitGoal };
   applyCheats();
-  setHint(game.level.survey ? S.drawerNotes.survey : level.id === 'cockle' || !told.drag ? S.hintStart : '');
+  setHint(game.level.survey ? S.drawerNotes.survey : levelsOf(level.collection)[0].id === level.id || !told.drag ? S.hintStart : '');
 };
 
 
@@ -205,7 +206,7 @@ const PICK_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M21.5 13 
 const MALLET_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M23.5 15 L10.5 37 l-3-1.7 L20.5 13.3z" fill="#c9a26a" stroke="#1d1008"/><path d="M11 6.5 L27.5 16 L32.5 7.5 L16 -1.5z" transform="translate(0 5)" fill="#8c6a3a" stroke="#1d1008"/></svg>`;
 
 function fillHud() {
-  const level = game.level, at = LEVELS.findIndex((l) => l.id === level.id) + 1;
+  const level = game.level, at = levelsOf(level.collection).findIndex((l) => l.id === level.id) + 1;
   $('h-plate').textContent = fill(S.plate, { n: at });
   $('h-name').textContent = S.names[level.id];
   $('h-left').textContent = count(S.rockLeft, game.block.rockLeft);
@@ -260,19 +261,46 @@ function silhouette(level, solved) {
   const N = Math.max(nx, ny) + 2;
   c.width = c.height = N;
   const g = c.getContext('2d');
-  g.fillStyle = solved ? level.pigment : '#2b1c10';
+  const inkOf = (tone) => (!solved ? '#2b1c10' : tone === 1 ? level.accent || level.pigment : tone === 2 ? level.eye || level.pigment : level.pigment);
   const ox = Math.floor((N - nx) / 2), oy = Math.floor((N - ny) / 2);
   for (let y = 0; y < ny; y++) for (let x = 0; x < nx; x++) {
-    for (let z = 0; z < nz; z++) if (spec.cells(x, y, z)?.kind === TREASURE) { g.fillRect(ox + x, N - 1 - (oy + y), 1, 1); break; }
+    for (let z = 0; z < nz; z++) { const cell = spec.cells(x, y, z); if (cell?.kind !== TREASURE) continue; g.fillStyle = inkOf(cell.tone); g.fillRect(ox + x, N - 1 - (oy + y), 1, 1); break; }
   }
   return c;
+}
+
+
+const collectionNow = () => (COLLECTIONS.some((c) => c.id === save.collection) ? save.collection : COLLECTIONS[0].id);
+const drawersNow = () => COLLECTIONS.find((c) => c.id === collectionNow()).drawers;
+
+function buildThemes() {
+  const host = $('c-themes');
+  host.innerHTML = '';
+  for (const c of COLLECTIONS) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'theme-cube';
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', String(c.id === collectionNow()));
+    b.dataset.collection = c.id;
+    b.textContent = S.collections[c.id];
+    b.addEventListener('click', () => {
+      if (c.id === collectionNow()) return;
+      save.collection = c.id;
+      writeSave();
+      sound.play('drawer');
+      buildCabinet();
+    });
+    host.append(b);
+  }
 }
 
 function buildCabinet(openId) {
   const root = $('drawers');
   root.innerHTML = '';
-  for (const d of DRAWERS) {
-    const opened = d.levels.some((l) => isOpen(l));
+  buildThemes();
+  for (const d of drawersNow()) {
+    const opened = d.levels.some((l) => isOpen(LEVELS.find((L) => L.id === l.id)));
     const done = d.levels.filter((l) => save.best[l.id]).length;
     const el = document.createElement('div');
     el.className = 'drawer';
@@ -324,8 +352,9 @@ function buildCabinet(openId) {
 
 
 function currentDrawer() {
-  for (const d of DRAWERS) if (d.levels.some((l) => !save.best[l.id] && isOpen(l))) return d.id;
-  return DRAWERS[DRAWERS.length - 1].id;
+  const drawers = drawersNow();
+  for (const d of drawers) if (d.levels.some((l) => !save.best[l.id] && isOpen(LEVELS.find((L) => L.id === l.id)))) return d.id;
+  return drawers[drawers.length - 1].id;
 }
 
 function toggleDrawer(el) {
@@ -353,7 +382,7 @@ function showLabel() {
   void stamp.offsetWidth;
   stamp.style.animation = '';
   sound.play('stamp');
-  $('r-plate').textContent = fill(S.plate, { n: LEVELS.findIndex((l) => l.id === level.id) + 1 });
+  $('r-plate').textContent = fill(S.plate, { n: levelsOf(level.collection).findIndex((l) => l.id === level.id) + 1 });
   $('r-name').textContent = S.names[level.id];
   $('r-line').textContent = won ? fill(S.labelWon, { name: S.names[level.id] }) : game.reason === 'broken' ? S.labelBroken : S.labelCollapse;
   $('r-stats').textContent = [count(S.statBlows, game.pokes), count(S.statCracks, game.cracks), count(S.statFell, game.largestFall)].join(' \u00b7 ');
@@ -361,8 +390,8 @@ function showLabel() {
     const had = save.best[level.id];
     if (!had || GRADE_RANK[grade] > GRADE_RANK[had]) { save.best[level.id] = grade; writeSave(); }
   }
-  const at = LEVELS.findIndex((l) => l.id === level.id);
-  const nextLevel = LEVELS[at + 1];
+  const list = levelsOf(level.collection);
+  const nextLevel = list[list.findIndex((l) => l.id === level.id) + 1];
   const next = $('r-next');
   next.hidden = !(won && nextLevel);
   $('r-again').textContent = S.again;
@@ -578,7 +607,12 @@ async function boot() {
   seismo.canvas = $('seismo');
   seismo.g = seismo.canvas.getContext('2d');
 
-  $('t-title').textContent = S.title;
+  
+  const letters = [...S.title];
+  const tTitle = $('t-title');
+  tTitle.setAttribute('aria-label', S.title);
+  tTitle.style.setProperty('--letters', letters.length);
+  tTitle.innerHTML = letters.map((ch) => `<span class="letter" aria-hidden="true">${ch}</span>`).join('');
   $('t-sub').textContent = S.titleSub;
   $('t-blurb').textContent = S.titleBlurb;
   $('t-imprint').textContent = S.imprint;
@@ -613,7 +647,8 @@ async function boot() {
   
   window.__fossick = { get game() { return game; }, get view() { return view; }, stats, get screen() { return screen; } };
 
-  if (cheats.drawer && DRAWERS.some((d) => d.id === cheats.drawer)) openCabinet(cheats.drawer);
+  if (params.has('collection')) save.collection = params.get('collection');
+  if (cheats.drawer && drawersNow().some((d) => d.id === cheats.drawer)) openCabinet(cheats.drawer);
   else if (cheats.level || cheats.win || cheats.lose || cheats.dug != null) {
     startGame(LEVELS.find((l) => l.id === cheats.level) || LEVELS[0]);
   } else startGame(LEVELS[0], { title: true });

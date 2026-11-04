@@ -8,16 +8,18 @@
 import { ROCK, TREASURE, CHALK, LIMESTONE, FLINT, SLATE } from './structure.js';
 
 class Shape {
-  constructor(nx, ny, nz) { this.size = [nx, ny, nz]; this.cells = new Set(); }
+  constructor(nx, ny, nz) { this.size = [nx, ny, nz]; this.cells = new Set(); this.tones = new Map(); }
   key(x, y, z) { return x + this.size[0] * (y + this.size[1] * z); }
-  put(x, y, z) {
+  put(x, y, z, tone = 0) {
     const [nx, ny, nz] = this.size;
     x = Math.round(x); y = Math.round(y); z = Math.round(z);
     if (x < 0 || y < 0 || z < 0 || x >= nx || y >= ny || z >= nz) return this;
     this.cells.add(this.key(x, y, z));
+    if (tone) this.tones.set(this.key(x, y, z), tone);
     return this;
   }
   has(x, y, z) { return this.cells.has(this.key(x, y, z)); }
+  tone(x, y, z) { return this.tones.get(this.key(x, y, z)) || 0; }
   
   line(a, b) {
     let [x, y, z] = a.map(Math.round);
@@ -233,6 +235,183 @@ function serpent() {
 }
 
 
+
+
+
+
+const TONE = { '#': 0, o: 1, x: 2 };
+function picture(size, puff, rows) {
+  const s = new Shape(...size);
+  const [nx, ny, nz] = size;
+  const h = rows.length, w = rows[0].length;
+  const ox = Math.floor((nx - w) / 2), oy = Math.floor((ny - h) / 2), cz = Math.floor(nz / 2);
+  const filled = (c, r) => r >= 0 && r < h && c >= 0 && c < w && rows[r][c] !== '.';
+  const inset = (c, r) => {
+    for (let d = 1; ; d++) {
+      for (let a = 0; a <= d; a++) {
+        const b = d - a;
+        if (!filled(c + a, r + b) || !filled(c - a, r + b) || !filled(c + a, r - b) || !filled(c - a, r - b)) return d - 1;
+      }
+    }
+  };
+  for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) {
+    if (!filled(c, r)) continue;
+    const half = Math.min(puff, inset(c, r));
+    for (let dz = -half; dz <= half; dz++) s.put(ox + c, oy + (h - 1 - r), cz + dz, TONE[rows[r][c]]);
+  }
+  return s;
+}
+
+
+
+
+
+const heart = () => picture([5, 5, 5], 0, [
+  '.#.#.',
+  '#####',
+  '#####',
+  '.###.',
+  '..#..',
+]);
+const duck = () => picture([9, 9, 5], 1, [
+  '..###..',
+  '..#x#oo',
+  '..###..',
+  '#.####.',
+  '#######',
+  '#######',
+  '.#####.',
+]);
+const icecream = () => picture([9, 9, 5], 1, [
+  '..###..',
+  '.#####.',
+  '.#####.',
+  '.ooooo.',
+  '..ooo..',
+  '..ooo..',
+  '...o...',
+]);
+const cat = () => picture([9, 11, 5], 1, [
+  '#.....#',
+  '##...##',
+  '#######',
+  '#x###x#',
+  '###o###',
+  '#######',
+  '.#####.',
+  '.#####.',
+  '.##.##.',
+]);
+const cupcake = () => picture([11, 11, 5], 1, [
+  '....o....',
+  '...###...',
+  '..#####..',
+  '.#######.',
+  '#########',
+  '.ooooooo.',
+  '.ooooooo.',
+  '..ooooo..',
+  '..ooooo..',
+]);
+const teddy = () => picture([11, 11, 7], 2, [
+  '##.....##',
+  '#########',
+  '.#x###x#.',
+  '.###o###.',
+  '..#####..',
+  '.#######.',
+  '##.###.##',
+  '##.###.##',
+  '.#######.',
+  '.###.###.',
+  '.##...##.',
+]);
+const butterfly = () => picture([11, 11, 5], 1, [
+  '##.......##',
+  '####...####',
+  '##o##x##o##',
+  '.####x####.',
+  '..###x###..',
+  '.####x####.',
+  '##o##x##o##',
+  '####.x.####',
+  '##...x...##',
+]);
+const flower = () => picture([11, 11, 5], 0, [
+  '.##.#.##.',
+  '#########',
+  '##ooooo##',
+  '.##ooo##.',
+  '##ooooo##',
+  '#########',
+  '.##.#.##.',
+  '....x....',
+  '.xx.x.xx.',
+  '..xxxxx..',
+  '....x....',
+]);
+const bunny = () => picture([11, 11, 7], 2, [
+  '.##...##.',
+  '.##...##.',
+  '.##...##.',
+  '.##...##.',
+  '.#######.',
+  '#########',
+  '##x###x##',
+  '####o####',
+  '#########',
+  '.#######.',
+  '..#####..',
+]);
+const star = () => picture([11, 11, 5], 1, [
+  '....#....',
+  '...###...',
+  '...###...',
+  '#########',
+  '.##x#x##.',
+  '..#####..',
+  '..#####..',
+  '.###.###.',
+  '.##...##.',
+]);
+const puppy = () => picture([11, 11, 9], 2, [
+  '..#####..',
+  '.o#####o.',
+  'oo#x#x#oo',
+  'oo#####oo',
+  'oo##x##oo',
+  '.o#####o.',
+  '..#####..',
+  '.#######.',
+  '.#######.',
+  '.##.#.##.',
+  '.##...##.',
+]);
+const panda = () => picture([11, 11, 11], 3, [
+  '.xx.....xx.',
+  'xxx#####xxx',
+  'xx#######xx',
+  '.#########.',
+  '##xx###xx##',
+  '##xx###xx##',
+  '#####x#####',
+  '.#########.',
+  '..#######..',
+  '.xxxxxxxxx.',
+  '.xx#####xx.',
+]);
+
+
+
+const EYE = '#2b1c10';
+const PINK = '#ec6f9c';
+const YELLOW = '#f2bd1d';
+const TABBY = '#e8912d';
+const TEDDY = '#b67a3c';
+const LILAC = '#a585e0';
+const PUPPY = '#e0ae72';
+const PANDA = '#f6f0dd';
+const LEAF = '#3f9a3c';
 const VERMILION = '#d8381f';
 const COBALT = '#1f55c2';
 const VERDIGRIS = '#118a76';
@@ -241,7 +420,45 @@ const OCHRE = '#d98a0b';
 const VIOLET = '#6a35b5';
 
 
+
 export const DRAWERS = Object.freeze([
+  Object.freeze({
+    id: 'chalk',
+    levels: Object.freeze([
+      { id: 'heart', shape: heart, mat: allChalk, pigment: VERMILION, mallet: false, pad: 0 },
+      { id: 'duck', shape: duck, mat: allChalk, pigment: YELLOW, accent: '#e8641a', eye: EYE, mallet: false, pad: 0 },
+      { id: 'icecream', shape: icecream, mat: allChalk, pigment: PINK, accent: '#d99a3e', mallet: false, pad: 0 },
+    ]),
+  }),
+  Object.freeze({
+    id: 'limestone',
+    levels: Object.freeze([
+      { id: 'cat', shape: cat, mat: beds(11), pigment: TABBY, accent: PINK, eye: EYE, mallet: true, pad: 0 },
+      { id: 'cupcake', shape: cupcake, mat: beds(23), pigment: PINK, accent: VERMILION, mallet: true, pad: 0 },
+      { id: 'teddy', shape: teddy, mat: knots(5), pigment: TEDDY, accent: EYE, eye: EYE, mallet: true, pad: 0 },
+    ]),
+  }),
+  Object.freeze({
+    id: 'slate',
+    levels: Object.freeze([
+      { id: 'butterfly', shape: butterfly, mat: slate, pigment: COBALT, accent: YELLOW, eye: EYE, mallet: true, seams: { axis: 1, every: 3 }, pad: 0 },
+      { id: 'flower', shape: flower, mat: slate, pigment: PINK, accent: YELLOW, eye: LEAF, mallet: true, seams: { axis: 2, every: 2 }, pad: 0 },
+      { id: 'bunny', shape: bunny, mat: slate, pigment: LILAC, accent: PINK, eye: EYE, mallet: true, seams: { axis: 0, every: 3 }, pad: 0 },
+    ]),
+  }),
+  Object.freeze({
+    id: 'survey',
+    levels: Object.freeze([
+      { id: 'star', shape: star, mat: allChalk, pigment: YELLOW, eye: EYE, mallet: true, survey: true, pad: 0 },
+      { id: 'puppy', shape: puppy, mat: beds(41), pigment: PUPPY, accent: '#7a4a22', eye: EYE, mallet: true, survey: true, pad: 0 },
+      { id: 'panda', shape: panda, mat: knots(77), pigment: PANDA, eye: EYE, mallet: true, survey: true, pad: 0 },
+    ]),
+  }),
+]);
+
+
+
+const FOSSIL_DRAWERS = Object.freeze([
   Object.freeze({
     id: 'chalk',
     levels: Object.freeze([
@@ -276,13 +493,21 @@ export const DRAWERS = Object.freeze([
   }),
 ]);
 
-export const LEVELS = Object.freeze(DRAWERS.flatMap((d) => d.levels.map((l) => Object.freeze({ ...l, drawer: d.id }))));
+export const COLLECTIONS = Object.freeze([
+  Object.freeze({ id: 'favourites', drawers: DRAWERS }),
+  Object.freeze({ id: 'fossils', drawers: FOSSIL_DRAWERS }),
+]);
+
+export const LEVELS = Object.freeze(COLLECTIONS.flatMap((c) => c.drawers.flatMap((d) => d.levels.map((l) => Object.freeze({ ...l, drawer: d.id, collection: c.id })))));
+
+
+export const levelsOf = (collection) => LEVELS.filter((l) => l.collection === collection);
 
 
 export function buildSpec(level) {
   const shape = level.shape();
   const [nx, ny, nz] = shape.size;
-  const cells = (x, y, z) => (shape.has(x, y, z) ? { kind: TREASURE } : { kind: ROCK, mat: level.mat(x, y, z) });
+  const cells = (x, y, z) => (shape.has(x, y, z) ? { kind: TREASURE, tone: shape.tone(x, y, z) } : { kind: ROCK, mat: level.mat(x, y, z) });
 
   
   let sx = 0, sy = 0, sz = 0, count = 0;

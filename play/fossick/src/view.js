@@ -74,6 +74,7 @@ const SHADOW_FN = `
 const CUBE_VERT = `
   attribute vec3 aCell;
   attribute float aKind;
+  attribute float aTone;
   attribute float aMat;
   attribute float aFox;
   attribute vec3 aClue;
@@ -83,8 +84,9 @@ const CUBE_VERT = `
   uniform int uHover;
   varying vec3 vLocal, vNormalO, vBlock, vWorld, vNormalW, vClue, vStress;
   varying vec4 vShadow;
-  varying float vKind, vMat, vFox, vLoose, vReveal, vHover;
+  varying float vKind, vTone, vMat, vFox, vLoose, vReveal, vHover;
   void main() {
+    vTone = aTone;
     vLocal = position; vNormalO = normal; vBlock = aCell + position;
     vec4 w = modelMatrix * instanceMatrix * vec4(position, 1.0);
     vWorld = w.xyz;
@@ -102,11 +104,11 @@ const CUBE_FRAG = `
   precision highp sampler3D;
   uniform sampler3D uOcc;
   uniform sampler2D uDigits;
-  uniform vec3 uDims, uLight, uInk, uPigment;
+  uniform vec3 uDims, uLight, uInk, uPigment, uAccent, uEye;
   uniform float uSurvey;
   varying vec3 vLocal, vNormalO, vBlock, vWorld, vNormalW, vClue, vStress;
   varying vec4 vShadow;
-  varying float vKind, vMat, vFox, vLoose, vReveal, vHover;
+  varying float vKind, vTone, vMat, vFox, vLoose, vReveal, vHover;
   ${NOISE}
   ${SHADOW_FN}
   // Outside the block is empty air. Clamp-to-edge alone would read the outer cubes as neighbours of themselves,
@@ -145,8 +147,9 @@ const CUBE_FRAG = `
       // TREASURE: a watercolour wash. The colourist's pigment mottles, pools darker where the wash met the
       // edge, and leaves the paper showing on the side the light comes from.
       float mott = vnoise(uv * 2.3 + 3.1) * 0.6 + vnoise(uv * 6.1) * 0.4;
-      base = mix(uPigment * 1.12, uPigment * 0.74, mott);
-      base = mix(base, uPigment * 0.52, 1.0 - smoothstep(0.0, 0.17, edge + (mott - 0.5) * 0.04));
+      vec3 wash = vTone < 0.5 ? uPigment : vTone < 1.5 ? uAccent : uEye;
+      base = mix(wash * 1.12, wash * 0.74, mott);
+      base = mix(base, wash * 0.52, 1.0 - smoothstep(0.0, 0.17, edge + (mott - 0.5) * 0.04));
       float hi = smoothstep(0.34, 0.5, dot(f, normalize(vec2(-1.0, 1.0))) + (mott - 0.5) * 0.25) * lam;
       base = mix(base, vec3(0.97, 0.93, 0.82), hi * 0.62);
       base *= mix(0.68, 1.06, tone);
@@ -463,6 +466,7 @@ export class PlateView {
     this.game = game;
     const b = game.block, n = b.n;
     const geo = new THREE.BoxGeometry(1, 1, 1);
+    const tones = new Float32Array(n);
     const cell = new Float32Array(n * 3), kind = new Float32Array(n), mat = new Float32Array(n), fox = new Float32Array(n), clue = new Float32Array(n * 3);
     const survey = !!game.level.survey;
     const near = this.treasureDistance();
@@ -470,6 +474,7 @@ export class PlateView {
       const [x, y, z] = b.xyz(i);
       cell[i * 3] = x; cell[i * 3 + 1] = y; cell[i * 3 + 2] = z;
       kind[i] = game.original[i] === TREASURE ? 1 : 0;
+      tones[i] = kind[i] ? game.spec.cells(x, y, z).tone || 0 : 0;
       mat[i] = game.originalMat[i];
       fox[i] = survey || kind[i] ? 0 : near[i] === 1 ? 0.8 : near[i] === 2 ? 0.28 : 0;
       if (survey) { clue[i * 3] = b.countAlong(x, y, z, 0); clue[i * 3 + 1] = b.countAlong(x, y, z, 1); clue[i * 3 + 2] = b.countAlong(x, y, z, 2); }
@@ -477,6 +482,7 @@ export class PlateView {
     const inst = (a, k) => new THREE.InstancedBufferAttribute(a, k);
     geo.setAttribute('aCell', inst(cell, 3));
     geo.setAttribute('aKind', inst(kind, 1));
+    geo.setAttribute('aTone', inst(tones, 1));
     geo.setAttribute('aMat', inst(mat, 1));
     geo.setAttribute('aFox', inst(fox, 1));
     geo.setAttribute('aClue', inst(clue, 3));
@@ -497,6 +503,8 @@ export class PlateView {
       uDigits: { value: this.digits },
       uDims: { value: new THREE.Vector3(b.nx, b.ny, b.nz) },
       uPigment: { value: rgb(game.level.pigment) },
+      uAccent: { value: rgb(game.level.accent || game.level.pigment) },
+      uEye: { value: rgb(game.level.eye || game.level.pigment) },
       uSurvey: { value: survey ? 1 : 0 },
       uHover: { value: -1 },
     };
@@ -575,7 +583,7 @@ export class PlateView {
       uniforms: { ...this.shared, uReach: { value: reach } },
     });
     this.bench = new THREE.Mesh(g, m);
-    this.bench.position.y = this.game.floorY;
+    this.bench.position.y = this.game.benchY;
     this.bench.renderOrder = -1;
     this.scene.add(this.bench);
   }
@@ -613,7 +621,7 @@ export class PlateView {
 
     
     
-    const yFoot = game.floorY;
+    const yFoot = game.benchY;
     const Ra = R2 + gap;
     this.cradle.add(rod(v(0, yFoot, 0), v(0, -R2, 0), tube * 0.95));
     const foot = new THREE.Mesh(new THREE.CylinderGeometry(R0 * 0.34, R0 * 0.4, tube * 1.6, 28), dark);
@@ -784,7 +792,7 @@ export class PlateView {
     if (!this.game || !this.fit) return;
     const { W, H, fit } = this, cam = this.camera;
     const worldW = (this.frameX + 0.2) * 2;
-    const top = this.frameTop + 0.2, bottom = this.game.floorY - 0.3;
+    const top = this.frameTop + 0.2, bottom = this.game.benchY - 0.3;
     const worldH = top - bottom;
     const mid = (top + bottom) / 2;
     const px = Math.min(fit.w / worldW, fit.h / worldH) * this.zoom;

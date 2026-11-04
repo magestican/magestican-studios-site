@@ -48,7 +48,11 @@ export class Game {
     const [nx, ny, nz] = spec.size;
     this.radius = Math.hypot(nx, ny, nz) / 2;
     
-    this.floorY = -(this.radius + 1.0);
+    
+    
+    
+    this.benchY = -(this.radius + 1.0);
+    this.floorY = this.benchY - this.radius * 2;
     this.loose = new LooseBodies(RAPIER, { floorY: this.floorY, maxBodies: opts.mobile ? 180 : 420 });
     this.q = [0, 0, 0, 1];
     this.qT = [0, 0, 0, 1];
