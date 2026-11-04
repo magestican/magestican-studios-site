@@ -2,9 +2,10 @@
 
 
 import { PHASE, fireAttack, BREATHER_TICKS } from '../../../web-engine/clashwell/match.js';
-import { WIDTH, STONE } from '../../../web-engine/clashwell/well.js';
+import { HEIGHT, WIDTH, STONE } from '../../../web-engine/clashwell/well.js';
+import { cellsOf } from '../../../web-engine/clashwell/pieces.js';
 
-export const CHEATS = Object.freeze(['tall', 'windup', 'pending', 'breather', 'over', 'squeeze']);
+export const CHEATS = Object.freeze(['tall', 'windup', 'pending', 'breather', 'over', 'squeeze', 'clash', 'ko']);
 
 function stack(player, rows) {
   for (let y = 0; y < rows; y += 1) {
@@ -50,6 +51,19 @@ export function applyCheat(match, name) {
       stack(a, 8);
       stack(b, 8);
       match.roundTick = 119 * 60;
+      break;
+    case 'clash': {
+      
+      fireAttack(match, 1, { kind: 'heavy', stones: 5 });
+      const cells = cellsOf(a.piece);
+      const low = Math.min(...cells.map(([, y]) => y));
+      const holes = cells.filter(([, y]) => y === low).map(([x]) => x);
+      for (let x = 0; x < WIDTH; x += 1) if (!holes.includes(x)) a.well[0][x] = STONE;
+      break;
+    }
+    case 'ko':
+      
+      stack(b, HEIGHT - 1);
       break;
     default:
   }

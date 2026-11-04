@@ -15,6 +15,7 @@ import { createClock } from './clock.js';
 import { createDuel } from './duel.js';
 import { layoutMatch } from './layout.js';
 import { drawMatch } from './render.js';
+import { createFx } from './fx.js';
 import { loadArt } from './art.js';
 import { CHEATS, applyCheat } from './cheats.js';
 import { createNet, canPlayTogether } from './net.js';
@@ -34,7 +35,6 @@ const FIGHTERS = 4;
 const STEP_MS = 16;
 const MAX_CATCH_UP = 2;
 const OVER_PAUSE_MS = 1600;
-const EFFECT_TICKS = 70;
 
 const KEYBOARD = {
   ArrowLeft: 'left', ArrowRight: 'right', ArrowDown: 'soft', ArrowUp: 'cw', KeyX: 'cw', KeyZ: 'ccw', Space: 'hard',
@@ -47,7 +47,8 @@ const hands = createHands();
 let clock = createClock();
 let duel = null;
 let mine = 0;
-let effects = [];
+const fx = createFx({ seed: Date.now() >>> 0, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches });
+const fxSeen = {};
 let lastWake = 0;
 let overTimer = null;
 let endNote = '';
@@ -80,27 +81,23 @@ function toast(text, ms = 3000) {
   toast.timer = setTimeout(() => { el.hidden = true; }, ms);
 }
 
-function effect(text, seat, { colour, big } = {}) {
-  effects.push({ text, seat, colour, big, left: EFFECT_TICKS, total: EFFECT_TICKS });
-}
 
 
+const FX_WORDS = {
+  chain: (n) => fill(T.chain, { n }), jab: T.light, combo: T.heavy, clash: T.clash, draw: T.draw, hit: T.hit, ko: T.ko, squeeze: T.squeeze,
+};
 
 function stage(events) {
   for (const e of events) {
     playCue(cueFor(e, mine));
-    if (e.type === 'lock' && e.steps.length > 1) effect(fill(T.chain, { n: e.steps.length }), e.player, { colour: '#ffd166' });
-    else if (e.type === 'fire') effect(`${e.kind === 'heavy' ? T.heavy : T.light} ${e.stones}`, e.from, { colour: e.kind === 'heavy' ? '#f5803d' : '#f5c93d' });
-    else if (e.type === 'clash') effect(e.winner === null ? T.draw : T.clash, null, { colour: '#ffffff', big: true });
-    else if (e.type === 'land') effect(T.hit, e.to, { colour: '#ff5c5c' });
-    else if (e.type === 'squeeze') effect(T.squeeze, null, { colour: '#ff9f7a' });
-    else if (e.type === 'round') onRound(e);
+    fx.on(e, duel.view, FX_WORDS);
+    fxSeen[e.type] = (fxSeen[e.type] ?? 0) + 1;
+    if (e.type === 'round') onRound();
     else if (e.type === 'over') onOver(e);
   }
 }
 
-function onRound(e) {
-  if (e.winner !== null) effect(T.ko, 1 - e.winner, { colour: '#ff5c5c', big: true });
+function onRound() {
   if (net?.hosting && waitingFriend) seatFriend();
 }
 
@@ -166,7 +163,7 @@ function paint() {
   
   const layout = layoutMatch(size.width, size.height, { touch: false, mine: mine ?? 0 });
   document.querySelector('.cw-matchbar').style.right = `${layout.barRight}px`;
-  drawMatch(ctx, size, layout, duel.view, effects, labels());
+  drawMatch(ctx, size, layout, duel.view, fx.state, labels());
 }
 
 function wake() {
@@ -184,7 +181,7 @@ function wake() {
     if (!duel) return;
     afterTick();
   }
-  if (ticks) effects = effects.map((e) => ({ ...e, left: e.left - ticks })).filter((e) => e.left > 0);
+  if (ticks) fx.step(ticks);
 }
 
 function afterTick() {
@@ -202,7 +199,7 @@ function afterTick() {
 function enterMatch(newDuel, seat) {
   duel = newDuel;
   mine = seat;
-  effects = [];
+  fx.reset();
   clock = createClock();
   lastWake = performance.now();
   lastHashed = 0;
@@ -285,7 +282,7 @@ function makeNet() {
     },
     onSync: (snapshot) => duel?.adopt(snapshot),
     onWantSync: (from) => { if (duel) net.sendSync(from, duel.confirmed); },
-    onCheer: () => { if (screen === 'match') effect(T.cheered, null, { colour: '#7ad7ff' }); },
+    onCheer: () => { if (screen === 'match') fx.word(T.cheered, 'field', { colour: '#7ad7ff' }); },
     onProposal: (action) => { if (action.kind === 'rematch' && screen === 'end') hostStart(); },
     onPeers: (peers, me) => {
       if (net?.hosting && me && room.seats[0] === 'host') room.seats = [me, room.seats[1]];
@@ -519,5 +516,8 @@ globalThis.clashwell = Object.freeze({
   desyncs: () => desyncs,
   
   cuesPlayed: () => cuesPlayed,
+  
+  fxSeen: () => ({ ...fxSeen }),
+  fxState: () => structuredClone(fx.state),
   PHASE,
 });

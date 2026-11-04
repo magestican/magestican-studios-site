@@ -151,10 +151,11 @@ function nextGap(match) {
 
 function lock(match, index, events) {
   const player = match.players[index];
-  const { well, steps } = resolveLock(placeCells(player.well, cellsOf(player.piece)));
+  const placed = cellsOf(player.piece);
+  const { well, steps } = resolveLock(placeCells(player.well, placed));
   player.well = well;
   player.piece = null;
-  events.push({ type: 'lock', player: index, steps });
+  events.push({ type: 'lock', player: index, steps, placed });
   const attack = attackFrom(steps);
   if (attack) {
     player.fired = attack;

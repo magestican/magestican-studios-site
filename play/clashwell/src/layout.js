@@ -4,9 +4,13 @@
 
 import { WIDTH, HEIGHT } from '../../../web-engine/clashwell/well.js';
 
-export const GUTTER = 16;
-const GAP = 12;
-const HUD = 44;
+
+
+export const frameThickness = (cell) => Math.max(2, Math.min(4, cell * 0.16));
+export const FRAME_ROOM = 6;
+export const GUTTER = 16 + FRAME_ROOM;
+const GAP = 12 + FRAME_ROOM * 2;
+const HUD = 50;
 const CONTROLS = 84;
 const NEXT_CELLS = 3;
 

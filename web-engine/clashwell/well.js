@@ -28,10 +28,12 @@ export function placeCells(well, cells) {
   return next;
 }
 
-function clearFullRows(well) {
+function clearFullRows(well, cleared) {
   let rows = 0;
-  for (const row of well) {
+  for (let y = 0; y < well.length; y += 1) {
+    const row = well[y];
     if (row.every((c) => c !== 0)) {
+      row.forEach((c, x) => cleared.push([x, y, c]));
       row.fill(0);
       rows += 1;
     }
@@ -39,7 +41,7 @@ function clearFullRows(well) {
   return rows;
 }
 
-function popGroups(well) {
+function popGroups(well, cleared) {
   const seen = well.map((row) => row.map(() => false));
   const doomed = [];
   for (let y = 0; y < well.length; y += 1) {
@@ -66,12 +68,16 @@ function popGroups(well) {
   for (const [x, y] of doomed) {
     for (const [nx, ny] of [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]]) {
       if (well[ny]?.[nx] === STONE) {
+        cleared.push([nx, ny, STONE]);
         well[ny][nx] = 0;
         cracked += 1;
       }
     }
   }
-  for (const [x, y] of doomed) well[y][x] = 0;
+  for (const [x, y] of doomed) {
+    cleared.push([x, y, well[y][x]]);
+    well[y][x] = 0;
+  }
   return { popped: doomed.length, cracked };
 }
 
@@ -93,15 +99,18 @@ function settle(well) {
 
 
 
+
+
 export function resolveLock(start) {
   const well = copyWell(start);
   const steps = [];
   for (;;) {
-    const rows = clearFullRows(well);
-    const { popped, cracked } = popGroups(well);
+    const cleared = [];
+    const rows = clearFullRows(well, cleared);
+    const { popped, cracked } = popGroups(well, cleared);
     if (rows === 0 && popped === 0) break;
     settle(well);
-    steps.push({ rows, popped, cracked });
+    steps.push({ rows, popped, cracked, cleared });
   }
   return { well, steps };
 }

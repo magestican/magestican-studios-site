@@ -4,21 +4,19 @@
 
 
 import { stagePicture, coverCrop } from './art.js';
+import { drawFx, shakeOffset, wellOffset } from './fx.js';
+import {
+  GEM, INK, OCHRE, PAPER, PAPER_DIM, PERSIMMON, STONE_EDGE, STONE_FILL, TIMBER, TIMBER_DARK, TIMBER_LIGHT, VERMILION, WELL, WELL_LINE,
+} from './palette.js';
+import { frameThickness } from './layout.js';
 import { HEIGHT, WIDTH, STONE, fits } from '../../../web-engine/clashwell/well.js';
 import { cellsOf } from '../../../web-engine/clashwell/pieces.js';
 import { LIGHT_WINDUP_TICKS, HEAVY_WINDUP_TICKS, PHASE } from '../../../web-engine/clashwell/match.js';
 
-const GEM = {
-  1: { fill: '#e5484d', edge: '#7a1216', mark: 'circle' },
-  2: { fill: '#3b82f6', edge: '#10306e', mark: 'diamond' },
-  3: { fill: '#30b56b', edge: '#0b5230', mark: 'bar' },
-  4: { fill: '#f5b73d', edge: '#7a4f05', mark: 'cross' },
-};
-const INK = '#f2f4fa';
-const ON_FILL = '#0b0f1c';
-const DIM = '#9aa6c0';
-const WELL_BG = '#141a2c';
-const WELL_LINE = '#2a3350';
+
+const BAR_LIGHT = '#f2f4fa';
+const BAR_DARK = '#0b0f1c';
+const SERIF = "'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', Georgia, 'Times New Roman', serif";
 
 function drawMark(ctx, mark, x, y, size) {
   const m = size / 2;
@@ -61,12 +59,16 @@ function drawGem(ctx, colour, x, y, size, alpha = 1) {
   ctx.save();
   ctx.globalAlpha = alpha;
   if (colour === STONE) {
-    ctx.fillStyle = '#59627c';
+    ctx.fillStyle = STONE_FILL;
     roundedCell(ctx, x + inset, y + inset, s, s * 0.12);
     ctx.fill();
-    ctx.strokeStyle = '#2b3147';
+    ctx.strokeStyle = STONE_EDGE;
     ctx.lineWidth = Math.max(1, size * 0.06);
     ctx.stroke();
+    if (size >= 12) {
+      ctx.fillStyle = 'rgba(255,255,255,0.16)';
+      ctx.fillRect(x + size * 0.17, y + size * 0.14, size * 0.66, size * 0.1);
+    }
   } else {
     const gem = GEM[colour] ?? GEM[1];
     ctx.fillStyle = gem.fill;
@@ -75,16 +77,36 @@ function drawGem(ctx, colour, x, y, size, alpha = 1) {
     ctx.strokeStyle = gem.edge;
     ctx.lineWidth = Math.max(1, size * 0.07);
     ctx.stroke();
+    if (size >= 12) {
+      
+      ctx.fillStyle = 'rgba(255,255,255,0.28)';
+      ctx.beginPath();
+      ctx.roundRect(x + size * 0.17, y + size * 0.13, size * 0.66, size * 0.14, size * 0.07);
+      ctx.fill();
+    }
     if (size >= 8) drawMark(ctx, gem.mark, x, y, size);
   }
   ctx.restore();
 }
 
+
+function drawFrame(ctx, box, cell) {
+  const t = frameThickness(cell);
+  ctx.lineWidth = t;
+  ctx.strokeStyle = TIMBER;
+  ctx.strokeRect(box.x - t / 2 - 1, box.y - t / 2 - 1, box.w + t + 2, box.h + t + 2);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = TIMBER_LIGHT;
+  ctx.strokeRect(box.x - t - 1.5, box.y - t - 1.5, box.w + t * 2 + 3, box.h + t * 2 + 3);
+  ctx.strokeStyle = TIMBER_DARK;
+  ctx.strokeRect(box.x - 0.5, box.y - 0.5, box.w + 1, box.h + 1);
+}
+
 const cellX = (box, x) => box.x + x * box.cell;
 const cellY = (box, y) => box.y + (HEIGHT - 1 - y) * box.cell;
 
-function drawWell(ctx, box, player, live) {
-  ctx.fillStyle = WELL_BG;
+function drawWell(ctx, box, player, live, shattered) {
+  ctx.fillStyle = WELL;
   ctx.fillRect(box.x, box.y, box.w, box.h);
   ctx.strokeStyle = WELL_LINE;
   ctx.lineWidth = 1;
@@ -101,7 +123,8 @@ function drawWell(ctx, box, player, live) {
   for (let y = 0; y < HEIGHT; y += 1) {
     for (let x = 0; x < WIDTH; x += 1) {
       const c = player.well[y][x];
-      if (c) drawGem(ctx, c, cellX(box, x), cellY(box, y), box.cell);
+      
+      if (c && !shattered) drawGem(ctx, c, cellX(box, x), cellY(box, y), box.cell);
     }
   }
   if (live && player.piece) {
@@ -115,23 +138,19 @@ function drawWell(ctx, box, player, live) {
       if (y < HEIGHT) drawGem(ctx, c, cellX(box, x), cellY(box, y), box.cell);
     }
   }
-  ctx.strokeStyle = '#4a5680';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(box.x - 1, box.y - 1, box.w + 2, box.h + 2);
+  drawFrame(ctx, box, box.cell);
   if (player.pending > 0) {
     
     const h = Math.min(HEIGHT, player.pending) * box.cell;
-    ctx.fillStyle = '#ff5c5c';
+    ctx.fillStyle = VERMILION;
     ctx.fillRect(box.x + 2, box.y + box.h - h, Math.max(3, box.cell * 0.18), h);
   }
 }
 
 function drawNext(ctx, box, player) {
-  ctx.fillStyle = WELL_BG;
+  ctx.fillStyle = WELL;
   ctx.fillRect(box.x, box.y, box.w, box.h);
-  ctx.strokeStyle = WELL_LINE;
-  ctx.lineWidth = 1;
-  ctx.strokeRect(box.x + 0.5, box.y + 0.5, box.w - 1, box.h - 1);
+  drawFrame(ctx, box, box.cell);
   const pieces = player.nextPieces.slice(0, 2);
   const rowH = (box.h - 16) / 2;
   pieces.forEach((piece, i) => {
@@ -148,9 +167,9 @@ function drawNext(ctx, box, player) {
 
 
 function drawStage(ctx, box, match, labels) {
-  ctx.fillStyle = '#1a2138';
+  ctx.fillStyle = WELL;
   ctx.beginPath();
-  ctx.roundRect(box.x, box.y, box.w, box.h, 8);
+  ctx.rect(box.x, box.y, box.w, box.h);
   ctx.fill();
   const scene = stagePicture();
   if (scene) {
@@ -160,6 +179,7 @@ function drawStage(ctx, box, match, labels) {
     ctx.drawImage(scene, sx, sy, sw, sh, box.x, box.y, box.w, box.h);
     ctx.restore();
   }
+  drawFrame(ctx, box, 16);
   const barH = 26;
   const pad = 10;
   let y = box.y + pad;
@@ -168,13 +188,18 @@ function drawStage(ctx, box, match, labels) {
     const total = attack.kind === 'heavy' ? HEAVY_WINDUP_TICKS : LIGHT_WINDUP_TICKS;
     const done = 1 - attack.left / total;
     const w = box.w - pad * 2;
-    ctx.fillStyle = '#2a3350';
+    ctx.fillStyle = INK;
     ctx.fillRect(box.x + pad, y, w, barH);
-    ctx.fillStyle = attack.kind === 'heavy' ? '#f5803d' : '#f5c93d';
+    
+    const closing = attack.left < 24 && Math.floor(attack.left / 4) % 2 === 0;
+    const base = attack.kind === 'heavy' ? PERSIMMON : OCHRE;
+    ctx.fillStyle = closing ? PAPER : base;
     const fill = w * done;
     const fillX = attack.from === 0 ? box.x + pad : box.x + pad + w - fill;
     ctx.fillRect(fillX, y, fill, barH);
-    ctx.font = `700 ${Math.min(14, box.w / 8)}px system-ui, sans-serif`;
+    ctx.fillStyle = PAPER;
+    ctx.fillRect(attack.from === 0 ? fillX + fill - 2 : fillX, y, 2, barH);
+    ctx.font = `800 ${Math.min(14, box.w / 8)}px ${SERIF}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const text = `${attack.kind === 'heavy' ? labels.heavy : labels.light} ${attack.stones}`;
@@ -190,9 +215,9 @@ function drawStage(ctx, box, match, labels) {
 
 export function drawBarLabel(ctx, text, bar, fillX, fillW) {
   const passes = [
-    { x: bar.x, w: fillX - bar.x, ink: INK },
-    { x: fillX, w: fillW, ink: ON_FILL },
-    { x: fillX + fillW, w: bar.x + bar.w - fillX - fillW, ink: INK },
+    { x: bar.x, w: fillX - bar.x, ink: BAR_LIGHT },
+    { x: fillX, w: fillW, ink: BAR_DARK },
+    { x: fillX + fillW, w: bar.x + bar.w - fillX - fillW, ink: BAR_LIGHT },
   ];
   for (const { x, w, ink } of passes) {
     if (w <= 0) continue;
@@ -206,67 +231,83 @@ export function drawBarLabel(ctx, text, bar, fillX, fillW) {
   }
 }
 
-function drawHud(ctx, width, layout, match, labels) {
+
+function drawPlate(ctx, x, y, text, wins, maxW) {
+  const h = 28;
+  const seal = 6;
+  ctx.font = `800 14px ${SERIF}`;
   ctx.textBaseline = 'middle';
-  ctx.font = '600 14px system-ui, sans-serif';
-  const y = 22;
-  for (const seat of [0, 1]) {
-    const box = layout.wells[seat];
-    const pips = '●'.repeat(match.wins[seat]) + '○'.repeat(Math.max(0, 2 - match.wins[seat]));
-    ctx.textAlign = 'left';
-    ctx.fillStyle = INK;
-    const label = `${labels.seats[seat]}  ${pips}`;
-    ctx.fillText(label, box.x, y, box.w);
+  ctx.textAlign = 'left';
+  const textW = ctx.measureText(text).width;
+  const seals = wins === null ? 0 : 2;
+  const w = Math.min(maxW, textW + 16 + (seals ? 6 + seals * (seal * 2 + 3) : 0));
+  ctx.fillStyle = PAPER;
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = PAPER_DIM;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 2.5, y + 2.5, w - 5, h - 5);
+  ctx.fillStyle = INK;
+  ctx.fillText(text, x + 8, y + h / 2 + 1, Math.max(10, w - 16 - (seals ? 6 + seals * (seal * 2 + 3) : 0)));
+  for (let i = 0; i < seals; i += 1) {
+    const cx = x + w - 8 - seal - (seals - 1 - i) * (seal * 2 + 3);
+    ctx.beginPath();
+    ctx.arc(cx, y + h / 2, seal - 0.5, 0, Math.PI * 2);
+    if (i < wins) {
+      ctx.fillStyle = VERMILION;
+      ctx.fill();
+    } else {
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
   }
-  ctx.textAlign = 'right';
-  ctx.fillStyle = DIM;
-  if (!layout.wide) return;
-  ctx.textAlign = 'center';
-  ctx.fillText(labels.round.replace('{n}', match.round + 1), layout.stage.x + layout.stage.w / 2, y);
 }
 
-function drawEffects(ctx, layout, effects) {
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  for (const effect of effects) {
-    const box = effect.seat === null ? (layout.stage ?? layout.wells[0]) : layout.wells[effect.seat];
-    const life = effect.left / effect.total;
-    ctx.save();
-    ctx.globalAlpha = Math.min(1, life * 2);
-    const size = effect.big ? Math.min(44, box.w / 4.5) : Math.min(26, box.w / 6);
-    ctx.font = `800 ${size}px system-ui, sans-serif`;
-    ctx.lineWidth = Math.max(3, size / 7);
-    ctx.strokeStyle = '#0b0f1c';
-    ctx.fillStyle = effect.colour ?? INK;
-    const y = box.y + box.h * 0.32 - (1 - life) * 24;
-    ctx.strokeText(effect.text, box.x + box.w / 2, y, box.w);
-    ctx.fillText(effect.text, box.x + box.w / 2, y, box.w);
-    ctx.restore();
+function drawHud(ctx, layout, match, labels) {
+  const y = 8;
+  for (const seat of [0, 1]) {
+    const box = layout.wells[seat];
+    
+    const big = !layout.wide && box.cell >= layout.wells[1 - seat].cell;
+    drawPlate(ctx, box.x, y, labels.seats[seat], Math.min(2, match.wins[seat]), big ? Math.round(box.w * 0.4) : box.w);
   }
+  if (!layout.wide) return;
+  const text = labels.round.replace('{n}', match.round + 1);
+  ctx.font = `800 14px ${SERIF}`;
+  const w = ctx.measureText(text).width + 20;
+  drawPlate(ctx, layout.stage.x + (layout.stage.w - w) / 2, y, text, null, layout.stage.w);
 }
 
 function drawBreather(ctx, layout, match, labels) {
   for (const box of layout.wells) {
-    ctx.fillStyle = 'rgba(11,15,28,0.6)';
+    ctx.fillStyle = 'rgba(13,27,48,0.62)';
     ctx.fillRect(box.x, box.y, box.w, box.h);
   }
   const box = layout.wells[0].cell >= layout.wells[1].cell ? layout.wells[0] : layout.wells[1];
-  ctx.fillStyle = INK;
+  ctx.fillStyle = PAPER;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = `800 ${Math.min(34, box.w / 6)}px system-ui, sans-serif`;
-  ctx.fillText(labels.round.replace('{n}', match.round + 1), box.x + box.w / 2, box.y + box.h * 0.45, box.w - 16);
+  ctx.font = `900 ${Math.min(34, box.w / 6)}px ${SERIF}`;
+  ctx.fillText(labels.round.replace('{n}', match.round + 1), box.x + box.w / 2, box.y + box.h * 0.62, box.w - 16);
 }
 
 
-export function drawMatch(ctx, size, layout, match, effects, labels) {
+export function drawMatch(ctx, size, layout, match, fx, labels) {
   ctx.clearRect(0, 0, size.width, size.height);
-  drawHud(ctx, size.width, layout, match, labels);
+  const shake = shakeOffset(fx, layout);
+  ctx.save();
+  ctx.translate(shake.x, shake.y);
+  drawHud(ctx, layout, match, labels);
+  if (layout.stage) drawStage(ctx, layout.stage, match, labels);
   for (const seat of [0, 1]) {
-    drawWell(ctx, layout.wells[seat], match.players[seat], match.phase === PHASE.PLAY);
+    const nudge = wellOffset(fx, layout, seat);
+    ctx.save();
+    ctx.translate(nudge.x, nudge.y);
+    drawWell(ctx, layout.wells[seat], match.players[seat], match.phase === PHASE.PLAY, fx.ko === seat);
+    ctx.restore();
     if (layout.nexts[seat]) drawNext(ctx, layout.nexts[seat], match.players[seat]);
   }
-  if (layout.stage) drawStage(ctx, layout.stage, match, labels);
   if (match.phase === PHASE.BREATHER) drawBreather(ctx, layout, match, labels);
-  drawEffects(ctx, layout, effects);
+  drawFx(ctx, size, layout, fx);
+  ctx.restore();
 }
