@@ -15,6 +15,7 @@ import { createClock } from './clock.js';
 import { createDuel } from './duel.js';
 import { layoutMatch } from './layout.js';
 import { drawMatch } from './render.js';
+import { loadArt } from './art.js';
 import { CHEATS, applyCheat } from './cheats.js';
 import { createNet, canPlayTogether } from './net.js';
 import { T, fill } from './strings.js';
@@ -143,6 +144,8 @@ function resize() {
   }
   return { width: box.width, height: box.height, ratio };
 }
+
+loadArt();
 
 function paint() {
   requestAnimationFrame(paint);

@@ -3,7 +3,7 @@
 
 
 
-
+import { stagePicture, coverCrop } from './art.js';
 import { HEIGHT, WIDTH, STONE, fits } from '../../../web-engine/clashwell/well.js';
 import { cellsOf } from '../../../web-engine/clashwell/pieces.js';
 import { LIGHT_WINDUP_TICKS, HEAVY_WINDUP_TICKS, PHASE } from '../../../web-engine/clashwell/match.js';
@@ -15,6 +15,7 @@ const GEM = {
   4: { fill: '#f5b73d', edge: '#7a4f05', mark: 'cross' },
 };
 const INK = '#f2f4fa';
+const ON_FILL = '#0b0f1c';
 const DIM = '#9aa6c0';
 const WELL_BG = '#141a2c';
 const WELL_LINE = '#2a3350';
@@ -151,6 +152,14 @@ function drawStage(ctx, box, match, labels) {
   ctx.beginPath();
   ctx.roundRect(box.x, box.y, box.w, box.h, 8);
   ctx.fill();
+  const scene = stagePicture();
+  if (scene) {
+    const { sx, sy, sw, sh } = coverCrop(scene.naturalWidth, scene.naturalHeight, box.w, box.h);
+    ctx.save();
+    ctx.clip();
+    ctx.drawImage(scene, sx, sy, sw, sh, box.x, box.y, box.w, box.h);
+    ctx.restore();
+  }
   const barH = 26;
   const pad = 10;
   let y = box.y + pad;
@@ -163,14 +172,37 @@ function drawStage(ctx, box, match, labels) {
     ctx.fillRect(box.x + pad, y, w, barH);
     ctx.fillStyle = attack.kind === 'heavy' ? '#f5803d' : '#f5c93d';
     const fill = w * done;
-    ctx.fillRect(attack.from === 0 ? box.x + pad : box.x + pad + w - fill, y, fill, barH);
-    ctx.fillStyle = '#0b0f1c';
+    const fillX = attack.from === 0 ? box.x + pad : box.x + pad + w - fill;
+    ctx.fillRect(fillX, y, fill, barH);
     ctx.font = `700 ${Math.min(14, box.w / 8)}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = done > 0.5 ? '#0b0f1c' : INK;
-    ctx.fillText(`${attack.kind === 'heavy' ? labels.heavy : labels.light} ${attack.stones}`, box.x + box.w / 2, y + barH / 2);
+    const text = `${attack.kind === 'heavy' ? labels.heavy : labels.light} ${attack.stones}`;
+    drawBarLabel(ctx, text, { x: box.x + pad, y, w, h: barH }, fillX, fill);
     y += barH + 8;
+  }
+}
+
+
+
+
+
+
+export function drawBarLabel(ctx, text, bar, fillX, fillW) {
+  const passes = [
+    { x: bar.x, w: fillX - bar.x, ink: INK },
+    { x: fillX, w: fillW, ink: ON_FILL },
+    { x: fillX + fillW, w: bar.x + bar.w - fillX - fillW, ink: INK },
+  ];
+  for (const { x, w, ink } of passes) {
+    if (w <= 0) continue;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, bar.y, w, bar.h);
+    ctx.clip();
+    ctx.fillStyle = ink;
+    ctx.fillText(text, bar.x + bar.w / 2, bar.y + bar.h / 2);
+    ctx.restore();
   }
 }
 
