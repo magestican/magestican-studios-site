@@ -31,7 +31,9 @@ function tall(width, height, mine) {
   const stage = stageH >= 40 ? { x: sideX, y: stageY, w: sideW, h: stageH } : null;
   const wells = mine === 1 ? [rival, own] : [own, rival];
   const nexts = mine === 1 ? [null, next] : [next, null];
-  return { wells, nexts, stage, height: HUD + own.h + GAP, controls: CONTROLS, wide: false };
+  
+  
+  return { wells, nexts, stage, height: HUD + own.h + GAP, controls: CONTROLS, wide: false, barRight: width - sideX + GAP };
 }
 
 function wide(width, height) {
@@ -50,7 +52,7 @@ function wide(width, height) {
   const stage = { x: well0.x + wellW + GAP, y: HUD, w: stageW, h: well0.h };
   const well1 = wellBox(stage.x + stageW + GAP, HUD, cell);
   const next1 = { x: well1.x + wellW + GAP, y: HUD, w: nextW, h: nextH, cell: Math.floor(nextW / 5) };
-  return { wells: [well0, well1], nexts: [next0, next1], stage, height: HUD + well0.h + GAP, controls: 0, wide: true };
+  return { wells: [well0, well1], nexts: [next0, next1], stage, height: HUD + well0.h + GAP, controls: 0, wide: true, barRight: GUTTER };
 }
 
 

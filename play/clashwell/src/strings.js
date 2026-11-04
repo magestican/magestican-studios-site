@@ -68,6 +68,8 @@ export const T = Object.freeze({
   hostLeft: 'The host left. This room has closed.',
   noRooms: 'Rooms need a newer browser.',
   quit: 'Quit',
+  soundOn: 'Sound on',
+  soundOff: 'Sound off',
 });
 
 export const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));

@@ -19,6 +19,13 @@ import { loadArt } from './art.js';
 import { CHEATS, applyCheat } from './cheats.js';
 import { createNet, canPlayTogether } from './net.js';
 import { T, fill } from './strings.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
+import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
+import { cueFor, pieceCue, createCuePlayer } from './sound.js';
+
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['move', 'turn', 'lock', 'rise', 'clear', 'chain2', 'chain3', 'chain4', 'light', 'heavy', 'clash', 'hit', 'squeeze', 'ko', 'start', 'win', 'lose', 'tap'], { move: 4, turn: 4, lock: 4, rise: 3, clear: 3, chain2: 3, chain3: 3, chain4: 3, light: 3, heavy: 3, clash: 3, hit: 3, squeeze: 2, ko: 2, start: 2, tap: 3 });
+let cuesPlayed = 0;
+const playCue = createCuePlayer((cue) => { cuesPlayed += 1; return sfx.play(cue); });
 
 const $ = (id) => document.getElementById(id);
 const SCREENS = ['title', 'select', 'room', 'match', 'end'];
@@ -81,6 +88,7 @@ function effect(text, seat, { colour, big } = {}) {
 
 function stage(events) {
   for (const e of events) {
+    playCue(cueFor(e, mine));
     if (e.type === 'lock' && e.steps.length > 1) effect(fill(T.chain, { n: e.steps.length }), e.player, { colour: '#ffd166' });
     else if (e.type === 'fire') effect(`${e.kind === 'heavy' ? T.heavy : T.light} ${e.stones}`, e.from, { colour: e.kind === 'heavy' ? '#f5803d' : '#f5c93d' });
     else if (e.type === 'clash') effect(e.winner === null ? T.draw : T.clash, null, { colour: '#ffffff', big: true });
@@ -112,6 +120,8 @@ function endMatch(winner, note = '') {
   endNote = note;
   $('end-note').textContent = endNote;
   $('rematch').hidden = !!watching;
+  if (!watching && winner !== mine) sfx.play('lose');
+  else sfx.play('win');
   room.running = false;
   net?.publish();
   show('end');
@@ -155,6 +165,7 @@ function paint() {
   ctx.setTransform(size.ratio, 0, 0, size.ratio, 0, 0);
   
   const layout = layoutMatch(size.width, size.height, { touch: false, mine: mine ?? 0 });
+  document.querySelector('.cw-matchbar').style.right = `${layout.barRight}px`;
   drawMatch(ctx, size, layout, duel.view, effects, labels());
 }
 
@@ -166,7 +177,9 @@ function wake() {
   let ticks = clock.advance(passed);
   if (net?.active) ticks += Math.min(MAX_CATCH_UP, duel.behind);
   for (let i = 0; i < ticks; i += 1) {
+    const before = mine === null ? null : duel.view.players[mine].piece;
     const events = duel.tick(hands.tick());
+    if (mine !== null) playCue(pieceCue(before, duel.view.players[mine].piece));
     if (events.length) stage(events);
     if (!duel) return;
     afterTick();
@@ -199,6 +212,8 @@ function enterMatch(newDuel, seat) {
   $('cheer').hidden = !watching;
   $('match-watch').hidden = !watching;
   show('match');
+  
+  playCue('start');
 }
 
 function startSolo(state = null) {
@@ -399,6 +414,11 @@ function fillStatic() {
   $('how-list').replaceChildren(...T.howLines.map((line) => Object.assign(document.createElement('li'), { textContent: line })));
 }
 
+function drawSound() {
+  const on = uiSoundOn();
+  for (const id of ['sound', 'sound-title']) $(id).textContent = on ? T.soundOn : T.soundOff;
+}
+
 function drawSelect() {
   const pick = (container, items, isOn, onPick) => {
     $(container).replaceChildren(...items.map(([value, label]) => {
@@ -436,6 +456,16 @@ function wire() {
     else startSolo();
   });
   $('to-title').addEventListener('click', () => { if (net) leaveRoom(); else show('title'); });
+
+  
+  document.addEventListener('click', (e) => {
+    if (e.target.closest?.('button') && !e.target.closest('#pad')) sfx.play('tap');
+  });
+  
+  for (const id of ['sound', 'sound-title']) {
+    $(id).addEventListener('click', () => { setUiSound(!uiSoundOn()); drawSound(); });
+  }
+  drawSound();
 
   addEventListener('keydown', (e) => {
     const key = KEYBOARD[e.code];
@@ -487,5 +517,7 @@ globalThis.clashwell = Object.freeze({
   phase: () => duel?.view.phase ?? null,
   
   desyncs: () => desyncs,
+  
+  cuesPlayed: () => cuesPlayed,
   PHASE,
 });
