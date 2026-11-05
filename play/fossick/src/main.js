@@ -351,6 +351,12 @@ function buildCabinet(openId) {
 }
 
 
+function nextToDig() {
+  const listed = drawersNow().flatMap((d) => d.levels).map((l) => LEVELS.find((L) => L.id === l.id));
+  return listed.find((l) => !save.best[l.id] && isOpen(l)) || listed[0];
+}
+
+
 function currentDrawer() {
   const drawers = drawersNow();
   for (const d of drawers) if (d.levels.some((l) => !save.best[l.id] && isOpen(LEVELS.find((L) => L.id === l.id)))) return d.id;
@@ -630,7 +636,9 @@ async function boot() {
       describe: (m) => (m ? S.soundOff : S.soundOn),
     });
   }
-  $('t-open').addEventListener('click', () => openCabinet());
+  
+  
+  $('t-open').addEventListener('click', () => startGame(nextToDig()));
   $('h-back').addEventListener('click', () => openCabinet(game?.level.drawer));
   $('h-lever').addEventListener('click', () => {
     steadyLever = !steadyLever;

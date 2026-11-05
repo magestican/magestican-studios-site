@@ -64,6 +64,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background-size: 9px 9px;
   border: var(--edge) solid var(--ink);
   transition: transform .09s ease-out, background-color .12s, color .12s;
+  
+
+  font-weight: 700;
+  -webkit-text-stroke: .35px currentColor;
 }
 
 .cartouche::before, .back-tab::before, .tool::before, .lever::before, .theme-cube::before, .sound-switch::before, .spec-label::before, .drawer-face::before {
@@ -135,7 +139,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .title-block .sub { font-style: italic; font-size: 1.12rem; }
 .rule-orn { display: none; }
 .title-block .blurb { max-width: 34em; font-size: .98rem; line-height: 1.34; }
-.title-block .cartouche { margin: 8px 0 10px; }
+
+
+.title-block #t-open { align-self: stretch; margin: 8px var(--lift) 10px 0; min-height: 96px; padding: 16px; font-size: 2.2rem; line-height: 1.05; }
 .imprint { font-size: .8rem; font-style: italic; color: var(--ink-soft); }
 
 @media (min-width: 900px) {
@@ -146,6 +152,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .title-block h1 { font-size: 2.6rem; gap: 6px; }
   .letter { width: 3.9rem; max-width: none; box-shadow: 4px 4px 0 var(--ink); }
   .title-block .blurb { font-size: 1.14rem; }
+  .title-block #t-open { min-height: 128px; font-size: 3rem; }
 }
 
 
@@ -164,7 +171,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .home-mark { flex: none; font-size: .82rem; color: var(--ink-soft); padding: 6px 0 6px 6px; }
 .cab-marks { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
 
-.sound-switch { min-height: 36px; padding: 4px 10px; font: italic .82rem/1.1 var(--serif); --lift: 3px; }
+.sound-switch { min-height: 36px; padding: 4px 10px; font: 700 .9rem/1.1 var(--serif); --lift: 3px; }
+
+
+.lever-text > :not(b), .card-holder > :not(b), .spec-label .st, .tool i { font-weight: 400; -webkit-text-stroke: 0; }
 .sound-switch:hover { background-color: #f5dc8a; }
 .sound-switch[data-muted="1"] { text-decoration: line-through; }
 .stage > .sound-switch { position: absolute; top: 8px; left: 8px; z-index: 2; pointer-events: auto; }
@@ -211,7 +221,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   border: 2px solid var(--ink);
   max-width: 460px;
 }
-.card-holder b { display: block; font-weight: 400; font-size: 1.15rem; line-height: 1.1; }
+.card-holder b { display: block; font-weight: 700; font-size: 1.15rem; line-height: 1.1; }
 .card-holder i { display: block; font-size: .76rem; line-height: 1.14; color: var(--ink-soft); }
 .drawer-tally { flex: none; padding: 3px 7px 4px; background: var(--chalk); border: 2px solid var(--ink); font-size: .9rem; font-variant-numeric: lining-nums; }
 .pull { display: none; }
@@ -336,7 +346,7 @@ button.spec-label:hover { background-color: #f5dc8a; }
   text-align: left;
 }
 .tool svg { width: 22px; height: 22px; flex: none; transition: transform .18s cubic-bezier(.3, 1.6, .5, 1); }
-.tool b { display: block; font-weight: 400; font-size: .95rem; line-height: 1.05; }
+.tool b { display: block; font-weight: 700; font-size: .95rem; line-height: 1.05; }
 .tool i { display: none; font-size: .78rem; line-height: 1.1; }
 .tool:hover { background-color: #f5dc8a; }
 .tool[aria-checked='true'] { background-color: var(--sun); }
@@ -356,7 +366,7 @@ button.spec-label:hover { background-color: #f5dc8a; }
 }
 .lever[aria-pressed='true'] .lever-arm { top: 25px; background: var(--wash); }
 .lever[aria-pressed='true'] { background-color: var(--sun); }
-.lever-text b { display: block; font-weight: 400; font-size: 1.02rem; line-height: 1.05; }
+.lever-text b { display: block; font-weight: 700; font-size: 1.02rem; line-height: 1.05; }
 .lever-text i { display: block; font-size: .74rem; line-height: 1.1; color: var(--ink-soft); }
 
 
