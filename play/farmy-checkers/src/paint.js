@@ -59,6 +59,7 @@
 
 
 import { COLORS, SIZES, FONT_STACK } from '../../../web-engine/words/style.js';
+import { wrapLines } from '../../../web-engine/i18n/tr.js';
 
 
 export function roundRect(g, x, y, w, h, r = SIZES.radius) {
@@ -221,19 +222,7 @@ export function focusRing(g, r, colour = COLORS.blue) {
 
 export function wrap(g, string, maxWidth, { size = SIZES.small, weight = 400 } = {}) {
   g.font = font(size, weight);
-  const out = [];
-  let line = '';
-  for (const word of String(string ?? '').split(/\s+/).filter(Boolean)) {
-    const next = line ? `${line} ${word}` : word;
-    if (line && g.measureText(next).width > maxWidth) {
-      out.push(line);
-      line = word;
-    } else {
-      line = next;
-    }
-  }
-  if (line) out.push(line);
-  return out;
+  return wrapLines(string, (next) => g.measureText(next).width <= maxWidth);
 }
 
 

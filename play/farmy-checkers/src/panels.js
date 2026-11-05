@@ -15,6 +15,7 @@
 
 
 
+import { t } from '../../../web-engine/i18n/tr.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { grid, rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, sink, DURATION } from '../../../web-engine/words/motion.js';
@@ -163,7 +164,7 @@ function card(app, {
       return {
         title: title(),
         status: d.status ?? '',
-        lines: [...lines(), ...(d.lines ?? []), ...rects.map((r) => `Button: ${r.label}`)],
+        lines: [...lines(), ...(d.lines ?? []), ...rects.map((r) => t('Button: {label}', { label: r.label }))],
       };
     },
     animating: (now) => app.motion && (now - hoverAt < DURATION.hover || now - pressAt < DURATION.press),
@@ -176,10 +177,10 @@ function card(app, {
 export function help(app, { lines, keys, onClose }) {
   return card(app, {
     id: 'help',
-    title: () => 'How to play Jumpwise',
+    title: () => t('How to play Jumpwise'),
     lines: () => [...lines, keys],
-    buttons: () => [{ id: 'close', label: 'Close', tone: 'blue', run: onClose }],
-    describe: () => ({ status: 'How to play.' }),
+    buttons: () => [{ id: 'close', label: t('Close'), tone: 'blue', run: onClose }],
+    describe: () => ({ status: t('How to play.') }),
   });
 }
 
@@ -194,13 +195,13 @@ export function help(app, { lines, keys, onClose }) {
 export function moves(app, { state, onUndo, onClose }) {
   return card(app, {
     id: 'moves',
-    title: () => 'The moves so far',
+    title: () => t('The moves so far'),
     lines: () => (state.list().length
       ? state.list()
-      : ['Nothing yet. The sheep move first.']),
+      : [t('Nothing yet. The sheep move first.')]),
     buttons: () => [
-      { id: 'undo', label: 'Take back the last move', disabled: !state.canUndo(), run: onUndo },
-      { id: 'close', label: 'Back to the board', tone: 'blue', run: onClose },
+      { id: 'undo', label: t('Take back the last move'), disabled: !state.canUndo(), run: onUndo },
+      { id: 'close', label: t('Back to the board'), tone: 'blue', run: onClose },
     ],
     describe: () => ({ status: `${state.list().length} moves played.` }),
   });
@@ -217,30 +218,30 @@ export function moves(app, { state, onUndo, onClose }) {
 export function bot(app, { state, onPlay, onStop, onClose }) {
   return card(app, {
     id: 'bot',
-    title: () => (state.active() ? 'You are playing a bot' : 'Play a bot'),
+    title: () => (state.active() ? t('You are playing a bot') : t('Play a bot')),
     lines: () => (state.active()
       ? [
         state.describe(),
-        'It always says it is a bot, here and in the spoken description. Nobody in this game is ever pretending to be a person.',
-        'It plays at about the level you are at, and never better - see How to play.',
+        t('It always says it is a bot, here and in the spoken description. Nobody in this game is ever pretending to be a person.'),
+        t('It plays at about the level you are at, and never better - see How to play.'),
       ]
       : [
-        'Take one side and the computer takes the other. The sheep move first.',
-        'There is one bot and it is not trying to beat you at all costs: it plays at roughly the level you have reached and never above it.',
-        'Starting a bot game clears the board.',
+        t('Take one side and the computer takes the other. The sheep move first.'),
+        t('There is one bot and it is not trying to beat you at all costs: it plays at roughly the level you have reached and never above it.'),
+        t('Starting a bot game clears the board.'),
       ]),
     buttons: () => (state.active()
       ? [
-        { id: 'swap', label: 'Start again, and swap sides', run: () => onPlay(state.otherSeat()) },
-        { id: 'stop', label: 'Stop playing the bot', run: onStop },
-        { id: 'close', label: 'Back to the board', tone: 'blue', run: onClose },
+        { id: 'swap', label: t('Start again, and swap sides'), run: () => onPlay(state.otherSeat()) },
+        { id: 'stop', label: t('Stop playing the bot'), run: onStop },
+        { id: 'close', label: t('Back to the board'), tone: 'blue', run: onClose },
       ]
       : [
         { id: 'sheep', label: 'I take the sheep, and move first', tone: 'green', run: () => onPlay(0) },
         { id: 'cows', label: 'I take the cows, and move second', tone: 'blue', run: () => onPlay(1) },
-        { id: 'close', label: 'Not now', run: onClose },
+        { id: 'close', label: t('Not now'), run: onClose },
       ]),
-    describe: () => ({ status: state.active() ? state.describe() : 'Choose a side and play a bot.' }),
+    describe: () => ({ status: state.active() ? state.describe() : t('Choose a side and play a bot.') }),
   });
 }
 
@@ -262,7 +263,7 @@ export function room(app, {
       
       
       
-      app.announce(`${ch} is never in a code.`);
+      app.announce(t('{ch} is never in a code.', { ch }));
       return true;
     }
     typed = (typed + ch).slice(0, 6);
@@ -270,35 +271,35 @@ export function room(app, {
   };
   return card(app, {
     id: 'room',
-    title: () => (state.active ? 'Playing together' : 'Play with somebody'),
+    title: () => (state.active ? t('Playing together') : t('Play with somebody')),
     lines: () => {
       if (!state.active) {
         return [
-          'Open a room and send the link, or read the six-character code down the telephone.',
-          'Two people take turns on one board. Nothing is timed, and nothing is sent to a server - the browsers talk to each other.',
+          t('Open a room and send the link, or read the six-character code down the telephone.'),
+          t('Two people take turns on one board. Nothing is timed, and nothing is sent to a server - the browsers talk to each other.'),
         ];
       }
       const code = spokenCode(state.code);
       return [
-        code ? `Your code is ${code.split('').join(' ')}` : 'Opening a room...',
+        code ? t('Your code is {code}', { code: code.split('').join(' ') }) : t('Opening a room...'),
         state.summary,
         state.status,
-        ...(typed ? [`Joining: ${typed}`] : ['Type a code to join somebody else instead.']),
-        ...state.who.map((w) => `${w.you ? 'You' : w.name} plays the ${w.side}`),
+        ...(typed ? [t('Joining: {code}', { code: typed })] : [t('Type a code to join somebody else instead.')]),
+        ...state.who.map((w) => (w.you ? t('You play the {side}', { side: w.side }) : t('{name} plays the {side}', { name: w.name, side: w.side }))),
       ].filter(Boolean);
     },
     buttons: () => (state.active
       ? [
-        { id: 'copy', label: state.copied ? 'Link copied' : 'Invite', tone: 'blue', run: onCopy },
-        ...(state.canStart ? [{ id: 'start', label: 'Start a new game together', tone: 'green', run: onStart }] : []),
-        ...(typed.length === 6 ? [{ id: 'join', label: `Join ${typed}`, run: () => onJoin(normaliseCode(typed)) }] : []),
-        { id: 'leave', label: 'Leave the room', run: onLeave },
-        { id: 'close', label: 'Back to the board', run: onClose },
+        { id: 'copy', label: state.copied ? t('Link copied') : t('Invite'), tone: 'blue', run: onCopy },
+        ...(state.canStart ? [{ id: 'start', label: t('Start a new game together'), tone: 'green', run: onStart }] : []),
+        ...(typed.length === 6 ? [{ id: 'join', label: t('Join {code}', { code: typed }), run: () => onJoin(normaliseCode(typed)) }] : []),
+        { id: 'leave', label: t('Leave the room'), run: onLeave },
+        { id: 'close', label: t('Back to the board'), run: onClose },
       ]
       : [
-        { id: 'host', label: 'Open a room', tone: 'green', run: onHost },
-        ...(typed.length === 6 ? [{ id: 'join', label: `Join ${typed}`, tone: 'blue', run: () => onJoin(normaliseCode(typed)) }] : []),
-        { id: 'close', label: 'Not now', run: onClose },
+        { id: 'host', label: t('Open a room'), tone: 'green', run: onHost },
+        ...(typed.length === 6 ? [{ id: 'join', label: t('Join {code}', { code: typed }), tone: 'blue', run: () => onJoin(normaliseCode(typed)) }] : []),
+        { id: 'close', label: t('Not now'), run: onClose },
       ]),
     onKey: (action) => {
       if (action.type === 'letter' || action.type === 'choose') return typeChar(String(action.value).toUpperCase());
@@ -307,8 +308,8 @@ export function room(app, {
     },
     describe: () => ({
       status: state.active
-        ? `Room open. The code is ${spokenCode(state.code).split('').join(' ')}.`
-        : 'Open a room, or type a code to join one.',
+        ? t('Room open. The code is {code}.', { code: spokenCode(state.code).split('').join(' ') })
+        : t('Open a room, or type a code to join one.'),
     }),
   });
 }
@@ -317,13 +318,13 @@ export function room(app, {
 export function say(app, { onSay, onClose }) {
   return card(app, {
     id: 'say',
-    title: () => 'Say something',
-    lines: () => ['One tap. There is no typing and nothing to spell.'],
+    title: () => t('Say something'),
+    lines: () => [t('One tap. There is no typing and nothing to spell.')],
     buttons: () => [
       ...SAYINGS.map((s) => ({ id: `say:${s.id}`, label: s.text, run: () => onSay(s.id) })),
-      { id: 'close', label: 'Close', run: onClose },
+      { id: 'close', label: t('Close'), run: onClose },
     ],
-    describe: () => ({ status: 'Say something to the room.' }),
+    describe: () => ({ status: t('Say something to the room.') }),
   });
 }
 
@@ -331,11 +332,11 @@ export function say(app, { onSay, onClose }) {
 export function results(app, { state, onAgain, onClose }) {
   return card(app, {
     id: 'results',
-    title: () => 'That is the game',
+    title: () => t('That is the game'),
     lines: () => [state.summary(), ...state.rows()],
     buttons: () => [
-      { id: 'again', label: 'Play again', tone: 'green', run: onAgain },
-      { id: 'close', label: 'Look at the board', run: onClose },
+      { id: 'again', label: t('Play again'), tone: 'green', run: onAgain },
+      { id: 'close', label: t('Look at the board'), run: onClose },
     ],
     describe: () => ({ status: state.summary() }),
   });
@@ -348,6 +349,6 @@ export function menu(app, { items }) {
     title: () => 'Jumpwise',
     lines: () => [],
     buttons: () => items,
-    describe: () => ({ status: 'The menu.' }),
+    describe: () => ({ status: t('The menu.') }),
   });
 }

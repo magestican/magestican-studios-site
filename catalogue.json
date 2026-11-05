@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "4af42c7d-20261105T110038Z",
+ "buildId": "f20bade9-20261105T113446Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -259,7 +259,7 @@
    "ageNote": null,
    "order": 7,
    "addedAt": "2026-09-06",
-   "bytes": 83702
+   "bytes": 96816
   },
   {
    "id": "farmy-ludo",
@@ -865,7 +865,7 @@
    "ageNote": null,
    "order": 28,
    "addedAt": "2026-11-04",
-   "bytes": 2189544
+   "bytes": 2189567
   },
   {
    "id": "farmy-five",

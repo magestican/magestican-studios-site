@@ -18,6 +18,7 @@
 
 
 import { trophyName } from './snapshot.js';
+import { t, tv } from '../i18n/tr.js';
 import { PROFILE_GAME_IDS, PROFILE_GAME_NAMES } from './gameIds.js';
 import { NO_WIN_GAME_IDS } from '../account/achievements.js';
 
@@ -144,6 +145,6 @@ export function chipModel(snapshot) {
     label: `Lv ${level}`,
     fraction: need > 0 ? clamp01(into / need) : 1,
     href: YOU_URL,
-    aria: `Level ${level}, ${title}. ${into} of ${need} XP to level ${level + 1}. Open your progress page.`,
+    aria: t('Level {level}, {title}. {into} of {need} XP to level {next}. Open your progress page.', { level, title: tv(title), into, need, next: level + 1 }),
   };
 }

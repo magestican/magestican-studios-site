@@ -41,6 +41,7 @@
 
 
 
+import { t } from '../../../web-engine/i18n/tr.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { grid, rectAt, centreOf } from '../../../web-engine/words/layout.js';
 import { progress, lift, sink, shake, DURATION } from '../../../web-engine/words/motion.js';
@@ -164,7 +165,7 @@ export function create(app) {
     if (!option) return false;
     chain = [...chain, square];
     if (!option.done) {
-      const line = `Took ${squareName(option.victim)}. The jump goes on - choose where next.`;
+      const line = t('Took {square}. The jump goes on - choose where next.', { square: squareName(option.victim) });
       app.message = line;
       app.announce(line);
       app.invalidate();
@@ -193,8 +194,8 @@ export function create(app) {
       
       
       refuse(square, app.mySide() === sideOf(ch)
-        ? 'Those are yours, but it is not your turn yet.'
-        : 'That is not one of your pieces.');
+        ? t('Those are yours, but it is not your turn yet.')
+        : t('That is not one of your pieces.'));
       return;
     }
     if (!app.myTurn()) {
@@ -207,7 +208,7 @@ export function create(app) {
       
       refuse(square, s.mustCapture
         ? 'A take is on offer, so a take is the only move.'
-        : 'That piece has nowhere to go.');
+        : t('That piece has nowhere to go.'));
       return;
     }
     chain = [square];
@@ -232,7 +233,7 @@ export function create(app) {
       
       
       chain = chain.length > 1 ? chain.slice(0, -1) : [];
-      app.message = chain.length ? describeOptionsLine(chain[chain.length - 1]) : 'Put back.';
+      app.message = chain.length ? describeOptionsLine(chain[chain.length - 1]) : t('Put back.');
       app.announce(app.message);
       app.invalidate();
       return;
@@ -241,7 +242,7 @@ export function create(app) {
     if (chain.length > 1) {
       
       
-      refuse(square, 'The jump is not finished. Take again, or press the piece to put it back.');
+      refuse(square, t('The jump is not finished. Take again, or press the piece to put it back.'));
       return;
     }
     select(square);
@@ -333,12 +334,12 @@ export function create(app) {
     
     
     const labels = [
-      { id: 'undo', label: 'Undo', disabled: !app.canUndo() },
-      { id: 'moves', label: narrow ? 'Moves' : `Moves (${s.history.length})` },
+      { id: 'undo', label: t('Undo'), disabled: !app.canUndo() },
+      { id: 'moves', label: narrow ? t('Moves') : t('Moves ({n})', { n: s.history.length }) },
       
       
       
-      { id: 'bot', label: narrow ? (app.hasBot() ? 'Bot on' : 'Bot') : app.botLabel(), disabled: app.inRoom() },
+      { id: 'bot', label: narrow ? (app.hasBot() ? t('Bot on') : t('Bot')) : app.botLabel(), disabled: app.inRoom() },
     ];
     const rowWidth = Math.min(box.width, 560);
     const each = (rowWidth - gap * (labels.length - 1)) / labels.length;
@@ -451,14 +452,14 @@ export function create(app) {
 
   return {
     id: 'board',
-    keys: 'Arrow keys move the marker between the playing squares. Enter picks a piece up and puts it down. Escape puts it back.',
+    keys: t('Arrow keys move the marker between the playing squares. Enter picks a piece up and puts it down. Escape puts it back.'),
     help: [
-      'Jumpwise is English draughts. Twelve sheep against twelve cows, on the hatched squares.',
-      'The sheep move first. A piece moves one square diagonally forward; a king, crowned when it reaches the far row, moves and takes in all four directions.',
-      'IF YOU CAN TAKE, YOU MUST. A piece that has to jump wears a gold star, and a jump that can go on must go on - keep pressing the squares until the chain ends.',
-      'A hollow ring is somewhere you may move. A solid red diamond is a take, and the piece it would take is crossed out.',
-      'You win by taking every piece, or by leaving the other side with no move at all. It is a draw if the same position comes up three times, or after forty moves each with nothing taken and no piece advanced.',
-      'A king carries a crown and a second ring. It is never told apart by shade alone.',
+      t('Jumpwise is English draughts. Twelve sheep against twelve cows, on the hatched squares.'),
+      t('The sheep move first. A piece moves one square diagonally forward; a king, crowned when it reaches the far row, moves and takes in all four directions.'),
+      t('IF YOU CAN TAKE, YOU MUST. A piece that has to jump wears a gold star, and a jump that can go on must go on - keep pressing the squares until the chain ends.'),
+      t('A hollow ring is somewhere you may move. A solid red diamond is a take, and the piece it would take is crossed out.'),
+      t('You win by taking every piece, or by leaving the other side with no move at all. It is a draw if the same position comes up three times, or after forty moves each with nothing taken and no piece advanced.'),
+      t('A king carries a crown and a second ring. It is never told apart by shade alone.'),
     ],
     layout,
     draw,
@@ -537,8 +538,8 @@ export function create(app) {
         lines: [
           ...d.lines,
           ...(app.hasBot() ? [app.botLine()] : []),
-          `Marker on ${squareName(cursor)}.`,
-          ...buttons.map((b) => `Button: ${b.label}${b.disabled ? ' (not available)' : ''}`),
+          t('Marker on {square}.', { square: squareName(cursor) }),
+          ...buttons.map((b) => (b.disabled ? t('Button: {label} (not available)', { label: b.label }) : t('Button: {label}', { label: b.label }))),
         ],
       };
     },

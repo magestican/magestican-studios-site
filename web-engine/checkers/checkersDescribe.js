@@ -24,6 +24,7 @@
 
 
 
+import { t } from '../i18n/tr.js';
 import {
   SIZE, SHEEP, COWS, SIDE_NAMES, EMPTY, rowOf, colOf, sideOf, isKing,
   legalMoves, RESULT,
@@ -42,17 +43,26 @@ export const FILES = Object.freeze([...'ABCDEFGH']);
 export const RANKS = Object.freeze([8, 7, 6, 5, 4, 3, 2, 1]);
 
 
+export const sideName = (side) => (side === SHEEP ? t('Sheep') : t('Cows'));
+export const sideWord = (side) => (side === SHEEP ? t('sheep') : t('cows'));
+
+
+const joinAnd = (names) => (names.length === 1
+  ? names[0]
+  : t('{list} and {last}', { list: names.slice(0, -1).join(t(', ')), last: names[names.length - 1] }));
+
+
 export function pieceName(ch) {
   const side = sideOf(ch);
   if (side < 0) return null;
-  const one = side === SHEEP ? 'sheep' : 'cow';
-  return isKing(ch) ? `${one} king` : one;
+  if (side === SHEEP) return isKing(ch) ? t('sheep king') : t('sheep');
+  return isKing(ch) ? t('cow king') : t('cow');
 }
 
 
 export function describeSquare(board, i) {
   const name = pieceName(board[i]);
-  return name ? `${name} on ${squareName(i)}` : null;
+  return name ? t('{name} on {square}', { name, square: squareName(i) }) : null;
 }
 
 
@@ -71,7 +81,7 @@ export function describeBoard(board) {
       const name = pieceName(board[at]);
       if (name) on.push(`${name} ${squareName(at)}`);
     }
-    lines.push(`Rank ${SIZE - row}: ${on.length ? on.join(', ') : 'empty'}`);
+    lines.push(t('Rank {n}: {on}', { n: SIZE - row, on: on.length ? on.join(t(', ')) : t('empty') }));
   }
   return lines;
 }
@@ -81,9 +91,9 @@ export function describeCounts(state) {
   return [SHEEP, COWS].map((side) => {
     const { men, kings } = state.counts[side];
     const parts = [];
-    if (men) parts.push(`${men} ${men === 1 ? 'piece' : 'pieces'}`);
-    if (kings) parts.push(`${kings} ${kings === 1 ? 'king' : 'kings'}`);
-    return `${SIDE_NAMES[side]}: ${parts.length ? parts.join(' and ') : 'nothing left'}`;
+    if (men) parts.push(men === 1 ? t('{n} piece', { n: men }) : t('{n} pieces', { n: men }));
+    if (kings) parts.push(kings === 1 ? t('{n} king', { n: kings }) : t('{n} kings', { n: kings }));
+    return `${sideName(side)}: ${parts.length ? joinAnd(parts) : t('nothing left')}`;
   });
 }
 
@@ -97,15 +107,16 @@ export function describeCounts(state) {
 
 export function describeMove(entry) {
   if (!entry) return '';
-  const who = SIDE_NAMES[entry.side];
+  return `${sideName(entry.side)} ${describeMoveBody(entry)}`;
+}
+
+
+export function describeMoveBody(entry) {
   const took = entry.captured ?? [];
-  const crowned = entry.crowned ? ', and is crowned' : '';
-  if (!took.length) return `${who} ${squareName(entry.from)} to ${squareName(entry.to)}${crowned}.`;
-  const names = took.map(squareName);
-  const list = names.length === 1
-    ? names[0]
-    : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
-  return `${who} ${squareName(entry.from)} takes ${list}, to ${squareName(entry.to)}${crowned}.`;
+  const crowned = entry.crowned ? t(', and is crowned') : '';
+  const [from, to] = [squareName(entry.from), squareName(entry.to)];
+  if (!took.length) return t('{from} to {to}{crowned}.', { from, to, crowned });
+  return t('{from} takes {list}, to {to}{crowned}.', { from, to, crowned, list: joinAnd(took.map(squareName)) });
 }
 
 
@@ -128,11 +139,7 @@ export function moveList(state) {
 export function describeForced(state) {
   if (!state.mustCapture) return [];
   return state.legal.map((m) => {
-    const names = (m.captured ?? []).map(squareName);
-    const list = names.length === 1
-      ? names[0]
-      : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
-    return `${squareName(m.from)} takes ${list}, to ${squareName(m.to)}`;
+    return t('{from} takes {list}, to {to}', { from: squareName(m.from), to: squareName(m.to), list: joinAnd((m.captured ?? []).map(squareName)) });
   });
 }
 
@@ -141,8 +148,8 @@ export function describeOptions(board, side, from) {
   const moves = legalMoves(board, side).filter((m) => m.from === from);
   if (!moves.length) return [];
   return moves.map((m) => ((m.captured ?? []).length
-    ? `take to ${squareName(m.to)}, over ${(m.captured).map(squareName).join(' and ')}`
-    : `move to ${squareName(m.to)}`));
+    ? t('take to {to}, over {list}', { to: squareName(m.to), list: joinAnd(m.captured.map(squareName)) })
+    : t('move to {to}', { to: squareName(m.to) })));
 }
 
 
@@ -150,10 +157,11 @@ export function describeTurn(state, { me = null, nameOf = (id) => id } = {}) {
   if (state.over) return describeResult(state, { me, nameOf });
   const seat = seatOfSide(state.turn);
   const id = state.seats[seat];
-  const who = id === me ? 'Your' : `${nameOf(id)}'s`;
-  const side = SIDE_NAMES[state.turn];
-  const forced = state.mustCapture ? ' A take is on offer, so a take is the only move.' : '';
-  return `${who} move, playing the ${side.toLowerCase()}.${forced}`;
+  const side = sideWord(state.turn);
+  const forced = state.mustCapture ? t(' A take is on offer, so a take is the only move.') : '';
+  return id === me
+    ? t('Your move, playing the {side}.{forced}', { side, forced })
+    : t("{name}'s move, playing the {side}.{forced}", { name: nameOf(id), side, forced });
 }
 
 
@@ -161,17 +169,17 @@ export function describeResult(state, { me = null, nameOf = (id) => id } = {}) {
   if (!state.over) return '';
   if (state.draw) {
     if (state.reason === RESULT.REPETITION) {
-      return 'A draw: the same position for the third time.';
+      return t('A draw: the same position for the third time.');
     }
-    return 'A draw: forty moves each with nothing taken and no piece advanced.';
+    return t('A draw: forty moves each with nothing taken and no piece advanced.');
   }
   const seat = seatOfSide(state.winner);
   const id = state.seats[seat];
-  const winner = id === me ? 'You' : nameOf(id);
-  const loserSide = SIDE_NAMES[state.turn].toLowerCase();
+  const winner = id === me ? t('You') : nameOf(id);
+  const side = sideWord(state.turn);
   const nothing = state.counts[state.turn].total === 0;
-  const how = nothing ? `the ${loserSide} have nothing left` : `the ${loserSide} cannot move`;
-  return `${winner} won: ${how}.`;
+  const how = nothing ? t('the {side} have nothing left', { side }) : t('the {side} cannot move', { side });
+  return t('{who} won: {how}.', { who: winner, how });
 }
 
 
@@ -184,11 +192,11 @@ export function describeLast(state, { me = null, nameOf = (id) => id } = {}) {
   if (!state.last) return describeTurn(state, { me, nameOf });
   const seat = seatOfSide(state.last.side);
   const id = state.seats[seat];
-  const who = id === me ? 'You' : nameOf(id);
-  const move = describeMove(state.last).replace(/^\w+ /, '');
+  const who = id === me ? t('You') : nameOf(id);
+  const move = describeMoveBody(state.last);
   const took = (state.last.captured ?? []).length;
-  const gain = took ? ` That is ${took} ${took === 1 ? 'piece' : 'pieces'}.` : '';
-  return `${who} played ${move}${gain} ${describeTurn(state, { me, nameOf })}`.trim();
+  const gain = took ? (took === 1 ? t(' That is {n} piece.', { n: took }) : t(' That is {n} pieces.', { n: took })) : '';
+  return t('{who} played {move}{gain} {turn}', { who, move, gain, turn: describeTurn(state, { me, nameOf }) }).trim();
 }
 
 
@@ -205,12 +213,12 @@ export function describeMatch(state, {
   const lines = [
     describeTurn(state, { me, nameOf }),
     ...describeCounts(state),
-    ...(forced.length ? [`Takes available: ${forced.join('; ')}.`] : []),
+    ...(forced.length ? [t('Takes available: {list}.', { list: forced.join(t('; ')) })] : []),
     ...(selected !== null && selected >= 0 && state.board[selected] !== EMPTY
       ? [`Selected: ${describeSquare(state.board, selected)}. From there you can ${describeOptions(state.board, state.turn, selected).join(', ') || 'do nothing'}.`]
       : []),
     ...describeBoard(state.board),
-    ...(state.history.length ? ['Moves so far:', ...moveList(state)] : ['No moves yet.']),
+    ...(state.history.length ? [t('Moves so far:'), ...moveList(state)] : [t('No moves yet.')]),
   ];
   return {
     title: 'Jumpwise',

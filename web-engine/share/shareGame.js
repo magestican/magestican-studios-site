@@ -10,6 +10,7 @@
 
 import { shareInvite, inviteText, publicUrlFor, myLevel } from './shareInvite.js';
 import { COLOUR, alpha } from '../brand/tokens.js';
+import { t } from '../i18n/tr.js';
 
 const STYLE_ID = 'mg-share-game-style';
 const ICON = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" '
@@ -48,8 +49,8 @@ export function mountShareGame(host, gameName, { before = null } = {}) {
     const btn = doc.createElement('button');
     btn.type = 'button';
     btn.className = 'mg-share-game';
-    btn.setAttribute('aria-label', `Share ${gameName}`);
-    btn.title = `Share ${gameName}`;
+    btn.setAttribute('aria-label', t('Share {game}', { game: gameName }));
+    btn.title = t('Share {game}', { game: gameName });
     btn.innerHTML = ICON;
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -60,19 +61,19 @@ export function mountShareGame(host, gameName, { before = null } = {}) {
           
           if (res?.via === 'clipboard') {
             btn.innerHTML = CHECK;
-            btn.title = 'Link copied';
-            btn.setAttribute('aria-label', 'Link copied');
+            btn.title = t('Link copied');
+            btn.setAttribute('aria-label', t('Link copied'));
           }
           
           
           
           if (res?.via === 'manual') {
-            try { globalThis.prompt?.('Copy this link:', res.url); } catch {  }
+            try { globalThis.prompt?.(t('Copy this link:'), res.url); } catch {  }
           }
           setTimeout(() => {
             btn.innerHTML = ICON;
-            btn.title = `Share ${gameName}`;
-            btn.setAttribute('aria-label', `Share ${gameName}`);
+            btn.title = t('Share {game}', { game: gameName });
+            btn.setAttribute('aria-label', t('Share {game}', { game: gameName }));
           }, 2200);
         }, () => {});
     });

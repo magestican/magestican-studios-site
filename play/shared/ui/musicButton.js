@@ -45,6 +45,7 @@
 
 
 import { isGamePage } from '../../../web-engine/brand/uiSoundPref.js';
+import { t } from '../../../web-engine/i18n/tr.js';
 
 function playToggle(name) {
   try {
@@ -84,14 +85,14 @@ export function wireMusicButton({ music, announce = () => {}, sound = null } = {
     
     
     
-    btn.setAttribute('aria-label', on ? 'Stop the music' : 'Play music');
-    btn.setAttribute('title', on ? 'Stop the music' : 'Play music');
+    btn.setAttribute('aria-label', on ? t('Stop the music') : t('Play music'));
+    btn.setAttribute('title', on ? t('Stop the music') : t('Play music'));
   };
 
   const onClick = () => {
     const on = music.toggle();
     show();
-    announce(on ? 'Music on.' : 'Music off.');
+    announce(on ? t('Music on.') : t('Music off.'));
     if (typeof sound === 'function') sound('press');
     else {
       playToggle(on ? 'toggleOn' : 'toggleOff');

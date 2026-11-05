@@ -19,7 +19,8 @@ import { createFx } from './fx.js';
 import { loadArt } from './art.js';
 import { CHEATS, applyCheat } from './cheats.js';
 import { createNet, canPlayTogether } from './net.js';
-import { T, fill } from './strings.js';
+import { STRINGS, stringsFor, fill } from './strings.js';
+import { gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
 import { cueFor, pieceCue, createCuePlayer } from './sound.js';
@@ -27,6 +28,15 @@ import { cueFor, pieceCue, createCuePlayer } from './sound.js';
 const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['move', 'turn', 'lock', 'rise', 'clear', 'chain2', 'chain3', 'chain4', 'light', 'heavy', 'clash', 'hit', 'squeeze', 'ko', 'start', 'win', 'lose', 'tap'], { move: 4, turn: 4, lock: 4, rise: 3, clear: 3, chain2: 3, chain3: 3, chain4: 3, light: 3, heavy: 3, clash: 3, hit: 3, squeeze: 2, ko: 2, start: 2, tap: 3 });
 let cuesPlayed = 0;
 const playCue = createCuePlayer((cue) => { cuesPlayed += 1; return sfx.play(cue); });
+
+
+
+const requestedLang = gameLang();
+const lang = STRINGS[requestedLang] ? requestedLang : 'en';
+const T = stringsFor(lang);
+document.documentElement.lang = lang;
+
+if (lang !== 'en') document.title = T.docTitle;
 
 const $ = (id) => document.getElementById(id);
 const SCREENS = ['title', 'select', 'room', 'match', 'end'];
@@ -408,6 +418,9 @@ function fillStatic() {
   };
   for (const [id, value] of Object.entries(text)) $(id).textContent = value;
   $('join-code').placeholder = T.joinHint;
+  $('stage').setAttribute('aria-label', T.stageLabel);
+  const padLabels = { left: T.keyLeft, right: T.keyRight, cw: T.keyTurn, soft: T.keySoft, hard: T.keyHard };
+  for (const button of $('pad').querySelectorAll('button')) button.setAttribute('aria-label', padLabels[button.dataset.key]);
   $('how-list').replaceChildren(...T.howLines.map((line) => Object.assign(document.createElement('li'), { textContent: line })));
 }
 

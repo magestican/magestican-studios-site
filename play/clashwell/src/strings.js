@@ -1,6 +1,8 @@
 
 
 
+import { TRANSLATIONS } from './translations.js';
+
 export const T = Object.freeze({
   pitch: 'Stack gems to throw punches. Hit back in time to clash.',
   playNow: 'Start',
@@ -71,6 +73,18 @@ export const T = Object.freeze({
   quit: 'Quit',
   soundOn: 'Sound on',
   soundOff: 'Sound off',
+  docTitle: 'Play Clashwell',
+  stageLabel: 'Clashwell match',
+  keyLeft: 'Move left',
+  keyRight: 'Move right',
+  keyTurn: 'Turn',
+  keySoft: 'Drop faster',
+  keyHard: 'Drop at once',
 });
+
+export const STRINGS = Object.freeze({ en: T, ...TRANSLATIONS });
+
+
+export const stringsFor = (lang) => STRINGS[lang] ?? T;
 
 export const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));

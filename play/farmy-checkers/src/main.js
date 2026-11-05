@@ -45,10 +45,15 @@
 
 
 
+import './lang.js';
+import { activeLanguage, t, tv } from '../../../web-engine/i18n/tr.js';
 import { localGameName, applyGameName } from '../../../web-engine/i18n/gameNames.js';
 
 
 const GAME_NAME = localGameName('farmy-checkers');
+
+document.title = t('Play Jumpwise - big clear draughts, no clock, play with a friend');
+document.getElementById('board')?.setAttribute('aria-label', t('Jumpwise. English draughts. Use the arrow keys to move the marker between the playing squares and press Enter to pick a piece up and put it down.'));
 applyGameName('farmy-checkers');
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
@@ -62,8 +67,8 @@ import { levelOf } from '../../../web-engine/words/scoring.js';
 import {
   nameFor, shareLinkFor, joinIdFrom, describeSaying, describeRoom,
 } from '../../../web-engine/words/coop.js';
-import { SIDE_NAMES, legalMoves } from '../../../web-engine/checkers/checkersRules.js';
-import { squareName } from '../../../web-engine/checkers/checkersDescribe.js';
+import { legalMoves } from '../../../web-engine/checkers/checkersRules.js';
+import { squareName, sideName, sideWord } from '../../../web-engine/checkers/checkersDescribe.js';
 import {
   SOLO, createMatch, replay, applyAction, withMove, wireMove, undoPlies,
   undoMatch, seatsWith, standings, isMyTurn, sideOfSeat, seatOfSide,
@@ -163,6 +168,9 @@ let derived = replay(match);
 
 const record = readJson(RECORD_KEY) ?? { played: 0, won: 0, drawn: 0, points: 0 };
 
+
+const botName = () => t('Bot');
+
 const bot = {
   
   seat: -1,
@@ -206,15 +214,15 @@ const app = {
   state: () => derived,
   myTurn: () => (bot.thinking ? false : isMyTurn(derived, app.me)),
   nameOf: (id) => {
-    if (id === SOLO) return 'You';
-    if (id === BOT) return bot.name;
+    if (id === SOLO) return t('You');
+    if (id === BOT) return botName();
     return nameFor(id);
   },
   seatName: (seat) => {
     const id = derived.seats[seat];
-    const side = SIDE_NAMES[sideOfSeat(seat)];
+    const side = sideName(sideOfSeat(seat));
     
-    if (id === app.me && derived.seats[0] !== derived.seats[1]) return `${side} (you)`;
+    if (id === app.me && derived.seats[0] !== derived.seats[1]) return t('{side} (you)', { side });
     return side;
   },
   isBotSeat: (seat) => bot.seat === seat,
@@ -237,10 +245,10 @@ const app = {
     return derived.seats.indexOf(app.me) === 1;
   },
   hasBot: () => bot.seat >= 0,
-  botLabel: () => (bot.seat >= 0 ? `Bot: ${SIDE_NAMES[sideOfSeat(bot.seat)]}` : 'Play a bot'),
-  botLine: () => `${bot.name} is a computer opponent, ${bot.kind}, playing the ${SIDE_NAMES[sideOfSeat(bot.seat)].toLowerCase()}.`,
+  botLabel: () => (bot.seat >= 0 ? t('Bot: {side}', { side: sideName(sideOfSeat(bot.seat)) }) : t('Play a bot')),
+  botLine: () => t('{name} is a computer opponent, {kind}, playing the {side}.', { name: botName(), kind: tv(bot.kind), side: sideWord(sideOfSeat(bot.seat)) }),
   turnMessage: () => (bot.thinking
-    ? `${bot.name} is thinking. It is a computer opponent.`
+    ? t('{name} is thinking. It is a computer opponent.', { name: botName() })
     : describeTurn(derived, { me: app.me, nameOf: app.nameOf })),
   act,
   undo,
@@ -289,7 +297,7 @@ function act(action) {
   if (check.error) return check.error;
   if (roomState.active && net && !net.hosting) {
     net.propose({ ...action, by: app.me });
-    app.message = 'Sent to the room...';
+    app.message = t('Sent to the room...');
     return null;
   }
   commit(check.move);
@@ -405,7 +413,7 @@ function undo() {
     
     
     
-    app.message = 'Only the person who opened the room can take a move back.';
+    app.message = t('Only the person who opened the room can take a move back.');
     announce(app.message);
     invalidate();
     return;
@@ -415,7 +423,7 @@ function undo() {
   roomState.shownResult = false;
   rederive();
   net?.publish();
-  app.message = `Taken back. ${describeTurn(derived, { me: app.me, nameOf: app.nameOf })}`;
+  app.message = t('Taken back. {turn}', { turn: describeTurn(derived, { me: app.me, nameOf: app.nameOf }) });
   announce(app.message);
   relayout();
   invalidate();
@@ -584,11 +592,11 @@ function relayout() {
 
 
 const togetherLabel = () => {
-  if (!roomState.active) return 'Multiplayer';
+  if (!roomState.active) return t('Multiplayer');
   const n = roomState.peers.length;
   
   
-  return n <= 1 ? 'Room open' : `${n} players`;
+  return n <= 1 ? t('Room open') : t('{n} players', { n });
 };
 
 function layoutBar() {
@@ -617,17 +625,18 @@ function layoutBar() {
         x: right - 100 - 8 - 56, y, w: 56, h, id: 'together',
         label: '', icon: 'people',
       }]),
-      { x: right - 100, y, w: 100, h, id: 'menu', label: roomState.active ? 'Menu •' : 'Menu' },
+      { x: right - 100, y, w: 100, h, id: 'menu', label: roomState.active ? t('Menu •') : t('Menu') },
     ];
     return;
   }
   const helpX = right - 48;
-  const togetherX = helpX - 8 - 150;
+  
+  const togetherX = helpX - 8 - 176;
   const newX = togetherX - 8 - 150;
   barRects = [
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
     { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
-    { x: newX, y, w: 150, h, id: 'new', label: 'New game' },
+    { x: newX, y, w: 150, h, id: 'new', label: t('New game') },
   ];
 }
 
@@ -642,7 +651,10 @@ function drawBar(now) {
   
   const leftmost = barRects.reduce((m, b) => Math.min(m, b.x), app.width);
   const room = Math.max(120, leftmost - 24);
-  paint.text(g, GAME_NAME, { x: 12, y: 6, width: room, height: 44 }, {
+  
+  
+  const barName = app.width < BAR_WIDE && activeLanguage() === 'ja' ? 'Jumpwise' : GAME_NAME;
+  paint.text(g, barName, { x: 12, y: 6, width: room, height: 44 }, {
     size: SIZES.h2, colour: COLORS.ink, align: 'left', fit: true, maxWidth: room,
   });
   
@@ -739,7 +751,7 @@ function openResults() {
     state: {
       summary: () => describeResult(derived, { me: app.me, nameOf: app.nameOf }),
       rows: () => standings(derived).map((r) => (
-        `${app.nameOf(r.id)} played the ${SIDE_NAMES[r.side].toLowerCase()}: ${r.left} left, ${r.taken} taken`
+        t('{name} played the {side}: {left} left, {taken} taken', { name: app.nameOf(r.id), side: sideWord(r.side), left: r.left, taken: r.taken })
       )),
     },
     onAgain: () => { closeOverlay(); restart(); },
@@ -765,7 +777,7 @@ function openRoom() {
         return derived.seats.map((id, seatIndex) => ({
           name: app.nameOf(id),
           you: id === app.me,
-          side: SIDE_NAMES[sideOfSeat(seatIndex)].toLowerCase(),
+          side: sideWord(sideOfSeat(seatIndex)),
         }));
       },
     },
@@ -837,13 +849,13 @@ function openRoom() {
         .then((res) => {
           if (res?.via === 'clipboard') {
             roomState.copied = true;
-            announce('Link copied. Send it to whoever you want to play with.');
+            announce(t('Link copied. Send it to whoever you want to play with.'));
           } else if (res?.via === 'manual') {
-            announce(`Copy this: ${res.url}`);
+            announce(t('Copy this: {url}', { url: res.url }));
           }
           overlay?.refresh();
           invalidate();
-        }, () => announce(`Copy this: ${link}`));
+        }, () => announce(t('Copy this: {url}', { url: link })));
       overlay?.refresh();
       invalidate();
     },
@@ -865,11 +877,11 @@ function openMenu() {
     items: [
       { id: 'together', label: togetherLabel(), tone: 'blue', run: openRoom },
       ...(roomState.active && roomState.peers.length > 1
-        ? [{ id: 'say', label: 'Say something', run: openSay }] : []),
-      { id: 'new', label: 'New game', run: () => { closeOverlay(); restart(); } },
+        ? [{ id: 'say', label: t('Say something'), run: openSay }] : []),
+      { id: 'new', label: t('New game'), run: () => { closeOverlay(); restart(); } },
       { id: 'bot', label: app.botLabel(), run: openBot },
-      { id: 'help', label: 'How to play', run: openHelp },
-      { id: 'close', label: 'Close', run: closeOverlay },
+      { id: 'help', label: t('How to play'), run: openHelp },
+      { id: 'close', label: t('Close'), run: closeOverlay },
     ],
   }));
 }

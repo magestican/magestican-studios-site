@@ -32,6 +32,7 @@
 
 
 
+import { t, tv } from '../i18n/tr.js';
 import { localGameName } from '../i18n/gameNames.js';
 
 
@@ -225,9 +226,9 @@ export function movesFromState(game, before, after, { by, seq, key }) {
 
 
 
-const ANIMALS = ['Sheep', 'Goose', 'Piglet', 'Donkey', 'Duck', 'Goat', 'Pony', 'Hen',
+export const ANIMALS = ['Sheep', 'Goose', 'Piglet', 'Donkey', 'Duck', 'Goat', 'Pony', 'Hen',
   'Calf', 'Lamb', 'Drake', 'Ram', 'Sow', 'Foal', 'Gander', 'Bullock'];
-const ADJECTIVES = ['Green', 'Gold', 'Blue', 'Red', 'Quick', 'Quiet', 'Bright', 'Bold'];
+export const ADJECTIVES = ['Green', 'Gold', 'Blue', 'Red', 'Quick', 'Quiet', 'Bright', 'Bold'];
 
 
 export function hashId(id) {
@@ -241,7 +242,7 @@ export function hashId(id) {
 
 export function nameFor(peerId) {
   const h = hashId(peerId);
-  return `${ADJECTIVES[h % ADJECTIVES.length]} ${ANIMALS[(h >>> 8) % ANIMALS.length]}`;
+  return t('{adjective} {animal}', { adjective: tv(ADJECTIVES[h % ADJECTIVES.length]), animal: tv(ANIMALS[(h >>> 8) % ANIMALS.length]) });
 }
 
 
@@ -271,9 +272,9 @@ export function creditFor(moves, kind, value) {
 
 export function describeRoom({ peers = [], me = null } = {}) {
   const others = peers.filter((p) => p !== me);
-  if (!others.length) return 'Waiting for somebody to join';
-  if (others.length === 1) return `Playing with ${nameFor(others[0])}`;
-  return `Playing with ${others.length} others`;
+  if (!others.length) return t('Waiting for somebody to join');
+  if (others.length === 1) return t('Playing with {name}', { name: nameFor(others[0]) });
+  return t('Playing with {n} others', { n: others.length });
 }
 
 
@@ -645,12 +646,12 @@ export function creditForGroup(moves, words) {
 
 
 export const SAYINGS = Object.freeze([
-  { id: 'nice', text: 'Nice one!' },
-  { id: 'stuck', text: "I'm stuck" },
-  { id: 'go', text: 'Your turn' },
-  { id: 'wait', text: 'Hang on' },
-  { id: 'look', text: 'Look at the middle' },
-  { id: 'bye', text: 'I have to go' },
+  { id: 'nice', get text() { return t('Nice one!'); } },
+  { id: 'stuck', get text() { return t("I'm stuck"); } },
+  { id: 'go', get text() { return t('Your turn'); } },
+  { id: 'wait', get text() { return t('Hang on'); } },
+  { id: 'look', get text() { return t('Look at the middle'); } },
+  { id: 'bye', get text() { return t('I have to go'); } },
 ]);
 
 
@@ -663,13 +664,13 @@ export function sayingText(id) {
 export function describeSaying({ by, id, me } = {}) {
   const text = sayingText(id);
   if (!text) return null;
-  return `${by === me ? 'You' : nameFor(by)}: ${text}`;
+  return `${by === me ? t('You') : nameFor(by)}: ${text}`;
 }
 
 
 export function describeFind({ by, value, me } = {}) {
   if (!by || by === me) return null;
-  return `${nameFor(by)} found ${value}.`;
+  return t('{name} found {value}.', { name: nameFor(by), value });
 }
 
 

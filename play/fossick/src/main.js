@@ -11,6 +11,7 @@ import { createBenchSound } from './sound.js';
 import { mountSoundToggle, readMuted, writeMuted } from '../../shared/ui/muteButton.js';
 import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { joinIdFrom, shareLinkFor, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
+import { shareInvite, publicUrlFor } from '../../../web-engine/share/shareInvite.js';
 import { createRoomNet, canPlayTogether } from './net.js';
 import { createRoomUi, seatLevel, dugStatus, fakeRoom } from './roomUi.js';
 
@@ -586,14 +587,13 @@ function onRoomStatus(kind) {
 
 async function shareRoom() {
   const link = shareLinkFor(location.origin + location.pathname, net.code);
-  try {
-    if (navigator.share) { await navigator.share({ url: link }); return; }
-    await navigator.clipboard.writeText(link);
-    $('l-note').textContent = S.roomCopied;
-  } catch (err) {
-    
-    if (err?.name !== 'AbortError') $('l-note').textContent = link;
-  }
+  
+  
+  
+  
+  const { via } = await shareInvite({ url: publicUrlFor(link) });
+  if (via === 'clipboard') $('l-note').textContent = S.roomCopied;
+  else if (via === 'manual') $('l-note').textContent = link;
 }
 
 function wireRoom() {

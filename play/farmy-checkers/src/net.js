@@ -51,6 +51,7 @@
 
 
 
+import { t } from '../../../web-engine/i18n/tr.js';
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import {
   roomCode, normaliseCode, sayingText, GAME_PREFIX, gameOfCode, codeGameName,
@@ -76,9 +77,9 @@ function codeError(typed) {
   const other = gameOfCode(typed);
   if (other && GAME_PREFIX[other] !== MY_PREFIX) {
     const name = codeGameName(other);
-    return `That is a ${name} code. Open ${name} to use it.`;
+    return t('That is a {name} code. Open {name} to use it.', { name });
   }
-  return 'That code does not look right. Check it and try again.';
+  return t('That code does not look right. Check it and try again.');
 }
 
 
@@ -132,7 +133,7 @@ export function createNet({
     mesh.addEventListener('open', (e) => {
       myId = e.detail.id;
       onPeers(peers(), myId);
-      announce(hosting ? 'Room open. Share the link or read out the code.' : 'Connecting...');
+      announce(hosting ? t('Room open. Share the link or read out the code.') : t('Connecting...'));
     });
 
     mesh.addEventListener('peer-joined', (e) => {
@@ -142,12 +143,12 @@ export function createNet({
       
       if (hosting && who) onArrival(who);
       if (hosting) sendMatch();
-      announce('Somebody joined.');
+      announce(t('Somebody joined.'));
     });
 
     mesh.addEventListener('peer-left', () => {
       onPeers(peers(), myId);
-      announce('Somebody left the room.');
+      announce(t('Somebody left the room.'));
     });
 
     mesh.addEventListener('message', (e) => {
@@ -184,7 +185,7 @@ export function createNet({
 
     mesh.addEventListener('host-changed', (e) => {
       hosting = !!e.detail.iAmHost;
-      announce(hosting ? 'You are hosting the room now.' : 'The room has a new host.');
+      announce(hosting ? t('You are hosting the room now.') : t('The room has a new host.'));
       onPeers(peers(), myId);
       
       
@@ -192,7 +193,7 @@ export function createNet({
     });
 
     mesh.addEventListener('join-failed', (e) => {
-      announce(`Could not join: ${e.detail?.reason ?? 'no answer'}. The link may have expired.`);
+      announce(t('Could not join: {reason}. The link may have expired.', { reason: e.detail?.reason ?? t('no answer') }));
     });
 
     mesh.addEventListener('error', (e) => {
@@ -200,7 +201,7 @@ export function createNet({
       
       const message = e.detail?.message ?? 'unknown';
       if (/unavailable-id/.test(message)) return;
-      announce(`Connection trouble: ${message}.`);
+      announce(t('Connection trouble: {message}.', { message }));
     });
   }
 
@@ -226,7 +227,7 @@ export function createNet({
         this.host(attempt + 1);
       });
       mine.addEventListener('open', () => mine.host(), { once: true });
-      if (attempt === 0) announce('Opening a room...');
+      if (attempt === 0) announce(t('Opening a room...'));
     },
 
     
@@ -249,7 +250,7 @@ export function createNet({
         
         setTimeout(() => { mesh?.broadcast({ t: CMSG.HELLO, by: myId }); }, 400);
       }, { once: true });
-      announce('Joining...');
+      announce(t('Joining...'));
     },
 
     
@@ -278,7 +279,7 @@ export function createNet({
       myId = null;
       hosting = false;
       onPeers([], null);
-      announce('You left the room.');
+      announce(t('You left the room.'));
     },
   };
 }

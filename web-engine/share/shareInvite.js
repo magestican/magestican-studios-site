@@ -12,6 +12,8 @@
 
 
 
+import { t } from '../i18n/tr.js';
+
 export async function shareInvite({ url, title, text }, nav = globalThis.navigator) {
   const data = { url, title, text };
   if (nav && typeof nav.share === 'function' && (!nav.canShare || nav.canShare(data))) {
@@ -34,10 +36,10 @@ export async function shareInvite({ url, title, text }, nav = globalThis.navigat
 }
 
 export function inviteText({ gameName, code, level }) {
-  const lv = level ? ` (I'm level ${level})` : '';
+  const lv = level ? t(" (I'm level {level})", { level }) : '';
   return code
-    ? `Join my ${gameName} game${lv} - room ${code}. Opens in your browser, no download:`
-    : `Play ${gameName} with me${lv} - opens in your browser, no download:`;
+    ? t('Join my {game} game{lv} - room {code}. Opens in your browser, no download:', { game: gameName, lv, code })
+    : t('Play {game} with me{lv} - opens in your browser, no download:', { game: gameName, lv });
 }
 
 export const PUBLIC_ORIGIN = 'https://magesticanstudios.com';
@@ -80,7 +82,7 @@ export function announceShare(result, { button = null, field = null, doc = globa
     const via = result?.via;
     if (via === 'clipboard' && button) {
       const before = idle ?? button.textContent;
-      button.textContent = 'Link copied';
+      button.textContent = t('Link copied');
       setTimeout(() => { button.textContent = before; }, ms);
     } else if (via === 'manual') {
       let input = field;
