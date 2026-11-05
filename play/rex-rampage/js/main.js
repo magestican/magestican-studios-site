@@ -20,6 +20,7 @@ import { devicePlan } from './pose/device.js';
 import { mirrorFrame, PoseSmoother } from './pose/pose.js';
 import { bossPhase, createGame, endStage, stepGame } from './sim.js';
 import { createHud } from './ui/hud.js';
+import { showTitle, wantsTitle } from './ui/title.js';
 import { GUN_FILE } from './world/artManifest.js';
 import { createScene } from './world/scene.js';
 import { createViewmodels } from './world/viewmodel.js';
@@ -159,10 +160,18 @@ async function poseLoop() {
 
 let last = performance.now();
 let leaving = false;
+
+let titleUp = wantsTitle(q);
 const stats = { frames: 0, fps: 0 };
 function frame(now) {
   const dt = Math.min(0.5, (now - last) / 1000);
   last = now;
+  if (titleUp) {
+    view.draw(game, [], dt, guns3d.muzzle);
+    stats.frames++;
+    requestAnimationFrame(frame);
+    return;
+  }
   const t = now / 1000;
   if (demo) hands = readHands(demoHands(t).pose);
   const touched = touch.takeTouched();
@@ -237,7 +246,18 @@ function resize() {
 addEventListener('resize', resize);
 resize();
 requestAnimationFrame(frame);
-startCamera();
+if (titleUp) {
+  
+  const hudEl =  (document.getElementById('hud'));
+  hudEl.hidden = true;
+  showTitle(document.body, {
+    onStart: () => {
+      titleUp = false;
+      hudEl.hidden = false;
+      startCamera();
+    },
+  });
+} else startCamera();
 
 
 Object.assign(window, {

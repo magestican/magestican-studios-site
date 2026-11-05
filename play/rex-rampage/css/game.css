@@ -438,3 +438,76 @@ body {
 .lobby-msg:empty {
   display: none;
 }
+
+
+
+.title {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 16px;
+  box-sizing: border-box;
+  background: linear-gradient(#0b0f0ab3, #0b0f0a59 45%, #0b0f0acc);
+}
+
+.title-name {
+  margin: 0;
+  max-width: 100%;
+  font-family: Impact, Haettenschweiler, "Arial Black", system-ui, sans-serif;
+  font-size: clamp(60px, 19vw, 132px);
+  font-weight: 900;
+  font-style: italic;
+  line-height: 0.95;
+  text-align: center;
+  text-transform: uppercase;
+  color: #f4ecd8;
+  text-shadow:
+    4px 4px 0 #b3361d,
+    8px 8px 0 #0b0f0a;
+  transform: rotate(-3deg);
+}
+
+.title-tape {
+  width: min(100%, 640px);
+  padding: 12px;
+  box-sizing: border-box;
+  background: repeating-linear-gradient(-45deg, #ffc21a 0 22px, #15130c 22px 44px);
+  clip-path: polygon(0 0, 78% 0, 81% 9%, 84% 0, 87% 12%, 90% 2%, 93% 18%, 96% 10%, 100% 30%, 100% 100%, 0 100%);
+  transform: rotate(-1.5deg);
+}
+
+.title-start {
+  display: block;
+  width: 100%;
+  min-height: 112px;
+  padding: 8px 16px;
+  border: 0;
+  background: #e8591c;
+  color: #15130c;
+  font-family: Impact, Haettenschweiler, "Arial Black", system-ui, sans-serif;
+  font-size: clamp(60px, 20vw, 104px);
+  font-weight: 900;
+  letter-spacing: 3px;
+  line-height: 1;
+  -webkit-text-stroke: 1.5px #15130c;
+  clip-path: polygon(0 0, 78% 0, 81% 9%, 84% 0, 87% 12%, 90% 2%, 93% 18%, 96% 10%, 100% 30%, 100% 100%, 0 100%);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.title-start:active,
+.title-start:focus-visible {
+  background: #ff7a33;
+  outline: none;
+}
+
+@media (min-width: 800px) {
+  .title-start {
+    min-height: 144px;
+  }
+}
