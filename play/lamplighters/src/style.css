@@ -73,13 +73,22 @@ html[data-scene] main.ll > .ll-setup, html[data-scene] main.ll > .ll-end { max-w
 .ll-card ul { margin: 0; padding-left: 20px; line-height: 1.5; display: flex; flex-direction: column; gap: 6px; }
 .ll-chips { display: flex; flex-wrap: wrap; gap: 12px; }
 .ll-chip, .ll-btn, .ll-tool, .ll-mini {
-  font: inherit; min-height: 44px; cursor: pointer;
+  font: inherit; font-weight: 700; min-height: 44px; cursor: pointer;
 }
 
-.skin-stone-button_primary, .skin-stone-toggle[aria-pressed="true"] { filter: saturate(0.18) brightness(1.12); font-weight: 600; }
+.skin-stone-button_primary, .skin-stone-toggle[aria-pressed="true"] { filter: saturate(0.18) brightness(1.12); font-weight: 700; }
 .ll-chip[aria-disabled="true"] { opacity: 0.55; cursor: default; }
 .ll-go { font: inherit; font-weight: 700; font-size: 18px; min-height: 52px; cursor: pointer; }
 .ll-go:disabled { opacity: 0.5; cursor: default; }
+
+
+
+.ll-launch { display: flex; flex-direction: column; gap: 12px; }
+html[data-kit] main.ll button.ll-start { width: 100%; min-height: 104px; padding: 16px; font-family: Georgia, 'Times New Roman', serif; font-size: 32px; font-weight: 800; line-height: 1.1; }
+.ll-picked { margin: 0; padding: 8px 16px; border-radius: 12px; background: rgba(16, 24, 38, 0.78); color: var(--text); text-align: center; font-weight: 600; line-height: 1.4; }
+.ll-more { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ll-more .ll-btn[aria-expanded="true"] { filter: brightness(1.25); }
+@media (min-width: 900px) { html[data-kit] main.ll button.ll-start { min-height: 128px; font-size: 44px; } }
 .ll-join { display: flex; gap: 12px; }
 .ll-join input { flex: 1 1 auto; min-width: 0; font: inherit; min-height: 44px; text-transform: uppercase; }
 .ll-row { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -94,7 +103,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .ll-match { display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .ll-title { width: 100%; max-width: 1180px; display: flex; align-items: center; gap: 12px; min-height: 36px; font-weight: 600; }
 
-html[data-kit] .ll-title .ll-mini { margin-left: auto; min-width: 0; min-height: 36px; padding: 4px 12px 6px; font-size: 14px; font-weight: 400; }
+html[data-kit] .ll-title .ll-mini { margin-left: auto; min-width: 0; min-height: 36px; padding: 4px 12px 6px; font-size: 14px; font-weight: 700; }
 .ll-lastcall { color: var(--night); background: var(--text); border-radius: 6px; padding: 3px 10px; font-size: 14px; font-weight: 700; animation: ll-flicker 1.4s steps(2) 2; }
 
 .ll-arena { width: 100%; display: grid; gap: 12px; grid-template-columns: 1fr 1fr; justify-items: stretch; }
