@@ -401,6 +401,9 @@ export const GAME_PREFIX = Object.freeze({
   
   lamplighters: 'flt-',
   clashwell: 'fcw-',
+  
+  
+  fossick: 'fos-',
 });
 
 
@@ -415,7 +418,7 @@ export const CODE_GAME_NAME = Object.freeze({
   checkers: 'Jumpwise', uprising: 'Hoofrise', evilhills: 'Evil Hills', moonlife: 'Moon Life',
   gomoku: 'Gomowise', wordchain: 'Relaywise', truco: 'Trucowise', buraco: 'Buracowise', conga: 'Congawise',
   minesweeper: 'Sweepwise', koikoi: 'Hanawise', shogi: 'Shogiwise', xiangqi: 'Xiangqiwise', go: 'Weiqiwise',
-  lamplighters: 'Lamplighters', clashwell: 'Clashwell',
+  lamplighters: 'Lamplighters', clashwell: 'Clashwell', fossick: 'Fossick',
 });
 export const codeGameName = (key) => CODE_GAME_NAME[key] ?? key;
 

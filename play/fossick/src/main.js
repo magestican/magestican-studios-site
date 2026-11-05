@@ -10,6 +10,9 @@ import { stringsFor, fill, count } from './strings.js';
 import { createBenchSound } from './sound.js';
 import { mountSoundToggle, readMuted, writeMuted } from '../../shared/ui/muteButton.js';
 import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
+import { joinIdFrom, shareLinkFor, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
+import { createRoomNet, canPlayTogether } from './net.js';
+import { createRoomUi, seatLevel, dugStatus, fakeRoom } from './roomUi.js';
 
 const $ = (id) => document.getElementById(id);
 const SAVE_KEY = 'fossick.v1';
@@ -34,6 +37,7 @@ const cheats = {
   win: params.has('win'),
   lose: params.has('lose'),
   drawer: params.get('drawer'),
+  rivals: params.has('rivals') ? Number(params.get('rivals')) : null, 
 };
 
 
@@ -124,10 +128,11 @@ const show = (name) => {
   screen = name;
   $('title').hidden = name !== 'title';
   $('cabinet').hidden = name !== 'cabinet';
+  $('lobby').hidden = name !== 'lobby';
   $('hud').hidden = name !== 'bench';
-  $('plate').classList.toggle('off', name === 'cabinet');
+  $('plate').classList.toggle('off', name === 'cabinet' || name === 'lobby');
   $('plate').style.pointerEvents = name === 'bench' ? 'auto' : 'none';
-  if (name === 'cabinet') endGame();
+  if (name === 'cabinet' || name === 'lobby') endGame();
   requestAnimationFrame(reframe);
 };
 
@@ -400,6 +405,8 @@ function showLabel() {
   const nextLevel = list[list.findIndex((l) => l.id === level.id) + 1];
   const next = $('r-next');
   next.hidden = !(won && nextLevel);
+  $('r-again').hidden = false;
+  $('r-wait').hidden = true;
   $('r-again').textContent = S.again;
   next.textContent = S.next;
   $('r-cabinet').textContent = S.toCabinet;
@@ -409,7 +416,221 @@ function showLabel() {
   $('r-next').onclick = () => startGame(nextLevel);
   $('r-again').onclick = () => startGame(level);
   $('r-cabinet').onclick = () => openCabinet(level.drawer);
+  if (inRoom) roomLabel();
   requestAnimationFrame(reframe);
+}
+
+
+let net = null;
+let inRoom = false;
+let room = null;
+let roomAt = 0;
+let playedRound = 0;
+let joinCode = null;
+let roomUi = null;
+
+const levelById = (id) => LEVELS.find((l) => l.id === id);
+
+function setRoomClass(on) {
+  
+  $('hud').classList.toggle('in-room', on);
+  $('rivals').hidden = !on;
+}
+
+function drawTitleButtons() {
+  const can = canPlayTogether();
+  $('t-open').textContent = joinCode ? S.roomJoinStart : S.open;
+  $('t-room').textContent = S.roomOpen;
+  $('t-room').hidden = !can || !!joinCode;
+}
+
+
+function forgetJoinLink() {
+  if (!joinCode) return;
+  joinCode = null;
+  const url = new URL(location.href);
+  url.searchParams.delete('join');
+  history.replaceState(null, '', url);
+  drawTitleButtons();
+}
+
+function lobbyMessage(line, note = '') {
+  $('l-line').textContent = line;
+  $('l-note').textContent = note;
+}
+
+function drawLobby() {
+  const hosting = !!net?.hosting;
+  const code = net?.active && hosting ? net.code : null;
+  $('l-code-row').hidden = !code;
+  $('l-code').textContent = code ?? '';
+  $('l-start').hidden = !(code && room);
+  
+  $('l-join-fold').hidden = !!net?.active && !hosting;
+  const you = room?.you;
+  $('l-you').hidden = you == null;
+  if (you != null) {
+    const words = document.createElement('span');
+    words.textContent = fill(S.roomYou, { name: S.names[seatLevel(you).id] });
+    $('l-you').replaceChildren(roomUi.seatIcon(you), words);
+  }
+  roomUi.drawSeats($('l-seats'), room?.rows ?? []);
+}
+
+function enterLobby(line) {
+  inRoom = true;
+  room = null;
+  playedRound = 0;
+  roomUi.clearBox();
+  setRoomClass(true);
+  lobbyMessage(line);
+  $('l-code-in').value = '';
+  $('l-join-fold').open = false;
+  show('lobby');
+  drawLobby();
+}
+
+function hostRoom() {
+  net.leave();
+  enterLobby(S.roomOpening);
+  net.host();
+}
+
+function joinRoom(typed) {
+  net.leave();
+  enterLobby(S.roomJoining);
+  
+  if (net.join(typed).error) failedRoom(S.roomBadCode);
+  else drawLobby();
+}
+
+function leaveRoom() {
+  net?.leave();
+  inRoom = false;
+  room = null;
+  playedRound = 0;
+  roomUi.clearBox();
+  setRoomClass(false);
+  forgetJoinLink();
+  startGame(LEVELS[0], { title: true });
+}
+
+function playRound(round) {
+  playedRound = round.n;
+  startGame(levelById(round.level));
+  net.report();
+}
+
+
+function hostNext() {
+  const list = levelsOf(game.level.collection);
+  const at = list.findIndex((l) => l.id === game.level.id);
+  net.startRound(list[(at + 1) % list.length].id);
+  playRound(net.round);
+}
+
+
+function roomLabel() {
+  const hosting = net.hosting;
+  const closed = net.closed;
+  const newer = !!net.round && net.round.n > playedRound;
+  const next = $('r-next');
+  $('r-again').hidden = true;
+  $('r-cabinet').textContent = S.roomLeave;
+  $('r-cabinet').onclick = leaveRoom;
+  next.textContent = S.next;
+  next.hidden = closed || !(hosting || newer);
+  next.onclick = hosting ? hostNext : () => playRound(net.round);
+  $('r-wait').textContent = S.roomNextWait;
+  $('r-wait').hidden = hosting || closed || newer;
+}
+
+function onRoom(r) {
+  room = r;
+  roomAt = performance.now();
+  if (screen === 'lobby') {
+    
+    if (r.round && r.round.n > playedRound) playRound(r.round);
+    else { drawLobby(); return; }
+  }
+  roomUi.drawBox(room, 0, net.closed);
+  
+  if (screen === 'bench' && labelShown) roomLabel();
+}
+
+function failedRoom(line) {
+  net.leave();
+  room = null;
+  forgetJoinLink();
+  lobbyMessage(line);
+  drawLobby();
+  
+  $('l-join-fold').open = true;
+}
+
+function onRoomStatus(kind) {
+  if (!inRoom) return;
+  if (kind === 'open') { lobbyMessage(S.roomInvite); drawLobby(); }
+  else if (kind === 'joined') lobbyMessage(S.roomWait);
+  else if (kind === 'full') failedRoom(S.roomFull);
+  else if (kind === 'failed') failedRoom(S.roomFailed);
+  
+  else if (kind === 'trouble' && screen === 'lobby' && !room) failedRoom(S.roomFailed);
+  else if (kind === 'closed') {
+    if (screen === 'lobby') { failedRoom(S.roomHostGone); return; }
+    setHint(S.roomClosed, 6000);
+    roomUi.drawBox(room, performance.now() - roomAt, true);
+    if (labelShown) roomLabel();
+  }
+}
+
+async function shareRoom() {
+  const link = shareLinkFor(location.origin + location.pathname, net.code);
+  try {
+    if (navigator.share) { await navigator.share({ url: link }); return; }
+    await navigator.clipboard.writeText(link);
+    $('l-note').textContent = S.roomCopied;
+  } catch (err) {
+    
+    if (err?.name !== 'AbortError') $('l-note').textContent = link;
+  }
+}
+
+function wireRoom() {
+  roomUi = createRoomUi({ S, silhouette, box: $('rivals') });
+  $('rivals').setAttribute('aria-label', S.roomBox);
+  $('l-title').textContent = S.roomTitle;
+  $('l-code-label').textContent = S.roomCode;
+  $('l-share').textContent = S.roomShare;
+  $('l-start').textContent = S.open;
+  $('l-join-label').textContent = S.roomHave;
+  $('l-join-go').textContent = S.roomJoin;
+  $('l-leave').textContent = S.roomLeave;
+  if (canPlayTogether()) {
+    net = createRoomNet({
+      status: () => dugStatus(game, playedRound, screen === 'bench'),
+      isLevel: (id) => !!levelById(id),
+      onRoom,
+      onStatus: onRoomStatus,
+    });
+    joinCode = joinIdFrom(location.href);
+  }
+  drawTitleButtons();
+  $('t-room').addEventListener('click', hostRoom);
+  $('l-start').addEventListener('click', () => net.startRound(nextToDig().id));
+  $('l-share').addEventListener('click', shareRoom);
+  $('l-leave').addEventListener('click', leaveRoom);
+  $('l-join').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const typed = $('l-code-in').value;
+    
+    if (!normaliseCode(typed, GAME_PREFIX.fossick)) { $('l-note').textContent = S.roomBadCode; return; }
+    joinRoom(typed);
+  });
+  
+  setInterval(() => {
+    if (inRoom && room && screen === 'bench') roomUi.drawBox(room, performance.now() - roomAt, net.closed);
+  }, 1000);
 }
 
 
@@ -552,7 +773,7 @@ function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
-  if (screen === 'cabinet' || !game) return;
+  if (screen === 'cabinet' || screen === 'lobby' || !game) return;
   const t0 = performance.now();
 
   if (screen === 'title') game.turn([0, 1, 0], IDLE_TURN * dt);
@@ -587,7 +808,12 @@ function frame(now) {
     hoverCheck += dt;
     if (hoverCheck > 0.12) { hoverCheck = 0; refreshHover(); }
 
-    if ((game.state === 'freed' || game.state === 'done' || game.state === 'fallen') && !endedAt) { endedAt = now; view.setGhost(0); view.setHover(null); }
+    if ((game.state === 'freed' || game.state === 'done' || game.state === 'fallen') && !endedAt) {
+      endedAt = now;
+      view.setGhost(0);
+      view.setHover(null);
+      if (inRoom) net.report(); 
+    }
     if (game.state === 'done' && !labelShown) {
       
       const wait = SHOW_LABEL_AFTER[game.result];
@@ -622,7 +848,7 @@ async function boot() {
   $('t-sub').textContent = S.titleSub;
   $('t-blurb').textContent = S.titleBlurb;
   $('t-imprint').textContent = S.imprint;
-  $('t-open').textContent = S.open;
+  wireRoom();
   $('c-title').textContent = S.cabinet;
   $('c-sub').textContent = S.cabinetSub;
   $('c-home').textContent = S.home;
@@ -638,8 +864,8 @@ async function boot() {
   }
   
   
-  $('t-open').addEventListener('click', () => startGame(nextToDig()));
-  $('h-back').addEventListener('click', () => openCabinet(game?.level.drawer));
+  $('t-open').addEventListener('click', () => (joinCode ? joinRoom(joinCode) : startGame(nextToDig())));
+  $('h-back').addEventListener('click', () => (inRoom ? leaveRoom() : openCabinet(game?.level.drawer)));
   $('h-lever').addEventListener('click', () => {
     steadyLever = !steadyLever;
     $('h-lever').setAttribute('aria-pressed', String(steadyLever));
@@ -653,8 +879,12 @@ async function boot() {
   addEventListener('resize', () => requestAnimationFrame(reframe));
 
   
-  window.__fossick = { get game() { return game; }, get view() { return view; }, stats, get screen() { return screen; } };
+  window.__fossick = { get game() { return game; }, get view() { return view; }, stats, get screen() { return screen; }, get room() { return room; }, get net() { return net; } };
 
+  if (cheats.rivals != null) {
+    setRoomClass(true);
+    roomUi.drawBox(fakeRoom(cheats.rivals), 0, false);
+  }
   if (params.has('collection')) save.collection = params.get('collection');
   if (cheats.drawer && drawersNow().some((d) => d.id === cheats.drawer)) openCabinet(cheats.drawer);
   else if (cheats.level || cheats.win || cheats.lose || cheats.dug != null) {

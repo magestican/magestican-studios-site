@@ -6,15 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Fossick - free a specimen from the rock, one cube at a time</title>
   <meta name="description" content="Fossick is a careful excavation game: turn a block of rock on a brass cradle and tap a specimen free, without bringing it all down.">
-  <meta name="build" content="387a66ba-20261105T073258Z">
+  <meta name="build" content="73894c11-20261105T083735Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/fossick/">
-  <link rel="icon" href="./assets/icons/ammonite-coil-icon/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="./assets/icons/ammonite-coil-icon/favicon-32.png" type="image/png" sizes="32x32">
-  <link rel="apple-touch-icon" href="./assets/icons/ammonite-coil-icon/apple-touch-icon.png">
+  <link rel="icon" href="./assets/icons/heart-icon/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./assets/icons/heart-icon/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="./assets/icons/heart-icon/apple-touch-icon.png">
   <script type="importmap">
   {"imports":{"three":"../../web-engine/vendor/three-0.161.0/three.module.js"}}
   </script>
-  <link rel="stylesheet" href="./src/style.css?v=387a66ba-20261105T073258Z">
+  <link rel="stylesheet" href="./src/style.css?v=73894c11-20261105T083735Z">
 </head>
 <body>
   
@@ -30,8 +30,35 @@
         <div class="rule-orn" aria-hidden="true"></div>
         <p class="blurb" id="t-blurb"></p>
         <button class="cartouche" id="t-open" type="button"></button>
+        <button class="cartouche quiet" id="t-room" type="button" hidden></button>
         <p class="imprint" id="t-imprint"></p>
       </div>
+    </div>
+  </section>
+
+  
+  <section class="sheet lobby" id="lobby" hidden>
+    <div class="lobby-slab">
+      <h2 id="l-title"></h2>
+      <p class="l-line" id="l-line" aria-live="polite"></p>
+      <div class="l-code-row" id="l-code-row" hidden>
+        <p class="l-code"><span id="l-code-label"></span> <b id="l-code"></b></p>
+        <button class="cartouche quiet" id="l-share" type="button"></button>
+      </div>
+      <p class="l-note" id="l-note" aria-live="polite"></p>
+      <p class="l-you" id="l-you" hidden></p>
+      <div class="l-seats" id="l-seats" aria-hidden="true"></div>
+      <button class="cartouche" id="l-start" type="button" hidden></button>
+      <details class="l-join-fold" id="l-join-fold">
+        <summary id="l-join-label"></summary>
+        <form class="l-join" id="l-join">
+          <div class="l-join-row">
+            <input id="l-code-in" type="text" aria-labelledby="l-join-label" autocomplete="off" autocapitalize="characters" spellcheck="false">
+            <button class="cartouche quiet" id="l-join-go" type="submit"></button>
+          </div>
+        </form>
+      </details>
+      <button class="cartouche quiet" id="l-leave" type="button"></button>
     </div>
   </section>
 
@@ -67,6 +94,9 @@
       <p class="caption" id="h-hint" aria-live="polite"></p>
     </div>
 
+    
+    <div class="rivals" id="rivals" role="list" hidden></div>
+
     <div class="tools" id="h-tools">
       <div class="roll" role="radiogroup" id="h-roll"></div>
       <button class="lever" id="h-lever" type="button" aria-pressed="false">
@@ -87,6 +117,7 @@
       <h2 id="r-name"></h2>
       <p class="m-line" id="r-line"></p>
       <p class="m-stats" id="r-stats"></p>
+      <p class="m-stats" id="r-wait" hidden></p>
       <div class="m-actions">
         <button class="cartouche" id="r-next" type="button"></button>
         <button class="cartouche quiet" id="r-again" type="button"></button>
@@ -95,6 +126,7 @@
     </div>
   </section>
 
-  <script type="module" src="./src/main.js?v=387a66ba-20261105T073258Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=73894c11-20261105T083735Z"></script>
+  <script type="module" src="./src/main.js?v=73894c11-20261105T083735Z"></script>
 </body>
 </html>

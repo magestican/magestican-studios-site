@@ -108,9 +108,17 @@ export const ICE_CONFIG = Object.freeze({
 });
 
 export class PeerMesh extends EventTarget {
-  constructor({ hostIdHint } = {}) {
+  
+
+
+
+
+
+
+  constructor({ hostIdHint, star = false } = {}) {
     super();
     if (!IS_PEER_AVAILABLE()) throw new Error('window.Peer (PeerJS) not loaded');
+    this.star = star;
     this.peer = new window.Peer(hostIdHint || undefined, {
       debug: 1,
       config: ICE_CONFIG,
@@ -210,7 +218,7 @@ export class PeerMesh extends EventTarget {
       this._dispatch('peer-joined', { id: conn.peer });
       
       
-      if (this.isHost) {
+      if (this.isHost && !this.star) {
         const existing = [...this._peers].filter(id => id !== conn.peer);
         conn.send({ t: 'peer-list', peers: existing });
       }
