@@ -16,8 +16,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Magic Mirror">
-  <link rel="stylesheet" href="css/game.css?v=cfd6225f-20261105T095509Z">
-  <script type="module" src="js/main.js?v=cfd6225f-20261105T095509Z"></script>
+  <link rel="stylesheet" href="css/game.css?v=4af42c7d-20261105T110038Z">
+  <script type="module" src="js/main.js?v=4af42c7d-20261105T110038Z"></script>
   <link rel="canonical" href="https://magesticanstudios.com/play/magic-mirror-moves/">
 </head>
 <body>
@@ -57,17 +57,27 @@
     <div class="panel">
       <h1 id="title-h">Magic Mirror Moves</h1>
       <p class="lead">Dress up and move to make magic.</p>
-      <div class="choice" role="group" aria-label="How to play">
-        <button type="button" class="chip" data-mode="show">Score points</button>
-        <button type="button" class="chip" data-mode="mirror">Free play</button>
-      </div>
-      <div class="choice" role="group" aria-label="Age">
-        <button type="button" class="chip" data-level="little">Little (4-6)</button>
-        <button type="button" class="chip" data-level="big">Big (7+)</button>
-      </div>
-      <button type="button" id="play" class="big">Play</button>
-      <button type="button" class="ghost-btn" data-tv>Play on TV</button>
-      <button type="button" class="ghost-btn" id="install-how">Install the game</button>
+      
+
+      <button type="button" id="play" class="big start">Play</button>
+      <details id="title-more" class="more-fold">
+        <summary>More</summary>
+        <div class="more-body">
+          <div class="choice" role="group" aria-label="How to play">
+            <button type="button" class="chip" data-mode="show">Score points</button>
+            <button type="button" class="chip" data-mode="mirror">Free play</button>
+          </div>
+          <div class="choice" role="group" aria-label="Age">
+            <button type="button" class="chip" data-level="little">Little (4-6)</button>
+            <button type="button" class="chip" data-level="big">Big (7+)</button>
+          </div>
+          <div class="choice">
+            <button type="button" class="ghost-btn" data-back="dress">Change costume</button>
+            <button type="button" class="ghost-btn" data-tv>Play on TV</button>
+            <button type="button" class="ghost-btn" id="install-how">Install the game</button>
+          </div>
+        </div>
+      </details>
       <button type="button" class="badge" data-privacy>The camera stays on this device</button>
     </div>
   </section>
@@ -78,7 +88,7 @@
       <div id="costumes" class="costumes" role="radiogroup" aria-label="Costume"></div>
       <div class="row">
         <button type="button" class="ghost-btn" data-back="title">Back</button>
-        <button type="button" id="dress-next" class="big">Next</button>
+        <button type="button" id="dress-next" class="big start">Next</button>
       </div>
     </div>
   </section>
@@ -89,7 +99,7 @@
       <p id="frame-note" class="note" hidden></p>
       <div class="row">
         <button type="button" class="ghost-btn small" data-back="dress">Back</button>
-        <button type="button" id="use-demo" class="ghost-btn small" hidden>Play the demo</button>
+        <button type="button" id="use-demo" class="big start" hidden>Play the demo</button>
         <button type="button" id="start" class="ghost-btn small">Start</button>
       </div>
     </div>
@@ -114,7 +124,7 @@
       <p id="best" class="note"></p>
       <div class="row">
         <button type="button" class="ghost-btn" data-back="dress">Change costume</button>
-        <button type="button" id="again" class="big">Play again</button>
+        <button type="button" id="again" class="big start">Play again</button>
       </div>
       <button type="button" class="badge" data-privacy>The camera stays on this device</button>
     </div>

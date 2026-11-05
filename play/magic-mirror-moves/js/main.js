@@ -404,7 +404,9 @@ function wire() {
       syncChips();
     });
   for (const b of document.querySelectorAll('[data-back]')) b.addEventListener('click', () => show(b.dataset.back));
-  $('play').addEventListener('click', () => show('dress'));
+  
+  
+  $('play').addEventListener('click', () => toFraming());
   $('dress-next').addEventListener('click', () => toFraming());
   $('start').addEventListener('click', () => beginRound());
   $('again').addEventListener('click', () => toFraming());

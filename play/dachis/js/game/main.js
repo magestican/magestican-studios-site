@@ -380,7 +380,13 @@ document.querySelectorAll('.gbtn').forEach(b => {
   b.onclick = () => { document.querySelectorAll('.gbtn').forEach(x => x.classList.remove('on')); b.classList.add('on'); G.gender = b.dataset.g; };
 });
 setupNames(); 
-if (hasSave()) $('contBtn').classList.remove('hidden');
+
+
+if (hasSave()) {
+  $('contBtn').classList.remove('hidden');
+  $('newBtn').classList.add('hidden');
+  $('againBtn').classList.remove('hidden');
+}
 if (plusOffered()) $('plusBtn').classList.remove('hidden'); 
 function leaveTitle() {
   $('title').classList.add('hidden');
@@ -399,12 +405,14 @@ function playIntro(start) {
     } }).then(() => { afterIntro(); youTag.start(); });
   }, { start, onLine: (sc, li) => intro.save(sc, li) });
 }
-$('newBtn').onclick = () => {
+function beginNewGame(btn) {
   if (!confirmNewGame()) return; 
   G.name = ($('nameInput').value.trim() || $('nameInput').placeholder || 'Ace').slice(0, 14);
   G.clock = newClock(); 
-  startWithWipe($('newBtn'), () => { intro.clear(); leaveTitle(); playIntro(null); });
-};
+  startWithWipe(btn, () => { intro.clear(); leaveTitle(); playIntro(null); });
+}
+$('newBtn').onclick = () => beginNewGame($('newBtn'));
+$('againBtn').onclick = () => beginNewGame($('againBtn'));
 
 $('plusBtn').onclick = () => {
   if (!confirm('Start New Game+? Your dachis and your Dachidex come with you; the story starts over.')) return;

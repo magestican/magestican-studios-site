@@ -14,7 +14,7 @@
 
 
 
-  <meta name="build" content="cfd6225f-20261105T095509Z">
+  <meta name="build" content="4af42c7d-20261105T110038Z">
   <script>
     
     
@@ -195,16 +195,20 @@
     <div class="titleCard">
       <div class="logo">DACHIS</div>
       <div class="sub">tomodachi &middot; friends</div>
-      <p class="blurb">New York City, 1992. One wrong turn down an alley, a red hand, a black spiral &mdash; and you are falling toward an island full of monsters that were always meant to be friends.</p>
-      <div id="langTitle"></div>
-      <label for="nameInput">Your name</label>
-      <div class="nameRow"><input id="nameInput" maxlength="14" autocomplete="off"><button id="diceBtn" class="tappable" type="button" aria-label="Random name" title="Random name"><i data-icon="dice"></i></button></div>
-      <div class="genders"><button class="gbtn on tappable" data-g="boy">Boy</button><button class="gbtn tappable" data-g="girl">Girl</button></div>
+      <button id="newBtn" class="start tappable">PRESS START</button>
+      <button id="contBtn" class="start hidden tappable">Continue</button>
       <button id="resumeBtn" class="resume hidden tappable" type="button"><canvas id="resumeFrame" width="320" height="180"></canvas><span class="resumeLabel"><i data-icon="play"></i> Resume intro</span></button>
-      <button id="newBtn" class="big tappable">New Game</button>
-      <button id="plusBtn" class="big hidden tappable">New Game+</button>
-      <button id="contBtn" class="big hidden tappable">Continue</button>
-      <p class="small">Keyboard, gamepad or touch &middot; a Magestican Studios game</p>
+      <details id="titleMore">
+        <summary>Options</summary>
+        <p class="blurb">New York City, 1992. One wrong turn down an alley, a red hand, a black spiral &mdash; and you are falling toward an island full of monsters that were always meant to be friends.</p>
+        <div id="langTitle"></div>
+        <label for="nameInput">Your name</label>
+        <div class="nameRow"><input id="nameInput" maxlength="14" autocomplete="off"><button id="diceBtn" class="tappable" type="button" aria-label="Random name" title="Random name"><i data-icon="dice"></i></button></div>
+        <div class="genders"><button class="gbtn on tappable" data-g="boy">Boy</button><button class="gbtn tappable" data-g="girl">Girl</button></div>
+        <button id="againBtn" class="big hidden tappable">New Game</button>
+        <button id="plusBtn" class="big hidden tappable">New Game+</button>
+        <p class="small">Keyboard, gamepad or touch &middot; a Magestican Studios game</p>
+      </details>
     </div>
   </div>
   
@@ -220,6 +224,6 @@
   </div>
   <div id="toasts"></div>
 
-  <script type="module" src="js/game/main.js?v=cfd6225f-20261105T095509Z"></script>
+  <script type="module" src="js/game/main.js?v=4af42c7d-20261105T110038Z"></script>
 </body>
 </html>

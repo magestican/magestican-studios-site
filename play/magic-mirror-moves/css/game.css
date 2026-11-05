@@ -112,8 +112,16 @@ p {
   opacity: 0.85;
 }
 
-button {
+
+
+button,
+summary {
   font: inherit;
+  font-weight: 700;
+  -webkit-text-stroke: 0.3px currentColor;
+}
+
+button {
   cursor: pointer;
   border: 0;
   border-radius: 999px;
@@ -136,9 +144,123 @@ button:focus-visible {
   box-shadow: 0 4px 0 #d58a1c;
 }
 
+
+
+
+
+.panel > .row:has(> .big.start) {
+  align-self: stretch;
+  align-items: center;
+}
+
+
+
+
+.screen:not(.overlay) {
+  align-items: flex-start;
+}
+
+.screen:not(.overlay) > .panel {
+  margin: auto;
+}
+
+@media (max-height: 760px) {
+  #dress .panel {
+    padding: 16px;
+    gap: 12px;
+  }
+  #dress .costume {
+    padding: 8px;
+    gap: 4px;
+  }
+  #dress .costume img {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.big.start {
+  flex: 1 1 100%;
+  align-self: stretch;
+  width: 100%;
+  min-height: 96px;
+  padding: 12px 24px;
+  font-size: 2.3rem;
+  line-height: 1.05;
+  -webkit-text-stroke: 0.8px currentColor;
+  background: linear-gradient(180deg, #ffe9a8, #ffb84d);
+  box-shadow:
+    inset 0 0 0 4px #fff6d6,
+    inset 0 0 0 7px var(--violet),
+    0 6px 0 #d58a1c,
+    0 12px 22px rgba(36, 22, 64, 0.35);
+}
+
+.big.start:active {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 0 0 4px #fff6d6,
+    inset 0 0 0 7px var(--violet),
+    0 2px 0 #d58a1c;
+}
+
+.row > .big.start {
+  order: -1; 
+}
+
+
+#use-demo {
+  font-size: clamp(1.6rem, 9.4vw, 2.3rem);
+}
+
+@media (min-width: 900px) {
+  .big.start,
+  #use-demo {
+    min-height: 128px;
+    font-size: 3.2rem;
+  }
+}
+
+
+@media (max-height: 480px) {
+  .big.start,
+  #use-demo {
+    flex: 1 1 0;
+    min-height: 72px;
+    font-size: 1.8rem;
+  }
+}
+
+
+.more-fold {
+  width: 100%;
+}
+
+.more-fold summary {
+  width: fit-content;
+  min-height: 48px;
+  margin: 0 auto;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: #ece4ff;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.more-fold summary:focus-visible {
+  outline: 4px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.more-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding-top: 16px;
+}
+
 .ghost-btn {
   background: #ece4ff;
-  font-weight: 600;
 }
 
 .ghost-btn.small {
@@ -146,9 +268,13 @@ button:focus-visible {
   padding: 6px 14px;
 }
 
+
+.ghost-btn.icon {
+  -webkit-text-stroke: 0;
+}
+
 .chip {
   background: #ece4ff;
-  font-weight: 600;
 }
 
 .chip[aria-pressed="true"] {
