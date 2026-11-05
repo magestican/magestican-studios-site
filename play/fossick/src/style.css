@@ -324,15 +324,19 @@ button.spec-label:hover { background-color: #f5dc8a; }
 
 
 .tools { grid-area: tools; display: flex; gap: 16px; align-items: stretch; min-height: 62px; }
-.roll { flex: 1; min-width: 0; display: flex; gap: 14px; }
+
+
+
+
+.roll { flex: 1 1 auto; display: flex; gap: 14px; }
 .tool {
-  flex: 1; min-width: 0; min-height: 60px;
-  display: flex; align-items: center; gap: 8px;
-  padding: 4px 8px;
+  flex: 1 1 auto; min-height: 60px;
+  display: flex; flex-wrap: wrap; align-items: center; align-content: center; justify-content: center; gap: 2px 6px;
+  padding: 16px;
   text-align: left;
 }
-.tool svg { width: 40px; height: 40px; flex: none; transition: transform .18s cubic-bezier(.3, 1.6, .5, 1); }
-.tool b { display: block; font-weight: 400; font-size: 1.05rem; line-height: 1.05; }
+.tool svg { width: 22px; height: 22px; flex: none; transition: transform .18s cubic-bezier(.3, 1.6, .5, 1); }
+.tool b { display: block; font-weight: 400; font-size: .95rem; line-height: 1.05; }
 .tool i { display: none; font-size: .78rem; line-height: 1.1; }
 .tool:hover { background-color: #f5dc8a; }
 .tool[aria-checked='true'] { background-color: var(--sun); }
@@ -340,7 +344,7 @@ button.spec-label:hover { background-color: #f5dc8a; }
 .tool.absent { display: none; }
 
 
-.lever { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 10px; min-height: 60px; }
+.lever { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 16px; min-height: 60px; }
 .lever:hover { background-color: #f5dc8a; }
 .lever-slot { position: relative; width: 20px; height: 44px; background: var(--hatch); border: 2px solid var(--ink); }
 .lever-arm {
@@ -413,11 +417,11 @@ button.spec-label:hover { background-color: #f5dc8a; }
   .seals { gap: 8px; }
   .tools { flex-direction: column; align-self: end; gap: 18px; }
   .roll { flex-direction: column; flex: none; gap: 18px; }
-  .tool { min-height: 72px; padding: 6px 10px; flex: none; }
+  .tool { min-height: 72px; padding: 11px 16px; flex: none; flex-wrap: nowrap; justify-content: flex-start; gap: 8px; }
   .tool svg { width: 50px; height: 50px; }
   .tool b { font-size: 1.2rem; }
   .tool i { display: block; }
-  .lever { padding: 10px 12px; }
+  .lever { padding: 10px 16px; }
   .lever-slot { height: 54px; }
   .lever[aria-pressed='true'] .lever-arm { top: 35px; }
   .lever-text { text-align: left; }
@@ -430,6 +434,11 @@ button.spec-label:hover { background-color: #f5dc8a; }
   .m-line { padding-right: 0; font-size: 1.08rem; }
   .m-actions { flex-direction: column; align-items: stretch; }
   .stamp { font-size: 1.5rem; top: 18px; right: 20px; }
+}
+
+
+@media (max-width: 359px) {
+  .lever-text i { display: none; }
 }
 
 
