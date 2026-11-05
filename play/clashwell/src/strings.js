@@ -3,7 +3,8 @@
 
 export const T = Object.freeze({
   pitch: 'Stack gems to throw punches. Hit back in time to clash.',
-  playNow: 'Play now',
+  playNow: 'Start',
+  more: 'More ways',
   friendH: 'Play a friend',
   createRoom: 'Create a room',
   join: 'Join',

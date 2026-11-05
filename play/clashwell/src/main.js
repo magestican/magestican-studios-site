@@ -401,7 +401,7 @@ async function invite(link, text = null) {
 
 function fillStatic() {
   const text = {
-    pitch: T.pitch, 'play-now': T.playNow, 'friend-h': T.friendH, 'create-room': T.createRoom, 'join-btn': T.join, 'how-h': T.howH,
+    pitch: T.pitch, 'play-now': T.playNow, 'more-label': T.more, 'pick-fighter': T.selectH, 'friend-h': T.friendH, 'create-room': T.createRoom, 'join-btn': T.join, 'how-h': T.howH,
     'keys-line': T.keysLine, 'keys-drop': T.keysDrop, 'select-h': T.selectH, 'fighter-note': T.fighterNote, 'level-h': T.levelH, fight: T.fight,
     'select-back': T.back, 'room-h': T.roomH, 'copy-link': T.share, 'watch-link': T.watchLink, 'leave-room': T.leave,
     cheer: T.cheer, quit: T.quit, rematch: T.rematch, 'to-title': T.title,
@@ -432,7 +432,10 @@ function drawSelect() {
 }
 
 function wire() {
-  $('play-now').addEventListener('click', () => { drawSelect(); show('select'); });
+  
+  
+  $('play-now').addEventListener('click', () => startSolo());
+  $('pick-fighter').addEventListener('click', () => { drawSelect(); show('select'); });
   $('fight').addEventListener('click', () => startSolo());
   $('select-back').addEventListener('click', () => show('title'));
   $('create-room').addEventListener('click', createRoom);
