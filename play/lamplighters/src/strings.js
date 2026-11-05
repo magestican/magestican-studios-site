@@ -14,7 +14,6 @@ export const T = Object.freeze({
   rivalH: 'Rival crew',
   rivals: { apprentice: 'Apprentice', lamplighter: 'Lamplighter', foreman: 'Foreman' },
   startBot: 'Start the climb',
-  options: 'Options',
   friendH: 'Play a friend',
   createRoom: 'Create a room',
   join: 'Join',

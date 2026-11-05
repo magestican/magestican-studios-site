@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Play Lamplighters - a live picture logic duel, free online</title>
   <meta name="description" content="Lamplighters is a picture logic duel on one shared tower: read the clues, light the right windows and close each line before your rival. Play a bot or a friend, free, with no download.">
-  <meta name="build" content="df7c14cc-20261105T071913Z">
+  <meta name="build" content="0e05a0a5-20261105T072624Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/lamplighters/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Lamplighters - a live picture logic duel">
@@ -28,8 +28,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=df7c14cc-20261105T071913Z" data-game="lamplighters"></script>
-  <link rel="stylesheet" href="./src/style.css?v=df7c14cc-20261105T071913Z">
+  <script src="../shared/ui/boot.js?v=0e05a0a5-20261105T072624Z" data-game="lamplighters"></script>
+  <link rel="stylesheet" href="./src/style.css?v=0e05a0a5-20261105T072624Z">
 </head>
 <body>
   <div class="studio-bar">
@@ -48,27 +48,21 @@
         <p id="pitch"></p>
       </header>
 
-      
-      <div class="ll-launch" id="launch">
-        <button class="ll-go ll-start skin-stone-button_primary" id="start-bot" type="button"></button>
-        <p class="ll-picked" id="picked"></p>
-        <div class="ll-more">
-          <button class="ll-btn skin-stone-button_secondary" id="options-btn" type="button" aria-expanded="false" aria-controls="options"></button>
-          <button class="ll-btn skin-stone-button_secondary" id="friend-btn" type="button" aria-expanded="false" aria-controls="room-start"></button>
-        </div>
-      </div>
-
-      <div class="ll-card" id="options" hidden>
+      <div class="ll-card">
         <h2 id="size-h"></h2>
         <div class="ll-chips" id="sizes" role="group"></div>
         <h2 id="tower-h"></h2>
         <div class="ll-chips" id="towers" role="group"></div>
-        <h2 id="rival-h"></h2>
-        <div class="ll-chips" id="rivals" role="group"></div>
       </div>
 
-      <div class="ll-card" id="room-start" hidden>
-        <h2 class="ll-sr" id="friend-h"></h2>
+      <div class="ll-card" id="solo-card">
+        <h2 id="rival-h"></h2>
+        <div class="ll-chips" id="rivals" role="group"></div>
+        <button class="ll-go skin-stone-button_primary" id="start-bot" type="button"></button>
+      </div>
+
+      <div class="ll-card" id="room-start">
+        <h2 id="friend-h"></h2>
         <button class="ll-btn skin-stone-button_secondary" id="create-room" type="button"></button>
         <form class="ll-join" id="join-form">
           <input class="skin-stone-text_input" id="join-code" type="text" autocomplete="off" autocapitalize="characters" maxlength="24" aria-labelledby="friend-h">
@@ -147,7 +141,7 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=df7c14cc-20261105T071913Z"></script>
-  <script type="module" src="./src/main.js?v=df7c14cc-20261105T071913Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=0e05a0a5-20261105T072624Z"></script>
+  <script type="module" src="./src/main.js?v=0e05a0a5-20261105T072624Z"></script>
 </body>
 </html>

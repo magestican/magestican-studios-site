@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "df7c14cc-20261105T071913Z",
+ "buildId": "0e05a0a5-20261105T072624Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -833,7 +833,7 @@
    "ageNote": null,
    "order": 27,
    "addedAt": "2026-11-02",
-   "bytes": 367776
+   "bytes": 365152
   },
   {
    "id": "fossick",
