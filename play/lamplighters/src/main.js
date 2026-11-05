@@ -28,6 +28,7 @@ import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js'
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { playUi } from '../../../web-engine/brand/uiSound.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
+import { setupPanels, togglePanel } from './setupPanels.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { createNet, canPlayTogether } from './net.js';
 import { AIM_BELOW_PX, availableBoard, layoutBlock, layoutBoard } from './layout.js';
@@ -81,6 +82,7 @@ const saveSetup = () => { try { localStorage.setItem(SETUP_KEY, JSON.stringify(s
 
 
 let screen = 'setup';
+let setupPanel = null; 
 let mode = 'bot'; 
 let picture = null;
 let match = null; 
@@ -205,9 +207,20 @@ function drawSetup() {
     saveSetup();
     drawSetup();
   })));
-  $('solo-card').hidden = inRoom;
-  $('room-start').hidden = inRoom;
-  $('room-live').hidden = !inRoom;
+  const panels = setupPanels({ inRoom, panel: setupPanel });
+  $('launch').hidden = !panels.launch;
+  $('options').hidden = !panels.options;
+  $('rival-h').hidden = !panels.rival;
+  $('rivals').hidden = !panels.rival;
+  $('room-start').hidden = !panels.friend;
+  $('room-live').hidden = !panels.roomLive;
+  $('options-btn').setAttribute('aria-expanded', String(panels.options));
+  $('friend-btn').setAttribute('aria-expanded', String(panels.friend));
+  $('picked').textContent = [
+    groupLabel(size),
+    fill(T.towerName, { n: towerNumber(shown) }),
+    T.rivals[setup.rival],
+  ].join(' · ');
   if (!inRoom) return;
 
   $('room-code').textContent = roomUi.code ?? '-';
@@ -1165,6 +1178,8 @@ function fillStaticText() {
   $('rival-h').textContent = T.rivalH;
   $('start-bot').textContent = T.startBot;
   $('friend-h').textContent = T.friendH;
+  $('friend-btn').textContent = T.friendH;
+  $('options-btn').textContent = T.options;
   $('create-room').textContent = T.createRoom;
   $('join-btn').textContent = T.join;
   $('join-code').placeholder = T.joinHint;
@@ -1190,6 +1205,13 @@ function roomId() { return net?.hosting ? net.id : `flt-${roomUi.code}`; }
 
 function wireButtons() {
   $('start-bot').addEventListener('click', () => { playUi('tap'); startBotMatch(setup.picture, setup.rival); });
+  for (const [id, which] of [['options-btn', 'options'], ['friend-btn', 'friend']]) {
+    $(id).addEventListener('click', () => {
+      playUi('tap');
+      setupPanel = togglePanel(setupPanel, which);
+      drawSetup();
+    });
+  }
   $('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
   $('join-form').addEventListener('submit', (e) => {
     e.preventDefault();
