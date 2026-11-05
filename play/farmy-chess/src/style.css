@@ -172,7 +172,9 @@ body {
   background: var(--fc-ink);
   color: var(--fc-paper);
   position: relative;
-  z-index: 2;
+  
+
+  z-index: 6;
 }
 .studio-home {
   display: flex;
@@ -274,3 +276,77 @@ body {
 
 
 html.framed .studio-bar { display: none; }
+
+
+
+
+
+
+
+
+
+
+.title { display: none; }
+body.at-title .title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  padding: 72px 0 32px;
+  background: var(--fc-paper);
+  background-image: repeating-conic-gradient(rgba(23, 21, 15, 0.05) 0 25%, transparent 0 50%);
+  background-size: 96px 96px;
+}
+#start {
+  width: calc(100% - 32px);
+  max-width: 620px;
+  min-height: 120px;
+  height: clamp(120px, 22vh, 160px);
+  padding: 22px 16px 16px;
+  border: 6px solid var(--fc-ink);
+  border-radius: 14px;
+  background-color: var(--fc-ink);
+  background-image: repeating-conic-gradient(var(--fc-card) 0 25%, var(--fc-ink) 0 50%);
+  background-size: 24px 24px;
+  background-repeat: repeat-x;
+  background-position: 0 0;
+  background-clip: padding-box;
+  box-shadow: 10px 10px 0 var(--fc-gold);
+  color: var(--fc-card);
+  font-family: var(--fc-font);
+  
+  font-size: clamp(2.6rem, 15vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+#start:hover { box-shadow: 12px 12px 0 var(--fc-gold); }
+#start:active { transform: translate(6px, 6px); box-shadow: 4px 4px 0 var(--fc-gold); }
+#start:focus-visible, #see-options:focus-visible {
+  outline: 4px solid var(--fc-blue);
+  outline-offset: 6px;
+}
+#see-options {
+  min-height: 48px;
+  padding: 10px 22px;
+  border: 3px solid var(--fc-ink);
+  border-radius: 6px;
+  background: var(--fc-card);
+  color: var(--fc-ink);
+  font-family: var(--fc-font);
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+@media (max-width: 560px) {
+  body.at-title .title { padding-top: 64px; }
+}

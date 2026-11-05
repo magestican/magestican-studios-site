@@ -195,8 +195,10 @@ export function button(g, r, {
       ? { x: r.x + 6, y: r.y + press, w: pad, h: r.h }
       : { x: r.x, y: r.y + press, w: r.w, h: r.h }, on);
   }
+  
+  
   text(g, label, { x: r.x + pad, y: r.y + press, w: r.w - pad, h: r.h }, {
-    size, colour: on, fit: true, maxWidth: r.w - pad - (String(label).length <= 1 ? 6 : 16),
+    size, weight: 900, colour: on, fit: true, maxWidth: r.w - pad - (String(label).length <= 1 ? 6 : 16),
   });
 }
 
