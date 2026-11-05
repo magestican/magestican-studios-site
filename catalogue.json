@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "773e9c31-20261105T220841Z",
+ "buildId": "754a9084-20261105T235017Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -227,7 +227,7 @@
    "ageNote": null,
    "order": 6,
    "addedAt": "2026-09-06",
-   "bytes": 93502
+   "bytes": 93474
   },
   {
    "id": "farmy-checkers",
@@ -514,7 +514,7 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-10-28",
-   "bytes": 1280849
+   "bytes": 1270301
   },
   {
    "id": "shogi",
@@ -546,7 +546,7 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-10-29",
-   "bytes": 1260987
+   "bytes": 1260526
   },
   {
    "id": "xiangqi",
@@ -578,7 +578,7 @@
    "ageNote": null,
    "order": 17,
    "addedAt": "2026-10-29",
-   "bytes": 1134796
+   "bytes": 1134335
   },
   {
    "id": "go",
@@ -610,7 +610,7 @@
    "ageNote": null,
    "order": 18,
    "addedAt": "2026-10-30",
-   "bytes": 1007834
+   "bytes": 1007373
   },
   {
    "id": "farmy-moon-life",

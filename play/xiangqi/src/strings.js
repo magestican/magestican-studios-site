@@ -19,14 +19,8 @@
 
 
 
-import { STRINGS as HANA } from '../../koikoi/src/strings.js';
+import { roomWords } from '../../shared/ui/roomWords.js';
 
-const SHARED_KEYS = [
-  'back', 'vsBot', 'friend', 'level', 'easy', 'medium', 'hard', 'you', 'bot', 'friendName', 'playerN', 'newGame',
-  'createRoom', 'join', 'codePh', 'copyLink', 'copied', 'waiting', 'joined', 'connecting', 'leave', 'watching',
-  'badCode', 'watchLink', 'watchCopied', 'watchInvite', 'watchers', 'refused', 'noRooms', 'roomCodeLabel', 'seatNext',
-];
-const shared = (code) => Object.fromEntries(SHARED_KEYS.map((k) => [k, HANA[code][k]]));
 
 const OWN = {
   en: {
@@ -192,7 +186,7 @@ const OWN = {
 };
 
 export const STRINGS = Object.freeze(Object.fromEntries(
-  Object.entries(OWN).map(([code, own]) => [code, Object.freeze({ ...shared(code), ...own })]),
+  Object.entries(OWN).map(([code, own]) => [code, Object.freeze({ ...roomWords(code), ...own })]),
 ));
 
 export const stringsFor = (lang) => STRINGS[lang] ?? STRINGS.en;
