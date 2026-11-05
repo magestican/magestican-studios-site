@@ -24,6 +24,10 @@ const TICK_MS = 1000 / FPS;
 const lerp = (a, b, t) => a + (b - a) * t;
 
 
+
+
+export const STANDOFF_MS = 800;
+
 export function totalMs() {
   return fight().ticks.length * TICK_MS;
 }

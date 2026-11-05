@@ -75,9 +75,45 @@
     button {
       background: var(--panel); color: var(--ink); border: 1px solid #2f4030;
       padding: 7px 14px; border-radius: 4px; cursor: pointer; font: inherit; font-size: .9rem;
+      font-weight: 800;
       min-height: 44px;
     }
     button:hover { border-color: var(--accent); }
+    
+
+    header button { min-width: 44px; }
+
+    
+
+
+
+
+
+
+
+
+
+    #start {
+      display: block; width: calc(100% - 32px); max-width: 620px;
+      min-height: 120px; height: clamp(120px, 22vh, 160px);
+      margin: 20px auto 0; padding: 0 16px; border: 0; border-radius: 0;
+      background: #ff5f57; color: #1c0a1e;
+      box-shadow: inset 0 8px 0 #ffb199, inset 0 -12px 0 #b3262a;
+      clip-path: polygon(0 12px, 6px 12px, 6px 6px, 12px 6px, 12px 0,
+        calc(100% - 12px) 0, calc(100% - 12px) 6px, calc(100% - 6px) 6px, calc(100% - 6px) 12px, 100% 12px,
+        100% calc(100% - 12px), calc(100% - 6px) calc(100% - 12px), calc(100% - 6px) calc(100% - 6px), calc(100% - 12px) calc(100% - 6px), calc(100% - 12px) 100%,
+        12px 100%, 12px calc(100% - 6px), 6px calc(100% - 6px), 6px calc(100% - 12px), 0 calc(100% - 12px));
+      font-family: "Arial Black", "Segoe UI Black", ui-sans-serif, system-ui, sans-serif;
+      font-size: clamp(3.2rem, 18vw, 6rem); font-weight: 900; line-height: 1;
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    #start:hover { background: #ff7a6b; }
+    #start:active { transform: translateY(3px); }
+    #start:focus-visible { outline: 4px solid var(--ink); outline-offset: -10px; }
+    body:not(.at-title) #start { display: none; }
+    
+
+    body.at-title #account { display: none; }
     label { color: var(--muted); font-size: .85rem; display: flex; align-items: center; gap: 6px; }
     
 
@@ -100,20 +136,21 @@
 
 
 
-    details.more { width: 100%; }
+    details.more { width: 100%; max-width: 760px; }
+    
+
+
     details.more > summary {
-      display: none; cursor: pointer; color: var(--muted); font-size: .9rem;
+      display: block; cursor: pointer; color: var(--ink); font-size: .95rem; font-weight: 800;
       list-style: none; padding: 10px; text-align: center;
+      border: 1px solid #2f4030; border-radius: 4px;
+      margin: 16px auto 0; max-width: 220px; min-height: 44px;
     }
     details.more > summary::-webkit-details-marker { display: none; }
+    details.more[open] > summary { margin-bottom: 4px; }
+    .readout { justify-content: center; padding: 0 16px; }
 
     @media (max-width: 720px) {
-      
-      details.more > summary {
-        display: block; border: 1px solid #2f4030; border-radius: 4px;
-        margin: 10px auto 0; max-width: 220px;
-      }
-      details.more[open] > summary { margin-bottom: 4px; }
       body { padding: 0 0 16px; }
       header { margin: 10px 0 8px; }
       h1 { font-size: 1.1rem; }
@@ -124,7 +161,7 @@
   </style>
   <script type="module" src="/web-engine/library/openHook.js?play=2d-fighter-ex"></script>
 </head>
-<body>
+<body class="at-title">
   <header>
     <h1>2D Fighter EX</h1>
     <p>EX is for experiment. Two minutes of fight, animated at 30fps from hand-built poses.</p>
@@ -134,15 +171,9 @@
     <canvas id="stage" width="502" height="271" aria-label="A two-fighter animation drawn in coloured blocks"></canvas>
   </div>
 
-  <div class="controls">
-    <button id="playpause" aria-pressed="false">Pause</button>
-    <button id="step">Step</button>
-    <button id="reseed">New forest</button>
-    <label>Speed
-      <input id="speed" type="range" min="0.1" max="2" step="0.05" value="1">
-      <span id="speedout">1.00x</span>
-    </label>
-  </div>
+  
+
+  <button id="start" type="button">Start</button>
 
   
 
@@ -153,8 +184,20 @@
 
 
 
-  <details class="more" id="more" open>
-    <summary>Options</summary>
+
+
+  <details class="more" id="more">
+    <summary>See options</summary>
+
+  <div class="controls">
+    <button id="playpause" aria-pressed="false">Pause</button>
+    <button id="step">Step</button>
+    <button id="reseed">New forest</button>
+    <label>Speed
+      <input id="speed" type="range" min="0.1" max="2" step="0.05" value="1">
+      <span id="speedout">1.00x</span>
+    </label>
+  </div>
 
   
 
@@ -233,16 +276,6 @@
 
 
 
-  <script>
-    
-    
-    
-    (function () {
-      var d = document.getElementById('more');
-      if (d && window.matchMedia('(max-width: 720px)').matches) d.open = false;
-    }());
-  </script>
-
   
 
 
@@ -254,7 +287,7 @@
   <script type="importmap">
   {"imports":{"three":"../../web-engine/vendor/three-0.161.0/three.module.js"}}
   </script>
-  <script type="module" src="./src/main.js?v=40f1d4d1-20261105T144823Z"></script>
+  <script type="module" src="./src/main.js?v=42880d6f-20261105T203816Z"></script>
 
   
 

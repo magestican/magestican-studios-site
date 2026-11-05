@@ -18,7 +18,7 @@ import { CANVAS } from './choreography.js';
 import { buildStage } from './stage.js';
 import { WORLD_IDS } from './worlds.js';
 import { CAST, CAST_IDS, DEFAULT_A, DEFAULT_B, atlasFile, castId } from './cast.js';
-import { cursorAt, stateAt, totalMs, sceneAt } from './fightPlayback.js';
+import { cursorAt, stateAt, totalMs, sceneAt, STANDOFF_MS } from './fightPlayback.js';
 import { FPS } from './fightScript.js';
 import { renderFrame, setFighter3dFactory } from './render.js';
 import { installAudio } from './audio.js';
@@ -211,8 +211,40 @@ $('seed').textContent = seed;
 
 if ($('frames')) $('frames').textContent = String(Math.round(totalMs() / (1000 / FPS)));
 
-let playing = true;
-let elapsed = 0;
+
+
+
+
+
+
+
+
+
+const showTitle = !params.has('go');
+let atTitle = showTitle;
+
+
+
+let idleMs = 0;
+
+let playing = !showTitle;
+
+
+let elapsed = showTitle ? STANDOFF_MS : 0;
+
+
+
+
+
+function poseNow() {
+  const pose = stateAt(elapsed);
+  if (atTitle) {
+    pose.say = null;
+    pose.a.ghosts = [];
+    pose.b.ghosts = [];
+  }
+  return pose;
+}
 let last = null;
 let speed = 1;
 
@@ -266,8 +298,9 @@ function tick(now) {
   const dt = Math.min(100, now - last);
   last = now;
   if (playing) elapsed += dt * speed;
+  if (atTitle) idleMs += dt;
 
-  const pose = stateAt(elapsed);
+  const pose = poseNow();
   pose.sprites = sprites;
   
   
@@ -285,7 +318,7 @@ function tick(now) {
     ctx.translate(Math.sin(k) * 5 * shake, Math.cos(k * 1.7) * 4 * shake);
   }
   renderFrame(ctx, cells, { ...pose, cast: { a: castA, b: castB } }, moodNow,
-    { season, world, timeMs: elapsed, fx: fxOn });
+    { season, world, timeMs: elapsed + idleMs, fx: fxOn });
   ctx.restore();
 
   const total = totalMs();
@@ -303,12 +336,22 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
+function leaveTitle() {
+  atTitle = false;
+  document.body.classList.remove('at-title');
+}
+
+
+
 function setPlaying(next) {
   playing = next;
   $('playpause').textContent = playing ? 'Pause' : 'Play';
   $('playpause').setAttribute('aria-pressed', String(!playing));
+  if (playing) leaveTitle();
 }
+setPlaying(playing);
 
+$('start').addEventListener('click', () => setPlaying(true));
 $('playpause').addEventListener('click', () => setPlaying(!playing));
 
 $('step').addEventListener('click', () => {
@@ -329,6 +372,7 @@ $('reseed').addEventListener('click', () => {
   const next = Math.random().toString(36).slice(2, 8);
   const url = new URL(globalThis.location.href);
   url.searchParams.set('seed', next);
+  url.searchParams.set('go', '1');
   globalThis.location.assign(url.toString());
 });
 
@@ -386,8 +430,8 @@ mountLevelChip(document.querySelector('header'), { share: '2D Fighter EX' });
 
 
 
-renderFrame(ctx, cells, { ...stateAt(0), sprites, cast: { a: castA, b: castB } }, moodNow,
-  { season, world, timeMs: 0, fx: fxOn });
+renderFrame(ctx, cells, { ...poseNow(), sprites, cast: { a: castA, b: castB } }, moodNow,
+  { season, world, timeMs: elapsed, fx: fxOn });
 
 requestAnimationFrame(tick);
 
