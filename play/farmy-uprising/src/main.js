@@ -1417,6 +1417,37 @@ for (const id of ['top', 'dock']) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+let atTitle = params.get('autostart') !== '1' && !joinIdFrom(location.href) && !params.has('go');
+if (!atTitle) document.body.classList.remove('at-title');
+$('menu').inert = atTitle;
+function leaveTitle() {
+  atTitle = false;
+  document.body.classList.remove('at-title');
+  $('menu').inert = false;
+}
+$('start').addEventListener('click', () => {
+  leaveTitle();
+  const resume = $('btn-resume');
+  (resume.hidden ? $('btn-play') : resume).click();
+});
+$('see-options').addEventListener('click', () => {
+  leaveTitle();
+  $('menu').classList.add('show');
+  $('btn-play').focus({ preventScroll: true });
+});
+
+
+
 if (params.get('autostart') === '1') start();
 else startBackdrop();
 

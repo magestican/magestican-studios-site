@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="85e3e961-20261106T041413Z">
+<meta name="build" content="f4ef2f6d-20261106T053055Z">
 <title>Play Hoofrise — free browser strategy game, no download | Magestican Studios</title>
 <meta name="description" content="Play Hoofrise free in your browser. Mother Nature woke the animals up and they want the farms gone. Ten-minute asymmetrical strategy: farmers against animals, a map cut into sectors, and a score measured in land-seconds. Phone, desktop and controller. No download, no install, no account.">
 <link rel="canonical" href="https://magesticanstudios.com/play/farmy-uprising/">
@@ -1141,11 +1141,44 @@ html[data-skin=yield] .card h2{font:700 18px/1.2 var(--mono);letter-spacing:2px;
 .row select{background:rgba(255,255,255,.06);color:var(--card-ink);border:1px solid var(--card-line);
   border-radius:0;padding:8px 8px;font:600 12px/1 var(--mono);min-width:150px;min-height:44px}
 .play{width:100%;margin-top:12px;height:48px;border:1px solid var(--accent);border-radius:0;
-  background:rgba(63,184,166,.18);color:#d9f5ea;font:700 14px/1 var(--mono);letter-spacing:3px;
+  background:rgba(63,184,166,.18);color:#d9f5ea;font:900 14px/1 var(--mono);letter-spacing:3px;
   transition:background .16s ease}
 .play:hover{background:rgba(63,184,166,.30)}
 #btn-play{background:var(--accent);color:#06110f;font-size:16px;height:54px}
 #btn-play:hover{background:#63d3c2}
+
+
+
+
+
+
+
+
+
+
+
+
+.title{display:none}
+body.at-title #menu{visibility:hidden}
+body.at-title .title{display:flex;position:fixed;inset:0;z-index:13;flex-direction:column;
+  align-items:center;justify-content:center;gap:24px;padding:16px 0;
+  background:linear-gradient(180deg,rgba(20,40,14,.42),rgba(20,40,14,.16) 45%,rgba(8,18,6,.70))}
+#start{display:block;width:calc(100% - 32px);max-width:620px;min-height:146px;margin:0;
+  padding:18px 16px 30px;border:3px solid #14200c;border-radius:14px;cursor:pointer;
+  background-color:var(--herd);
+  background-image:repeating-linear-gradient(135deg,#e8701a 0 14px,#1a1f24 14px 28px);
+  background-size:100% 16px;background-position:left bottom;background-repeat:no-repeat;
+  color:#14200c;font-family:var(--herd-face);font-weight:900;font-size:clamp(52px,15vw,84px);
+  line-height:1;letter-spacing:4px;text-transform:uppercase;
+  box-shadow:10px 10px 0 #2b1d10;transition:transform .12s ease,box-shadow .12s ease}
+#start:hover{background-color:#8fd35a}
+#start:active{transform:translate(6px,6px);box-shadow:4px 4px 0 #2b1d10}
+#start:focus-visible,#see-options:focus-visible{outline:4px solid #f7ecb4;outline-offset:6px}
+#see-options{min-height:48px;padding:10px 24px;border:2px solid rgba(243,237,216,.75);border-radius:10px;
+  background:rgba(14,22,8,.78);color:#f3edd8;cursor:pointer;
+  font-family:var(--herd-face);font-weight:800;font-size:20px;letter-spacing:1px}
+#see-options:hover{background:rgba(30,46,16,.9)}
+@media (max-width:360px){#start{min-height:125px;font-size:48px;letter-spacing:2px}}
 #menu .play + .play{margin-top:8px}
 .play.small{height:40px;font-size:12px;letter-spacing:2px;grid-column:1/-1}
 .how{margin:8px 0 0;font-size:11px;color:var(--card-dim);line-height:1.5}
@@ -1395,7 +1428,7 @@ html[data-skin=yield] #end-title{font-family:var(--mono);letter-spacing:2px;text
 </style>
   <script type="module" src="/web-engine/library/openHook.js?play=farmy-uprising"></script>
 </head>
-<body>
+<body class="at-title">
 <canvas id="game"></canvas>
 
 
@@ -1668,6 +1701,18 @@ html[data-skin=yield] #end-title{font-family:var(--mono);letter-spacing:2px;text
 
 
 
+<div id="title" class="title">
+  <button id="start" type="button">Start</button>
+  <button id="see-options" type="button">See options</button>
+</div>
+
+
+
+
+
+
+
+
 
 
 <div id="lobby">
@@ -1759,7 +1804,7 @@ html[data-skin=yield] #end-title{font-family:var(--mono);letter-spacing:2px;text
 
 
 
-<script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=85e3e961-20261106T041413Z"></script>
+<script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=f4ef2f6d-20261106T053055Z"></script>
 <script type="importmap">
 {
   "imports": {
@@ -1777,6 +1822,6 @@ html[data-skin=yield] #end-title{font-family:var(--mono);letter-spacing:2px;text
     trackPlayClicks();
   } catch {  }
 </script>
-<script type="module" src="./src/main.js?v=85e3e961-20261106T041413Z"></script>
+<script type="module" src="./src/main.js?v=f4ef2f6d-20261106T053055Z"></script>
 </body>
 </html>
