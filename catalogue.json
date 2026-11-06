@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "fe856deb-20261106T095500Z",
+ "buildId": "8a363f35-20261106T113143Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -883,8 +883,8 @@
    "offline": false,
    "cover": "assets/covers/clashwell-16x9.webp",
    "focus": [
-    0.62,
-    0.55
+    0.5,
+    0.54
    ],
    "shots": [
     "assets/shots/clashwell/0.webp",
@@ -897,7 +897,7 @@
    "ageNote": null,
    "order": 29,
    "addedAt": "2026-11-06",
-   "bytes": 2251741
+   "bytes": 2294193
   },
   {
    "id": "farmy-five",

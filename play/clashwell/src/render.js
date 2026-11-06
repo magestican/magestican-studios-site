@@ -3,7 +3,8 @@
 
 
 
-import { stagePicture, coverCrop } from './art.js';
+
+import { containBox, gemPicture, stagePicture, coverCrop } from './art.js';
 import { drawFx, shakeOffset, wellOffset } from './fx.js';
 import {
   GEM, INK, OCHRE, PAPER, PAPER_DIM, PERSIMMON, STONE_EDGE, STONE_FILL, TIMBER, TIMBER_DARK, TIMBER_LIGHT, VERMILION, WELL, WELL_LINE,
@@ -17,6 +18,7 @@ import { LIGHT_WINDUP_TICKS, HEAVY_WINDUP_TICKS, PHASE } from '../../../web-engi
 const BAR_LIGHT = '#f2f4fa';
 const BAR_DARK = '#0b0f1c';
 const SERIF = "'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', Georgia, 'Times New Roman', serif";
+const GEM_ART = { 1: 'red', 2: 'blue', 3: 'green', 4: 'gold' };
 
 function drawMark(ctx, mark, x, y, size) {
   const m = size / 2;
@@ -58,7 +60,12 @@ function drawGem(ctx, colour, x, y, size, alpha = 1) {
   const s = size - inset * 2;
   ctx.save();
   ctx.globalAlpha = alpha;
-  if (colour === STONE) {
+  const picture = gemPicture(colour === STONE ? 'stone' : GEM_ART[colour] ?? GEM_ART[1]);
+  if (picture) {
+    const { dx, dy, dw, dh } = containBox(picture.naturalWidth, picture.naturalHeight, x + inset, y + inset, s);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(picture, dx, dy, dw, dh);
+  } else if (colour === STONE) {
     ctx.fillStyle = STONE_FILL;
     roundedCell(ctx, x + inset, y + inset, s, s * 0.12);
     ctx.fill();

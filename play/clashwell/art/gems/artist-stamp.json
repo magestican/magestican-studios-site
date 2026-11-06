@@ -1,0 +1,20 @@
+{
+ "stamp": 1,
+ "carried": [
+  {
+   "request": "2026-11-05-clashwell-gems-7",
+   "artist_commit": "8e062e2cfb2fdf1b0736c33b5f41e8194db867b6"
+  },
+  {
+   "request": "2026-11-06-clashwell-gems-7-gold",
+   "artist_commit": "8e062e2cfb2fdf1b0736c33b5f41e8194db867b6"
+  }
+ ],
+ "files": {
+  "gem_blue/gem_blue.webp": "bae3b53307e88004fa5db14aa20363f4c6cef8d65fb3df397b1967e7aaeed6a2",
+  "gem_gold/gem_gold.webp": "7154bec7c64febc489b02904ab06793830703e13e03bfce45d8f14d67e56fc99",
+  "gem_green/gem_green.webp": "99fecdc667bb458f628fcfbdeae448633258d59e0dd16dfa55e91dae33d0a948",
+  "gem_red/gem_red.webp": "60de6742afd6cc5bfaa1255197697ce7772ff742c73560f24c24dfedb3e8b680",
+  "stone/stone.webp": "91a5c775010c1cc097dc867fa4f62aaa55509025a573622454b77946b1088888"
+ }
+}
