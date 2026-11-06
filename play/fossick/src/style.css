@@ -213,6 +213,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 
 .lever-text > :not(b), .card-holder > :not(b), .spec-label .st, .tool i { font-weight: 400; -webkit-text-stroke: 0; }
+
+
+.tool > span, .lever-text { background-color: inherit; }
 .sound-switch:hover { background-color: #f5dc8a; }
 .sound-switch[data-muted="1"] { text-decoration: line-through; }
 .stage > .sound-switch { position: absolute; top: 8px; left: 8px; z-index: 2; pointer-events: auto; }
