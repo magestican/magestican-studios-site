@@ -112,6 +112,19 @@ try {
   
 }
 
+
+
+
+
+
+
+
+
+const params = new URLSearchParams(globalThis.location.search);
+const framed = document.documentElement.classList.contains('framed');
+let atTitle = !params.has('go') && !joinIdFrom(globalThis.location.href) && !framed;
+if (!atTitle) document.body.classList.remove('at-title');
+
 initAnalytics({ page: 'farmy-checkers' });
 startVersionChecker({
   versionUrl: './version.json',
@@ -1007,6 +1020,7 @@ canvas.addEventListener('pointerleave', () => {
 canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
 document.addEventListener('keydown', (e) => {
+  if (atTitle) return;
   const action = routeKey(
     { key: e.key, ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey },
     { screen: 'checkers', overlay: !!overlay, games: ['checkers'] },
@@ -1198,6 +1212,20 @@ keysAre(screen.keys);
 screen.reload();
 resize();
 maybeThink();
+
+
+
+function leaveTitle() {
+  if (!atTitle) return;
+  atTitle = false;
+  document.body.classList.remove('at-title');
+  canvas.focus({ preventScroll: true });
+  invalidate();
+}
+const $start = document.getElementById('start');
+const $seeOptions = document.getElementById('see-options');
+$start.addEventListener('click', () => { leaveTitle(); });
+$seeOptions.addEventListener('click', () => { leaveTitle(); openMenu(); });
 
 
 

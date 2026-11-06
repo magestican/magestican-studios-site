@@ -7,7 +7,7 @@
   <title>Play Jumpwise - big clear draughts, no clock, play with a friend</title>
   <meta name="description" content="Jumpwise is free English draughts in your browser: twelve sheep against twelve cows, compulsory takes, multiple jumps and crowned kings. Big pieces, high contrast, no timer, no account, a computer opponent that plays at your level, and a room you can share so two people play one board.">
   <meta name="keywords" content="jumpwise, free checkers browser, english draughts online, play draughts with friends link, large print board games, accessible checkers no download">
-  <meta name="build" content="570f78db-20261106T001335Z">
+  <meta name="build" content="132c7ca5-20261106T003209Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/farmy-checkers/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Jumpwise - big clear draughts, no clock">
@@ -25,7 +25,7 @@
 
 
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
-  <link rel="stylesheet" href="./src/style.css?v=570f78db-20261106T001335Z">
+  <link rel="stylesheet" href="./src/style.css?v=132c7ca5-20261106T003209Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -51,7 +51,7 @@
   </script>
   <script type="module" src="/web-engine/library/openHook.js?play=farmy-checkers"></script>
 </head>
-<body>
+<body class="at-title">
   
 
 
@@ -94,6 +94,18 @@
   <canvas id="board" tabindex="0" role="application"
           aria-label="Jumpwise. English draughts. Use the arrow keys to move the marker between the playing squares and press Enter to pick a piece up and put it down."></canvas>
 
+  
+
+
+
+
+
+
+  <div id="title" class="title">
+    <button id="start" type="button">Start</button>
+    <button id="see-options" type="button">See options</button>
+  </div>
+
   <noscript>
     <p>Jumpwise needs JavaScript, and there is nothing else to download.
     English draughts with big pieces, crowned kings and no clock.
@@ -115,8 +127,8 @@
 
 
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=570f78db-20261106T001335Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=132c7ca5-20261106T003209Z"></script>
 
-  <script type="module" src="./src/main.js?v=570f78db-20261106T001335Z"></script>
+  <script type="module" src="./src/main.js?v=132c7ca5-20261106T003209Z"></script>
 </body>
 </html>
