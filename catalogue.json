@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "200d151f-20261106T093430Z",
+ "buildId": "fe856deb-20261106T095500Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -868,6 +868,38 @@
    "bytes": 2189633
   },
   {
+   "id": "clashwell",
+   "statsId": "clashwell",
+   "title": "Clashwell",
+   "tagline": "A falling-gem duel: every gem you stack turns into a punch at the other well.",
+   "description": "A falling-gem duel that runs in your browser: two wells stand side by side with a fighter above each, and every gem you stack turns into a punch your fighter throws at the other well.",
+   "dir": "play/clashwell",
+   "path": "play/clashwell/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/clashwell.html",
+   "orientation": "any",
+   "players": "1-2",
+   "online": true,
+   "offline": false,
+   "cover": "assets/covers/clashwell-16x9.webp",
+   "focus": [
+    0.62,
+    0.55
+   ],
+   "shots": [
+    "assets/shots/clashwell/0.webp",
+    "assets/shots/clashwell/1.webp"
+   ],
+   "accent": "#ef6d32",
+   "glyph": "clashwell",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 29,
+   "addedAt": "2026-11-06",
+   "bytes": 2251741
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -895,7 +927,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 30,
+   "order": 31,
    "addedAt": "2026-09-21",
    "bytes": 214944
   },
@@ -927,7 +959,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 31,
+   "order": 32,
    "addedAt": "2026-09-21",
    "bytes": 214944
   },
@@ -959,7 +991,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 32,
+   "order": 33,
    "addedAt": "2026-09-21",
    "bytes": 214944
   },
@@ -991,7 +1023,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 33,
+   "order": 34,
    "addedAt": "2026-09-21",
    "bytes": 214944
   }
