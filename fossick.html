@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Fossick - free excavation puzzle in your browser</title>
-  <meta name="description" content="Free excavation puzzle in your browser: turn a stack of tiny stone cubes and tap the rock away until the fossil stands clear. Turn too hard and it all comes down.">
+  <meta name="description" content="Free excavation puzzle: turn a stack of tiny stone cubes and tap the rock away until a little treasure stands clear. Turn too hard and it all comes down.">
   <link rel="icon" href="./favicon.svg">
   <meta name="robots" content="max-image-preview:large">
   <link rel="canonical" href="https://magesticanstudios.com/fossick.html">
@@ -18,16 +18,16 @@
   <meta name="apple-mobile-web-app-title" content="Magestican">
   <meta name="mobile-web-app-capable" content="yes">
   
-  <meta name="keywords" content="fossick, excavation puzzle, fossil digging game, 3d cube puzzle, careful digging game, browser puzzle">
+  <meta name="keywords" content="fossick, excavation puzzle, digging game, 3d cube puzzle, careful digging game, browser puzzle, multiplayer puzzle">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Fossick - an excavation puzzle in your browser">
-  <meta property="og:description" content="Free excavation puzzle in your browser: turn a stack of tiny stone cubes and tap the rock away until the fossil stands clear. Turn too hard and it all comes down.">
+  <meta property="og:description" content="Free excavation puzzle: turn a stack of tiny stone cubes and tap the rock away until a little treasure stands clear. Turn too hard and it all comes down.">
   <meta property="og:url" content="https://magesticanstudios.com/fossick.html">
   <meta property="og:image" content="https://magesticanstudios.com/assets/og/fossick.jpg">
   <meta property="og:site_name" content="Magestican Studios">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Fossick - an excavation puzzle in your browser">
-  <meta name="twitter:description" content="Turn a stack of tiny stone cubes and tap the rock away until the fossil stands clear. Free in your browser.">
+  <meta name="twitter:description" content="Turn a stack of tiny stone cubes and tap the rock away until a little treasure stands clear. Free in your browser, alone or with friends.">
   <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/fossick.jpg">
   <script type="application/ld+json">
   {
@@ -35,14 +35,14 @@
     "@type": "VideoGame",
     "name": "Fossick",
     "url": "https://magesticanstudios.com/play/fossick/",
-    "description": "An excavation puzzle that runs in the browser. A fossil sits inside a stack of tiny stone cubes, and you turn the stack and tap the rock away until the specimen stands clear. Strike the fossil and it cracks. Turn the block too hard, or dig away what was holding it up, and the whole thing comes down. There are 12 specimens in 4 drawers.",
+    "description": "An excavation puzzle that runs in the browser. A little treasure sits inside a stack of tiny stone cubes, and you turn the stack and tap the rock away until it stands clear. Strike the treasure and it cracks. Turn the block too hard, or dig away what was holding it up, and the whole thing comes down. There are 12 favourites and 12 fossils to free, alone or in a room of up to 15.",
     "image": "https://magesticanstudios.com/assets/covers/fossick-16x9.webp",
     "publisher": { "@type": "Organization", "name": "Magestican Studios",
                    "url": "https://magesticanstudios.com" },
     "genre": ["Puzzle", "Logic", "Casual"],
     "gamePlatform": ["Web browser", "Mobile browser"],
-    "playMode": ["SinglePlayer"],
-    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 1 },
+    "playMode": ["SinglePlayer", "MultiPlayer"],
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 15 },
     "operatingSystem": "Any (browser)",
     "applicationCategory": "Game",
     "inLanguage": "en",
@@ -58,15 +58,15 @@
       { "@type": "Question", "name": "Is Fossick free?",
         "acceptedAnswer": { "@type": "Answer", "text": "It is free, with nothing to download and no account, on a phone or a laptop." } },
       { "@type": "Question", "name": "Which cubes must I leave alone?",
-        "acceptedAnswer": { "@type": "Answer", "text": "The tinted cubes are the specimen, and those are the ones you must not strike. Three cracks break a specimen and the attempt is over." } },
+        "acceptedAnswer": { "@type": "Answer", "text": "The tinted cubes are the treasure, and those are the ones you must not strike. Three cracks break a treasure and the attempt is over." } },
       { "@type": "Question", "name": "What makes the block fall?",
         "acceptedAnswer": { "@type": "Answer", "text": "Turning it too hard, or digging away what was holding it up. A tiring block creaks. Stop when you hear that, and look." } },
-      { "@type": "Question", "name": "How many specimens are there?",
-        "acceptedAnswer": { "@type": "Answer", "text": "There are 12 specimens in 4 drawers." } }
+      { "@type": "Question", "name": "How many treasures are there?",
+        "acceptedAnswer": { "@type": "Answer", "text": "There are 12 favourites, and a switch offers 12 fossils in the same rocks." } }
     ]
   }
   </script>
-  <link rel="stylesheet" href="./styles.css?v=5120ed33-20261106T071913Z">
+  <link rel="stylesheet" href="./styles.css?v=6fe0761c-20261106T084950Z">
   
 
 
@@ -90,45 +90,52 @@
   <main>
     <figure class="cover-hero">
       <img class="cover-master" src="./assets/covers/fossick-16x9.webp" width="1920" height="1080" srcset="./assets/covers/fossick-960.webp 960w, ./assets/covers/fossick-16x9.webp 1920w" sizes="(max-width: 800px) 92vw, (max-width: 1120px) calc(100vw - 64px), 1056px" fetchpriority="high" decoding="async" style="object-position: 50% 50%"
-           alt="Fossick: an ochre ribbed ammonite beside a second coil in plain ink, set in blocks of grey limestone">
+           alt="Fossick: a glossy red heart set in a big boulder of sepia ink, on a rocky shore by the sea">
     </figure>
     <h1>Fossick &mdash; an excavation puzzle in your browser</h1>
-    <p class="lede">Fossick is an excavation puzzle that runs in your browser: a fossil sits inside a stack of tiny stone cubes, and you turn the stack and tap the rock away until the specimen stands clear. Strike the fossil and it cracks. Turn the block too hard, or dig away what was holding it up, and the whole thing comes down on your bench. It is free, with nothing to download and no account, on a phone or a laptop.</p>
+    <p class="lede">Fossick is an excavation puzzle that runs in your browser: a little treasure sits inside a stack of tiny stone cubes, and you turn the stack and tap the rock away until it stands clear. It might be a heart, a rubber duck or a teddy bear. Strike the treasure and it cracks. Turn the block too hard, or dig away what was holding it up, and the whole thing comes down on your bench. It is free, with nothing to download and no account, on a phone or a laptop, alone or with friends.</p>
     <p><a class="cta" href="/play/fossick/">Play Fossick &rarr;</a></p>
 
     <ul class="cover-shots" tabindex="0" aria-label="Screenshots of Fossick">
       <li class="shot-land"><img src="./assets/shots/fossick/0.webp" width="1920" height="1080" srcset="./assets/shots/fossick/0-960.webp 960w, ./assets/shots/fossick/0.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
-           alt="A block of tiny stone cubes on its brass cradle, with the tinted specimen showing through"></li>
+           alt="A block of tiny stone cubes on its brass cradle, with a red heart showing through"></li>
       <li class="shot-land"><img src="./assets/shots/fossick/1.webp" width="1920" height="1080" srcset="./assets/shots/fossick/1-960.webp 960w, ./assets/shots/fossick/1.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
-           alt="The cabinet of drawers that holds the 12 specimens"></li>
+           alt="The dig, with its layers of rock holding a cat, a cupcake and a teddy bear"></li>
     </ul>
 
     <h2>Which cubes to leave alone</h2>
-    <p>The tinted cubes are the specimen, and those are the ones you must not strike. Everything else in the plate is brown ink, and each cube of it is yours to remove. Three cracks break a specimen and the attempt is over, so before you tap anything, turn the block and find where the colour runs. Part of it is usually hidden on the far side of the view you start with.</p>
+    <p>The tinted cubes are the treasure, and those are the ones you must not strike. Everything else in the block is brown ink, and each cube of it is yours to remove. Three cracks break a treasure and the attempt is over, so before you tap anything, turn the block and find where the colour runs. Part of it is usually hidden on the far side of the view you start with.</p>
 
     <h2>Turning the block</h2>
     <p>Drag to turn the block. On a keyboard the arrows or WASD turn it, Q and E roll it, Shift steadies your hands, Space strikes and R levels it out. The steady lever on screen cuts the speed to a quarter, which is what a phone player reaches for near the end.</p>
-    <p>The block feels every turn, and we measured how much. Turn slower than 0.04 radians each second and nothing shifts at all. Around 0.25 you can see the cubes stir, and by 1.2 they stir a good deal more. A whole block will survive a firm tumble, but a violent flick brought down all 12 in our tests. You can always turn gently, and you cannot always undo a fast turn.</p>
+    <p>The block feels every turn, and we measured how much. Turn slower than 0.04 radians each second and nothing shifts at all. Around 0.25 you can see the cubes stir, and by 1.2 they stir a good deal more. A whole block will survive a firm tumble, but a violent flick lost the game on all 24 blocks in our tests. You can always turn gently, and you cannot always undo a fast turn.</p>
 
     <h2>How a block stands and how it falls</h2>
     <p>How the block stands and falls comes down to digging order, the creak, and knowing that a block left alone stays up. Each cube holds on through its neighbours. A bond in solid rock shares the load with eight others across the same cut, a bond in a thin wall with two, and a bond on a narrow neck has nothing beside it. So the order you dig in decides the game, more than any single tap.</p>
-    <p>We tested this with three scripts on the same physics. The one that tunnelled straight in saw the blocks holding the fern and the wishbone come down. The one that worked mostly from the outside in freed all 12 specimens. The one that dug farthest from the specimen first got both of those out whole, with every cube staying put until it was struck. Peel the block evenly and leave the rock near the fossil for last.</p>
-    <p>Rock tires only while you work it: during a turn, for a moment after a blow, or under a load too great for it. A tiring block creaks. Stop when you hear that, and look. When we took our hands away, all 12 blocks were still standing a full 90 seconds later, so stopping costs you nothing.</p>
+    <p>We tested this with scripts on the same physics, on two of the harder blocks, the fern and the wishbone. The script that tunnelled straight in saw both blocks come down. The one that dug farthest from the treasure first got both out whole, with no fall and no crack. Peel the block evenly and leave the rock near the treasure for last.</p>
+    <p>Rock tires only while you work it: during a turn, for a moment after a blow, or under a load too great for it. A tiring block creaks. Stop when you hear that, and look. We tunnelled into two blocks, stopped at the first creak and took our hands away, and both were still standing a full 90 seconds later, so stopping costs you nothing.</p>
 
     <h2>The rocks, the mallet and the seams</h2>
-    <p>The four rocks are chalk, limestone, flint and slate, and the mallet and the seams change how each of them breaks. There are 12 specimens in 4 drawers. Chalk comes first, with a cockle, an ammonite and a tooth, and one tap removes a cube. Limestone takes two taps and holds a trilobite, a seahorse and a wishbone, and its knots of flint take three. Slate holds a fern, a dragonfly and a crab. It comes away at one tap, but it slides along its seams, so a long overhang can leave as one slab.</p>
-    <p>From the limestone drawer on you also have the mallet. One swing clears a wider patch and shakes everything harder, and next to the specimen it does real damage. Save the mallet for the far corners.</p>
+    <p>There are 12 favourites in four groups, and the rock gets harder to read as you go. Soft rock comes first, with a heart, a rubber duck and an ice cream, and one tap removes a cube. Hard rock holds a cat, a cupcake and a teddy bear. It takes two taps, and its knots of flint take three. Brittle rock holds a butterfly, a flower and a bunny. It comes away at one tap, but it slides along its seams, so a long overhang can leave as one slab.</p>
+    <p>From the hard rock on you also have the mallet. One swing clears a wider patch and shakes everything harder, and next to the treasure it does real damage. Save the mallet for the far corners.</p>
+    <p>If you would rather dig for the old kind of treasure, a switch swaps the favourites for 12 fossils in the same rocks, from a cockle and a shark's tooth to a trilobite and a sea horse.</p>
 
-    <h2>The survey drawer</h2>
-    <p>The last drawer takes the colour away. The starfish, the whelk and the serpent are hidden with nothing to show you where they are, and each face of the block counts what lies behind it instead. You read the counts from every side, work out which cubes must be fossil, and dig around your own answer.</p>
+    <h2>Hidden treasure</h2>
+    <p>The last group takes the colour away. The star, the puppy and the panda are hidden with nothing to show you where they are, and each face of the block counts what lies behind it instead. You read the counts from every side, work out which cubes must be treasure, and dig around your own answer.</p>
 
     <h2>Grades on the label</h2>
-    <p>When the last rock goes, the specimen turns in its cradle and a museum label is stamped. Mint means an unmarked fossil and never more than six cubes dropping together. Fine means one crack at most. Worn means two. Your best grades stay in the cabinet on that device, so you can come back to a Worn trilobite and do better.</p>
+    <p>When the last rock goes, the treasure turns in its cradle and a label is stamped. Mint means an unmarked treasure and never more than six cubes dropping together. Fine means one crack at most. Worn means two. Your best grades stay on that device, so you can come back to a Worn teddy bear and do better.</p>
+
+    <h2>Digging with friends</h2>
+    <p>Send a link or read out a code, and as many as 15 people can share a room. Each person gets the same treasure in a block of their own, so nobody can knock over yours. A small box beside the block shows how far each player has got, and it refreshes about every two seconds. There is no clock. Whoever frees the treasure leads the people still digging, and among those who freed it, the better grade wins. If the host leaves, the box stops moving and you can keep digging.</p>
 
     <h2>What is still rough</h2>
-    <p>The balance of the block came from scripts that play it, and no person's play has gone into it, so a specimen may feel harder or easier than its drawer suggests. We have not measured it on a real phone. Each rock has its own sound, and we have checked their levels by measurement only. The game's words come in eight languages, and no native reader has checked the seven beyond English yet. This page is in English only. We keep no count of plays for Fossick on this site, and the game earns no badges and gets no place on your shelf yet.</p>
+    <p>The balance of the block came from scripts that play it, and no person's play has gone into it, so a treasure may feel harder or easier than its group suggests. We have not measured it on a real phone. Rooms have been tried with two players at once on emulated phones, and never with 15 people. Each rock has its own sound, and we have checked their levels by measurement only. The game's words come in eight languages, and no native reader has checked the seven beyond English yet. This page is in English only. We keep no count of plays for Fossick on this site, and the game earns no badges and gets no place on your shelf yet.</p>
 
     <p><a class="cta" href="/play/fossick/">Play Fossick &rarr;</a></p>
+    
+    <p class="more-like-this">More like this: <a href="./2-player-games-online.html">2-player games online</a> &middot; <a href="./multiplayer-browser-games.html">Multiplayer browser games</a></p>
+    
   </main>
 
   <footer class="site-footer">
@@ -148,7 +155,7 @@
     <p class="footer-browse">Browse: <a href="/2-player-games-online.html">2-player games online</a> &middot; <a href="/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/board-games-with-friends.html">Board games with friends</a> &middot; <a href="/word-games.html">Free word games</a></p>
     
   </footer>
-  <script type="module" src="./assets/site.js?v=5120ed33-20261106T071913Z"></script>
+  <script type="module" src="./assets/site.js?v=6fe0761c-20261106T084950Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {

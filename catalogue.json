@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "5120ed33-20261106T071913Z",
+ "buildId": "6fe0761c-20261106T084950Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -839,20 +839,20 @@
    "id": "fossick",
    "statsId": "fossick",
    "title": "Fossick",
-   "tagline": "An excavation puzzle: tap the rock away until the specimen stands clear.",
-   "description": "An excavation puzzle that runs in your browser: a fossil sits inside a stack of tiny stone cubes, and you turn the stack and tap the rock away until the specimen stands clear.",
+   "tagline": "An excavation puzzle: tap the rock away until the treasure stands clear.",
+   "description": "An excavation puzzle that runs in your browser: a little treasure sits inside a stack of tiny stone cubes, and you turn the stack and tap the rock away until it stands clear.",
    "dir": "play/fossick",
    "path": "play/fossick/index.html",
    "query": "",
    "webUrl": "https://magesticanstudios.com/fossick.html",
    "orientation": "any",
-   "players": "1",
-   "online": false,
+   "players": "1-15",
+   "online": true,
    "offline": false,
    "cover": "assets/covers/fossick-16x9.webp",
    "focus": [
-    0.66,
-    0.55
+    0.54,
+    0.53
    ],
    "shots": [
     "assets/shots/fossick/0.webp",
@@ -865,7 +865,7 @@
    "ageNote": null,
    "order": 28,
    "addedAt": "2026-11-04",
-   "bytes": 2189626
+   "bytes": 2189633
   },
   {
    "id": "farmy-five",
