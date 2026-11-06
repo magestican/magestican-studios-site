@@ -1962,6 +1962,7 @@ canvas.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 document.addEventListener('keydown', (e) => {
+  if (atTitle) return;
   sfx.wake();
   const action = routeKey(
     { key: e.key, ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey },
@@ -2169,6 +2170,32 @@ globalThis.__fc = {
 
 const linkPuzzle = puzzleFrom(globalThis.location.href);
 const linkRoom = joinIdFrom(globalThis.location.href);
+
+
+
+
+
+
+
+
+
+
+let atTitle = !linkPuzzle.game && !linkRoom && !new URLSearchParams(globalThis.location.search).has('go');
+if (!atTitle) document.body.classList.remove('at-title');
+function leaveTitle() {
+  if (!atTitle) return;
+  atTitle = false;
+  document.body.classList.remove('at-title');
+  canvas.focus({ preventScroll: true });
+  invalidate();
+}
+const $start = document.getElementById('start');
+const $seeOptions = document.getElementById('see-options');
+$start.addEventListener('click', () => {
+  leaveTitle();
+  if (current === HOME) openGame('wordle');
+});
+$seeOptions.addEventListener('click', () => { leaveTitle(); goHome(); });
 if (linkPuzzle.game && MODULES[linkPuzzle.game]) {
   if (Number.isInteger(linkPuzzle.index) && linkPuzzle.index < MODULES[linkPuzzle.game].count()) {
     indexFor[linkPuzzle.game] = linkPuzzle.index;
