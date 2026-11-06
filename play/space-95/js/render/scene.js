@@ -20,6 +20,7 @@ import { createJoSprite } from './joSprite.js';
 import { createKitchen, kitchenEntityView } from './kitchenView.js';
 import { clampLabelToView } from './labelClamp.js';
 import { createNight, nightEntityView } from './nightView.js';
+import { createProps } from './propLayer.js';
 import { restartPosts } from './restartPosts.js';
 import { createRide, rideEntityView } from './rideView.js';
 import { createSilk, silkEntityView } from './silkView.js';
@@ -51,7 +52,7 @@ export function createView(canvas, level, labels) {
   scene.fog = new THREE.Fog(art ? art.sky : 0xbfe6ff, 30, 90);
 
   const camera = new THREE.PerspectiveCamera(35, 16 / 9, 0.5, 200);
-  const backdrop = art ? paintedBackdrop(camera, art) : null;
+  const backdrop = art ? paintedBackdrop(camera, art, level.world ? level.world.width * level.world.tile : 0) : null;
   if (backdrop) scene.add(camera); 
   const hemi = new THREE.HemisphereLight(0xcfeaff, 0xffd9a8, 1.6);
   scene.add(hemi);
@@ -63,6 +64,7 @@ export function createView(canvas, level, labels) {
   
   const kitchenSkin = !!level.colds?.length && !art?.solid;
   scene.add(tileMeshes(level.world, level.darkTint === 'umber' ? 'bedrock' : kitchenSkin ? 'kitchen' : null, art));
+  const props = art?.props ? createProps(scene, level, art.props) : null; 
   if (kitchenSkin) scene.background = new THREE.Color(0x6cc7bd);
   scene.add(barkMeshes(level.world));
   const soil = soilMeshes(level.world);
@@ -117,7 +119,7 @@ export function createView(canvas, level, labels) {
   
   const night = createNight(scene, level, { hemi, sun, spark: (...a) => spark(...a), kick: (a) => kick(a), views: entityViews, bolt });
   
-  const silk = createSilk(scene, level, { sun, spark: (...a) => spark(...a), views: entityViews, jo });
+  const silk = createSilk(scene, level, { sun, spark: (...a) => spark(...a), views: entityViews, jo, backdrop });
   
   const burrow = createBurrow(scene, level, {
     spark: (...a) => spark(...a),
@@ -301,6 +303,7 @@ export function createView(canvas, level, labels) {
       syncEntities(scene, entityViews, session.entities, alpha, session.time);
       night?.update(session, dt, camera);
       silk?.update(session, dt, camera);
+      props?.update(session.time, camera.position.x, camera.position.y);
       burrow?.update(session, dt);
       kitchen?.update(session, dt);
       ride?.update(session);
@@ -997,14 +1000,15 @@ function tileMeshes(world, skin = null, art = null) {
   const kitchen = skin === 'kitchen';
   const solidMat = new THREE.MeshLambertMaterial({ color: rock ? 0x6c7078 : kitchen ? 0xb8875a : 0x9a7bd8 });
   const topMat = new THREE.MeshLambertMaterial({ color: rock ? 0x8fa6bf : kitchen ? 0xece4d6 : 0x7ed957 });
-  const painted = !!art?.solid && !skin; 
+  
+  const painted = !!(art?.solid || art?.top) && !skin;
   if (painted) {
-    skinMaterial(solidMat, art.solid);
-    skinMaterial(topMat, art.top);
+    if (art.solid) skinMaterial(solidMat, art.solid);
+    if (art.top) skinMaterial(topMat, art.top);
   }
   
   const uv = (m, spec) => {
-    if (painted) worldUV(m.geometry, m.position, spec.unit * T);
+    if (painted && spec) worldUV(m.geometry, m.position, spec.unit * T);
     return m;
   };
   const oneWayMat = new THREE.MeshLambertMaterial({ color: 0xf2c879 });

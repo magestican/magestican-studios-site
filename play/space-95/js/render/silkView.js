@@ -87,7 +87,7 @@ function skyCanvas() {
 }
 
 
-export function createSilk(scene, level, { sun, spark, views, jo }) {
+export function createSilk(scene, level, { sun, spark, views, jo, backdrop = null }) {
   if (!level.webs?.length) return null;
   const group = new THREE.Group();
   scene.add(group);
@@ -340,6 +340,7 @@ export function createSilk(scene, level, { sun, spark, views, jo }) {
           lastK = e;
           sky.draw(mix(NIGHT.top, DAWN.top, e), mix(NIGHT.bottom, DAWN.bottom, e));
           scene.fog.color.copy(mix(NIGHT.fog, DAWN.fog, e));
+          backdrop?.tint(e); 
           sun.color.copy(mix(NIGHT.sunColor, DAWN.sunColor, e));
           S.hemiBase = lerp(NIGHT.hemi, DAWN.hemi, e);
           S.sunBase = lerp(NIGHT.sun, DAWN.sun, e);

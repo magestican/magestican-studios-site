@@ -4,6 +4,8 @@
 
 import * as THREE from 'three';
 import { v } from '../site/assetUrl.js';
+import { GORGE } from './gorgeArt.js';
+import { plateWindow } from './plateWindow.js';
 
 
 export const ART_BIOME = {
@@ -20,6 +22,7 @@ export const ART_BIOME = {
   11: 'desk',
   12: 'machine',
   14: 'nightGarden',
+  15: 'silkGorge',
   16: 'deepBurrow',
   18: 'kitchen',
   20: 'sovereign',
@@ -91,6 +94,8 @@ const BIOMES = {
   },
   
   nightGarden: { plate: plate('batch4', 'nightgarden-far'), plateAspect: 16 / 9, sky: 0x4a3f7a, top: null, solid: null },
+  
+  silkGorge: { ...GORGE },
   deepBurrow: { plate: plate('batch4', 'deepburrow-far'), plateAspect: 16 / 9, sky: 0x5a3a22, top: null, solid: null },
   desk: {
     plate: plate('batch2', 'desk-far'),
@@ -176,7 +181,7 @@ const PARALLAX = 0.18;
 
 
 
-export function paintedBackdrop(camera, art) {
+export function paintedBackdrop(camera, art, worldW = 0) {
   const mat = new THREE.MeshBasicMaterial({ color: art.sky, fog: false, depthWrite: false });
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
   quad.position.set(0, 0, -BACKDROP_DIST);
@@ -192,7 +197,14 @@ export function paintedBackdrop(camera, art) {
     });
   want('ground', art.plate);
   if (art.planePlate) want('plane', art.planePlate);
+  
+  const shade = new THREE.Color(0xffffff);
   return {
+    
+    tint(k) {
+      shade.set(art.plateNight ?? 0xffffff).lerp(new THREE.Color(0xffffff), k);
+      if (mat.map) mat.color.copy(shade);
+    },
     update(flying = false) {
       const k = 2 * Math.tan((camera.fov * Math.PI) / 360);
       const h = k * BACKDROP_DIST * 1.02;
@@ -202,14 +214,28 @@ export function paintedBackdrop(camera, art) {
       if (!tex) return;
       if (mat.map !== tex) {
         mat.map = tex;
-        mat.color.set(0xffffff);
+        mat.color.copy(shade);
         mat.needsUpdate = true;
+      }
+      
+      const playW = k * Math.abs(camera.position.z) * camera.aspect;
+      if (art.plateZoom) {
+        const w = plateWindow({
+          camX: camera.position.x,
+          worldW,
+          playW,
+          aspect: camera.aspect,
+          plateAspect: art.plateAspect,
+          zoom: art.plateZoom,
+          parallax: PARALLAX,
+        });
+        tex.repeat.set(w.repeatX, w.repeatY);
+        tex.offset.set(w.offsetX, w.offsetY);
+        return;
       }
       
       const reps = camera.aspect / art.plateAspect;
       tex.repeat.set(reps, 1);
-      
-      const playW = k * Math.abs(camera.position.z) * camera.aspect;
       tex.offset.x = ((camera.position.x * PARALLAX) / Math.max(1, playW)) * reps;
     },
   };
