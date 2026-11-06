@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "2ba8a789-20261106T015851Z",
+ "buildId": "2ed510de-20261106T023238Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -290,7 +290,7 @@
    "ageNote": null,
    "order": 8,
    "addedAt": "2026-09-06",
-   "bytes": 87677
+   "bytes": 87649
   },
   {
    "id": "minesweeper",
