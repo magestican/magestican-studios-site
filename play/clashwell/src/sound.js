@@ -9,6 +9,37 @@
 
 
 
+
+
+
+
+export const MENU_CUES = Object.freeze(['tap', 'back', 'toggleOn', 'toggleOff', 'open']);
+const BACK_IDS = new Set(['select-back', 'leave-room', 'quit', 'to-title']);
+
+
+export function menuCue(id, soundOn) {
+  if (id === 'pad' || String(id).startsWith('pad-')) return null;
+  if (id === 'sound' || id === 'sound-title') return soundOn ? 'toggleOn' : 'toggleOff';
+  if (BACK_IDS.has(id)) return 'back';
+  if (id === 'pick-fighter') return 'open';
+  return 'tap';
+}
+
+
+
+
+
+
+export const MUSIC_TRACKS = Object.freeze(['main']);
+
+
+export function followSound(music, soundOn) {
+  if (!music) return false;
+  if (music.isOn() !== !!soundOn) music.setOn(!!soundOn);
+  return music.isOn();
+}
+
+
 export const SILENT_EVENTS = Object.freeze(['over']);
 
 const chainCue = (steps) => (steps >= 4 ? 'chain4' : `chain${steps}`);

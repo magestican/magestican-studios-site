@@ -1,0 +1,16 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "HAPPY BOP",
+      "genre": "chiptune-16bit",
+      "file": "clashwell-main.webm",
+      "loopSamples": 3413333,
+      "seed": 499561886,
+      "lufs": -13.4
+    }
+  ]
+}

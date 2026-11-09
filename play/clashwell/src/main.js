@@ -24,9 +24,14 @@ import { STRINGS, stringsFor, fill } from './strings.js';
 import { gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
-import { cueFor, pieceCue, createCuePlayer } from './sound.js';
+import { cueFor, pieceCue, createCuePlayer, menuCue, MENU_CUES, MUSIC_TRACKS, followSound } from './sound.js';
+import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 
-const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['move', 'turn', 'lock', 'rise', 'clear', 'chain2', 'chain3', 'chain4', 'light', 'heavy', 'clash', 'hit', 'squeeze', 'ko', 'start', 'win', 'lose', 'tap'], { move: 4, turn: 4, lock: 4, rise: 3, clear: 3, chain2: 3, chain3: 3, chain4: 3, light: 3, heavy: 3, clash: 3, hit: 3, squeeze: 2, ko: 2, start: 2, tap: 3 });
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['move', 'turn', 'lock', 'rise', 'clear', 'chain2', 'chain3', 'chain4', 'light', 'heavy', 'clash', 'hit', 'squeeze', 'ko', 'start', 'win', 'lose'], { move: 4, turn: 4, lock: 4, rise: 3, clear: 3, chain2: 3, chain3: 3, chain4: 3, light: 3, heavy: 3, clash: 3, hit: 3, squeeze: 2, ko: 2, start: 2 });
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES);
+
+const music = createTrackMusic({ game: 'clashwell', manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS });
 let cuesPlayed = 0;
 const playCue = createCuePlayer((cue) => { cuesPlayed += 1; return sfx.play(cue); });
 
@@ -473,11 +478,15 @@ function wire() {
 
   
   document.addEventListener('click', (e) => {
-    if (e.target.closest?.('button') && !e.target.closest('#pad')) sfx.play('tap');
+    const b = e.target.closest?.('button');
+    if (!b || e.target.closest('#pad')) return;
+    const cue = menuCue(b.id, uiSoundOn());
+    if (cue) ui.play(cue);
   });
+  addEventListener('pointerdown', () => followSound(music, uiSoundOn()), { once: true });
   
   for (const id of ['sound', 'sound-title']) {
-    $(id).addEventListener('click', () => { setUiSound(!uiSoundOn()); drawSound(); });
+    $(id).addEventListener('click', () => { setUiSound(!uiSoundOn()); drawSound(); followSound(music, uiSoundOn()); });
   }
   drawSound();
 
