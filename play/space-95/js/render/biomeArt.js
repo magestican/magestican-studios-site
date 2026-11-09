@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { v } from '../site/assetUrl.js';
 import { GORGE } from './gorgeArt.js';
+import { ORCHARD_COMIC } from './orchardArt.js';
 import { plateWindow } from './plateWindow.js';
 
 
@@ -44,7 +45,17 @@ const BARK = tex('orchard', 'orchard-bark', 0xb98be8, 4);
 const plate = (dir, name) => `${B}${dir}/${name}/plate.webp`;
 
 const BIOMES = {
-  orchard: { plate: plate('orchard', 'orchard-far'), plateAspect: 16 / 9, sky: 0xffe3c6, top: GRASS, solid: BARK },
+  
+  orchard: {
+    plate: ORCHARD_COMIC.plate ?? plate('orchard', 'orchard-far'),
+    plateAspect: 16 / 9,
+    ...(ORCHARD_COMIC.plateZoom ? { plateZoom: ORCHARD_COMIC.plateZoom } : {}),
+    ...(ORCHARD_COMIC.plateHaze ? { plateHaze: ORCHARD_COMIC.plateHaze } : {}),
+    sky: 0xffe3c6,
+    top: ORCHARD_COMIC.top ?? GRASS,
+    solid: ORCHARD_COMIC.solid ?? BARK,
+    ...(ORCHARD_COMIC.props.items.length ? { props: ORCHARD_COMIC.props } : {}),
+  },
   
   orchardDusk: { plate: plate('batch2', 'orchard-dusk-far'), plateAspect: 16 / 9, sky: 0xffb07a, top: GRASS, solid: BARK },
   
@@ -198,6 +209,22 @@ export function paintedBackdrop(camera, art, worldW = 0) {
   want('ground', art.plate);
   if (art.planePlate) want('plane', art.planePlate);
   
+  
+  let haze = null;
+  if (art.plateHaze) {
+    const hm = new THREE.MeshBasicMaterial({
+      color: art.plateHaze.color,
+      transparent: true,
+      opacity: art.plateHaze.opacity,
+      fog: false,
+      depthWrite: false,
+    });
+    haze = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), hm);
+    haze.position.set(0, 0, -BACKDROP_DIST * 0.99);
+    haze.renderOrder = -1;
+    camera.add(haze);
+  }
+  
   const shade = new THREE.Color(0xffffff);
   return {
     
@@ -210,6 +237,7 @@ export function paintedBackdrop(camera, art, worldW = 0) {
       const h = k * BACKDROP_DIST * 1.02;
       const w = h * camera.aspect;
       quad.scale.set(w, h, 1);
+      if (haze) haze.scale.set(w, h, 1);
       const tex = (flying && plates.plane) || plates.ground;
       if (!tex) return;
       if (mat.map !== tex) {
