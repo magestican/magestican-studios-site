@@ -28,6 +28,7 @@ export const TRANSLATIONS = Object.freeze({
     ],
     keysLine: '左右キーで移動。上キーで回転。',
     keysDrop: '下キーで速く落とす。スペースキーで一気に落とす。',
+    touchLine: '自分のフィールドをなぞって移動。タップで回転。',
     selectH: '戦士を選ぶ',
     fighter: '戦士{n}',
     fighterNote: '好きな戦士を選ぼう。絵と名前は準備中。',
@@ -83,7 +84,7 @@ export const TRANSLATIONS = Object.freeze({
     keyLeft: '左へ移動',
     keyRight: '右へ移動',
     keyTurn: '回転',
-    keySoft: '速く落とす',
+    keySoft: '落とす',
     keyHard: '一気に落とす',
   },
 });

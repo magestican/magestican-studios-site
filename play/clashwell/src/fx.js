@@ -28,7 +28,6 @@ export function createFx({ seed = 1, reduced = false } = {}) {
   let s;
   let rand = seed >>> 0;
   let nextId = 0;
-  let lastFlash = -Infinity;
 
   const next = () => {
     rand = (Math.imul(rand, 1664525) + 1013904223) >>> 0;
@@ -49,7 +48,6 @@ export function createFx({ seed = 1, reduced = false } = {}) {
       ko: null,
       wells: [{ jolt: 0, press: 0, bruise: 0 }, { jolt: 0, press: 0, bruise: 0 }],
     };
-    lastFlash = -Infinity;
   }
   reset();
 
@@ -92,17 +90,7 @@ export function createFx({ seed = 1, reduced = false } = {}) {
     s.words.push({ text, frame, colour, size, seal, left: life, total: life, wait });
   }
 
-  function shake(n) {
-    if (!reduced) s.shake = Math.max(s.shake, n);
-  }
-  function focus(n) {
-    if (!reduced) s.lines = Math.max(s.lines, n);
-  }
-  function flash(alpha) {
-    if (reduced || s.tick - lastFlash < FLASH_GAP_TICKS) return;
-    lastFlash = s.tick;
-    s.flash = Math.min(MAX_FLASH_ALPHA, alpha);
-  }
+  
   function jolt(seat, n) {
     if (!reduced) s.wells[seat].jolt = Math.max(s.wells[seat].jolt, n);
   }
@@ -149,21 +137,20 @@ export function createFx({ seed = 1, reduced = false } = {}) {
     bolt(e.from, 'stage', colour, heavy ? 0.7 : 0.4, 12);
     press(e.from, heavy ? 0.3 : 0.16);
     burst(e.from, WIDTH / 2, 0.5, heavy ? 12 : 6, { speed: 0.3, colour });
-    word(`${heavy ? words.combo : words.jab} ${e.stones}`, e.from, { colour });
+    word(`${heavy ? words.combo : words.jab} ${e.stones}`, e.from, { colour, size: 0.8 });
   }
 
   function onLand(e, words) {
     const heavy = e.kind === 'heavy';
     const weight = Math.min(1, 0.25 + e.stones * 0.1 + (heavy ? 0.2 : 0));
     bolt('stage', e.to, heavy ? PERSIMMON : OCHRE, heavy ? 0.9 : 0.5, 9);
-    jolt(e.to, 0.25 + weight * 0.5);
+    jolt(e.to, 0.12 + weight * 0.2);
     bruise(e.to, 0.3 + weight * 0.35);
-    if (heavy) shake(0.3 * weight);
     const [x, y] = [WIDTH / 2, HEIGHT - 2];
-    burst(e.to, x, y, 12 + Math.round(weight * 22), { speed: 0.42, colour: PAPER, life: 24, size: 0.14 });
-    burst(e.to, x, y, 6 + Math.round(weight * 12), { speed: 0.3, colour: VERMILION, life: 30, size: 0.16 });
-    ring(e.to, x, y, 0.6, 0.45, PAPER, 18, 0.3);
-    word(words.hit, e.to, { colour: PAPER, size: heavy ? 1.3 : 1, seal: heavy });
+    burst(e.to, x, y, 6 + Math.round(weight * 8), { speed: 0.22, colour: PAPER, life: 22, size: 0.12 });
+    burst(e.to, x, y, 3 + Math.round(weight * 5), { speed: 0.18, colour: VERMILION, life: 26, size: 0.13 });
+    ring(e.to, x, y, 0.5, 0.25, PAPER, 16, 0.2);
+    word(words.hit, e.to, { colour: PAPER, size: heavy ? 0.9 : 0.75 });
   }
 
   function onRise(e) {
@@ -171,30 +158,26 @@ export function createFx({ seed = 1, reduced = false } = {}) {
     for (let x = 0; x < WIDTH; x += 1) burst(e.player, x + 0.5, HEIGHT - 0.2, 2, { speed: 0.09, colour: STONE_FILL, size: 0.14, life: 20, g: -0.002, kind: 'dust' });
   }
 
+  
+  
+  
   function onClash(e, words) {
-    focus(1);
-    shake(0.9);
-    flash(0.3);
-    ring('field', 0, 0, 0.8, 0.8, PAPER, 26, 0.5);
-    ring('field', 0, 0, 0.3, 0.5, OCHRE, 34, 0.3);
-    for (const colour of [OCHRE, PERSIMMON, PAPER]) burst('field', 0, 0, 16, { speed: 0.85, colour, life: 34, size: 0.15, g: 0.01 });
+    ring('field', 0, 0, 0.4, 0.25, PAPER, 22, 0.2);
+    for (const colour of [OCHRE, PAPER]) burst('field', 0, 0, 6, { speed: 0.3, colour, life: 26, size: 0.12, g: 0.006 });
     if (e.winner !== null) {
       const loser = 1 - e.winner;
       bolt('stage', loser, PERSIMMON, 0.8, 14);
-      jolt(loser, 0.5);
-      bruise(loser, 0.5);
+      jolt(loser, 0.25);
+      bruise(loser, 0.35);
     }
-    word(e.winner === null ? words.draw : words.clash, 'field', { colour: PAPER, seal: true, size: 1.2 });
+    word(e.winner === null ? words.draw : words.clash, 'field', { colour: PAPER, size: 0.8 });
   }
 
   function onRound(e, view, words) {
     if (e.winner === null) return;
     const loser = 1 - e.winner;
     s.ko = loser;
-    focus(1);
-    shake(1.2);
-    flash(0.35);
-    jolt(loser, 1);
+    jolt(loser, 0.4);
     bruise(loser, 0.8);
     const well = view.players[loser].well;
     let gems = 0;
@@ -214,7 +197,7 @@ export function createFx({ seed = 1, reduced = false } = {}) {
       particle(loser, 'ink', WIDTH / 2, HEIGHT * 0.45, { vx: Math.cos(angle) * pace, vy: Math.sin(angle) * pace, drag: 0.92, g: 0.003, size: between(0.05, 0.16), left: 90, total: 90, colour: VERMILION });
     }
     ring(loser, WIDTH / 2, HEIGHT / 2, 1, 0.9, VERMILION, 40, 0.5);
-    word(words.ko, loser, { seal: true, size: 1.5, life: KO_WORD_TICKS });
+    word(words.ko, loser, { seal: true, size: 1, life: KO_WORD_TICKS });
   }
 
   function onSqueeze(e, words) {
@@ -463,7 +446,8 @@ function drawWord(ctx, size, layout, w, slot) {
   
   const seen = Math.min(w.total - w.left, 8) / 8;
   const slam = 1 + (1 - seen) * 0.8;
-  const px = Math.min(field ? 76 : 56, room / (field ? 5 : 4.2)) * w.size * (w.seal ? 1 : 0.72);
+  
+  const px = Math.min(field ? 40 : 36, room / (field ? 8 : 5.5)) * w.size * (w.seal ? 1 : 0.8);
   ctx.save();
   ctx.font = STAMP_FONT.replace('{s}', Math.round(px));
   const textW = ctx.measureText(w.text).width;

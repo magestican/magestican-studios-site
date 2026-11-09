@@ -4,19 +4,21 @@
 
 
 
+
+
 import { WIDTH, emptyWell, fits, placeCells, resolveLock, attackFrom, addStoneRows, toppedOut } from './well.js';
 import { createBag, nextPiece, cellsOf, rotated } from './pieces.js';
 
 export const TICKS_PER_SECOND = 60;
-export const GRAVITY_START_TICKS = 60;
-export const GRAVITY_MIN_TICKS = 8;
-const SPEEDUP_EVERY_TICKS = 20 * TICKS_PER_SECOND;
+export const GRAVITY_START_TICKS = 90;
+export const GRAVITY_MIN_TICKS = 24;
+const SPEEDUP_EVERY_TICKS = 30 * TICKS_PER_SECOND;
 const SPEEDUP_BY = 6;
-export const LIGHT_WINDUP_TICKS = 72;
-export const HEAVY_WINDUP_TICKS = 120;
-export const RESOLVE_PAUSE_TICKS = 30;
-export const BREATHER_TICKS = 180;
-const LOCK_DELAY_TICKS = 30;
+export const LIGHT_WINDUP_TICKS = 150;
+export const HEAVY_WINDUP_TICKS = 240;
+export const RESOLVE_PAUSE_TICKS = 40;
+export const BREATHER_TICKS = 240;
+const LOCK_DELAY_TICKS = 45;
 const MAX_LOCK_RESETS = 15;
 const SOFT_DROP_TICKS = 3;
 const SHOWN_NEXT = 3;
@@ -24,10 +26,10 @@ const WINS_NEEDED = 2;
 
 
 
-export const SQUEEZE_START_TICKS = 120 * TICKS_PER_SECOND;
-const SQUEEZE_FIRST_GAP_TICKS = 8 * TICKS_PER_SECOND;
+export const SQUEEZE_START_TICKS = 150 * TICKS_PER_SECOND;
+const SQUEEZE_FIRST_GAP_TICKS = 10 * TICKS_PER_SECOND;
 const SQUEEZE_GAP_SHRINK_TICKS = TICKS_PER_SECOND;
-const SQUEEZE_MIN_GAP_TICKS = TICKS_PER_SECOND;
+const SQUEEZE_MIN_GAP_TICKS = 2 * TICKS_PER_SECOND;
 
 
 const SQUEEZES_PER_EXTRA_ROW = 8;

@@ -23,6 +23,7 @@ export const T = Object.freeze({
   ],
   keysLine: 'Press left or right to move. Up turns.',
   keysDrop: 'Press down to drop faster. Space drops at once.',
+  touchLine: 'Drag your well to move. Tap it to turn.',
   selectH: 'Pick your fighter',
   fighter: 'Fighter {n}',
   fighterNote: 'Pick any fighter. Art and names come later.',
@@ -78,7 +79,7 @@ export const T = Object.freeze({
   keyLeft: 'Move left',
   keyRight: 'Move right',
   keyTurn: 'Turn',
-  keySoft: 'Drop faster',
+  keySoft: 'Drop',
   keyHard: 'Drop at once',
 });
 

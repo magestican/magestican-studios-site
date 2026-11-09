@@ -6,8 +6,9 @@ export const HEIGHT = 20;
 export const HIDDEN = 2;
 export const STONE = 9;
 
-const LIGHT_STONES = [0, 1, 2, 3, 5];
-const CHAIN_STONES = [0, 1, 3, 5, 8, 12];
+
+const LIGHT_STONES = [0, 1, 1, 2, 3];
+const CHAIN_STONES = [0, 1, 1, 2, 3, 4];
 const MIN_GROUP = 4;
 
 const isColour = (c) => c !== 0 && c !== STONE;

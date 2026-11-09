@@ -11,6 +11,7 @@ import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { initAnalytics } from '../../../web-engine/visits/visits.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
 import { createHands } from './hands.js';
+import { createDrag } from './touch.js';
 import { createClock } from './clock.js';
 import { createDuel } from './duel.js';
 import { layoutMatch } from './layout.js';
@@ -62,6 +63,7 @@ const fxSeen = {};
 let lastWake = 0;
 let overTimer = null;
 let endNote = '';
+let lastLayout = null;
 
 let net = null;
 let room = { seats: ['host', 'guest'], running: false };
@@ -172,6 +174,7 @@ function paint() {
   ctx.setTransform(size.ratio, 0, 0, size.ratio, 0, 0);
   
   const layout = layoutMatch(size.width, size.height, { touch: false, mine: mine ?? 0 });
+  lastLayout = layout;
   document.querySelector('.cw-matchbar').style.right = `${layout.barRight}px`;
   drawMatch(ctx, size, layout, duel.view, fx.state, labels());
 }
@@ -412,15 +415,13 @@ async function invite(link, text = null) {
 function fillStatic() {
   const text = {
     pitch: T.pitch, 'play-now': T.playNow, 'more-label': T.more, 'pick-fighter': T.selectH, 'friend-h': T.friendH, 'create-room': T.createRoom, 'join-btn': T.join, 'how-h': T.howH,
-    'keys-line': T.keysLine, 'keys-drop': T.keysDrop, 'select-h': T.selectH, 'fighter-note': T.fighterNote, 'level-h': T.levelH, fight: T.fight,
+    'keys-line': T.keysLine, 'keys-drop': T.keysDrop, 'touch-line': T.touchLine, 'pad-turn': T.keyTurn, 'pad-drop': T.keySoft, 'select-h': T.selectH, 'fighter-note': T.fighterNote, 'level-h': T.levelH, fight: T.fight,
     'select-back': T.back, 'room-h': T.roomH, 'copy-link': T.share, 'watch-link': T.watchLink, 'leave-room': T.leave,
     cheer: T.cheer, quit: T.quit, rematch: T.rematch, 'to-title': T.title,
   };
   for (const [id, value] of Object.entries(text)) $(id).textContent = value;
   $('join-code').placeholder = T.joinHint;
   $('stage').setAttribute('aria-label', T.stageLabel);
-  const padLabels = { left: T.keyLeft, right: T.keyRight, cw: T.keyTurn, soft: T.keySoft, hard: T.keyHard };
-  for (const button of $('pad').querySelectorAll('button')) button.setAttribute('aria-label', padLabels[button.dataset.key]);
   $('how-list').replaceChildren(...T.howLines.map((line) => Object.assign(document.createElement('li'), { textContent: line })));
 }
 
@@ -493,6 +494,24 @@ function wire() {
     button.addEventListener('pointerdown', (e) => { e.preventDefault(); button.setPointerCapture?.(e.pointerId); hands.down(key); });
     for (const end of ['pointerup', 'pointercancel', 'lostpointercapture']) button.addEventListener(end, () => hands.up(key));
   }
+  
+  
+  const drag = createDrag({
+    press: (key) => hands.press(key),
+    cellPx: () => lastLayout?.wells[mine ?? 0]?.cell ?? 24,
+  });
+  const stage = $('stage');
+  const steering = (e) => e.pointerType !== 'mouse' && screen === 'match' && mine !== null;
+  stage.addEventListener('pointerdown', (e) => {
+    if (!steering(e)) return;
+    e.preventDefault();
+    
+    try { stage.setPointerCapture?.(e.pointerId); } catch {  }
+    drag.down(e.pointerId, e.clientX, e.clientY, e.timeStamp);
+  });
+  stage.addEventListener('pointermove', (e) => { if (steering(e)) drag.move(e.pointerId, e.clientX, e.clientY); });
+  stage.addEventListener('pointerup', (e) => { if (steering(e)) drag.up(e.pointerId, e.timeStamp); });
+  stage.addEventListener('pointercancel', () => drag.cancel());
 }
 
 initAnalytics({ page: 'clashwell' });

@@ -11,6 +11,8 @@ const HELD = new Set(['soft']);
 export function createHands() {
   const held = new Map();
   const tapped = new Set();
+  
+  const pressed = [];
 
   return {
     down(key) {
@@ -19,13 +21,15 @@ export function createHands() {
       tapped.add(key);
     },
     up(key) { held.delete(key); },
+    press(key) { pressed.push(key); },
     clear() {
       held.clear();
       tapped.clear();
+      pressed.length = 0;
     },
     
     tick() {
-      const keys = [];
+      const keys = pressed.splice(0);
       for (const key of tapped) keys.push(key);
       for (const [key, age] of held) {
         if (HELD.has(key) && !tapped.has(key)) keys.push(key);

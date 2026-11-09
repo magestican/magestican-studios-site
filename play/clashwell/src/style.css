@@ -110,8 +110,13 @@ body {
 .cw-matchbar .cw-mini { font-size: 12px; padding: 4px 8px; }
 
 
-.cw-pad { flex: 0 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 8px 16px 12px; height: 84px; touch-action: none; user-select: none; -webkit-user-select: none; }
-.cw-pad button { background: linear-gradient(var(--timber-hi), var(--timber) 70%); color: var(--paper-hi); border: 1px solid var(--timber-low); border-radius: 4px; font-size: 24px; touch-action: none; box-shadow: 0 4px 0 var(--timber-low); text-shadow: 0 1px 0 var(--timber-low); }
-.cw-pad button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--timber-low); }
+
+
+#stage { touch-action: none; }
+.cw-pad { flex: 0 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); height: 104px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.cw-pad button { display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(var(--timber-hi), var(--timber) 70%); color: var(--paper-hi); border: 2px solid var(--timber-low); border-radius: 999px; font-weight: 800; touch-action: none; box-shadow: 0 5px 0 var(--timber-low); text-shadow: 0 1px 0 var(--timber-low); }
+.cw-pad-icon { font-size: 30px; line-height: 1; }
+.cw-pad-word { font-size: 20px; letter-spacing: 0.02em; }
+.cw-pad button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--timber-low); }
 
 .cw-toast { position: fixed; left: 16px; right: 16px; bottom: 24px; max-width: 480px; margin: 0 auto; background: var(--ink); color: var(--paper); border: 1px solid var(--timber); border-radius: 3px; padding: 12px 16px; text-align: center; z-index: 5; }
