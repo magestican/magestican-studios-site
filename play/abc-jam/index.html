@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ABC Jam - a singing alphabet and first words typing game for kids</title>
+  <meta name="description" content="ABC Jam: every letter a child presses sings, dances and adds a note to the alphabet song. ABC Parade, Free Jam, Word Builder, Letter Rain and a Sticker Book. Big buttons, no timers, nothing to lose.">
+  <meta name="build" content="4b6ac177-20261109T114236Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/abc-jam/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ABC Jam - a singing alphabet game for kids">
+  <meta property="og:description" content="Every letter a child presses sings, dances and adds a note to the alphabet song.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/abc-jam/">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  
+  <script src="../shared/ui/boot.js?v=4b6ac177-20261109T114236Z" data-game="abc-jam"></script>
+  <link rel="stylesheet" href="./src/style.css?v=4b6ac177-20261109T114236Z">
+</head>
+<body>
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+    
+
+    <button id="music-btn" class="studio-music" type="button" hidden
+            aria-pressed="false" aria-label="Play music" title="Play music">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        <path class="mg-note" d="M18 6.5 L27 4.5 V17.2" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="mg-note" cx="15.4" cy="18.6" r="3.4" fill="currentColor"/>
+        <circle class="mg-note" cx="24.4" cy="16.6" r="3.4" fill="currentColor"/>
+        <path d="M3 12.5 H6.5 L11 8.5 V23.5 L6.5 19.5 H3 Z" fill="currentColor"/>
+        <path class="mg-slash" d="M4 27 L28 5" fill="none" stroke="currentColor"
+              stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <main class="aj" id="app">
+    
+
+    <section class="aj-screen aj-hub" id="hub" data-screen="hub">
+      <h1 class="aj-logo" aria-label="ABC Jam">
+        <span style="--c:#ff4f6d">A</span><span style="--c:#f5b700">B</span><span style="--c:#00a6ed">C</span>
+        <span class="aj-logo-jam">Jam</span>
+      </h1>
+      <button class="aj-start" id="start" type="button" data-say="Let's play!">
+        <span class="aj-start-pic" aria-hidden="true">▶</span>
+        <span class="aj-start-letter" id="start-letter" aria-hidden="true">A</span>
+        <span class="aj-start-word">Play</span>
+      </button>
+      <div class="aj-tiles">
+        <button class="aj-tile" type="button" data-go="jam" data-say="Free jam!" style="--c:#7b5cff">
+          <span class="aj-tile-pic" aria-hidden="true">🎹</span><span>Free Jam</span>
+        </button>
+        <button class="aj-tile" type="button" data-go="words" data-say="Word builder!" style="--c:#38b000">
+          <span class="aj-tile-pic" aria-hidden="true">🧩</span><span>Word Builder</span>
+        </button>
+        <button class="aj-tile" type="button" data-go="rain" data-say="Letter balloons!" style="--c:#00a6ed">
+          <span class="aj-tile-pic" aria-hidden="true">🎈</span><span>Letter Rain</span>
+        </button>
+        <button class="aj-tile" type="button" data-go="stickers" data-say="Sticker book!" style="--c:#ff8c1a">
+          <span class="aj-tile-pic" aria-hidden="true">📒</span><span>Sticker Book</span>
+        </button>
+      </div>
+    </section>
+
+    
+
+    <section class="aj-screen aj-play" id="play" data-screen="play" hidden>
+      <div class="aj-top">
+        <button class="aj-home" id="home" type="button" aria-label="Home"><span aria-hidden="true">🏠</span></button>
+        <div class="aj-progress" id="progress" aria-hidden="true"></div>
+        <button class="aj-say" id="say-again" type="button" aria-label="Say it again"><span aria-hidden="true">🔊</span></button>
+      </div>
+      <div class="aj-stage" id="stage" aria-live="polite"></div>
+      <div class="aj-input" id="input">
+        <div class="aj-bubbles" id="bubbles" hidden></div>
+        <div class="aj-kb" id="kb" hidden></div>
+        <button class="aj-kb-toggle" id="kb-toggle" type="button" hidden>ABC</button>
+      </div>
+    </section>
+
+    
+    <section class="aj-screen aj-steps" id="steps" data-screen="steps" hidden>
+      <div class="aj-top">
+        <button class="aj-home" type="button" data-home aria-label="Home"><span aria-hidden="true">🏠</span></button>
+      </div>
+      <div class="aj-step-list" id="step-list"></div>
+    </section>
+
+    
+    <section class="aj-screen aj-book" id="stickers" data-screen="stickers" hidden>
+      <div class="aj-top">
+        <button class="aj-home" type="button" data-home aria-label="Home"><span aria-hidden="true">🏠</span></button>
+        <div class="aj-book-count" id="book-count"></div>
+      </div>
+      <h2 class="aj-book-h"><span aria-hidden="true">🔤</span> Letters</h2>
+      <div class="aj-book-grid" id="book-letters"></div>
+      <h2 class="aj-book-h"><span aria-hidden="true">🧩</span> Words</h2>
+      <div class="aj-book-grid aj-book-words" id="book-words"></div>
+    </section>
+
+    <div class="aj-fx" id="fx" aria-hidden="true"></div>
+  </main>
+  <noscript><p>ABC Jam needs JavaScript; there is nothing to download.</p></noscript>
+  <script type="module" src="./src/main.js?v=4b6ac177-20261109T114236Z"></script>
+</body>
+</html>

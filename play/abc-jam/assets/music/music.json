@@ -1,0 +1,18 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "ABC JAM",
+      "genre": "kids-tv-singalong",
+      "key": "D major",
+      "bpm": 112,
+      "file": "abc-jam-main.webm",
+      "loopSamples": 3291429,
+      "seed": 513279316,
+      "lufs": -18.5
+    }
+  ]
+}

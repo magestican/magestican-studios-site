@@ -1,0 +1,225 @@
+
+
+
+
+import { LETTERS, WORD_STEPS } from './content.js';
+
+
+
+
+
+
+export const TIMING = Object.freeze({
+  letterGapMs: 1600, 
+  wordGapMs: 3200, 
+  partyMs: 3600, 
+  rainRiseMs: 11000, 
+  rainSpawnMs: 2600, 
+  rainMax: 3, 
+  rainFastestRiseMs: 7000, 
+});
+
+
+
+
+export const NOTES = Object.freeze(['D5', 'E5', 'Fs5', 'G5', 'A5', 'B5', 'D6', 'E6', 'Fs6', 'A6']);
+
+
+
+
+const SONG = 'D5 D5 A5 A5 B5 B5 A5 G5 G5 Fs5 Fs5 E5 E5 E5 E5 D5 A5 A5 G5 Fs5 Fs5 E5 A5 G5 Fs5 E5'.split(' ');
+export const LETTER_NOTE = Object.freeze(Object.fromEntries(LETTERS.map((l, i) => [l.ch, SONG[i]])));
+
+
+export function wordTune(len) {
+  const n = Math.max(1, len | 0);
+  const ladder = ['D5', 'E5', 'Fs5', 'A5', 'B5'];
+  const out = [];
+  for (let i = 0; i < n - 1; i++) out.push(ladder[Math.min(i, ladder.length - 1)]);
+  out.push('D6');
+  return out;
+}
+
+
+
+
+export function hintFor(misses) {
+  if (misses <= 0) return 'none';
+  if (misses === 1) return 'glow';
+  if (misses === 2) return 'bounce';
+  return 'point';
+}
+
+const norm = (ch) => String(ch ?? '').toUpperCase();
+const isLetter = (ch) => /^[A-Z]$/.test(norm(ch));
+
+
+export const PARTY_AFTER = Object.freeze(['E', 'J', 'O', 'T', 'Z']);
+
+export function createParade(start = 0) {
+  let index = Math.max(0, Math.min(LETTERS.length - 1, start | 0));
+  let misses = 0;
+  let finished = false;
+  return {
+    get index() { return index; },
+    get finished() { return finished; },
+    current() { return LETTERS[index]; },
+    
+    press(ch) {
+      if (finished || !isLetter(ch)) return { kind: 'ignored' };
+      const want = LETTERS[index].ch;
+      if (norm(ch) !== want) {
+        misses += 1;
+        return { kind: 'wrong', want, hint: hintFor(misses) };
+      }
+      const r = { kind: 'right', letter: want, note: LETTER_NOTE[want], party: PARTY_AFTER.includes(want), sticker: want };
+      misses = 0;
+      if (index === LETTERS.length - 1) { finished = true; r.finished = true; } else index += 1;
+      return r;
+    },
+    restart() { index = 0; misses = 0; finished = false; },
+  };
+}
+
+
+export function jamPress(ch) {
+  if (!isLetter(ch)) return { kind: 'ignored' };
+  const c = norm(ch);
+  return { kind: 'right', letter: c, note: LETTER_NOTE[c] };
+}
+
+
+export const ROUND_WORDS = 8;
+
+
+export function pickRound(stepId, rand = Math.random, count = ROUND_WORDS) {
+  const step = WORD_STEPS.find((s) => s.id === stepId) || WORD_STEPS[0];
+  const pool = step.words.slice();
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, Math.min(count, pool.length)).map(([word, pic]) => ({ word, pic }));
+}
+
+export function createSpeller(words) {
+  const list = words.slice();
+  let w = 0;
+  let pos = 0;
+  let misses = 0;
+  const tune = () => wordTune(list[w].word.length);
+  return {
+    get wordIndex() { return w; },
+    get pos() { return pos; },
+    get total() { return list.length; },
+    current() { return list[w]; },
+    want() { return list[w] ? list[w].word[pos].toUpperCase() : null; },
+    press(ch) {
+      if (w >= list.length || !isLetter(ch)) return { kind: 'ignored' };
+      const want = list[w].word[pos].toUpperCase();
+      if (norm(ch) !== want) {
+        misses += 1;
+        return { kind: 'wrong', want, hint: hintFor(misses) };
+      }
+      misses = 0;
+      const note = tune()[pos];
+      pos += 1;
+      const r = { kind: 'right', letter: want, note, slot: pos - 1 };
+      if (pos >= list[w].word.length) {
+        r.wordDone = list[w].word;
+        r.sticker = list[w].word;
+        w += 1;
+        pos = 0;
+        if (w >= list.length) r.roundDone = true;
+      }
+      return r;
+    },
+  };
+}
+
+
+
+
+export function createRain({ letters = LETTERS.map((l) => l.ch), rand = Math.random } = {}) {
+  const pool = letters.length ? letters.slice() : LETTERS.map((l) => l.ch);
+  let next = 1;
+  let balloons = []; 
+  let sinceSpawn = TIMING.rainSpawnMs; 
+  let streak = 0;
+  let popped = 0;
+
+  const riseMs = () => Math.max(TIMING.rainFastestRiseMs, TIMING.rainRiseMs - Math.min(streak, 20) * 200);
+
+  function spawn() {
+    const onScreen = new Set(balloons.map((b) => b.ch));
+    const free = pool.filter((c) => !onScreen.has(c));
+    const from = free.length ? free : pool;
+    const ch = from[Math.floor(rand() * from.length) % from.length];
+    
+    const used = new Set(balloons.map((b) => b.lane));
+    const lanes = [0, 1, 2, 3].filter((l) => !used.has(l));
+    const lane = lanes.length ? lanes[Math.floor(rand() * lanes.length) % lanes.length] : 0;
+    balloons.push({ id: next++, ch, y: 0, lane, x: (lane + 0.5) / 4 });
+  }
+
+  return {
+    get balloons() { return balloons; },
+    get popped() { return popped; },
+    get streak() { return streak; },
+    riseMs,
+    
+    tick(dtMs) {
+      const looped = [];
+      const dy = dtMs / riseMs();
+      for (const b of balloons) {
+        b.y += dy;
+        if (b.y >= 1) { b.y = 0; looped.push(b.id); streak = 0; }
+      }
+      sinceSpawn += dtMs;
+      if (balloons.length < TIMING.rainMax && sinceSpawn >= TIMING.rainSpawnMs) { spawn(); sinceSpawn = 0; }
+      return looped;
+    },
+    press(ch) {
+      if (!isLetter(ch)) return { kind: 'ignored' };
+      const c = norm(ch);
+      const hits = balloons.filter((b) => b.ch === c).sort((a, b) => a.y - b.y);
+      if (!hits.length) return { kind: 'miss', letter: c };
+      const b = hits[0];
+      balloons = balloons.filter((x) => x !== b);
+      popped += 1;
+      streak += 1;
+      return { kind: 'pop', id: b.id, letter: c, note: LETTER_NOTE[c], sticker: popped % 10 === 0 };
+    },
+  };
+}
+
+
+export const SAVE_KEY = 'abcjam-v1';
+
+export function loadProgress(storage) {
+  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0 };
+  try {
+    const raw = storage?.getItem(SAVE_KEY);
+    if (!raw) return blank;
+    const p = JSON.parse(raw);
+    return {
+      furthest: Math.max(0, Math.min(25, p.furthest | 0)),
+      letters: Array.isArray(p.letters) ? p.letters.filter(isLetter).map(norm) : [],
+      words: Array.isArray(p.words) ? p.words.filter((x) => typeof x === 'string') : [],
+      pops: Math.max(0, p.pops | 0),
+      stars: Math.max(0, p.stars | 0),
+    };
+  } catch { return blank; }
+}
+
+export function saveProgress(storage, p) {
+  try { storage?.setItem(SAVE_KEY, JSON.stringify(p)); } catch {  }
+}
+
+
+export function addSticker(p, kind, id) {
+  const list = kind === 'word' ? p.words : p.letters;
+  if (list.includes(id)) return false;
+  list.push(id);
+  return true;
+}
