@@ -7,6 +7,7 @@ import { v } from '../site/assetUrl.js';
 import { CANOPY_COMIC } from './canopyArt.js';
 import { GORGE } from './gorgeArt.js';
 import { ORCHARD_COMIC } from './orchardArt.js';
+import { comicPlate } from './platesComicArt.js';
 import { plateWindow } from './plateWindow.js';
 
 
@@ -58,7 +59,14 @@ const BIOMES = {
     ...(ORCHARD_COMIC.props.items.length ? { props: ORCHARD_COMIC.props } : {}),
   },
   
-  orchardDusk: { plate: plate('batch2', 'orchard-dusk-far'), plateAspect: 16 / 9, sky: 0xffb07a, top: GRASS, solid: BARK },
+  orchardDusk: {
+    plate: plate('batch2', 'orchard-dusk-far'),
+    plateAspect: 16 / 9,
+    sky: 0xffb07a,
+    top: GRASS,
+    solid: BARK,
+    ...comicPlate('orchardDusk'),
+  },
   
   
   canopy: {
@@ -86,8 +94,23 @@ const BIOMES = {
     top: tex('batch2', 'wax', 0xffcf70, 4),
     solid: tex('batch2', 'wax', 0xffc46a, 6),
   },
-  puddle: { plate: plate('batch2', 'puddle-far'), plateAspect: 16 / 9, sky: 0xffe3c6, top: GRASS, solid: BARK },
-  antTrail: { plate: plate('batch3', 'anttrail-far'), plateAspect: 16 / 9, sky: 0xffe3c6, top: GRASS, solid: BARK },
+  
+  puddle: {
+    plate: plate('batch2', 'puddle-far'),
+    plateAspect: 16 / 9,
+    sky: 0xffe3c6,
+    top: GRASS,
+    solid: BARK,
+    ...comicPlate('puddle'),
+  },
+  antTrail: {
+    plate: plate('batch3', 'anttrail-far'),
+    plateAspect: 16 / 9,
+    sky: 0xffe3c6,
+    top: GRASS,
+    solid: BARK,
+    ...comicPlate('antTrail'),
+  },
   vault: {
     plate: plate('batch3', 'vault-far'),
     plateAspect: 16 / 9,

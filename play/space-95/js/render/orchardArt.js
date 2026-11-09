@@ -15,7 +15,7 @@ export const ORCHARD_SLOTS = {
   'orchard-turf': { kind: 'texture', file: 'texture.png', ready: false }, 
   'orchard-bark': { kind: 'texture', file: 'texture.png', ready: false }, 
   apple: { kind: 'prop', ready: true }, 
-  'apple-branch': { kind: 'prop', ready: false }, 
+  'apple-branch': { kind: 'prop', ready: true }, 
   'grass-tuft': { kind: 'prop', ready: false },
   toadstool: { kind: 'prop', ready: false },
   pebble: { kind: 'prop', ready: false },
@@ -28,7 +28,8 @@ export const ORCHARD_SLOTS = {
 
 const BACK = 0xcdbfe0; 
 const PROPS = [
-  { name: 'apple-branch', layer: 'back', every: 10, h: 3.2, clip: true, tint: BACK },
+  
+  { name: 'apple-branch', layer: 'back', every: 10, h: 2.0, clip: true, tint: BACK },
   { name: 'pebble-back', src: 'pebble', layer: 'back', every: 13, h: 0.9, tint: BACK },
   { name: 'wreck-fin', layer: 'back', every: 45, h: 3.0, tint: BACK },
   { name: 'grass-tuft', layer: 'ground', every: 5, h: 0.9, clip: true },
