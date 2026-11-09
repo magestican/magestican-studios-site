@@ -4,6 +4,7 @@
 
 import * as THREE from 'three';
 import { v } from '../site/assetUrl.js';
+import { CANOPY_COMIC } from './canopyArt.js';
 import { GORGE } from './gorgeArt.js';
 import { ORCHARD_COMIC } from './orchardArt.js';
 import { plateWindow } from './plateWindow.js';
@@ -59,7 +60,17 @@ const BIOMES = {
   
   orchardDusk: { plate: plate('batch2', 'orchard-dusk-far'), plateAspect: 16 / 9, sky: 0xffb07a, top: GRASS, solid: BARK },
   
-  canopy: { plate: plate('batch2', 'canopy-far'), plateAspect: 16 / 9, sky: 0xffe3c6, top: GRASS, solid: BARK },
+  
+  canopy: {
+    plate: CANOPY_COMIC.plate ?? plate('batch2', 'canopy-far'),
+    plateAspect: 16 / 9,
+    ...(CANOPY_COMIC.plateZoom ? { plateZoom: CANOPY_COMIC.plateZoom, plateCropL: CANOPY_COMIC.plateCropL } : {}),
+    ...(CANOPY_COMIC.plateHaze ? { plateHaze: CANOPY_COMIC.plateHaze } : {}),
+    sky: 0xffe3c6,
+    top: CANOPY_COMIC.top ?? GRASS,
+    solid: BARK,
+    ...(CANOPY_COMIC.props.items.length ? { props: CANOPY_COMIC.props } : {}),
+  },
   stripecat: {
     plate: plate('batch2', 'stripecat-far'),
     plateAspect: 16 / 9,
@@ -256,6 +267,7 @@ export function paintedBackdrop(camera, art, worldW = 0) {
           plateAspect: art.plateAspect,
           zoom: art.plateZoom,
           parallax: PARALLAX,
+          cropL: art.plateCropL ?? 0,
         });
         tex.repeat.set(w.repeatX, w.repeatY);
         tex.offset.set(w.offsetX, w.offsetY);
