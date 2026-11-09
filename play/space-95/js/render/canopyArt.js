@@ -14,10 +14,11 @@ export const CANOPY_SLOTS = {
   
   'canopy-far': { kind: 'plate', file: 'canopy-far.webp', ready: true },
   
-  'canopy-leaves': { kind: 'texture', file: 'texture.png', ready: false },
+  'canopy-leaves': { kind: 'texture', file: 'texture.png', ready: true },
+  
   
   'leaf-yellow': { kind: 'prop', ready: false },
-  blossom: { kind: 'prop', ready: false },
+  blossom: { kind: 'prop', ready: true }, 
   
   
   twig: { kind: 'prop', ready: false },
@@ -28,9 +29,10 @@ export const CANOPY_SLOTS = {
 const BACK = 0xe6d7c4; 
 const PROPS = [
   { name: 'leaf-back', src: 'leaf-yellow', layer: 'back', every: 7, h: 3.0, clip: true, tint: BACK },
-  { name: 'twig', layer: 'back', every: 11, h: 2.2, tint: BACK },
+  { name: 'twig', layer: 'back', every: 11, h: 2.2, clip: true, tint: BACK },
+  
   { name: 'bracket-fungus', layer: 'ground', every: 16, h: 0.7 },
-  { name: 'blossom', layer: 'ground', every: 9, h: 0.5 },
+  { name: 'blossom', layer: 'ground', every: 9, h: 0.5, clip: true },
   { name: 'leaf-front', src: 'leaf-yellow', layer: 'front', every: 10, h: 2.4, clip: true, tint: 0x3d3220 },
 ];
 

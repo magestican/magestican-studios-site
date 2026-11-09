@@ -8,6 +8,8 @@
 
 
 
+import { T, fill } from './strings.js';
+
 export const LETTERS = Object.freeze([
   { ch: 'A', word: 'apple', pic: '🍎', say: 'ay' },
   { ch: 'B', word: 'bear', pic: '🐻', say: 'bee' },
@@ -44,7 +46,7 @@ export const LETTER = Object.freeze(Object.fromEntries(LETTERS.map((l) => [l.ch,
 export function letterPhrase(ch) {
   const l = LETTER[String(ch).toUpperCase()];
   if (!l) return '';
-  return l.ends ? `${l.say} is at the end of ${l.word}` : `${l.say} is for ${l.word}`;
+  return fill(l.ends ? T.letterEnds : T.letterFor, { letter: l.say, word: l.word });
 }
 
 

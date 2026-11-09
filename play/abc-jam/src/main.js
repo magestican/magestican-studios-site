@@ -15,6 +15,7 @@ import {
   loadProgress, saveProgress, addSticker, PARTY_AFTER,
 } from './rules.js';
 import { SFX_NAMES } from './sfx.js';
+import { T, fill, count } from './strings.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
@@ -131,7 +132,7 @@ function stickerToast(label) {
   setTimeout(() => t.remove(), 2200);
 }
 
-function party(text = 'Hooray!') {
+function party(text = T.hooray) {
   play('party');
   confetti(90, { x: 0.5, y: 0.3 });
   later(() => confetti(60, { x: 0.25, y: 0.5 }), 400);
@@ -205,8 +206,8 @@ function buildKeyboard() {
     }
     kb.appendChild(r);
   }
-  $('kb-toggle').textContent = kbLayout === 'qwerty' ? 'ABC' : 'QWERTY';
-  $('kb-toggle').setAttribute('aria-label', kbLayout === 'qwerty' ? 'Keys in ABC order' : 'Keys like a real keyboard');
+  $('kb-toggle').textContent = kbLayout === 'qwerty' ? T.kbToAbc : T.kbToKeys;
+  $('kb-toggle').setAttribute('aria-label', kbLayout === 'qwerty' ? T.kbToAbcSpoken : T.kbToKeysSpoken);
   markWanted();
 }
 
@@ -368,7 +369,7 @@ function paradePress(c) {
   save();
   if (r.finished) { later(paradeFinale, 700); return; }
   const gap = r.party ? TIMING.partyMs : TIMING.letterGapMs;
-  if (r.party) later(() => party(`Hooray! ${sayName(r.letter)}! You did it!`), 500);
+  if (r.party) later(() => party(fill(T.letterParty, { letter: sayName(r.letter) })), 500);
   later(() => { busy = false; showParadeLetter(); }, gap + (r.party ? 500 : 0));
 }
 
@@ -390,7 +391,7 @@ function paradeFinale() {
   document.body.classList.add('aj-finale'); 
   
   LETTERS.forEach((l, i) => later(() => play(sfxNoteFor(l.ch)), i * 280));
-  later(() => party('Hooray! You sang the whole alphabet!'), LETTERS.length * 280);
+  later(() => party(T.alphabetDone), LETTERS.length * 280);
   later(() => { busy = false; goHome(); }, LETTERS.length * 280 + TIMING.partyMs + 1200);
 }
 const sfxNoteFor = (ch) => jamPress(ch).note;
@@ -401,7 +402,7 @@ function onWrong(r) {
   showHint(r.hint, r.want);
   bump(document.querySelector('.aj-card, .aj-slots'), 'aj-wobble');
   if (r.hint === 'bounce' || r.hint === 'point') {
-    later(() => { play('hint'); say(`Find ${sayName(r.want)}!`); }, 250);
+    later(() => { play('hint'); say(fill(T.find, { letter: sayName(r.want) })); }, 250);
   }
 }
 
@@ -425,7 +426,7 @@ function startJam() {
   const st = $('stage');
   st.className = 'aj-stage aj-stage-jam';
   st.innerHTML = '<div class="aj-jam-hint" aria-hidden="true">👆 ⌨️</div>';
-  say('Free jam! Press any letter!');
+  say(T.jamStart);
 }
 
 function jamPressed(c) {
@@ -456,7 +457,7 @@ function jamPressed(c) {
   if (live.length > cols * 2 - 1) { const old = live[0]; old.classList.add('aj-away'); setTimeout(() => old.remove(), 600); }
   say(`${sayName(r.letter)}. ${l.word}!`);
   jamCount += 1;
-  if (jamCount % 15 === 0) party('Wow! What a song!');
+  if (jamCount % 15 === 0) party(T.jamParty);
   if (isNarrow()) setChoices(jamChoices());
 }
 
@@ -483,11 +484,11 @@ function showSteps() {
     b.querySelector('.aj-step-word').textContent = w.toUpperCase();
     b.querySelector('.aj-step-dots').textContent = '●'.repeat(s.size);
     b.querySelector('.aj-step-count').textContent = `⭐ ${done} / ${s.words.length}`;
-    b.setAttribute('aria-label', `${s.size} letter words`);
+    b.setAttribute('aria-label', fill(T.stepWords, { n: s.size }));
     b.addEventListener('click', () => { play('tap'); startWords(s.id); });
     list.appendChild(b);
   });
-  say('Pick your words!');
+  say(T.pickWords);
 }
 
 function startWords(id) {
@@ -519,7 +520,7 @@ function showWord() {
   renderProgress(Array.from({ length: speller.total }, (_, i) => (i < speller.wordIndex ? '⭐' : '•')), speller.wordIndex);
   play('whoosh');
   prompt(speller.want());
-  say(`${cur.word}. Let's spell ${cur.word}!`);
+  say(`${cur.word}. ${fill(T.spell, { word: cur.word })}`);
 }
 
 function wordPress(c) {
@@ -551,7 +552,7 @@ function wordPress(c) {
   }, 350);
   if (addSticker(progress, 'word', r.sticker)) { save(); later(() => { play('star'); stickerToast(r.wordDone.toUpperCase()); }, 1200); }
   if (r.roundDone) {
-    later(() => party('Hooray! You built all the words!'), TIMING.wordGapMs);
+    later(() => party(T.wordsDone), TIMING.wordGapMs);
     later(() => { busy = false; showSteps(); }, TIMING.wordGapMs + TIMING.partyMs + 600);
     return;
   }
@@ -576,7 +577,7 @@ function startRain() {
   const st = $('stage');
   st.className = 'aj-stage aj-stage-rain';
   st.innerHTML = '<div class="aj-sky"></div>';
-  say(isNarrow() ? 'Pop the balloons! Tap them!' : 'Pop the balloons! Press their letters!');
+  say(isNarrow() ? T.rainTap : T.rainKeys);
   const els = new Map();
   let last = performance.now();
   let raf = 0;
@@ -597,7 +598,7 @@ function startRain() {
         el.dataset.ch = b.ch;
         el.style.setProperty('--c', colourFor(b.ch));
         el.innerHTML = `<b>${b.ch}</b><i aria-hidden="true"></i>`;
-        el.setAttribute('aria-label', `Balloon ${b.ch}`);
+        el.setAttribute('aria-label', fill(T.balloon, { letter: b.ch }));
         sky.appendChild(el);
         els.set(b.id, el);
       }
@@ -651,7 +652,7 @@ function showStickers() {
     s.innerHTML = '<b></b><i aria-hidden="true"></i>';
     s.querySelector('b').textContent = l.ch;
     s.querySelector('i').textContent = got ? l.pic : '❔';
-    s.setAttribute('aria-label', got ? letterPhrase(l.ch) : `${l.ch} - not yet`);
+    s.setAttribute('aria-label', got ? letterPhrase(l.ch) : fill(T.letterNotYet, { letter: l.ch }));
     s.addEventListener('click', () => {
       bump(s, 'aj-jump');
       if (got) { play(jamPress(l.ch).note); say(`${sayName(l.ch)}! ${letterPhrase(l.ch)}.`); } else play('tap');
@@ -670,14 +671,14 @@ function showStickers() {
       s.innerHTML = '<i aria-hidden="true"></i><b></b>';
       s.querySelector('i').textContent = got ? pic : '❔';
       s.querySelector('b').textContent = got ? w.toUpperCase() : '•'.repeat(w.length);
-      s.setAttribute('aria-label', got ? w : 'not yet');
+      s.setAttribute('aria-label', got ? w : T.wordNotYet);
       s.addEventListener('click', () => { bump(s, 'aj-jump'); if (got) { play('word'); say(w); } else play('tap'); });
       W.appendChild(s);
     }
   }
   const total = progress.letters.length + progress.words.length;
   $('book-count').textContent = `🌟 ${total}  ·  🎈 ${progress.pops}`;
-  say(total ? `You have ${total} stickers!` : 'Play to fill your sticker book!');
+  say(total ? count(T.bookCount, total) : T.bookEmpty);
 }
 
 

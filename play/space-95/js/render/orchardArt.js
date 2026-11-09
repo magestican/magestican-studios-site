@@ -15,7 +15,7 @@ export const ORCHARD_SLOTS = {
   'orchard-turf': { kind: 'texture', file: 'texture.png', ready: false }, 
   'orchard-bark': { kind: 'texture', file: 'texture.png', ready: false }, 
   apple: { kind: 'prop', ready: true }, 
-  'apple-branch': { kind: 'prop', ready: false },
+  'apple-branch': { kind: 'prop', ready: false }, 
   'grass-tuft': { kind: 'prop', ready: false },
   toadstool: { kind: 'prop', ready: false },
   pebble: { kind: 'prop', ready: false },
