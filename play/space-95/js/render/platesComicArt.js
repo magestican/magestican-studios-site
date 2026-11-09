@@ -10,7 +10,7 @@ const D = 'assets/art/biome/plates-comic';
 export const PLATE_SLOTS = {
   orchardDusk: { name: 'dusk-far', ready: true }, 
   antTrail: { name: 'anttrail-far', ready: true }, 
-  puddle: { name: 'puddle-far', ready: false }, 
+  puddle: { name: 'puddle-far', ready: true }, 
 };
 
 
