@@ -137,8 +137,7 @@ const boltSay = (line) => {
     if (hud) boltEl.style.top = `${Math.round(hud.getBoundingClientRect().bottom + 12)}px`;
   } else boltEl.style.top = '';
   boltHide = 3.2;
-  view.boltMood(line.mood);
-  if (line.beep && line.beep in SFX) audio.play(line.beep, { volume: 0.7 });
+  view.boltMood(line.mood); 
 };
 const levelMusic = musicOf(level);
 audio.musicFirst(levelMusic);

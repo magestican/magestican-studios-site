@@ -20,6 +20,7 @@ export function createPause(root, { onResume, onRestartBeacon, onRestartShift, o
     const st = getState();
     root.innerHTML = `
       <div class="sheet pause-card" role="dialog" aria-label="Paused">
+        <div class="s95-clip" aria-hidden="true"></div>
         <p class="sheet-k">Space 95 Survey Co. - Break room</p>
         <h2>Paused</h2>
         <div class="pause-actions">

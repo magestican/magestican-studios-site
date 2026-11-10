@@ -4,6 +4,7 @@
 
 
 
+
 import { TOOL_DEBUT } from '../sim/abilities.js';
 
 const LINES = {
@@ -222,48 +223,48 @@ export function createBoltVoice(shift = 0) {
       if (e.type === 'skyLine' && SKY[e.step]) {
         
         cooldown = 4;
-        return { text: SKY[e.step], beep: e.step === 6 ? null : 'bolt_beep_happy', mood: e.step === 6 ? 'worried' : 'happy' };
+        return { text: SKY[e.step], mood: e.step === 6 ? 'worried' : 'happy' };
       }
       if (e.type === 'bossCameo' && e.who === 'mandibella') return null; 
       if (e.type === 'burrowLine' && BURROW[e.step]) {
         
         cooldown = 4;
-        return { text: BURROW[e.step], beep: 'bolt_beep_happy', mood: e.step === 0 ? 'worried' : 'happy' };
+        return { text: BURROW[e.step], mood: e.step === 0 ? 'worried' : 'happy' };
       }
       if (e.type === 'kitchenLine' && KITCHEN[e.step]) {
         
         cooldown = 4;
-        return { text: KITCHEN[e.step], beep: 'bolt_beep_happy', mood: 'happy' };
+        return { text: KITCHEN[e.step], mood: 'happy' };
       }
       if (e.type === 'rideLine' && RIDE[e.step]) {
         
         cooldown = 4;
-        return { text: RIDE[e.step], beep: 'bolt_beep_happy', mood: e.step === 2 || e.step === 3 ? 'worried' : 'happy' };
+        return { text: RIDE[e.step], mood: e.step === 2 || e.step === 3 ? 'worried' : 'happy' };
       }
       if (e.type === 'sillLine' && SILL[e.step]) {
         
         cooldown = 4;
-        return { text: SILL[e.step], beep: 'bolt_beep_happy', mood: 'happy' };
+        return { text: SILL[e.step], mood: 'happy' };
       }
       if (e.type === 'sovereignOutro') {
         
         cooldown = 4;
-        return { text: CELL.sovereignOutro, beep: 'bolt_beep_happy', mood: 'happy' };
+        return { text: CELL.sovereignOutro, mood: 'happy' };
       }
       if (e.type === 'cellSnatch' || (e.type === 'box' && e.n === 2)) {
         
         cooldown = 4;
         const snatch = e.type === 'cellSnatch';
-        return { text: snatch ? CELL.cellSnatch : CELL.box2, beep: 'bolt_beep_happy', mood: snatch ? 'worried' : 'happy' };
+        return { text: snatch ? CELL.cellSnatch : CELL.box2, mood: snatch ? 'worried' : 'happy' };
       }
       if (e.type === 'board' && e.surf) {
         
         cooldown = 4;
-        return { text: CELL.boarding, beep: 'bolt_beep_happy', mood: 'worried' };
+        return { text: CELL.boarding, mood: 'worried' };
       }
       if (e.type === 'capBounce' && !used.capBounce) {
         used.capBounce = 1; 
-        return { text: "It's wearing a HAT. A metal hat. Try the cold.", beep: 'bolt_beep_happy', mood: 'worried' };
+        return { text: "It's wearing a HAT. A metal hat. Try the cold.", mood: 'worried' };
       }
       if (TEACH.has(e.type)) kind = teach ? e.type : null;
       
@@ -288,10 +289,9 @@ export function createBoltVoice(shift = 0) {
       else if (e.type in LINES && e.type !== 'signal' && e.type !== 'dewBounce' && e.type !== 'sweep') kind = e.type;
       if (!kind) return null;
       cooldown = 4;
-      const beep = kind === 'signal' ? 'bolt_beep_curious' : kind === 'hurt' ? null : 'bolt_beep_happy';
-      return { text: pick(kind, e), beep, mood: kind === 'signal' ? 'curious' : kind === 'hurt' ? 'worried' : 'happy' };
+      return { text: pick(kind, e), mood: kind === 'signal' ? 'curious' : kind === 'hurt' ? 'worried' : 'happy' };
     },
-    start: () => ({ text: pick('shiftStart'), beep: 'bolt_beep_happy', mood: 'happy' }),
+    start: () => ({ text: pick('shiftStart'), mood: 'happy' }),
   };
 }
 

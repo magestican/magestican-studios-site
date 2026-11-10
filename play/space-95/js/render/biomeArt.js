@@ -85,6 +85,7 @@ const BIOMES = {
     sky: 0xffe1c0,
     top: tex('batch2', 'fur', 0xffe0bc, 4),
     solid: tex('batch2', 'fur', 0xffcfa6, 6),
+    ...comicPlate('stripecat'),
   },
   hive: {
     plate: plate('batch2', 'hive-far'),
@@ -93,6 +94,7 @@ const BIOMES = {
     
     top: tex('batch2', 'wax', 0xffcf70, 4),
     solid: tex('batch2', 'wax', 0xffc46a, 6),
+    ...comicPlate('hive'),
   },
   
   puddle: {
@@ -117,6 +119,7 @@ const BIOMES = {
     sky: 0x9a6a44,
     top: tex('batch3', 'soil', 0xffffff, 3),
     solid: tex('batch3', 'soil', 0xd8b090, 5),
+    ...comicPlate('vault'),
   },
   machine: {
     plate: plate('batch3', 'machine-far'),
@@ -124,6 +127,7 @@ const BIOMES = {
     sky: 0x6f6aa8,
     top: tex('batch3', 'circuit', 0xffffff, 3),
     solid: tex('batch3', 'circuit', 0xa8b8c0, 5),
+    ...comicPlate('machine'),
   },
   
   kitchen: { plate: plate('batch3', 'kitchen-far'), plateAspect: 16 / 9, sky: 0xffd9a8, top: null, solid: null },
@@ -148,6 +152,7 @@ const BIOMES = {
     sky: 0xf59a62,
     top: tex('batch2', 'keycap'),
     solid: tex('batch2', 'keycap', 0x8f86b0, 3),
+    ...comicPlate('desk'),
   },
 };
 

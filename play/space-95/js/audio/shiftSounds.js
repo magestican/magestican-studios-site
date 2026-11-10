@@ -98,7 +98,7 @@ const ALWAYS_EVENTS = [
 ];
 
 const KIND_EVENTS = { jetpack: ['jetpackOn', 'jetStart', 'jetEmpty'], seed: ['seed'] };
-const ALWAYS_SOUNDS = ['land_soft', 'land_run', 'land_hard', 'bark_climb', 'bolt_beep_happy', 'bolt_beep_curious', 'bolt_boop'];
+const ALWAYS_SOUNDS = ['land_soft', 'land_run', 'land_hard', 'bark_climb'];
 
 const delivered = ( n) => n in SFX;
 

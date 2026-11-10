@@ -2,6 +2,8 @@
 
 
 
+import { drawPortrait } from './joPortrait.js';
+
 
 
 
@@ -25,7 +27,7 @@ export function showTitle(root, variant, onStart, shifts = [], onShift = () => {
           ? `<div class="title-shifts" aria-label="Shifts">${shifts
               .map(
                 (s) =>
-                  `<button type="button" data-shift="${s.id}" ${s.unlocked ? '' : 'disabled'} ${s.current ? 'aria-current="true"' : ''}>${s.id}. ${s.name}</button>`,
+                  `<button type="button" data-shift="${s.id}" ${s.unlocked ? '' : 'disabled'} ${s.current ? 'aria-current="true"' : ''} aria-label="Shift ${s.id}: ${s.name}"><b>${s.id}</b><span>${s.name}</span></button>`,
               )
               .join('')}</div>`
           : ''
@@ -33,6 +35,8 @@ export function showTitle(root, variant, onStart, shifts = [], onShift = () => {
       <p class="title-hint">Bolt, your android buddy, is already on shift.</p>
     </div>`;
   root.hidden = false;
+  for (const slot of root.querySelectorAll('.title-av')) drawPortrait(slot, slot.classList.contains('title-av-man') ? 'man' : 'woman');
+  root.querySelector('[aria-current="true"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
   const picks = [...root.querySelectorAll('[data-v]')];
   const sync = () => {
     for (const b of picks) b.setAttribute('aria-checked', String(b.dataset.v === pick));
