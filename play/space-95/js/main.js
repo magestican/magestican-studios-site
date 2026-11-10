@@ -9,6 +9,7 @@ import { createBoltVoice } from './game/bolt.js';
 import { mergeIntoProgress, readProgress, recordShift, saveVariant } from './game/progress.js';
 import { createInput, mountTouchControls } from './input.js';
 import { SHIFT_IDS, SHIFT_NAMES } from './level/shiftList.js';
+import { loadLevelRecovering } from './level/loadRetry.js';
 import { loadLevel } from './level/shiftLoader.js';
 import { preloadCritterSprites } from './render/critterSprite.js';
 import { joSpriteLoaded } from './render/joSprite.js';
@@ -38,7 +39,8 @@ site
   .catch(() => {});
 const urlVariant = new URLSearchParams(location.search).get('variant');
 document.documentElement.dataset.variant = urlVariant ? cheats.variant : readProgress().variant;
-const { level, labels, title } = await loadLevel(cheats.level); 
+
+const { level, labels, title } = await loadLevelRecovering(() => loadLevel(cheats.level));
 
 const abilities = parseAbilities(cheats.abilities || (level.id ? '' : 'all'));
 let session = createSession(level, cheats.checkpoint, abilities);

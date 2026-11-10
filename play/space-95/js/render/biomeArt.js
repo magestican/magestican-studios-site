@@ -27,6 +27,7 @@ export const ART_BIOME = {
   14: 'nightGarden',
   15: 'silkGorge',
   16: 'deepBurrow',
+  17: 'gardenSky',
   18: 'kitchen',
   20: 'sovereign',
 };
@@ -154,6 +155,10 @@ const BIOMES = {
     top: { ...tex('sovereign', 'sill', 0xfff6dc, 3), lift: 0x9a8450 },
     solid: { ...tex('sovereign', 'sill', 0xffeec0, 5), lift: 0x8a7440 },
   },
+  
+  
+  
+  gardenSky: { plate: plate('sovereign', 'morningsky-far'), plateAspect: 16 / 9, sky: 0x9fdcff, top: null, solid: null },
   
   
   nightGarden: {
