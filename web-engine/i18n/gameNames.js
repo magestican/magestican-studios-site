@@ -94,6 +94,8 @@ export const GAME_NAMES = Object.freeze({
   
   lamplighters: { en: 'Lamplighters', es: 'Lamplighters: Nonogramas', pt: 'Lamplighters: Nonogramas', tl: 'Lamplighters: Nonogram', ja: 'Lamplighters お絵かきロジック', ko: 'Lamplighters 네모로직', id: 'Lamplighters: Nonogram', vi: 'Lamplighters: Nonogram' },
   
+  'abc-jam': { en: 'ABC Jam', es: 'ABC Jam: Juego del abecedario', pt: 'ABC Jam: Jogo do alfabeto', tl: 'ABC Jam: Laro ng Alpabeto', ja: 'ABC Jam アルファベットゲーム', ko: 'ABC Jam 알파벳 게임', id: 'ABC Jam: Permainan Alfabet', vi: 'ABC Jam: Trò chơi bảng chữ cái' },
+  
   clashwell: { en: 'Clashwell', es: 'Clashwell: Duelo de gemas', pt: 'Clashwell: Duelo de gemas', tl: 'Clashwell: Labanan ng Hiyas', ja: 'Clashwell 落ち物ジェム対戦', ko: 'Clashwell 보석 낙하 대전', id: 'Clashwell: Duel Permata', vi: 'Clashwell: Đấu đá quý' },
   
   fossick: { en: 'Fossick', es: 'Fossick: Caza de fósiles', pt: 'Fossick: Caça aos fósseis', tl: 'Fossick: Hukay ng Fossil', ja: 'Fossick 化石発掘', ko: 'Fossick 화석 발굴', id: 'Fossick: Gali Fosil', vi: 'Fossick: Đào hóa thạch' },

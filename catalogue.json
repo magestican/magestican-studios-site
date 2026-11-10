@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "433b2a61-20261110T182044Z",
+ "buildId": "8be1ff4e-20261110T184710Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -737,7 +737,7 @@
    "ageNote": null,
    "order": 24,
    "addedAt": "2026-10-23",
-   "bytes": 335521045
+   "bytes": 335520941
   },
   {
    "id": "magic-mirror-moves",
@@ -900,6 +900,38 @@
    "bytes": 3669983
   },
   {
+   "id": "abc-jam",
+   "statsId": "abc-jam",
+   "title": "ABC Jam",
+   "tagline": "An alphabet game where every letter a child presses sings and plays the next note of a song.",
+   "description": "An alphabet and typing game for children of about three to seven: every letter a child presses is read aloud and plays a note, so typing the alphabet plays a song. Five modes, from the ABC Parade to spelling whole words, with no clock and no lose screen.",
+   "dir": "play/abc-jam",
+   "path": "play/abc-jam/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/abc-jam.html",
+   "orientation": "any",
+   "players": "1",
+   "online": false,
+   "offline": false,
+   "cover": "assets/covers/abc-jam-16x9.webp",
+   "focus": [
+    0.56,
+    0.55
+   ],
+   "shots": [
+    "assets/shots/abc-jam/0.webp",
+    "assets/shots/abc-jam/1.webp"
+   ],
+   "accent": "#ff4f6d",
+   "glyph": "abc-jam",
+   "pack": "family",
+   "age": 4,
+   "ageNote": null,
+   "order": 30,
+   "addedAt": "2026-11-10",
+   "bytes": 2596264
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -927,7 +959,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 31,
+   "order": 32,
    "addedAt": "2026-09-21",
    "bytes": 214944
   },
@@ -959,7 +991,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 32,
+   "order": 33,
    "addedAt": "2026-09-21",
    "bytes": 214944
   },
@@ -991,7 +1023,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 33,
+   "order": 34,
    "addedAt": "2026-09-21",
    "bytes": 214944
   },
@@ -1023,7 +1055,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 34,
+   "order": 35,
    "addedAt": "2026-09-21",
    "bytes": 214944
   }
