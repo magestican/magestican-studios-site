@@ -14,6 +14,7 @@ import { joinIdFrom, shareLinkFor, normaliseCode, GAME_PREFIX } from '../../../w
 import { shareInvite, publicUrlFor } from '../../../web-engine/share/shareInvite.js';
 import { createRoomNet, canPlayTogether } from './net.js';
 import { createRoomUi, seatLevel, dugStatus, fakeRoom } from './roomUi.js';
+import { tell, tellFelt, onBack } from './appBridge.js';
 
 const $ = (id) => document.getElementById(id);
 const SAVE_KEY = 'fossick.v1';
@@ -135,6 +136,7 @@ const show = (name) => {
   $('plate').style.pointerEvents = name === 'bench' ? 'auto' : 'none';
   if (name === 'cabinet' || name === 'lobby') endGame();
   requestAnimationFrame(reframe);
+  tell('screen', { screen: name });
 };
 
 function reframe() {
@@ -168,6 +170,7 @@ const startGame = (level, opts = {}) => {
   reframe();
   view.fit = { ...view.fitGoal };
   applyCheats();
+  tell('level_start', { level: level.id, collection: level.collection, survey: !!level.survey, room: inRoom });
   setHint(game.level.survey ? S.drawerNotes.survey : levelsOf(level.collection)[0].id === level.id || !told.drag ? S.hintStart : '');
 };
 
@@ -394,6 +397,10 @@ function showLabel() {
   void stamp.offsetWidth;
   stamp.style.animation = '';
   sound.play('stamp');
+  tell('level_end', {
+    level: level.id, collection: level.collection, result: won ? 'won' : game.reason === 'broken' ? 'broken' : 'fallen',
+    grade: grade || '', pokes: game.pokes, cracks: game.cracks, room: inRoom,
+  });
   $('r-plate').textContent = fill(S.plate, { n: levelsOf(level.collection).findIndex((l) => l.id === level.id) + 1 });
   $('r-name').textContent = S.names[level.id];
   $('r-line').textContent = won ? fill(S.labelWon, { name: S.names[level.id] }) : game.reason === 'broken' ? S.labelBroken : S.labelCollapse;
@@ -495,6 +502,7 @@ function hostRoom() {
   net.leave();
   enterLobby(S.roomOpening);
   net.host();
+  tell('room', { action: 'host' });
 }
 
 function joinRoom(typed) {
@@ -502,7 +510,7 @@ function joinRoom(typed) {
   enterLobby(S.roomJoining);
   
   if (net.join(typed).error) failedRoom(S.roomBadCode);
-  else drawLobby();
+  else { drawLobby(); tell('room', { action: 'join' }); }
 }
 
 function leaveRoom() {
@@ -592,6 +600,7 @@ async function shareRoom() {
   
   
   const { via } = await shareInvite({ url: publicUrlFor(link) });
+  tell('share', { via });
   if (via === 'clipboard') $('l-note').textContent = S.roomCopied;
   else if (via === 'manual') $('l-note').textContent = link;
 }
@@ -796,6 +805,7 @@ function frame(now) {
 
   if (screen === 'bench') {
     sound.events(ev);
+    tellFelt(ev);
     for (const e of ev) {
       if (e.type === 'crack') drawSeals();
       
@@ -866,6 +876,14 @@ async function boot() {
   
   $('t-open').addEventListener('click', () => (joinCode ? joinRoom(joinCode) : startGame(nextToDig())));
   $('h-back').addEventListener('click', () => (inRoom ? leaveRoom() : openCabinet(game?.level.drawer)));
+  
+  
+  onBack(() => {
+    if (screen === 'bench') { $('h-back').click(); return true; }
+    if (screen === 'lobby') { leaveRoom(); return true; }
+    if (screen === 'cabinet') { startGame(LEVELS[0], { title: true }); return true; }
+    return false;
+  });
   $('h-lever').addEventListener('click', () => {
     steadyLever = !steadyLever;
     $('h-lever').setAttribute('aria-pressed', String(steadyLever));
