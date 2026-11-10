@@ -38,7 +38,7 @@ export async function loadLevelRecovering(load, { storage = safeSession(), reloa
     return out;
   } catch (err) {
     const reloaded = tryStore(() => storage?.getItem(RELOAD_FLAG)) === '1';
-    if (!storage) {
+    if (!storage || reloaded) {
       tryStore(() => storage?.removeItem(RELOAD_FLAG));
       throw err;
     }
