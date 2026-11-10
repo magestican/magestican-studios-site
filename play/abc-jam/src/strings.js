@@ -30,7 +30,7 @@ export const T = Object.freeze({
   letterNotYet: '{letter}, not yet',
   wordNotYet: 'Not yet',
 
-  find: 'Find {letter}!',
+  find: 'Find the letter {letter}!',
   jamStart: 'Press any letter!',
   pickWords: 'Pick your words!',
   spell: "Let's spell {word}!",
@@ -41,7 +41,7 @@ export const T = Object.freeze({
   letterEnds: '{letter} is at the end of {word}',
   letterFor: '{letter} is for {word}',
   hooray: 'Hooray!',
-  letterParty: 'Hooray! You did {letter}!',
+  letterParty: 'Well done! You found {letter}!',
   alphabetDone: 'Hooray! You sang the whole alphabet!',
   jamParty: 'Wow! What a song!',
   wordsDone: 'Hooray! You built all the words!',

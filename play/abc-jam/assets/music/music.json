@@ -5,14 +5,14 @@
     {
       "id": "main",
       "side": "A",
-      "title": "ABC JAM",
-      "genre": "kids-tv-singalong",
+      "title": "SOFT PLAYROOM",
+      "genre": "sleep-ambient",
       "key": "D major",
-      "bpm": 112,
-      "file": "abc-jam-main.webm",
-      "loopSamples": 3291429,
-      "seed": 513279316,
-      "lufs": -18.5
+      "bpm": 68,
+      "file": "abc-jam-ambient.webm",
+      "loopSamples": 4065882,
+      "seed": 195039335,
+      "lufs": -16.7
     }
   ]
 }

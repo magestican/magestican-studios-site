@@ -48,9 +48,11 @@ export function initialTrack({ saved = null, lang = '', homeLang = null, ids = T
 
 
 
+
+
 export function createTrackMusic({
   game, manifestUrl, lang = globalThis.document?.documentElement?.lang ?? '', homeLang = null,
-  storage = null, createPlayer = createLobbyMusic, trackIds = TRACK_IDS,
+  storage = null, createPlayer = createLobbyMusic, trackIds = TRACK_IDS, level = LEVEL,
   makeContext = () => {
     const Ctor = globalThis.AudioContext || globalThis.webkitAudioContext;
     return Ctor ? new Ctor() : null;
@@ -72,7 +74,7 @@ export function createTrackMusic({
     ctx = makeContext();
     if (!ctx) return null;
     master = ctx.createGain();
-    master.gain.value = LEVEL;
+    master.gain.value = level;
     master.connect(ctx.destination);
     return ctx;
   }
@@ -129,8 +131,8 @@ export function createTrackMusic({
     const now = ctx.currentTime;
     master.gain.cancelScheduledValues(now);
     master.gain.setValueAtTime(master.gain.value, now);
-    master.gain.linearRampToValueAtTime(LEVEL * depth, now + 0.03);
-    master.gain.linearRampToValueAtTime(LEVEL, now + 0.03 + ms / 1000);
+    master.gain.linearRampToValueAtTime(level * depth, now + 0.03);
+    master.gain.linearRampToValueAtTime(level, now + 0.03 + ms / 1000);
   }
 
   return {

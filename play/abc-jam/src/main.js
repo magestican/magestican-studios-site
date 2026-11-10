@@ -15,20 +15,29 @@ import {
   loadProgress, saveProgress, addSticker, PARTY_AFTER,
 } from './rules.js';
 import { SFX_NAMES } from './sfx.js';
-import { T, fill, count } from './strings.js';
+import { T, fill } from './strings.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
-import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { createTrackMusic, MUSIC_KEY } from '../../shared/audio/trackMusic.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
+import { silentWavDataUrl } from '../../shared/audio/iosUnlock.js';
+import { gameMuted } from '../../../web-engine/brand/uiSound.js';
+import { uiSoundOn } from '../../../web-engine/brand/uiSoundPref.js';
+import { createVoice } from './voice.js';
+import { id as vid, FIXED, countId } from './voiceLines.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 
 const GAME_ID = 'abc-jam';
 
 
 
+
+
+
 const HAS_MUSIC = true;
+const MUSIC_LEVEL = 0.21;
 const music = createTrackMusic({
-  game: GAME_ID, trackIds: ['main'],
+  game: GAME_ID, trackIds: ['main'], level: MUSIC_LEVEL,
   manifestUrl: new URL('../assets/music/music.json', import.meta.url),
 });
 
@@ -43,36 +52,15 @@ let progress = loadProgress(store);
 const save = () => saveProgress(store, progress);
 
 
-const synth = globalThis.speechSynthesis || null;
-let voice = null;
-function pickVoice() {
-  if (!synth) return;
-  const all = synth.getVoices() || [];
-  const en = all.filter((v) => /^en(-|_|$)/i.test(v.lang));
-  
-  voice = en.find((v) => /female|samantha|zira|aria|jenny|google us english|karen|moira/i.test(v.name))
-    || en.find((v) => v.localService) || en[0] || null;
-}
-pickVoice();
-try { synth?.addEventListener?.('voiceschanged', pickVoice); } catch {  }
 
-let lastSaid = '';
-function say(text, { interrupt = true } = {}) {
-  if (!synth || !text) return;
-  lastSaid = text;
-  try {
-    if (interrupt) synth.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.rate = 0.85;
-    u.pitch = 1.2;
-    u.lang = 'en-US';
-    if (voice) u.voice = voice;
-    
-    music.duck?.(0.32, 1200);
-    synth.speak(u);
-  } catch {  }
-}
-const sayName = (ch) => LETTER[ch]?.say || ch;
+
+const voice = createVoice({
+  baseUrl: new URL('../assets/voice/', import.meta.url),
+  muted: () => !uiSoundOn() || gameMuted(),
+  onLine: (ms) => music.duck?.(0.3, ms + 300),
+});
+const say = (lineId) => voice.say(lineId);
+voice.prefetch(LETTERS.map((l) => vid.phrase(l.ch)));
 
 
 let timers = [];
@@ -132,14 +120,14 @@ function stickerToast(label) {
   setTimeout(() => t.remove(), 2200);
 }
 
-function party(text = T.hooray) {
+function party(line = FIXED.hooray) {
   play('party');
   confetti(90, { x: 0.5, y: 0.3 });
   later(() => confetti(60, { x: 0.25, y: 0.5 }), 400);
   later(() => confetti(60, { x: 0.75, y: 0.5 }), 800);
   document.body.classList.add('aj-partying');
   later(() => document.body.classList.remove('aj-partying'), TIMING.partyMs);
-  say(text);
+  say(line);
 }
 
 function bump(el, cls) {
@@ -349,7 +337,7 @@ function showParadeLetter() {
   st.appendChild(card);
   play('whoosh');
   prompt(l.ch);
-  say(`${sayName(l.ch)}! ${letterPhrase(l.ch)}.`);
+  say(vid.phrase(l.ch));
 }
 
 function paradePress(c) {
@@ -363,13 +351,14 @@ function paradePress(c) {
   const card = document.querySelector('.aj-card');
   card?.classList.add('aj-pop');
   stars(8, card);
-  say(sayName(r.letter));
+  
+  
   if (addSticker(progress, 'letter', r.sticker)) later(() => { play('star'); stickerToast(r.letter); }, 450);
   progress.furthest = r.finished ? 0 : parade.index;
   save();
   if (r.finished) { later(paradeFinale, 700); return; }
   const gap = r.party ? TIMING.partyMs : TIMING.letterGapMs;
-  if (r.party) later(() => party(fill(T.letterParty, { letter: sayName(r.letter) })), 500);
+  if (r.party) later(() => party(vid.party(r.letter)), 500);
   later(() => { busy = false; showParadeLetter(); }, gap + (r.party ? 500 : 0));
 }
 
@@ -391,7 +380,7 @@ function paradeFinale() {
   document.body.classList.add('aj-finale'); 
   
   LETTERS.forEach((l, i) => later(() => play(sfxNoteFor(l.ch)), i * 280));
-  later(() => party(T.alphabetDone), LETTERS.length * 280);
+  later(() => party(FIXED.alphabetDone), LETTERS.length * 280);
   later(() => { busy = false; goHome(); }, LETTERS.length * 280 + TIMING.partyMs + 1200);
 }
 const sfxNoteFor = (ch) => jamPress(ch).note;
@@ -402,7 +391,7 @@ function onWrong(r) {
   showHint(r.hint, r.want);
   bump(document.querySelector('.aj-card, .aj-slots'), 'aj-wobble');
   if (r.hint === 'bounce' || r.hint === 'point') {
-    later(() => { play('hint'); say(fill(T.find, { letter: sayName(r.want) })); }, 250);
+    later(() => { play('hint'); say(vid.find(r.want)); }, 250);
   }
 }
 
@@ -426,7 +415,7 @@ function startJam() {
   const st = $('stage');
   st.className = 'aj-stage aj-stage-jam';
   st.innerHTML = '<div class="aj-jam-hint" aria-hidden="true">👆 ⌨️</div>';
-  say(T.jamStart);
+  say(FIXED.jamStart);
 }
 
 function jamPressed(c) {
@@ -455,9 +444,9 @@ function jamPressed(c) {
   const all = st.querySelectorAll('.aj-jam-letter');
   const live = [...all].filter((x) => !x.classList.contains('aj-away'));
   if (live.length > cols * 2 - 1) { const old = live[0]; old.classList.add('aj-away'); setTimeout(() => old.remove(), 600); }
-  say(`${sayName(r.letter)}. ${l.word}!`);
+  say(vid.phrase(r.letter));
   jamCount += 1;
-  if (jamCount % 15 === 0) party(T.jamParty);
+  if (jamCount % 15 === 0) party(FIXED.jamParty);
   if (isNarrow()) setChoices(jamChoices());
 }
 
@@ -488,7 +477,7 @@ function showSteps() {
     b.addEventListener('click', () => { play('tap'); startWords(s.id); });
     list.appendChild(b);
   });
-  say(T.pickWords);
+  say(FIXED.pickWords);
 }
 
 function startWords(id) {
@@ -520,7 +509,7 @@ function showWord() {
   renderProgress(Array.from({ length: speller.total }, (_, i) => (i < speller.wordIndex ? '⭐' : '•')), speller.wordIndex);
   play('whoosh');
   prompt(speller.want());
-  say(`${cur.word}. ${fill(T.spell, { word: cur.word })}`);
+  say(vid.spell(cur.word));
 }
 
 function wordPress(c) {
@@ -534,7 +523,7 @@ function wordPress(c) {
   if (s) { s.classList.remove('is-now'); s.classList.add('is-done'); s.style.setProperty('--c', s.dataset.c); bump(s, 'aj-jump'); }
   slots[r.slot + 1]?.classList.add('is-now');
   if (!r.wordDone) {
-    say(sayName(r.letter));
+    say(vid.name(r.letter));
     prompt(speller.want());
     return;
   }
@@ -548,11 +537,11 @@ function wordPress(c) {
     document.querySelector('.aj-word-pic')?.classList.add('aj-dance');
     confetti(60);
     stars(10, document.querySelector('.aj-word-pic'));
-    say(`${[...r.wordDone].join(', ')}. ${r.wordDone}!`);
+    say(vid.spelled(r.wordDone));
   }, 350);
   if (addSticker(progress, 'word', r.sticker)) { save(); later(() => { play('star'); stickerToast(r.wordDone.toUpperCase()); }, 1200); }
   if (r.roundDone) {
-    later(() => party(T.wordsDone), TIMING.wordGapMs);
+    later(() => party(FIXED.wordsDone), TIMING.wordGapMs);
     later(() => { busy = false; showSteps(); }, TIMING.wordGapMs + TIMING.partyMs + 600);
     return;
   }
@@ -577,7 +566,7 @@ function startRain() {
   const st = $('stage');
   st.className = 'aj-stage aj-stage-rain';
   st.innerHTML = '<div class="aj-sky"></div>';
-  say(isNarrow() ? T.rainTap : T.rainKeys);
+  say(isNarrow() ? FIXED.rainTap : FIXED.rainKeys);
   const els = new Map();
   let last = performance.now();
   let raf = 0;
@@ -628,7 +617,7 @@ function rainPress(c) {
     stars(6, el);
     setTimeout(() => el.remove(), 500);
   }
-  say(sayName(r.letter));
+  say(vid.name(r.letter));
   const cnt = $('rain-count');
   if (cnt) { cnt.textContent = `🎈 ${rain.popped}`; bump(cnt, 'aj-jump'); }
   progress.pops += 1;
@@ -655,7 +644,7 @@ function showStickers() {
     s.setAttribute('aria-label', got ? letterPhrase(l.ch) : fill(T.letterNotYet, { letter: l.ch }));
     s.addEventListener('click', () => {
       bump(s, 'aj-jump');
-      if (got) { play(jamPress(l.ch).note); say(`${sayName(l.ch)}! ${letterPhrase(l.ch)}.`); } else play('tap');
+      if (got) { play(jamPress(l.ch).note); say(vid.phrase(l.ch)); } else play('tap');
     });
     L.appendChild(s);
   }
@@ -672,19 +661,23 @@ function showStickers() {
       s.querySelector('i').textContent = got ? pic : '❔';
       s.querySelector('b').textContent = got ? w.toUpperCase() : '•'.repeat(w.length);
       s.setAttribute('aria-label', got ? w : T.wordNotYet);
-      s.addEventListener('click', () => { bump(s, 'aj-jump'); if (got) { play('word'); say(w); } else play('tap'); });
+      s.addEventListener('click', () => { bump(s, 'aj-jump'); if (got) { play('word'); say(vid.word(w)); } else play('tap'); });
       W.appendChild(s);
     }
   }
   const total = progress.letters.length + progress.words.length;
   $('book-count').textContent = `🌟 ${total}  ·  🎈 ${progress.pops}`;
-  say(total ? count(T.bookCount, total) : T.bookEmpty);
+  say(countId(total));
 }
 
 
-$('start').addEventListener('click', () => { play('tap'); startParade(); });
+
+
+const unlockVoice = () => { try { voice.unlock(silentWavDataUrl()); } catch {  } };
+$('start').addEventListener('click', () => { unlockVoice(); play('tap'); startParade(); });
 for (const t of document.querySelectorAll('.aj-tile')) {
   t.addEventListener('click', () => {
+    unlockVoice();
     play('tap');
     const go = t.dataset.go;
     if (go === 'jam') startJam();
@@ -695,7 +688,7 @@ for (const t of document.querySelectorAll('.aj-tile')) {
 }
 $('home').addEventListener('click', () => goHome());
 for (const h of document.querySelectorAll('[data-home]')) h.addEventListener('click', () => goHome());
-$('say-again').addEventListener('click', () => { play('tap'); if (lastSaid) say(lastSaid); });
+$('say-again').addEventListener('click', () => { unlockVoice(); play('tap'); if (voice.last) say(voice.last); });
 $('kb-toggle').addEventListener('click', () => {
   kbLayout = kbLayout === 'abc' ? 'qwerty' : 'abc';
   try { store?.setItem('abcjam-kb', kbLayout); } catch {  }
@@ -705,7 +698,14 @@ $('kb-toggle').addEventListener('click', () => {
 
 if (HAS_MUSIC) {
   $('music-btn').hidden = false;
-  wireMusicButton({ music });
+  
+  
+  
+  const musicDefaultOn = Object.create(music);
+  musicDefaultOn.wasOn = () => {
+    try { return globalThis.localStorage?.getItem(MUSIC_KEY) !== 'off'; } catch { return true; }
+  };
+  wireMusicButton({ music: musicDefaultOn });
 }
 
 
