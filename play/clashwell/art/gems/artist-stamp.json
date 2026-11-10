@@ -12,6 +12,10 @@
   {
    "request": "2026-11-10-clashwell-cute-gems-2",
    "artist_commit": "0c5ff95833f324f6e19933babb7a5644c520505b"
+  },
+  {
+   "request": "2026-11-10-clashwell-cute-stone-1",
+   "artist_commit": "daf88c034e65a84d30f525d31c2ea47572a70a47"
   }
  ],
  "files": {
@@ -19,6 +23,6 @@
   "gem_gold/gem_gold.webp": "8bdd68bcc9cd3ab6f4552fc986a75d16ed9c2159a0a6b27ea497cb7deb463769",
   "gem_green/gem_green.webp": "aaae74ba2af88cf27cbd631b5eecd2b86cf8ae5b06f3428aeec2716fb275a0f9",
   "gem_red/gem_red.webp": "345e6f69ac2ab7c309e1b151479b56b8ec65a0dd1ff88aa2f7c92eda6e03b40a",
-  "stone/stone.webp": "91a5c775010c1cc097dc867fa4f62aaa55509025a573622454b77946b1088888"
+  "stone/stone.webp": "b9b3d5b3bc78010ade11c408a0495b722e1dffa2b5be9b63a57947e3382d7de5"
  }
 }
