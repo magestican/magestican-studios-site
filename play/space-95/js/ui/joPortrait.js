@@ -1,10 +1,9 @@
 
 
 
+
+import { loadJoSheet } from '../render/joSheets.js';
 import { v } from '../site/assetUrl.js';
-
-
-const PORTRAIT_SHEETS = { woman: 'assets/art/jo/', man: 'assets/art/jo/' };
 
 
 
@@ -19,33 +18,30 @@ export function portraitRect(f, w, h) {
 
 
 const cache = new Map();
-const load = (dir) => {
-  if (!cache.has(dir))
+const load = ( variant) => {
+  if (!cache.has(variant))
     cache.set(
-      dir,
-      fetch(v(`${dir}jo.sprites.json`))
-        .then((r) => r.json())
-        .then((sheet) =>
-          Promise.all(
-            sheet.atlases.map(
-              (a) =>
-                new Promise((ok, bad) => {
-                  const img = new Image();
-                  img.onload = () => ok(img);
-                  img.onerror = bad;
-                  img.src = v(`${dir}${a}`);
-                }),
-            ),
-          ).then((imgs) => ({ sheet, imgs })),
-        ),
+      variant,
+      loadJoSheet(variant).then(({ sheet, dir }) =>
+        Promise.all(
+          sheet.atlases.map(
+            ( a) =>
+              new Promise((ok, bad) => {
+                const img = new Image();
+                img.onload = () => ok(img);
+                img.onerror = bad;
+                img.src = v(`${dir}${a}`);
+              }),
+          ),
+        ).then((imgs) => ({ sheet, imgs:  (imgs) })),
+      ),
     );
-  return cache.get(dir);
+  return  (cache.get(variant));
 };
 
 
-export function drawPortrait(slot, variant) {
-  const dir = PORTRAIT_SHEETS[variant] ?? PORTRAIT_SHEETS.woman;
-  load(dir)
+export function drawPortrait( slot,  variant) {
+  load(variant === 'man' ? 'man' : 'woman')
     .then(({ sheet, imgs }) => {
       const f = sheet.clips.idle?.frames[0];
       if (!f) return;

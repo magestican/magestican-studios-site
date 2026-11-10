@@ -1,11 +1,12 @@
 
 
 
+
 import * as THREE from 'three';
 import { createAnimator, wantedState } from '../anim/animState.js';
 import { v } from '../site/assetUrl.js';
+import { currentVariant, loadJoSheet } from './joSheets.js';
 
-const ART = 'assets/art/jo/';
 const GRAPH = 'assets/anim/jo/jo.graph.json';
 
 
@@ -16,51 +17,71 @@ export const joSpriteLoaded = new Promise((r) => {
 });
 
 
+function textures(s, done) {
+  const loader = new THREE.TextureLoader();
+  let left = s.sheet.atlases.length;
+  const settle = () => {
+    if (--left <= 0) done();
+  };
+  if (!left) done();
+  return s.sheet.atlases.map(( name) => {
+    const t = loader.load(v(s.dir + name), settle, undefined, settle);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.magFilter = THREE.LinearFilter;
+    return t;
+  });
+}
+
+
 
 
 
 export function createJoSprite(parent) {
   const api = { ready: false, update() {} };
-  Promise.all([fetch(v(`${ART}jo.sprites.json`)).then((r) => r.json()), fetch(v(GRAPH)).then((r) => r.json())])
-    .then(([sheet, graph]) => {
-      const loader = new THREE.TextureLoader();
-      let left = sheet.atlases.length;
-      const settle = () => {
-        if (--left <= 0) markLoaded();
-      };
-      if (!left) markLoaded();
-      const textures = sheet.atlases.map((name) => {
-        const t = loader.load(v(ART + name), settle, undefined, settle);
-        t.colorSpace = THREE.SRGBColorSpace;
-        t.magFilter = THREE.LinearFilter;
-        return t;
-      });
+  
+  const looks = new Map();
+  
+  const want = (variant) => {
+    if (looks.has(variant)) return;
+    looks.set(variant,  (null)); 
+    loadJoSheet(variant)
+      .then((s) => looks.set(variant, { sheet: s.sheet, tex: textures(s, () => {}) }))
+      .catch(() => looks.delete(variant));
+  };
+  const first = currentVariant();
+  Promise.all([loadJoSheet(first), fetch(v(GRAPH)).then((r) => r.json())])
+    .then(([s, graph]) => {
+      looks.set(first, { sheet: s.sheet, tex: textures(s, markLoaded) });
       
       const clips = {};
-      for (const [name, c] of Object.entries(sheet.clips)) {
+      for (const [name, c] of Object.entries(s.sheet.clips)) {
         clips[name] = {
           fps: c.fps,
           loop: c.loop,
-          frame_times: c.frames.map((f) => f.time),
-          events: c.frames.flatMap((f) => (f.events ?? []).map((type) => ({ type, frame: f.frame }))),
+          frame_times: c.frames.map(( f) => f.time),
+          events: c.frames.flatMap(( f) => (f.events ?? []).map((type) => ({ type, frame: f.frame }))),
         };
       }
       const anim = createAnimator(graph, clips, 'idle');
-      const mat = new THREE.MeshBasicMaterial({ map: textures[0], transparent: true, alphaTest: 0.05, depthWrite: false });
+      const mat = new THREE.MeshBasicMaterial({ map: looks.get(first)?.tex[0], transparent: true, alphaTest: 0.05, depthWrite: false });
       const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
       quad.position.z = 0.05;
       parent.add(quad);
-      const pxu = sheet.px_per_u;
-      const [px, py] = sheet.pivot;
       for (const child of parent.children) if (child.userData.placeholder) child.visible = false;
+      let shown = looks.get(first);
       api.ready = true;
       api.update = (dt, p, events, extra) => {
         anim.update(dt, extra.punt ? 'punted' : wantedState(p, events));
+        const variant = currentVariant();
+        want(variant);
+        
+        shown = looks.get(variant) ?? shown;
+        if (!shown) return;
+        const { sheet } = shown;
         const { clip, frame } = anim.frame();
-        const c = sheet.clips[clip];
-        const f = c?.frames[frame];
+        const f = sheet.clips[clip]?.frames[frame];
         if (!f) return;
-        const tex = textures[f.atlas];
+        const tex = shown.tex[f.atlas];
         if (mat.map !== tex) {
           mat.map = tex;
           mat.needsUpdate = true;
@@ -71,6 +92,8 @@ export function createJoSprite(parent) {
           tex.offset.set(f.x / img.width, 1 - (f.y + f.h) / img.height);
         }
         
+        const pxu = sheet.px_per_u;
+        const [px, py] = sheet.pivot;
         quad.scale.set(f.w / pxu, f.h / pxu, 1);
         quad.position.x = (f.ox + f.w / 2 - px) / pxu;
         quad.position.y = (py - f.oy - f.h / 2) / pxu;
