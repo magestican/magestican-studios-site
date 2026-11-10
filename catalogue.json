@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "1558aeeb-20261110T164914Z",
+ "buildId": "433b2a61-20261110T182044Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -737,7 +737,7 @@
    "ageNote": null,
    "order": 24,
    "addedAt": "2026-10-23",
-   "bytes": 335520206
+   "bytes": 335521045
   },
   {
    "id": "magic-mirror-moves",

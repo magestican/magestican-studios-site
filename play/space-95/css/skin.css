@@ -245,6 +245,8 @@ kbd {
   scroll-snap-type: x mandatory;
   padding: 4px 2px 12px;
   scrollbar-width: thin;
+  
+  scrollbar-color: var(--suit) var(--paper-2);
   touch-action: pan-x;
 }
 .title-shifts button {

@@ -45,6 +45,8 @@ export function createProps(scene, level, spec) {
   const clips = {};
   const placed = placeProps(level.world, spec.items, spec.seed);
   const tints = Object.fromEntries(spec.items.map((it) => [it.name, it.tint ?? 0xffffff]));
+  
+  const hazes = Object.fromEntries(spec.items.map((it) => [it.name, it.haze ?? 1]));
   const instances = placed.map((p) => {
     
     const mat = new THREE.MeshBasicMaterial({
@@ -53,6 +55,7 @@ export function createProps(scene, level, spec) {
       alphaTest: 0.05,
       depthWrite: false,
       visible: false,
+      opacity: hazes[p.name],
     });
     const uniforms = { uBend: { value: 0 }, uFalloff: { value: 1.6 } };
     bending(mat, uniforms);
@@ -61,7 +64,7 @@ export function createProps(scene, level, spec) {
     mesh.position.set(p.x, p.y, p.z);
     mesh.scale.set(p.h, p.h, 1);
     group.add(mesh);
-    return { ...p, mesh, mat, uniforms, aspect: 1 };
+    return { ...p, mesh, mat, uniforms, aspect: 1, haze: hazes[p.name] };
   });
   for (const item of spec.items) {
     const src = item.src ?? item.name; 
@@ -104,7 +107,7 @@ export function createProps(scene, level, spec) {
         i.mesh.position.y = i.y - m.dy * i.h;
         i.mesh.rotation.z = (m.rot * Math.PI) / 180;
         i.mesh.scale.x = i.h * i.aspect * m.sx;
-        i.mat.opacity = m.a;
+        i.mat.opacity = m.a * i.haze;
       }
     },
   };

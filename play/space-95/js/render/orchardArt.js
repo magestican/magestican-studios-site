@@ -60,3 +60,22 @@ export const ORCHARD_COMIC = {
     items: PROPS.filter((p) => ready(p.src ?? p.name)),
   },
 };
+
+
+
+
+
+
+
+
+
+export function orchardBackSway(tint, seed) {
+  return {
+    dir: D,
+    clips: 'assets/anim/scenery/l01/clips',
+    seed,
+    items: ready('apple-branch') ? [{ name: 'apple-branch', layer: 'back', every: 12, h: 1.6, clip: true, tint, haze: BACK_HAZE }] : [],
+  };
+}
+
+const BACK_HAZE = 0.5;

@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { v } from '../site/assetUrl.js';
 import { CANOPY_COMIC } from './canopyArt.js';
 import { GORGE } from './gorgeArt.js';
-import { ORCHARD_COMIC } from './orchardArt.js';
+import { ORCHARD_COMIC, orchardBackSway } from './orchardArt.js';
 import { comicPlate } from './platesComicArt.js';
 import { plateWindow } from './plateWindow.js';
 
@@ -46,6 +46,11 @@ const BARK = tex('orchard', 'orchard-bark', 0xb98be8, 4);
 
 const plate = (dir, name) => `${B}${dir}/${name}/plate.webp`;
 
+const sway = (tint, seed) => {
+  const p = orchardBackSway(tint, seed);
+  return p.items.length ? { props: p } : {};
+};
+
 const BIOMES = {
   
   orchard: {
@@ -66,6 +71,7 @@ const BIOMES = {
     top: GRASS,
     solid: BARK,
     ...comicPlate('orchardDusk'),
+    ...sway(0x9c7f95, 7), 
   },
   
   
@@ -104,6 +110,7 @@ const BIOMES = {
     top: GRASS,
     solid: BARK,
     ...comicPlate('puddle'),
+    ...sway(0xc4c8e0, 9), 
   },
   antTrail: {
     plate: plate('batch3', 'anttrail-far'),
@@ -112,6 +119,7 @@ const BIOMES = {
     top: GRASS,
     solid: BARK,
     ...comicPlate('antTrail'),
+    ...sway(0xcdbfe0, 3), 
   },
   vault: {
     plate: plate('batch3', 'vault-far'),

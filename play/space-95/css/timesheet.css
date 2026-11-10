@@ -134,6 +134,11 @@
 .timesheet[hidden] {
   display: none;
 }
+
+
+body:has(.timesheet:not([hidden])) :is(.touch-stick, .touch-jump, .touch-dash, .touch-tether) {
+  visibility: hidden;
+}
 .sheet {
   width: min(440px, 100%);
   max-height: calc(100vh - 2 * var(--gutter));
