@@ -8,13 +8,17 @@
   {
    "request": "2026-11-06-clashwell-gems-7-gold",
    "artist_commit": "8e062e2cfb2fdf1b0736c33b5f41e8194db867b6"
+  },
+  {
+   "request": "2026-11-10-clashwell-cute-gems-2",
+   "artist_commit": "0c5ff95833f324f6e19933babb7a5644c520505b"
   }
  ],
  "files": {
-  "gem_blue/gem_blue.webp": "bae3b53307e88004fa5db14aa20363f4c6cef8d65fb3df397b1967e7aaeed6a2",
-  "gem_gold/gem_gold.webp": "7154bec7c64febc489b02904ab06793830703e13e03bfce45d8f14d67e56fc99",
-  "gem_green/gem_green.webp": "99fecdc667bb458f628fcfbdeae448633258d59e0dd16dfa55e91dae33d0a948",
-  "gem_red/gem_red.webp": "60de6742afd6cc5bfaa1255197697ce7772ff742c73560f24c24dfedb3e8b680",
+  "gem_blue/gem_blue.webp": "7b423469cbc05407bca49ee5c90f6c2c1f7b40ffa28ea722442fb997f3e948e7",
+  "gem_gold/gem_gold.webp": "8bdd68bcc9cd3ab6f4552fc986a75d16ed9c2159a0a6b27ea497cb7deb463769",
+  "gem_green/gem_green.webp": "aaae74ba2af88cf27cbd631b5eecd2b86cf8ae5b06f3428aeec2716fb275a0f9",
+  "gem_red/gem_red.webp": "345e6f69ac2ab7c309e1b151479b56b8ec65a0dd1ff88aa2f7c92eda6e03b40a",
   "stone/stone.webp": "91a5c775010c1cc097dc867fa4f62aaa55509025a573622454b77946b1088888"
  }
 }

@@ -57,8 +57,8 @@
   "about": "What the Magestican Studios website and games collect, and how the anonymous analytics are configured."
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=7fe84332-20261110T073256Z">
-  <link rel="stylesheet" href="/magazine.css?v=7fe84332-20261110T073256Z">
+  <link rel="stylesheet" href="/styles.css?v=cc940e5f-20261110T102615Z">
+  <link rel="stylesheet" href="/magazine.css?v=cc940e5f-20261110T102615Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body class="mag-body">
@@ -80,7 +80,7 @@
 
   <main>
     <h1>개인정보 처리방침</h1>
-    <p class="updated">최종 수정일: 2026년 9월 21일 · <em>magesticanstudios.com, 모든 Magestican Studios 게임, 그리고 iOS용 Multi Game Madness 앱에 적용됩니다.</em></p>
+    <p class="updated">Last updated: 10 November 2026 · <em>Applies to magesticanstudios.com, all Magestican Studios games, the Multi Game Madness apps for iOS, and the Fossick 화석 발굴 app for Android.</em></p>
 
     <p>본 방침은 Magestican Studios(호주 비상장 유한회사인 Ultra Task Pty Ltd의 상호명, 이하 "당사")가 수집하는 개인정보의 종류, 수집 이유, 그리고 이에 대한 권리 행사 방법을 설명합니다. 본 방침은 호주 개인정보보호법 1988(Cth)을 충족하도록 작성되었으며, 이용자가 겹치는 경우 EU 일반개인정보보호법(GDPR)도 함께 충족합니다.</p>
 
@@ -156,6 +156,19 @@
     </ul>
     <p>앱의 분석 데이터는 <a href="https://policies.google.com/privacy">구글 개인정보처리방침</a>에 따라 Google LLC가 처리합니다. 앱스토어 자체는 애플 소유이며, 애플은 자체 방침에 따라 다운로드와 앱스토어 데이터를 처리합니다. 앱을 규율하는 라이선스는 <a href="/ko/terms.html#eula">이용약관 부록 A</a>입니다.</p>
 
+    <h2>Our app for Android: Fossick 화석 발굴</h2>
+    <p>Fossick 화석 발굴 is our app on Google Play. Every level ships inside the app itself, so the game works offline. This section covers what the Fossick 화석 발굴 app records on Android.</p>
+    <ul>
+      <li><strong>No account and nothing to sign in to.</strong> There is no login anywhere in the app.</li>
+      <li><strong>No ads, no in-app purchases, and no advertising ID.</strong> The app removes the Android permission for that ID, and its analytics are set not to collect it or the Android device ID. Ad personalisation is switched off.</li>
+      <li><strong>What the app records:</strong> Firebase Analytics, part of Google Analytics, counts the first time the app opens, how long each visit lasts, and which screen you are on. Fossick 화석 발굴 adds its own events: a level starts, a level ends (with the level, the result, the grade and how many pokes and cracks it took), a room is hosted or joined, and an invite is shared. What leaves the phone is a level name, an outcome and a few numbers. Your name, the room code and anything you type never do. Firebase gives each installation a random ID so visits can be counted, and Google works out the device model, Android version and approximate country from your IP address. None of this tells us who you are.</li>
+      <li><strong>Crash reports.</strong> When the app crashes, or the game hits an error, Firebase Crashlytics sends us the error message and the code location where it happened, so we can fix it. A crash report carries the same random installation ID and nothing about you.</li>
+      <li><strong>Saved progress stays on the device.</strong> Your levels, grades and settings live in the app's own storage. We never receive them, and uninstalling the app deletes them.</li>
+      <li><strong>Playing with friends</strong> works the same way as on the website: a WebRTC signalling broker introduces two devices so they can talk directly. It carries no account, no profile and no name.</li>
+      <li><strong>Two permissions only.</strong> The app asks for internet access and vibration, for the buzz when the rock cracks. It has no camera, microphone or location permission.</li>
+    </ul>
+    <p>The app's analytics and crash data are processed by Google LLC under the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>. Google Play handles your download under Google's own policy. Uninstalling the app stops all of it. Deletion requests and questions about this data go to <a href="mailto:support@ultratask.com.au">support@ultratask.com.au</a>, and a person answers them.</p>
+
     <h2>아동</h2>
     <p>당사 게임은 일반 이용자에게 적합하지만, 13세 미만으로부터 고의로 개인정보를 수집하지 않습니다.</p>
 
@@ -198,7 +211,7 @@
     initAnalytics({ page: 'ko-privacy' });
     trackPlayClicks();
   </script>
-  <script type="module" src="/assets/studioBanner.js?v=7fe84332-20261110T073256Z"></script>
+  <script type="module" src="/assets/studioBanner.js?v=cc940e5f-20261110T102615Z"></script>
   <script>
     
     

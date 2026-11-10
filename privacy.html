@@ -53,8 +53,8 @@
     "about": "What the Magestican Studios website and games collect, and how the anonymous analytics are configured."
   }
   </script>
-  <link rel="stylesheet" href="./styles.css?v=7fe84332-20261110T073256Z">
-  <link rel="stylesheet" href="./magazine.css?v=7fe84332-20261110T073256Z">
+  <link rel="stylesheet" href="./styles.css?v=cc940e5f-20261110T102615Z">
+  <link rel="stylesheet" href="./magazine.css?v=cc940e5f-20261110T102615Z">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 </head>
 <body class="mag-body">
@@ -76,7 +76,7 @@
 
   <main>
     <h1>Privacy Policy</h1>
-    <p class="updated">Last updated: 21 September 2026 · <em>Applies to magesticanstudios.com, all Magestican Studios games, and the Multi Game Madness app for iOS.</em></p>
+    <p class="updated">Last updated: 10 November 2026 · <em>Applies to magesticanstudios.com, all Magestican Studios games, the Multi Game Madness apps for iOS, and the Fossick app for Android.</em></p>
 
     <p>This policy explains what personal information Magestican Studios (a trading name of Ultra Task Pty Ltd, an Australian proprietary limited company, hereafter "we" or "us") collects, why, and how you can exercise your rights over it. This policy is written to satisfy the Australian Privacy Act 1988 (Cth) and, where our audience overlaps, the EU General Data Protection Regulation (GDPR).</p>
 
@@ -152,6 +152,19 @@
     </ul>
     <p>The apps' analytics data is processed by Google LLC under the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>. The App Store itself is Apple's, and Apple handles your download and any App Store data under its own policy. The licence that governs the apps is <a href="./terms.html#eula">Appendix A of our Terms of Use</a>.</p>
 
+    <h2>Our app for Android: Fossick</h2>
+    <p>Fossick is our app on Google Play. Every level ships inside the app itself, so the game works offline. This section covers what the Fossick app records on Android.</p>
+    <ul>
+      <li><strong>No account and nothing to sign in to.</strong> There is no login anywhere in the app.</li>
+      <li><strong>No ads, no in-app purchases, and no advertising ID.</strong> The app removes the Android permission for that ID, and its analytics are set not to collect it or the Android device ID. Ad personalisation is switched off.</li>
+      <li><strong>What the app records:</strong> Firebase Analytics, part of Google Analytics, counts the first time the app opens, how long each visit lasts, and which screen you are on. Fossick adds its own events: a level starts, a level ends (with the level, the result, the grade and how many pokes and cracks it took), a room is hosted or joined, and an invite is shared. What leaves the phone is a level name, an outcome and a few numbers. Your name, the room code and anything you type never do. Firebase gives each installation a random ID so visits can be counted, and Google works out the device model, Android version and approximate country from your IP address. None of this tells us who you are.</li>
+      <li><strong>Crash reports.</strong> When the app crashes, or the game hits an error, Firebase Crashlytics sends us the error message and the code location where it happened, so we can fix it. A crash report carries the same random installation ID and nothing about you.</li>
+      <li><strong>Saved progress stays on the device.</strong> Your levels, grades and settings live in the app's own storage. We never receive them, and uninstalling the app deletes them.</li>
+      <li><strong>Playing with friends</strong> works the same way as on the website: a WebRTC signalling broker introduces two devices so they can talk directly. It carries no account, no profile and no name.</li>
+      <li><strong>Two permissions only.</strong> The app asks for internet access and vibration, for the buzz when the rock cracks. It has no camera, microphone or location permission.</li>
+    </ul>
+    <p>The app's analytics and crash data are processed by Google LLC under the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>. Google Play handles your download under Google's own policy. Uninstalling the app stops all of it. Deletion requests and questions about this data go to <a href="mailto:support@ultratask.com.au">support@ultratask.com.au</a>, and a person answers them.</p>
+
     <h2>Children</h2>
     <p>Our games are suitable for a general audience but we do not knowingly collect personal information from anyone under 13.</p>
 
@@ -197,7 +210,7 @@
     initAnalytics({ page: 'privacy' });
     trackPlayClicks();
   </script>
-  <script type="module" src="./assets/studioBanner.js?v=7fe84332-20261110T073256Z"></script>
+  <script type="module" src="./assets/studioBanner.js?v=cc940e5f-20261110T102615Z"></script>
   <script>
     
     
