@@ -253,7 +253,9 @@ kbd {
     display: none;
   }
   .hud-card {
-    padding: 8px 12px;
+    
+
+    padding: 12px 16px;
   }
   .hud-title {
     font-size: 14px;
