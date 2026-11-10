@@ -35,8 +35,25 @@ const PROPS = [
   { name: 'leaf-front', src: 'leaf-near', layer: 'front', every: 7, h: 2.6, clip: true, tint: 0x3a2d5c },
   
   { name: 'fern-tuft', layer: 'ground', every: 13, h: 1.5, clip: true },
-  { name: 'fern-back', src: 'fern-tuft', layer: 'back', every: 15, h: 2.8, clip: true, tint: 0x8a7fb8 },
+  { name: 'fern-back', src: 'fern-tuft', layer: 'ground', every: 15, h: 2.8, clip: true, tint: 0x8a7fb8 },
 ];
+
+
+
+
+
+
+
+
+export function gardenNightSway(tint, seed) {
+  const items = [
+    { name: 'leaf-back', src: 'leaf-near', layer: 'back', every: 10, h: 2.6, clip: true, tint, haze: NIGHT_HAZE }, 
+    { name: 'fern-back', src: 'fern-tuft', layer: 'back', every: 14, h: 2.4, clip: true, tint, haze: NIGHT_HAZE },
+  ];
+  return { dir: D, clips: 'assets/anim/scenery/l15/clips', seed, items: items.filter((p) => GORGE_SLOTS[p.src].ready) };
+}
+
+const NIGHT_HAZE = 0.6;
 
 export const GORGE = {
   plate: `${D}/silkspan-far/silkspan-far.webp`,

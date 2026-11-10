@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { v } from '../site/assetUrl.js';
 import { CANOPY_COMIC } from './canopyArt.js';
-import { GORGE } from './gorgeArt.js';
+import { GORGE, gardenNightSway } from './gorgeArt.js';
 import { ORCHARD_COMIC, orchardBackSway } from './orchardArt.js';
 import { comicPlate } from './platesComicArt.js';
 import { plateWindow } from './plateWindow.js';
@@ -48,6 +48,11 @@ const plate = (dir, name) => `${B}${dir}/${name}/plate.webp`;
 
 const sway = (tint, seed) => {
   const p = orchardBackSway(tint, seed);
+  return p.items.length ? { props: p } : {};
+};
+
+const nightSway = (tint, seed) => {
+  const p = gardenNightSway(tint, seed);
   return p.items.length ? { props: p } : {};
 };
 
@@ -150,7 +155,15 @@ const BIOMES = {
     solid: { ...tex('sovereign', 'sill', 0xffeec0, 5), lift: 0x8a7440 },
   },
   
-  nightGarden: { plate: plate('batch4', 'nightgarden-far'), plateAspect: 16 / 9, sky: 0x4a3f7a, top: null, solid: null },
+  
+  nightGarden: {
+    plate: plate('batch4', 'nightgarden-far'),
+    plateAspect: 16 / 9,
+    sky: 0x4a3f7a,
+    top: null,
+    solid: null,
+    ...nightSway(0x3a3266, 14),
+  },
   
   silkGorge: { ...GORGE },
   deepBurrow: { plate: plate('batch4', 'deepburrow-far'), plateAspect: 16 / 9, sky: 0x5a3a22, top: null, solid: null },
