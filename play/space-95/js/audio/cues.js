@@ -105,7 +105,7 @@ const CUES = {
   tumbleClunk: ['tumble_clunk', 'snail_bonk'],
   dishDrop: ['dish_drop', 'shift_clear'],
   tetherAim: ['hook_tink', 'secret_glint'],
-  tetherThrow: ['tether_whirr', 'kick'],
+  tetherThrow: [], 
   tetherAttach: ['hook_tink', 'bark_grab'],
   tetherRelease: ['tether_hup', 'jump'],
   tetherBreak: ['tether_snap', 'bonk'],
@@ -151,7 +151,7 @@ const CUES = {
   boostEmpty: ['boost_empty', 'plug_dud'],
   curveWarn: ['curve_squeal', 'slick_squeak'],
   bufferStop: ['buffer_stop', 'land_hard'],
-  scan: ['scan_beep', 'secret_glint'],
+  scan: ['secret_glint'],
   specimenHide: ['cricket_duck', 'aphid_hop'],
   powerUp: ['power_up', 'ability_get'],
   couple: ['couple_clunk', 'tether_thud'],
@@ -174,7 +174,7 @@ const CUES = {
   padClose: ['pad_fold'],
   budPop: ['bud_pomf', 'dustmite_pop'],
   flockBurst: ['flock_burst', 'whoosh'],
-  perch: ['firefly_perch', 'scan_beep'],
+  perch: ['firefly_perch'],
   flockJoin: ['flock_join', 'slipstream_chime'],
   flockCall: ['flock_call', 'slipstream_chime'],
   bloomOpening: ['bloom_opening', 'glide_open'],
@@ -207,7 +207,7 @@ const CUES = {
   silkRustle: ['silk_rustle', 'ivy_rustle'],
   dawn: ['dawn_chorus'],
   
-  drillStart: ['drill_spinup', 'tether_whirr'],
+  drillStart: ['drill_spinup'],
   drillBreach: ['drill_breach', 'dig_break'],
   drillRefuse: ['drill_skreek', 'bonk'],
   drillDown: ['drill_whirr_down', 'boost_empty'],
@@ -256,7 +256,7 @@ const CUES = {
   squadronDown: ['squadron_down', 'bowl_chime'],
   touchdown: ['plane_touchdown', 'land_soft'],
   mothSwoop: ['moth_takeoff'],
-  glasswingScan: ['glass_whistle', 'scan_beep'],
+  glasswingScan: ['glass_whistle'],
   
   freeze: ['freeze_tink', 'secret_glint'],
   blockLand: ['ice_clonk', 'land_soft'],
@@ -270,7 +270,7 @@ const CUES = {
   gateOpen: ['freezer_drawer', 'bowl_chime'],
   timerTick: ['egg_timer_tick', 'watch_tick'],
   timerDing: ['egg_timer_ding', 'secret_glint'],
-  rescueOffer: ['rescue_call', 'scan_beep'],
+  rescueOffer: ['hook_tink'], 
   rescued: ['rescue_zip', 'whoosh'],
   
   

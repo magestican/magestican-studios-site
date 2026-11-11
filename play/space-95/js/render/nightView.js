@@ -12,7 +12,7 @@
 import * as THREE from 'three';
 import { LANTERN } from '../sim/abilities.js';
 import { LIGHT_COLOURS, lightAt } from '../sim/light.js';
-import { LAMP_DISC, LANTERN_GLOW, lampDiscAlpha, lanternGlowAlpha } from './lightPool.js';
+import { bandAlpha, LAMP_DISC, LANTERN_GLOW, LIGHT_BAND, lampDiscAlpha, lanternGlowAlpha } from './lightPool.js';
 
 const PINK = 0xff2fa0;
 const NIGHT_HEMI = 0.55; 
@@ -165,9 +165,22 @@ function bandMesh(world, x0, x1, color, rise) {
     const a = Math.max(x0, c * T);
     const b = Math.min(x1, (c + 1) * T);
     const y0 = top - 0.25;
-    const y1 = top + rise;
-    pos.push(a, y0, 0.32, b, y0, 0.32, b, y1, 0.32, a, y0, 0.32, b, y1, 0.32, a, y1, 0.32);
-    for (const k of [1, 1, 0, 1, 0, 0]) cols.push(col.r * k, col.g * k, col.b * k);
+    
+    const n = Math.max(1, Math.ceil((b - a) / 0.5));
+    const R = LIGHT_BAND.ROWS;
+    for (let i = 0; i < n; i++) {
+      const xa = a + ((b - a) * i) / n;
+      const xb = a + ((b - a) * (i + 1)) / n;
+      const ka = (t) => bandAlpha(t, Math.min(xa - x0, x1 - xa));
+      const kb = (t) => bandAlpha(t, Math.min(xb - x0, x1 - xb));
+      for (let r = 0; r + 1 < R.length; r++) {
+        const ya = r === 0 ? y0 : top + R[r] * rise;
+        const yb = top + R[r + 1] * rise;
+        pos.push(xa, ya, 0.32, xb, ya, 0.32, xb, yb, 0.32, xa, ya, 0.32, xb, yb, 0.32, xa, yb, 0.32);
+        for (const k of [ka(R[r]), kb(R[r]), kb(R[r + 1]), ka(R[r]), kb(R[r + 1]), ka(R[r + 1])])
+          cols.push(col.r * k, col.g * k, col.b * k);
+      }
+    }
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
@@ -492,7 +505,7 @@ export function createNight(scene, level, h) {
         const on = src.some((q) => q.kind === B.kind && q.x0 === B.x0 && q.x1 === B.x1);
         const warn = B.kind === 'moon' && L?.moon === 'warn' ? 0.6 : 1;
         B.o = ramp(B.o, on ? warn : 0, 0.3);
-        B.mesh.material.opacity = B.o * 0.45;
+        B.mesh.material.opacity = B.o * LIGHT_BAND.OPACITY;
         B.mesh.visible = B.o > 0.01;
       }
       for (const H of lampHeads) {
