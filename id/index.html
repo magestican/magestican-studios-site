@@ -65,6 +65,10 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Magestican Studios",
+  "alternateName": [
+    "Magestican Games",
+    "Magestican"
+  ],
   "url": "https://magesticanstudios.com/id/",
   "logo": "https://magesticanstudios.com/favicon.svg",
   "description": "Studio kecil yang membuat game browser gratis tanpa perlu download dan tanpa daftar."
@@ -75,6 +79,10 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Magestican Studios",
+  "alternateName": [
+    "Magestican Games",
+    "Magestican"
+  ],
   "url": "https://magesticanstudios.com/id/",
   "inLanguage": "id"
 }
@@ -996,7 +1004,7 @@
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=051a68e6-20261111T094922Z">
+  <link rel="stylesheet" href="/styles.css?v=e80b4664-20261111T120217Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   
 
@@ -1362,9 +1370,41 @@
     </ul>
   </nav>
 
+  
+
+
+
+
+
+  <section id="offline-pack" class="offline-pack" aria-labelledby="offline-head" hidden>
+    <h2 id="offline-head">Main tanpa internet</h2>
+    <p>Unduh semua game ke perangkat ini dan game tetap bisa dimainkan tanpa koneksi. Bermain dengan orang lain, ruang, dan papan peringkat tetap perlu koneksi.</p>
+    <div class="offline-actions">
+      <button type="button" class="cta cta-primary offline-main" data-role="main">Unduh semua game</button>
+      <button type="button" class="cta cta-secondary offline-remove" data-role="remove" hidden>Hapus unduhan</button>
+    </div>
+    <progress class="offline-progress" hidden></progress>
+    <p class="offline-status" data-role="status" role="status"></p>
+    <div hidden>
+      <span data-k="download">Unduh semua game</span>
+      <span data-k="downloadSized">Unduh semua game ({size})</span>
+      <span data-k="stop">Berhenti</span>
+      <span data-k="resume">Lanjutkan unduhan</span>
+      <span data-k="update">Perbarui unduhan</span>
+      <span data-k="outdated">Game sudah berubah sejak kamu mengunduhnya.</span>
+      <span data-k="ready">Semua game ada di perangkat ini, siap dimainkan tanpa internet.</span>
+      <span data-k="starting">Memulai unduhan.</span>
+      <span data-k="progress">{done} dari {total}</span>
+      <span data-k="stopped">Dihentikan. Yang sudah diunduh tetap tersimpan.</span>
+      <span data-k="full">Perangkat ini perlu ruang kosong {need} dan hanya ada {free}.</span>
+      <span data-k="failed">Unduhan berhenti. Periksa koneksimu lalu tekan tombol untuk melanjutkan.</span>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="Situs"><ul><li><a href="/id/#games">Game</a></li><li><a href="/you.html">Game kamu</a></li><li><a href="/id/for-remote-teams.html">Untuk tim</a></li><li><a href="/id/magazine/">Majalah</a></li><li><a href="/id/about.html">Tentang</a></li><li><a href="/id/reviews.html">Ulasan</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p class="brand-line">Magestican Games adalah tempat Magestican Studios merilis game browser gratisnya.</p>
     <p>Hak cipta © 2026 Ultra Task Pty Ltd. Semua hak dilindungi.<br> Magestican Studios dan logo Magestican Studios adalah merek dagang milik Ultra Task Pty Ltd, Australia.</p>
     <p class="colophon">Situs ini statis · Tanpa cookie, hanya hitungan anonim (<a href="/id/privacy.html">caranya</a>) · <a href="/id/licence.html">Kode game berlisensi MIT</a> · <a href="https://www.youtube.com/@ameliagurl">Amelia di YouTube</a><span id="support-slot"></span>
     </p>
@@ -1373,8 +1413,8 @@
     
   </footer>
 
-  <script type="module" src="/assets/site.js?v=051a68e6-20261111T094922Z"></script>
-  <script type="module" src="/assets/portal.js?v=051a68e6-20261111T094922Z"></script>
+  <script type="module" src="/assets/site.js?v=e80b4664-20261111T120217Z"></script>
+  <script type="module" src="/assets/portal.js?v=e80b4664-20261111T120217Z"></script>
 
   
 
@@ -1384,8 +1424,10 @@
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     import { mountSupportLink } from '/web-engine/support/support.js';
     import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
+    import { mountOfflinePack } from '/web-engine/offline/button.js';
     import { mountLiveStrip } from '/web-engine/ui/liveStrip.js';
     mountLiveStrip({ host: document.getElementById('live-now') });
+    mountOfflinePack(document.getElementById('offline-pack'));
     startVersionChecker();
     mountDeviceQr({ label: 'Open on your phone' });
     
@@ -1415,5 +1457,6 @@
     }
   </script>
   <p class="lang-note">Halaman ini berbahasa Indonesia. Gimnya sendiri berbahasa Inggris; catur, dam, dan ludo hampir tidak memiliki teks.</p>
+  <script type="module" src="/web-engine/site/siteControls.js?v=e80b4664-20261111T120217Z"></script>
 </body>
 </html>

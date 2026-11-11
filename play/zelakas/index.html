@@ -48,7 +48,8 @@
 
 
 
-  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+
+  <script src="./vendor/ruffle/ruffle.js?v=e80b4664-20261111T120217Z"></script>
   <style>
     :root { color-scheme: dark; }
     html, body {
@@ -196,16 +197,13 @@
       
       
       
-      
-      
       if (!window.RufflePlayer || typeof window.RufflePlayer.newest !== "function") {
         const stage = document.getElementById("stage");
         if (stage) {
           const say = document.createElement("p");
           say.className = "ruffle-missing";
           say.textContent = "The Flash player this game runs in could not be "
-            + "downloaded. Something on this network blocked it - on a work or "
-            + "school connection, allowing unpkg.com is usually all it takes. "
+            + "loaded. Check your connection and reload the page. "
             + "The other games on this site do not need it.";
           stage.appendChild(say);
         }
@@ -299,5 +297,6 @@
       });
     });
   </script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=e80b4664-20261111T120217Z"></script>
 </body>
 </html>

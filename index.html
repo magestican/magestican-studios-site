@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Free Browser Games, No Download, No Signup | Magestican Studios</title>
+  <title>Free Browser Games, No Download, No Signup | Magestican Games</title>
   <meta name="description" content="Free browser games, no download and no signup: a team FPS, a kart racer, survival horror, chess, Ludo, word games and a strategy game. Open a link and play.">
   <meta name="keywords" content="browser games, no download games, remote team game, work from home game, office game, WebRTC multiplayer, free multiplayer browser game, chromebook game, magestican studios, Splatbarn">
   <meta name="robots" content="max-image-preview:large">
@@ -36,13 +36,13 @@
   <link rel="dns-prefetch" href="https://firestore.googleapis.com">
   
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Free Browser Games, No Download, No Signup | Magestican Studios">
+  <meta property="og:title" content="Free Browser Games, No Download, No Signup | Magestican Games">
   <meta property="og:description" content="Free browser games with no download and no signup: a team FPS, a kart racer, survival horror, chess, Ludo, word games and a ten-minute strategy game.">
   <meta property="og:url" content="https://magesticanstudios.com/">
   <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
   <meta property="og:site_name" content="Magestican Studios">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Free Browser Games, No Download, No Signup | Magestican Studios">
+  <meta name="twitter:title" content="Free Browser Games, No Download, No Signup | Magestican Games">
   <meta name="twitter:description" content="No download, no signup, just a room code.">
   <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
   
@@ -64,6 +64,7 @@
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Magestican Studios",
+    "alternateName": ["Magestican Games", "Magestican"],
     "url": "https://magesticanstudios.com/",
     "logo": "https://magesticanstudios.com/favicon.svg",
     "description": "A small studio making free browser games that need no download and no signup."
@@ -74,6 +75,7 @@
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Magestican Studios",
+    "alternateName": ["Magestican Games", "Magestican"],
     "url": "https://magesticanstudios.com/",
     "inLanguage": "en"
   }
@@ -975,7 +977,7 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="./styles.css?v=051a68e6-20261111T094922Z">
+  <link rel="stylesheet" href="./styles.css?v=e80b4664-20261111T120217Z">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   
 
@@ -1341,9 +1343,41 @@
     </ul>
   </nav>
 
+  
+
+
+
+
+
+  <section id="offline-pack" class="offline-pack" aria-labelledby="offline-head" hidden>
+    <h2 id="offline-head">Play with no internet</h2>
+    <p>Download every game to this device and they keep working with no connection. Playing with other people, rooms and leaderboards still need one.</p>
+    <div class="offline-actions">
+      <button type="button" class="cta cta-primary offline-main" data-role="main">Download all games</button>
+      <button type="button" class="cta cta-secondary offline-remove" data-role="remove" hidden>Remove the download</button>
+    </div>
+    <progress class="offline-progress" hidden></progress>
+    <p class="offline-status" data-role="status" role="status"></p>
+    <div hidden>
+      <span data-k="download">Download all games</span>
+      <span data-k="downloadSized">Download all games ({size})</span>
+      <span data-k="stop">Stop</span>
+      <span data-k="resume">Continue the download</span>
+      <span data-k="update">Update the download</span>
+      <span data-k="outdated">The games have changed since you downloaded them.</span>
+      <span data-k="ready">All the games are on this device, ready to play offline.</span>
+      <span data-k="starting">Starting the download.</span>
+      <span data-k="progress">{done} of {total}</span>
+      <span data-k="stopped">Stopped. What you already downloaded is saved.</span>
+      <span data-k="full">This device needs {need} free and has {free}.</span>
+      <span data-k="failed">The download stopped. Check your connection and press the button to carry on.</span>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="Site"><ul><li><a href="./#games">Games</a></li><li><a href="./you.html">Your games</a></li><li><a href="./for-remote-teams.html">For teams</a></li><li><a href="./magazine/">Magazine</a></li><li><a href="./about.html">About</a></li><li><a href="./reviews.html">Reviews</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p class="brand-line">Magestican Games is where Magestican Studios publishes its free browser games.</p>
     <p>
       Copyright © 2026 Ultra Task Pty Ltd. All rights reserved.<br>
       Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
@@ -1356,8 +1390,8 @@
     
   </footer>
 
-  <script type="module" src="./assets/site.js?v=051a68e6-20261111T094922Z"></script>
-  <script type="module" src="./assets/portal.js?v=051a68e6-20261111T094922Z"></script>
+  <script type="module" src="./assets/site.js?v=e80b4664-20261111T120217Z"></script>
+  <script type="module" src="./assets/portal.js?v=e80b4664-20261111T120217Z"></script>
 
   
 
@@ -1367,8 +1401,10 @@
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     import { mountSupportLink } from '/web-engine/support/support.js';
     import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
+    import { mountOfflinePack } from '/web-engine/offline/button.js';
     import { mountLiveStrip } from '/web-engine/ui/liveStrip.js';
     mountLiveStrip({ host: document.getElementById('live-now') });
+    mountOfflinePack(document.getElementById('offline-pack'));
     startVersionChecker();
     mountDeviceQr({ label: 'Open on your phone' });
     
@@ -1406,5 +1442,6 @@ var langs=navigator.languages||[navigator.language||''];var code=null;
 for(var i=0;i<langs.length&&!code;i++){var p=String(langs[i]).toLowerCase().split('-')[0];if(p==='en')break;if(p==='fil')p='tl';if(p==='in')p='id';if(p==='zh')p=/hant|-(tw|hk|mo)(-|$)/.test(String(langs[i]).toLowerCase())?'zh-hant':'zh-hans';if(T[p])code=p;}
 if(!code)return;location.replace(T[code].href+location.search+location.hash);}catch(e){}})();
 </script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=e80b4664-20261111T120217Z"></script>
 </body>
 </html>

@@ -65,6 +65,10 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Magestican Studios",
+  "alternateName": [
+    "Magestican Games",
+    "Magestican"
+  ],
   "url": "https://magesticanstudios.com/tl/",
   "logo": "https://magesticanstudios.com/favicon.svg",
   "description": "Isang maliit na studio na gumagawa ng libreng browser games na hindi kailangan ng download o sign-up."
@@ -75,6 +79,10 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Magestican Studios",
+  "alternateName": [
+    "Magestican Games",
+    "Magestican"
+  ],
   "url": "https://magesticanstudios.com/tl/",
   "inLanguage": "tl"
 }
@@ -990,7 +998,7 @@
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=051a68e6-20261111T094922Z">
+  <link rel="stylesheet" href="/styles.css?v=e80b4664-20261111T120217Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   
 
@@ -1356,9 +1364,41 @@
     </ul>
   </nav>
 
+  
+
+
+
+
+
+  <section id="offline-pack" class="offline-pack" aria-labelledby="offline-head" hidden>
+    <h2 id="offline-head">Maglaro nang walang internet</h2>
+    <p>I-download ang lahat ng laro sa device na ito at gagana pa rin ang mga ito kahit walang koneksyon. Kailangan pa rin ng koneksyon para makipaglaro sa iba, sa mga room at sa mga leaderboard.</p>
+    <div class="offline-actions">
+      <button type="button" class="cta cta-primary offline-main" data-role="main">I-download ang lahat ng laro</button>
+      <button type="button" class="cta cta-secondary offline-remove" data-role="remove" hidden>Burahin ang download</button>
+    </div>
+    <progress class="offline-progress" hidden></progress>
+    <p class="offline-status" data-role="status" role="status"></p>
+    <div hidden>
+      <span data-k="download">I-download ang lahat ng laro</span>
+      <span data-k="downloadSized">I-download ang lahat ng laro ({size})</span>
+      <span data-k="stop">Ihinto</span>
+      <span data-k="resume">Ituloy ang download</span>
+      <span data-k="update">I-update ang download</span>
+      <span data-k="outdated">Nagbago ang mga laro mula nang i-download mo ang mga ito.</span>
+      <span data-k="ready">Nasa device na ito ang lahat ng laro, handa nang laruin offline.</span>
+      <span data-k="starting">Sinisimulan ang download.</span>
+      <span data-k="progress">{done} ng {total}</span>
+      <span data-k="stopped">Inihinto. Naka-save ang na-download mo na.</span>
+      <span data-k="full">Kailangan ng device na ito ng {need} na libre at {free} lang ang mayroon.</span>
+      <span data-k="failed">Huminto ang download. Tingnan ang koneksyon mo at pindutin ang button para magpatuloy.</span>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="Site"><ul><li><a href="/tl/#games">Mga laro</a></li><li><a href="/you.html">Iyong mga laro</a></li><li><a href="/tl/for-remote-teams.html">Para sa mga team</a></li><li><a href="/tl/magazine/">Magazine</a></li><li><a href="/tl/about.html">Tungkol sa amin</a></li><li><a href="/tl/reviews.html">Mga review</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p class="brand-line">Ang Magestican Games ang lugar kung saan inilalabas ng Magestican Studios ang mga libre nitong browser game.</p>
     <p>Copyright © 2026 Ultra Task Pty Ltd. Nakalaan ang lahat ng karapatan.<br> Ang Magestican Studios at ang logo ng Magestican Studios ay mga trademark ng Ultra Task Pty Ltd, Australia.</p>
     <p class="colophon">Static ang site · Walang cookies, anonymous na bilang lang (<a href="/tl/privacy.html">paano</a>) · <a href="/tl/licence.html">MIT licensed ang code ng mga laro</a> · <a href="https://www.youtube.com/@ameliagurl">Si Amelia sa YouTube</a><span id="support-slot"></span>
     </p>
@@ -1367,8 +1407,8 @@
     
   </footer>
 
-  <script type="module" src="/assets/site.js?v=051a68e6-20261111T094922Z"></script>
-  <script type="module" src="/assets/portal.js?v=051a68e6-20261111T094922Z"></script>
+  <script type="module" src="/assets/site.js?v=e80b4664-20261111T120217Z"></script>
+  <script type="module" src="/assets/portal.js?v=e80b4664-20261111T120217Z"></script>
 
   
 
@@ -1378,8 +1418,10 @@
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     import { mountSupportLink } from '/web-engine/support/support.js';
     import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
+    import { mountOfflinePack } from '/web-engine/offline/button.js';
     import { mountLiveStrip } from '/web-engine/ui/liveStrip.js';
     mountLiveStrip({ host: document.getElementById('live-now') });
+    mountOfflinePack(document.getElementById('offline-pack'));
     startVersionChecker();
     mountDeviceQr({ label: 'Open on your phone' });
     
@@ -1409,5 +1451,6 @@
     }
   </script>
   <p class="lang-note">Nasa Tagalog ang pahinang ito. Nasa English ang mismong mga laro; halos walang text ang chess, checkers at ludo.</p>
+  <script type="module" src="/web-engine/site/siteControls.js?v=e80b4664-20261111T120217Z"></script>
 </body>
 </html>

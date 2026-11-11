@@ -65,6 +65,10 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Magestican Studios",
+  "alternateName": [
+    "Magestican Games",
+    "Magestican"
+  ],
   "url": "https://magesticanstudios.com/es/",
   "logo": "https://magesticanstudios.com/favicon.svg",
   "description": "Un estudio pequeño que hace juegos gratis para el navegador que no requieren descargar nada ni registrarse."
@@ -75,6 +79,10 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Magestican Studios",
+  "alternateName": [
+    "Magestican Games",
+    "Magestican"
+  ],
   "url": "https://magesticanstudios.com/es/",
   "inLanguage": "es-419"
 }
@@ -996,7 +1004,7 @@
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=051a68e6-20261111T094922Z">
+  <link rel="stylesheet" href="/styles.css?v=e80b4664-20261111T120217Z">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   
 
@@ -1362,9 +1370,41 @@
     </ul>
   </nav>
 
+  
+
+
+
+
+
+  <section id="offline-pack" class="offline-pack" aria-labelledby="offline-head" hidden>
+    <h2 id="offline-head">Juega sin internet</h2>
+    <p>Descarga todos los juegos en este dispositivo y seguirán funcionando sin conexión. Jugar con otras personas, las salas y las clasificaciones sí necesitan conexión.</p>
+    <div class="offline-actions">
+      <button type="button" class="cta cta-primary offline-main" data-role="main">Descargar todos los juegos</button>
+      <button type="button" class="cta cta-secondary offline-remove" data-role="remove" hidden>Borrar la descarga</button>
+    </div>
+    <progress class="offline-progress" hidden></progress>
+    <p class="offline-status" data-role="status" role="status"></p>
+    <div hidden>
+      <span data-k="download">Descargar todos los juegos</span>
+      <span data-k="downloadSized">Descargar todos los juegos ({size})</span>
+      <span data-k="stop">Detener</span>
+      <span data-k="resume">Seguir con la descarga</span>
+      <span data-k="update">Actualizar la descarga</span>
+      <span data-k="outdated">Los juegos cambiaron desde que los descargaste.</span>
+      <span data-k="ready">Todos los juegos están en este dispositivo, listos para jugar sin conexión.</span>
+      <span data-k="starting">Empezando la descarga.</span>
+      <span data-k="progress">{done} de {total}</span>
+      <span data-k="stopped">Detenida. Lo que ya descargaste queda guardado.</span>
+      <span data-k="full">Este dispositivo necesita {need} libres y tiene {free}.</span>
+      <span data-k="failed">La descarga se detuvo. Revisa tu conexión y pulsa el botón para continuar.</span>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <nav class="footer-nav" aria-label="Sitio"><ul><li><a href="/es/#games">Juegos</a></li><li><a href="/you.html">Tus juegos</a></li><li><a href="/es/for-remote-teams.html">Para equipos</a></li><li><a href="/es/magazine/">Revista</a></li><li><a href="/es/about.html">Acerca de</a></li><li><a href="/es/reviews.html">Reseñas</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p class="brand-line">Magestican Games es donde Magestican Studios publica sus juegos gratis para el navegador.</p>
     <p>Copyright © 2026 Ultra Task Pty Ltd. Todos los derechos reservados.<br> Magestican Studios y el logotipo de Magestican Studios son marcas comerciales de Ultra Task Pty Ltd, Australia.</p>
     <p class="colophon">Sitio estático · Sin cookies, solo conteos anónimos (<a href="/es/privacy.html">cómo</a>) · <a href="/es/licence.html">El código de los juegos tiene licencia MIT</a> · <a href="https://www.youtube.com/@ameliagurl">Amelia en YouTube</a><span id="support-slot"></span>
     </p>
@@ -1373,8 +1413,8 @@
     
   </footer>
 
-  <script type="module" src="/assets/site.js?v=051a68e6-20261111T094922Z"></script>
-  <script type="module" src="/assets/portal.js?v=051a68e6-20261111T094922Z"></script>
+  <script type="module" src="/assets/site.js?v=e80b4664-20261111T120217Z"></script>
+  <script type="module" src="/assets/portal.js?v=e80b4664-20261111T120217Z"></script>
 
   
 
@@ -1384,8 +1424,10 @@
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     import { mountSupportLink } from '/web-engine/support/support.js';
     import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
+    import { mountOfflinePack } from '/web-engine/offline/button.js';
     import { mountLiveStrip } from '/web-engine/ui/liveStrip.js';
     mountLiveStrip({ host: document.getElementById('live-now') });
+    mountOfflinePack(document.getElementById('offline-pack'));
     startVersionChecker();
     mountDeviceQr({ label: 'Open on your phone' });
     
@@ -1415,5 +1457,6 @@
     }
   </script>
   <p class="lang-note">Esta página está en español. Los juegos en sí están en inglés; el ajedrez, las damas y el ludo casi no tienen texto.</p>
+  <script type="module" src="/web-engine/site/siteControls.js?v=e80b4664-20261111T120217Z"></script>
 </body>
 </html>

@@ -28,7 +28,7 @@
 
 
 
-const BUILD = '051a68e6-20261111T094922Z';
+const BUILD = 'e80b4664-20261111T120217Z';
 const CACHE = `magestican-${BUILD}`;
 
 
@@ -73,6 +73,82 @@ self.addEventListener('activate', (event) => {
 const isPage = (req) => req.mode === 'navigate'
   || (req.headers.get('accept') || '').includes('text/html');
 
+
+
+
+
+
+
+
+
+
+
+
+
+const PACK_FILES = 'offline-pack-files';
+const PACK_POINTER = 'offline-pack-pointer';
+const PACK_POINTER_URL = '/__offline-pack/pointer';
+const PACK_BLOB_PREFIX = '/__offline-pack/sha/';
+const PACK_BYPASS_PARAM = 'offline-pack';
+
+
+
+let packIndex;
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'offline-pack-changed') packIndex = undefined;
+});
+
+async function readPackIndex() {
+  if (packIndex === undefined) {
+    const hit = await (await caches.open(PACK_POINTER)).match(PACK_POINTER_URL);
+    packIndex = hit ? (await hit.json()).files : null;
+  }
+  return packIndex;
+}
+
+
+
+
+
+
+
+async function sliceForRange(whole, rangeHeader) {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader.trim());
+  if (!match || (!match[1] && !match[2])) return whole;
+  const bytes = await whole.arrayBuffer();
+  const size = bytes.byteLength;
+  
+  const start = match[1] ? Number(match[1]) : Math.max(0, size - Number(match[2]));
+  const end = match[1] && match[2] ? Math.min(Number(match[2]), size - 1) : size - 1;
+  if (start >= size || start > end) {
+    return new Response('', { status: 416, headers: { 'Content-Range': `bytes */${size}` } });
+  }
+  return new Response(bytes.slice(start, end + 1), {
+    status: 206,
+    headers: {
+      'Content-Type': whole.headers.get('Content-Type') || 'application/octet-stream',
+      'Content-Range': `bytes ${start}-${end}/${size}`,
+      'Content-Length': String(end - start + 1),
+      'Accept-Ranges': 'bytes',
+    },
+  });
+}
+
+
+async function fromPack(url, request) {
+  const index = await readPackIndex();
+  if (!index) return null;
+  let path = url.pathname;
+  try { path = decodeURIComponent(path); } catch {  }
+  if (path.endsWith('/')) path += 'index.html';
+  const sha = index[path];
+  if (!sha) return null;
+  const whole = await (await caches.open(PACK_FILES)).match(PACK_BLOB_PREFIX + sha);
+  if (!whole) return null;
+  const range = request.headers.get('range');
+  return range ? sliceForRange(whole, range) : whole;
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   
@@ -90,6 +166,9 @@ self.addEventListener('fetch', (event) => {
   
   
   if (url.pathname.endsWith('version.json')) return;
+  
+  
+  if (url.searchParams.has(PACK_BYPASS_PARAM)) return;
 
   if (isPage(request)) {
     event.respondWith((async () => {
@@ -99,6 +178,8 @@ self.addEventListener('fetch', (event) => {
         cache.put(request, fresh.clone());
         return fresh;
       } catch {
+        const packed = await fromPack(url, request);
+        if (packed) return packed;
         const hit = await caches.match(request);
         if (hit) return hit;
         
@@ -158,7 +239,7 @@ self.addEventListener('fetch', (event) => {
 
     if (code) {
       const fresh = await network;
-      return fresh || hit || new Response('', { status: 504 });
+      return fresh || await fromPack(url, request) || hit || new Response('', { status: 504 });
     }
     if (hit && immutable) return hit;
     if (hit) {
@@ -167,6 +248,6 @@ self.addEventListener('fetch', (event) => {
       return hit;
     }
     const fresh = await network;
-    return fresh || new Response('', { status: 504 });
+    return fresh || await fromPack(url, request) || new Response('', { status: 504 });
   })());
 });
