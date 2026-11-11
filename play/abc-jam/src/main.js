@@ -12,7 +12,7 @@
 import { LETTERS, LETTER, WORD_STEPS, letterPhrase, colourFor } from './content.js';
 import {
   TIMING, createParade, jamPress, pickRound, createSpeller, createRain,
-  loadProgress, saveProgress, addSticker, PARTY_AFTER,
+  loadProgress, saveProgress, addSticker, PARTY_AFTER, createResetConfirm, resetProgress,
 } from './rules.js';
 import { SFX_NAMES } from './sfx.js';
 import { T, fill } from './strings.js';
@@ -617,7 +617,8 @@ function rainPress(c) {
     stars(6, el);
     setTimeout(() => el.remove(), 500);
   }
-  say(vid.name(r.letter));
+  
+  voice.sayNext(vid.name(r.letter));
   const cnt = $('rain-count');
   if (cnt) { cnt.textContent = `🎈 ${rain.popped}`; bump(cnt, 'aj-jump'); }
   progress.pops += 1;
@@ -686,6 +687,31 @@ for (const t of document.querySelectorAll('.aj-tile')) {
     else if (go === 'stickers') showStickers();
   });
 }
+
+
+const resetConfirm = createResetConfirm({ windowMs: 4000 });
+let resetTimer = 0;
+const resetBtn = $('reset');
+resetBtn.textContent = T.resetAsk;
+resetBtn.addEventListener('click', () => {
+  clearTimeout(resetTimer);
+  if (resetConfirm.press() === 'ask') {
+    play('hint');
+    resetBtn.textContent = T.resetSure;
+    resetBtn.classList.add('is-sure');
+    resetTimer = setTimeout(() => {
+      resetConfirm.cancel();
+      resetBtn.textContent = T.resetAsk;
+      resetBtn.classList.remove('is-sure');
+    }, 4000);
+    return;
+  }
+  progress = resetProgress(store);
+  resetBtn.textContent = T.resetAsk;
+  resetBtn.classList.remove('is-sure');
+  play('whoosh');
+  showStickers();
+});
 $('home').addEventListener('click', () => goHome());
 for (const h of document.querySelectorAll('[data-home]')) h.addEventListener('click', () => goHome());
 $('say-again').addEventListener('click', () => { unlockVoice(); play('tap'); if (voice.last) say(voice.last); });

@@ -217,6 +217,27 @@ export function saveProgress(storage, p) {
 }
 
 
+export function resetProgress(storage) {
+  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0 };
+  saveProgress(storage, blank);
+  return blank;
+}
+
+
+export function createResetConfirm({ windowMs = 4000, now = () => Date.now() } = {}) {
+  let askedAt = -Infinity;
+  return {
+    press() {
+      const t = now();
+      if (t - askedAt <= windowMs) { askedAt = -Infinity; return 'reset'; }
+      askedAt = t;
+      return 'ask';
+    },
+    cancel() { askedAt = -Infinity; },
+  };
+}
+
+
 export function addSticker(p, kind, id) {
   const list = kind === 'word' ? p.words : p.letters;
   if (list.includes(id)) return false;

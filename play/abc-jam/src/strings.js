@@ -17,6 +17,8 @@ export const T = Object.freeze({
   sayAgain: 'Say it again',
   kbToAbc: 'ABC',
   kbToKeys: 'Keyboard',
+  resetAsk: 'Start again',
+  resetSure: 'Clear all stickers',
 
   freeJam: 'Free Jam',
   wordBuilder: 'Word Builder',

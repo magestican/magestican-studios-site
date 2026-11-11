@@ -18,7 +18,8 @@
 
 
 
-export function createVoice({ baseUrl, muted = () => false, onLine = () => {}, makeAudio, fetchJson } = {}) {
+export function createVoice({ baseUrl, muted = () => false, onLine = () => {}, makeAudio, fetchJson,
+  setTimer = (fn, ms) => setTimeout(fn, ms) } = {}) {
   const base = String(baseUrl);
   const mk = makeAudio || (() => (typeof Audio === 'function' ? new Audio() : null));
   const getJson = fetchJson || ((u) => fetch(u).then((r) => (r.ok ? r.json() : null)));
@@ -26,6 +27,19 @@ export function createVoice({ baseUrl, muted = () => false, onLine = () => {}, m
   let lines = null;
   let last = '';
   let unlocked = false;
+  
+  
+  let busy = false;
+  let pending = null;
+  let turn = 0;
+
+  function done(t) {
+    if (t !== turn || !busy) return;
+    busy = false;
+    const next = pending;
+    pending = null;
+    if (next && !muted()) start(next);
+  }
 
   const ready = Promise.resolve()
     .then(() => getJson(new URL('voice.json', base).href))
@@ -48,6 +62,11 @@ export function createVoice({ baseUrl, muted = () => false, onLine = () => {}, m
       a.pause();
       a.src = new URL(ln.file, base).href;
       a.currentTime = 0;
+      const t = ++turn;
+      busy = true;
+      a.onended = () => done(t);
+      
+      setTimer(() => done(t), (ln.ms || 1000) + 400);
       const p = a.play();
       p?.catch?.(() => {  });
       onLine(ln.ms);
@@ -69,10 +88,24 @@ export function createVoice({ baseUrl, muted = () => false, onLine = () => {}, m
       return true;
     },
     
+    sayNext(lineId) {
+      if (!lineId) return false;
+      if (!busy) return this.say(lineId);
+      last = lineId;
+      if (muted()) return false;
+      pending = lineId;
+      return true;
+    },
+    
     get last() { return last; },
     
     ms(lineId) { return lines?.[lineId]?.ms || 0; },
-    stop() { try { el?.pause(); } catch {  } },
+    stop() {
+      pending = null;
+      busy = false;
+      turn += 1;
+      try { el?.pause(); } catch {  }
+    },
     
     unlock(silentUrl) {
       if (unlocked) return;
