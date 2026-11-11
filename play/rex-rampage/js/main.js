@@ -25,6 +25,7 @@ import { createHud } from './ui/hud.js';
 import { showTitle, wantsTitle } from './ui/title.js';
 import { GUN_FILE } from './world/artManifest.js';
 import { createScene } from './world/scene.js';
+import { screenTargets } from './world/screenTargets.js';
 import { createViewmodels } from './world/viewmodel.js';
 
 const q = new URLSearchParams(location.search);
@@ -365,11 +366,7 @@ Object.assign(window, {
       board: document.querySelectorAll('.hud-board:not([hidden]) .hud-board-row').length,
     }),
     
-    targets: () =>
-      game.enemies
-        .filter((e) => !e.dead)
-        .map((e) => view.project(e.pos))
-        .filter((p) => p.z < 1 && Math.abs(p.x) < 1 && Math.abs(p.y) < 1)
-        .map((p) => ({ x: ((p.x + 1) / 2) * innerWidth, y: ((1 - p.y) / 2) * innerHeight })),
+    
+    targets: () => screenTargets(game.enemies, view.project, innerWidth, innerHeight, game.d.volume),
   },
 });

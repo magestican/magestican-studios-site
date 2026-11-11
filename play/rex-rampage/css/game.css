@@ -225,6 +225,16 @@ body {
   text-align: center;
 }
 
+
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .hud-boss {
+    top: max(12px, env(safe-area-inset-top));
+    width: min(340px, calc(100% - 480px));
+    gap: 4px;
+  }
+}
+
 .hud-boss-track {
   height: 10px;
   background: #0009;

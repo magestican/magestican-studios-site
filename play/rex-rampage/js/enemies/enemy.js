@@ -34,7 +34,7 @@ export const KINDS = {
   rock: { hp: 2, r: 0.8, speed: 0, attack: 1, attackDist: 3, points: 100, target: 'shootable', proj: true, flight: 1.6 },
   shell: { hp: 3, r: 0.4, speed: 0, attack: 1, attackDist: 2, points: 100, target: 'shootable', proj: true, flight: 1.4 },
   rocket: { hp: 2, r: 0.35, speed: 0, attack: 1, attackDist: 2, points: 100, target: 'shootable', proj: true, flight: 1.5 },
-  plate: { hp: 8, r: 0.55, speed: 0, attack: 0, attackDist: 0, points: 400, target: 'enemy', part: true },
+  plate: { hp: 8, r: 0.7, speed: 0, attack: 0, attackDist: 0, points: 400, target: 'enemy', part: true },
   jaw: { hp: 30, r: 0.9, speed: 0, attack: 0, attackDist: 0, points: 3000, target: 'enemy', part: true },
   varga: { hp: 20, r: 0.6, speed: 0, attack: 0, attackDist: 0, points: 10000, target: 'enemy', part: true },
 };

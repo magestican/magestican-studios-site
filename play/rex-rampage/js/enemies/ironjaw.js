@@ -218,7 +218,10 @@ function place(boss, cam) {
     if (!p.dead) p.pos = onBillboard(boss.pos, cam, head.x + PLATE_AT[i][0], head.y + PLATE_AT[i][1]);
   });
   if (boss.parts.jaw && !boss.parts.jaw.dead) boss.parts.jaw.pos = onBillboard(boss.pos, cam, jaw.x, jaw.y);
-  if (boss.parts.varga && !boss.parts.varga.dead) boss.parts.varga.pos = ahead(cam, 18, -3, 6);
+  
+  
+  
+  if (boss.parts.varga && !boss.parts.varga.dead) boss.parts.varga.pos = ahead(cam, 11, -2, 5);
 }
 
 
