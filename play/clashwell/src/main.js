@@ -26,6 +26,9 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
 import { cueFor, pieceCue, createCuePlayer, menuCue, MENU_CUES, MUSIC_TRACKS, followSound } from './sound.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import {
+  PRIZES, PRIZE_LEVEL, SAVE_KEY, readProgress, createTally, tallyEvent, prizesFrom, nextPrize, finishMatch,
+} from './progress.js';
 
 const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['move', 'turn', 'lock', 'rise', 'clear', 'chain2', 'chain3', 'chain4', 'light', 'heavy', 'clash', 'hit', 'squeeze', 'ko', 'start', 'win', 'lose'], { move: 4, turn: 4, lock: 4, rise: 3, clear: 3, chain2: 3, chain3: 3, chain4: 3, light: 3, heavy: 3, clash: 3, hit: 3, squeeze: 2, ko: 2, start: 2 });
 
@@ -70,6 +73,15 @@ let overTimer = null;
 let endNote = '';
 let lastLayout = null;
 
+
+const readSave = () => { try { return readProgress(localStorage.getItem(SAVE_KEY)); } catch { return readProgress(null); } };
+let progress = readSave();
+const writeSave = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(progress)); } catch {  } };
+
+let tally = null;
+
+let matchLevel = null;
+
 let net = null;
 let room = { seats: ['host', 'guest'], running: false };
 let code = null;
@@ -107,6 +119,7 @@ const FX_WORDS = {
 function stage(events) {
   for (const e of events) {
     playCue(cueFor(e, mine));
+    if (tally && mine !== null) tallyEvent(tally, e, mine);
     fx.on(e, duel.view, FX_WORDS);
     fxSeen[e.type] = (fxSeen[e.type] ?? 0) + 1;
     if (e.type === 'round') onRound();
@@ -134,11 +147,49 @@ function endMatch(winner, note = '') {
   endNote = note;
   $('end-note').textContent = endNote;
   $('rematch').hidden = !!watching;
+  
+  drawRewards(!watching && !note && tally ? finishMatch(progress, tally, { won: winner === mine, level: matchLevel }) : null);
+  tally = null;
   if (!watching && winner !== mine) sfx.play('lose');
   else sfx.play('win');
   room.running = false;
   net?.publish();
   show('end');
+}
+
+
+function drawRewards(result) {
+  const lines = [];
+  if (result) {
+    progress = result.progress;
+    writeSave();
+    for (const id of result.prizes) lines.push(fill(T.newPrize, { name: T.prizes[id] }));
+    if (result.newBestChain) lines.push(fill(T.newBest, { n: result.newBestChain }));
+  }
+  $('end-prizes').replaceChildren(...lines.map((line) => Object.assign(document.createElement('li'), { textContent: line })));
+  $('end-prizes').hidden = !lines.length;
+  $('end-goal').textContent = result && !result.prizes.length ? goalText() : '';
+  $('end-goal').hidden = !$('end-goal').textContent;
+  const help = result?.help;
+  $('end-help').textContent = help ? T[help.tip] : '';
+  $('end-help').hidden = !help;
+  $('end-easier').hidden = !help?.easier;
+  drawGoal();
+}
+
+function goalText() {
+  const id = nextPrize(progress);
+  if (!id) return T.allPrizes;
+  return fill(T.goals[id], { n: 10 - progress.wins });
+}
+
+
+function drawGoal() {
+  $('goal').textContent = goalText();
+  $('prize-count').textContent = fill(T.prizeCount, { n: prizesFrom(progress).length, total: PRIZES.length });
+  const level = PRIZE_LEVEL[nextPrize(progress)];
+  $('goal-fight').hidden = !level;
+  if (level) $('goal-fight').textContent = fill(T.goalFight, { level: T.levels[level] });
 }
 
 function labelFor(seat) {
@@ -231,13 +282,16 @@ function enterMatch(newDuel, seat) {
   playCue('start');
 }
 
-function startSolo(state = null) {
+function startSolo(state = null, level = choice.level) {
   const seed = Math.floor(Math.random() * 2 ** 31);
   const match = createMatch({ seed });
   if (state) applyCheat(match, state);
   enterMatch(createDuel({
-    match, local: [0, 1], human: 0, cpus: { 1: { level: choice.level, seed: seed ^ 0x5bd1 } },
+    match, local: [0, 1], human: 0, cpus: { 1: { level, seed: seed ^ 0x5bd1 } },
   }), 0);
+  
+  tally = state ? null : createTally();
+  matchLevel = level;
 }
 
 const keySender = (seat, upTo, frames) => net?.sendKeys(seat, upTo, frames);
@@ -255,6 +309,9 @@ function hostStart(match = null) {
     cpus: friend ? {} : { 1: { level: choice.level, seed: seed ^ 0x5bd1 } },
     send: keySender,
   }), 0);
+  
+  if (!match) tally = createTally();
+  matchLevel = friend ? null : choice.level;
   net.publish();
   net.sendStart(start, room.seats);
   watcherStarted.clear();
@@ -274,6 +331,9 @@ function guestStart({ snapshot, seats }) {
   const seat = net.watching ? -1 : seatOf(seats, net.id);
   const playing = seat >= 0;
   enterMatch(createDuel({ match: snapshot, local: playing ? [seat] : [], human: playing ? seat : null, send: playing ? keySender : null }), playing ? seat : null);
+  
+  tally = playing && snapshot.tick === 0 ? createTally() : null;
+  matchLevel = null;
   $('match-watch').textContent = T.watching;
 }
 
@@ -422,7 +482,7 @@ function fillStatic() {
     pitch: T.pitch, 'play-now': T.playNow, 'more-label': T.more, 'pick-fighter': T.selectH, 'friend-h': T.friendH, 'create-room': T.createRoom, 'join-btn': T.join, 'how-h': T.howH,
     'keys-line': T.keysLine, 'keys-drop': T.keysDrop, 'touch-line': T.touchLine, 'pad-turn': T.keyTurn, 'pad-drop': T.keySoft, 'select-h': T.selectH, 'fighter-note': T.fighterNote, 'level-h': T.levelH, fight: T.fight,
     'select-back': T.back, 'room-h': T.roomH, 'copy-link': T.share, 'watch-link': T.watchLink, 'leave-room': T.leave,
-    cheer: T.cheer, quit: T.quit, rematch: T.rematch, 'to-title': T.title,
+    cheer: T.cheer, quit: T.quit, rematch: T.rematch, 'to-title': T.title, 'end-easier': T.tryAdaptive,
   };
   for (const [id, value] of Object.entries(text)) $(id).textContent = value;
   $('join-code').placeholder = T.joinHint;
@@ -472,8 +532,10 @@ function wire() {
   $('rematch').addEventListener('click', () => {
     if (net?.active && !net.hosting) net.propose({ kind: 'rematch' });
     else if (net?.active) hostStart();
-    else startSolo();
+    else startSolo(null, matchLevel ?? choice.level);
   });
+  $('goal-fight').addEventListener('click', () => startSolo(null, PRIZE_LEVEL[nextPrize(progress)] ?? choice.level));
+  $('end-easier').addEventListener('click', () => { choice.level = 'adaptive'; startSolo(); });
   $('to-title').addEventListener('click', () => { if (net) leaveRoom(); else show('title'); });
 
   
@@ -525,6 +587,7 @@ function wire() {
 
 initAnalytics({ page: 'clashwell' });
 fillStatic();
+drawGoal();
 wire();
 show('title');
 drawSelect();
@@ -560,6 +623,9 @@ globalThis.clashwell = Object.freeze({
   desyncs: () => desyncs,
   
   cuesPlayed: () => cuesPlayed,
+  
+  progress: () => structuredClone(progress),
+  counting: () => !!tally,
   
   fxSeen: () => ({ ...fxSeen }),
   fxState: () => structuredClone(fx.state),

@@ -81,6 +81,38 @@ export const T = Object.freeze({
   keyTurn: 'Turn',
   keySoft: 'Drop',
   keyHard: 'Drop at once',
+  
+  goalFight: 'Fight {level}',
+  tryAdaptive: 'Try Adaptive',
+  goals: {
+    jab: 'For a prize, fill a row to throw a jab.',
+    combo: 'For a prize, pop 4 gems of one colour.',
+    win: 'For a prize, win a match.',
+    clash: 'For a prize, fire back in time to win a Clash.',
+    chain3: 'For a prize, make 3 pops in a row.',
+    comeback: 'For a prize, win a match from one round behind.',
+    medium: 'For a prize, beat the Medium rival.',
+    hard: 'For a prize, beat the Hard rival.',
+    wins10: 'For a prize, win {n} more matches.',
+  },
+  tipClash: 'Fire back while their bar fills, and your attack meets theirs.',
+  tipCombo: 'Pop 4 gems of one colour. Pops in a row make a combo.',
+  tipLow: 'Keep your stack low. Fill rows near the bottom first.',
+  newPrize: 'New prize! {name}',
+  newBest: 'New best chain of {n}!',
+  allPrizes: 'Every prize won.',
+  prizeCount: '{n} of {total} prizes',
+  prizes: {
+    jab: 'First jab',
+    combo: 'First combo',
+    win: 'First win',
+    clash: 'First Clash',
+    chain3: 'Chain of 3',
+    comeback: 'Comeback',
+    medium: 'Medium beaten',
+    hard: 'Hard beaten',
+    wins10: 'Ten wins',
+  },
 });
 
 export const STRINGS = Object.freeze({ en: T, ...TRANSLATIONS });
