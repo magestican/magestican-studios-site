@@ -1,0 +1,12 @@
+{
+ "stamp": 1,
+ "carried": [
+  {
+   "request": "2026-11-10-clashwell-cute-stage-13",
+   "artist_commit": "23e335a885b818b7c2fc7be3de94dcbfa750ac9b"
+  }
+ ],
+ "files": {
+  "stage/stage.webp": "0288d2716b60a748e674cbffe19b8419aca8d1342335c0f99c8394595b62188f"
+ }
+}

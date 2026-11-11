@@ -4,7 +4,10 @@
 
 
 
-export const STAGE_URL = new URL('../art/woodblock/stage.webp', import.meta.url).href;
+
+
+
+export const STAGE_URL = new URL('../art/cute-sky/stage/stage.webp', import.meta.url).href;
 
 export const GEM_NAMES = ['red', 'blue', 'green', 'gold', 'stone'];
 
