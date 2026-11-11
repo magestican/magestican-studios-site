@@ -1543,6 +1543,19 @@
    "spread": 8
   },
   {
+   "at": 1320,
+   "do": "prop",
+   "id": "barge",
+   "kind": "fuel_barge",
+   "anchor": 1485,
+   "place": {
+    "ahead": 22,
+    "side": 0,
+    "up": 0
+   },
+   "until": 1485
+  },
+  {
    "at": 1480,
    "do": "objective",
    "id": "kill_all_gunboats",

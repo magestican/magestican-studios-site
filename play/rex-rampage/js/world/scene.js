@@ -25,6 +25,7 @@ import {
 } from './enemySprites.js';
 import { LOOK_DROP, vfovFor } from './fov.js';
 import { buildProps } from './props.js';
+import { SET_PIECES, setPieceLift, setPiecePos, setPiecesAt, setPiecesOf } from './setPieces.js';
 import { groundBeside } from './terrain.js';
 import { createTracers } from './tracers.js';
 
@@ -117,6 +118,67 @@ export function createScene(canvas, stage, plan) {
   sheetOf(GANTRY)
     .then((tex) => ironJaw.setGantry(tex))
     .catch(() => {});
+
+  
+  
+  
+  const pieceMeshes = new Map();
+  
+  const pieceTex = {};
+  
+  const pieces = { stage: null, list: [] };
+  function dropPiece(id) {
+    const m = pieceMeshes.get(id);
+    if (!m) return;
+    scene.remove(m);
+    m.geometry.dispose();
+     (m.material).dispose();
+    pieceMeshes.delete(id);
+  }
+  
+  function drawSetPieces(game, cam) {
+    if (pieces.stage !== game.stage) {
+      for (const id of [...pieceMeshes.keys()]) dropPiece(id);
+      pieces.stage = game.stage;
+      pieces.list = setPiecesOf(game.stage.events);
+    }
+    if (!pieces.list.length) return;
+    const d = game.run.dist;
+    const want = setPiecesAt(pieces.list, d);
+    for (const id of [...pieceMeshes.keys()]) if (!want.some((p) => p.id === id)) dropPiece(id);
+    for (const kind of new Set(pieces.list.map((p) => p.kind))) {
+      const ahead = pieces.list.some((p) => p.kind === kind && d < p.until);
+      if (ahead && pieceTex[kind] === undefined) {
+        pieceTex[kind] = null;
+        sheetOf(SET_PIECES[kind])
+          .then((tex) => {
+            tex.colorSpace = THREE.SRGBColorSpace;
+            tex.magFilter = THREE.NearestFilter;
+            pieceTex[kind] = tex;
+          })
+          .catch(() => {});
+      } else if (!ahead && pieceTex[kind]) {
+        pieceTex[kind]?.dispose();
+        delete pieceTex[kind];
+      }
+    }
+    for (const p of want) {
+      const s = SET_PIECES[p.kind];
+      const tex = pieceTex[p.kind];
+      if (!tex) continue;
+      let m = pieceMeshes.get(p.id);
+      if (!m) {
+        
+        const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.5 });
+        m = new THREE.Mesh(new THREE.PlaneGeometry(s.side, s.side), mat);
+        const at = setPiecePos(game.stage, p);
+        m.position.set(at.x, at.y + setPieceLift(s), at.z);
+        pieceMeshes.set(p.id, m);
+        scene.add(m);
+      }
+      m.lookAt(cam.x, m.position.y, cam.z);
+    }
+  }
 
   function dropMesh(m) {
     scene.remove(m.body, m.ring);
@@ -218,7 +280,7 @@ export function createScene(canvas, stage, plan) {
     objects() {
       let n = 0;
       scene.traverse(() => n++);
-      return { nodes: n, fx: fx.length + blasts.length, meshes: meshes.size };
+      return { nodes: n, fx: fx.length + blasts.length, meshes: meshes.size, pieces: pieceMeshes.size };
     },
     resize(w, h) {
       renderer.setPixelRatio(pixelRatioFor(w, h, window.devicePixelRatio, plan.maxPixelRatio));
@@ -291,6 +353,7 @@ export function createScene(canvas, stage, plan) {
       tracers.update(dt);
 
       ironJaw.update(game.boss, pos);
+      drawSetPieces(game, pos);
 
       const live = new Set();
       for (const e of game.enemies) {

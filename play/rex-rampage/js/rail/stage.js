@@ -18,6 +18,7 @@ export const VERBS = [
   'hostage', 
   'cover', 
   'lights', 
+  'prop', 
   'boss', 
 ];
 
