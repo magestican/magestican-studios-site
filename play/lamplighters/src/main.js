@@ -34,9 +34,16 @@ import { createNet, canPlayTogether } from './net.js';
 import { AIM_BELOW_PX, availableBoard, layoutBlock, layoutBoard } from './layout.js';
 import { NO_CUT, maxCut } from './blockView.js';
 import { stringsFor, pictureName, count, fill } from './strings.js';
+import {
+  PRIZES, emptySkyline, readSkyline, recordResult, nextTower, meters, prizesFor, newPrizes, rivalAdvice,
+} from './skyline.js';
 
 const GAME_ID = 'lamplighters';
 const SETUP_KEY = 'lamplighters-setup-v1';
+const SKYLINE_KEY = 'lamplighters-skyline-v1';
+
+const TILE_LIT = './assets/windows/lit0_a.svg';
+const TILE_DARK = './assets/windows/dark_a.svg';
 
 function canDrawBlocks() {
   try {
@@ -81,6 +88,25 @@ if (groupOf(towerById(setup.picture)) !== setup.size) setup.picture = towersOfGr
 const saveSetup = () => { try { localStorage.setItem(SETUP_KEY, JSON.stringify(setup)); } catch {  } };
 
 
+
+const CITY = SIZES.map((g) => [g, towersOfGroup(g).map((t) => t.id)]);
+let skyline = (() => {
+  try { return readSkyline(JSON.parse(localStorage.getItem(SKYLINE_KEY))); } catch { return emptySkyline(); }
+})();
+const saveSkyline = () => { try { localStorage.setItem(SKYLINE_KEY, JSON.stringify(skyline)); } catch {  } };
+const isLitTower = (id) => id in skyline.lit;
+
+function climbOn() {
+  if (!isLitTower(setup.picture)) return;
+  const next = nextTower(skyline, CITY, groupOf(towerById(setup.picture)));
+  if (!next) return;
+  setup.picture = next;
+  setup.size = groupOf(towerById(next));
+  saveSetup();
+}
+climbOn();
+
+
 let screen = 'setup';
 let setupPanel = null; 
 let mode = 'bot'; 
@@ -94,6 +120,8 @@ let endTimer = null;
 let bot = null;
 let botTimer = null;
 let botLevel = null;
+let botCheated = false; 
+let endNews = { prizes: [], advice: null, won: false };
 let inputMode = 'light';
 let aimCell = -1;
 let focusCell = 0;
@@ -221,6 +249,7 @@ function drawSetup() {
     fill(T.towerName, { n: towerNumber(shown) }),
     T.rivals[setup.rival],
   ].join(' · ');
+  drawSkyline(inRoom, shown);
   if (!inRoom) return;
 
   $('room-code').textContent = roomUi.code ?? '-';
@@ -232,6 +261,64 @@ function drawSetup() {
   const mayStart = hostSeated && canStart(room);
   $('start-room').hidden = !mayStart;
   $('room-status').textContent = roomLine();
+}
+
+const prizeName = (p) => (p.group !== undefined ? fill(T.prizes.size, { size: groupLabel(p.group) }) : T.prizes[p.id]);
+
+function tileImg(lit) {
+  const img = document.createElement('img');
+  img.src = lit ? TILE_LIT : TILE_DARK;
+  img.alt = '';
+  img.width = 22;
+  img.height = 22;
+  return img;
+}
+
+
+function drawSkyline(inRoom, shown) {
+  const card = $('skyline');
+  const goal = $('goal');
+  card.hidden = inRoom;
+  goal.hidden = inRoom;
+  if (inRoom) return;
+  const all = !nextTower(skyline, CITY, groupOf(towerById(shown)));
+  goal.textContent = all ? T.goalDone : isLitTower(shown) ? '' : fill(T.goalNext, { tower: fill(T.towerName, { n: towerNumber(shown) }) });
+  goal.hidden = !goal.textContent;
+  $('sky-rows').replaceChildren(...meters(skyline, CITY).map(({ group, lit, total }) => {
+    const row = document.createElement('div');
+    row.className = 'll-sky-row';
+    const name = document.createElement('span');
+    name.className = 'll-sky-size';
+    name.textContent = groupLabel(group);
+    const tiles = document.createElement('div');
+    tiles.className = 'll-sky-tiles';
+    tiles.append(...CITY.find(([g]) => g === group)[1].map((id, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'll-sky-tile';
+      b.classList.toggle('lit', isLitTower(id));
+      b.setAttribute('aria-pressed', String(id === shown));
+      b.setAttribute('aria-label', `${groupLabel(group)}, ${fill(T.towerName, { n: i + 1 })}`);
+      b.append(tileImg(isLitTower(id)));
+      b.addEventListener('click', () => { playUi('tap'); pickPicture(id); });
+      return b;
+    }));
+    const n = document.createElement('span');
+    n.className = 'll-sky-count';
+    n.textContent = fill(T.skylineCount, { n: lit, total });
+    row.append(name, n, tiles);
+    return row;
+  }));
+  const earned = new Set(prizesFor(skyline, CITY, LEVELS));
+  $('prizes').replaceChildren(...PRIZES(CITY).map((p) => {
+    const el = document.createElement('div');
+    el.className = 'll-prize';
+    el.classList.toggle('won', earned.has(p.id));
+    const label = document.createElement('span');
+    label.textContent = prizeName(p);
+    el.append(tileImg(earned.has(p.id)), label);
+    return el;
+  }));
 }
 
 function roomLine() {
@@ -297,6 +384,7 @@ function startBotMatch(pictureId, level, cheat = null) {
   bot = createBot(level, (Date.now() ^ (round * 2654435761)) >>> 0);
   const now = Date.now();
   const cheated = cheat ? applyCheat(match, cheat, now) : false;
+  botCheated = !!cheated;
   
   goAt = cheated ? 0 : now + COUNTDOWN_MS;
   enterMatch(pictureId);
@@ -814,10 +902,23 @@ function showEnd() {
   }));
   const won = finished ? view.winner === me : room.result?.winner === me;
   if (me >= 0) playUi(won ? 'trophy' : 'levelUp');
+  endNews = { prizes: [], advice: null, won: false };
+  if (mode === 'bot' && finished && !botCheated) recordSkyline(won);
   drawEndButtons();
   show('end');
   if (block) revealBlock();
   if (mode === 'bot') trackEvent('game_end', { game: GAME_ID, level: botLevel, won });
+}
+
+
+function recordSkyline(won) {
+  const before = skyline;
+  skyline = recordResult(skyline, { towerId: picture.id, rival: botLevel, won, rivals: LEVELS });
+  saveSkyline();
+  const fresh = newPrizes(before, skyline, CITY, LEVELS);
+  const names = PRIZES(CITY).filter((p) => fresh.includes(p.id)).map(prizeName);
+  endNews = { prizes: names, advice: rivalAdvice(skyline, botLevel, LEVELS), won };
+  if (names.length) toast(fill(T.newPrize, { name: names[0] }), 4000);
 }
 
 function drawEndButtons() {
@@ -825,15 +926,30 @@ function drawEndButtons() {
   const status = $('end-status');
   status.textContent = '';
   if (mode === 'bot') {
-    box.replaceChildren(
+    const { prizes, advice, won } = endNews;
+    const adviceLine = advice ? (advice.kind === 'up' ? T.adviceUp : T.adviceDown) : '';
+    status.textContent = [...prizes.map((name) => fill(T.newPrize, { name })), adviceLine].filter(Boolean).join(' ');
+    
+    const nextId = () => (won && nextTower(skyline, CITY, groupOf(picture))) || nextTowerId(picture.id);
+    const buttons = [
       endButton(T.next, true, () => {
-        setup.picture = nextTowerId(picture.id);
+        setup.picture = nextId();
+        setup.size = groupOf(towerById(setup.picture));
         saveSetup();
         startBotMatch(setup.picture, botLevel);
       }),
       endButton(T.again, false, () => startBotMatch(picture.id, botLevel)),
-      endButton(T.changeRival, false, () => { show('setup'); drawSetup(); }),
-    );
+      endButton(T.changeRival, false, () => { climbOn(); show('setup'); drawSetup(); }),
+    ];
+    
+    if (advice) {
+      buttons.splice(1, 0, endButton(fill(T.tryRival, { crew: T.rivals[advice.rival] }), false, () => {
+        setup.rival = advice.rival;
+        saveSetup();
+        startBotMatch(won ? nextId() : picture.id, advice.rival);
+      }));
+    }
+    box.replaceChildren(...buttons);
     return;
   }
   const seated = mySeat() >= 0;
@@ -1177,6 +1293,8 @@ function fillStaticText() {
   $('tower-h').textContent = T.towerH;
   $('rival-h').textContent = T.rivalH;
   $('start-bot').textContent = T.startBot;
+  $('skyline-h').textContent = T.skylineH;
+  $('prizes-h').textContent = T.prizesH;
   $('friend-h').textContent = T.friendH;
   $('friend-btn').textContent = T.friendH;
   $('options-btn').textContent = T.options;

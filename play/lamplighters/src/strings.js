@@ -103,6 +103,17 @@ export const T = Object.freeze({
   hintBlockAim: 'Tap to aim, tap again to light. Drag to turn.',
   hintBlockTouch: 'Tap lights, hold to mark. Drag to turn.',
   hintBlockMark: 'Tap to mark. Drag to turn.',
+  
+  skylineH: 'Your skyline',
+  skylineCount: '{n} of {total} lit',
+  goalNext: 'Win {tower} to light it on your skyline.',
+  goalDone: 'Whole skyline lit',
+  prizesH: 'Prizes',
+  prizes: { first: 'First light', size: 'Every {size} lit', foreman: 'Beat the Foreman', all: 'The whole skyline' },
+  newPrize: 'You won {name}.',
+  adviceUp: 'Two wins. Try a tougher crew?',
+  adviceDown: 'Tough run. Try a gentler crew?',
+  tryRival: 'Play the {crew}',
 });
 
 export const STRINGS = Object.freeze({ en: T, ...TRANSLATIONS });
