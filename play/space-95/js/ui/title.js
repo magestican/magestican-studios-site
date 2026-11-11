@@ -9,8 +9,12 @@ import { drawPortrait } from './joPortrait.js';
 
 
 
-export function showTitle(root, variant, onStart, shifts = [], onShift = () => {}) {
+
+
+export function showTitle(root, variant, onStart, shifts = [], onShift = () => {}, progress = {}) {
   let pick = variant;
+  const { goal, prizes = [] } = progress;
+  const won = prizes.filter((p) => p.got).length;
   root.innerHTML = `
     <div class="title-card" role="dialog" aria-label="Space 95">
       <p class="title-k">Space 95 Survey Co. presents</p>
@@ -22,12 +26,20 @@ export function showTitle(root, variant, onStart, shifts = [], onShift = () => {
         <button type="button" role="radio" data-v="man"><span class="title-av title-av-man"></span><strong>Jo</strong><span>man</span></button>
       </div>
       <button type="button" class="title-go" data-act="go">Clock in</button>
+      ${goal ? `<p class="title-goal" role="status"><span class="title-k">Next goal</span><strong>${goal.text}</strong></p>` : ''}
+      ${
+        prizes.length
+          ? `<details class="title-prizes"><summary>${won} of ${prizes.length} prizes</summary><ul>${prizes
+              .map((p) => `<li class="${p.got ? 'is-got' : ''}"><strong>${p.name}</strong><span>${p.got ? 'Yours.' : p.desc}</span></li>`)
+              .join('')}</ul></details>`
+          : ''
+      }
       ${
         shifts.length > 1
           ? `<div class="title-shifts" aria-label="Shifts">${shifts
               .map(
                 (s) =>
-                  `<button type="button" data-shift="${s.id}" ${s.unlocked ? '' : 'disabled'} ${s.current ? 'aria-current="true"' : ''} aria-label="Shift ${s.id}: ${s.name}"><b>${s.id}</b><span>${s.name}</span></button>`,
+                  `<button type="button" data-shift="${s.id}" ${s.unlocked ? '' : 'disabled'} ${s.current ? 'aria-current="true"' : ''} ${goal?.shift === s.id ? 'data-goal="true"' : ''} aria-label="Shift ${s.id}: ${s.name}"><b>${s.id}</b><span>${s.name}</span></button>`,
               )
               .join('')}</div>`
           : ''
@@ -36,7 +48,10 @@ export function showTitle(root, variant, onStart, shifts = [], onShift = () => {
     </div>`;
   root.hidden = false;
   for (const slot of root.querySelectorAll('.title-av')) drawPortrait(slot, slot.classList.contains('title-av-man') ? 'man' : 'woman');
-  root.querySelector('[aria-current="true"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  (root.querySelector('[data-goal="true"]') ?? root.querySelector('[aria-current="true"]'))?.scrollIntoView({
+    block: 'nearest',
+    inline: 'center',
+  });
   const picks = [...root.querySelectorAll('[data-v]')];
   const sync = () => {
     for (const b of picks) b.setAttribute('aria-checked', String(b.dataset.v === pick));

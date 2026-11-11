@@ -6,6 +6,8 @@ import { SFX } from './audio/sfxManifest.js';
 import { levelMusic as musicOf, SURFACE, shiftSounds } from './audio/shiftSounds.js';
 import { readCheats } from './cheats.js';
 import { createBoltVoice } from './game/bolt.js';
+import { createCoach, TIP_SECONDS } from './game/coach.js';
+import { nextGoal, prizes, sheetNews } from './game/goals.js';
 import { mergeIntoProgress, readProgress, recordShift, saveVariant } from './game/progress.js';
 import { createInput, mountTouchControls } from './input.js';
 import { loadLevelRecovering } from './level/loadRetry.js';
@@ -215,20 +217,31 @@ if (paused) {
   const goShift = (id) => {
     location.search = `?level=${id}`;
   };
+  
+  
+  const goal = nextGoal(save, SHIFT_NAMES);
+  const plainVisit = !new URLSearchParams(location.search).has('level');
   showTitle(
     document.getElementById('title'),
      (document.documentElement.dataset.variant),
     (v) => {
       saveVariant(v);
       document.documentElement.dataset.variant = v;
+      if (plainVisit && goal.shift && goal.shift !== level.id && SHIFT_IDS.includes(goal.shift)) {
+        location.search = `?level=${goal.shift}&skip=1`;
+        return;
+      }
       paused = false;
       document.body.classList.remove('is-title');
       boltSay(boltVoice.start());
     },
     shifts,
     goShift,
+    { goal, prizes: prizes(save) },
   );
 }
+
+const coach = createCoach();
 
 function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
@@ -251,6 +264,11 @@ function frame(now) {
       if (cue) audio.play(cue, { rate: cueRate(e) * chained });
       if (e.type === 'signal') for (const n of signalSounds(e, (x) => x in SFX)) audio.play(n, { volume: 0.7 });
       boltSay(boltVoice.onEvent(e, STEP));
+      const tip = coach.onEvent(e, session.checkpoint, !session.train && !session.plane);
+      if (tip) {
+        boltSay(tip);
+        boltHide = TIP_SECONDS;
+      }
       
       
       if (e.type === 'ability' && (e.grant === 'dash' || e.grant === 'tether'))
@@ -268,7 +286,9 @@ function frame(now) {
         site.shiftEnd({ save, level: level.id, cleared: false, seconds: session.time, underPar: false, coop: false });
       }
       if (e.type === 'clear' && level.id) {
+        const before = readProgress();
         const save = recordShift(level, session);
+        const news = sheetNews(before, save, level.id, SHIFT_NAMES);
         if (fullResume(level, session)) site.count('fullResume'); 
         const next = SHIFT_IDS.includes(level.id + 1) ? () => (location.search = `?level=${level.id + 1}&skip=1`) : null;
         site.shiftEnd({
@@ -281,7 +301,7 @@ function frame(now) {
         });
         
         const onTitle = next ? undefined : () => (location.search = '?level=1');
-        const sheet = () => timesheet.show(level, session, save, secretsTotal, { onReplay: restart, onNext: next, onTitle });
+        const sheet = () => timesheet.show(level, session, save, secretsTotal, { onReplay: restart, onNext: next, onTitle, news });
         
         if (level.id === 20) ending.play(endingTier(save), level.checklist ?? [], sheet);
         else sheet();

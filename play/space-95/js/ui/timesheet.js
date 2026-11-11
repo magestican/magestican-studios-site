@@ -12,7 +12,18 @@ export function createTimesheet(root) {
 
 
 
-    show(level, s, save, secretsTotal, { onReplay, onNext, onTitle }) {
+    show(level, s, save, secretsTotal, { onReplay, onNext, onTitle, news = null }) {
+      
+      const newsHtml = news
+        ? `${news.newBest ? '<p class="sheet-news-best sheet-gold">New best time!</p>' : ''}${news.prizes
+            .map(
+              (p) =>
+                `<p class="sheet-news-row sheet-prize"><span class="sheet-k">New prize</span><strong>${p.name}</strong><span>${p.desc}</span></p>`,
+            )
+            .join(
+              '',
+            )}${news.goal ? `<p class="sheet-news-row"><span class="sheet-k">Next goal</span><strong>${news.goal.text}</strong></p>` : ''}`
+        : '';
       const best = save.bestTimes[level.id - 1];
       const par = level.par;
       const underPar = par && !s.partial && s.clearTime <= par;
@@ -30,6 +41,7 @@ export function createTimesheet(root) {
             ${level.stamps ? `<div><dt>Callbacks</dt><dd>${s.stamped?.length ?? 0} / ${level.stamps.length}</dd></div>` : ''}
             <div><dt>Survey complete</dt><dd>${intelPercent(save).toFixed(1)} %</dd></div>
           </dl>
+          ${newsHtml ? `<section class="sheet-news" aria-label="This shift">${newsHtml}</section>` : ''}
           ${review ? `<section class="sheet-review" aria-label="Performance review"><p class="sheet-k">HQ performance review</p><h3>${review.title}</h3><p>${review.line}</p></section>` : ''}
           <div class="sheet-actions">
             <button type="button" data-act="replay">Clock in again</button>

@@ -330,3 +330,90 @@ kbd {
   --cut-s: 6px;
   border-radius: 0;
 }
+
+
+
+
+
+.title-card > * {
+  flex-shrink: 0;
+}
+.title-goal {
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--paper-2);
+  font-size: 15px;
+  line-height: 1.35;
+}
+.title-prizes {
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+}
+.title-prizes summary {
+  cursor: pointer;
+  padding: 8px 4px;
+  font-weight: 600;
+  color: var(--plum);
+}
+.title-prizes ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.title-prizes li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--paper);
+  border-left: 6px solid #d9cfb8;
+}
+.title-prizes li.is-got {
+  border-left-color: var(--gold);
+  background: #fff1c2;
+}
+.title-prizes li span {
+  color: #5d5f80;
+  font-size: 13px;
+}
+.title-shifts button[data-goal="true"] {
+  outline: 3px solid var(--suit);
+  outline-offset: -3px;
+}
+.sheet-news {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sheet-news-best {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 700;
+}
+.sheet-news-row {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--paper-2);
+  line-height: 1.35;
+}
+.sheet-news-row.sheet-prize {
+  background: #fff1c2;
+  border-left: 6px solid var(--gold);
+}
