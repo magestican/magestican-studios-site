@@ -1012,6 +1012,8 @@ function tileMeshes(world, skin = null, art = null) {
     return m;
   };
   const oneWayMat = new THREE.MeshLambertMaterial({ color: 0xf2c879 });
+  
+  if (painted && art?.oneWay) skinMaterial(oneWayMat, art.oneWay);
   for (let r = 0; r < world.height; r++) {
     let c = 0;
     while (c < world.width) {
@@ -1027,7 +1029,7 @@ function tileMeshes(world, skin = null, art = null) {
       if (oneWay) {
         const m = new THREE.Mesh(new THREE.BoxGeometry(w, T * 0.3, TILE_DEPTH * 0.8), oneWayMat);
         m.position.set(c * T + w / 2, (r + 1) * T - T * 0.15, -0.6);
-        group.add(m);
+        group.add(uv(m, art?.oneWay));
       } else {
         const m = new THREE.Mesh(new THREE.BoxGeometry(w, T, TILE_DEPTH), solidMat);
         m.position.set(c * T + w / 2, r * T + T / 2, -TILE_DEPTH / 2 + 0.3);

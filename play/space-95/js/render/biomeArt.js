@@ -88,6 +88,8 @@ const BIOMES = {
     ...(CANOPY_COMIC.plateHaze ? { plateHaze: CANOPY_COMIC.plateHaze } : {}),
     sky: 0xffe3c6,
     top: CANOPY_COMIC.top ?? GRASS,
+    
+    oneWay: CANOPY_COMIC.top ?? GRASS,
     solid: BARK,
     ...(CANOPY_COMIC.props.items.length ? { props: CANOPY_COMIC.props } : {}),
   },
@@ -105,6 +107,7 @@ const BIOMES = {
     sky: 0xf3b44a,
     
     top: tex('batch2', 'wax', 0xffcf70, 4),
+    oneWay: tex('batch2', 'wax', 0xffcf70, 4), 
     solid: tex('batch2', 'wax', 0xffc46a, 6),
     ...comicPlate('hive'),
   },
@@ -170,7 +173,8 @@ const BIOMES = {
     ...nightSway(0x3a3266, 14),
   },
   
-  silkGorge: { ...GORGE },
+  
+  silkGorge: { ...GORGE, oneWay: GORGE.top },
   deepBurrow: { plate: plate('batch4', 'deepburrow-far'), plateAspect: 16 / 9, sky: 0x5a3a22, top: null, solid: null },
   desk: {
     plate: plate('batch2', 'desk-far'),
