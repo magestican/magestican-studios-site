@@ -12,6 +12,7 @@
 import * as THREE from 'three';
 import { LANTERN } from '../sim/abilities.js';
 import { LIGHT_COLOURS, lightAt } from '../sim/light.js';
+import { LAMP_DISC, LANTERN_GLOW, lampDiscAlpha, lanternGlowAlpha } from './lightPool.js';
 
 const PINK = 0xff2fa0;
 const NIGHT_HEMI = 0.55; 
@@ -71,6 +72,33 @@ function glowTexture() {
   glowTex = new THREE.CanvasTexture(c);
   glowTex.colorSpace = THREE.SRGBColorSpace;
   return glowTex;
+}
+
+
+const poolMaps = new Map();
+function poolMaterial(alphaAt, color, opacity) {
+  if (!poolMaps.has(alphaAt)) poolMaps.set(alphaAt, poolMap(alphaAt));
+  return new THREE.MeshBasicMaterial({
+    color,
+    map: poolMaps.get(alphaAt),
+    transparent: true,
+    opacity,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+}
+function poolMap(alphaAt) {
+  const c = document.createElement('canvas');
+  c.width = 128;
+  c.height = 128;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  for (let i = 0; i <= 64; i++) grad.addColorStop(i / 64, `rgba(255,255,255,${alphaAt(i / 64).toFixed(4)})`);
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 128, 128);
+  const map = new THREE.CanvasTexture(c);
+  map.colorSpace = THREE.SRGBColorSpace;
+  return map;
 }
 
 const additive = (color, opacity = 1) =>
@@ -375,14 +403,14 @@ export function createNight(scene, level, h) {
   
   const discs = [];
   for (let i = 0; i < MAX_DISCS; i++) {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), additive(0xffffff, 0));
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), poolMaterial(lampDiscAlpha, 0xffffff, 0));
     m.position.z = 0.33;
     m.renderOrder = 3;
     m.visible = false;
     group.add(m);
     discs.push({ m, key: null, o: 0 });
   }
-  const glow = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), additive(LIGHT_COLOURS.lantern, 0.32));
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), poolMaterial(lanternGlowAlpha, LIGHT_COLOURS.lantern, LANTERN_GLOW.OPACITY));
   glow.position.z = 0.33;
   group.add(glow);
   const lights = [];
@@ -496,12 +524,12 @@ export function createNight(scene, level, h) {
           continue;
         }
         const q = D.q;
-        const r = Math.max(0.5, q.r) * 1.15; 
+        const r = Math.max(0.5, q.r) * LAMP_DISC.EDGE_K; 
         D.m.visible = true;
         D.m.position.set(q.x, q.y, 0.33);
         D.m.scale.set(r, r, 1);
         D.m.material.color.setHex(colourOf(q));
-        D.m.material.opacity = D.o * (q.kind === 'perch' ? 0.55 + 0.08 * Math.sin(t * 4) : 0.6);
+        D.m.material.opacity = D.o * (q.kind === 'perch' ? 0.55 + 0.08 * Math.sin(t * 4) : LAMP_DISC.OPACITY);
       }
       const near = circles
         .map((q) => ({ q, d: Math.hypot(q.x - p.x, q.y - p.y) - q.r }))
@@ -522,11 +550,12 @@ export function createNight(scene, level, h) {
       const lan = p.lantern;
       if (lan) {
         const dimR = lan.dazzle > 0 ? LANTERN.DAZZLED_GLOW : LANTERN.GLOW;
-        const gr = Math.max(dimR, Math.min(lan.r, LANTERN.GLOW)) * 1.45; 
+        
+        const gr = Math.max(dimR, Math.min(lan.r, LANTERN.GLOW)) * LANTERN_GLOW.RADIUS_K;
         glow.visible = true;
         glow.position.set(p.x + 0.6 * p.facing, p.y + p.h / 2, 0.33);
         glow.scale.set(gr, gr, 1);
-        glow.material.opacity = lan.dazzle > 0 ? 0.16 : 0.22;
+        glow.material.opacity = lan.dazzle > 0 ? LANTERN_GLOW.DAZZLED_OPACITY : LANTERN_GLOW.OPACITY;
         if (lan.raised || lan.r > LANTERN.GLOW + 1e-6) {
           
           h.bolt.group.position.set(p.x, p.y + p.h / 2 + LANTERN.RAISE_Y, 0.4);
