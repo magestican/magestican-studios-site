@@ -16,8 +16,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Magic Mirror">
-  <link rel="stylesheet" href="css/game.css?v=04dce827-20261111T151409Z">
-  <script type="module" src="js/main.js?v=04dce827-20261111T151409Z"></script>
+  <link rel="stylesheet" href="css/game.css?v=fe532500-20261111T155936Z">
+  <script type="module" src="js/main.js?v=fe532500-20261111T155936Z"></script>
   <link rel="canonical" href="https://magesticanstudios.com/play/magic-mirror-moves/">
 </head>
 <body>
@@ -60,6 +60,8 @@
       
 
       <button type="button" id="play" class="big start">Play</button>
+      
+      <button type="button" id="goal" class="goal"></button>
       <details id="title-more" class="more-fold">
         <summary>More</summary>
         <div class="more-body">
@@ -86,9 +88,14 @@
     <div class="panel">
       <h2 id="dress-h">Pick your costume</h2>
       <div id="costumes" class="costumes" role="radiogroup" aria-label="Costume"></div>
+      <p id="ward-count" class="note"></p>
       <div class="row">
         <button type="button" class="ghost-btn" data-back="title">Back</button>
         <button type="button" id="dress-next" class="big start">Next</button>
+      </div>
+      <div class="prize-box">
+        <h3 class="prize-h">Prizes <span id="prize-count" class="note"></span></h3>
+        <ul id="prizes" class="prizes"></ul>
       </div>
     </div>
   </section>
@@ -122,6 +129,12 @@
       <div id="stars" class="stars" role="img" aria-label="stars"></div>
       <p class="big-score"><span id="final">0</span> points</p>
       <p id="best" class="note"></p>
+      <p id="prize-new" class="prize-new" role="status" hidden></p>
+      <div id="advice" class="advice" hidden>
+        <p id="advice-text" class="note"></p>
+        <button type="button" id="advice-little" class="ghost-btn" hidden>Play Little</button>
+      </div>
+      <button type="button" id="goal-r" class="goal"></button>
       <div class="row">
         <button type="button" class="ghost-btn" data-back="dress">Change costume</button>
         <button type="button" id="again" class="big start">Play again</button>
@@ -164,6 +177,6 @@
       <button type="button" id="privacy-close" class="big">OK</button>
     </div>
   </dialog>
-  <script type="module" src="/web-engine/site/siteControls.js?v=04dce827-20261111T151409Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=fe532500-20261111T155936Z"></script>
 </body>
 </html>

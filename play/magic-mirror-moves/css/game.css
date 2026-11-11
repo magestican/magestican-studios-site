@@ -468,6 +468,105 @@ body[data-mode="mirror"] #card-label {
   filter: grayscale(1);
 }
 
+
+
+.goal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #f1eaff;
+  font-weight: 700;
+  min-height: 48px;
+}
+.goal:disabled {
+  opacity: 1;
+  background: var(--gold);
+}
+.prize-new span {
+  display: flex;
+  text-align: left;
+  align-items: center;
+  gap: 8px;
+}
+.ico-goal,
+.ico-new {
+  width: 36px;
+  height: 36px;
+}
+.wear-stars {
+  display: flex;
+  gap: 2px;
+}
+#dress .costume .ico-star {
+  width: 16px;
+  height: 16px;
+}
+#dress .costume .ico-star.off {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+.prize-box {
+  width: 100%;
+}
+.prize-h {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+.prizes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+.prize {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: #f1eaff;
+  font-size: 0.85rem;
+  text-align: left;
+  opacity: 0.6;
+}
+.prize.got {
+  background: var(--gold);
+  opacity: 1;
+}
+.ico-prize {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  filter: grayscale(1);
+}
+.prize.got .ico-prize {
+  filter: none;
+}
+.prize-new {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background: var(--gold);
+  font-weight: 700;
+}
+.prize-new[hidden],
+.advice[hidden] {
+  display: none;
+}
+.advice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
 .big-score {
   font-size: 1.6rem;
   font-weight: 800;

@@ -3,6 +3,7 @@
 
 
 
+
 import { castFrame, castKind, castReceiver, castSender, initCast } from './cast.js';
 import { costumeIcon, costumeName } from './costumes.js';
 import { CLIPS, demoPose, makePose } from './demoPose.js';
@@ -35,6 +36,7 @@ import { createSound, cuesForGame, cuesForWorld, namesFor } from './sound.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
 import { startVoice, voiceSupport } from './voice.js';
 import { localVoiceSupported, startLocalVoice } from './voiceLocal.js';
+import { adviceAfter, award, countStarred, emptyWardrobe, nextGoal, PRIZES, prizesOf, readWardrobe } from './wardrobe.js';
 
 const sound = createSound(
   window,
@@ -168,6 +170,8 @@ const S = {
   
   events: null,
   eventsWon: 0,
+  
+  recent: [],
   
   visible: new Set(),
   
@@ -419,8 +423,23 @@ function wire() {
   const dlg =  ($('privacy'));
   for (const b of document.querySelectorAll('[data-privacy]')) b.addEventListener('click', () => dlg.showModal());
   $('privacy-close').addEventListener('click', () => dlg.close());
+  for (const id of ['goal', 'goal-r'])
+    $(id).addEventListener('click', () => {
+      const c = $(id).dataset.costume;
+      if (!c) return;
+      setCostume(c); 
+      toFraming();
+    });
+  $('advice-little').addEventListener('click', () => {
+    opts.level = 'little';
+    syncChips();
+    S.recent = [];
+    toFraming();
+  });
   $('forget').addEventListener('click', () => {
     forgetScores();
+    ward = emptyWardrobe(Object.keys(COSTUMES));
+    refreshWardrobe();
     $('forget').textContent = 'Scores forgotten';
   });
   
@@ -846,7 +865,101 @@ function forgetScores() {
   } catch {}
 }
 
-function showResult(score, stars) {
+
+let ward = (() => {
+  const ids = Object.keys(COSTUMES);
+  try {
+    return readWardrobe((k) => localStorage.getItem(k), ids);
+  } catch {
+    return emptyWardrobe(ids);
+  }
+})();
+
+
+function recordStars(stars) {
+  const worn = opts.players === 2 ? [opts.costume, S.p2.costume] : [opts.costume];
+  const r = award(ward, worn, opts.level, stars);
+  ward = r.wardrobe;
+  try {
+    
+    for (const [key, digit] of r.writes) if (/^[0-3]$/.test(digit)) localStorage.setItem(key, digit);
+  } catch {}
+  refreshWardrobe();
+  if (r.newPrizes.length) sound.play([{ name: 'power_up' }]);
+  return r.newPrizes;
+}
+
+
+function sticker(name, cls) {
+  const img = document.createElement('img');
+  img.className = cls;
+  img.src = new URL(`svg/sticker/${name}.svg`, ART).href;
+  img.alt = '';
+  return img;
+}
+
+
+function refreshWardrobe() {
+  const ids = Object.keys(COSTUMES);
+  const goal = nextGoal(ward, ids);
+  const text =
+    goal.kind === 'star'
+      ? `Get a star as ${costumeName(goal.costume)}`
+      : goal.kind === 'three'
+        ? `Get three stars as ${costumeName(goal.costume)}`
+        : 'Every costume has three stars!';
+  for (const id of ['goal', 'goal-r']) {
+    const b = $(id);
+    b.replaceChildren();
+    if (goal.costume) b.append(sticker(costumeIcon(goal.costume), 'ico-goal'));
+    b.append(text);
+    b.dataset.costume = goal.costume ?? '';
+    b.disabled = !goal.costume;
+  }
+  for (const b of document.querySelectorAll('#costumes .costume')) {
+    const n = Math.max(ward.little[b.dataset.costume] ?? 0, ward.big[b.dataset.costume] ?? 0);
+    let row = b.querySelector('.wear-stars');
+    if (!row) {
+      row = document.createElement('span');
+      row.className = 'wear-stars';
+      b.append(row);
+    }
+    row.replaceChildren();
+    row.setAttribute('aria-label', `${n} of 3 stars`);
+    for (let i = 0; i < 3; i++) {
+      const s = sticker('star', i >= n ? 'ico-star off' : 'ico-star');
+      row.append(s);
+    }
+  }
+  $('ward-count').textContent = `${countStarred(ward, ids)} of ${ids.length} costumes starred`;
+  const got = new Set(prizesOf(ward, ids));
+  const box = $('prizes');
+  box.replaceChildren();
+  for (const p of PRIZES) {
+    const li = document.createElement('li');
+    li.className = got.has(p.id) ? 'prize got' : 'prize';
+    li.append(sticker(p.icon, 'ico-prize'), p.name);
+    box.append(li);
+  }
+  $('prize-count').textContent = `${got.size} of ${PRIZES.length} prizes`;
+}
+
+
+function showResult(score, stars, played = true) {
+  const fresh = played && stars > 0 ? recordStars(stars) : [];
+  if (played && stars > 0) S.recent.push(stars);
+  const newPrize = $('prize-new');
+  newPrize.hidden = fresh.length === 0;
+  newPrize.replaceChildren();
+  for (const p of fresh) {
+    const line = document.createElement('span');
+    line.append(sticker(p.icon, 'ico-new'), `New prize! ${p.name}`);
+    newPrize.append(line); 
+  }
+  const advice = played && stars > 0 ? adviceAfter(S.recent, opts.level) : null;
+  $('advice').hidden = !advice;
+  $('advice-text').textContent = advice === 'little' ? 'Try Little for more time' : 'Stand back. Show the mirror all of you.';
+  $('advice-little').hidden = advice !== 'little';
   let best = 0;
   try {
     best = Number(localStorage.getItem(bestKey())) || 0;
@@ -1121,6 +1234,9 @@ function onWorld(ev, stage) {
       S.game.score += Number(ev.points);
       S.eventsWon++;
       flash(`${WORLD_WIN[String(ev.id)] ?? 'You did it!'} +${ev.points}`, 2);
+      
+      const fresh = recordStars(1);
+      if (fresh.length) setTimeout(() => S.screen === 'play' && flash(`New prize! ${fresh.at(-1).name}`, 2.4), 2100);
     } else flash('Bye bye! Good try!', 1.2); 
   }
 }
@@ -1396,6 +1512,7 @@ async function boot() {
     });
   resize();
   buildDressingRoom();
+  refreshWardrobe();
   wire();
   syncChips();
   await loadArt();
@@ -1411,7 +1528,7 @@ async function boot() {
       beginRound({ tutorial: false });
       if (cheat === 'finale') S.game.clock = LEVELS[opts.level].round - FINALE_S - 0.5;
     }
-  } else if (cheat === 'result') showResult(LEVELS[opts.level].stars[0] + 1234, 2);
+  } else if (cheat === 'result') showResult(LEVELS[opts.level].stars[0] + 1234, 2, false);
   else if (cheat === 'menu') show('title');
   else toFraming(); 
   document.body.dataset.ready = '1';
