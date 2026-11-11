@@ -43,6 +43,14 @@ const BANNER = {
 
 
 
+
+
+
+
+
+
+
+
 export function createHud(root, actions) {
   const top = el('div', 'hud-top', root);
   const hearts = el('div', 'hud-hearts', top);
@@ -176,17 +184,45 @@ export function createHud(root, actions) {
     el('div', 'hud-end-line', end).textContent =
       `${game.score.points.toLocaleString('en')} points - ${game.score.kills}/${game.spawned} enemies - ${game.medals.length} medals`;
     if (lastRoom) fillBoard(el('div', 'hud-end-table', end), lastRoom.board);
+    const info = actions.result?.(game) ?? null;
+    if (info) showProgress(info);
     const row = el('div', 'hud-end-buttons', end);
+    if (info?.help === 'easy' && actions.onEasy) {
+      const easy = el('button', 'hud-again hud-easy', row);
+      easy.type = 'button';
+      easy.textContent = info.lines.playEasy;
+      easy.addEventListener('click', () => actions.onEasy?.());
+    }
     const again = el('button', 'hud-again', row);
     again.type = 'button';
     again.textContent = 'PLAY AGAIN';
-    again.addEventListener('click', () => location.reload());
+    again.addEventListener('click', () => (actions.onAgain ? actions.onAgain() : location.reload()));
     if (actions.onNext) {
       const next = el('button', 'hud-again hud-next', row);
       next.type = 'button';
       next.textContent = 'NEXT STAGE';
       next.addEventListener('click', () => actions.onNext?.());
     }
+  }
+
+  
+  function showProgress(info) {
+    const box = el('div', 'hud-end-progress', end);
+    if (info.newBest) el('div', 'hud-end-best', box).textContent = info.lines.newBest;
+    for (const name of info.prizes) {
+      const p = el('div', 'hud-end-prize', box);
+      el('span', 'hud-end-tag', p).textContent = info.lines.newPrize;
+      el('span', 'hud-end-name', p).textContent = name;
+    }
+    if (!info.prizes.length && info.next) {
+      const p = el('div', 'hud-end-prize next', box);
+      el('span', 'hud-end-tag', p).textContent = info.lines.nextPrize;
+      el('span', 'hud-end-name', p).textContent = info.next.name;
+      el('span', 'hud-end-how', p).textContent = info.next.how;
+    }
+    if (info.help === 'easy') el('div', 'hud-end-help', box).textContent = info.lines.helpEasy;
+    if (info.help === 'aim') el('div', 'hud-end-help', box).textContent = info.lines.helpAim;
+    el('div', 'hud-end-goal', box).textContent = info.goal;
   }
 
   

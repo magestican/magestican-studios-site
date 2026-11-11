@@ -9,7 +9,10 @@ const JUMPS = ['stage', 'room', 'demo', 't', 'cheat', 'phase', 'players', 'input
 export const wantsTitle = (q) => !JUMPS.some((k) => q.has(k));
 
 
-export function showTitle(root, { onStart }) {
+
+
+
+export function showTitle(root, { onStart, goal, prizes }) {
   const box = document.createElement('div');
   box.className = 'title';
   const name = document.createElement('h1');
@@ -26,7 +29,20 @@ export function showTitle(root, { onStart }) {
     onStart();
   });
   tape.appendChild(start);
-  box.append(name, tape);
+  box.append(name);
+  if (goal) {
+    const line = document.createElement('p');
+    line.className = 'title-goal';
+    line.textContent = goal;
+    box.append(line);
+  }
+  box.append(tape);
+  if (prizes) {
+    const count = document.createElement('p');
+    count.className = 'title-prizes';
+    count.textContent = prizes;
+    box.append(count);
+  }
   root.appendChild(box);
   start.focus();
 }

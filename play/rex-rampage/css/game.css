@@ -511,3 +511,83 @@ body {
     min-height: 144px;
   }
 }
+
+
+
+.title-goal,
+.title-prizes {
+  margin: 0;
+  max-width: 100%;
+  padding: 8px 16px;
+  box-sizing: border-box;
+  font-family: Impact, Haettenschweiler, "Arial Black", system-ui, sans-serif;
+  font-weight: 900;
+  text-align: center;
+  color: #f4ecd8;
+  background: #15130cd9;
+  border-radius: 8px;
+}
+
+.title-goal {
+  font-size: clamp(20px, 6vw, 30px);
+  color: #ffc21a;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.title-prizes {
+  font-size: 18px;
+}
+
+
+.hud-end-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.hud-end-best {
+  font-size: 24px;
+  color: #ffd26a;
+  text-transform: uppercase;
+}
+
+.hud-end-prize {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 10px;
+  font-size: 18px;
+}
+
+.hud-end-tag {
+  padding: 2px 8px;
+  color: #1a1208;
+  background: #ffd26a;
+  border-radius: 6px;
+}
+
+.hud-end-prize.next .hud-end-tag {
+  color: #f4ecd8;
+  background: #ffffff26;
+}
+
+.hud-end-how {
+  flex-basis: 100%;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.hud-end-help {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffb08a;
+}
+
+.hud-end-goal {
+  font-size: 20px;
+  color: #ffc21a;
+  text-transform: uppercase;
+}

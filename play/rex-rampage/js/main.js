@@ -19,6 +19,7 @@ import { clampPlayers } from './net/scaling.js';
 import { createPoseEstimator } from './pose/detector.js';
 import { devicePlan } from './pose/device.js';
 import { mirrorFrame, PoseSmoother } from './pose/pose.js';
+import { goal, LINES, load, prizes, recordRun, save } from './progress.js';
 import { bossPhase, createGame, endStage, stepGame } from './sim.js';
 import { createHud } from './ui/hud.js';
 import { showTitle, wantsTitle } from './ui/title.js';
@@ -30,11 +31,32 @@ const q = new URLSearchParams(location.search);
 const demo = q.get('demo') === '1';
 const forced = q.get('input');
 const DIFFICULTIES = ['easy', 'normal', 'hard'];
-const urlDifficulty = DIFFICULTIES.includes(q.get('difficulty') ?? '') ? q.get('difficulty') : 'easy';
+
+let store = null;
+try {
+  store = localStorage;
+} catch {
+  
+}
+const record = load(store);
+const plainVisit = wantsTitle(q);
+const startGoal = goal(record);
+const urlDifficulty = DIFFICULTIES.includes(q.get('difficulty') ?? '')
+  ? q.get('difficulty')
+  : plainVisit && startGoal.difficulty
+    ? startGoal.difficulty
+    : 'easy';
 const STAGES = ['s0-dropzone', 's1-jungle', 's2-visitor', 's3-river', 's3b-razor-coast', 's4-volcano', 's4b-ash-road', 's5-stadium'];
 const BOSS_STAGE = STAGES.length - 1;
 const cheat = q.get('cheat');
-const urlStage = cheat === 'boss' ? BOSS_STAGE : Math.min(BOSS_STAGE, Math.max(0, Math.floor(Number(q.get('stage') ?? 1)) || 0));
+const urlStage =
+  cheat === 'boss'
+    ? BOSS_STAGE
+    : plainVisit
+      ? startGoal.stage
+      : Math.min(BOSS_STAGE, Math.max(0, Math.floor(Number(q.get('stage') ?? 1)) || 0));
+
+const skipsPlay = ['cheat', 't', 'phase', 'godmode'].some((k) => q.has(k));
 
 
 
@@ -53,11 +75,31 @@ const stageNo = online ? Math.min(BOSS_STAGE, Math.max(0, online.stage)) : urlSt
 const MAX_SKIP_S = 600; 
 
 
-function goToStage(n) {
+function goToStage(n, diff = difficulty) {
   const u = new URL(location.href);
   for (const k of ['t', 'cheat', 'phase']) u.searchParams.delete(k);
   u.searchParams.set('stage', String(n));
+  
+  if (diff !== 'easy' || u.searchParams.has('difficulty')) u.searchParams.set('difficulty', diff);
   location.assign(u);
+}
+
+
+function progressResult(g) {
+  if (skipsPlay || g.stage.cutscene || !g.rank) return null;
+  const r = recordRun(record, { stage: stageNo, rank: g.rank, difficulty });
+  save(store, r.rec);
+  if (r.prizes.length) sound.play(['hostage_saved']);
+  const all = prizes(r.rec);
+  const next = all.find((p) => !p.won);
+  return {
+    newBest: r.newBest,
+    prizes: r.prizes.map((id) => all.find((p) => p.id === id)?.name ?? id),
+    help: r.help,
+    goal: goal(r.rec).text,
+    next: next ? { name: next.name, how: next.how } : null,
+    lines: LINES,
+  };
 }
 
 const canvas =  (document.getElementById('view'));
@@ -96,6 +138,10 @@ const hud = createHud( (document.getElementById('hud')), {
   onSkip: () => goToStage(stageNo + 1),
   
   onNext: stageNo < BOSS_STAGE && !online ? () => goToStage(stageNo + 1) : null,
+  
+  onAgain: online ? undefined : () => goToStage(stageNo),
+  onEasy: online ? null : () => goToStage(stageNo, 'easy'),
+  result: progressResult,
 });
 const touch = createTouch(canvas);
 const mode = createModeSwitch({ cameraAvailable: demo });
@@ -254,7 +300,10 @@ if (titleUp) {
   
   const hudEl =  (document.getElementById('hud'));
   hudEl.hidden = true;
+  const won = prizes(record).filter((p) => p.won).length;
   showTitle(document.body, {
+    goal: startGoal.text,
+    prizes: `${LINES.prizes} ${won}/${prizes(record).length}`,
     onStart: () => {
       titleUp = false;
       hudEl.hidden = false;
