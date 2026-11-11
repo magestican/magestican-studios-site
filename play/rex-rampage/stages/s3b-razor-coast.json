@@ -1536,11 +1536,11 @@
    "kind": "pteranodon",
    "count": 2,
    "place": {
-    "ahead": 28,
-    "side": 0,
-    "up": 5
+    "ahead": 62,
+    "side": -7,
+    "up": 11
    },
-   "spread": 8
+   "spread": 56
   },
   {
    "at": 1320,
