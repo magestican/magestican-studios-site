@@ -88,6 +88,38 @@ export const LINES = {
     who: 'Dispatch',
     text: "Varga's in the volcano works. Go get him.",
   },
+  s3b_dispatch_coast: {
+    who: 'Dispatch',
+    text: 'Follow the coast to the dock. Stay low.',
+  },
+  s3b_hawk_dive: {
+    who: 'Hawk',
+    text: 'Going low. Hang on, cowboy!',
+  },
+  s3b_marshal_gunboat: {
+    who: 'Marshal',
+    text: 'Gunboat in the lane. Mine.',
+  },
+  s3b_hawk_birds: {
+    who: 'Hawk',
+    text: 'Birds off the rocks! Your side!',
+  },
+  s3b_marshal_rockets: {
+    who: 'Marshal',
+    text: "Rockets. Somebody's feeling brave.",
+  },
+  s3b_dispatch_blockade: {
+    who: 'Dispatch',
+    text: 'Blockade ahead. Two boats, one fuel barge.',
+  },
+  s3b_hawk_fire: {
+    who: 'Hawk',
+    text: 'Through the fire! Always wanted to!',
+  },
+  s3b_dispatch_dock: {
+    who: 'Dispatch',
+    text: "Dock's below you. The mine is yours.",
+  },
   s4_dispatch_mine: {
     who: 'Dispatch',
     text: "Mine cart's the only way in.",

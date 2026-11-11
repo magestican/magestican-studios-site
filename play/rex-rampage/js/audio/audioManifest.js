@@ -10,6 +10,7 @@ export const MUSIC = {
   s1_jungle: 'jungle',
   s2_visitor: 'visitor',
   s3_river: 'river',
+  s3b_coast: 'river',
   s4_volcano: 'volcano',
   s4b_ash: 'volcano',
   s5_boss: 'boss',

@@ -306,7 +306,12 @@ function kill(game, ids, by = null) {
   }
 }
 
-const OBJECTIVE_KIND = { kill_all_compys: 'compy', kill_all_raptors: 'raptor', kill_all_pteranodons: 'pteranodon' };
+const OBJECTIVE_KIND = {
+  kill_all_compys: 'compy',
+  kill_all_raptors: 'raptor',
+  kill_all_pteranodons: 'pteranodon',
+  kill_all_gunboats: 'gunboat',
+};
 
 
 function objectiveWon(id, o, game) {

@@ -31,7 +31,7 @@ const demo = q.get('demo') === '1';
 const forced = q.get('input');
 const DIFFICULTIES = ['easy', 'normal', 'hard'];
 const urlDifficulty = DIFFICULTIES.includes(q.get('difficulty') ?? '') ? q.get('difficulty') : 'easy';
-const STAGES = ['s0-dropzone', 's1-jungle', 's2-visitor', 's3-river', 's4-volcano', 's4b-ash-road', 's5-stadium'];
+const STAGES = ['s0-dropzone', 's1-jungle', 's2-visitor', 's3-river', 's3b-razor-coast', 's4-volcano', 's4b-ash-road', 's5-stadium'];
 const BOSS_STAGE = STAGES.length - 1;
 const cheat = q.get('cheat');
 const urlStage = cheat === 'boss' ? BOSS_STAGE : Math.min(BOSS_STAGE, Math.max(0, Math.floor(Number(q.get('stage') ?? 1)) || 0));
