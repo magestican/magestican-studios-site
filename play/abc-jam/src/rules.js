@@ -238,6 +238,55 @@ export function createResetConfirm({ windowMs = 4000, now = () => Date.now() } =
 }
 
 
+
+
+const stepFull = (p, step) => step.words.every(([w]) => p.words.includes(w));
+const ALL_LETTERS = LETTERS.length;
+const ALL_STICKERS = LETTERS.length + WORD_STEPS.reduce((n, s) => n + s.words.length, 0);
+const BALLOON_PRIZES = [25, 50, 100];
+
+
+export const PRIZES = Object.freeze([
+  { id: 'alphabet', pic: 'trophy', done: (p) => p.letters.length >= ALL_LETTERS },
+  ...WORD_STEPS.map((s, i) => ({ id: `words-${s.id}`, pic: ['star', 'rainbow', 'sun'][i] || 'star', size: s.size, done: (p) => stepFull(p, s) })),
+  ...BALLOON_PRIZES.map((n, i) => ({ id: `balloons-${n}`, pic: ['balloon', 'kite', 'sparkle'][i], n, done: (p) => p.pops >= n })),
+  { id: 'book', pic: 'heart', done: (p) => p.letters.length + p.words.length >= ALL_STICKERS },
+].map(Object.freeze));
+
+
+export function prizesFor(p) {
+  return PRIZES.filter((z) => z.done(p)).map((z) => z.id);
+}
+
+
+export function newPrizes(had, p) {
+  const before = new Set(had);
+  return prizesFor(p).filter((id) => !before.has(id));
+}
+
+
+export function nextGoal(p) {
+  if (p.letters.length < ALL_LETTERS) return { go: 'parade' };
+  const step = WORD_STEPS.find((s) => !stepFull(p, s));
+  if (step) return { go: 'words', step: step.id };
+  if (p.pops < BALLOON_PRIZES[BALLOON_PRIZES.length - 1]) return { go: 'rain' };
+  return { go: 'jam' };
+}
+
+
+export function meters(p) {
+  const words = WORD_STEPS.reduce((n, s) => n + s.words.length, 0);
+  const next = BALLOON_PRIZES.find((n) => p.pops < n);
+  const prev = [...BALLOON_PRIZES].reverse().find((n) => p.pops >= n) || 0;
+  return {
+    parade: Math.min(1, p.letters.length / ALL_LETTERS),
+    words: Math.min(1, p.words.length / words),
+    rain: next ? (p.pops - prev) / (next - prev) : 1,
+    stickers: Math.min(1, (p.letters.length + p.words.length) / ALL_STICKERS),
+  };
+}
+
+
 export function addSticker(p, kind, id) {
   const list = kind === 'word' ? p.words : p.letters;
   if (list.includes(id)) return false;

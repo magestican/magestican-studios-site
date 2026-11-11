@@ -11,6 +11,7 @@ export const T = Object.freeze({
   title: 'ABC Jam',
   bookLetters: 'Letters',
   bookWords: 'Words',
+  bookPrizes: 'Prizes',
 
   play: 'Play',
   home: 'Home',
@@ -31,6 +32,10 @@ export const T = Object.freeze({
   balloon: 'Balloon {letter}',
   letterNotYet: '{letter}, not yet',
   wordNotYet: 'Not yet',
+  progressOf: '{n} of {total}',
+  prizeAlphabet: 'The whole alphabet',
+  prizeBalloons: '{n} balloons',
+  prizeBook: 'The full sticker book',
 
   find: 'Find the letter {letter}!',
   jamStart: 'Press any letter!',
@@ -47,6 +52,7 @@ export const T = Object.freeze({
   alphabetDone: 'Hooray! You sang the whole alphabet!',
   jamParty: 'Wow! What a song!',
   wordsDone: 'Hooray! You built all the words!',
+  prizeWon: 'Hooray! A new prize!',
   bookCount: Object.freeze({ one: 'You have 1 sticker!', other: 'You have {n} stickers!' }),
 
   noScript: 'Turn on JavaScript to play ABC Jam.',

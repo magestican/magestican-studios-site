@@ -103,6 +103,23 @@ button:focus-visible { outline: 4px solid #1d4e89; outline-offset: 3px; }
 @media (min-width: 900px) { .aj-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; } }
 
 
+
+
+.aj-start, .aj-tile, .aj-step { position: relative; }
+.aj-start { flex-wrap: wrap; }
+.aj-next { outline: 5px solid var(--sun); outline-offset: 4px; }
+.aj-next::after { content: ""; position: absolute; top: -22px; right: 12px; width: 52px; height: 52px;
+  background: url("../assets/icons/abc-jam/svg/sticker/hand_down.svg") center / contain no-repeat;
+  animation: aj-bob .9s ease-in-out infinite; pointer-events: none; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .2)); }
+.aj-meter { display: block; width: min(100%, 220px); height: 12px; border-radius: 999px; overflow: hidden;
+  background: rgba(0, 0, 0, .18); box-shadow: inset 0 2px 0 rgba(0, 0, 0, .12); }
+.aj-start .aj-meter { flex-basis: 100%; width: 100%; max-width: 360px; height: 14px; }
+.aj-meter i { display: block; height: 100%; width: 0; border-radius: inherit; background: #fff; transition: width .6s ease; }
+.aj-meter.is-full i { background: var(--sun); }
+.aj-book-prizes { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+.aj-sticker.aj-sticker-prize i { font-size: 52px; }
+
+
 .aj-top { display: flex; align-items: center; gap: var(--gap); flex: 0 0 auto; }
 .aj-home, .aj-say {
   flex: 0 0 auto; width: 64px; height: 64px; border: 0; border-radius: 20px; background: #fff;

@@ -13,6 +13,7 @@ import { LETTERS, LETTER, WORD_STEPS, letterPhrase, colourFor } from './content.
 import {
   TIMING, createParade, jamPress, pickRound, createSpeller, createRain,
   loadProgress, saveProgress, addSticker, PARTY_AFTER, createResetConfirm, resetProgress,
+  PRIZES, prizesFor, newPrizes, nextGoal, meters,
 } from './rules.js';
 import { SFX_NAMES } from './sfx.js';
 import { T, fill } from './strings.js';
@@ -49,7 +50,9 @@ const play = (name) => { try { sfx.play(name); } catch {  } };
 try { initAnalytics({ page: GAME_ID }); } catch {  }
 
 let progress = loadProgress(store);
-const save = () => saveProgress(store, progress);
+
+let prizesHad = prizesFor(progress);
+const save = () => { saveProgress(store, progress); checkPrizes(); };
 
 
 
@@ -174,6 +177,7 @@ function goHome({ quiet = false } = {}) {
   if (!quiet) play('tap');
   $('start-letter').textContent = LETTERS[progress.furthest]?.ch || 'A';
   $('start-letter').style.color = colourFor($('start-letter').textContent);
+  renderHub();
   show('hub');
 }
 
@@ -469,6 +473,7 @@ function showSteps() {
   show('steps');
   const list = $('step-list');
   list.innerHTML = '';
+  const goal = nextGoal(progress);
   const sample = { three: ['cat', 'cat'], four: ['fish', 'fish'], five: ['apple', 'apple'] };
   WORD_STEPS.forEach((s, i) => {
     const [w, pic] = sample[s.id] || s.words[0];
@@ -484,6 +489,7 @@ function showSteps() {
     b.querySelector('.aj-step-dots').textContent = '●'.repeat(s.size);
     b.querySelector('.aj-step-count').innerHTML = `${iconHtml('star')} ${done} / ${s.words.length}`;
     b.setAttribute('aria-label', fill(T.stepWords, { n: s.size }));
+    if (goal.go === 'words' && goal.step === s.id) b.classList.add('aj-next');
     b.addEventListener('click', () => { play('tap'); startWords(s.id); });
     list.appendChild(b);
   });
@@ -641,6 +647,7 @@ const rainPop = { els: null };
 function showStickers() {
   leaveMode();
   show('stickers');
+  renderPrizes();
   const L = $('book-letters');
   L.innerHTML = '';
   for (const l of LETTERS) {
@@ -684,6 +691,86 @@ function showStickers() {
 
 
 
+function prizeLabel(z) {
+  if (z.id === 'alphabet') return T.prizeAlphabet;
+  if (z.id === 'book') return T.prizeBook;
+  if (z.size) return fill(T.stepWords, { n: z.size });
+  return fill(T.prizeBalloons, { n: z.n });
+}
+
+function renderHub() {
+  const m = meters(progress);
+  const goal = nextGoal(progress);
+  const total = { parade: LETTERS.length, words: WORD_STEPS.reduce((n, s) => n + s.words.length, 0) };
+  const got = { parade: progress.letters.length, words: progress.words.length };
+  const targets = {
+    parade: $('start'),
+    jam: document.querySelector('.aj-tile[data-go="jam"]'),
+    words: document.querySelector('.aj-tile[data-go="words"]'),
+    rain: document.querySelector('.aj-tile[data-go="rain"]'),
+    stickers: document.querySelector('.aj-tile[data-go="stickers"]'),
+  };
+  for (const [k, el] of Object.entries(targets)) {
+    if (!el) continue;
+    el.classList.toggle('aj-next', goal.go === k);
+    if (!(k in m)) continue;
+    let bar = el.querySelector('.aj-meter');
+    if (!bar) {
+      bar = document.createElement('span');
+      bar.className = 'aj-meter';
+      bar.innerHTML = '<i></i>';
+      el.appendChild(bar);
+    }
+    bar.querySelector('i').style.width = `${Math.round(m[k] * 100)}%`;
+    bar.classList.toggle('is-full', m[k] >= 1);
+    
+    if (k in total) { bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', fill(T.progressOf, { n: got[k], total: total[k] })); } else bar.setAttribute('aria-hidden', 'true');
+  }
+}
+
+function renderPrizes() {
+  const P = $('book-prizes');
+  if (!P) return;
+  P.innerHTML = '';
+  const have = new Set(prizesFor(progress));
+  PRIZES.forEach((z, i) => {
+    const got = have.has(z.id);
+    const s = document.createElement('button');
+    s.type = 'button';
+    s.className = 'aj-sticker aj-sticker-prize' + (got ? ' is-got' : '');
+    s.style.setProperty('--c', ['#f5b700', '#ff8c1a', '#00a6ed', '#7b5cff', '#ff4f6d', '#38b000', '#e040fb', '#ff5e8a'][i % 8]);
+    s.innerHTML = '<i aria-hidden="true"></i>';
+    setPic(s.querySelector('i'), z.pic);
+    s.setAttribute('aria-label', got ? prizeLabel(z) : T.wordNotYet);
+    s.addEventListener('click', () => { bump(s, 'aj-jump'); if (got) { play('star'); say(FIXED.hooray); } else play('tap'); });
+    P.appendChild(s);
+  });
+}
+
+
+
+
+function checkPrizes() {
+  const fresh = newPrizes(prizesHad, progress);
+  prizesHad = prizesFor(progress);
+  fresh.forEach((id, i) => {
+    const z = PRIZES.find((x) => x.id === id);
+    const celebrate = (tries = 0) => {
+      const busyNow = document.body.classList.contains('aj-finale') || document.body.classList.contains('aj-partying');
+      if (busyNow && tries < 15) { setTimeout(() => celebrate(tries + 1), 1000); return; }
+      play('party');
+      confetti(80, { x: 0.5, y: 0.35 });
+      stickerToast(T.prizeWon, z.pic);
+      voice.sayNext(FIXED.hooray);
+      if (document.body.dataset.screen === 'hub') renderHub();
+    };
+    setTimeout(celebrate, 2500 + i * 3000);
+  });
+}
+
+
+
+
 const unlockVoice = () => { try { voice.unlock(silentWavDataUrl()); } catch {  } };
 $('start').addEventListener('click', () => { unlockVoice(); play('tap'); startParade(); });
 for (const t of document.querySelectorAll('.aj-tile')) {
@@ -717,6 +804,7 @@ resetBtn.addEventListener('click', () => {
     return;
   }
   progress = resetProgress(store);
+  prizesHad = prizesFor(progress);
   resetBtn.textContent = T.resetAsk;
   resetBtn.classList.remove('is-sure');
   play('whoosh');
