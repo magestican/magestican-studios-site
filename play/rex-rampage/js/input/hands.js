@@ -30,17 +30,28 @@ function torsoOf(pose) {
 }
 
 
+export const NO_HAND = { raised: false, up: false, wrist: null, elbow: null, shoulder: null, torso: 0 };
+
+
 function hand(pose, side, torso) {
   const w = pose[`${side}_wrist`];
   const e = pose[`${side}_elbow`];
   const s = pose[`${side}_shoulder`];
-  const none = { raised: false, up: false, wrist: null, elbow: null, shoulder: null, torso };
+  const none = { ...NO_HAND, torso };
   if (!torso || !ok(w, HAND_SCORE) || !ok(e, HAND_SCORE) || !ok(s, HAND_SCORE)) return none;
   const raised = w.y < s.y + GUN_LOWEST * torso && w.y - e.y < FOREARM_DROP * torso;
   if (!raised) return none;
   const nose = pose.nose;
   const up = ok(nose, HAND_SCORE) && w.y < nose.y - 0.35 * torso && Math.abs(w.x - e.x) < 0.25 * torso;
-  return { raised, up, wrist: { x: w.x, y: w.y }, elbow: { x: e.x, y: e.y }, shoulder: { x: s.x, y: s.y }, torso };
+  return {
+    raised,
+    up,
+    wrist: { x: w.x, y: w.y },
+    elbow: { x: e.x, y: e.y },
+    shoulder: { x: s.x, y: s.y },
+    torso,
+    score: Math.min(w.score, e.score),
+  };
 }
 
 

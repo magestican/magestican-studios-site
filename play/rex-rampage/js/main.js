@@ -3,10 +3,11 @@
 
 
 
-import { soundsFor, stageCue } from './audio/audioManifest.js';
+import { soundsFor, stageCue, stageVoices } from './audio/audioManifest.js';
 import { createSound } from './audio/sound.js';
 import { Aim } from './input/aim.js';
 import { demoHands } from './input/demoHands.js';
+import { GunHands } from './input/guns.js';
 import { readHands } from './input/hands.js';
 import { createModeSwitch } from './input/mode.js';
 import { createTouch } from './input/touch.js';
@@ -88,7 +89,7 @@ const view = createScene(canvas, game.stage, plan);
 const guns3d = createViewmodels(view.camera);
 view.art.then((a) => guns3d.setModel(a?.models[GUN_FILE]));
 
-const sound = createSound();
+const sound = createSound({ voices: stageVoices(stageJson) });
 sound.music(stageCue(stageJson) ?? 'menu');
 const hud = createHud( (document.getElementById('hud')), {
   sound,
@@ -119,11 +120,12 @@ if (skipTo || phase > 1) {
 
 let aim = new Aim();
 const smoother = new PoseSmoother();
+const gunHands = new GunHands();
 
 let hands = null;
 let estimator = null;
 
-const seen = { runs: 0, people: 0, raised: 0, up: 0, aimed: 0, minX: 1, maxX: -1, minY: 1, maxY: -1 };
+const seen = { runs: 0, people: 0, raised: 0, up: 0, two: 0, aimed: 0, minX: 1, maxX: -1, minY: 1, maxY: -1 };
 
 async function startCamera() {
   if (demo || q.get('nocamera') === '1' || !navigator.mediaDevices?.getUserMedia) return;
@@ -148,11 +150,12 @@ async function poseLoop() {
   }
   const t = performance.now() / 1000;
   const f = await estimator.estimate(video, t);
-  hands = f ? readHands(smoother.smooth(mirrorFrame(f)).pose) : null;
+  hands = f ? gunHands.pick(readHands(smoother.smooth(mirrorFrame(f)).pose), t, f.width) : null;
   seen.runs++;
   if (hands?.body) seen.people++;
   if (hands?.left.raised || hands?.right.raised) seen.raised++;
   if (hands?.left.up || hands?.right.up) seen.up++;
+  if (hands?.left.raised && hands?.right.raised) seen.two++;
   
   setTimeout(poseLoop, mode.mode === 'camera' ? 0 : 200);
 }
@@ -224,6 +227,7 @@ function frame(now) {
   const events = game.events.splice(0);
   const heard = soundsFor(events, ammoBefore, game.guns);
   sound.play(heard.sfx);
+  if (heard.voice) sound.say(heard.voice);
   if (heard.music) sound.music(heard.music);
   for (const ev of events) {
     if (ev.type === 'kill') stats.kills = (stats.kills ?? 0) + 1;
@@ -279,6 +283,13 @@ Object.assign(window, {
       camera: { ...seen, failed: !!estimator?.failed() },
       sound: sound.state(),
       enemies: game.enemies.length,
+      
+      gl: {
+        ...view.renderer.info.memory,
+        calls: view.renderer.info.render.calls,
+        tris: view.renderer.info.render.triangles,
+        scene: view.objects(),
+      },
       stage: stageNo,
       cutscene: game.stage.cutscene,
       crouched: game.crouched,

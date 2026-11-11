@@ -1,6 +1,8 @@
 
 
 
+import { LINES } from '../ui/linesData.js';
+
 
 export const MUSIC = {
   menu: 'menu',
@@ -36,13 +38,33 @@ export const SFX = {
 };
 
 
-export const MIX = { music: 0.45, sfx: 0.9 };
+export const VOICES = [...Object.keys(LINES), 'reload'];
+
+
+export function voiceFile(key, ext) {
+  return VOICES.includes(key) ? `audio/voice/${key}.${ext}` : null;
+}
+
+
+export function stageVoices(stage) {
+  const said = (stage.events ?? []).filter((e) => e.do === 'say').map((e) =>  (e.line));
+  return [...new Set([...said.filter((k) => VOICES.includes(k)), 'reload'])];
+}
+
+
+export const MIX = { music: 0.45, sfx: 0.9, voice: 1, musicUnderVoice: 0.25 };
 
 
 
 
 
-export const BUDGET = { musicFileBytes: 2_000_000, sfxSetBytes: 1_500_000, perStageBytes: 3_000_000, voicesPerSound: 4 };
+export const BUDGET = {
+  voiceStageBytes: 600_000,
+  musicFileBytes: 2_000_000,
+  sfxSetBytes: 1_500_000,
+  perStageBytes: 3_000_000,
+  voicesPerSound: 4,
+};
 
 
 const BIG = new Set(['rex', 'spino', 'ankylo']);
@@ -79,8 +101,13 @@ export function soundsFor(events, before, after) {
   
   const sfx = [];
   let music = null;
+  
+  let voice = null;
   for (const ev of events) {
     switch (ev.type) {
+      case 'say':
+        if (voiceFile(ev.line, 'ogg')) voice = ev.line;
+        break;
       case 'shot':
         sfx.push('gun_shot', 'hit');
         break;
@@ -130,7 +157,10 @@ export function soundsFor(events, before, after) {
     const a = after[side];
     if (!a || !b) continue;
     if (a.ammo > b.ammo) sfx.push('reload');
-    else if (a.ammo === 0 && b.ammo > 0) sfx.push('gun_empty', 'low_ammo');
+    else if (a.ammo === 0 && b.ammo > 0) {
+      sfx.push('gun_empty', 'low_ammo');
+      voice ??= 'reload';
+    }
   }
-  return { sfx, music };
+  return { sfx, music, voice };
 }

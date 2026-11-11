@@ -184,6 +184,12 @@ export function createScene(canvas, stage, plan) {
     stats,
     
     art,
+    
+    objects() {
+      let n = 0;
+      scene.traverse(() => n++);
+      return { nodes: n, fx: fx.length, meshes: meshes.size };
+    },
     resize(w, h) {
       renderer.setPixelRatio(pixelRatioFor(w, h, window.devicePixelRatio, plan.maxPixelRatio));
       renderer.setSize(w, h, false);

@@ -12,6 +12,12 @@ const el = (tag, cls, parent) => {
   return n;
 };
 
+
+
+export const put = (n, text) => {
+  if (n.textContent !== text) n.textContent = text;
+};
+
 const BANNER = {
   continue: () => 'CONTINUE!',
   checkpoint: () => 'CHECKPOINT',
@@ -124,13 +130,13 @@ export function createHud(root, actions) {
       top.hidden = cutscene;
       bottom.hidden = cutscene;
       skip.hidden = !cutscene;
-      hearts.textContent = `${'♥'.repeat(game.life.hearts)}${'♡'.repeat(Math.max(0, game.d.hearts - game.life.hearts))}`;
-      score.textContent = `${game.score.points.toLocaleString('en')}${game.score.combo > 1 ? `  x${game.score.combo}` : ''}`;
+      put(hearts, `${'♥'.repeat(game.life.hearts)}${'♡'.repeat(Math.max(0, game.d.hearts - game.life.hearts))}`);
+      put(score, `${game.score.points.toLocaleString('en')}${game.score.combo > 1 ? `  x${game.score.combo}` : ''}`);
       for (const side of  (['left', 'right'])) {
         const g = game.guns[side];
         const held = !!(aim[side].ndc || aim[side].up);
         ammo[side].hidden = !held && side === 'left';
-        ammo[side].textContent = g.reloading > 0 ? `RELOAD ${Math.round(g.reloading * 100)}%` : g.ammo ? '|'.repeat(g.ammo) : 'EMPTY';
+        put(ammo[side], g.reloading > 0 ? `RELOAD ${Math.round(g.reloading * 100)}%` : g.ammo ? '|'.repeat(g.ammo) : 'EMPTY');
         ammo[side].classList.toggle('empty', g.ammo === 0);
         const c = aim[side].ndc;
         cross[side].hidden = !c;
@@ -146,10 +152,10 @@ export function createHud(root, actions) {
         const parts = b.phase === 1 ? b.parts.plates : b.phase === 2 ? [b.parts.jaw] : [b.parts.varga];
         const hp = parts.reduce((s, p) => s + (p && !p.dead ? p.hp : 0), 0);
         const max = parts.reduce((s, p) => s + (p ? p.maxHp : 0), 0) || 1;
-        bossName.textContent = b.phase < 3 ? `IRON-JAW - PHASE ${b.phase}` : 'BOSS VARGA';
+        put(bossName, b.phase < 3 ? `IRON-JAW - PHASE ${b.phase}` : 'BOSS VARGA');
         bossBar.style.width = `${Math.round((100 * hp) / max)}%`;
       }
-      hint.textContent = cutscene ? '' : input.hint;
+      put(hint, cutscene ? '' : input.hint);
       reload.hidden = cutscene || input.mode !== 'touch' || game.guns.right.autoReload;
       hurtLeft = Math.max(0, hurtLeft - dt);
       flash.style.opacity = String(hurtLeft * 2);

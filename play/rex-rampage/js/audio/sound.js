@@ -2,7 +2,7 @@
 
 
 
-import { BUDGET, MIX, MUSIC, musicFile, SFX, sfxFiles } from './audioManifest.js';
+import { BUDGET, MIX, MUSIC, musicFile, SFX, sfxFiles, voiceFile } from './audioManifest.js';
 
 const MUTE_KEY = 'rr-muted';
 
@@ -27,6 +27,8 @@ export function createSound(opts = {}) {
   let music = null;
   
   let wantedCue = null;
+  
+  let voice = null;
   
   const loops = fetch(new URL('../../audio/imported.json', import.meta.url))
     .then((r) => r.json())
@@ -63,6 +65,7 @@ export function createSound(opts = {}) {
       master.gain.value = muted ? 0 : 1;
       master.connect(ctx.destination);
       for (const name of Object.keys(SFX)) for (const f of sfxFiles(name, sfxExt)) load(f);
+      for (const key of opts.voices ?? []) load( (voiceFile(key, sfxExt)));
       if (wantedCue) startMusic(wantedCue);
     }
     if (ctx.state === 'suspended') ctx.resume();
@@ -103,6 +106,35 @@ export function createSound(opts = {}) {
       if (wantedCue === cue) return;
       wantedCue = cue;
       if (ctx) startMusic(cue);
+    },
+    
+
+
+
+
+    say(key) {
+      const url = voiceFile(key, sfxExt);
+      if (!ctx || muted || !url || (key === 'reload' && voice)) return;
+      const c = ctx;
+      const mine = { src:  (null) };
+      if (voice) voice.src?.stop();
+      voice = mine;
+      load(url).then((buf) => {
+        if (!buf || voice !== mine) return;
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        const gain = c.createGain();
+        gain.gain.value = MIX.voice;
+        src.connect(gain).connect( (master));
+        mine.src = src;
+        music?.gain?.gain.setTargetAtTime(MIX.musicUnderVoice, c.currentTime, 0.05);
+        src.onended = () => {
+          if (voice !== mine) return;
+          voice = null;
+          music?.gain?.gain.setTargetAtTime(MIX.music, c.currentTime, 0.2);
+        };
+        src.start();
+      });
     },
     
     play(names) {
