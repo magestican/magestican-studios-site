@@ -10,7 +10,7 @@
 
 
 import { HEIGHT, WIDTH, STONE } from '../../../web-engine/clashwell/well.js';
-import { GEM, INK, OCHRE, PAPER, PERSIMMON, STONE_FILL, VERMILION } from './palette.js';
+import { GEM, INK, LEMON, CLOUD, TANGERINE, STONE_FILL, CANDY, ROUNDED } from './palette.js';
 
 export const MAX_PARTICLES = 420;
 
@@ -63,7 +63,7 @@ export function createFx({ seed = 1, reduced = false } = {}) {
     if (s.particles.length > MAX_PARTICLES) s.particles.splice(0, s.particles.length - MAX_PARTICLES);
   }
 
-  function burst(frame, u, v, n, { speed = 0.25, colour = PAPER, size = 0.12, life = 26, g = 0.012, wait = 0, kind = 'spark' } = {}) {
+  function burst(frame, u, v, n, { speed = 0.25, colour = CLOUD, size = 0.12, life = 26, g = 0.012, wait = 0, kind = 'spark' } = {}) {
     for (let i = 0, count = amount(n); i < count; i += 1) {
       const angle = next() * Math.PI * 2;
       const pace = speed * between(0.35, 1);
@@ -86,7 +86,7 @@ export function createFx({ seed = 1, reduced = false } = {}) {
   const ring = (frame, u, v, r, grow, colour, life, wide = 0.18, wait = 0) => s.rings.push({ frame, u, v, r, grow, colour, left: life, total: life, wide, wait });
   const bolt = (from, to, colour, wide, life = 10) => s.bolts.push({ from, to, colour, wide, left: life, total: life });
 
-  function word(text, frame, { colour = PAPER, size = 1, seal = false, life = seal ? SEAL_WORD_TICKS : WORD_TICKS, wait = 0 } = {}) {
+  function word(text, frame, { colour = CLOUD, size = 1, seal = false, life = seal ? SEAL_WORD_TICKS : WORD_TICKS, wait = 0 } = {}) {
     s.words.push({ text, frame, colour, size, seal, left: life, total: life, wait });
   }
 
@@ -105,7 +105,7 @@ export function createFx({ seed = 1, reduced = false } = {}) {
     const seat = e.player;
     press(seat, e.steps.length ? 0.22 : 0.09);
     for (const [x, y] of e.placed ?? []) {
-      if (y < HEIGHT) burst(seat, x + 0.5, rowOf(y) + 0.45, 2, { speed: 0.06, colour: PAPER, size: 0.1, life: 14, g: -0.001, kind: 'dust' });
+      if (y < HEIGHT) burst(seat, x + 0.5, rowOf(y) + 0.45, 2, { speed: 0.06, colour: CLOUD, size: 0.1, life: 14, g: -0.001, kind: 'dust' });
     }
     e.steps.forEach((step, i) => {
       const wait = i * CHAIN_STEP_TICKS;
@@ -123,17 +123,17 @@ export function createFx({ seed = 1, reduced = false } = {}) {
       }
       const n = step.cleared.length || 1;
       const [cx, cy] = [sumX / n + 0.5, rowOf(sumY / n)];
-      ring(seat, cx, cy, 0.5, 0.18 + i * 0.05, i ? OCHRE : PAPER, 20 + i * 4, 0.16 + i * 0.05, wait);
+      ring(seat, cx, cy, 0.5, 0.18 + i * 0.05, i ? LEMON : CLOUD, 20 + i * 4, 0.16 + i * 0.05, wait);
       if (i > 0) {
-        burst(seat, cx, cy, 8 + i * 6, { speed: 0.26 + i * 0.05, colour: OCHRE, wait });
-        word(words.chain(i + 1), seat, { colour: OCHRE, size: 1 + i * 0.25, wait, seal: i >= 2 });
+        burst(seat, cx, cy, 8 + i * 6, { speed: 0.26 + i * 0.05, colour: LEMON, wait });
+        word(words.chain(i + 1), seat, { colour: LEMON, size: 1 + i * 0.25, wait, seal: i >= 2 });
       }
     });
   }
 
   function onFire(e, words) {
     const heavy = e.kind === 'heavy';
-    const colour = heavy ? PERSIMMON : OCHRE;
+    const colour = heavy ? TANGERINE : LEMON;
     bolt(e.from, 'stage', colour, heavy ? 0.7 : 0.4, 12);
     press(e.from, heavy ? 0.3 : 0.16);
     burst(e.from, WIDTH / 2, 0.5, heavy ? 12 : 6, { speed: 0.3, colour });
@@ -143,14 +143,14 @@ export function createFx({ seed = 1, reduced = false } = {}) {
   function onLand(e, words) {
     const heavy = e.kind === 'heavy';
     const weight = Math.min(1, 0.25 + e.stones * 0.1 + (heavy ? 0.2 : 0));
-    bolt('stage', e.to, heavy ? PERSIMMON : OCHRE, heavy ? 0.9 : 0.5, 9);
+    bolt('stage', e.to, heavy ? TANGERINE : LEMON, heavy ? 0.9 : 0.5, 9);
     jolt(e.to, 0.12 + weight * 0.2);
     bruise(e.to, 0.3 + weight * 0.35);
     const [x, y] = [WIDTH / 2, HEIGHT - 2];
-    burst(e.to, x, y, 6 + Math.round(weight * 8), { speed: 0.22, colour: PAPER, life: 22, size: 0.12 });
-    burst(e.to, x, y, 3 + Math.round(weight * 5), { speed: 0.18, colour: VERMILION, life: 26, size: 0.13 });
-    ring(e.to, x, y, 0.5, 0.25, PAPER, 16, 0.2);
-    word(words.hit, e.to, { colour: PAPER, size: heavy ? 0.9 : 0.75 });
+    burst(e.to, x, y, 6 + Math.round(weight * 8), { speed: 0.22, colour: CLOUD, life: 22, size: 0.12 });
+    burst(e.to, x, y, 3 + Math.round(weight * 5), { speed: 0.18, colour: CANDY, life: 26, size: 0.13 });
+    ring(e.to, x, y, 0.5, 0.25, CLOUD, 16, 0.2);
+    word(words.hit, e.to, { colour: CLOUD, size: heavy ? 0.9 : 0.75 });
   }
 
   function onRise(e) {
@@ -162,15 +162,15 @@ export function createFx({ seed = 1, reduced = false } = {}) {
   
   
   function onClash(e, words) {
-    ring('field', 0, 0, 0.4, 0.25, PAPER, 22, 0.2);
-    for (const colour of [OCHRE, PAPER]) burst('field', 0, 0, 6, { speed: 0.3, colour, life: 26, size: 0.12, g: 0.006 });
+    ring('field', 0, 0, 0.4, 0.25, CLOUD, 22, 0.2);
+    for (const colour of [LEMON, CLOUD]) burst('field', 0, 0, 6, { speed: 0.3, colour, life: 26, size: 0.12, g: 0.006 });
     if (e.winner !== null) {
       const loser = 1 - e.winner;
-      bolt('stage', loser, PERSIMMON, 0.8, 14);
+      bolt('stage', loser, TANGERINE, 0.8, 14);
       jolt(loser, 0.25);
       bruise(loser, 0.35);
     }
-    word(e.winner === null ? words.draw : words.clash, 'field', { colour: PAPER, size: 0.8 });
+    word(e.winner === null ? words.draw : words.clash, 'field', { colour: CLOUD, size: 0.8 });
   }
 
   function onRound(e, view, words) {
@@ -194,18 +194,18 @@ export function createFx({ seed = 1, reduced = false } = {}) {
     for (let i = 0, n = amount(26); i < n; i += 1) {
       const angle = next() * Math.PI * 2;
       const pace = between(0.08, 0.5);
-      particle(loser, 'ink', WIDTH / 2, HEIGHT * 0.45, { vx: Math.cos(angle) * pace, vy: Math.sin(angle) * pace, drag: 0.92, g: 0.003, size: between(0.05, 0.16), left: 90, total: 90, colour: VERMILION });
+      particle(loser, 'ink', WIDTH / 2, HEIGHT * 0.45, { vx: Math.cos(angle) * pace, vy: Math.sin(angle) * pace, drag: 0.92, g: 0.003, size: between(0.05, 0.16), left: 90, total: 90, colour: CANDY });
     }
-    ring(loser, WIDTH / 2, HEIGHT / 2, 1, 0.9, VERMILION, 40, 0.5);
+    ring(loser, WIDTH / 2, HEIGHT / 2, 1, 0.9, CANDY, 40, 0.5);
     word(words.ko, loser, { seal: true, size: 1, life: KO_WORD_TICKS });
   }
 
   function onSqueeze(e, words) {
     for (const seat of [0, 1]) {
       bruise(seat, 0.25);
-      for (let x = 0; x < WIDTH; x += 1) burst(seat, x + 0.5, 0.2, 1, { speed: 0.05, colour: PAPER, size: 0.1, life: 50, g: 0.006, kind: 'dust' });
+      for (let x = 0; x < WIDTH; x += 1) burst(seat, x + 0.5, 0.2, 1, { speed: 0.05, colour: CLOUD, size: 0.1, life: 50, g: 0.006, kind: 'dust' });
     }
-    word(words.squeeze, 'field', { colour: PERSIMMON });
+    word(words.squeeze, 'field', { colour: TANGERINE });
   }
 
   function on(e, view, words) {
@@ -323,7 +323,7 @@ function drawFocusLines(ctx, size, layout, state) {
   const inner = unitOf(layout) * 3.2;
   ctx.save();
   ctx.globalAlpha = Math.min(0.75, state.lines);
-  ctx.fillStyle = PAPER;
+  ctx.fillStyle = CLOUD;
   for (let i = 0; i < 44; i += 1) {
     
     const angle = (i / 44) * Math.PI * 2 + Math.sin(i * 12.9898 + state.tick * 0.4) * 0.05;
@@ -364,7 +364,7 @@ function drawBolt(ctx, layout, b) {
   ctx.moveTo(a.x, a.y);
   ctx.lineTo(c.x, c.y);
   ctx.stroke();
-  ctx.strokeStyle = PAPER;
+  ctx.strokeStyle = CLOUD;
   ctx.lineWidth = wide * 0.35;
   ctx.stroke();
   ctx.restore();
@@ -395,7 +395,7 @@ function drawParticle(ctx, layout, p) {
     ctx.restore();
   } else if (p.kind === 'band') {
     const box = layout.wells[p.frame];
-    ctx.fillStyle = PAPER;
+    ctx.fillStyle = CLOUD;
     ctx.fillRect(box.x, y - (f.scale * life) / 2, box.w, f.scale * life);
   } else if (p.kind === 'ink') {
     ctx.fillStyle = p.colour;
@@ -435,7 +435,7 @@ function drawRing(ctx, layout, r) {
   ctx.globalAlpha = 1;
 }
 
-const STAMP_FONT = "900 {s}px 'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', Georgia, 'Times New Roman', serif";
+const STAMP_FONT = `900 {s}px ${ROUNDED}`;
 
 
 function drawWord(ctx, size, layout, w, slot) {
@@ -461,16 +461,22 @@ function drawWord(ctx, size, layout, w, slot) {
   ctx.globalAlpha = Math.min(1, (w.left / w.total) * 4);
   if (w.seal) {
     ctx.rotate(-0.05);
-    ctx.fillStyle = VERMILION;
+    ctx.fillStyle = CANDY;
     ctx.beginPath();
-    ctx.roundRect(-halfW, -px * 0.78, halfW * 2, px * 1.56, px * 0.14);
+    ctx.roundRect(-halfW, -px * 0.78, halfW * 2, px * 1.56, px * 0.78);
     ctx.fill();
-    ctx.strokeStyle = PAPER;
-    ctx.lineWidth = Math.max(2, px * 0.05);
-    ctx.beginPath();
-    ctx.roundRect(-halfW + px * 0.12, -px * 0.66, halfW * 2 - px * 0.24, px * 1.32, px * 0.08);
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = Math.max(3, px * 0.1);
     ctx.stroke();
-    ctx.fillStyle = PAPER;
+    
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.beginPath();
+    ctx.ellipse(-halfW + px * 0.62, -px * 0.4, px * 0.32, px * 0.14, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = Math.max(3, px / 6);
+    ctx.strokeText(w.text, 0, px * 0.04);
+    ctx.fillStyle = CLOUD;
     ctx.fillText(w.text, 0, px * 0.04);
   } else {
     ctx.lineJoin = 'round';
