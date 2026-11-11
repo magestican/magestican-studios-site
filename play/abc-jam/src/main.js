@@ -100,7 +100,7 @@ function stars(n = 6, at = null) {
   for (let i = 0; i < n; i++) {
     const s = document.createElement('span');
     s.className = 'aj-star';
-    s.textContent = i % 2 ? '⭐' : '✨';
+    s.innerHTML = iconHtml(i % 2 ? 'star' : 'sparkle');
     const ang = (i / n) * Math.PI * 2;
     s.style.left = `${x * 100}%`;
     s.style.top = `${y * 100}%`;
@@ -111,10 +111,19 @@ function stars(n = 6, at = null) {
   }
 }
 
-function stickerToast(label) {
+
+
+
+
+const ICONS = new URL('../assets/icons/abc-jam/svg/sticker/', import.meta.url);
+const iconSrc = (id) => new URL(`${id}.svg`, ICONS).href;
+const iconHtml = (id) => `<img class="aj-ic" src="${iconSrc(id)}" alt="" draggable="false">`;
+function setPic(el, id) { el.innerHTML = iconHtml(id); }
+
+function stickerToast(label, id = 'balloon') {
   const t = document.createElement('div');
   t.className = 'aj-toast';
-  t.innerHTML = `<span aria-hidden="true">🌟</span><b></b>`;
+  t.innerHTML = `<span aria-hidden="true">${iconHtml('star')}</span>${iconHtml(id)}<b></b>`;
   t.querySelector('b').textContent = label;
   fx.appendChild(t);
   setTimeout(() => t.remove(), 2200);
@@ -290,8 +299,9 @@ function renderProgress(items, at) {
   items.forEach((label, i) => {
     const d = document.createElement('span');
     d.className = 'aj-dot' + (i < at ? ' is-done' : '') + (i === at ? ' is-now' : '');
-    d.textContent = label;
-    if (i < at) d.style.setProperty('--c', colourFor(String(label)[0] || 'A'));
+    
+    if (label && typeof label === 'object') setPic(d, label.icon); else d.textContent = label;
+    if (i < at) d.style.setProperty('--c', colourFor(typeof label === 'string' ? label[0] || 'A' : 'A'));
     p.appendChild(d);
   });
   p.querySelector('.is-now')?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
@@ -324,7 +334,7 @@ function showParadeLetter() {
     + '<div class="aj-pic" aria-hidden="true"></div><div class="aj-word"></div>';
   card.querySelector('.aj-up').textContent = l.ch;
   card.querySelector('.aj-low').textContent = l.ch.toLowerCase();
-  card.querySelector('.aj-pic').textContent = l.pic;
+  setPic(card.querySelector('.aj-pic'), l.pic);
   const w = card.querySelector('.aj-word');
   
   const at = l.ends ? l.word.toUpperCase().lastIndexOf(l.ch) : l.word.toUpperCase().indexOf(l.ch);
@@ -366,7 +376,7 @@ function paradePress(c) {
 function paradeFinale() {
   const st = $('stage');
   st.className = 'aj-stage aj-stage-finale';
-  st.innerHTML = '<div class="aj-march"></div><div class="aj-finale-pic" aria-hidden="true">🏆</div>';
+  st.innerHTML = '<div class="aj-march"></div><div class="aj-finale-pic" aria-hidden="true">' + iconHtml('trophy') + '</div>';
   const m = st.querySelector('.aj-march');
   LETTERS.forEach((l, i) => {
     const s = document.createElement('span');
@@ -411,10 +421,10 @@ function startJam() {
   layoutInput();
   buildKeyboard();
   setChoices(jamChoices());
-  $('progress').innerHTML = '<span class="aj-jam-label" aria-hidden="true">🎹 🎵 🎶</span>';
+  $('progress').innerHTML = `<span class="aj-jam-label" aria-hidden="true">${iconHtml('piano')} ${iconHtml('notes')}</span>`;
   const st = $('stage');
   st.className = 'aj-stage aj-stage-jam';
-  st.innerHTML = '<div class="aj-jam-hint" aria-hidden="true">👆 ⌨️</div>';
+  st.innerHTML = `<div class="aj-jam-hint" aria-hidden="true">${iconHtml('hand_up')} ${iconHtml('keyboard')}</div>`;
   say(FIXED.jamStart);
 }
 
@@ -437,7 +447,7 @@ function jamPressed(c) {
   el.style.setProperty('--tilt', `${Math.random() * 30 - 15}deg`);
   el.innerHTML = '<b></b><i aria-hidden="true"></i>';
   el.querySelector('b').textContent = r.letter;
-  el.querySelector('i').textContent = l.pic;
+  setPic(el.querySelector('i'), l.pic);
   st.appendChild(el);
   stars(5, el);
   
@@ -459,7 +469,7 @@ function showSteps() {
   show('steps');
   const list = $('step-list');
   list.innerHTML = '';
-  const sample = { three: ['cat', '🐱'], four: ['fish', '🐟'], five: ['apple', '🍎'] };
+  const sample = { three: ['cat', 'cat'], four: ['fish', 'fish'], five: ['apple', 'apple'] };
   WORD_STEPS.forEach((s, i) => {
     const [w, pic] = sample[s.id] || s.words[0];
     const b = document.createElement('button');
@@ -469,10 +479,10 @@ function showSteps() {
     const done = s.words.filter(([x]) => progress.words.includes(x)).length;
     b.innerHTML = '<span class="aj-step-pic" aria-hidden="true"></span><span class="aj-step-word"></span>'
       + '<span class="aj-step-dots" aria-hidden="true"></span><span class="aj-step-count"></span>';
-    b.querySelector('.aj-step-pic').textContent = pic;
+    setPic(b.querySelector('.aj-step-pic'), pic);
     b.querySelector('.aj-step-word').textContent = w.toUpperCase();
     b.querySelector('.aj-step-dots').textContent = '●'.repeat(s.size);
-    b.querySelector('.aj-step-count').textContent = `⭐ ${done} / ${s.words.length}`;
+    b.querySelector('.aj-step-count').innerHTML = `${iconHtml('star')} ${done} / ${s.words.length}`;
     b.setAttribute('aria-label', fill(T.stepWords, { n: s.size }));
     b.addEventListener('click', () => { play('tap'); startWords(s.id); });
     list.appendChild(b);
@@ -497,7 +507,7 @@ function showWord() {
   const st = $('stage');
   st.className = 'aj-stage aj-stage-words';
   st.innerHTML = '<div class="aj-pic aj-word-pic aj-enter" aria-hidden="true"></div><div class="aj-slots"></div>';
-  st.querySelector('.aj-word-pic').textContent = cur.pic;
+  setPic(st.querySelector('.aj-word-pic'), cur.pic);
   const slots = st.querySelector('.aj-slots');
   [...cur.word.toUpperCase()].forEach((c, i) => {
     const s = document.createElement('span');
@@ -506,7 +516,7 @@ function showWord() {
     s.dataset.c = colourFor(c);
     slots.appendChild(s);
   });
-  renderProgress(Array.from({ length: speller.total }, (_, i) => (i < speller.wordIndex ? '⭐' : '•')), speller.wordIndex);
+  renderProgress(Array.from({ length: speller.total }, (_, i) => (i < speller.wordIndex ? { icon: 'star' } : '•')), speller.wordIndex);
   play('whoosh');
   prompt(speller.want());
   say(vid.spell(cur.word));
@@ -562,7 +572,7 @@ function startRain() {
   layoutInput();
   buildKeyboard();
   wanted = null; markWanted();
-  $('progress').innerHTML = '<span class="aj-rain-count" id="rain-count">🎈 0</span>';
+  $('progress').innerHTML = `<span class="aj-rain-count">${iconHtml('balloon')} <span id="rain-count">0</span></span>`;
   const st = $('stage');
   st.className = 'aj-stage aj-stage-rain';
   st.innerHTML = '<div class="aj-sky"></div>';
@@ -620,9 +630,9 @@ function rainPress(c) {
   
   voice.sayNext(vid.name(r.letter));
   const cnt = $('rain-count');
-  if (cnt) { cnt.textContent = `🎈 ${rain.popped}`; bump(cnt, 'aj-jump'); }
+  if (cnt) { cnt.textContent = String(rain.popped); bump(cnt.parentElement, 'aj-jump'); }
   progress.pops += 1;
-  if (r.sticker) { progress.stars += 1; play('star'); stickerToast(`🎈 ${rain.popped}`); confetti(50); }
+  if (r.sticker) { progress.stars += 1; play('star'); stickerToast(String(rain.popped), 'balloon'); confetti(50); }
   save();
 }
 const rainPop = { els: null };
@@ -641,7 +651,7 @@ function showStickers() {
     s.style.setProperty('--c', colourFor(l.ch));
     s.innerHTML = '<b></b><i aria-hidden="true"></i>';
     s.querySelector('b').textContent = l.ch;
-    s.querySelector('i').textContent = got ? l.pic : '❔';
+    setPic(s.querySelector('i'), got ? l.pic : 'mystery');
     s.setAttribute('aria-label', got ? letterPhrase(l.ch) : fill(T.letterNotYet, { letter: l.ch }));
     s.addEventListener('click', () => {
       bump(s, 'aj-jump');
@@ -659,7 +669,7 @@ function showStickers() {
       s.className = 'aj-sticker aj-sticker-word' + (got ? ' is-got' : '');
       s.style.setProperty('--c', colourFor(w[0]));
       s.innerHTML = '<i aria-hidden="true"></i><b></b>';
-      s.querySelector('i').textContent = got ? pic : '❔';
+      setPic(s.querySelector('i'), got ? pic : 'mystery');
       s.querySelector('b').textContent = got ? w.toUpperCase() : '•'.repeat(w.length);
       s.setAttribute('aria-label', got ? w : T.wordNotYet);
       s.addEventListener('click', () => { bump(s, 'aj-jump'); if (got) { play('word'); say(vid.word(w)); } else play('tap'); });
@@ -667,7 +677,7 @@ function showStickers() {
     }
   }
   const total = progress.letters.length + progress.words.length;
-  $('book-count').textContent = `🌟 ${total}  ·  🎈 ${progress.pops}`;
+  $('book-count').innerHTML = `${iconHtml('star')} ${total}  ·  ${iconHtml('balloon')} ${progress.pops}`;
   say(countId(total));
 }
 

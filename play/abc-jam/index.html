@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>ABC Jam - a singing alphabet and first words typing game for kids</title>
   <meta name="description" content="ABC Jam: every letter a child presses sings, dances and adds a note to the alphabet song. ABC Parade, Free Jam, Word Builder, Letter Rain and a Sticker Book. Big buttons, no timers, nothing to lose.">
-  <meta name="build" content="c3cca7b2-20261111T073726Z">
+  <meta name="build" content="50799f19-20261111T080117Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/abc-jam/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="ABC Jam - a singing alphabet game for kids">
@@ -18,8 +18,8 @@
   
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
-  <script src="../shared/ui/boot.js?v=c3cca7b2-20261111T073726Z" data-game="abc-jam"></script>
-  <link rel="stylesheet" href="./src/style.css?v=c3cca7b2-20261111T073726Z">
+  <script src="../shared/ui/boot.js?v=50799f19-20261111T080117Z" data-game="abc-jam"></script>
+  <link rel="stylesheet" href="./src/style.css?v=50799f19-20261111T080117Z">
 </head>
 <body>
   <div class="studio-bar">
@@ -52,22 +52,22 @@
         <span class="aj-logo-jam">Jam</span>
       </h1>
       <button class="aj-start" id="start" type="button" data-say="Let's play!">
-        <span class="aj-start-pic" aria-hidden="true">▶</span>
+        <span class="aj-start-pic" aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/play.svg" alt="" draggable="false"></span>
         <span class="aj-start-letter" id="start-letter" aria-hidden="true">A</span>
         <span class="aj-start-word">Play</span>
       </button>
       <div class="aj-tiles">
         <button class="aj-tile" type="button" data-go="jam" data-say="Free jam!" style="--c:#7b5cff">
-          <span class="aj-tile-pic" aria-hidden="true">🎹</span><span>Free Jam</span>
+          <span class="aj-tile-pic" aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/piano.svg" alt="" draggable="false"></span><span>Free Jam</span>
         </button>
         <button class="aj-tile" type="button" data-go="words" data-say="Word builder!" style="--c:#38b000">
-          <span class="aj-tile-pic" aria-hidden="true">🧩</span><span>Word Builder</span>
+          <span class="aj-tile-pic" aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/puzzle.svg" alt="" draggable="false"></span><span>Word Builder</span>
         </button>
         <button class="aj-tile" type="button" data-go="rain" data-say="Letter balloons!" style="--c:#00a6ed">
-          <span class="aj-tile-pic" aria-hidden="true">🎈</span><span>Letter Rain</span>
+          <span class="aj-tile-pic" aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/balloon.svg" alt="" draggable="false"></span><span>Letter Rain</span>
         </button>
         <button class="aj-tile" type="button" data-go="stickers" data-say="Sticker book!" style="--c:#ff8c1a">
-          <span class="aj-tile-pic" aria-hidden="true">📒</span><span>Sticker Book</span>
+          <span class="aj-tile-pic" aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/book.svg" alt="" draggable="false"></span><span>Sticker Book</span>
         </button>
       </div>
     </section>
@@ -76,9 +76,9 @@
 
     <section class="aj-screen aj-play" id="play" data-screen="play" hidden>
       <div class="aj-top">
-        <button class="aj-home" id="home" type="button" aria-label="Home"><span aria-hidden="true">🏠</span></button>
+        <button class="aj-home" id="home" type="button" aria-label="Home"><span aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/house.svg" alt="" draggable="false"></span></button>
         <div class="aj-progress" id="progress" aria-hidden="true"></div>
-        <button class="aj-say" id="say-again" type="button" aria-label="Say it again"><span aria-hidden="true">🔊</span></button>
+        <button class="aj-say" id="say-again" type="button" aria-label="Say it again"><span aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/speaker.svg" alt="" draggable="false"></span></button>
       </div>
       <div class="aj-stage" id="stage" aria-live="polite"></div>
       <div class="aj-input" id="input">
@@ -91,7 +91,7 @@
     
     <section class="aj-screen aj-steps" id="steps" data-screen="steps" hidden>
       <div class="aj-top">
-        <button class="aj-home" type="button" data-home aria-label="Home"><span aria-hidden="true">🏠</span></button>
+        <button class="aj-home" type="button" data-home aria-label="Home"><span aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/house.svg" alt="" draggable="false"></span></button>
       </div>
       <div class="aj-step-list" id="step-list"></div>
     </section>
@@ -99,12 +99,12 @@
     
     <section class="aj-screen aj-book" id="stickers" data-screen="stickers" hidden>
       <div class="aj-top">
-        <button class="aj-home" type="button" data-home aria-label="Home"><span aria-hidden="true">🏠</span></button>
+        <button class="aj-home" type="button" data-home aria-label="Home"><span aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/house.svg" alt="" draggable="false"></span></button>
         <div class="aj-book-count" id="book-count"></div>
       </div>
-      <h2 class="aj-book-h"><span aria-hidden="true">🔤</span> Letters</h2>
+      <h2 class="aj-book-h"><span aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/blocks.svg" alt="" draggable="false"></span> Letters</h2>
       <div class="aj-book-grid" id="book-letters"></div>
-      <h2 class="aj-book-h"><span aria-hidden="true">🧩</span> Words</h2>
+      <h2 class="aj-book-h"><span aria-hidden="true"><img class="aj-ic" src="assets/icons/abc-jam/svg/sticker/puzzle.svg" alt="" draggable="false"></span> Words</h2>
       <div class="aj-book-grid aj-book-words" id="book-words"></div>
       <button class="aj-reset" id="reset" type="button">Start again</button>
     </section>
@@ -112,6 +112,6 @@
     <div class="aj-fx" id="fx" aria-hidden="true"></div>
   </main>
   <noscript><p>Turn on JavaScript to play ABC Jam.</p></noscript>
-  <script type="module" src="./src/main.js?v=c3cca7b2-20261111T073726Z"></script>
+  <script type="module" src="./src/main.js?v=50799f19-20261111T080117Z"></script>
 </body>
 </html>

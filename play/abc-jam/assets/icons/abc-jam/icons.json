@@ -1,0 +1,518 @@
+{
+ "set": "abc_jam",
+ "size": 128,
+ "grid": 64,
+ "colourways": [
+  "sticker"
+ ],
+ "scales": [
+  1,
+  2
+ ],
+ "icons": [
+  {
+   "id": "apple",
+   "label": "Apple",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "bear",
+   "label": "Bear",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "cat",
+   "label": "Cat",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "dog",
+   "label": "Dog",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "egg",
+   "label": "Egg",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "fish",
+   "label": "Fish",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "grapes",
+   "label": "Grapes",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "hat",
+   "label": "Hat",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "ice_cream",
+   "label": "Ice cream",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "juice",
+   "label": "Juice",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "key",
+   "label": "Key",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "lion",
+   "label": "Lion",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "moon",
+   "label": "Moon",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "nose",
+   "label": "Nose",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "octopus",
+   "label": "Octopus",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "pig",
+   "label": "Pig",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "queen",
+   "label": "Queen",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "rainbow",
+   "label": "Rainbow",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "sun",
+   "label": "Sun",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "tiger",
+   "label": "Tiger",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "umbrella",
+   "label": "Umbrella",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "violin",
+   "label": "Violin",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "whale",
+   "label": "Whale",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "fox",
+   "label": "Fox",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "yarn",
+   "label": "Yarn",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "zebra",
+   "label": "Zebra",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "bus",
+   "label": "Bus",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "cup",
+   "label": "Cup",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "bee",
+   "label": "Bee",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "cow",
+   "label": "Cow",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "owl",
+   "label": "Owl",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "car",
+   "label": "Car",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "bed",
+   "label": "Bed",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "ant",
+   "label": "Ant",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "map",
+   "label": "Map",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "frog",
+   "label": "Frog",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "star",
+   "label": "Star",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "cake",
+   "label": "Cake",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "duck",
+   "label": "Duck",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "ball",
+   "label": "Ball",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "boat",
+   "label": "Boat",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "tree",
+   "label": "Tree",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "milk",
+   "label": "Milk",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "kite",
+   "label": "Kite",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "shoe",
+   "label": "Shoe",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "corn",
+   "label": "Corn",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "bird",
+   "label": "Bird",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "horse",
+   "label": "Horse",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "train",
+   "label": "Train",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "house",
+   "label": "House",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "pizza",
+   "label": "Pizza",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "panda",
+   "label": "Panda",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "robot",
+   "label": "Robot",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "snake",
+   "label": "Snake",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "sheep",
+   "label": "Sheep",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "piano",
+   "label": "Piano",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "clock",
+   "label": "Clock",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "heart",
+   "label": "Heart",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "mouse",
+   "label": "Mouse",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "sparkle",
+   "label": "Sparkle",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "trophy",
+   "label": "Trophy",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "notes",
+   "label": "Music notes",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "hand_up",
+   "label": "Tap here",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "hand_down",
+   "label": "Look here",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "keyboard",
+   "label": "Keyboard",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "balloon",
+   "label": "Balloon",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "mystery",
+   "label": "Not found yet",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "puzzle",
+   "label": "Puzzle piece",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "book",
+   "label": "Sticker book",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "speaker",
+   "label": "Say it again",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "blocks",
+   "label": "Letter blocks",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "play",
+   "label": "Play",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  }
+ ]
+}

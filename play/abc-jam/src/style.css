@@ -3,6 +3,8 @@
 
 
 
+
+
 :root {
   --ink: #2b1b4a;
   --paper: #fff8ec;
@@ -18,6 +20,10 @@
   --fc-paperWash: rgba(246, 241, 230, 0.14);
   --fc-blue: #1D4E89;
 }
+
+
+.aj-ic { width: 1em; height: 1em; display: inline-block; vertical-align: -0.15em; object-fit: contain;
+  -webkit-user-drag: none; user-select: none; pointer-events: none; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; min-height: 100%; }
@@ -204,8 +210,9 @@ button:focus-visible { outline: 4px solid #1d4e89; outline-offset: 3px; }
 .aj-key.is-wanted { animation: aj-breathe 1.4s ease-in-out infinite; }
 .hint-glow { box-shadow: 0 0 0 8px var(--sun), 0 0 34px 12px rgba(255, 210, 63, .85) !important; }
 .hint-bounce { animation: aj-hop .6s ease-in-out infinite !important; }
-.hint-point::after { content: "👇"; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
-  font-size: 44px; text-shadow: none; animation: aj-bob .7s ease-in-out infinite; pointer-events: none; }
+.hint-point::after { content: ""; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
+  width: 44px; height: 44px; background: url("../assets/icons/abc-jam/svg/sticker/hand_down.svg") center / contain no-repeat;
+  animation: aj-bob .7s ease-in-out infinite; pointer-events: none; }
 .is-hit { animation: aj-squish .25s ease; }
 
 
@@ -249,12 +256,17 @@ button:focus-visible { outline: 4px solid #1d4e89; outline-offset: 3px; }
   transform: rotate(-2deg); }
 .aj-sticker.is-got:nth-child(2n) { transform: rotate(2deg); }
 .aj-sticker.is-got i { opacity: 1; }
+.aj-sticker:not(.is-got) .aj-ic { filter: grayscale(1); }
+.aj-sticker i { display: grid; place-items: center; line-height: 1; }
 .aj-sticker-word b { font-size: 20px; letter-spacing: 1px; }
 
 
 .aj-fx { position: fixed; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
 .aj-confetti { position: absolute; width: 12px; height: 18px; border-radius: 3px; animation: aj-confetti 1.6s cubic-bezier(.2, .7, .4, 1) forwards; }
-.aj-star { position: absolute; font-size: 34px; animation: aj-star 1s ease-out forwards; }
+.aj-star { position: absolute; font-size: 34px; line-height: 1; animation: aj-star 1s ease-out forwards; }
+.aj-toast .aj-ic { width: 1.1em; height: 1.1em; }
+.aj-dot .aj-ic { width: 22px; height: 22px; vertical-align: 0; }
+.aj-jam-hint .aj-ic, .aj-jam-label .aj-ic { margin: 0 4px; }
 .aj-toast {
   position: absolute; left: 50%; top: 18%; transform: translateX(-50%);
   display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-radius: 999px;
