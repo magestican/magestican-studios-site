@@ -1007,8 +1007,11 @@ function tileMeshes(world, skin = null, art = null) {
     if (art.top) skinMaterial(topMat, art.top);
   }
   
+  const cabinet = kitchen ? (art?.cabinet ?? null) : null;
+  if (cabinet) skinMaterial(solidMat, cabinet);
+  
   const uv = (m, spec) => {
-    if (painted && spec) worldUV(m.geometry, m.position, spec.unit * T);
+    if ((painted || cabinet) && spec) worldUV(m.geometry, m.position, spec.unit * T);
     return m;
   };
   const oneWayMat = new THREE.MeshLambertMaterial({ color: 0xf2c879 });
@@ -1033,7 +1036,7 @@ function tileMeshes(world, skin = null, art = null) {
       } else {
         const m = new THREE.Mesh(new THREE.BoxGeometry(w, T, TILE_DEPTH), solidMat);
         m.position.set(c * T + w / 2, r * T + T / 2, -TILE_DEPTH / 2 + 0.3);
-        group.add(uv(m, art?.solid));
+        group.add(uv(m, cabinet ?? art?.solid));
         
         
         for (let k = c; k < end; ) {

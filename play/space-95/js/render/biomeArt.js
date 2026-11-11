@@ -147,7 +147,15 @@ const BIOMES = {
     ...comicPlate('machine'),
   },
   
-  kitchen: { plate: plate('batch3', 'kitchen-far'), plateAspect: 16 / 9, sky: 0xffd9a8, top: null, solid: null },
+  
+  kitchen: {
+    plate: plate('batch3', 'kitchen-far'),
+    plateAspect: 16 / 9,
+    sky: 0xffd9a8,
+    top: null,
+    solid: null,
+    cabinet: tex('sovereign', 'sill', 0xd09060, 4),
+  },
   
   sovereign: {
     plate: plate('sovereign', 'windowsill-far'),
