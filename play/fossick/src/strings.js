@@ -85,6 +85,22 @@ export const T = Object.freeze({
   rowWait: '{name}, not started',
   rowMine: 'You, {row}',
 
+  
+  goalNext: 'Next to free: {name}',
+  goalMint: 'For a Mint stamp, dig {name} again',
+  goalDone: 'Every treasure is Mint',
+  tally: '{n} of {total} freed, {m} Mint',
+  prizesH: 'Prizes',
+  prizeNew: '{prize} is yours',
+  tipFallen: 'Turn slowly, and hold Steady when red hatching shows.',
+  tipBroken: 'Use the pick beside the treasure, because falling rock and the mallet crack it.',
+  mintHow: 'Mint means no cracks and no fall bigger than six cubes.',
+  prizes: {
+    first: 'First find', mint: 'Mint condition', chalk: 'Soft rock cleared', limestone: 'Hard rock cleared',
+    slate: 'Brittle rock cleared', survey: 'Hidden treasure cleared', favourites: 'Every favourite',
+    fossils: 'Every fossil', allMint: 'A Mint cabinet',
+  },
+
   collections: { favourites: 'Favourites', fossils: 'Fossils' },
   drawers: { chalk: 'Soft rock', limestone: 'Hard rock', slate: 'Brittle rock', survey: 'Hidden treasure' },
   names: {

@@ -15,6 +15,7 @@ import { shareInvite, publicUrlFor } from '../../../web-engine/share/shareInvite
 import { createRoomNet, canPlayTogether } from './net.js';
 import { createRoomUi, seatLevel, dugStatus, fakeRoom } from './roomUi.js';
 import { tell, tellFelt, onBack } from './appBridge.js';
+import { PRIZES, goalFor, tallyFor, prizesFrom, newPrizes, nextStreak, tipFor } from './progress.js';
 
 const $ = (id) => document.getElementById(id);
 const SAVE_KEY = 'fossick.v1';
@@ -354,15 +355,47 @@ function buildCabinet(openId) {
     el.append(face, body);
     root.append(el);
   }
+  root.append(prizeRow());
+  drawGoal();
   const first = openId || currentDrawer();
   const target = root.querySelector(`[data-drawer="${first}"]`);
   if (target) toggleDrawer(target);
 }
 
 
+
 function nextToDig() {
-  const listed = drawersNow().flatMap((d) => d.levels).map((l) => LEVELS.find((L) => L.id === l.id));
-  return listed.find((l) => !save.best[l.id] && isOpen(l)) || listed[0];
+  return levelById(goalFor(COLLECTIONS, save.best, collectionNow()).id);
+}
+
+
+function drawGoal() {
+  const goal = goalFor(COLLECTIONS, save.best, collectionNow());
+  const name = S.names[goal.id];
+  const line = goal.kind === 'free' ? fill(S.goalNext, { name }) : goal.kind === 'mint' ? fill(S.goalMint, { name }) : S.goalDone;
+  $('t-goal').textContent = joinCode ? '' : line;
+  $('c-goal').textContent = line;
+  const t = tallyFor(COLLECTIONS, save.best, collectionNow());
+  $('c-tally').textContent = fill(S.tally, { n: t.freed, total: t.total, m: t.mint });
+}
+
+
+function prizeRow() {
+  const earned = prizesFrom(COLLECTIONS, save.best);
+  const el = document.createElement('section');
+  el.className = 'prize-row';
+  el.dataset.earned = String(earned.length);
+  el.innerHTML = `<h3>${S.prizesH} <span class="drawer-tally">${earned.length}/${PRIZES.length}</span></h3>`;
+  const list = document.createElement('ul');
+  for (const p of PRIZES) {
+    const li = document.createElement('li');
+    li.className = 'prize' + (earned.includes(p) ? ' won' : '');
+    li.dataset.prize = p;
+    li.textContent = S.prizes[p];
+    list.append(li);
+  }
+  el.append(list);
+  return el;
 }
 
 
@@ -405,10 +438,24 @@ function showLabel() {
   $('r-name').textContent = S.names[level.id];
   $('r-line').textContent = won ? fill(S.labelWon, { name: S.names[level.id] }) : game.reason === 'broken' ? S.labelBroken : S.labelCollapse;
   $('r-stats').textContent = [count(S.statBlows, game.pokes), count(S.statCracks, game.cracks), count(S.statFell, game.largestFall)].join(' \u00b7 ');
+  const before = prizesFrom(COLLECTIONS, save.best);
   if (won) {
     const had = save.best[level.id];
     if (!had || GRADE_RANK[grade] > GRADE_RANK[had]) { save.best[level.id] = grade; writeSave(); }
   }
+  
+  
+  const result = won ? 'won' : game.reason === 'broken' ? 'broken' : 'fallen';
+  if (!inRoom) { save.streak = nextStreak(save.streak, level.id, result); writeSave(); }
+  const tip = inRoom ? null : tipFor(save.streak, result);
+  const help = tip ? S[tip] : won && grade !== 'mint' ? S.mintHow : '';
+  $('r-help').textContent = help;
+  $('r-help').hidden = !help;
+  
+  const fresh = newPrizes(before, prizesFrom(COLLECTIONS, save.best));
+  $('r-prize').textContent = fresh.map((p) => fill(S.prizeNew, { prize: S.prizes[p] })).join(' · ');
+  $('r-prize').hidden = !fresh.length;
+  if (fresh.length) tell('prize', { prizes: fresh.join(',') });
   const list = levelsOf(level.collection);
   const nextLevel = list[list.findIndex((l) => l.id === level.id) + 1];
   const next = $('r-next');
@@ -450,6 +497,7 @@ function drawTitleButtons() {
   $('t-open').textContent = joinCode ? S.roomJoinStart : S.open;
   $('t-room').textContent = S.roomOpen;
   $('t-room').hidden = !can || !!joinCode;
+  drawGoal();
 }
 
 

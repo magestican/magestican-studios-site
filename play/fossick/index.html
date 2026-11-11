@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Fossick - free a treasure from the rock, one cube at a time</title>
   <meta name="description" content="Fossick is a careful excavation game: turn a block of rock on a brass cradle and tap a little treasure free, without bringing it all down.">
-  <meta name="build" content="a6484f08-20261111T141827Z">
+  <meta name="build" content="04dce827-20261111T145915Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/fossick/">
   <link rel="icon" href="./assets/icons/heart-icon/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="./assets/icons/heart-icon/favicon-32.png" type="image/png" sizes="32x32">
@@ -14,7 +14,7 @@
   <script type="importmap">
   {"imports":{"three":"../../web-engine/vendor/three-0.161.0/three.module.js"}}
   </script>
-  <link rel="stylesheet" href="./src/style.css?v=a6484f08-20261111T141827Z">
+  <link rel="stylesheet" href="./src/style.css?v=04dce827-20261111T145915Z">
 </head>
 <body>
   
@@ -30,6 +30,7 @@
         <div class="rule-orn" aria-hidden="true"></div>
         <p class="blurb" id="t-blurb"></p>
         <button class="cartouche" id="t-open" type="button"></button>
+        <p class="goal-line" id="t-goal"></p>
         <button class="cartouche quiet" id="t-room" type="button" hidden></button>
         <p class="imprint" id="t-imprint"></p>
       </div>
@@ -68,6 +69,8 @@
       <div>
         <h2 id="c-title"></h2>
         <p id="c-sub"></p>
+        <p class="goal-line" id="c-goal"></p>
+        <p class="cab-tally" id="c-tally"></p>
       </div>
       <div class="cab-marks" id="c-sound">
         <a class="home-mark" id="c-home" href="/"></a>
@@ -118,6 +121,8 @@
       <p class="m-line" id="r-line"></p>
       <p class="m-stats" id="r-stats"></p>
       <p class="m-stats" id="r-wait" hidden></p>
+      <p class="m-help" id="r-help" hidden></p>
+      <p class="m-prize" id="r-prize" hidden></p>
       <div class="m-actions">
         <button class="cartouche" id="r-next" type="button"></button>
         <button class="cartouche quiet" id="r-again" type="button"></button>
@@ -126,8 +131,8 @@
     </div>
   </section>
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=a6484f08-20261111T141827Z"></script>
-  <script type="module" src="./src/main.js?v=a6484f08-20261111T141827Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=a6484f08-20261111T141827Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=04dce827-20261111T145915Z"></script>
+  <script type="module" src="./src/main.js?v=04dce827-20261111T145915Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=04dce827-20261111T145915Z"></script>
 </body>
 </html>

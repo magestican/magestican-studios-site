@@ -297,6 +297,23 @@ button.spec-label:hover { background-color: #f5dc8a; }
 .spec-stamp.fine { color: #1f3c8f; }
 .spec-stamp.worn { color: #7a4516; }
 
+
+
+.goal-line { font-weight: 700; font-size: 1rem; line-height: 1.2; color: var(--ink); margin-top: 12px; }
+.cab-head .goal-line { font-style: normal; color: var(--ink); margin-top: 8px; }
+.cab-tally { font-variant-numeric: lining-nums; }
+.prize-row { padding: 16px; background: var(--chalk); border: var(--edge) solid var(--ink); }
+.prize-row { flex: none; }
+.prize-row h3 { display: flex; align-items: center; gap: 12px; font-size: 1.2rem; margin: 0; }
+.prize-row ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; margin-top: 12px; }
+.prize {
+  padding: 6px 8px 7px; border: 2px dashed var(--ink-soft); color: var(--ink-soft);
+  font-size: .9rem; line-height: 1.15; text-align: center; opacity: .7;
+}
+.prize.won { border: 2px solid currentColor; color: #145c47; opacity: 1; transform: rotate(-2deg); font-weight: 700; }
+.m-help { font-size: .95rem; line-height: 1.25; margin-top: 8px; padding-right: 76px; }
+.m-prize { display: inline-block; margin-top: 8px; padding: 2px 8px 3px; border: 2px solid currentColor; color: #145c47; font-weight: 700; transform: rotate(-2deg); }
+
 @media (min-width: 900px) {
   .cabinet-room { padding: 28px; gap: 20px; }
   .cab-head h2 { font-size: 2.7rem; }

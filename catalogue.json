@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "a6484f08-20261111T141827Z",
+ "buildId": "04dce827-20261111T145915Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -801,7 +801,7 @@
    "ageNote": null,
    "order": 26,
    "addedAt": "2026-11-02",
-   "bytes": 62412079
+   "bytes": 62415626
   },
   {
    "id": "lamplighters",
@@ -865,7 +865,7 @@
    "ageNote": null,
    "order": 28,
    "addedAt": "2026-11-04",
-   "bytes": 2191239
+   "bytes": 2203720
   },
   {
    "id": "clashwell",

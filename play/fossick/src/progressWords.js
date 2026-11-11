@@ -1,0 +1,121 @@
+
+
+
+
+
+
+
+export const PROGRESS_WORDS = Object.freeze({
+  es: {
+    goalDone: 'Todos los tesoros están Impecables',
+    prizesH: 'Premios',
+    goalMint: 'Para un sello Impecable, vuelve a cavar {name}',
+    tipFallen: 'Gira despacio y mantén Pulso firme cuando aparezca el rayado rojo.',
+    tipBroken: 'Usa el pico junto al tesoro, porque la roca que cae y el mazo lo agrietan.',
+    mintHow: 'Impecable significa ninguna grieta y ninguna caída de más de seis cubos.',
+    prizeNew: '{prize} es tuyo',
+    goalNext: 'Siguiente por liberar: {name}',
+    tally: '{n} de {total} liberados, {m} Impecables',
+    prizes: {
+      first: 'Primer hallazgo', mint: 'Estado impecable', chalk: 'Roca blanda despejada', limestone: 'Roca dura despejada',
+      slate: 'Roca frágil despejada', survey: 'Tesoro oculto despejado', favourites: 'Todos los favoritos',
+      fossils: 'Todos los fósiles', allMint: 'Una colección impecable',
+    },
+  },
+  pt: {
+    goalDone: 'Todos os tesouros estão Impecáveis',
+    prizesH: 'Prêmios',
+    goalMint: 'Para um selo Impecável, cave {name} de novo',
+    tipFallen: 'Gire devagar e segure Mão firme quando aparecer o hachurado vermelho.',
+    tipBroken: 'Use a picareta perto do tesouro, porque a rocha que cai e a marreta o racham.',
+    mintHow: 'Impecável quer dizer nenhuma rachadura e nenhuma queda de mais de seis cubos.',
+    prizeNew: '{prize} é seu',
+    goalNext: 'Próximo a libertar: {name}',
+    tally: '{n} de {total} libertados, {m} Impecáveis',
+    prizes: {
+      first: 'Primeiro achado', mint: 'Estado impecável', chalk: 'Rocha mole limpa', limestone: 'Rocha dura limpa',
+      slate: 'Rocha frágil limpa', survey: 'Tesouro escondido limpo', favourites: 'Todos os favoritos',
+      fossils: 'Todos os fósseis', allMint: 'Uma coleção impecável',
+    },
+  },
+  tl: {
+    goalDone: 'Walang gasgas ang bawat kayamanan',
+    prizesH: 'Mga premyo',
+    goalMint: 'Para sa tatak na Walang gasgas, hukayin muli ang {name}',
+    tipFallen: 'Dahan-dahang iikot, at pindutin ang Dahan-dahan kapag may pulang guhit.',
+    tipBroken: 'Gamitin ang piko sa tabi ng kayamanan, dahil binibitak ito ng nahuhulog na bato at ng maso.',
+    mintHow: 'Ang Walang gasgas ay walang bitak at walang bagsak na higit sa anim na kubo.',
+    prizeNew: 'Iyo na ang {prize}',
+    goalNext: 'Susunod na palayain: {name}',
+    tally: '{n} sa {total} ang napalaya, {m} Walang gasgas',
+    prizes: {
+      first: 'Unang tuklas', mint: 'Walang gasgas', chalk: 'Malambot na bato, tapos', limestone: 'Matigas na bato, tapos',
+      slate: 'Marupok na bato, tapos', survey: 'Nakatagong kayamanan, tapos', favourites: 'Lahat ng paborito',
+      fossils: 'Lahat ng fossil', allMint: 'Kabinet na walang gasgas',
+    },
+  },
+  ja: {
+    goalDone: 'すべての宝物が極美',
+    prizesH: 'ごほうび',
+    goalMint: '極美の印をめざして、{name}をもう一度',
+    tipFallen: 'ゆっくり回して、赤い斜線が出たら「慎重に」を押そう。',
+    tipBroken: '宝物のそばではつるはしを使おう。落ちる岩とハンマーでひびが入るから。',
+    mintHow: '極美は、ひびがなく、6個より大きな崩れもないこと。',
+    prizeNew: '{prize}を手に入れた',
+    goalNext: '次に掘り出すのは：{name}',
+    tally: '{total}個中{n}個 発掘、極美{m}個',
+    prizes: {
+      first: 'はじめての発見', mint: '極美の状態', chalk: 'やわらかい岩 制覇', limestone: 'かたい岩 制覇',
+      slate: 'もろい岩 制覇', survey: 'かくれた宝物 制覇', favourites: 'お気に入りぜんぶ',
+      fossils: '化石ぜんぶ', allMint: '極美のたな',
+    },
+  },
+  ko: {
+    goalDone: '모든 보물이 완벽이에요',
+    prizesH: '상',
+    goalMint: '완벽 도장을 받으려면 {name} 다시 파기',
+    tipFallen: '천천히 돌리고, 빨간 빗금이 보이면 천천히 레버를 누르세요.',
+    tipBroken: '보물 옆에서는 곡괭이를 쓰세요. 떨어지는 돌과 망치가 금을 내요.',
+    mintHow: '완벽은 금이 없고 여섯 개보다 큰 무너짐도 없는 거예요.',
+    prizeNew: '{prize} 획득',
+    goalNext: '다음 보물: {name}',
+    tally: '{total}개 중 {n}개 발굴, 완벽 {m}개',
+    prizes: {
+      first: '첫 발견', mint: '완벽한 상태', chalk: '무른 바위 완료', limestone: '단단한 바위 완료',
+      slate: '부서지는 바위 완료', survey: '숨은 보물 완료', favourites: '모든 즐겨찾기',
+      fossils: '모든 화석', allMint: '완벽한 진열장',
+    },
+  },
+  id: {
+    goalDone: 'Semua harta sudah Sempurna',
+    prizesH: 'Hadiah',
+    goalMint: 'Untuk cap Sempurna, gali {name} lagi',
+    tipFallen: 'Putar pelan-pelan, dan tahan Mantap saat arsiran merah muncul.',
+    tipBroken: 'Pakai beliung di dekat harta, karena batu yang jatuh dan palu bisa meretakkannya.',
+    mintHow: 'Sempurna berarti tanpa retak dan tanpa runtuhan lebih dari enam kubus.',
+    prizeNew: '{prize} milikmu',
+    goalNext: 'Berikutnya dibebaskan: {name}',
+    tally: '{n} dari {total} bebas, {m} Sempurna',
+    prizes: {
+      first: 'Temuan pertama', mint: 'Kondisi sempurna', chalk: 'Batu lunak tuntas', limestone: 'Batu keras tuntas',
+      slate: 'Batu rapuh tuntas', survey: 'Harta tersembunyi tuntas', favourites: 'Semua favorit',
+      fossils: 'Semua fosil', allMint: 'Lemari serba Sempurna',
+    },
+  },
+  vi: {
+    goalDone: 'Mọi kho báu đều Hoàn hảo',
+    prizesH: 'Phần thưởng',
+    goalMint: 'Để có dấu Hoàn hảo, đào lại {name}',
+    tipFallen: 'Xoay thật chậm, và giữ Chậm rãi khi thấy vạch đỏ.',
+    tipBroken: 'Dùng cuốc cạnh kho báu, vì đá rơi và búa đều làm nứt nó.',
+    mintHow: 'Hoàn hảo là không vết nứt và không lần sụp nào quá sáu khối.',
+    prizeNew: '{prize} là của bạn',
+    goalNext: 'Tiếp theo cần giải thoát: {name}',
+    tally: '{n}/{total} đã giải thoát, {m} Hoàn hảo',
+    prizes: {
+      first: 'Phát hiện đầu tiên', mint: 'Tình trạng hoàn hảo', chalk: 'Xong đá mềm', limestone: 'Xong đá cứng',
+      slate: 'Xong đá giòn', survey: 'Xong kho báu ẩn', favourites: 'Mọi món yêu thích',
+      fossils: 'Mọi hóa thạch', allMint: 'Tủ toàn Hoàn hảo',
+    },
+  },
+});

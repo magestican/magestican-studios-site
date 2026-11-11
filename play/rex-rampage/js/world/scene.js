@@ -5,6 +5,7 @@ import { pixelRatioFor } from '../pose/device.js';
 import { THREE } from '../vendor/three-vendor.js';
 import { loadArt } from './art.js';
 import { ART_ROOT } from './artManifest.js';
+import { blastAt, blastSpec, partAt } from './blast.js';
 import { dressProps } from './dress.js';
 import {
   BOSS_DOWN,
@@ -24,6 +25,7 @@ import {
 } from './enemySprites.js';
 import { LOOK_DROP, vfovFor } from './fov.js';
 import { buildProps } from './props.js';
+import { groundBeside } from './terrain.js';
 import { createTracers } from './tracers.js';
 
 
@@ -99,6 +101,8 @@ export function createScene(canvas, stage, plan) {
   
   const fx = [];
   const sparkGeo = new THREE.SphereGeometry(1, 8, 6);
+  
+  const blasts = [];
   const tracers = createTracers(scene);
   const stats = { tracers: 0, impacts: 0 };
   const ironJaw = bossBody();
@@ -162,6 +166,32 @@ export function createScene(canvas, stage, plan) {
   }
 
   
+
+
+
+
+  function blast(where, parts) {
+    for (const part of parts) {
+      const mesh = new THREE.Mesh(
+        sparkGeo,
+        new THREE.MeshBasicMaterial({
+          color: part.color,
+          transparent: true,
+          opacity: 0,
+          fog: false,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        }),
+      );
+      const at = where(part.side, part.up);
+      mesh.position.set(at.x, at.y, at.z);
+      mesh.visible = false;
+      scene.add(mesh);
+      blasts.push({ mesh, part, t: 0, y: at.y });
+    }
+  }
+
+  
   function shotFx(ev, game, muzzleOf) {
     const e = game.enemies.find((x) => x.id === ev.hit);
     const p = ev.at ?? e?.pos;
@@ -188,7 +218,7 @@ export function createScene(canvas, stage, plan) {
     objects() {
       let n = 0;
       scene.traverse(() => n++);
-      return { nodes: n, fx: fx.length, meshes: meshes.size };
+      return { nodes: n, fx: fx.length + blasts.length, meshes: meshes.size };
     },
     resize(w, h) {
       renderer.setPixelRatio(pixelRatioFor(w, h, window.devicePixelRatio, plan.maxPixelRatio));
@@ -221,8 +251,19 @@ export function createScene(canvas, stage, plan) {
           flash = 1;
         } else if (ev.type === 'explode') {
           const p = ev.pos ?? game.cam.pos;
-          const at = ev.place ? { x: p.x + game.cam.fwd.x * ev.place.ahead, y: p.y, z: p.z + game.cam.fwd.z * ev.place.ahead } : p;
-          burst(at, 0xff8a2a, 1.5 * (ev.power ?? 1), 0.6, 9);
+          const spec = blastSpec(ev.what, ev.power ?? 1);
+          if (spec.staged && ev.place) {
+            
+            const d = game.run.dist;
+            const { tangent } = game.stage.rail.at(d);
+            const { ahead = 0, side = 0, up = 0 } = ev.place;
+            const baseY = groundBeside(game.stage, d + ahead, side);
+            blast((s, u) => blastAt(p, tangent, { ahead, side: side + s, up: up + u }, baseY), spec.parts);
+          } else {
+            const old = blastSpec(undefined, ev.power ?? 1);
+            const at = ev.place ? { x: p.x + game.cam.fwd.x * ev.place.ahead, y: p.y, z: p.z + game.cam.fwd.z * ev.place.ahead } : p;
+            burst(at, old.color, old.size, old.life, old.grow);
+          }
           shake = Math.max(shake, 0.5 * (ev.power ?? 1));
         } else if (ev.type === 'shake') shake = Math.max(shake, ev.power ?? 0.5);
         else if (ev.type === 'hurt' || ev.type === 'bite') shake = Math.max(shake, 0.25);
@@ -310,6 +351,21 @@ export function createScene(canvas, stage, plan) {
           scene.remove(f.mesh);
           f.mesh.material.dispose();
           fx.splice(i, 1);
+        }
+      }
+      for (let i = blasts.length - 1; i >= 0; i--) {
+        const b = blasts[i];
+        b.t += dt;
+        const s = partAt(b.part, b.t);
+        if (s) {
+          b.mesh.visible = true;
+          b.mesh.scale.setScalar(s.r);
+          b.mesh.position.y = b.y + s.dy;
+          b.mesh.material.opacity = s.opacity;
+        } else if (b.t >= b.part.delay) {
+          scene.remove(b.mesh);
+          b.mesh.material.dispose();
+          blasts.splice(i, 1);
         }
       }
       renderer.render(scene, camera);

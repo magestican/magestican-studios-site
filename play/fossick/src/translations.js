@@ -4,8 +4,9 @@
 
 
 
+import { PROGRESS_WORDS } from './progressWords.js';
 
-export const TRANSLATIONS = Object.freeze({
+const BASE = Object.freeze({
   es: {
     title: 'Fossick',
     titleSub: 'o la mano cuidadosa',
@@ -616,3 +617,6 @@ export const TRANSLATIONS = Object.freeze({
     },
   },
 });
+
+
+export const TRANSLATIONS = Object.freeze(Object.fromEntries(Object.entries(BASE).map(([code, table]) => [code, Object.freeze({ ...table, ...PROGRESS_WORDS[code] })])));
