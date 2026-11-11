@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "726ae3f1-20261111T034429Z",
+ "buildId": "c3cca7b2-20261111T073726Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -801,7 +801,7 @@
    "ageNote": null,
    "order": 26,
    "addedAt": "2026-11-02",
-   "bytes": 58530008
+   "bytes": 61759152
   },
   {
    "id": "lamplighters",
