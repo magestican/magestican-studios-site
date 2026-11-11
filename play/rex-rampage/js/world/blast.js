@@ -9,6 +9,8 @@
 
 
 
+import { sightClamp } from './fov.js';
+
 export const MAX_PARTS = 6;
 
 
@@ -79,4 +81,56 @@ export function blastAt(from, fwd, place, baseY) {
   const ahead = place.ahead ?? 0;
   const side = place.side ?? 0; 
   return { x: from.x + fx * ahead - fz * side, y: baseY + (place.up ?? 0), z: from.z + fz * ahead + fx * side };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function placedBlastAt(from, fwd, place, groundY, size) {
+  const rest = groundY + size / 2;
+  const up = place.up ?? 0;
+  const y = up === 0 ? rest : Math.max(rest, from.y + up);
+  return blastAt(from, fwd, { ahead: place.ahead, side: place.side, up: 0 }, y);
+}
+
+
+export const SIGHT_INNER = 0.6;
+
+
+
+
+
+export const MIN_SIGHT = 0.06;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function placedBlast(cam, fwd, place, groundY, size, view) {
+  const put = placedBlastAt(cam.pos, fwd, place, groundY, size);
+  const at = (place.ahead ?? 0) > 0 ? sightClamp(cam, put, view, SIGHT_INNER) : put;
+  const depth = Math.hypot(at.x - cam.pos.x, at.y - cam.pos.y, at.z - cam.pos.z);
+  return { x: at.x, y: at.y, z: at.z, r: Math.max(size, MIN_SIGHT * depth) };
 }

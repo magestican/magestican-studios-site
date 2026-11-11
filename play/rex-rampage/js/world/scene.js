@@ -5,7 +5,7 @@ import { pixelRatioFor } from '../pose/device.js';
 import { THREE } from '../vendor/three-vendor.js';
 import { loadArt } from './art.js';
 import { ART_ROOT } from './artManifest.js';
-import { blastAt, blastSpec, partAt } from './blast.js';
+import { blastAt, blastSpec, partAt, placedBlast } from './blast.js';
 import { dressProps } from './dress.js';
 import {
   BOSS_DOWN,
@@ -23,7 +23,7 @@ import {
   spritePose,
   tipsOver,
 } from './enemySprites.js';
-import { LOOK_DROP, vfovFor } from './fov.js';
+import { halfAngles, LOOK_DROP, vfovFor } from './fov.js';
 import { buildProps } from './props.js';
 import { SET_PIECES, setPieceLift, setPiecePos, setPiecesAt, setPiecesOf } from './setPieces.js';
 import { groundBeside } from './terrain.js';
@@ -323,8 +323,16 @@ export function createScene(canvas, stage, plan) {
             blast((s, u) => blastAt(p, tangent, { ahead, side: side + s, up: up + u }, baseY), spec.parts);
           } else {
             const old = blastSpec(undefined, ev.power ?? 1);
-            const at = ev.place ? { x: p.x + game.cam.fwd.x * ev.place.ahead, y: p.y, z: p.z + game.cam.fwd.z * ev.place.ahead } : p;
-            burst(at, old.color, old.size, old.life, old.grow);
+            
+            let at = p;
+            if (ev.place) {
+              const d = game.run.dist;
+              const cam = game.cam;
+              const { tangent } = game.stage.rail.at(d);
+              const ground = groundBeside(game.stage, d + (ev.place.ahead ?? 0), ev.place.side ?? 0);
+              at = placedBlast(cam, tangent, ev.place, ground, old.size, halfAngles(camera.aspect));
+            }
+            burst(at, old.color, at.r ?? old.size, old.life, old.grow);
           }
           shake = Math.max(shake, 0.5 * (ev.power ?? 1));
         } else if (ev.type === 'shake') shake = Math.max(shake, ev.power ?? 0.5);
