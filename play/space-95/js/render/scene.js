@@ -1566,7 +1566,11 @@ function beacon(cp, text) {
   const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
   lamp.position.y = 1.7;
   g.add(post, lamp);
-  if (text) g.add(textSprite(text));
+  if (text) {
+    const s = textSprite(text);
+    s.userData.yieldTo = BOSS_NAMES; 
+    g.add(s);
+  }
   g.position.set(cp.x - 0.6, cp.y, -0.2);
   return g;
 }
@@ -1602,8 +1606,12 @@ function bossLabel( text,  top) {
   const s = textSprite(text);
   const { x, y } = bossLabelPosition(top);
   s.position.set(x, y, 0);
+  BOSS_NAMES.push(s);
   return s;
 }
+
+
+const BOSS_NAMES = [];
 
 
 export function boltPlaceholder() {

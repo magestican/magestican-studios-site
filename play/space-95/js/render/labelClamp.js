@@ -1,4 +1,6 @@
 
+import { mustYield, yieldOpacity } from './labelYield.js';
+
 const MARGIN = 0.2; 
 const SLACK = 1.5; 
 const HUD_RESERVE_PX = 88; 
@@ -51,4 +53,11 @@ export function clampLabelToView(renderer, _scene, camera) {
   m[12] += dx * axes[0] + dy * axes[4];
   m[13] += dx * axes[1] + dy * axes[5];
   m[14] += dx * axes[2] + dy * axes[6];
+  
+  const box = { x: (viewX + dx) / halfY, y: (viewY + dy) / halfY, hw: this.scale.x / 2 / halfY, hh: this.scale.y / 2 / halfY };
+  const frame = renderer.info.render.frame;
+  this.userData.box = box;
+  this.userData.frame = frame;
+  const names = this.userData.yieldTo;
+  if (names) this.material.opacity = yieldOpacity(this.material.opacity, mustYield(box, names, frame));
 }
