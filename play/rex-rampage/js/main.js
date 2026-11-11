@@ -46,7 +46,17 @@ const urlDifficulty = DIFFICULTIES.includes(q.get('difficulty') ?? '')
   : plainVisit && startGoal.difficulty
     ? startGoal.difficulty
     : 'easy';
-const STAGES = ['s0-dropzone', 's1-jungle', 's2-visitor', 's3-river', 's3b-razor-coast', 's4-volcano', 's4b-ash-road', 's5-stadium'];
+const STAGES = [
+  's0-dropzone',
+  's1-jungle',
+  's2-visitor',
+  's2b-thunder-ridge',
+  's3-river',
+  's3b-razor-coast',
+  's4-volcano',
+  's4b-ash-road',
+  's5-stadium',
+];
 const BOSS_STAGE = STAGES.length - 1;
 const cheat = q.get('cheat');
 const urlStage =

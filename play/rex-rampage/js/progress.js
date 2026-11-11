@@ -11,13 +11,20 @@ export const STORE_KEY = 'rr.progress';
 export const PLAYABLE = [
   { stage: 1, name: 'Jungle Road' },
   { stage: 2, name: 'Visitor Centre' },
-  { stage: 3, name: 'River Canyon' },
-  { stage: 4, name: 'Razor Coast' },
-  { stage: 5, name: 'Volcano Works' },
-  { stage: 6, name: 'Ash Road' },
-  { stage: 7, name: 'The Stadium' },
+  { stage: 3, name: 'Thunder Ridge' },
+  { stage: 4, name: 'River Canyon' },
+  { stage: 5, name: 'Razor Coast' },
+  { stage: 6, name: 'Volcano Works' },
+  { stage: 7, name: 'Ash Road' },
+  { stage: 8, name: 'The Stadium' },
 ];
-const BOSS = 7;
+const BOSS = 8;
+
+
+
+const VERSION = 2;
+const ADDED = 3;
+const moved = (raw, k) => (raw.v === VERSION || Number(k) < ADDED ? Number(k) : Number(k) + 1);
 const RANKS = ['D', 'C', 'B', 'A', 'S'];
 const HARDER = ['normal', 'hard'];
 const DIFFICULTIES = ['easy', ...HARDER];
@@ -41,14 +48,16 @@ export function parse(text) {
     return rec;
   }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return rec;
-  for (const [k, v] of Object.entries(raw.best ?? {})) if (isStage(k) && RANKS.includes(v)) rec.best[Number(k)] = v;
+  for (const [k, v] of Object.entries(raw.best ?? {})) if (isStage(moved(raw, k)) && RANKS.includes(v)) rec.best[moved(raw, k)] = v;
   if (Array.isArray(raw.beat)) rec.beat = DIFFICULTIES.filter((d) => raw.beat.includes(d));
-  for (const [k, v] of Object.entries(raw.low ?? {})) if (isStage(k) && Number.isInteger(v) && v > 0 && v < 100) rec.low[Number(k)] = v;
+  for (const [k, v] of Object.entries(raw.low ?? {})) {
+    if (isStage(moved(raw, k)) && Number.isInteger(v) && v > 0 && v < 100) rec.low[moved(raw, k)] = v;
+  }
   return rec;
 }
 
 
-export const serialize = (rec) => JSON.stringify(rec);
+export const serialize = (rec) => JSON.stringify({ v: VERSION, ...rec });
 
 
 export function load(store) {
@@ -73,7 +82,7 @@ const PRIZES = [
   { id: 'top', name: 'Top marks', how: 'Get an S on any stage.', won: (r) => Object.values(r.best).includes('S') },
   { id: 'half', name: 'Halfway there', how: 'Clear four stages.', won: (r) => cleared(r) >= 4 },
   { id: 'rex', name: 'Iron-Jaw down', how: 'Beat Iron-Jaw in The Stadium.', won: (r) => !!r.best[BOSS] },
-  { id: 'island', name: 'Whole island', how: 'Clear all seven stages.', won: (r) => cleared(r) === PLAYABLE.length },
+  { id: 'island', name: 'Whole island', how: 'Clear all eight stages.', won: (r) => cleared(r) === PLAYABLE.length },
   { id: 'straightA', name: "Straight A's", how: 'Get an A or better on every stage.', won: (r) => allAtLeast(r, 'A') },
   { id: 'perfect', name: 'Perfect park', how: 'Get an S on every stage.', won: (r) => allAtLeast(r, 'S') },
   { id: 'normal', name: 'Normal hero', how: 'Beat Iron-Jaw on normal.', won: (r) => r.beat.includes('normal') },

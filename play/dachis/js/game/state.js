@@ -2,7 +2,8 @@
 
 
 import { createSaveSlot } from '../engine/core/save.js';
-import { statsOf, SPECIES } from './data/species.js';
+import { statsOf, SPECIES, capsFor } from './data/species.js';
+import { trainGoal } from './features/battle/bossHelp.js';
 import { SPAWN, RESPAWN } from './features/world/mapgen.js';
 import { mainStep } from './features/quest/quests.js';
 import { newClock, fixClock } from './features/clock/clock.js';
@@ -102,6 +103,10 @@ export function objective() {
   if (sec && r.objectives && r.objectives[sec]) return r.objectives[sec];
   
   if (sec && sectionById(sec) && sectionById(sec).train) return 'The wild ones here are tougher - train up';
+  
+  
+  const goal = trainGoal(G.flags, G.party, capsFor(G.cycle).enemyFloor);
+  if (goal) return goal;
   if (r && r.objective) return r.objective;
   
   return mainStep(G.flags, { caught: caughtCount(), total: SPECIES.length }).text;

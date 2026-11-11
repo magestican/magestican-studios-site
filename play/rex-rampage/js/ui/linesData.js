@@ -64,6 +64,38 @@ export const LINES = {
     who: 'Dispatch',
     text: "River doors are open. Boat's waiting.",
   },
+  s2b_dispatch_yard: {
+    who: 'Dispatch',
+    text: 'Varga left a tank in the yard.',
+  },
+  s2b_marshal_tank: {
+    who: 'Marshal',
+    text: 'Mine now. Hold my hat.',
+  },
+  s2b_hawk_barricade: {
+    who: 'Hawk',
+    text: 'Roadblock on the ridge! Go through it!',
+  },
+  s2b_dispatch_trike: {
+    who: 'Dispatch',
+    text: 'Triceratops on the trail. Coming fast.',
+  },
+  s2b_marshal_fuel: {
+    who: 'Marshal',
+    text: 'Fuel dump. Not slowing down.',
+  },
+  s2b_marshal_ground: {
+    who: 'Marshal',
+    text: "Ground's shaking. That's not us.",
+  },
+  s2b_hawk_rex: {
+    who: 'Hawk',
+    text: "That's why they ran. Rex ahead!",
+  },
+  s2b_dispatch_boat: {
+    who: 'Dispatch',
+    text: "Boat's at the pier. Go!",
+  },
   s3_hawk_river: {
     who: 'Hawk',
     text: "I've got your back from up here. Mostly.",

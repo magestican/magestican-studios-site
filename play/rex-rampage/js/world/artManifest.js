@@ -36,7 +36,7 @@ export const THEME_ART = {
     sky: 'sky_jungle',
     foliage: ['jungle_tree', 'tall_jungle_tree', 'palm', 'bush', 'fern'],
     props: ['boulder', 'rock', 'crate', 'barrel'],
-    vehicles: ['jeep'],
+    vehicles: ['jeep', 'tank'], 
   },
   
   

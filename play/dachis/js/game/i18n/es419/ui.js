@@ -539,4 +539,18 @@ export default {
   "A Crystal form! Living down the mines made it all sparkly.": "¡Uno de cristal! De tanto vivir en las minas le quedó todo brilloso.",
   "A Gale form. Its fur is blown flat, like it never stops facing the wind.": "Uno de ventarrón. Trae el pelo todo aplastado, como si nunca dejara de darle la cara al viento.",
   "A Dusk form. It looks like the sky right after the sun goes down.": "Uno de ocaso. Parece el cielo justo cuando se acaba de meter el sol.",
+  
+  "({0} is level {1}. My best one's only {2}.)": "({0} está en nivel {1}. Mi mejor dachi apenas va en {2}.)",
+  "(The wild ones in {0} are tougher. We train there first.)": "(En {0} los salvajes pegan más duro. Primero entrenamos ahí.)",
+  "(We gotta train first.)": "(Primero hay que entrenar.)",
+  "({0} fights like a virus, and vaccines clobber viruses.)": "({0} pelea como virus, y las vacunas les dan una paliza a los virus.)",
+  "({0} is a vaccine. Swap {1} in, quick.)": "({0} es vacuna. ¡Mete a {1}, rápido!)",
+  "(We need a vaccine dachi.)": "(Nos hace falta un dachi vacuna.)",
+  "Train to level {0} in {1}": "Entrena hasta el nivel {0} en {1}",
+  "Train to level {0}": "Entrena hasta el nivel {0}",
+  "the Magma Hall": "la Sala de Magma", "the Kelp Maze": "el Laberinto de Algas", "the Roots": "las Raíces",
+  "the Gale Ledges": "las Cornisas del Vendaval", "the Old Workings": "las Galerías Viejas",
+  "the Steam Vents": "las Fumarolas", "the Cinder Cistern": "la Cisterna de Brasas",
+  "Back for More": "Revancha",
+  "Beat a boss who beat you first.": "Vence a un guardián que antes te ganó.",
 };

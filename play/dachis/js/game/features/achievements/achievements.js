@@ -17,6 +17,7 @@ import { SIDE } from '../quest/quests.js';
 import { REGIONS } from '../world/regions.js';
 import { FORM_IDS } from '../../data/forms.js';
 import { SPECIES, BODY_PLANS } from '../../data/species.js';
+import { cameBack } from '../battle/bossHelp.js';
 
 
 
@@ -38,6 +39,9 @@ export const ACHIEVEMENTS = [
     `Find all ${PER_REGION} collectibles on ${r.name}.`, (f) => foundIn(f, r.id) >= PER_REGION)),
   ...LAIRS.map((l) => A('boss-' + l.boss, 'Beat ' + l.boss[0].toUpperCase() + l.boss.slice(1), 'uncommon',
     'Free a corrupted guardian from the red fractures.', (f) => !!f['boss_' + l.boss])),
+  
+  
+  A('comeback', 'Back for More', 'uncommon', 'Beat a boss who beat you first.', (f) => cameBack(f)),
   
   
   A('first-friend', 'Hello, Friend', 'common', 'Befriend your first wild dachi.', (f, c) => (c.caught || 0) >= 2),

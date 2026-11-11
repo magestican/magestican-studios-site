@@ -602,4 +602,18 @@ export default {
   "A Crystal form! Living down the mines made it all sparkly.": "けっしょうのすがただ！ 鉱山でくらしてたら、キラキラになっちゃった。",
   "A Gale form. Its fur is blown flat, like it never stops facing the wind.": "かぜのすがた。毛がぜんぶうしろにねてる。いつも風にむかって立ってるんだな。",
   "A Dusk form. It looks like the sky right after the sun goes down.": "たそがれのすがた。お日さまがしずんだすぐあとの空みたいな色。",
+  
+  "({0} is level {1}. My best one's only {2}.)": "（{0}はレベル{1}。こっちでいちばん強いやつでも{2}だ。）",
+  "(The wild ones in {0} are tougher. We train there first.)": "（{0}の野生はもっと強い。まずはそこできたえよう。）",
+  "(We gotta train first.)": "（まずはきたえなきゃ。）",
+  "({0} fights like a virus, and vaccines clobber viruses.)": "（{0}はウイルスみたいに戦う。ワクチンはウイルスにめっちゃ強いんだ。）",
+  "({0} is a vaccine. Swap {1} in, quick.)": "（{0}はワクチンだ。{1}に交代、早く！）",
+  "(We need a vaccine dachi.)": "（ワクチンのダチがいるな。）",
+  "Train to level {0} in {1}": "{1}でレベル{0}まできたえよう",
+  "Train to level {0}": "レベル{0}まできたえよう",
+  "the Magma Hall": "マグマ広間", "the Kelp Maze": "コンブの迷路", "the Roots": "根っこ",
+  "the Gale Ledges": "突風の岩だな", "the Old Workings": "古い坑道",
+  "the Steam Vents": "噴気口", "the Cinder Cistern": "燃えがらの水槽",
+  "Back for More": "リベンジ",
+  "Beat a boss who beat you first.": "前に負けた守り神に勝つ。",
 };

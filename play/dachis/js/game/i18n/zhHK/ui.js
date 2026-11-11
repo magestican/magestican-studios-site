@@ -602,4 +602,18 @@ export default {
   "A Crystal form! Living down the mines made it all sparkly.": "水晶款！喺礦坑住耐咗，成隻閃晒。",
   "A Gale form. Its fur is blown flat, like it never stops facing the wind.": "大風款。啲毛成日俾風吹到貼晒，好似永遠都對住個風咁。",
   "A Dusk form. It looks like the sky right after the sun goes down.": "黃昏款。好似日落之後嗰陣個天咁。",
+  
+  "({0} is level {1}. My best one's only {2}.)": "（{0}係{1}級。我哋最勁嗰隻都係得{2}級。）",
+  "(The wild ones in {0} are tougher. We train there first.)": "（{0}啲野生嘢惡啲。我哋去嗰度練住先。）",
+  "(We gotta train first.)": "（我哋要練吓先得。）",
+  "({0} fights like a virus, and vaccines clobber viruses.)": "（{0}打法似病毒，疫苗就專剋病毒。）",
+  "({0} is a vaccine. Swap {1} in, quick.)": "（{0}係疫苗。快啲換{1}上！）",
+  "(We need a vaccine dachi.)": "（我哋要搵隻疫苗 dachi。）",
+  "Train to level {0} in {1}": "去{1}練到{0}級",
+  "Train to level {0}": "練到{0}級",
+  "the Magma Hall": "熔岩大廳", "the Kelp Maze": "海帶迷宮", "the Roots": "樹根",
+  "the Gale Ledges": "狂風崖", "the Old Workings": "舊礦道",
+  "the Steam Vents": "蒸氣孔", "the Cinder Cistern": "煤渣水池",
+  "Back for More": "捲土重來",
+  "Beat a boss who beat you first.": "打低一隻之前打贏過你嘅守護者。",
 };

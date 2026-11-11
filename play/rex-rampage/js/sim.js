@@ -311,6 +311,7 @@ const OBJECTIVE_KIND = {
   kill_all_raptors: 'raptor',
   kill_all_pteranodons: 'pteranodon',
   kill_all_gunboats: 'gunboat',
+  kill_all_trikes: 'trike',
 };
 
 

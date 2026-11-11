@@ -2,7 +2,8 @@
 
 import { eggLine } from '../story/egg.js';
 import { G, S, saveGame, healParty, addDachi } from '../../state.js';
-import { speciesById, statsOf, capsFor } from '../../data/species.js';
+import { speciesById, statsOf, capsFor, attrOf } from '../../data/species.js';
+import { recordLoss, lossHelp } from './bossHelp.js';
 import { giveXp, xpReward, bondAfter, BOND_NEW_FRIEND, battleReport } from './rules.js';
 import { removeWild } from '../world/wilds.js';
 import { checkEvolutions } from '../party/evolution.js';
@@ -78,6 +79,14 @@ export function onBattleFinished(b) {
       G.flags.tells = { ...(G.flags.tells || {}), [b.boss]: true };
       msgs.push({ text: '(Okay. Okay. I saw what comes before the big one. I SAW it.)' });
       if (first) msgs.push({ text: 'Written in your journal: ' + pat.note });
+    }
+    
+    
+    if (b.boss) {
+      const losses = recordLoss(G.flags, b.boss);
+      const help = lossHelp({ boss: b.boss, losses, lead: speciesById(b.ally.d.sp).name, floor: capsFor(G.cycle).enemyFloor,
+        party: G.party.map((d) => ({ name: speciesById(d.sp).name, lvl: d.lvl, attr: attrOf(d) })) });
+      for (const text of help) msgs.push({ text });
     }
     const p = G.player;
     const home = respawnPoint(G.region, G.flags, p.x, p.y); 
