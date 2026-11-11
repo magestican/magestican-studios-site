@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { v } from '../site/assetUrl.js';
 import { CANOPY_COMIC } from './canopyArt.js';
-import { GORGE, gardenNightSway } from './gorgeArt.js';
+import { GORGE, gardenFrontLeaf, gardenNightSway } from './gorgeArt.js';
 import { ORCHARD_COMIC, orchardBackSway } from './orchardArt.js';
 import { comicPlate } from './platesComicArt.js';
 import { plateWindow } from './plateWindow.js';
@@ -47,10 +47,18 @@ const BARK = tex('orchard', 'orchard-bark', 0xb98be8, 4);
 
 const plate = (dir, name) => `${B}${dir}/${name}/plate.webp`;
 
-const sway = (tint, seed) => {
-  const p = orchardBackSway(tint, seed);
-  return p.items.length ? { props: p } : {};
+
+
+
+
+const withFront = (p, tint) => {
+  const items = [...p.items, ...gardenFrontLeaf(tint)];
+  return items.length ? { props: { ...p, items } } : {};
 };
+
+const FRONT_DAY = 0x3a2d5c;
+
+const sway = (tint, seed, front = FRONT_DAY) => withFront(orchardBackSway(tint, seed), front);
 
 const nightSway = (tint, seed) => {
   const p = gardenNightSway(tint, seed);
@@ -67,7 +75,7 @@ const BIOMES = {
     sky: 0xffe3c6,
     top: ORCHARD_COMIC.top ?? GRASS,
     solid: ORCHARD_COMIC.solid ?? BARK,
-    ...(ORCHARD_COMIC.props.items.length ? { props: ORCHARD_COMIC.props } : {}),
+    ...withFront(ORCHARD_COMIC.props, FRONT_DAY), 
   },
   
   orchardDusk: {
@@ -77,7 +85,7 @@ const BIOMES = {
     top: GRASS,
     solid: BARK,
     ...comicPlate('orchardDusk'),
-    ...sway(0x9c7f95, 7), 
+    ...sway(0x9c7f95, 7, 0x3a2440), 
   },
   
   
@@ -91,7 +99,7 @@ const BIOMES = {
     
     oneWay: CANOPY_COMIC.top ?? GRASS,
     solid: BARK,
-    ...(CANOPY_COMIC.props.items.length ? { props: CANOPY_COMIC.props } : {}),
+    ...withFront(CANOPY_COMIC.props, FRONT_DAY), 
   },
   stripecat: {
     plate: plate('batch2', 'stripecat-far'),
@@ -119,7 +127,7 @@ const BIOMES = {
     top: GRASS,
     solid: BARK,
     ...comicPlate('puddle'),
-    ...sway(0xc4c8e0, 9), 
+    ...sway(0xc4c8e0, 9, 0x2e3448), 
   },
   antTrail: {
     plate: plate('batch3', 'anttrail-far'),

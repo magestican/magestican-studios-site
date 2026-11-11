@@ -55,6 +55,26 @@ export function gardenNightSway(tint, seed) {
 
 const NIGHT_HAZE = 0.6;
 
+
+
+
+
+
+
+
+
+
+
+export function gardenFrontLeaf(tint) {
+  if (!GORGE_SLOTS['leaf-near'].ready) return [];
+  const clips = 'assets/anim/scenery/l15/clips';
+  return [
+    { name: 'leaf-near-front', src: 'leaf-near', dir: D, clips, layer: 'front', every: 9, h: 2.4, clip: true, tint, haze: FRONT_HAZE },
+  ];
+}
+
+const FRONT_HAZE = 0.85;
+
 export const GORGE = {
   plate: `${D}/silkspan-far/silkspan-far.webp`,
   plateAspect: 16 / 9,

@@ -69,7 +69,8 @@ export function createProps(scene, level, spec) {
   for (const item of spec.items) {
     const src = item.src ?? item.name; 
     loader.load(
-      v(`${spec.dir}/${src}/${src}.webp`),
+      
+      v(`${item.dir ?? spec.dir}/${src}/${src}.webp`),
       (t) => {
         t.colorSpace = THREE.SRGBColorSpace;
         const aspect = t.image.width / t.image.height;
@@ -86,7 +87,7 @@ export function createProps(scene, level, spec) {
       () => {},
     );
     if (item.clip)
-      fetch(v(`${spec.clips}/${src}.json`))
+      fetch(v(`${item.clips ?? spec.clips}/${src}.json`))
         .then((r) => (r.ok ? r.json() : null))
         .then((c) => {
           if (c) clips[item.name] = c;
