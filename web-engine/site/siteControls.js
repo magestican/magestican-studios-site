@@ -274,6 +274,33 @@ const ICONS = {
 
 
 
+
+
+
+
+
+
+
+export function applyCss(doc, win, css) {
+  try {
+    if (win && typeof win.CSSStyleSheet === 'function' && Array.isArray(doc.adoptedStyleSheets)) {
+      const sheet = new win.CSSStyleSheet();
+      sheet.replaceSync(css);
+      doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet];
+      return 'adopted';
+    }
+  } catch {  }
+  const style = doc.createElement('style');
+  style.textContent = css;
+  doc.head.appendChild(style);
+  return 'style';
+}
+
+
+
+
+
+
 export function mountSiteControls({ doc = document, win = window } = {}) {
   if (doc.querySelector('.mg-screen')) return null;
   const t = stringsFor(doc.documentElement.lang);
@@ -291,9 +318,7 @@ export function mountSiteControls({ doc = document, win = window } = {}) {
     doc.head.appendChild(link);
   }
 
-  const style = doc.createElement('style');
-  style.textContent = CSS;
-  doc.head.appendChild(style);
+  applyCss(doc, win, CSS);
 
   const host = doc.createElement('div');
   host.className = 'mg-screen';

@@ -40,10 +40,16 @@ export const FIXED = Object.freeze({
 
 const cap = (w) => w[0].toUpperCase() + w.slice(1);
 
+
+
+
+const NAME_TEXT = { E: `${L('E')}!`, O: 'Oh.' };
+export const nameText = (ch) => NAME_TEXT[ch] || `${L(ch)}.`;
+
 function build() {
   const out = [];
   for (const l of LETTERS) {
-    out.push({ id: id.name(l.ch), text: `${L(l.ch)}.` });
+    out.push({ id: id.name(l.ch), text: nameText(l.ch) });
     out.push({ id: id.phrase(l.ch), text: `${fill(l.ends ? T.letterEnds : T.letterFor, { letter: L(l.ch), word: l.word })}.` });
     out.push({ id: id.find(l.ch), text: fill(T.find, { letter: L(l.ch) }) });
     out.push({ id: id.party(l.ch), text: fill(T.letterParty, { letter: L(l.ch) }) });

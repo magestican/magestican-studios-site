@@ -3,1662 +3,1698 @@
  "voice": "bf_emma",
  "lang": "en-gb",
  "speed": 1.0,
- "engine": "kokoro-v1.0",
+ "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.5, cfg_weight 0.3, seed 1234, tempo 0.85, pitch +1.5)",
  "lines": {
   "name-a": {
    "file": "name-a.m4a",
-   "ms": 853,
+   "ms": 622,
    "text": "A."
   },
   "phrase-a": {
    "file": "phrase-a.m4a",
-   "ms": 1424,
+   "ms": 1403,
    "text": "A is for apple."
   },
   "find-a": {
    "file": "find-a.m4a",
-   "ms": 1494,
+   "ms": 1560,
    "text": "Find the letter A!"
   },
   "party-a": {
    "file": "party-a.m4a",
-   "ms": 2676,
+   "ms": 2816,
    "text": "Well done! You found A!"
   },
   "name-b": {
    "file": "name-b.m4a",
-   "ms": 810,
+   "ms": 606,
    "text": "B."
   },
   "phrase-b": {
    "file": "phrase-b.m4a",
-   "ms": 1417,
+   "ms": 1719,
    "text": "B is for bear."
   },
   "find-b": {
    "file": "find-b.m4a",
-   "ms": 1446,
+   "ms": 1457,
    "text": "Find the letter B!"
   },
   "party-b": {
    "file": "party-b.m4a",
-   "ms": 2677,
+   "ms": 2378,
    "text": "Well done! You found B!"
   },
   "name-c": {
    "file": "name-c.m4a",
-   "ms": 820,
+   "ms": 789,
    "text": "C."
   },
   "phrase-c": {
    "file": "phrase-c.m4a",
-   "ms": 1391,
+   "ms": 1645,
    "text": "C is for cat."
   },
   "find-c": {
    "file": "find-c.m4a",
-   "ms": 1475,
+   "ms": 1483,
    "text": "Find the letter C!"
   },
   "party-c": {
    "file": "party-c.m4a",
-   "ms": 2673,
+   "ms": 2688,
    "text": "Well done! You found C!"
   },
   "name-d": {
    "file": "name-d.m4a",
-   "ms": 877,
+   "ms": 676,
    "text": "D."
   },
   "phrase-d": {
    "file": "phrase-d.m4a",
-   "ms": 1410,
+   "ms": 1319,
    "text": "D is for dog."
   },
   "find-d": {
    "file": "find-d.m4a",
-   "ms": 1489,
+   "ms": 1363,
    "text": "Find the letter D!"
   },
   "party-d": {
    "file": "party-d.m4a",
-   "ms": 2677,
+   "ms": 2572,
    "text": "Well done! You found D!"
   },
   "name-e": {
    "file": "name-e.m4a",
-   "ms": 829,
-   "text": "E."
+   "ms": 625,
+   "text": "E!"
   },
   "phrase-e": {
    "file": "phrase-e.m4a",
-   "ms": 1314,
+   "ms": 1503,
    "text": "E is for egg."
   },
   "find-e": {
    "file": "find-e.m4a",
-   "ms": 1470,
+   "ms": 1687,
    "text": "Find the letter E!"
   },
   "party-e": {
    "file": "party-e.m4a",
-   "ms": 2680,
+   "ms": 2746,
    "text": "Well done! You found E!"
   },
   "name-f": {
    "file": "name-f.m4a",
-   "ms": 773,
+   "ms": 726,
    "text": "F."
   },
   "phrase-f": {
    "file": "phrase-f.m4a",
-   "ms": 1388,
+   "ms": 1505,
    "text": "F is for fish."
   },
   "find-f": {
    "file": "find-f.m4a",
-   "ms": 1481,
+   "ms": 1824,
    "text": "Find the letter F!"
   },
   "party-f": {
    "file": "party-f.m4a",
-   "ms": 2720,
+   "ms": 2586,
    "text": "Well done! You found F!"
   },
   "name-g": {
    "file": "name-g.m4a",
-   "ms": 946,
+   "ms": 686,
    "text": "G."
   },
   "phrase-g": {
    "file": "phrase-g.m4a",
-   "ms": 1545,
+   "ms": 1593,
    "text": "G is for grapes."
   },
   "find-g": {
    "file": "find-g.m4a",
-   "ms": 1529,
+   "ms": 1918,
    "text": "Find the letter G!"
   },
   "party-g": {
    "file": "party-g.m4a",
-   "ms": 2712,
+   "ms": 2769,
    "text": "Well done! You found G!"
   },
   "name-h": {
    "file": "name-h.m4a",
-   "ms": 935,
+   "ms": 867,
    "text": "H."
   },
   "phrase-h": {
    "file": "phrase-h.m4a",
-   "ms": 1411,
+   "ms": 1657,
    "text": "H is for hat."
   },
   "find-h": {
    "file": "find-h.m4a",
-   "ms": 1542,
+   "ms": 2479,
    "text": "Find the letter H!"
   },
   "party-h": {
    "file": "party-h.m4a",
-   "ms": 2730,
+   "ms": 2719,
    "text": "Well done! You found H!"
   },
   "name-i": {
    "file": "name-i.m4a",
-   "ms": 953,
+   "ms": 851,
    "text": "I."
   },
   "phrase-i": {
    "file": "phrase-i.m4a",
-   "ms": 1614,
+   "ms": 1983,
    "text": "I is for ice cream."
   },
   "find-i": {
    "file": "find-i.m4a",
-   "ms": 1526,
+   "ms": 1800,
    "text": "Find the letter I!"
   },
   "party-i": {
    "file": "party-i.m4a",
-   "ms": 2679,
+   "ms": 2345,
    "text": "Well done! You found I!"
   },
   "name-j": {
    "file": "name-j.m4a",
-   "ms": 1022,
+   "ms": 762,
    "text": "J."
   },
   "phrase-j": {
    "file": "phrase-j.m4a",
-   "ms": 1471,
+   "ms": 1622,
    "text": "J is for juice."
   },
   "find-j": {
    "file": "find-j.m4a",
-   "ms": 1544,
+   "ms": 1914,
    "text": "Find the letter J!"
   },
   "party-j": {
    "file": "party-j.m4a",
-   "ms": 2729,
+   "ms": 2961,
    "text": "Well done! You found J!"
   },
   "name-k": {
    "file": "name-k.m4a",
-   "ms": 1003,
+   "ms": 654,
    "text": "K."
   },
   "phrase-k": {
    "file": "phrase-k.m4a",
-   "ms": 1332,
+   "ms": 1533,
    "text": "K is for key."
   },
   "find-k": {
    "file": "find-k.m4a",
-   "ms": 1471,
+   "ms": 1642,
    "text": "Find the letter K!"
   },
   "party-k": {
    "file": "party-k.m4a",
-   "ms": 2694,
+   "ms": 2272,
    "text": "Well done! You found K!"
   },
   "name-l": {
    "file": "name-l.m4a",
-   "ms": 855,
+   "ms": 664,
    "text": "L."
   },
   "phrase-l": {
    "file": "phrase-l.m4a",
-   "ms": 1439,
+   "ms": 1674,
    "text": "L is for lion."
   },
   "find-l": {
    "file": "find-l.m4a",
-   "ms": 1500,
+   "ms": 1743,
    "text": "Find the letter L!"
   },
   "party-l": {
    "file": "party-l.m4a",
-   "ms": 2639,
+   "ms": 2569,
    "text": "Well done! You found L!"
   },
   "name-m": {
    "file": "name-m.m4a",
-   "ms": 861,
+   "ms": 713,
    "text": "M."
   },
   "phrase-m": {
    "file": "phrase-m.m4a",
-   "ms": 1375,
+   "ms": 1538,
    "text": "M is for moon."
   },
   "find-m": {
    "file": "find-m.m4a",
-   "ms": 1521,
+   "ms": 1815,
    "text": "Find the letter M!"
   },
   "party-m": {
    "file": "party-m.m4a",
-   "ms": 2682,
+   "ms": 2475,
    "text": "Well done! You found M!"
   },
   "name-n": {
    "file": "name-n.m4a",
-   "ms": 859,
+   "ms": 670,
    "text": "N."
   },
   "phrase-n": {
    "file": "phrase-n.m4a",
-   "ms": 1414,
+   "ms": 1797,
    "text": "N is for nose."
   },
   "find-n": {
    "file": "find-n.m4a",
-   "ms": 1478,
+   "ms": 1982,
    "text": "Find the letter N!"
   },
   "party-n": {
    "file": "party-n.m4a",
-   "ms": 2686,
+   "ms": 2441,
    "text": "Well done! You found N!"
   },
   "name-o": {
    "file": "name-o.m4a",
-   "ms": 872,
-   "text": "O."
+   "ms": 800,
+   "text": "Oh."
   },
   "phrase-o": {
    "file": "phrase-o.m4a",
-   "ms": 1645,
+   "ms": 1880,
    "text": "O is for octopus."
   },
   "find-o": {
    "file": "find-o.m4a",
-   "ms": 1508,
+   "ms": 2169,
    "text": "Find the letter O!"
   },
   "party-o": {
    "file": "party-o.m4a",
-   "ms": 2664,
+   "ms": 2360,
    "text": "Well done! You found O!"
   },
   "name-p": {
    "file": "name-p.m4a",
-   "ms": 797,
+   "ms": 679,
    "text": "P."
   },
   "phrase-p": {
    "file": "phrase-p.m4a",
-   "ms": 1354,
+   "ms": 1669,
    "text": "P is for pig."
   },
   "find-p": {
    "file": "find-p.m4a",
-   "ms": 1444,
+   "ms": 1468,
    "text": "Find the letter P!"
   },
   "party-p": {
    "file": "party-p.m4a",
-   "ms": 2701,
+   "ms": 2396,
    "text": "Well done! You found P!"
   },
   "name-q": {
    "file": "name-q.m4a",
-   "ms": 851,
+   "ms": 672,
    "text": "Q."
   },
   "phrase-q": {
    "file": "phrase-q.m4a",
-   "ms": 1423,
+   "ms": 1573,
    "text": "Q is for queen."
   },
   "find-q": {
    "file": "find-q.m4a",
-   "ms": 1470,
+   "ms": 1608,
    "text": "Find the letter Q!"
   },
   "party-q": {
    "file": "party-q.m4a",
-   "ms": 2694,
+   "ms": 2301,
    "text": "Well done! You found Q!"
   },
   "name-r": {
    "file": "name-r.m4a",
-   "ms": 762,
+   "ms": 640,
    "text": "R."
   },
   "phrase-r": {
    "file": "phrase-r.m4a",
-   "ms": 1567,
+   "ms": 1614,
    "text": "R is for rainbow."
   },
   "find-r": {
    "file": "find-r.m4a",
-   "ms": 1500,
+   "ms": 1697,
    "text": "Find the letter R!"
   },
   "party-r": {
    "file": "party-r.m4a",
-   "ms": 2715,
+   "ms": 2448,
    "text": "Well done! You found R!"
   },
   "name-s": {
    "file": "name-s.m4a",
-   "ms": 856,
+   "ms": 753,
    "text": "S."
   },
   "phrase-s": {
    "file": "phrase-s.m4a",
-   "ms": 1349,
+   "ms": 1782,
    "text": "S is for sun."
   },
   "find-s": {
    "file": "find-s.m4a",
-   "ms": 1536,
+   "ms": 1793,
    "text": "Find the letter S!"
   },
   "party-s": {
    "file": "party-s.m4a",
-   "ms": 2674,
+   "ms": 2640,
    "text": "Well done! You found S!"
   },
   "name-t": {
    "file": "name-t.m4a",
-   "ms": 900,
+   "ms": 649,
    "text": "T."
   },
   "phrase-t": {
    "file": "phrase-t.m4a",
-   "ms": 1530,
+   "ms": 1605,
    "text": "T is for tiger."
   },
   "find-t": {
    "file": "find-t.m4a",
-   "ms": 1484,
+   "ms": 1922,
    "text": "Find the letter T!"
   },
   "party-t": {
    "file": "party-t.m4a",
-   "ms": 2690,
+   "ms": 2700,
    "text": "Well done! You found T!"
   },
   "name-u": {
    "file": "name-u.m4a",
-   "ms": 893,
+   "ms": 690,
    "text": "U."
   },
   "phrase-u": {
    "file": "phrase-u.m4a",
-   "ms": 1594,
+   "ms": 1724,
    "text": "U is for umbrella."
   },
   "find-u": {
    "file": "find-u.m4a",
-   "ms": 1480,
+   "ms": 1792,
    "text": "Find the letter U!"
   },
   "party-u": {
    "file": "party-u.m4a",
-   "ms": 2670,
+   "ms": 2541,
    "text": "Well done! You found U!"
   },
   "name-v": {
    "file": "name-v.m4a",
-   "ms": 836,
+   "ms": 801,
    "text": "V."
   },
   "phrase-v": {
    "file": "phrase-v.m4a",
-   "ms": 1598,
+   "ms": 1576,
    "text": "V is for violin."
   },
   "find-v": {
    "file": "find-v.m4a",
-   "ms": 1464,
+   "ms": 1432,
    "text": "Find the letter V!"
   },
   "party-v": {
    "file": "party-v.m4a",
-   "ms": 2656,
+   "ms": 2344,
    "text": "Well done! You found V!"
   },
   "name-w": {
    "file": "name-w.m4a",
-   "ms": 1360,
+   "ms": 885,
    "text": "W."
   },
   "phrase-w": {
    "file": "phrase-w.m4a",
-   "ms": 1628,
+   "ms": 1756,
    "text": "W is for whale."
   },
   "find-w": {
    "file": "find-w.m4a",
-   "ms": 1710,
+   "ms": 2046,
    "text": "Find the letter W!"
   },
   "party-w": {
    "file": "party-w.m4a",
-   "ms": 2853,
+   "ms": 2556,
    "text": "Well done! You found W!"
   },
   "name-x": {
    "file": "name-x.m4a",
-   "ms": 903,
+   "ms": 828,
    "text": "X."
   },
   "phrase-x": {
    "file": "phrase-x.m4a",
-   "ms": 1782,
+   "ms": 2271,
    "text": "X is at the end of fox."
   },
   "find-x": {
    "file": "find-x.m4a",
-   "ms": 1547,
+   "ms": 1710,
    "text": "Find the letter X!"
   },
   "party-x": {
    "file": "party-x.m4a",
-   "ms": 2764,
+   "ms": 2656,
    "text": "Well done! You found X!"
   },
   "name-y": {
    "file": "name-y.m4a",
-   "ms": 998,
+   "ms": 666,
    "text": "Y."
   },
   "phrase-y": {
    "file": "phrase-y.m4a",
-   "ms": 1414,
+   "ms": 1770,
    "text": "Y is for yarn."
   },
   "find-y": {
    "file": "find-y.m4a",
-   "ms": 1514,
+   "ms": 2137,
    "text": "Find the letter Y!"
   },
   "party-y": {
    "file": "party-y.m4a",
-   "ms": 2721,
+   "ms": 2469,
    "text": "Well done! You found Y!"
   },
   "name-z": {
    "file": "name-z.m4a",
-   "ms": 969,
+   "ms": 788,
    "text": "Z."
   },
   "phrase-z": {
    "file": "phrase-z.m4a",
-   "ms": 1574,
+   "ms": 1710,
    "text": "Z is for zebra."
   },
   "find-z": {
    "file": "find-z.m4a",
-   "ms": 1505,
+   "ms": 1497,
    "text": "Find the letter Z!"
   },
   "party-z": {
    "file": "party-z.m4a",
-   "ms": 2739,
+   "ms": 2607,
    "text": "Well done! You found Z!"
   },
   "spell-cat": {
    "file": "spell-cat.m4a",
-   "ms": 1433,
+   "ms": 1490,
    "text": "Let's spell cat!"
   },
   "spelled-cat": {
    "file": "spelled-cat.m4a",
-   "ms": 2636,
+   "ms": 3059,
    "text": "C, A, T. Cat!"
   },
   "word-cat": {
    "file": "word-cat.m4a",
-   "ms": 924,
+   "ms": 542,
    "text": "Cat."
   },
   "spell-dog": {
    "file": "spell-dog.m4a",
-   "ms": 1408,
+   "ms": 1701,
    "text": "Let's spell dog!"
   },
   "spelled-dog": {
    "file": "spelled-dog.m4a",
-   "ms": 2766,
+   "ms": 4491,
    "text": "D, O, G. Dog!"
   },
   "word-dog": {
    "file": "word-dog.m4a",
-   "ms": 1020,
+   "ms": 712,
    "text": "Dog."
   },
   "spell-sun": {
    "file": "spell-sun.m4a",
-   "ms": 1377,
+   "ms": 1643,
    "text": "Let's spell sun!"
   },
   "spelled-sun": {
    "file": "spelled-sun.m4a",
-   "ms": 2613,
+   "ms": 3221,
    "text": "S, U, N. Sun!"
   },
   "word-sun": {
    "file": "word-sun.m4a",
-   "ms": 945,
+   "ms": 749,
    "text": "Sun."
   },
   "spell-bus": {
    "file": "spell-bus.m4a",
-   "ms": 1389,
+   "ms": 1768,
    "text": "Let's spell bus!"
   },
   "spelled-bus": {
    "file": "spelled-bus.m4a",
-   "ms": 2570,
+   "ms": 2741,
    "text": "B, U, S. Bus!"
   },
   "word-bus": {
    "file": "word-bus.m4a",
-   "ms": 937,
+   "ms": 745,
    "text": "Bus."
   },
   "spell-pig": {
    "file": "spell-pig.m4a",
-   "ms": 1408,
+   "ms": 1685,
    "text": "Let's spell pig!"
   },
   "spelled-pig": {
    "file": "spelled-pig.m4a",
-   "ms": 2650,
+   "ms": 3224,
    "text": "P, I, G. Pig!"
   },
   "word-pig": {
    "file": "word-pig.m4a",
-   "ms": 948,
+   "ms": 640,
    "text": "Pig."
   },
   "spell-hat": {
    "file": "spell-hat.m4a",
-   "ms": 1407,
+   "ms": 1581,
    "text": "Let's spell hat!"
   },
   "spelled-hat": {
    "file": "spelled-hat.m4a",
-   "ms": 2613,
+   "ms": 2752,
    "text": "H, A, T. Hat!"
   },
   "word-hat": {
    "file": "word-hat.m4a",
-   "ms": 850,
+   "ms": 863,
    "text": "Hat."
   },
   "spell-cup": {
    "file": "spell-cup.m4a",
-   "ms": 1383,
+   "ms": 1236,
    "text": "Let's spell cup!"
   },
   "spelled-cup": {
    "file": "spelled-cup.m4a",
-   "ms": 2540,
+   "ms": 3232,
    "text": "C, U, P. Cup!"
   },
   "word-cup": {
    "file": "word-cup.m4a",
-   "ms": 849,
+   "ms": 670,
    "text": "Cup."
   },
   "spell-bee": {
    "file": "spell-bee.m4a",
-   "ms": 1355,
+   "ms": 1306,
    "text": "Let's spell bee!"
   },
   "spelled-bee": {
    "file": "spelled-bee.m4a",
-   "ms": 2454,
+   "ms": 3126,
    "text": "B, E, E. Bee!"
   },
   "word-bee": {
    "file": "word-bee.m4a",
-   "ms": 810,
+   "ms": 618,
    "text": "Bee."
   },
   "spell-cow": {
    "file": "spell-cow.m4a",
-   "ms": 1395,
+   "ms": 1318,
    "text": "Let's spell cow!"
   },
   "spelled-cow": {
    "file": "spelled-cow.m4a",
-   "ms": 2844,
+   "ms": 3562,
    "text": "C, O, W. Cow!"
   },
   "word-cow": {
    "file": "word-cow.m4a",
-   "ms": 926,
+   "ms": 636,
    "text": "Cow."
   },
   "spell-egg": {
    "file": "spell-egg.m4a",
-   "ms": 1403,
+   "ms": 1661,
    "text": "Let's spell egg!"
   },
   "spelled-egg": {
    "file": "spelled-egg.m4a",
-   "ms": 2579,
+   "ms": 4055,
    "text": "E, G, G. Egg!"
   },
   "word-egg": {
    "file": "word-egg.m4a",
-   "ms": 878,
+   "ms": 672,
    "text": "Egg."
   },
   "spell-owl": {
    "file": "spell-owl.m4a",
-   "ms": 1393,
+   "ms": 1936,
    "text": "Let's spell owl!"
   },
   "spelled-owl": {
    "file": "spelled-owl.m4a",
-   "ms": 2690,
+   "ms": 3237,
    "text": "O, W, L. Owl!"
   },
   "word-owl": {
    "file": "word-owl.m4a",
-   "ms": 973,
+   "ms": 757,
    "text": "Owl."
   },
   "spell-car": {
    "file": "spell-car.m4a",
-   "ms": 1365,
+   "ms": 1301,
    "text": "Let's spell car!"
   },
   "spelled-car": {
    "file": "spelled-car.m4a",
-   "ms": 2564,
+   "ms": 2898,
    "text": "C, A, R. Car!"
   },
   "word-car": {
    "file": "word-car.m4a",
-   "ms": 833,
+   "ms": 891,
    "text": "Car."
   },
   "spell-bed": {
    "file": "spell-bed.m4a",
-   "ms": 1409,
+   "ms": 1380,
    "text": "Let's spell bed!"
   },
   "spelled-bed": {
    "file": "spelled-bed.m4a",
-   "ms": 2669,
+   "ms": 2448,
    "text": "B, E, D. Bed!"
   },
   "word-bed": {
    "file": "word-bed.m4a",
-   "ms": 935,
+   "ms": 742,
    "text": "Bed."
   },
   "spell-fox": {
    "file": "spell-fox.m4a",
-   "ms": 1458,
+   "ms": 1759,
    "text": "Let's spell fox!"
   },
   "spelled-fox": {
    "file": "spelled-fox.m4a",
-   "ms": 2736,
+   "ms": 3155,
    "text": "F, O, X. Fox!"
   },
   "word-fox": {
    "file": "word-fox.m4a",
-   "ms": 1029,
+   "ms": 876,
    "text": "Fox."
   },
   "spell-ant": {
    "file": "spell-ant.m4a",
-   "ms": 1364,
+   "ms": 1580,
    "text": "Let's spell ant!"
   },
   "spelled-ant": {
    "file": "spelled-ant.m4a",
-   "ms": 2576,
+   "ms": 3072,
    "text": "A, N, T. Ant!"
   },
   "word-ant": {
    "file": "word-ant.m4a",
-   "ms": 923,
+   "ms": 729,
    "text": "Ant."
   },
   "spell-map": {
    "file": "spell-map.m4a",
-   "ms": 1410,
+   "ms": 1683,
    "text": "Let's spell map!"
   },
   "spelled-map": {
    "file": "spelled-map.m4a",
-   "ms": 2649,
+   "ms": 3153,
    "text": "M, A, P. Map!"
   },
   "word-map": {
    "file": "word-map.m4a",
-   "ms": 960,
+   "ms": 915,
    "text": "Map."
   },
   "spell-fish": {
    "file": "spell-fish.m4a",
-   "ms": 1403,
+   "ms": 1388,
    "text": "Let's spell fish!"
   },
   "spelled-fish": {
    "file": "spelled-fish.m4a",
-   "ms": 2802,
+   "ms": 4660,
    "text": "F, I, S, H. Fish!"
   },
   "word-fish": {
    "file": "word-fish.m4a",
-   "ms": 931,
+   "ms": 831,
    "text": "Fish."
   },
   "spell-frog": {
    "file": "spell-frog.m4a",
-   "ms": 1470,
+   "ms": 1777,
    "text": "Let's spell frog!"
   },
   "spelled-frog": {
    "file": "spelled-frog.m4a",
-   "ms": 2913,
+   "ms": 3138,
    "text": "F, R, O, G. Frog!"
   },
   "word-frog": {
    "file": "word-frog.m4a",
-   "ms": 1052,
+   "ms": 762,
    "text": "Frog."
   },
   "spell-star": {
    "file": "spell-star.m4a",
-   "ms": 1400,
+   "ms": 1369,
    "text": "Let's spell star!"
   },
   "spelled-star": {
    "file": "spelled-star.m4a",
-   "ms": 2732,
+   "ms": 4050,
    "text": "S, T, A, R. Star!"
   },
   "word-star": {
    "file": "word-star.m4a",
-   "ms": 845,
+   "ms": 871,
    "text": "Star."
   },
   "spell-cake": {
    "file": "spell-cake.m4a",
-   "ms": 1423,
+   "ms": 1385,
    "text": "Let's spell cake!"
   },
   "spelled-cake": {
    "file": "spelled-cake.m4a",
-   "ms": 2869,
+   "ms": 3314,
    "text": "C, A, K, E. Cake!"
   },
   "word-cake": {
    "file": "word-cake.m4a",
-   "ms": 1048,
+   "ms": 777,
    "text": "Cake."
   },
   "spell-duck": {
    "file": "spell-duck.m4a",
-   "ms": 1386,
+   "ms": 1771,
    "text": "Let's spell duck!"
   },
   "spelled-duck": {
    "file": "spelled-duck.m4a",
-   "ms": 2816,
+   "ms": 3868,
    "text": "D, U, C, K. Duck!"
   },
   "word-duck": {
    "file": "word-duck.m4a",
-   "ms": 916,
+   "ms": 675,
    "text": "Duck."
   },
   "spell-moon": {
    "file": "spell-moon.m4a",
-   "ms": 1376,
+   "ms": 1505,
    "text": "Let's spell moon!"
   },
   "spelled-moon": {
    "file": "spelled-moon.m4a",
-   "ms": 3004,
+   "ms": 3405,
    "text": "M, O, O, N. Moon!"
   },
   "word-moon": {
    "file": "word-moon.m4a",
-   "ms": 1207,
+   "ms": 748,
    "text": "Moon."
   },
   "spell-ball": {
    "file": "spell-ball.m4a",
-   "ms": 1428,
+   "ms": 1643,
    "text": "Let's spell ball!"
   },
   "spelled-ball": {
    "file": "spelled-ball.m4a",
-   "ms": 2711,
+   "ms": 3762,
    "text": "B, A, L, L. Ball!"
   },
   "word-ball": {
    "file": "word-ball.m4a",
-   "ms": 957,
+   "ms": 848,
    "text": "Ball."
   },
   "spell-bear": {
    "file": "spell-bear.m4a",
-   "ms": 1379,
+   "ms": 1824,
    "text": "Let's spell bear!"
   },
   "spelled-bear": {
    "file": "spelled-bear.m4a",
-   "ms": 2761,
+   "ms": 3161,
    "text": "B, E, A, R. Bear!"
   },
   "word-bear": {
    "file": "word-bear.m4a",
-   "ms": 968,
+   "ms": 604,
    "text": "Bear."
   },
   "spell-boat": {
    "file": "spell-boat.m4a",
-   "ms": 1439,
+   "ms": 1928,
    "text": "Let's spell boat!"
   },
   "spelled-boat": {
    "file": "spelled-boat.m4a",
-   "ms": 2798,
+   "ms": 3213,
    "text": "B, O, A, T. Boat!"
   },
   "word-boat": {
    "file": "word-boat.m4a",
-   "ms": 970,
+   "ms": 841,
    "text": "Boat."
   },
   "spell-tree": {
    "file": "spell-tree.m4a",
-   "ms": 1412,
+   "ms": 1699,
    "text": "Let's spell tree!"
   },
   "spelled-tree": {
    "file": "spelled-tree.m4a",
-   "ms": 2913,
+   "ms": 3804,
    "text": "T, R, E, E. Tree!"
   },
   "word-tree": {
    "file": "word-tree.m4a",
-   "ms": 995,
+   "ms": 737,
    "text": "Tree."
   },
   "spell-lion": {
    "file": "spell-lion.m4a",
-   "ms": 1439,
+   "ms": 1737,
    "text": "Let's spell lion!"
   },
   "spelled-lion": {
    "file": "spelled-lion.m4a",
-   "ms": 3149,
+   "ms": 3013,
    "text": "L, I, O, N. Lion!"
   },
   "word-lion": {
    "file": "word-lion.m4a",
-   "ms": 1319,
+   "ms": 833,
    "text": "Lion."
   },
   "spell-milk": {
    "file": "spell-milk.m4a",
-   "ms": 1445,
+   "ms": 1497,
    "text": "Let's spell milk!"
   },
   "spelled-milk": {
    "file": "spelled-milk.m4a",
-   "ms": 2948,
+   "ms": 3008,
    "text": "M, I, L, K. Milk!"
   },
   "word-milk": {
    "file": "word-milk.m4a",
-   "ms": 813,
+   "ms": 809,
    "text": "Milk."
   },
   "spell-kite": {
    "file": "spell-kite.m4a",
-   "ms": 1433,
+   "ms": 1387,
    "text": "Let's spell kite!"
   },
   "spelled-kite": {
    "file": "spelled-kite.m4a",
-   "ms": 2930,
+   "ms": 4190,
    "text": "K, I, T, E. Kite!"
   },
   "word-kite": {
    "file": "word-kite.m4a",
-   "ms": 1002,
+   "ms": 1020,
    "text": "Kite."
   },
   "spell-shoe": {
    "file": "spell-shoe.m4a",
-   "ms": 1353,
+   "ms": 1650,
    "text": "Let's spell shoe!"
   },
   "spelled-shoe": {
    "file": "spelled-shoe.m4a",
-   "ms": 2635,
+   "ms": 4029,
    "text": "S, H, O, E. Shoe!"
   },
   "word-shoe": {
    "file": "word-shoe.m4a",
-   "ms": 784,
+   "ms": 879,
    "text": "Shoe."
   },
   "spell-corn": {
    "file": "spell-corn.m4a",
-   "ms": 1451,
+   "ms": 1485,
    "text": "Let's spell corn!"
   },
   "spelled-corn": {
    "file": "spelled-corn.m4a",
-   "ms": 2963,
+   "ms": 3848,
    "text": "C, O, R, N. Corn!"
   },
   "word-corn": {
    "file": "word-corn.m4a",
-   "ms": 1102,
+   "ms": 854,
    "text": "Corn."
   },
   "spell-bird": {
    "file": "spell-bird.m4a",
-   "ms": 1446,
+   "ms": 2346,
    "text": "Let's spell bird!"
   },
   "spelled-bird": {
    "file": "spelled-bird.m4a",
-   "ms": 2945,
+   "ms": 3806,
    "text": "B, I, R, D. Bird!"
   },
   "word-bird": {
    "file": "word-bird.m4a",
-   "ms": 1047,
+   "ms": 736,
    "text": "Bird."
   },
   "spell-apple": {
    "file": "spell-apple.m4a",
-   "ms": 1450,
+   "ms": 1878,
    "text": "Let's spell apple!"
   },
   "spelled-apple": {
    "file": "spelled-apple.m4a",
-   "ms": 3052,
+   "ms": 3638,
    "text": "A, P, P, L, E. Apple!"
   },
   "word-apple": {
    "file": "word-apple.m4a",
-   "ms": 1027,
+   "ms": 828,
    "text": "Apple."
   },
   "spell-horse": {
    "file": "spell-horse.m4a",
-   "ms": 1430,
+   "ms": 1482,
    "text": "Let's spell horse!"
   },
   "spelled-horse": {
    "file": "spelled-horse.m4a",
-   "ms": 2946,
+   "ms": 3549,
    "text": "H, O, R, S, E. Horse!"
   },
   "word-horse": {
    "file": "word-horse.m4a",
-   "ms": 1023,
+   "ms": 1510,
    "text": "Horse."
   },
   "spell-tiger": {
    "file": "spell-tiger.m4a",
-   "ms": 1499,
+   "ms": 1922,
    "text": "Let's spell tiger!"
   },
   "spelled-tiger": {
    "file": "spelled-tiger.m4a",
-   "ms": 3216,
+   "ms": 4709,
    "text": "T, I, G, E, R. Tiger!"
   },
   "word-tiger": {
    "file": "word-tiger.m4a",
-   "ms": 1122,
+   "ms": 814,
    "text": "Tiger."
   },
   "spell-zebra": {
    "file": "spell-zebra.m4a",
-   "ms": 1499,
+   "ms": 1291,
    "text": "Let's spell zebra!"
   },
   "spelled-zebra": {
    "file": "spelled-zebra.m4a",
-   "ms": 3279,
+   "ms": 3767,
    "text": "Z, E, B, R, A. Zebra!"
   },
   "word-zebra": {
    "file": "word-zebra.m4a",
-   "ms": 1217,
+   "ms": 866,
    "text": "Zebra."
   },
   "spell-train": {
    "file": "spell-train.m4a",
-   "ms": 1449,
+   "ms": 1882,
    "text": "Let's spell train!"
   },
   "spelled-train": {
    "file": "spelled-train.m4a",
-   "ms": 3235,
+   "ms": 4417,
    "text": "T, R, A, I, N. Train!"
   },
   "word-train": {
    "file": "word-train.m4a",
-   "ms": 1200,
+   "ms": 745,
    "text": "Train."
   },
   "spell-house": {
    "file": "spell-house.m4a",
-   "ms": 1449,
+   "ms": 1389,
    "text": "Let's spell house!"
   },
   "spelled-house": {
    "file": "spelled-house.m4a",
-   "ms": 3001,
+   "ms": 3949,
    "text": "H, O, U, S, E. House!"
   },
   "word-house": {
    "file": "word-house.m4a",
-   "ms": 1044,
+   "ms": 881,
    "text": "House."
   },
   "spell-pizza": {
    "file": "spell-pizza.m4a",
-   "ms": 1547,
+   "ms": 1460,
    "text": "Let's spell pizza!"
   },
   "spelled-pizza": {
    "file": "spelled-pizza.m4a",
-   "ms": 3075,
+   "ms": 4531,
    "text": "P, I, Z, Z, A. Pizza!"
   },
   "word-pizza": {
    "file": "word-pizza.m4a",
-   "ms": 891,
+   "ms": 902,
    "text": "Pizza."
   },
   "spell-panda": {
    "file": "spell-panda.m4a",
-   "ms": 1493,
+   "ms": 1324,
    "text": "Let's spell panda!"
   },
   "spelled-panda": {
    "file": "spelled-panda.m4a",
-   "ms": 3055,
+   "ms": 4259,
    "text": "P, A, N, D, A. Panda!"
   },
   "word-panda": {
    "file": "word-panda.m4a",
-   "ms": 1052,
+   "ms": 840,
    "text": "Panda."
   },
   "spell-robot": {
    "file": "spell-robot.m4a",
-   "ms": 1525,
+   "ms": 2092,
    "text": "Let's spell robot!"
   },
   "spelled-robot": {
    "file": "spelled-robot.m4a",
-   "ms": 2931,
+   "ms": 4343,
    "text": "R, O, B, O, T. Robot!"
   },
   "word-robot": {
    "file": "word-robot.m4a",
-   "ms": 1169,
+   "ms": 764,
    "text": "Robot."
   },
   "spell-snake": {
    "file": "spell-snake.m4a",
-   "ms": 1501,
+   "ms": 1419,
    "text": "Let's spell snake!"
   },
   "spelled-snake": {
    "file": "spelled-snake.m4a",
-   "ms": 2986,
+   "ms": 3686,
    "text": "S, N, A, K, E. Snake!"
   },
   "word-snake": {
    "file": "word-snake.m4a",
-   "ms": 1078,
+   "ms": 1021,
    "text": "Snake."
   },
   "spell-whale": {
    "file": "spell-whale.m4a",
-   "ms": 1429,
+   "ms": 1756,
    "text": "Let's spell whale!"
   },
   "spelled-whale": {
    "file": "spelled-whale.m4a",
-   "ms": 3150,
+   "ms": 4627,
    "text": "W, H, A, L, E. Whale!"
   },
   "word-whale": {
    "file": "word-whale.m4a",
-   "ms": 1026,
+   "ms": 715,
    "text": "Whale."
   },
   "spell-sheep": {
    "file": "spell-sheep.m4a",
-   "ms": 1422,
+   "ms": 1387,
    "text": "Let's spell sheep!"
   },
   "spelled-sheep": {
    "file": "spelled-sheep.m4a",
-   "ms": 2768,
+   "ms": 4155,
    "text": "S, H, E, E, P. Sheep!"
   },
   "word-sheep": {
    "file": "word-sheep.m4a",
-   "ms": 847,
+   "ms": 854,
    "text": "Sheep."
   },
   "spell-piano": {
    "file": "spell-piano.m4a",
-   "ms": 1514,
+   "ms": 1845,
    "text": "Let's spell piano!"
   },
   "spelled-piano": {
    "file": "spelled-piano.m4a",
-   "ms": 3165,
+   "ms": 4104,
    "text": "P, I, A, N, O. Piano!"
   },
   "word-piano": {
    "file": "word-piano.m4a",
-   "ms": 1244,
+   "ms": 861,
    "text": "Piano."
   },
   "spell-clock": {
    "file": "spell-clock.m4a",
-   "ms": 1454,
+   "ms": 1780,
    "text": "Let's spell clock!"
   },
   "spelled-clock": {
    "file": "spelled-clock.m4a",
-   "ms": 3055,
+   "ms": 3834,
    "text": "C, L, O, C, K. Clock!"
   },
   "word-clock": {
    "file": "word-clock.m4a",
-   "ms": 1027,
+   "ms": 764,
    "text": "Clock."
   },
   "spell-heart": {
    "file": "spell-heart.m4a",
-   "ms": 1409,
+   "ms": 1666,
    "text": "Let's spell heart!"
   },
   "spelled-heart": {
    "file": "spelled-heart.m4a",
-   "ms": 2868,
+   "ms": 3454,
    "text": "H, E, A, R, T. Heart!"
   },
   "word-heart": {
    "file": "word-heart.m4a",
-   "ms": 900,
+   "ms": 780,
    "text": "Heart."
   },
   "spell-mouse": {
    "file": "spell-mouse.m4a",
-   "ms": 1437,
+   "ms": 1798,
    "text": "Let's spell mouse!"
   },
   "spelled-mouse": {
    "file": "spelled-mouse.m4a",
-   "ms": 2776,
+   "ms": 3646,
    "text": "M, O, U, S, E. Mouse!"
   },
   "word-mouse": {
    "file": "word-mouse.m4a",
-   "ms": 1140,
+   "ms": 818,
    "text": "Mouse."
   },
   "jam-start": {
    "file": "jam-start.m4a",
-   "ms": 1309,
+   "ms": 1646,
    "text": "Press any letter!"
   },
   "pick-words": {
    "file": "pick-words.m4a",
-   "ms": 1322,
+   "ms": 1277,
    "text": "Pick your words!"
   },
   "rain-tap": {
    "file": "rain-tap.m4a",
-   "ms": 3131,
+   "ms": 2484,
    "text": "Pop the balloons! Tap them!"
   },
   "rain-keys": {
    "file": "rain-keys.m4a",
-   "ms": 3163,
+   "ms": 3233,
    "text": "Pop the balloons! Press their letters!"
   },
   "book-empty": {
    "file": "book-empty.m4a",
-   "ms": 1892,
+   "ms": 1908,
    "text": "Play to fill your sticker book!"
   },
   "hooray": {
    "file": "hooray.m4a",
-   "ms": 1266,
+   "ms": 1243,
    "text": "Hooray!"
   },
   "alphabet-done": {
    "file": "alphabet-done.m4a",
-   "ms": 3456,
+   "ms": 3511,
    "text": "Hooray! You sang the whole alphabet!"
   },
   "jam-party": {
    "file": "jam-party.m4a",
-   "ms": 2468,
+   "ms": 2523,
    "text": "Wow! What a song!"
   },
   "words-done": {
    "file": "words-done.m4a",
-   "ms": 3250,
+   "ms": 3248,
    "text": "Hooray! You built all the words!"
   },
   "count-1": {
    "file": "count-1.m4a",
-   "ms": 1471,
+   "ms": 1565,
    "text": "You have 1 sticker!"
   },
   "count-2": {
    "file": "count-2.m4a",
-   "ms": 1519,
+   "ms": 1395,
    "text": "You have 2 stickers!"
   },
   "count-3": {
    "file": "count-3.m4a",
-   "ms": 1540,
+   "ms": 1784,
    "text": "You have 3 stickers!"
   },
   "count-4": {
    "file": "count-4.m4a",
-   "ms": 1525,
+   "ms": 1730,
    "text": "You have 4 stickers!"
   },
   "count-5": {
    "file": "count-5.m4a",
-   "ms": 1572,
+   "ms": 1718,
    "text": "You have 5 stickers!"
   },
   "count-6": {
    "file": "count-6.m4a",
-   "ms": 1538,
+   "ms": 1646,
    "text": "You have 6 stickers!"
   },
   "count-7": {
    "file": "count-7.m4a",
-   "ms": 1605,
+   "ms": 1708,
    "text": "You have 7 stickers!"
   },
   "count-8": {
    "file": "count-8.m4a",
-   "ms": 1509,
+   "ms": 1921,
    "text": "You have 8 stickers!"
   },
   "count-9": {
    "file": "count-9.m4a",
-   "ms": 1538,
+   "ms": 1630,
    "text": "You have 9 stickers!"
   },
   "count-10": {
    "file": "count-10.m4a",
-   "ms": 1533,
+   "ms": 2018,
    "text": "You have 10 stickers!"
   },
   "count-11": {
    "file": "count-11.m4a",
-   "ms": 1624,
+   "ms": 2007,
    "text": "You have 11 stickers!"
   },
   "count-12": {
    "file": "count-12.m4a",
-   "ms": 1579,
+   "ms": 1733,
    "text": "You have 12 stickers!"
   },
   "count-13": {
    "file": "count-13.m4a",
-   "ms": 1744,
+   "ms": 2064,
    "text": "You have 13 stickers!"
   },
   "count-14": {
    "file": "count-14.m4a",
-   "ms": 1697,
+   "ms": 1962,
    "text": "You have 14 stickers!"
   },
   "count-15": {
    "file": "count-15.m4a",
-   "ms": 1653,
+   "ms": 1952,
    "text": "You have 15 stickers!"
   },
   "count-16": {
    "file": "count-16.m4a",
-   "ms": 1725,
+   "ms": 1968,
    "text": "You have 16 stickers!"
   },
   "count-17": {
    "file": "count-17.m4a",
-   "ms": 1781,
+   "ms": 2015,
    "text": "You have 17 stickers!"
   },
   "count-18": {
    "file": "count-18.m4a",
-   "ms": 1672,
+   "ms": 2016,
    "text": "You have 18 stickers!"
   },
   "count-19": {
    "file": "count-19.m4a",
-   "ms": 1732,
+   "ms": 1893,
    "text": "You have 19 stickers!"
   },
   "count-20": {
    "file": "count-20.m4a",
-   "ms": 1623,
+   "ms": 1883,
    "text": "You have 20 stickers!"
   },
   "count-21": {
    "file": "count-21.m4a",
-   "ms": 1770,
+   "ms": 1956,
    "text": "You have 21 stickers!"
   },
   "count-22": {
    "file": "count-22.m4a",
-   "ms": 1796,
+   "ms": 2001,
    "text": "You have 22 stickers!"
   },
   "count-23": {
    "file": "count-23.m4a",
-   "ms": 1797,
+   "ms": 1964,
    "text": "You have 23 stickers!"
   },
   "count-24": {
    "file": "count-24.m4a",
-   "ms": 1794,
+   "ms": 2468,
    "text": "You have 24 stickers!"
   },
   "count-25": {
    "file": "count-25.m4a",
-   "ms": 1819,
+   "ms": 2038,
    "text": "You have 25 stickers!"
   },
   "count-26": {
    "file": "count-26.m4a",
-   "ms": 1825,
+   "ms": 1962,
    "text": "You have 26 stickers!"
   },
   "count-27": {
    "file": "count-27.m4a",
-   "ms": 1901,
+   "ms": 2023,
    "text": "You have 27 stickers!"
   },
   "count-28": {
    "file": "count-28.m4a",
-   "ms": 1725,
+   "ms": 1872,
    "text": "You have 28 stickers!"
   },
   "count-29": {
    "file": "count-29.m4a",
-   "ms": 1806,
+   "ms": 1967,
    "text": "You have 29 stickers!"
   },
   "count-30": {
    "file": "count-30.m4a",
-   "ms": 1638,
+   "ms": 1884,
    "text": "You have 30 stickers!"
   },
   "count-31": {
    "file": "count-31.m4a",
-   "ms": 1830,
+   "ms": 2015,
    "text": "You have 31 stickers!"
   },
   "count-32": {
    "file": "count-32.m4a",
-   "ms": 1795,
+   "ms": 1875,
    "text": "You have 32 stickers!"
   },
   "count-33": {
    "file": "count-33.m4a",
-   "ms": 1842,
+   "ms": 2171,
    "text": "You have 33 stickers!"
   },
   "count-34": {
    "file": "count-34.m4a",
-   "ms": 1820,
+   "ms": 2059,
    "text": "You have 34 stickers!"
   },
   "count-35": {
    "file": "count-35.m4a",
-   "ms": 1856,
+   "ms": 2156,
    "text": "You have 35 stickers!"
   },
   "count-36": {
    "file": "count-36.m4a",
-   "ms": 1845,
+   "ms": 2305,
    "text": "You have 36 stickers!"
   },
   "count-37": {
    "file": "count-37.m4a",
-   "ms": 1944,
+   "ms": 2344,
    "text": "You have 37 stickers!"
   },
   "count-38": {
    "file": "count-38.m4a",
-   "ms": 1724,
+   "ms": 2062,
    "text": "You have 38 stickers!"
   },
   "count-39": {
    "file": "count-39.m4a",
-   "ms": 1849,
+   "ms": 2159,
    "text": "You have 39 stickers!"
   },
   "count-40": {
    "file": "count-40.m4a",
-   "ms": 1614,
+   "ms": 1883,
    "text": "You have 40 stickers!"
   },
   "count-41": {
    "file": "count-41.m4a",
-   "ms": 1769,
+   "ms": 2170,
    "text": "You have 41 stickers!"
   },
   "count-42": {
    "file": "count-42.m4a",
-   "ms": 1773,
+   "ms": 1813,
    "text": "You have 42 stickers!"
   },
   "count-43": {
    "file": "count-43.m4a",
-   "ms": 1795,
+   "ms": 2288,
    "text": "You have 43 stickers!"
   },
   "count-44": {
    "file": "count-44.m4a",
-   "ms": 1795,
+   "ms": 2098,
    "text": "You have 44 stickers!"
   },
   "count-45": {
    "file": "count-45.m4a",
-   "ms": 1819,
+   "ms": 2171,
    "text": "You have 45 stickers!"
   },
   "count-46": {
    "file": "count-46.m4a",
-   "ms": 1824,
+   "ms": 2432,
    "text": "You have 46 stickers!"
   },
   "count-47": {
    "file": "count-47.m4a",
-   "ms": 1898,
+   "ms": 2323,
    "text": "You have 47 stickers!"
   },
   "count-48": {
    "file": "count-48.m4a",
-   "ms": 1748,
+   "ms": 2116,
    "text": "You have 48 stickers!"
   },
   "count-49": {
    "file": "count-49.m4a",
-   "ms": 1824,
+   "ms": 2188,
    "text": "You have 49 stickers!"
   },
   "count-50": {
    "file": "count-50.m4a",
-   "ms": 1597,
+   "ms": 1876,
    "text": "You have 50 stickers!"
   },
   "count-51": {
    "file": "count-51.m4a",
-   "ms": 1722,
+   "ms": 1877,
    "text": "You have 51 stickers!"
   },
   "count-52": {
    "file": "count-52.m4a",
-   "ms": 1724,
+   "ms": 2006,
    "text": "You have 52 stickers!"
   },
   "count-53": {
    "file": "count-53.m4a",
-   "ms": 1749,
+   "ms": 2011,
    "text": "You have 53 stickers!"
   },
   "count-54": {
    "file": "count-54.m4a",
-   "ms": 1750,
+   "ms": 2015,
    "text": "You have 54 stickers!"
   },
   "count-55": {
    "file": "count-55.m4a",
-   "ms": 1794,
+   "ms": 2027,
    "text": "You have 55 stickers!"
   },
   "count-56": {
    "file": "count-56.m4a",
-   "ms": 1806,
+   "ms": 1956,
    "text": "You have 56 stickers!"
   },
   "count-57": {
    "file": "count-57.m4a",
-   "ms": 1855,
+   "ms": 2102,
    "text": "You have 57 stickers!"
   },
   "count-58": {
    "file": "count-58.m4a",
-   "ms": 1709,
+   "ms": 2019,
    "text": "You have 58 stickers!"
   },
   "count-59": {
    "file": "count-59.m4a",
-   "ms": 1781,
+   "ms": 2025,
    "text": "You have 59 stickers!"
   },
   "count-60": {
    "file": "count-60.m4a",
-   "ms": 1648,
+   "ms": 1833,
    "text": "You have 60 stickers!"
   },
   "count-61": {
    "file": "count-61.m4a",
-   "ms": 1771,
+   "ms": 2055,
    "text": "You have 61 stickers!"
   },
   "count-62": {
    "file": "count-62.m4a",
-   "ms": 1818,
+   "ms": 2058,
    "text": "You have 62 stickers!"
   },
   "count-63": {
    "file": "count-63.m4a",
-   "ms": 1843,
+   "ms": 2088,
    "text": "You have 63 stickers!"
   },
   "count-64": {
    "file": "count-64.m4a",
-   "ms": 1819,
+   "ms": 2062,
    "text": "You have 64 stickers!"
   },
   "count-65": {
    "file": "count-65.m4a",
-   "ms": 1862,
+   "ms": 2170,
    "text": "You have 65 stickers!"
   },
   "count-66": {
    "file": "count-66.m4a",
-   "ms": 1871,
+   "ms": 2150,
    "text": "You have 66 stickers!"
   },
   "count-67": {
    "file": "count-67.m4a",
-   "ms": 1922,
+   "ms": 2199,
    "text": "You have 67 stickers!"
   },
   "count-68": {
    "file": "count-68.m4a",
-   "ms": 1775,
+   "ms": 2012,
    "text": "You have 68 stickers!"
   },
   "count-69": {
    "file": "count-69.m4a",
-   "ms": 1850,
+   "ms": 2186,
    "text": "You have 69 stickers!"
   },
   "count-70": {
    "file": "count-70.m4a",
-   "ms": 1700,
+   "ms": 1881,
    "text": "You have 70 stickers!"
   },
   "count-71": {
    "file": "count-71.m4a",
-   "ms": 1846,
+   "ms": 2349,
    "text": "You have 71 stickers!"
   },
   "count-72": {
    "file": "count-72.m4a",
-   "ms": 1881,
+   "ms": 2262,
    "text": "You have 72 stickers!"
   },
   "count-73": {
    "file": "count-73.m4a",
-   "ms": 1901,
+   "ms": 2316,
    "text": "You have 73 stickers!"
   },
   "count-74": {
    "file": "count-74.m4a",
-   "ms": 1872,
+   "ms": 2058,
    "text": "You have 74 stickers!"
   }
- }
+ },
+ "takes": [
+  {
+   "dir": "a",
+   "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.5, cfg_weight 0.3, seed 1234, tempo 0.85, pitch +1.5)"
+  },
+  {
+   "dir": "s2",
+   "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.5, cfg_weight 0.3, seed 2, tempo 0.85, pitch +1.5)"
+  },
+  {
+   "dir": "s3",
+   "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.5, cfg_weight 0.3, seed 3, tempo 0.85, pitch +1.5)"
+  },
+  {
+   "dir": "s4",
+   "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.5, cfg_weight 0.3, seed 4, tempo 0.85, pitch +1.5)"
+  },
+  {
+   "dir": "s5",
+   "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.5, cfg_weight 0.3, seed 5, tempo 0.85, pitch +1.5)"
+  },
+  {
+   "dir": "s6",
+   "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.5, cfg_weight 0.3, seed 2, tempo 0.85, pitch +1.5)",
+   "lines": [
+    "name-o"
+   ]
+  },
+  {
+   "dir": "2",
+   "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.5, cfg_weight 0.3, seed 2, tempo 0.85, pitch +1.5)",
+   "lines": [
+    "name-e"
+   ]
+  }
+ ]
 }
