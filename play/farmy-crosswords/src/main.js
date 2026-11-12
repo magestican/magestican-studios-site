@@ -65,7 +65,13 @@ import { LIVE_PATH } from '../../../web-engine/net/presence.js';
 
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
-import { cardMatch, sessionMatch, createPuzzleLedger } from './wordReport.js';
+import { cardMatch, sessionMatch, createPuzzleLedger, LEDGER_KEY } from './wordReport.js';
+
+
+import {
+  outcomeOf, recordFrom, earnedPrizes, newPrizes, nextGoal, goalFill, prizeLines, prizeCount,
+  helpLines, GOAL_HEADING, PRIZES_HEADING, SEE_PRIZES, newPrizeLine,
+} from './progress.js';
 
 let reportLedger = createPuzzleLedger(null);
 try { reportLedger = createPuzzleLedger(globalThis.localStorage); } catch {  }
@@ -524,12 +530,18 @@ function layoutBar() {
   
   const soundX = helpX - 8 - 140;
   const togetherX = soundX - 8 - 176;
+  
+  
+  
+  const prizesX = togetherX - 8 - 140;
+  const prizesRect = { x: prizesX, y, w: 140, h, id: 'prizes', label: SEE_PRIZES };
   if (current === HOME) {
     barRects = [
       { x: helpX, y, w: 48, h, id: 'help', label: '?' },
       { x: soundX, y, w: 140, h, id: 'sound', label: soundLabel() },
       { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
-      ...chipRect(togetherX - 8 - 150, 150),
+      prizesRect,
+      ...chipRect(prizesX - 8 - 150, 150),
     ];
     return;
   }
@@ -545,7 +557,8 @@ function layoutBar() {
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
     { x: soundX, y, w: 140, h, id: 'sound', label: soundLabel() },
     { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
-    ...chipRect(togetherX - 8 - 150, 150),
+    prizesRect,
+    ...chipRect(prizesX - 8 - 150, 150),
   ];
 }
 
@@ -924,6 +937,44 @@ function lifetimeScore() {
   }
   lifetime = total;
   return total;
+}
+
+
+
+
+
+function readRecord() {
+  const entries = [];
+  for (const game of GAMES) {
+    const n = MODULES[game.id].count();
+    for (let i = 0; i < n; i += 1) {
+      const saved = readJson(saveKey(game.id, i));
+      if (saved) entries.push({ key: puzzleKey(game.id, i), game: game.id, outcome: outcomeOf(game.id, puzzleOf(game.id, i), saved) });
+    }
+  }
+  const ledger = readJson(LEDGER_KEY);
+  return recordFrom(entries, Array.isArray(ledger) ? ledger : []);
+}
+
+
+
+
+
+let namedPrizes = earnedPrizes(readRecord());
+function takeNewPrizes(record = readRecord()) {
+  const now = earnedPrizes(record);
+  const fresh = newPrizes(namedPrizes, now);
+  namedPrizes = now;
+  return fresh;
+}
+
+
+function openPrizes() {
+  app.message = '';
+  const record = readRecord();
+  overlay = help(app, { title: PRIZES_HEADING, lines: [prizeCount(record), ...prizeLines(record)] });
+  overlay.layout();
+  invalidate();
 }
 
 
@@ -1593,8 +1644,19 @@ function openResults(won = true, reason = null) {
   app.message = '';
   const here = current;
   const at = indexFor[current];
+  
+  
+  
+  const record = readRecord();
+  const after = [
+    ...takeNewPrizes(record).map((name) => ({ text: newPrizeLine(name), weight: 700 })),
+    ...(won ? [] : helpLines(record, here, { alone: !inRoom() }).map((text) => ({ text, weight: 400 }))),
+    { text: GOAL_HEADING, weight: 700 },
+    { text: nextGoal(record), weight: 400 },
+  ];
   overlay = resultsPanel(app, {
     state: {
+      after,
       won,
       
       
@@ -1805,6 +1867,7 @@ function openMore() {
     },
     { id: 'name', label: `Your name: ${nameOf(roomState.me ?? 'me')}`, run: openName },
     { id: 'help', label: 'How to play', run: openHelp },
+    { id: 'prizes', label: SEE_PRIZES, run: openPrizes },
     
     
     
@@ -1929,6 +1992,7 @@ canvas.addEventListener('pointerup', (e) => {
     else if (b.id === 'start') openStart();
     else if (b.id === 'resume') resumeMatch();
     else if (b.id === 'clock') openRoom();
+    else if (b.id === 'prizes') openPrizes();
     else openPicker();
     return;
   }
@@ -2196,6 +2260,18 @@ $start.addEventListener('click', () => {
   if (current === HOME) openGame('wordle');
 });
 $seeOptions.addEventListener('click', () => { leaveTitle(); goHome(); });
+
+
+{
+  const record = readRecord();
+  const fill = goalFill(record);
+  const $line = document.getElementById('goal-line');
+  const $fill = document.getElementById('goal-fill');
+  const $count = document.getElementById('goal-count');
+  if ($line) $line.textContent = nextGoal(record);
+  if ($fill) $fill.style.width = `${Math.round(fill.share * 100)}%`;
+  if ($count) $count.textContent = fill.text;
+}
 if (linkPuzzle.game && MODULES[linkPuzzle.game]) {
   if (Number.isInteger(linkPuzzle.index) && linkPuzzle.index < MODULES[linkPuzzle.game].count()) {
     indexFor[linkPuzzle.game] = linkPuzzle.index;

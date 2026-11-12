@@ -307,13 +307,25 @@ export function more(app, { items }) {
   let hover = -1;
   let hoverAt = 0;
 
+  
+  
+  
+  
+  
+  
   function layout() {
-    box = panelBox(app, false);
+    const base = panelBox(app, false);
+    const top = 76;
+    const foot = 16;
+    const want = SIZES.target + 6 + 12;
+    const maxH = app.height - 32;
+    const h = Math.min(maxH, Math.max(base.h, top + items.length * want - 12 + foot));
+    box = { ...base, h, y: Math.round((app.height - h) / 2) };
+    const pitch = Math.min(want, (h - top - foot + 12) / Math.max(1, items.length));
+    const bh = Math.max(44, Math.min(SIZES.target + 6, pitch - 12));
     const w = Math.min(320, box.w - 44);
     const x = box.x + (box.w - w) / 2;
-    const h = SIZES.target + 6;
-    const top = box.y + 76;
-    buttons = items.map((it, i) => ({ ...it, x, y: top + i * (h + 12), w, h }));
+    buttons = items.map((it, i) => ({ ...it, x, y: box.y + top + i * pitch, w, h: bh }));
   }
 
   function draw(g, now) {
@@ -481,6 +493,25 @@ export function results(app, { state, onNext, onGames, onClose }) {
       }
     }
 
+    
+    
+    
+    
+    const after = state.after ?? [];
+    if (after.length) {
+      if (rows.length) y += 12;
+      for (const line of after) {
+        const parts = paint.wrap(g, line.text, width, { size: SIZES.min, weight: line.weight ?? 400 });
+        if (y + parts.length * 25 > limit) break;
+        for (const part of parts) {
+          paint.text(g, part, { x: box.x + pad, y, width, height: 25 },
+            { size: SIZES.min, weight: line.weight ?? 400, colour: COLORS.ink, align: 'left' });
+          y += 25;
+        }
+        y += 6;
+      }
+    }
+
     buttons.forEach((b, i) => {
       
       
@@ -532,6 +563,7 @@ export function results(app, { state, onNext, onGames, onClose }) {
         : `${state.game}. ${state.score}.`,
       lines: [
         ...(state.rows ?? []).map((r) => `${r.you ? `${r.name}, you` : r.name}: ${r.comparable ? (r.label ?? r.where) : 'on another puzzle'}.`),
+        ...(state.after ?? []).map((line) => line.text),
         `Press Enter for puzzle ${state.next}, or choose another game.`,
       ],
     }),

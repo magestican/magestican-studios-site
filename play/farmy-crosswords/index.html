@@ -7,7 +7,7 @@
   <title>Play Wordburrow - four word games, big clear letters</title>
   <meta name="description" content="Wordburrow is four free word games in your browser: Guesswise, Combword, Groupseek and Gridseek, with a farm flavour. Big letters, high contrast, no timer, no account, more than fifty puzzles in each game, and a room you can share so two people work one puzzle together.">
   <meta name="keywords" content="wordburrow, free word games browser, five letter word guess, honeycomb word game, word grouping puzzle, themed word search, large print word puzzles, accessible word games no download">
-  <meta name="build" content="d9d43c09-20261112T011335Z">
+  <meta name="build" content="888ed88c-20261112T014001Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/farmy-crosswords/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Wordburrow - four word games, big clear letters">
@@ -20,7 +20,7 @@
   <meta name="twitter:description" content="Four word puzzles on one page: Guesswise, Combword, Groupseek and Gridseek. Fifty-plus playsets each, and nothing is on a clock.">
   <meta name="twitter:image" content="https://magesticanstudios.com/assets/farmy-crosswords-preview.png">
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./src/style.css?v=d9d43c09-20261112T011335Z">
+  <link rel="stylesheet" href="./src/style.css?v=888ed88c-20261112T014001Z">
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   <script type="application/ld+json">
   {
@@ -120,6 +120,12 @@
   <div id="title" class="title">
     <button id="start" type="button">Start</button>
     <button id="see-options" type="button">See options</button>
+    <section id="goal" class="goal" aria-label="Next goal">
+      <p class="goal-head">Next goal</p>
+      <p id="goal-line" class="goal-line">Get a Guesswise word in six guesses.</p>
+      <span class="goal-bar" aria-hidden="true"><span id="goal-fill" class="goal-fill"></span></span>
+      <p id="goal-count" class="goal-count">0 of 8 prizes</p>
+    </section>
   </div>
 
   <iframe id="family" class="family-frame" title="Magestican Studios game" hidden></iframe>
@@ -151,9 +157,9 @@
 
 
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=d9d43c09-20261112T011335Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=888ed88c-20261112T014001Z"></script>
 
-  <script type="module" src="./src/main.js?v=d9d43c09-20261112T011335Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=d9d43c09-20261112T011335Z"></script>
+  <script type="module" src="./src/main.js?v=888ed88c-20261112T014001Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=888ed88c-20261112T014001Z"></script>
 </body>
 </html>
