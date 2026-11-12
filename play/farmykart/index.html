@@ -1287,6 +1287,24 @@
 
     #results-notable li.fk-account { color: #ffd45e; letter-spacing: .04em; }
     #results-unlock { display: block; color: var(--sky); font-size: 13px; margin-top: 8px; }
+    
+
+    #goal { background: rgba(34, 31, 27, .88); border: 1px solid #3a352e; border-radius: 14px;
+      padding: 16px; margin: 20px 0;
+      
+
+      position: relative; z-index: 3; }
+    #goal h2 { margin: 0 0 8px; }
+    #goal-line { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+    #goal-meter { height: 8px; border-radius: 4px; background: #302c26; overflow: hidden; }
+    #goal-bar { display: block; height: 100%; width: 0; background: var(--gold); }
+    #goal-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-wrap: wrap; margin: 12px 0 0; font-size: 13px; }
+    #goal-prizes { list-style: none; margin: 12px 0 0; padding: 0; font-size: 13px; line-height: 1.7; }
+    .fk-tips { margin: 12px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; color: var(--sky); }
+    .fk-tips li + li { margin-top: 6px; }
+    #results-prize { display: block; color: var(--gold); font-size: 14px; margin-top: 8px; }
+    #results-prize:empty { display: none; }
     #results-table .pts { text-align: right; width: 46px; color: var(--cream);
       font-variant-numeric: tabular-nums; }
     #results-table .pts em { color: var(--gold); font-style: normal; font-size: 10px; }
@@ -1436,6 +1454,19 @@
       <button id="char-prev" class="show-arrow" type="button" aria-label="Previous driver">&lsaquo;</button>
       <button id="char-next" class="show-arrow" type="button" aria-label="Next driver">&rsaquo;</button>
       <div id="char-info"></div>
+      
+
+
+
+      <section id="goal" aria-labelledby="goal-head">
+        <h2 id="goal-head">Next goal</h2>
+        <p id="goal-line"></p>
+        <div id="goal-meter" role="progressbar" aria-labelledby="goal-head" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="goal-bar"></span></div>
+        <p id="goal-foot"><span id="goal-count"></span>
+          <button id="goal-toggle" class="chip" type="button" aria-controls="goal-prizes" aria-expanded="false">See prizes</button></p>
+        <ul id="goal-prizes" hidden></ul>
+        <ul id="goal-tips" class="fk-tips" hidden></ul>
+      </section>
 
       <h2>Circuit</h2>
       
@@ -1826,6 +1857,9 @@
       <ul id="results-notable"></ul>
       <span id="results-unlock"></span>
       
+      <span id="results-prize"></span>
+      <ul id="results-tips" class="fk-tips" hidden></ul>
+      
 
 
       <span id="results-next"></span>
@@ -1891,7 +1925,7 @@
 
 
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=84a80a08-20261112T195033Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=148dcc0a-20261112T202108Z"></script>
 
   <script type="importmap">
   {
@@ -1954,7 +1988,7 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=84a80a08-20261112T195033Z"></script>
+  <script type="module" src="./src/main.js?v=148dcc0a-20261112T202108Z"></script>
 
   
 
@@ -1969,6 +2003,6 @@
       contentFrom: "#fk-controls-body",
     });
   </script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=84a80a08-20261112T195033Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=148dcc0a-20261112T202108Z"></script>
 </body>
 </html>

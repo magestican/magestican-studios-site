@@ -40,6 +40,11 @@ import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { shareInvite, publicUrlFor } from '../../../web-engine/share/shareInvite.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { kartMatch } from './kartReport.js';
+
+
+import {
+  progressWords, cleanRecord, raceOutcome, recordAfter, newPrizes, nextGoal, goalFill, prizeLines, helpLines,
+} from './progress.js';
 import { levelFromXp } from '../../../web-engine/account/playerLevel.js';
 import { sessionLines } from '../../../web-engine/account/accountBadge.js';
 import { mountProfilePanel } from '../../../web-engine/account/accountUi.js';
@@ -188,6 +193,8 @@ function boot() {
   
   state.assist = defaultAssist(state.progress);
   state.name = localStorageGet('farmykart.name') ?? '';
+  state.record = loadRecord();
+  paintGoal();
 
   
   
@@ -355,6 +362,7 @@ async function openRoom(mode, hostId = null) {
     return;
   }
   state.session = session;
+  paintGoal();
   $('host-btn').disabled = false;
   $('join-note').textContent = '';
 
@@ -454,6 +462,7 @@ function leaveRoom() {
     window.history.replaceState({}, '', url.toString());
   } catch {  }
   $('join-note').textContent = '';
+  paintGoal();
   show('menu');
 }
 
@@ -935,6 +944,8 @@ function syncSelection() {
   for (const el of $('assist-row').children) {
     el.classList.toggle('on', el.dataset.id === (state.assist ? 'on' : 'off'));
   }
+  
+  if (state.record) paintGoal();
 }
 
 
@@ -983,6 +994,11 @@ function startRace({ newCup = false, net = null } = {}) {
     saveProgress(safeLocalStorage(), state.progress);
     state.rotationRng = new SeededRng((Date.now() & 0x7fffffff) || 1);
   }
+
+  
+  
+  
+  state.recordOpen = !net;
 
   if (state.race) state.race.dispose();
   state.race = createRace({
@@ -1076,6 +1092,64 @@ function paintAccountLines() {
     li.textContent = line;
     list.appendChild(li);
   }
+}
+
+
+
+
+const RECORD_KEY = 'kartzoom-record-v1';
+
+function loadRecord() {
+  try { return cleanRecord(JSON.parse(localStorageGet(RECORD_KEY) ?? 'null')); } catch { return cleanRecord(null); }
+}
+function saveRecord(record) {
+  const r = cleanRecord(record);
+  localStorageSet(RECORD_KEY, JSON.stringify({
+    played: r.played, won: r.won, podiums: r.podiums, marketWins: r.marketWins, stampedeWins: r.stampedeWins, lostInRow: r.lostInRow,
+  }));
+}
+
+const goalWords = () => progressWords('en', {
+  sunday: DIFFICULTIES.sunday?.label, market: DIFFICULTIES.market?.label, stampede: DIFFICULTIES.stampede?.label,
+});
+const fillWord = (s, vars) => String(s).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
+
+function paintTips(list, lines) {
+  if (!list) return;
+  list.textContent = '';
+  for (const line of lines) {
+    const li = document.createElement('li');
+    li.textContent = line;
+    list.appendChild(li);
+  }
+  list.hidden = lines.length === 0;
+}
+
+
+function paintGoal() {
+  const card = $('goal');
+  if (!card) return;
+  card.hidden = !!state.session;
+  const W = goalWords();
+  const r = state.record ?? cleanRecord(null);
+  $('goal-head').textContent = W.goal;
+  $('goal-line').textContent = nextGoal(W, r);
+  const f = goalFill(W, r);
+  $('goal-bar').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-meter').setAttribute('aria-valuenow', String(Math.round(f.share * 100)));
+  $('goal-count').textContent = f.text;
+  const list = $('goal-prizes');
+  list.textContent = '';
+  for (const line of prizeLines(W, r)) {
+    const li = document.createElement('li');
+    li.textContent = line;
+    list.appendChild(li);
+  }
+  const btn = $('goal-toggle');
+  btn.textContent = list.hidden ? W.open : W.close;
+  btn.setAttribute('aria-expanded', String(!list.hidden));
+  btn.onclick = () => { list.hidden = !list.hidden; paintGoal(); };
+  paintTips($('goal-tips'), helpLines(W, r, state.difficulty, state.assist));
 }
 
 function showResults(result) {
@@ -1254,6 +1328,20 @@ function showResults(result) {
   buildTrackGrid();
   $('results-unlock').textContent = cupUnlockLine(preRace, state.progress,
     CUPS.map((c) => ({ ...c, tracks: tracksInCup(c.id) })));
+
+  
+  const race = state.recordOpen ? raceOutcome(result) : null;
+  state.recordOpen = false;
+  let prizesWon = [];
+  if (race) {
+    const before = state.record;
+    state.record = recordAfter(before, race);
+    saveRecord(state.record);
+    prizesWon = newPrizes(goalWords(), before, state.record);
+  }
+  $('results-prize').textContent = prizesWon.map((name) => fillWord(goalWords().newPrize, { name })).join(' ');
+  paintTips($('results-tips'), race ? helpLines(goalWords(), state.record, state.difficulty, state.assist) : []);
+  paintGoal();
 
   trackEvent('match_end', {
     track: result.trackId, position: result.position, field: result.fieldSize,
