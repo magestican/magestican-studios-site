@@ -366,5 +366,33 @@ html[data-scene] .bu-score-row { background: rgba(255, 253, 246, 0.55); }
   .bu-score-to { flex-basis: 100%; text-align: center; }
   .bu-hud { gap: 4px; }
   .bu-status { font-size: 14px; }
-  .bu > .bu-room, .bu > .bu-result, .bu > .bu-foot, .bu > .bu-help, .bu > .mg-again { grid-column: 1 / -1; }
+  .bu > .bu-room, .bu > .bu-result, .bu > .bu-foot, .bu > .bu-help, .bu > .mg-again, .bu > .bu-tip, .bu > .bu-goal { grid-column: 1 / -1; }
 }
+
+
+
+
+
+.bu-tip { max-width: 38em; margin: 0; font-size: 15px; font-weight: 700; line-height: 1.45; text-align: center; }
+.bu-tip[hidden] { display: none; }
+.bu-goal {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: min(100%, 520px); box-sizing: border-box; padding: 16px; border-radius: 12px; text-align: center;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+}
+
+
+html[data-scene] #goal { padding: 16px; }
+.bu-goal[hidden], .bu-prizes[hidden] { display: none; }
+.bu-goal-head { margin: 0; font-size: 18px; }
+.bu-goal-line { margin: 0; font-size: 16px; line-height: 1.45; }
+.bu-goal-count { margin: 0; font-size: 14px; font-weight: 700; }
+.bu-goal-bar {
+  width: 100%; height: 10px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+.bu-goal-bar span { display: block; height: 100%; width: 0; border-radius: inherit; background: #2E7D32; transition: width 400ms ease; }
+.bu-prizes { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.bu-prizes ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.bu-prizes li { padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, currentColor 8%, transparent); font-size: 15px; }
+@media (prefers-reduced-motion: reduce) { .bu-goal-bar span { transition: none; } }

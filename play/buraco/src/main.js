@@ -52,6 +52,9 @@ import { PACE, flyCard, rectOf, wait } from '../../shared/ui/cardFlight.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, cardName } from './strings.js';
+import {
+  progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord, cleanCanastras,
+} from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
 
 const GAME_ID = 'buraco';
@@ -59,6 +62,8 @@ const GAME_ID = 'buraco';
 
 
 const SETTINGS_KEY = 'buracowise-settings-v2';
+
+const RECORD_KEY = 'buracowise-record-v1';
 const SOLO = 'you';
 const HOST = 'host';      
 
@@ -159,6 +164,14 @@ function freshSeed() {
 }
 const handParam = (params.get('hand') ?? '').split(',').map((s) => s.trim().toUpperCase()).filter(Boolean);
 const mortoParam = params.get('morto') === '1';
+let cheatDeal = false;   
+
+
+const PW = progressWords(lang, T);
+let record = cleanRecord(load(RECORD_KEY, null));
+let prizeLine = '';
+let prizesOpen = false;
+let cleanThisGame = false;
 
 
 let match = null;   
@@ -222,6 +235,8 @@ function begin(m) {
   selected = new Set();
   reportGate.begin(match.seats);
   startedAt = Date.now();
+  prizeLine = '';
+  cleanThisGame = false;
   refresh();
 }
 
@@ -229,11 +244,12 @@ function newMatch({ cheats = false } = {}) {
   stopTimers();
   const first = settings.mode === 'room' ? myId() : SOLO;
   const seats = settings.mode === 'room' && settings.size === 2 ? [first, ''] : botSeats(settings.size, settings.level, first);
-  begin(createMatch({
-    seats, target: settings.target, seed: freshSeed(),
-    fixedHand: cheats && handParam.length ? handParam : null,
-    mortoTaken: cheats && mortoParam,
-  }));
+  const fixedHand = cheats && handParam.length ? handParam : null;
+  const mortoTaken = cheats && mortoParam;
+  
+  
+  cheatDeal = seedParam !== null || !!fixedHand || mortoTaken;
+  begin(createMatch({ seats, target: settings.target, seed: freshSeed(), fixedHand, mortoTaken }));
 }
 
 
@@ -301,6 +317,9 @@ function refresh(move = null) {
   stopTimers();
   if (move) flying = flyEvents(move.events, move.before).catch(() => {}).then(() => wait(PACE.settle));
   const g = match.game;
+  
+  
+  if (g.hand.over && g.hand.result && view.you >= 0 && cleanCanastras(g.hand.result.lines[teamOf(view.you)]) > 0) cleanThisGame = true;
   if (g.over) { flying.then(() => finished()); return; }
   if (g.hand.over) return;
   const id = actorId(match);
@@ -890,7 +909,8 @@ function draw() {
   handEl.hidden = watching;
   document.querySelector('.bu-handbar').hidden = watching;
   actionsEl.hidden = watching;
-  statusEl.textContent = statusText();
+  
+  statusEl.textContent = view?.game.over && prizeLine ? `${statusText()} ${prizeLine}` : statusText();
   
   $('new-game').hidden = watching;
   
@@ -905,10 +925,39 @@ function draw() {
   drawHand();
   drawActions();
   drawResult();
+  drawProgress();
   const h = view?.game.hand;
   nextEl.hidden = !(view && h && h.over && !view.game.over && !isGuest() && !watching);
   fit.refit();
 }
+
+
+
+function drawProgress() {
+  const solo = settings.mode === 'bot';
+  $('goal').hidden = !solo;
+  const tips = solo ? helpLines(PW, record, settings.level) : [];
+  const tipEl = $('tip');
+  tipEl.hidden = tips.length === 0;
+  tipEl.textContent = tips.join(' ');
+  if (!solo) return;
+  $('goal-line').textContent = nextGoal(PW, record);
+  const f = goalFill(PW, record);
+  $('goal-fill').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-count').textContent = f.text;
+  const btn = $('prizes-btn');
+  btn.textContent = prizesOpen ? PW.close : PW.open;
+  btn.setAttribute('aria-expanded', String(prizesOpen));
+  $('prizes').hidden = !prizesOpen;
+  $('prize-list').replaceChildren(...prizeLines(PW, record).map((line) => {
+    const li = document.createElement('li');
+    li.textContent = line;
+    return li;
+  }));
+}
+$('goal-head').textContent = PW.goal;
+$('prizes-head').textContent = PW.prizes;
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; playUi(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
 
 
 function finished() {
@@ -930,6 +979,15 @@ function finished() {
       myDev: deviceId(), hosting: !!net?.hosting, seconds: (Date.now() - startedAt) / 1000,
     });
     if (arg) reportMatch(arg).catch(() => {});
+    
+    
+    if (settings.mode === 'bot' && view.seats.some((s) => isBot(s)) && !cheatDeal) {
+      const before = record;
+      record = recordAfter(record, { result, level: settings.level, clean: cleanThisGame });
+      save(RECORD_KEY, record);
+      prizeLine = newPrizes(PW, before, record).map((name) => fill(PW.newPrize, { name })).join(' ');
+      draw();
+    }
   }
   trackEvent('buraco_finished', {
     mode: settings.mode, size: g.opts.players, level: settings.level, target: g.opts.target,
