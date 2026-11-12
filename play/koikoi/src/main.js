@@ -47,10 +47,15 @@ import { PACE, flyCard, rectOf, wait, reducedMotion } from '../../shared/ui/card
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, cardName, yakuName } from './strings.js';
+import {
+  progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord, scoredBright,
+} from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
 
 const GAME_ID = 'koikoi';
 const SETTINGS_KEY = 'hanawise-settings-v1';
+
+const RECORD_KEY = 'hanawise-record-v1';
 const SOLO = 'you';
 const HOST = 'host';      
 const BOT_MS = PACE.think;
@@ -134,6 +139,13 @@ function freshSeed() {
   try { return crypto.getRandomValues(new Uint32Array(1))[0] || 1; } catch { return (Math.random() * 2 ** 32) >>> 0 || 1; }
 }
 const handParam = (params.get('hand') ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+let cheatDeal = false;   
+
+
+const PW = progressWords(lang, T);
+let record = cleanRecord(load(RECORD_KEY, null));
+let prizeLine = '';
+let prizesOpen = false;
 
 
 let match = null;   
@@ -180,6 +192,7 @@ function begin(m) {
   reportGate.begin(match.seats);
   startedAt = Date.now();
   lastFlash = '';
+  prizeLine = '';
   refresh();
 }
 
@@ -187,10 +200,11 @@ function newMatch({ keepHand = false } = {}) {
   stopTimers();
   const first = settings.mode === 'room' ? myId() : SOLO;
   const seats = settings.mode === 'room' ? [first, ''] : [first, `bot:${settings.level}#1`];
-  begin(createMatch({
-    seats, rounds: settings.rounds, seed: freshSeed(), oya: 0,
-    fixed: keepHand && handParam.length === 8 ? handParam : null,
-  }));
+  const fixed = keepHand && handParam.length === 8 ? handParam : null;
+  
+  
+  cheatDeal = seedParam !== null || !!fixed;
+  begin(createMatch({ seats, rounds: settings.rounds, seed: freshSeed(), oya: 0, fixed }));
 }
 
 
@@ -753,7 +767,8 @@ function draw() {
   const watchersEl = $('watchers');
   watchersEl.textContent = watchingLabel(T.watchers, room.active ? (net?.watchers ?? 0) : 0);
   watchersEl.hidden = !watchersEl.textContent;
-  statusEl.textContent = statusText();
+  
+  statusEl.textContent = view?.matchOver && prizeLine ? `${statusText()} ${prizeLine}` : statusText();
   drawScore();
   drawTable(legal);
   drawHand(legal);
@@ -763,8 +778,37 @@ function draw() {
   $('new-game').hidden = watching;
   document.querySelector('.kk-foot').hidden = watching;
   again.update(!!view?.matchOver && !watching);
+  drawProgress();
   fit.refit();
 }
+
+
+
+function drawProgress() {
+  const solo = settings.mode === 'bot';
+  $('goal').hidden = !solo;
+  const tips = solo ? helpLines(PW, record, settings.level) : [];
+  const tipEl = $('tip');
+  tipEl.hidden = tips.length === 0;
+  tipEl.textContent = tips.join(' ');
+  if (!solo) return;
+  $('goal-line').textContent = nextGoal(PW, record);
+  const f = goalFill(PW, record);
+  $('goal-fill').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-count').textContent = f.text;
+  const btn = $('prizes-btn');
+  btn.textContent = prizesOpen ? PW.close : PW.open;
+  btn.setAttribute('aria-expanded', String(prizesOpen));
+  $('prizes').hidden = !prizesOpen;
+  $('prize-list').replaceChildren(...prizeLines(PW, record).map((line) => {
+    const li = document.createElement('li');
+    li.textContent = line;
+    return li;
+  }));
+}
+$('goal-head').textContent = PW.goal;
+$('prizes-head').textContent = PW.prizes;
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; playUi(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
 
 
 function finished() {
@@ -784,6 +828,15 @@ function finished() {
       myDev: deviceId(), hosting: !!net?.hosting, seconds: (Date.now() - startedAt) / 1000,
     });
     if (arg) reportMatch(arg).catch(() => {});
+    
+    
+    if (settings.mode === 'bot' && view.seats.some((s) => isBot(s)) && !cheatDeal) {
+      const before = record;
+      record = recordAfter(record, { result, level: settings.level, bright: scoredBright(view.history, me) });
+      save(RECORD_KEY, record);
+      prizeLine = newPrizes(PW, before, record).map((name) => fill(PW.newPrize, { name })).join(' ');
+      draw();
+    }
   }
   trackEvent('koikoi_finished', { mode: settings.mode, level: settings.level, rounds: view.rounds, result, us: a, them: b });
 }

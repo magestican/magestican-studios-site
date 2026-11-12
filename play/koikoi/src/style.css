@@ -280,7 +280,7 @@ html[data-scene="hard"] .kk-table { background-image: linear-gradient(rgba(250, 
   .kk > .kk-hud { grid-column: 1; grid-row: 2; }
   .kk > .kk-table { grid-column: 1; grid-row: 3; width: 100%; }
   .kk > .kk-seat { grid-column: 2; grid-row: 1 / span 3; }
-  .kk > .kk-room, .kk > .kk-foot, .kk > .kk-help, .kk > .mg-again { grid-column: 1 / -1; }
+  .kk > .kk-room, .kk > .kk-foot, .kk > .kk-help, .kk > .mg-again, .kk > .kk-tip, .kk > .kk-goal { grid-column: 1 / -1; }
 }
 noscript p { max-width: 32em; margin: 24px auto; padding: 0 16px; }
 
@@ -336,3 +336,28 @@ noscript p { max-width: 32em; margin: 24px auto; padding: 0 16px; }
   0%, 100% { box-shadow: inset 0 0 0 4px #2A1713, inset 0 0 0 5px rgba(217, 174, 76, 0.55), 0 14px 34px rgba(0, 0, 0, 0.5); }
   50% { box-shadow: inset 0 0 0 4px #2A1713, inset 0 0 0 5px #F2C14E, 0 0 0 5px rgba(242, 193, 78, 0.45), 0 14px 34px rgba(0, 0, 0, 0.5); }
 }
+
+
+
+
+
+.kk-tip { max-width: 38em; margin: 0; font-size: 15px; font-weight: 700; line-height: 1.45; text-align: center; }
+.kk-tip[hidden] { display: none; }
+.kk-goal {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: min(100%, 520px); box-sizing: border-box; padding: 16px; border-radius: 12px; text-align: center;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+}
+.kk-goal[hidden], .kk-prizes[hidden] { display: none; }
+.kk-goal-head { margin: 0; font-size: 18px; }
+.kk-goal-line { margin: 0; font-size: 16px; line-height: 1.45; }
+.kk-goal-count { margin: 0; font-size: 14px; font-weight: 700; }
+.kk-goal-bar {
+  width: 100%; height: 10px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+.kk-goal-bar span { display: block; height: 100%; width: 0; border-radius: inherit; background: #B3261E; transition: width 400ms ease; }
+.kk-prizes { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.kk-prizes ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.kk-prizes li { padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, currentColor 8%, transparent); font-size: 15px; }
+@media (prefers-reduced-motion: reduce) { .kk-goal-bar span { transition: none; } }

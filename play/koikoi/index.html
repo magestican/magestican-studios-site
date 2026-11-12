@@ -7,7 +7,7 @@
   <title>Play Hanawise - free Koi-Koi hanafuda online</title>
   <meta name="description" content="Hanawise is free Koi-Koi in your browser with the 48-card hanafuda deck: match the months, collect yaku, then stop or call koi-koi. Play the computer at three levels or a friend in a room.">
   <meta name="keywords" content="hanawise, koi-koi, koi koi online, hanafuda, こいこい, 花札, 花札 線上, 花札在线">
-  <meta name="build" content="e911a6a7-20261112T180424Z">
+  <meta name="build" content="02dbe696-20261112T182829Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/koikoi/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Hanawise - free Koi-Koi hanafuda online">
@@ -25,8 +25,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=e911a6a7-20261112T180424Z" data-game="koikoi" data-zh="1" data-levels="easy,medium,hard" data-level-key="hanawise-settings-v1" data-level-default="easy" data-deck="../shared/cards/hanafuda48/"></script>
-  <link rel="stylesheet" href="./src/style.css?v=e911a6a7-20261112T180424Z">
+  <script src="../shared/ui/boot.js?v=02dbe696-20261112T182829Z" data-game="koikoi" data-zh="1" data-levels="easy,medium,hard" data-level-key="hanawise-settings-v1" data-level-default="easy" data-deck="../shared/cards/hanafuda48/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=02dbe696-20261112T182829Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -140,7 +140,23 @@
     <div class="kk-foot">
       <button class="kk-btn skin-lacquer-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
     </div>
+    
+
+    <p class="kk-tip" id="tip" role="status" hidden></p>
     <p class="kk-help" data-t="help">Match a card from your hand to a field card of the same month, then flip the draw pile. Collect yaku, then stop to score or call koi-koi to play for more.</p>
+    
+
+    <section class="kk-goal" id="goal" aria-labelledby="goal-head">
+      <h2 class="kk-goal-head" id="goal-head">Next goal</h2>
+      <p class="kk-goal-line" id="goal-line"></p>
+      <div class="kk-goal-bar" aria-hidden="true"><span id="goal-fill"></span></div>
+      <p class="kk-goal-count" id="goal-count"></p>
+      <button class="kk-btn skin-lacquer-button_secondary" type="button" id="prizes-btn" aria-expanded="false" aria-controls="prizes">See prizes</button>
+      <div class="kk-prizes" id="prizes" hidden>
+        <h3 class="kk-goal-head" id="prizes-head">Your prizes</h3>
+        <ul id="prize-list"></ul>
+      </div>
+    </section>
   </main>
 
   <noscript>
@@ -148,8 +164,8 @@
     <a href="/koikoi.html">How to play</a>.</p>
   </noscript>
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=e911a6a7-20261112T180424Z"></script>
-  <script type="module" src="./src/main.js?v=e911a6a7-20261112T180424Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=e911a6a7-20261112T180424Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=02dbe696-20261112T182829Z"></script>
+  <script type="module" src="./src/main.js?v=02dbe696-20261112T182829Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=02dbe696-20261112T182829Z"></script>
 </body>
 </html>
