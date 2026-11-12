@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "10d276d6-20261112T171849Z",
+ "buildId": "45954351-20261112T174226Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -546,7 +546,7 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-10-29",
-   "bytes": 1260627
+   "bytes": 1279459
   },
   {
    "id": "xiangqi",

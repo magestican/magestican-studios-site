@@ -392,3 +392,28 @@ html[data-scene] .sg-help { padding: 12px 16px; }
   .sg-sq .sg-piece, .sg-handpiece, .sg-sq.last, .sg-promo-btn { transition: none; }
   .sg-sq.target::after, .sg-sq.landed::before, .sg-handpiece.fresh, .sg-banner, .sg-banner.check, .sg-promote { animation: none; }
 }
+
+
+
+
+
+.sg-tip { max-width: 38em; margin: 0; font-size: 15px; font-weight: 700; line-height: 1.45; text-align: center; }
+.sg-tip[hidden] { display: none; }
+.sg-goal {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: min(100%, 520px); box-sizing: border-box; padding: 16px; border-radius: 12px; text-align: center;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+}
+.sg-goal[hidden], .sg-prizes[hidden] { display: none; }
+.sg-goal-head { margin: 0; font-size: 18px; }
+.sg-goal-line { margin: 0; font-size: 16px; line-height: 1.45; }
+.sg-goal-count { margin: 0; font-size: 14px; font-weight: 700; }
+.sg-goal-bar {
+  width: 100%; height: 10px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+.sg-goal-bar span { display: block; height: 100%; width: 0; border-radius: inherit; background: #B3261E; transition: width 400ms ease; }
+.sg-prizes { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.sg-prizes ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.sg-prizes li { padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, currentColor 8%, transparent); font-size: 15px; }
+@media (prefers-reduced-motion: reduce) { .sg-goal-bar span { transition: none; } }
