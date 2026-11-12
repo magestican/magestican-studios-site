@@ -51,10 +51,15 @@ import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill } from './strings.js';
 import { guideFor, libertiesAt } from './guide.js';
 import { needsConfirm } from './confirm.js';
+import {
+  progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord,
+} from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
 
 const GAME_ID = 'go';
 const SETTINGS_KEY = 'weiqiwise-settings-v1';
+
+const RECORD_KEY = 'weiqiwise-record-v1';
 const SOLO = 'you';
 const HOST = 'host';
 const BANNER_MS = 1300;
@@ -117,6 +122,12 @@ const settings = {
   guide: params.has('guide') ? params.get('guide') !== '0' : (typeof saved.guide === 'boolean' ? saved.guide : true),
 };
 const persist = () => save(SETTINGS_KEY, { level: settings.level, side: settings.side, size: settings.size, rules: settings.rules, guide: settings.guide });
+
+
+const PW = progressWords(lang, T);
+let record = cleanRecord(load(RECORD_KEY, null));
+let prizeLine = '';
+let prizesOpen = false;
 const movesParam = (params.get('moves') || '').split('.').filter(Boolean);
 const seedParam = params.get('seed');
 
@@ -190,6 +201,7 @@ function begin(m) {
   reportGate.begin(match.seats);
   startedAt = Date.now();
   lastFlash = '';
+  prizeLine = '';
   ghost = -1;
   shownLibs = -1;
   bowlSeen.ready = false;
@@ -362,10 +374,10 @@ function madeAtari() {
 function announce(before) {
   if (!view || !live) return;
   if (view.result) {
-    lastFlash = resultText();
+    lastFlash = [resultText(), prizeLine].filter(Boolean).join(' ');
     flashEl.textContent = lastFlash;
     const won = view.result.winner === view.you;
-    banner(lastFlash, won ? 'win' : '');
+    banner(resultText(), won ? 'win' : '');
     return;
   }
   if (!before) return;
@@ -395,6 +407,15 @@ function finished() {
       myDev: deviceId(), hosting: !!net?.hosting, seconds: (Date.now() - startedAt) / 1000,
     });
     if (arg) reportMatch(arg).catch(() => {});
+    
+    if (settings.mode === 'bot' && isBot(view.seats[1 - me])) {
+      const before = record;
+      record = recordAfter(record, { won: result === 'won', level: botLevel(view.seats[1 - me]), size: view.n });
+      save(RECORD_KEY, record);
+      const news = newPrizes(PW, before, record);
+      prizeLine = news.map((name) => fill(PW.newPrize, { name })).join(' ');
+      drawProgress();
+    }
   }
   trackEvent('go_finished', { mode: settings.mode, level: settings.level, side: settings.side, size: view.n,
     rules: view.rules, result, reason: view.result.reason, moves: view.moves.length });
@@ -596,7 +617,37 @@ function draw() {
   $('resign').hidden = !seated;
   $('new-game').hidden = watching;
   again.update(!!view?.result && !watching);
+  drawProgress();
 }
+
+
+
+function drawProgress() {
+  const solo = settings.mode === 'bot';
+  $('goal').hidden = !solo;
+  const tips = solo ? helpLines(PW, record, settings.level) : [];
+  const tipEl = $('tip');
+  tipEl.hidden = tips.length === 0;
+  tipEl.textContent = tips.join(' ');
+  if (!solo) return;
+  $('goal-line').textContent = nextGoal(PW, record);
+  const f = goalFill(PW, record);
+  $('goal-fill').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-count').textContent = f.text;
+  const btn = $('prizes-btn');
+  btn.textContent = prizesOpen ? PW.close : PW.open;
+  btn.setAttribute('aria-expanded', String(prizesOpen));
+  $('prizes').hidden = !prizesOpen;
+  const list = $('prize-list');
+  list.replaceChildren(...prizeLines(PW, record).map((line) => {
+    const li = document.createElement('li');
+    li.textContent = line;
+    return li;
+  }));
+}
+$('goal-head').textContent = PW.goal;
+$('prizes-head').textContent = PW.prizes;
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; drawProgress(); });
 
 
 function cellPx() {

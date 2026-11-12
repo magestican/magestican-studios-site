@@ -7,7 +7,7 @@
   <title>Play Weiqiwise - free Go online: weiqi, igo, baduk</title>
   <meta name="description" content="Weiqiwise is free Go (weiqi, igo, baduk - 围棋, 囲碁, 바둑) in your browser on a kaya board with slate and shell stones: 9x9, 13x13 or 19x19, Japanese or Chinese counting, and a guide that shows atari and ko. Play the computer at three levels or a friend in a room.">
   <meta name="keywords" content="weiqiwise, go, go game, weiqi, igo, baduk, go online, 围棋, 圍棋, 囲碁, 바둑, 围棋 在线, 圍棋 線上, cờ vây">
-  <meta name="build" content="b0651b02-20261112T022944Z">
+  <meta name="build" content="041abf59-20261112T071910Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/go/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Weiqiwise - free Go online: weiqi, igo, baduk">
@@ -25,8 +25,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=b0651b02-20261112T022944Z" data-game="go" data-zh="1" data-levels="easy,medium,hard" data-level-key="weiqiwise-settings-v1" data-level-default="easy"></script>
-  <link rel="stylesheet" href="./src/style.css?v=b0651b02-20261112T022944Z">
+  <script src="../shared/ui/boot.js?v=041abf59-20261112T071910Z" data-game="go" data-zh="1" data-levels="easy,medium,hard" data-level-key="weiqiwise-settings-v1" data-level-default="easy"></script>
+  <link rel="stylesheet" href="./src/style.css?v=041abf59-20261112T071910Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -147,6 +147,7 @@
 
     <section class="wq-seat" id="seat">
       <p class="wq-flash" id="flash" aria-live="assertive"></p>
+      <p class="wq-tip" id="tip" hidden></p>
       <p class="wq-count" id="count" hidden></p>
       <div class="wq-foot">
         <button class="wq-btn skin-lacquer-button_secondary" id="pass" type="button" data-t="pass">Pass</button>
@@ -158,6 +159,19 @@
     </section>
     <p class="wq-help"><span data-t="help">Tap a point to place a stone. A group with no liberties is captured. When neither player has a useful move, both pass and the board is counted.</span>
       <span data-t="note">No position may repeat (superko). In the Japanese count, points inside a seki are counted as territory.</span></p>
+    
+
+    <section class="wq-goal" id="goal" aria-labelledby="goal-head">
+      <h2 class="wq-goal-head" id="goal-head">Next goal</h2>
+      <p class="wq-goal-line" id="goal-line"></p>
+      <div class="wq-goal-bar" aria-hidden="true"><span id="goal-fill"></span></div>
+      <p class="wq-goal-count" id="goal-count"></p>
+      <button class="wq-btn skin-lacquer-button_secondary" type="button" id="prizes-btn" aria-expanded="false" aria-controls="prizes">See prizes</button>
+      <div class="wq-prizes" id="prizes" hidden>
+        <h3 class="wq-goal-head" id="prizes-head">Your prizes</h3>
+        <ul id="prize-list"></ul>
+      </div>
+    </section>
   </main>
 
   <noscript>
@@ -165,8 +179,8 @@
     <a href="/go.html">How to play</a>.</p>
   </noscript>
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=b0651b02-20261112T022944Z"></script>
-  <script type="module" src="./src/main.js?v=b0651b02-20261112T022944Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=b0651b02-20261112T022944Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=041abf59-20261112T071910Z"></script>
+  <script type="module" src="./src/main.js?v=041abf59-20261112T071910Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=041abf59-20261112T071910Z"></script>
 </body>
 </html>

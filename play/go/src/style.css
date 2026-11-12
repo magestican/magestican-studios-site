@@ -303,6 +303,32 @@ html[data-scene] .wq-help { padding: 12px 16px; }
 
 
 
+.wq-tip { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.45; text-align: center; }
+.wq-tip[hidden] { display: none; }
+.wq-goal {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: min(100% - 32px, 520px); padding: 16px; border-radius: 12px; text-align: center;
+  box-shadow: inset 0 0 0 1px var(--fc-woodShade, rgba(0, 0, 0, 0.25));
+}
+.wq-goal[hidden], .wq-prizes[hidden] { display: none; }
+.wq-goal-head { margin: 0; font-family: Georgia, serif; font-size: 18px; }
+.wq-goal-line, .wq-goal-count { margin: 0; font-size: 16px; line-height: 1.45; }
+.wq-goal-count { font-size: 14px; font-weight: 700; }
+.wq-goal-bar {
+  width: 100%; height: 10px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+.wq-goal-bar span { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--fc-lacquer, #7A2318); transition: width 400ms ease; }
+.wq-prizes { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.wq-prizes ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.wq-prizes li { padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, currentColor 8%, transparent); font-size: 15px; }
+@media (prefers-reduced-motion: reduce) { .wq-goal-bar span { transition: none; } }
+
+
+
+
+
+
 .wq-seg { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 8px; }
 #opts-row { gap: 12px 20px; }
 .wq h1 {
