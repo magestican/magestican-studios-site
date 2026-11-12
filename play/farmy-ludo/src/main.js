@@ -88,6 +88,7 @@ import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { winnerMatch } from '../../../web-engine/progress/matchArgs.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import * as prog from './progress.js';
 
 
 
@@ -243,6 +244,12 @@ let cursor = 0;
 
 
 const SAVE_KEY = 'fludo.solo.match';
+
+
+
+
+
+const RECORD_KEY = 'fludo.record';
 
 
 
@@ -582,10 +589,15 @@ function layoutBar() {
   }
   const helpX = right - 48;
   const newX = helpX - 8 - 132;
-  const togetherX = newX - 8 - 158;
+  
+  
+  
+  const prizesX = newX - 8 - 148;
+  const togetherX = prizesX - 8 - 184;
   barRects = [
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
     { x: newX, y, w: 132, h, id: 'again', label: 'New game' },
+    { x: prizesX, y, w: 148, h, id: 'prizes', label: 'See prizes' },
     { x: togetherX, y, w: 184, h, id: 'together', label: togetherLabel(), icon: 'people' },
   ];
 }
@@ -760,12 +772,47 @@ function applyStep(r) {
       seconds: (Date.now() - progressStartedAt) / 1000,
     });
     if (arg) reportMatch(arg);
+    recordFinished();
     trackEvent('ludo_finished', { winner: match.winner });
     setTimeout(showResults, 1100);
     return;
   }
   schedulePump(paceFor(r.did, match.event));
 }
+
+
+
+
+
+
+
+let lastFinish = { prizes: [], help: [] };
+const readRecord = () => prog.cleanRecord(readJson(RECORD_KEY));
+function recordFinished() {
+  lastFinish = { prizes: [], help: [] };
+  const mine = mySeat();
+  const out = prog.outcomeFor(match, mine);
+  if (!out) return;
+  let knocks = 0;
+  try { knocks = prog.knocksBy(prog.gameEvents(match.seats, entries).events, mine); } catch { knocks = 0; }
+  const before = readRecord();
+  const after = prog.recordAfter(before, { ...out, knocks });
+  writeJson(RECORD_KEY, after);
+  lastFinish = { prizes: prog.newPrizes(before, after), help: out.vsBot ? prog.helpLines(after) : [] };
+  showGoal();
+}
+
+
+function showGoal() {
+  const r = readRecord();
+  const fill = prog.goalFill(r);
+  const line = document.getElementById('goal-line');
+  if (!line) return;
+  line.textContent = prog.nextGoal(r);
+  document.getElementById('goal-fill').style.width = `${Math.round(fill.share * 100)}%`;
+  document.getElementById('goal-count').textContent = fill.text;
+}
+showGoal();
 
 
 function revealNext() {
@@ -1167,9 +1214,21 @@ function openMenu() {
         openMenu();
       },
     },
+    { id: 'prizes', label: 'See prizes', run: openPrizes },
     { id: 'help', label: 'How to play', run: openHelp },
   ];
   overlay = overlays.menu(app, { items, onClose: closeOverlay });
+  overlay.layout();
+  invalidate();
+}
+
+function openPrizes() {
+  const r = readRecord();
+  overlay = overlays.prizes(app, {
+    title: prog.PRIZES_HEADING,
+    lines: [...prog.prizeLines(r), '', `${prog.GOAL_HEADING}: ${prog.nextGoal(r)}`],
+    onClose: closeOverlay,
+  });
   overlay.layout();
   invalidate();
 }
@@ -1256,6 +1315,13 @@ function showResults() {
         line: `${i + 1}. ${teamLabel(r.team)}, ${whoIs(r.seat).toLowerCase()}: `
           + `${r.done} of 4 home, ${r.travelled} squares.`,
       })),
+      
+      
+      extra: mySeat() < 0 ? [] : [
+        ...lastFinish.prizes.map(prog.newPrizeLine),
+        ...lastFinish.help,
+        `${prog.GOAL_HEADING}: ${prog.nextGoal(readRecord())}`,
+      ],
     },
     onAgain: () => { closeOverlay(); if (iAmHost()) newMatch(); else say('The host starts the next game.'); },
     onClose: closeOverlay,
@@ -1468,6 +1534,7 @@ canvas.addEventListener('pointerup', (e) => {
     const id = barRects[bar].id;
     if (id === 'help') openHelp();
     else if (id === 'more') openMenu();
+    else if (id === 'prizes') openPrizes();
     else if (id === 'together') openRoom();
     else if (id === 'again') newMatch();
     return;

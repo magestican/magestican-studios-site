@@ -26,6 +26,7 @@ import * as paint from './paint.js';
 const PAD = 20;
 const ROW = 56;          
 const LINE = 27;
+const GAP = 12;          
 
 
 
@@ -54,6 +55,12 @@ function makePanel(app, {
   let hoverAt = 0;
   let pressed = -1;
   let extraBox = { x: 0, y: 0, w: 0, h: 0 };
+  
+  
+  
+  
+  
+  let lineH = LINE;
   const born = app.now();
 
   function layout() {
@@ -62,15 +69,18 @@ function makePanel(app, {
     lines = body(inner);
     const list = buttons();
     const room = extraOf();
-    const needed = 52 + lines.length * LINE + room + list.length * (ROW + 10) + PAD * 2;
-    const h = Math.min(app.height - 24, needed);
+    const needed = 52 + lines.length * LINE + GAP + room + list.length * (ROW + 10) + PAD * 2;
+    const fits = app.height - 24;
+    lineH = needed > fits && lines.length
+      ? Math.max(22, Math.floor((fits - (needed - lines.length * LINE)) / lines.length)) : LINE;
+    const h = Math.min(fits, needed - lines.length * (LINE - lineH));
     card = {
       x: Math.round((app.width - w) / 2),
       y: Math.round((app.height - h) / 2),
       w,
       h,
     };
-    let y = card.y + PAD + 52 + lines.length * LINE;
+    let y = card.y + PAD + 52 + lines.length * lineH + GAP;
     extraBox = { x: card.x + PAD, y, w: inner, h: room };
     y += room;
     rows = list.map((b, i) => ({
@@ -101,7 +111,7 @@ function makePanel(app, {
       
       
       paint.text(g, line,
-        { x: card.x + PAD, y: card.y + PAD + 50 + i * LINE, w: card.w - PAD * 2, h: LINE },
+        { x: card.x + PAD, y: card.y + PAD + 50 + i * lineH, w: card.w - PAD * 2, h: lineH },
         {
           size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'left',
           fit: true, maxWidth: card.w - PAD * 2,
@@ -184,6 +194,17 @@ export function help(app, { onClose }) {
       + 'square pigs, diamond cows. You never need the colour.',
       app.keys,
     ].flatMap((line) => paint.wrap(app.g, line, w)),
+    buttons: () => [{ id: 'close', label: 'Close', run: onClose }],
+  });
+}
+
+
+export function prizes(app, { title, lines, onClose }) {
+  return makePanel(app, {
+    id: 'prizes',
+    title,
+    onClose,
+    body: (w) => lines.flatMap((line) => paint.wrap(app.g, line, w)),
     buttons: () => [{ id: 'close', label: 'Close', run: onClose }],
   });
 }
@@ -328,6 +349,7 @@ export function results(app, { state, onAgain, onClose }) {
       
       
       ...state.rows.flatMap((r) => paint.wrap(app.g, r.line, w)),
+      ...(state.extra?.length ? ['', ...state.extra.flatMap((l) => paint.wrap(app.g, l, w))] : []),
     ],
     buttons: () => [
       { id: 'again', label: 'Play again', tone: 'blue', run: onAgain },

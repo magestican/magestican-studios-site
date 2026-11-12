@@ -345,3 +345,32 @@ body.at-title .title {
 @media (max-width: 560px) {
   body.at-title .title { padding-top: 64px; }
 }
+
+
+
+.goal {
+  width: calc(100% - 32px);
+  max-width: 620px;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 3px solid var(--fc-ink);
+  border-radius: 8px;
+  background: var(--fc-card);
+  color: var(--fc-ink);
+  font-family: var(--fc-font);
+  text-align: center;
+}
+.goal p { margin: 0; }
+.goal-head { font-size: 0.8rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.goal-line { margin-top: 8px !important; font-size: 1rem; font-weight: 800; line-height: 1.3; }
+.goal-bar {
+  display: block;
+  height: 14px;
+  margin: 12px 0 8px;
+  border: 2px solid var(--fc-ink);
+  border-radius: 7px;
+  background: var(--fc-paper);
+  overflow: hidden;
+}
+.goal-fill { display: block; height: 100%; width: 0; background: var(--fc-gold); }
+.goal-count { font-size: 0.8rem; font-weight: 700; }
