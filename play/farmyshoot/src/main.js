@@ -25,6 +25,7 @@ import { mountEscRouter } from 'arbelo/esc-router';
 import { randomLoadout, assertPlayable } from '../../../web-engine/ui/quickPlay.js';
 import { loadCareer, saveCareer, rememberCharacters } from 'arbelo/career';
 import { LOBBY_OPTIONS, readOption, writeOption } from '../../../web-engine/ui/lobbyOptions.js';
+import { STORE_KEY as RECORD_KEY, cleanRecord, progressWords, nextGoal, goalFill, prizeLines, helpLines } from './progress.js';
 import { setSfxMuted, sfxBus } from './audio/sfx.js';
 
 
@@ -702,6 +703,48 @@ const joinFromUrl = url.searchParams.get('join');
 if (joinFromUrl) {
   $('joinIdInput').value = joinFromUrl;
 }
+
+
+
+
+
+
+
+
+function paintGoal() {
+  const card = $('goal');
+  if (!card) return;
+  card.hidden = !!joinFromUrl;
+  if (card.hidden) return;
+  let r = cleanRecord(null);
+  try { r = cleanRecord(JSON.parse(localStorage.getItem(RECORD_KEY) ?? 'null')); } catch (_) {}
+  const W = progressWords('en');
+  $('goal-head').textContent = W.goal;
+  $('goal-line').textContent = nextGoal(W, r);
+  const f = goalFill(W, r);
+  $('goal-bar').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-meter').setAttribute('aria-valuenow', String(Math.round(f.share * 100)));
+  $('goal-count').textContent = f.text;
+  const fillList = (list, lines) => {
+    list.textContent = '';
+    for (const line of lines) {
+      const li = document.createElement('li');
+      li.textContent = line;
+      list.appendChild(li);
+    }
+  };
+  const list = $('goal-prizes');
+  fillList(list, prizeLines(W, r));
+  const btn = $('goal-toggle');
+  btn.textContent = list.hidden ? W.open : W.close;
+  btn.setAttribute('aria-expanded', String(!list.hidden));
+  btn.onclick = () => { list.hidden = !list.hidden; paintGoal(); };
+  const tips = $('goal-tips');
+  const help = helpLines(W, r, state.gameMode);
+  fillList(tips, help);
+  tips.hidden = help.length === 0;
+}
+try { paintGoal(); } catch (err) { console.warn('[goal] card unavailable:', err); }
 
 
 

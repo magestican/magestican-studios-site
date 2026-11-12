@@ -130,6 +130,23 @@
     .lobby-head .quickplay { width: 100%; max-width: 560px; margin-inline: auto; }
     
     .lobby-head .mg-level-chip { margin-top: 10px; }
+    
+
+    #goal { background: rgba(24,30,42,0.9); border: 1px solid #2b3648; border-radius: 12px;
+      padding: 16px; margin: 16px auto 0; max-width: 560px; text-align: left;
+      position: relative; z-index: 3; }
+    #goal[hidden] { display: none; }
+    #goal h2 { font-family: Georgia,serif; font-size: 17px; margin: 0 0 8px; color: #f4c95d; }
+    #goal-line { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: #e6ebf3; }
+    #goal-meter { height: 8px; border-radius: 4px; background: #2b3648; overflow: hidden; }
+    #goal-bar { display: block; height: 100%; width: 0; background: #f4c95d; }
+    #goal-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-wrap: wrap; margin: 12px 0 0; font-size: 13px; color: #9aa5b8; }
+    #goal-toggle { background: transparent; color: #e6ebf3; border: 1px solid #3a4a62;
+      border-radius: 999px; padding: 8px 14px; font: inherit; cursor: pointer; min-height: 36px; }
+    #goal-prizes { list-style: none; margin: 12px 0 0; padding: 0; font-size: 13px; line-height: 1.7; color: #cbd3e1; }
+    .sb-tips { margin: 12px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; color: #9fd3ff; }
+    .sb-tips li + li { margin-top: 6px; }
 
     
 
@@ -1459,6 +1476,15 @@
           &#9654; Play now
           <span class="qp-sub">random map, mode and animal &middot; a full 16-player match</span>
         </button>
+        <section id="goal" aria-labelledby="goal-head" hidden>
+          <h2 id="goal-head">Next goal</h2>
+          <p id="goal-line"></p>
+          <div id="goal-meter" role="progressbar" aria-labelledby="goal-head" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="goal-bar"></span></div>
+          <p id="goal-foot"><span id="goal-count"></span>
+            <button id="goal-toggle" type="button" aria-controls="goal-prizes" aria-expanded="false">See prizes</button></p>
+          <ul id="goal-prizes" hidden></ul>
+          <ul id="goal-tips" class="sb-tips" hidden></ul>
+        </section>
       </header>
 
       <div class="lobby-grid">
@@ -1830,8 +1856,8 @@
   </div>
 
   
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=148dcc0a-20261112T202108Z"></script>
-  <script type="module" src="./src/main.js?v=148dcc0a-20261112T202108Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=148dcc0a-20261112T202108Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=4de92d00-20261112T211507Z"></script>
+  <script type="module" src="./src/main.js?v=4de92d00-20261112T211507Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=4de92d00-20261112T211507Z"></script>
 </body>
 </html>

@@ -131,6 +131,10 @@ import { sessionLines } from '../../../web-engine/account/accountBadge.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { shootMatch } from './shootReport.js';
+
+
+import { STORE_KEY as RECORD_KEY, cleanRecord, roundOutcome, recordAfter, newPrizes, helpLines,
+         progressWords } from './progress.js';
 import { emptyTally, tallyKill, scoreboardRows, teamTotals, resultCopy,
          captureFanfare }     from '../../../web-engine/match/matchFlow.js';
 
@@ -3244,6 +3248,7 @@ export class Game {
           <span class="rr-team rr-blue ${r.winner === 'blue' ? 'won' : ''}"><b>${r.blue}</b> BLUE</span>
         </div>
         <div class="rr-sub">${escapeHtml(r.sub)}</div>
+        ${(this._prizeLines ?? []).map((l) => `<div class="rr-prize">${escapeHtml(l)}</div>`).join('')}
         ${(this._accountLines ?? []).map((l) => `<div class="rr-account">${escapeHtml(l)}</div>`).join('')}
         <div class="rr-hint">hold TAB for the scoreboard</div>
       </div>`;
@@ -3355,6 +3360,7 @@ export class Game {
       const all = [...rows.red, ...rows.blue];
       const me = all.find((r) => r.isMe);
       this._accountLines = [];
+      this._recordPrizeRound(all, winner);
       const reportArg = shootMatch({
         rows: all,
         winner,
@@ -3379,6 +3385,64 @@ export class Game {
     } catch (_) {
       
     }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  _recordPrizeRound(rows, winner) {
+    this._prizeLines = [];
+    try {
+      const round = roundOutcome({
+        rows, winner, mode: this.modeId, hosting: !!this.isHost,
+        startIds: this._roundStartIds ?? null,
+      });
+      if (!round) return;
+      let before = cleanRecord(null);
+      try { before = cleanRecord(JSON.parse(localStorage.getItem(RECORD_KEY) ?? 'null')); } catch (_) {}
+      const after = recordAfter(before, round);
+      try {
+        localStorage.setItem(RECORD_KEY, JSON.stringify({
+          played: after.played, won: after.won, splatRounds: after.splatRounds,
+          flagWins: after.flagWins, hillWins: after.hillWins, lostInRow: after.lostInRow,
+        }));
+      } catch (_) {  }
+      const W = progressWords('en');
+      this._prizeLines = [
+        ...newPrizes(W, before, after).map((name) => W.newPrize.replace('{name}', name)),
+        ...helpLines(W, after, this.modeId),
+      ];
+      this._paintPrizeLines();
+    } catch (_) {  }
+  }
+
+  _paintPrizeLines() {
+    const lines = this._prizeLines ?? [];
+    const body = document.querySelector('#round-result .rr-body');
+    if (body) {
+      for (const old of body.querySelectorAll('.rr-prize')) old.remove();
+      const before = body.querySelector('.rr-account') ?? body.querySelector('.rr-hint');
+      for (const line of lines) {
+        const div = document.createElement('div');
+        div.className = 'rr-prize';
+        div.textContent = line;
+        body.insertBefore(div, before);
+      }
+      return;
+    }
+    const box = document.getElementById('anagramBox');
+    if (!box) return;
+    box.querySelector('#anagramPrize')?.remove();
+    if (!lines.length) return;
+    const div = document.createElement('div');
+    div.id = 'anagramPrize';
+    div.className = 'rr-prize';
+    div.textContent = lines.join(' ');
+    document.getElementById('anagramMsg')?.after(div);
   }
 
   
@@ -3534,6 +3598,8 @@ export class Game {
          without them competing with it. Zero to three lines; nothing is
          rendered at all when the session earned nothing worth saying, which
          is the common case. */
+      #round-result .rr-prize, #anagramPrize { margin-top: 10px; color: #9fd3ff;
+        font: 700 14px/1.5 system-ui, sans-serif; max-width: 36rem; margin-inline: auto; }
       #round-result .rr-account { margin-top: 8px; color: #ffd45e;
         font: 700 13px system-ui, sans-serif; letter-spacing: 0.06em; }
       @keyframes rrFade { 0% { opacity: 0 } 100% { opacity: 1 } }
@@ -7423,6 +7489,7 @@ export class Game {
       this._hideRoundResult();
       this._hideIntermission();
       document.getElementById('anagramWrap')?.classList.remove('visible');
+      document.getElementById('anagramPrize')?.remove();
       const input = document.getElementById('anagramInput');
       if (input) { input.value = ''; input.oninput = null; input.blur(); }
       this._anagram = null;
@@ -7436,6 +7503,7 @@ export class Game {
       
       if (this._roundResultShown) this._reportRoundToProfile(this._scoreWinner());
       this._profileReported = false;
+      this._prizeLines = [];   
       this.scores = scores ? { ...scores } : { red: 0, blue: 0 };
       this.gameOver = false;
       this._roundResultShown = false;
