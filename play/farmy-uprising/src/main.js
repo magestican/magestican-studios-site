@@ -53,6 +53,9 @@ import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { uprisingMatch } from './uprisingReport.mjs';
 
+
+import { STORE_KEY as RECORD_KEY, cleanRecord, matchOutcome, recordAfter, newPrizes, helpLines, nextGoal, goalFill, prizeLines, progressWords } from './progress.js';
+
 const params = new URLSearchParams(location.search);
 
 
@@ -222,6 +225,74 @@ function offerResume() {
 offerResume();
 
 
+
+
+
+
+
+
+function readRecord() {
+  try { return cleanRecord(JSON.parse(localStorage.getItem(RECORD_KEY) ?? 'null')); } catch { return cleanRecord(null); }
+}
+function fillList(list, lines) {
+  list.textContent = '';
+  for (const line of lines) {
+    const li = document.createElement('li');
+    li.textContent = line;
+    list.appendChild(li);
+  }
+}
+function paintGoal() {
+  const card = $('goal');
+  if (!card) return;
+  card.hidden = !!joinIdFrom(location.href);
+  if (card.hidden) return;
+  const r = readRecord();
+  const W = progressWords('en');
+  $('goal-head').textContent = W.goal;
+  $('goal-line').textContent = nextGoal(W, r);
+  const f = goalFill(W, r);
+  $('goal-bar').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-meter').setAttribute('aria-valuenow', String(Math.round(f.share * 100)));
+  $('goal-count').textContent = f.text;
+  const list = $('goal-prizes');
+  fillList(list, prizeLines(W, r));
+  const btn = $('goal-toggle');
+  btn.textContent = list.hidden ? W.open : W.close;
+  btn.setAttribute('aria-expanded', String(!list.hidden));
+  btn.onclick = () => { list.hidden = !list.hidden; paintGoal(); };
+  const tips = $('goal-tips');
+  const help = helpLines(W, r, chosenFaction);
+  fillList(tips, help);
+  tips.hidden = help.length === 0;
+}
+try { paintGoal(); } catch (err) { console.warn('[goal] card unavailable:', err); }
+
+
+
+
+
+
+function recordPrizeMatch() {
+  try {
+    const outcome = matchOutcome({
+      networked: !!netPayload, observing, seats: match.w.seats, mySeat: SEAT,
+      winner: match.winner, endReason: match.endReason,
+    });
+    if (!outcome) return [];
+    const before = readRecord();
+    const after = recordAfter(before, outcome);
+    try { localStorage.setItem(RECORD_KEY, JSON.stringify(after)); } catch {  }
+    const W = progressWords('en');
+    return [
+      ...newPrizes(W, before, after).map((name) => W.newPrize.replace('{name}', name)),
+      ...helpLines(W, after, outcome.faction),
+    ];
+  } catch { return []; }   
+}
+
+
+
 $('btn-again').addEventListener('click', () => { clearSave(); start(); });
 $('btn-menu').addEventListener('click', () => {
   $('endcard').classList.remove('show');
@@ -230,6 +301,7 @@ $('btn-menu').addEventListener('click', () => {
   
   
   offerResume();
+  try { paintGoal(); } catch {  }
   
   
   if (match && view) {
@@ -1021,6 +1093,10 @@ function showEnd() {
     seconds: match.w.tick / TICKS_PER_SECOND,
   });
   if (arg) reportMatch(arg);
+  
+  const prizeBox = $('end-prizes');
+  const prizeText = recordPrizeMatch();
+  if (prizeBox) { fillList(prizeBox, prizeText); prizeBox.hidden = prizeText.length === 0; }
   
   
   
