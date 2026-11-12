@@ -48,6 +48,9 @@ import { PACE, flyCard, rectOf, wait } from '../../shared/ui/cardFlight.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, cardName } from './strings.js';
+import {
+  progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord, trucoHandWon,
+} from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
 
 const GAME_ID = 'truco';
@@ -55,6 +58,8 @@ const GAME_ID = 'truco';
 
 
 const SETTINGS_KEY = 'trucowise-settings-v2';
+
+const RECORD_KEY = 'trucowise-record-v1';
 const SOLO = 'you';
 const HOST = 'host';      
 
@@ -166,6 +171,14 @@ function freshSeed() {
 }
 const handParam = (params.get('hand') ?? '').split(',').map((s) => s.trim()).filter(Boolean);
 const muestraParam = params.get('muestra');
+let cheatDeal = false;   
+
+
+const PW = progressWords(lang, T);
+let record = cleanRecord(load(RECORD_KEY, null));
+let prizeLine = '';
+let prizesOpen = false;
+let trucoThisGame = false;
 
 
 let match = null;   
@@ -230,6 +243,8 @@ function begin(m) {
   gameRound += 1;
   reportGate.begin(match.seats);
   startedAt = Date.now();
+  prizeLine = '';
+  trucoThisGame = false;
   refresh();
 }
 
@@ -237,10 +252,14 @@ function newMatch({ keepHand = false } = {}) {
   stopTimers();
   const first = settings.mode === 'room' ? myId() : SOLO;
   const seats = settings.mode === 'room' && settings.size === 2 ? [first, ''] : botSeats(settings.size, settings.level, first);
+  const fixedHand = keepHand && handParam.length === 3 ? handParam : null;
+  const fixedMuestra = keepHand ? muestraParam : null;
+  
+  
+  cheatDeal = seedParam !== null || !!fixedHand || fixedMuestra !== null;
   begin(createMatch({
     seats, target: settings.target, flor: settings.flor, variant: settings.variant, seed: freshSeed(),
-    fixedHand: keepHand && handParam.length === 3 ? handParam : null,
-    fixedMuestra: keepHand ? muestraParam : null,
+    fixedHand, fixedMuestra,
   }));
 }
 
@@ -291,6 +310,9 @@ function refresh(move = null) {
   stopTimers();
   if (move) flying = flyEvents(move.events, move.before).catch(() => {}).then(() => wait(PACE.settle));
   const g = match.game;
+  
+  
+  if (view.you >= 0 && trucoHandWon(view.game.hand, team(view.you), team)) trucoThisGame = true;
   if (g.over) { flying.then(() => finished()); return; }
   const gen = timerGen;
   if (g.hand.over) {
@@ -740,7 +762,8 @@ function draw() {
   const watchersEl = $('watchers');
   watchersEl.textContent = watchingLabel(T.watchers, room.active ? (net?.watchers ?? 0) : 0);
   watchersEl.hidden = !watchersEl.textContent;
-  statusEl.textContent = statusText(legal);
+  
+  statusEl.textContent = view?.game.over && prizeLine ? `${statusText(legal)} ${prizeLine}` : statusText(legal);
   drawScore();
   drawTable();
   drawHand(legal);
@@ -759,8 +782,37 @@ function draw() {
   
   document.querySelector('.tr-foot').hidden = watching;
   again.update(!!view?.game.over && !watching);
+  drawProgress();
   fit.refit();
 }
+
+
+
+function drawProgress() {
+  const solo = settings.mode === 'bot';
+  $('goal').hidden = !solo;
+  const tips = solo ? helpLines(PW, record, settings.level) : [];
+  const tipEl = $('tip');
+  tipEl.hidden = tips.length === 0;
+  tipEl.textContent = tips.join(' ');
+  if (!solo) return;
+  $('goal-line').textContent = nextGoal(PW, record);
+  const f = goalFill(PW, record);
+  $('goal-fill').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-count').textContent = f.text;
+  const btn = $('prizes-btn');
+  btn.textContent = prizesOpen ? PW.close : PW.open;
+  btn.setAttribute('aria-expanded', String(prizesOpen));
+  $('prizes').hidden = !prizesOpen;
+  $('prize-list').replaceChildren(...prizeLines(PW, record).map((line) => {
+    const li = document.createElement('li');
+    li.textContent = line;
+    return li;
+  }));
+}
+$('goal-head').textContent = PW.goal;
+$('prizes-head').textContent = PW.prizes;
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; playUi(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
 
 
 function finished() {
@@ -782,6 +834,15 @@ function finished() {
       myDev: deviceId(), hosting: !!net?.hosting, seconds: (Date.now() - startedAt) / 1000,
     });
     if (arg) reportMatch(arg).catch(() => {});
+    
+    
+    if (settings.mode === 'bot' && view.seats.some((s) => isBot(s)) && !cheatDeal) {
+      const before = record;
+      record = recordAfter(record, { result, level: settings.level, truco: trucoThisGame });
+      save(RECORD_KEY, record);
+      prizeLine = newPrizes(PW, before, record).map((name) => fill(PW.newPrize, { name })).join(' ');
+      draw();
+    }
   }
   trackEvent('truco_finished', {
     mode: settings.mode, size: g.opts.players, level: settings.level, target: g.opts.target, rules: g.opts.variant,

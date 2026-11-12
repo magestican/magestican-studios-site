@@ -335,10 +335,38 @@ html[data-scene] main > .tr-hud, html[data-scene] main > .tr-seat { padding: 12p
   .tr > .tr-table { grid-column: 1; grid-row: 3; width: 100%; }
   .tr > .tr-seat { grid-column: 2; grid-row: 1 / span 3; }
   .tr > .tr-room { grid-column: 1 / -1; }
-  .tr > .tr-foot, .tr > .tr-help, .tr > .mg-again { grid-column: 1 / -1; }
+  .tr > .tr-foot, .tr > .tr-help, .tr > .mg-again, .tr > .tr-tip, .tr > .tr-goal { grid-column: 1 / -1; }
   .tr-hud .tr-score { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 16px; }
 }
 noscript p { max-width: 32em; margin: 24px auto; padding: 0 16px; }
 @media (prefers-reduced-motion: no-preference) {
   .tr-hand .tr-card { transition: transform 120ms ease-out; }
 }
+
+
+
+
+
+.tr-tip { max-width: 38em; margin: 0; font-size: 15px; font-weight: 700; line-height: 1.45; text-align: center; }
+.tr-tip[hidden] { display: none; }
+.tr-goal {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: min(100%, 520px); box-sizing: border-box; padding: 16px; border-radius: 12px; text-align: center;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+}
+
+
+html[data-scene] #goal { padding: 16px; }
+.tr-goal[hidden], .tr-prizes[hidden] { display: none; }
+.tr-goal-head { margin: 0; font-size: 18px; }
+.tr-goal-line { margin: 0; font-size: 16px; line-height: 1.45; }
+.tr-goal-count { margin: 0; font-size: 14px; font-weight: 700; }
+.tr-goal-bar {
+  width: 100%; height: 10px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+.tr-goal-bar span { display: block; height: 100%; width: 0; border-radius: inherit; background: #2E7D32; transition: width 400ms ease; }
+.tr-prizes { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.tr-prizes ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.tr-prizes li { padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, currentColor 8%, transparent); font-size: 15px; }
+@media (prefers-reduced-motion: reduce) { .tr-goal-bar span { transition: none; } }
