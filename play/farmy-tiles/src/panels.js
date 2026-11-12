@@ -327,7 +327,7 @@ export function results(app, { state, onAgain, onClose }) {
   return card(app, {
     id: 'results',
     title: () => 'That is the game',
-    lines: () => [state.summary, ...state.rows],
+    lines: () => [state.summary, ...state.rows, ...(state.after ?? [])],
     buttons: () => [
       { id: 'again', label: 'Play again', tone: 'green', run: onAgain },
       { id: 'close', label: 'Look at the board', run: onClose },
@@ -374,6 +374,17 @@ export function bots(app, { state, onAdd, onRemove, onClose }) {
       { id: 'close', label: 'Back to the board', run: onClose },
     ],
     describe: () => ({ status: state.summary }),
+  });
+}
+
+
+export function prizes(app, { title, lines, onClose }) {
+  return card(app, {
+    id: 'prizes',
+    title: () => title,
+    lines: () => lines,
+    buttons: () => [{ id: 'close', label: 'Close', tone: 'blue', run: onClose }],
+    describe: () => ({ status: lines[0] ?? '' }),
   });
 }
 

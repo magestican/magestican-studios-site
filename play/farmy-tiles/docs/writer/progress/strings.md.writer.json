@@ -1,0 +1,33 @@
+{
+  "path": "strings.md",
+  "kind": "ui-microcopy",
+  "passed": true,
+  "stopped_at": "",
+  "tiers_run": [
+    "macro",
+    "meso",
+    "micro",
+    "tech"
+  ],
+  "counts": {
+    "E": 0,
+    "W": 0,
+    "I": 0
+  },
+  "metrics": {
+    "strings": 28,
+    "words": 119,
+    "roles": {
+      "button": 1,
+      "heading": 2,
+      "instruction": 12,
+      "toast": 1,
+      "label": 4,
+      "name": 8
+    }
+  },
+  "findings": [],
+  "sha256": "000cbe6310ebf94f932ef3d903e29a3864474bfaa5155f686bd2db99055e1c86",
+  "rules_version": "2026-10-28.1",
+  "brief": "brief.md"
+}

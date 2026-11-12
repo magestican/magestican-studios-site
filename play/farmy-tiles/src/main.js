@@ -74,8 +74,12 @@ import * as boardScreen from './board.js';
 import { mirror, announce, keysAre } from './a11y.js';
 import {
   help, values, letters, room as roomPanel, say as sayPanel, results, menu,
-  bots as botsPanel,
+  bots as botsPanel, prizes as prizesPanel,
 } from './panels.js';
+import {
+  recordAfter, playsBy, newPrizes, newPrizeLine, helpLines, nextGoal, goalFill, prizeLines,
+  GOAL_HEADING, PRIZES_HEADING, SEE_PRIZES,
+} from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
@@ -150,6 +154,11 @@ const SAVE_KEY = 'fs.solo.match';
 
 
 
+const RECORD_KEY = 'fs.record';
+
+
+
+
 
 
 
@@ -177,6 +186,11 @@ const writeJson = (key, value) => {
 };
 
 const reduceMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
+
+
+let record = readJson(RECORD_KEY);
+
+let news = { prizes: [], help: [] };
 
 
 let match = { seed: freshSeed(), seats: [SOLO], actions: [] };
@@ -454,9 +468,20 @@ const party = createCelebration({
   motion: () => app.motion,
 });
 
+
+function renderGoal() {
+  const line = document.getElementById('goal-line');
+  if (!line) return;
+  line.textContent = nextGoal(record);
+  const fill = goalFill(record);
+  document.getElementById('goal-fill').style.width = `${Math.round(fill.share * 100)}%`;
+  document.getElementById('goal-count').textContent = fill.text;
+}
+
 function checkFinished() {
   if (!derived.over || roomState.shownResult) return;
   roomState.shownResult = true;
+  news = { prizes: [], help: [] };
   
   
   
@@ -472,6 +497,16 @@ function checkFinished() {
       seconds: (Date.now() - gameStartedAt) / 1000,
     });
     if (arg) reportMatch(arg);
+    
+    
+    
+    if (arg) {
+      const before = record;
+      record = recordAfter(before, arg, playsBy(derived.history, derived.seats.indexOf(app.me)));
+      writeJson(RECORD_KEY, record);
+      news = { prizes: newPrizes(before, record), help: helpLines(record) };
+      renderGoal();
+    }
   }
   setTimeout(openResults, 700);
 }
@@ -609,8 +644,14 @@ function layoutBar() {
   const helpX = right - 48;
   const soundX = helpX - 8 - 128;
   const tilesX = soundX - 8 - 96;
-  const botsX = tilesX - 8 - 120;
-  const togetherX = botsX - 8 - 150;
+  
+  
+  const prizesX = tilesX - 8 - 136;
+  const botsX = prizesX - 8 - 120;
+  
+  
+  
+  const togetherX = botsX - 8 - 176;
   
   
   
@@ -620,6 +661,7 @@ function layoutBar() {
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
     { x: soundX, y, w: 128, h, id: 'sound', label: soundLabel(sfx.isMuted()) },
     { x: tilesX, y, w: 96, h, id: 'values', label: 'Tiles' },
+    { x: prizesX, y, w: 136, h, id: 'prizes', label: SEE_PRIZES },
     { x: botsX, y, w: 120, h, id: 'bots', label: botsLabel() },
     { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
     { x: newX, y, w: 150, h, id: 'new', label: 'New game' },
@@ -711,6 +753,12 @@ const openHelp = () => show(help(app, {
 
 const openValues = () => show(values(app, { onClose: closeOverlay }));
 
+const openPrizes = () => show(prizesPanel(app, {
+  title: PRIZES_HEADING,
+  lines: [goalFill(record).text, ...prizeLines(record)],
+  onClose: closeOverlay,
+}));
+
 
 
 
@@ -792,6 +840,13 @@ function openResults() {
     state: {
       summary: describeResult(derived, { me: app.me, nameOf: app.nameOf }),
       rows: table.map((r) => `${r.id === app.me ? 'You' : app.nameOf(r.id)}: ${r.score}`),
+      
+      
+      after: [
+        ...news.prizes.map(newPrizeLine),
+        ...news.help,
+        `${GOAL_HEADING}: ${nextGoal(record)}`,
+      ],
     },
     onAgain: () => { closeOverlay(); restart(); },
     onClose: closeOverlay,
@@ -897,6 +952,7 @@ function openMenu() {
       
       { id: 'sound', label: soundLabel(sfx.isMuted()), run: () => { toggleSound(); openMenu(); } },
       { id: 'new', label: 'New game', run: () => { closeOverlay(); restart(); } },
+      { id: 'prizes', label: SEE_PRIZES, run: openPrizes },
       { id: 'values', label: 'What the tiles are worth', run: openValues },
       { id: 'help', label: 'How to play', run: openHelp },
       { id: 'close', label: 'Close', run: closeOverlay },
@@ -1055,6 +1111,7 @@ canvas.addEventListener('pointerup', (e) => {
     const id = barRects[bar].id;
     if (id === 'help') openHelp();
     else if (id === 'values') openValues();
+    else if (id === 'prizes') openPrizes();
     else if (id === 'sound') toggleSound();
     else if (id === 'bots') openBots();
     else if (id === 'together') openRoom();
@@ -1225,6 +1282,11 @@ if (saved && Array.isArray(saved.seats) && saved.seats.length && Array.isArray(s
 
 noteGame();
 
+
+
+
+scheduleBot();
+
 screen = boardScreen.create(app);
 keysAre(screen.keys);
 screen.reload();
@@ -1265,3 +1327,4 @@ const $start = document.getElementById('start');
 const $seeOptions = document.getElementById('see-options');
 $start.addEventListener('click', () => { leaveTitle(); });
 $seeOptions.addEventListener('click', () => { leaveTitle(); openMenu(); });
+renderGoal();
