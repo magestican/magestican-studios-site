@@ -18,9 +18,19 @@
 
 
 
-export function createVoice({ baseUrl, muted = () => false, onLine = () => {}, makeAudio, fetchJson,
+
+export function createVoice({ baseUrl, version = '', muted = () => false, onLine = () => {}, makeAudio, fetchJson,
   setTimer = (fn, ms) => setTimeout(fn, ms) } = {}) {
   const base = String(baseUrl);
+  
+  
+  
+  
+  const at = (file) => {
+    const u = new URL(file, base);
+    if (version) u.searchParams.set('v', version);
+    return u.href;
+  };
   const mk = makeAudio || (() => (typeof Audio === 'function' ? new Audio() : null));
   const getJson = fetchJson || ((u) => fetch(u).then((r) => (r.ok ? r.json() : null)));
   let el = null;
@@ -42,7 +52,7 @@ export function createVoice({ baseUrl, muted = () => false, onLine = () => {}, m
   }
 
   const ready = Promise.resolve()
-    .then(() => getJson(new URL('voice.json', base).href))
+    .then(() => getJson(at('voice.json')))
     .then((m) => { lines = m?.lines || {}; })
     .catch(() => { lines = {}; });
 
@@ -60,7 +70,7 @@ export function createVoice({ baseUrl, muted = () => false, onLine = () => {}, m
     if (!ln || !a) return false;
     try {
       a.pause();
-      a.src = new URL(ln.file, base).href;
+      a.src = at(ln.file);
       a.currentTime = 0;
       const t = ++turn;
       busy = true;
@@ -122,7 +132,7 @@ export function createVoice({ baseUrl, muted = () => false, onLine = () => {}, m
       ready.then(() => {
         for (const i of ids || []) {
           const ln = lines?.[i];
-          if (ln && typeof fetch === 'function') fetch(new URL(ln.file, base).href).catch(() => {});
+          if (ln && typeof fetch === 'function') fetch(at(ln.file)).catch(() => {});
         }
       });
     },

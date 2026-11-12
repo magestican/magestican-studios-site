@@ -59,6 +59,8 @@ const save = () => { saveProgress(store, progress); checkPrizes(); };
 
 const voice = createVoice({
   baseUrl: new URL('../assets/voice/', import.meta.url),
+  
+  version: new URL(import.meta.url).searchParams.get('v') || '',
   muted: () => !uiSoundOn() || gameMuted(),
   onLine: (ms) => music.duck?.(0.3, ms + 300),
 });
