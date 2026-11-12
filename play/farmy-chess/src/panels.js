@@ -352,13 +352,24 @@ export function results(app, { state, onAgain, onSwap, onClose }) {
   return card(app, {
     id: 'results',
     title: () => 'That is the game',
-    lines: () => [state.summary, state.detail].filter(Boolean),
+    lines: () => [state.summary, state.detail, ...(state.more ?? [])].filter(Boolean),
     buttons: () => [
       { id: 'again', label: 'Play again', tone: 'green', run: onAgain },
       { id: 'swap', label: 'Play again, other colour', run: onSwap },
       { id: 'close', label: 'Look at the board', run: onClose },
     ],
     describe: () => ({ status: state.summary }),
+  });
+}
+
+
+export function prizes(app, { state, onClose }) {
+  return card(app, {
+    id: 'prizes',
+    title: () => state.title,
+    lines: () => state.lines,
+    buttons: () => [{ id: 'close', label: 'Close', tone: 'blue', run: onClose }],
+    describe: () => ({ status: state.title }),
   });
 }
 

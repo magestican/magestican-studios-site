@@ -350,3 +350,27 @@ body.at-title .title {
 @media (max-width: 560px) {
   body.at-title .title { padding-top: 64px; }
 }
+
+
+
+.goal, .rank {
+  width: calc(100% - 32px);
+  max-width: 620px;
+  margin: 0;
+  color: var(--fc-ink);
+  font-family: var(--fc-font);
+  text-align: center;
+}
+.goal { font-size: 1.05rem; font-weight: 800; line-height: 1.35; text-wrap: balance; }
+.rank { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; }
+.goal:empty, #rank-text:empty { display: none; }
+.rank-track {
+  display: block;
+  width: min(100%, 320px);
+  height: 14px;
+  border: 3px solid var(--fc-ink);
+  border-radius: 7px;
+  background: var(--fc-card);
+  overflow: hidden;
+}
+.rank-bar { display: block; height: 100%; width: 0; background: var(--fc-gold); }

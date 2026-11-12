@@ -82,6 +82,7 @@ import * as boardScreen from './board.js';
 import { mirror, announce, keysAre } from './a11y.js';
 import {
   help, room as roomPanel, say as sayPanel, results, menu, sides, promotion, moves as movesPanel,
+  prizes as prizesPanel,
 } from './panels.js';
 import { createNet, canPlayTogether } from './net.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
@@ -98,6 +99,10 @@ import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import {
+  cleanRecord, recordAfter, newPrizes, nextGoal, rankFill, prizeCount, prizeLines, helpLines,
+  newPrizeLine, GOAL_HEADING, PRIZES_HEADING,
+} from './progress.js';
 
 
 
@@ -160,7 +165,11 @@ const writeJson = (key, value) => {
 
 const reduceMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
 
-let record = readJson(RECORD_KEY) ?? { won: 0, drawn: 0, lost: 0 };
+
+
+let record = cleanRecord(readJson(RECORD_KEY));
+
+let lastGame = { prizes: [], vsBot: false };
 let bot = botFor(levelFrom(record));
 
 
@@ -541,10 +550,15 @@ function checkFinished() {
   
   
   if (outcome === 'won') { party.start(); invalidate(); }
-  if (outcome === 'won') record = { ...record, won: record.won + 1 };
-  else if (outcome === 'lost') record = { ...record, lost: record.lost + 1 };
-  else if (outcome === 'draw') record = { ...record, drawn: record.drawn + 1 };
+  
+  
+  
+  const before = record;
+  const vsBot = match.seats.some(isBot);
+  record = recordAfter(record, outcome, { vsBot });
+  lastGame = { prizes: newPrizes(before, record), vsBot };
   writeJson(RECORD_KEY, record);
+  showProgress();
   
   
   bot = botFor(levelFrom(record));
@@ -744,14 +758,19 @@ function layoutBar() {
     return;
   }
   const helpX = right - 48;
-  const togetherX = helpX - 8 - 150;
+  
+  
+  const togetherX = helpX - 8 - 176;
   const sidesX = togetherX - 8 - 150;
   const newX = sidesX - 8 - 150;
+  
+  const prizesX = newX - 8 - 140;
   barRects = [
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
     { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
     { x: sidesX, y, w: 150, h, id: 'sides', label: 'Play a bot' },
     { x: newX, y, w: 150, h, id: 'new', label: 'New game' },
+    { x: prizesX, y, w: 140, h, id: 'prizes', label: 'See prizes' },
   ];
 }
 
@@ -871,6 +890,14 @@ function openResults() {
     state: {
       summary: derived.outcome.text,
       detail: `${record.won} won, ${record.drawn} drawn, ${record.lost} lost. You are ${rankFrom(record)}.`,
+      
+      
+      more: [
+        ...lastGame.prizes.map(newPrizeLine),
+        ...(lastGame.vsBot ? helpLines(record) : []),
+        `${rankFill(record).text}. ${prizeCount(record)}.`,
+        `${GOAL_HEADING}. ${nextGoal(record)}`,
+      ],
     },
     onAgain: () => { closeOverlay(); restart(); },
     onSwap: () => { closeOverlay(); const s = swapSides(match); match = s; roomState.shownResult = false; reportGate.begin(match.seats); progressState.startedAt = Date.now(); rederive(); net?.publish(); relayout(); invalidate(); },
@@ -988,11 +1015,39 @@ function openMenu() {
           openMenu();
         },
       },
+      { id: 'prizes', label: 'See prizes', run: openPrizes },
       { id: 'help', label: 'How to play', run: openHelp },
       { id: 'close', label: 'Close', run: closeOverlay },
     ],
   }));
 }
+
+function openPrizes() {
+  show(prizesPanel(app, {
+    state: {
+      title: PRIZES_HEADING,
+      lines: [
+        `${prizeCount(record)}.`, ...prizeLines(record),
+        `${rankFill(record).text}.`, `${GOAL_HEADING}. ${nextGoal(record)}`,
+      ],
+    },
+    onClose: closeOverlay,
+  }));
+}
+
+
+
+
+function showProgress() {
+  const fill = rankFill(record);
+  const $goal = document.getElementById('goal');
+  const $bar = document.getElementById('rank-bar');
+  const $rank = document.getElementById('rank-text');
+  if ($goal) $goal.textContent = `${GOAL_HEADING}. ${nextGoal(record)}`;
+  if ($bar) $bar.style.width = `${Math.round(fill.share * 100)}%`;
+  if ($rank) $rank.textContent = `${fill.text}. ${prizeCount(record)}.`;
+}
+showProgress();
 
 
 
@@ -1158,6 +1213,7 @@ canvas.addEventListener('pointerup', (e) => {
     else if (id === 'sides') openSides();
     else if (id === 'menu') openMenu();
     else if (id === 'new') restart();
+    else if (id === 'prizes') openPrizes();
     return;
   }
   screen.pointerUp(pt);
