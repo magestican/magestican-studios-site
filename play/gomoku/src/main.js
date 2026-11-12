@@ -42,10 +42,15 @@ import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, defaultRules } from './strings.js';
+import {
+  progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord,
+} from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
 
 const GAME_ID = 'gomoku';
 const SETTINGS_KEY = 'gomowise-settings-v1';
+
+const RECORD_KEY = 'gomowise-record-v1';
 const BOT = 'bot';
 const GUEST = 'guest';        
 const HOST = 'host';          
@@ -118,6 +123,12 @@ const persist = () => save(SETTINGS_KEY, {
   level: settings.level, colour: settings.colour,
   ...(rulesChosen ? { rules: settings.rules } : {}),
 });
+
+
+const PW = progressWords(lang, T);
+let record = cleanRecord(load(RECORD_KEY, null));
+let prizeLine = '';
+let prizesOpen = false;
 const seedParam = params.get('seed');
 const rng = seedParam !== null ? seededRng(Number(seedParam) || 1) : Math.random;
 
@@ -170,6 +181,7 @@ function begin(m) {
   reportGate.begin(match.seats);
   startedAt = Date.now();
   pending = -1;
+  prizeLine = '';
   clearEcho();
 }
 
@@ -267,12 +279,14 @@ function statusText() {
 let lastStatus = '';
 let flash = '';
 function drawStatus() {
-  const text = flash || statusText();
+  const base = flash || statusText();
+  
+  const text = !flash && state.game.over && prizeLine ? `${base} ${prizeLine}` : base;
   if (text === lastStatus) return;
   lastStatus = text;
   statusEl.replaceChildren();
   
-  statusEl.classList.toggle('is-on', !flash && (text === T.yourTurn || text === T.youWin));
+  statusEl.classList.toggle('is-on', !flash && (base === T.yourTurn || base === T.youWin));
   if (!flash && !state.game.over && text) {
     const dot = document.createElement('span');
     dot.className = `gm-dot ${state.game.turn === BLACK ? 'black' : 'white'}`;
@@ -313,8 +327,37 @@ function drawControls() {
   newGameEl.hidden = settings.mode === 'room' && room.watching;
   newGameEl.disabled = settings.mode === 'room' && (room.watching || !room.active || (!state.game.over && !(net?.hosting && state.game.moves.length === 0)));
   again.update(state.game.over && !(settings.mode === 'room' && room.watching));
+  drawProgress();
   fit?.refit();
 }
+
+
+
+function drawProgress() {
+  const solo = settings.mode === 'bot';
+  $('goal').hidden = !solo;
+  const tips = solo ? helpLines(PW, record, settings.level) : [];
+  const tipEl = $('tip');
+  tipEl.hidden = tips.length === 0;
+  tipEl.textContent = tips.join(' ');
+  if (!solo) return;
+  $('goal-line').textContent = nextGoal(PW, record);
+  const f = goalFill(PW, record);
+  $('goal-fill').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-count').textContent = f.text;
+  const btn = $('prizes-btn');
+  btn.textContent = prizesOpen ? PW.close : PW.open;
+  btn.setAttribute('aria-expanded', String(prizesOpen));
+  $('prizes').hidden = !prizesOpen;
+  $('prize-list').replaceChildren(...prizeLines(PW, record).map((line) => {
+    const li = document.createElement('li');
+    li.textContent = line;
+    return li;
+  }));
+}
+$('goal-head').textContent = PW.goal;
+$('prizes-head').textContent = PW.prizes;
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; playUi(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); fit?.refit(); });
 
 
 function canPlace() {
@@ -409,6 +452,16 @@ function finished() {
       seconds: (Date.now() - startedAt) / 1000,
     });
     if (arg) reportMatch(arg).catch(() => {});
+    
+    if (settings.mode === 'bot' && state.seats.includes(BOT)) {
+      const before = record;
+      record = recordAfter(record, { result, level: settings.level, white: colourOfSeat(mine) === WHITE });
+      save(RECORD_KEY, record);
+      prizeLine = newPrizes(PW, before, record).map((name) => fill(PW.newPrize, { name })).join(' ');
+      lastStatus = '';
+      drawStatus();
+      drawProgress();
+    }
   }
   trackEvent('gomoku_finished', {
     mode: settings.mode, level: settings.level, rules: game.rules, result, moves: game.moves.length,
@@ -562,6 +615,7 @@ undoEl.addEventListener('click', () => {
   rederive();
   
   reportGate.begin(match.seats);
+  prizeLine = '';
   afterChange();
 });
 
