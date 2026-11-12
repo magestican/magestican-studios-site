@@ -262,6 +262,22 @@ html[data-scene] .wc-chain li.wc-checking {
 
 .wc-foot[hidden] { display: none; }
 .wc-help { max-width: 38em; margin: 0; font-size: 15px; color: var(--fc-inkSoft); text-align: center; }
+
+.wc-goal {
+  width: min(96vw, 560px); max-width: 100%; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 8px; padding: 16px; margin: 0;
+}
+.wc-goal-head { margin: 0; font-size: 16px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fc-inkSoft); }
+.wc-goal-text { margin: 0; font-size: 17px; font-weight: 700; }
+.wc-goal-track { height: 12px; border-radius: 999px; overflow: hidden; }
+.wc-goal-fill { height: 100%; width: 0; }
+.wc-goal-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.wc-goal-count { font-size: 15px; font-weight: 700; color: var(--fc-inkSoft); }
+.wc-prizes[hidden] { display: none; }
+.wc-prizes-head { margin: 4px 0 0; font-size: 16px; }
+.wc-prizes-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.wc-prizes-list li { padding: 8px 12px; border-radius: 8px; border: 2px solid var(--fc-woodShade); background: var(--fc-paper); font-size: 15px; }
+.wc-prizes-list li.is-yours { font-weight: 700; border-color: var(--fc-ink); }
 .wc-example { display: block; margin-top: 4px; font-weight: 700; color: var(--fc-ink); }
 .wc-credit { margin: 0; font-size: 13px; }
 .wc-credit a { color: var(--fc-inkSoft); }

@@ -48,9 +48,14 @@ import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, EXAMPLES, LANG_NAMES } from './strings.js';
 import { createNet, canPlayTogether } from './net.js';
+import {
+  progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord, earnedPrizes, PRIZES,
+} from './progress.js';
 
 const GAME_ID = 'word-chain';
 const SETTINGS_KEY = 'relaywise-settings-v1';
+
+const RECORD_KEY = 'relaywise-record-v1';
 const BOT = 'bot';
 const GUEST = 'guest';        
 const HOST = 'host';          
@@ -106,6 +111,7 @@ for (const el of document.querySelectorAll('[data-t-ph]')) {
 }
 $('rules-link').href = T.rules;
 const GAME_NAME = localGameName(GAME_ID, lang);
+const P = progressWords(lang, T);
 
 
 const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
@@ -135,6 +141,36 @@ const persist = () => save(SETTINGS_KEY, {
   ...(wordLangChosen ? { wordLang: settings.wordLang } : {}),
   links: linksChosen,
 });
+
+let record = cleanRecord(load(RECORD_KEY, {}));
+
+let afterLines = [];
+function drawGoal() {
+  $('goal-text').textContent = nextGoal(P, record);
+  const f = goalFill(P, record);
+  $('goal-fill').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-count').textContent = f.text;
+  const earned = earnedPrizes(record);
+  $('prizes-list').replaceChildren(...prizeLines(P, record).map((line, i) => {
+    const li = document.createElement('li');
+    li.textContent = line;
+    li.classList.toggle('is-yours', earned.includes(PRIZES[i].id));
+    return li;
+  }));
+}
+$('goal-head').textContent = P.goal;
+$('prizes-head').textContent = P.prizes;
+const seeEl = $('see-prizes');
+seeEl.textContent = P.open;
+seeEl.addEventListener('click', () => {
+  const open = $('prizes').hidden;
+  $('prizes').hidden = !open;
+  seeEl.setAttribute('aria-expanded', String(open));
+  seeEl.textContent = open ? P.close : P.open;
+  playUi('tap');
+});
+drawGoal();
+
 const seedParam = params.get('seed');
 const rng = seedParam !== null ? seededRng(Number(seedParam) || 1) : Math.random;
 
@@ -221,6 +257,7 @@ async function rederive() {
 async function begin(m) {
   match = m;
   botBlanked = false;
+  afterLines = [];
   await rederive();
   reportGate.begin(match.seats);
   startedAt = Date.now();
@@ -259,7 +296,7 @@ function statusText() {
     let head;
     if (settings.mode === 'local' || seatOf(state, me()) < 0) head = fill(T.wins, { who: nameOfSeat(w) });
     else head = state.seats[w] === me() ? T.youWin : T.youLose;
-    return `${head} ${why}`;
+    return [head, why, ...afterLines].filter(Boolean).join(' ');
   }
   if (settings.mode === 'local') return fill(T.turnOf, { who: nameOfSeat(game.turn) });
   if (settings.mode === 'bot') return isMyTurn(state, SOLO) ? T.yourTurn : T.botThinking;
@@ -549,6 +586,19 @@ function finished() {
       seconds: (Date.now() - startedAt) / 1000,
     });
     if (arg) reportMatch(arg).catch(() => {});
+    
+    
+    const before = record;
+    record = recordAfter(record, {
+      won: result === 'won', vsBot: settings.mode === 'bot', level: settings.level, length: game.chain.length,
+    });
+    save(RECORD_KEY, record);
+    afterLines = [
+      ...newPrizes(P, before, record).map((name) => P.newPrize.replace('{name}', name)),
+      ...(settings.mode === 'bot' && result !== 'won' ? helpLines(P, record) : []),
+    ];
+    drawGoal();
+    draw();
   }
   trackEvent('word_chain_finished', {
     mode: settings.mode, level: settings.level, words: game.lang, link: game.link,

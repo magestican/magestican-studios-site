@@ -7,7 +7,7 @@
   <title>Play Relaywise - free word chain online</title>
   <meta name="description" content="Relaywise is a free word chain game in your browser: start your word where the last one ended. Eight languages, three computer levels, a friend room and a turn timer.">
   <meta name="keywords" content="relaywise, word chain, word chain game online, nối từ, しりとり, 끝말잇기, sambung kata, palabras encadenadas, palavras encadeadas">
-  <meta name="build" content="888ed88c-20261112T014001Z">
+  <meta name="build" content="65411388-20261112T020421Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/word-chain/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Relaywise - free word chain online">
@@ -25,8 +25,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=888ed88c-20261112T014001Z" data-game="word-chain" data-levels="easy,medium,hard" data-level-key="relaywise-settings-v1" data-level-default="medium"></script>
-  <link rel="stylesheet" href="./src/style.css?v=888ed88c-20261112T014001Z">
+  <script src="../shared/ui/boot.js?v=65411388-20261112T020421Z" data-game="word-chain" data-levels="easy,medium,hard" data-level-key="relaywise-settings-v1" data-level-default="medium"></script>
+  <link rel="stylesheet" href="./src/style.css?v=65411388-20261112T020421Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -143,6 +143,21 @@
       <button class="wc-btn skin-parchment-button_secondary mg-i mg-i-give_up" id="give-up" type="button" data-t="giveUp">Give up</button>
       <button class="wc-btn skin-parchment-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
     </div>
+    
+
+    <section class="wc-goal mg-own skin-parchment-plaque" id="goal" aria-labelledby="goal-head">
+      <h2 class="wc-goal-head" id="goal-head">Next goal</h2>
+      <p class="wc-goal-text" id="goal-text"></p>
+      <div class="wc-goal-track skin-parchment-progress_track" aria-hidden="true"><div class="wc-goal-fill skin-parchment-progress_fill" id="goal-fill"></div></div>
+      <div class="wc-goal-row">
+        <span class="wc-goal-count" id="goal-count"></span>
+        <button class="wc-btn skin-parchment-button_secondary" type="button" id="see-prizes" aria-expanded="false" aria-controls="prizes">See prizes</button>
+      </div>
+      <div class="wc-prizes" id="prizes" hidden>
+        <h3 class="wc-prizes-head" id="prizes-head">Your prizes</h3>
+        <ul class="wc-prizes-list" id="prizes-list"></ul>
+      </div>
+    </section>
     <p class="wc-help"><span data-t="help">Each word must start where the last one ended. No repeats - and if your time runs out, you lose.</span>
       <span class="wc-example" id="example"></span> <span id="n-loses" hidden data-t="nLoses">A word ending in ん loses.</span></p>
     <p class="wc-credit"><a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license noopener" data-t="credit">Word lists: Wiktionary contributors, CC BY-SA 4.0.</a></p>
@@ -155,8 +170,8 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=888ed88c-20261112T014001Z"></script>
-  <script type="module" src="./src/main.js?v=888ed88c-20261112T014001Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=888ed88c-20261112T014001Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=65411388-20261112T020421Z"></script>
+  <script type="module" src="./src/main.js?v=65411388-20261112T020421Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=65411388-20261112T020421Z"></script>
 </body>
 </html>
