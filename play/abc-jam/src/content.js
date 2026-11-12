@@ -78,6 +78,24 @@ export const WORD_STEPS = Object.freeze([
 ]);
 
 
+
+
+
+
+export const DINOS = Object.freeze([
+  { id: 't_rex', name: 'T-Rex', ch: 'T', pic: 't_rex', spoken: 'Tee rex' },
+  { id: 'triceratops', name: 'Triceratops', ch: 'T', pic: 'triceratops' },
+  { id: 'stegosaurus', name: 'Stegosaurus', ch: 'S', pic: 'stegosaurus' },
+  { id: 'brachiosaurus', name: 'Brachiosaurus', ch: 'B', pic: 'brachiosaurus' },
+  { id: 'ankylosaurus', name: 'Ankylosaurus', ch: 'A', pic: 'ankylosaurus' },
+  { id: 'velociraptor', name: 'Velociraptor', ch: 'V', pic: 'velociraptor' },
+  { id: 'spinosaurus', name: 'Spinosaurus', ch: 'S', pic: 'spinosaurus' },
+  { id: 'parasaurolophus', name: 'Parasaurolophus', ch: 'P', pic: 'parasaurolophus' },
+].map(Object.freeze));
+
+export const DINO = Object.freeze(Object.fromEntries(DINOS.map((d) => [d.id, d])));
+
+
 export const COLOURS = Object.freeze([
   '#ff4f6d', '#ff8c1a', '#f5b700', '#38b000', '#00a6ed', '#7b5cff', '#e040fb', '#ff5e8a', '#00b894',
   '#2e86de', '#fd7e14', '#9b59b6', '#e84393',

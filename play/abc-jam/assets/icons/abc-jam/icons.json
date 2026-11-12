@@ -513,6 +513,69 @@
    "group": "ui",
    "width": 128,
    "height": 128
+  },
+  {
+   "id": "t_rex",
+   "label": "T. rex",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "triceratops",
+   "label": "Triceratops",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "stegosaurus",
+   "label": "Stegosaurus",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "brachiosaurus",
+   "label": "Brachiosaurus",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "ankylosaurus",
+   "label": "Ankylosaurus",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "velociraptor",
+   "label": "Velociraptor",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "spinosaurus",
+   "label": "Spinosaurus",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "parasaurolophus",
+   "label": "Parasaurolophus",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "dino_egg",
+   "label": "Dinosaur egg",
+   "group": "ui",
+   "width": 128,
+   "height": 128
   }
  ]
 }

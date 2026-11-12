@@ -2,7 +2,7 @@
 
 
 
-import { LETTERS, WORD_STEPS } from './content.js';
+import { LETTERS, WORD_STEPS, DINOS, DINO } from './content.js';
 
 
 
@@ -139,6 +139,80 @@ export function createSpeller(words) {
 
 
 
+const shuffled = (list, rand) => {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+};
+
+
+export function createDinoEggs() {
+  let index = 0;
+  let misses = 0;
+  return {
+    get index() { return index; },
+    get total() { return DINOS.length; },
+    get finished() { return index >= DINOS.length; },
+    current() { return DINOS[index] || null; },
+    press(ch) {
+      if (index >= DINOS.length || !isLetter(ch)) return { kind: 'ignored' };
+      const d = DINOS[index];
+      if (norm(ch) !== d.ch) {
+        misses += 1;
+        return { kind: 'wrong', want: d.ch, hint: hintFor(misses) };
+      }
+      misses = 0;
+      index += 1;
+      const r = { kind: 'right', letter: d.ch, note: LETTER_NOTE[d.ch], dino: d.id, sticker: d.id };
+      if (index >= DINOS.length) r.roundDone = true;
+      return r;
+    },
+  };
+}
+
+export const MATCH_CHOICES = 3;
+
+
+
+
+
+export function createDinoMatch(rand = Math.random) {
+  const order = shuffled(DINOS, rand);
+  const questions = order.map((want) => {
+    const used = new Set([want.ch]);
+    const others = [];
+    for (const d of shuffled(DINOS, rand)) {
+      if (others.length >= MATCH_CHOICES - 1) break;
+      if (used.has(d.ch)) continue;
+      used.add(d.ch);
+      others.push(d);
+    }
+    return { want, choices: shuffled([want, ...others], rand) };
+  });
+  let q = 0;
+  let misses = 0;
+  return {
+    get index() { return q; },
+    get total() { return questions.length; },
+    current() { return questions[q] || null; },
+    press(ch) {
+      if (q >= questions.length || !isLetter(ch)) return { kind: 'ignored' };
+      const { want } = questions[q];
+      if (norm(ch) !== want.ch) {
+        misses += 1;
+        return { kind: 'wrong', want: want.ch, dino: want.id, hint: hintFor(misses) };
+      }
+      misses = 0;
+      q += 1;
+      const r = { kind: 'right', letter: want.ch, note: LETTER_NOTE[want.ch], dino: want.id };
+      if (q >= questions.length) r.roundDone = true;
+      return r;
+    },
+  };
+}
+
+
+
 
 export function createRain({ letters = LETTERS.map((l) => l.ch), rand = Math.random } = {}) {
   const pool = letters.length ? letters.slice() : LETTERS.map((l) => l.ch);
@@ -197,7 +271,7 @@ export function createRain({ letters = LETTERS.map((l) => l.ch), rand = Math.ran
 export const SAVE_KEY = 'abcjam-v1';
 
 export function loadProgress(storage) {
-  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0 };
+  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0 };
   try {
     const raw = storage?.getItem(SAVE_KEY);
     if (!raw) return blank;
@@ -208,6 +282,9 @@ export function loadProgress(storage) {
       words: Array.isArray(p.words) ? p.words.filter((x) => typeof x === 'string') : [],
       pops: Math.max(0, p.pops | 0),
       stars: Math.max(0, p.stars | 0),
+      
+      dinos: Array.isArray(p.dinos) ? p.dinos.filter((x) => typeof x === 'string' && DINO[x]) : [],
+      found: Math.max(0, p.found | 0),
     };
   } catch { return blank; }
 }
@@ -218,7 +295,7 @@ export function saveProgress(storage, p) {
 
 
 export function resetProgress(storage) {
-  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0 };
+  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0 };
   saveProgress(storage, blank);
   return blank;
 }
@@ -242,7 +319,10 @@ export function createResetConfirm({ windowMs = 4000, now = () => Date.now() } =
 
 const stepFull = (p, step) => step.words.every(([w]) => p.words.includes(w));
 const ALL_LETTERS = LETTERS.length;
-const ALL_STICKERS = LETTERS.length + WORD_STEPS.reduce((n, s) => n + s.words.length, 0);
+const ALL_STICKERS = LETTERS.length + WORD_STEPS.reduce((n, s) => n + s.words.length, 0) + DINOS.length;
+const stickersOf = (p) => p.letters.length + p.words.length + p.dinos.length;
+
+export const FOUND_PRIZE = DINOS.length * 3;
 const BALLOON_PRIZES = [25, 50, 100];
 
 
@@ -250,7 +330,9 @@ export const PRIZES = Object.freeze([
   { id: 'alphabet', pic: 'trophy', done: (p) => p.letters.length >= ALL_LETTERS },
   ...WORD_STEPS.map((s, i) => ({ id: `words-${s.id}`, pic: ['star', 'rainbow', 'sun'][i] || 'star', size: s.size, done: (p) => stepFull(p, s) })),
   ...BALLOON_PRIZES.map((n, i) => ({ id: `balloons-${n}`, pic: ['balloon', 'kite', 'sparkle'][i], n, done: (p) => p.pops >= n })),
-  { id: 'book', pic: 'heart', done: (p) => p.letters.length + p.words.length >= ALL_STICKERS },
+  { id: 'dinos', pic: 'dino_egg', done: (p) => p.dinos.length >= DINOS.length },
+  { id: 'dinos-found', pic: 't_rex', n: FOUND_PRIZE, done: (p) => p.found >= FOUND_PRIZE },
+  { id: 'book', pic: 'heart', done: (p) => stickersOf(p) >= ALL_STICKERS },
 ].map(Object.freeze));
 
 
@@ -267,8 +349,11 @@ export function newPrizes(had, p) {
 
 export function nextGoal(p) {
   if (p.letters.length < ALL_LETTERS) return { go: 'parade' };
+  
+  if (p.dinos.length < DINOS.length) return { go: 'eggs' };
   const step = WORD_STEPS.find((s) => !stepFull(p, s));
   if (step) return { go: 'words', step: step.id };
+  if (p.found < FOUND_PRIZE) return { go: 'match' };
   if (p.pops < BALLOON_PRIZES[BALLOON_PRIZES.length - 1]) return { go: 'rain' };
   return { go: 'jam' };
 }
@@ -282,13 +367,15 @@ export function meters(p) {
     parade: Math.min(1, p.letters.length / ALL_LETTERS),
     words: Math.min(1, p.words.length / words),
     rain: next ? (p.pops - prev) / (next - prev) : 1,
-    stickers: Math.min(1, (p.letters.length + p.words.length) / ALL_STICKERS),
+    eggs: Math.min(1, p.dinos.length / DINOS.length),
+    match: Math.min(1, p.found / FOUND_PRIZE),
+    stickers: Math.min(1, stickersOf(p) / ALL_STICKERS),
   };
 }
 
 
 export function addSticker(p, kind, id) {
-  const list = kind === 'word' ? p.words : p.letters;
+  const list = kind === 'word' ? p.words : kind === 'dino' ? p.dinos : p.letters;
   if (list.includes(id)) return false;
   list.push(id);
   return true;

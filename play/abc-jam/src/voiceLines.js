@@ -11,14 +11,14 @@
 
 
 
-import { LETTERS, LETTER, WORD_STEPS } from './content.js';
+import { LETTERS, LETTER, WORD_STEPS, DINOS } from './content.js';
 import { T, fill, count } from './strings.js';
 
 const L = (ch) => `{letter:${ch}}`;
 
 export const WORDS = Object.freeze(WORD_STEPS.flatMap((s) => s.words.map(([w]) => w)));
 
-export const MAX_STICKERS = LETTERS.length + WORDS.length;
+export const MAX_STICKERS = LETTERS.length + WORDS.length + DINOS.length;
 
 export const id = Object.freeze({
   name: (ch) => `name-${String(ch).toLowerCase()}`,
@@ -29,13 +29,18 @@ export const id = Object.freeze({
   spelled: (w) => `spelled-${w}`,
   word: (w) => `word-${w}`,
   count: (n) => `count-${n}`,
+  
+  dinoFor: (d) => `dino-for-${d.replace(/_/g, '-')}`,
+  dinoHello: (d) => `dino-hello-${d.replace(/_/g, '-')}`,
+  dinoWhere: (d) => `dino-where-${d.replace(/_/g, '-')}`,
+  dinoYes: (d) => `dino-yes-${d.replace(/_/g, '-')}`,
 });
 
 
 export const FIXED = Object.freeze({
   jamStart: 'jam-start', pickWords: 'pick-words', rainTap: 'rain-tap', rainKeys: 'rain-keys',
   bookEmpty: 'book-empty', hooray: 'hooray', alphabetDone: 'alphabet-done', jamParty: 'jam-party',
-  wordsDone: 'words-done',
+  wordsDone: 'words-done', eggsDone: 'eggs-done', matchDone: 'match-done',
 });
 
 const cap = (w) => w[0].toUpperCase() + w.slice(1);
@@ -59,6 +64,14 @@ function build() {
     
     out.push({ id: id.spelled(w), text: `${[...w].map((c) => L(c.toUpperCase())).join(', ')}. ${cap(w)}!` });
     out.push({ id: id.word(w), text: `${cap(w)}.` });
+  }
+  for (const d of DINOS) {
+    
+    const dino = d.spoken || d.name;
+    out.push({ id: id.dinoFor(d.id), text: `${fill(T.letterFor, { letter: L(d.ch), word: dino })}.` });
+    out.push({ id: id.dinoHello(d.id), text: fill(T.dinoHello, { dino }) });
+    out.push({ id: id.dinoWhere(d.id), text: fill(T.dinoWhere, { dino }) });
+    out.push({ id: id.dinoYes(d.id), text: fill(T.dinoYes, { dino }) });
   }
   for (const [k, v] of Object.entries(FIXED)) out.push({ id: v, text: T[k] });
   for (let n = 1; n <= MAX_STICKERS; n++) out.push({ id: id.count(n), text: count(T.bookCount, n) });

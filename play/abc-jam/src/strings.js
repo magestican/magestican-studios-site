@@ -12,6 +12,7 @@ export const T = Object.freeze({
   bookLetters: 'Letters',
   bookWords: 'Words',
   bookPrizes: 'Prizes',
+  bookDinos: 'Dinosaurs',
 
   play: 'Play',
   home: 'Home',
@@ -25,6 +26,8 @@ export const T = Object.freeze({
   wordBuilder: 'Word Builder',
   letterRain: 'Letter Rain',
   stickerBook: 'Sticker Book',
+  dinoEggs: 'Dino Eggs',
+  dinoMatch: 'Dino Match',
 
   kbToAbcSpoken: 'Keys in ABC order',
   kbToKeysSpoken: 'Keys like a keyboard',
@@ -36,6 +39,8 @@ export const T = Object.freeze({
   prizeAlphabet: 'The whole alphabet',
   prizeBalloons: '{n} balloons',
   prizeBook: 'The full sticker book',
+  prizeDinos: 'Every dinosaur egg',
+  prizeFound: '{n} dinosaurs found',
 
   find: 'Find the letter {letter}!',
   jamStart: 'Press any letter!',
@@ -54,6 +59,11 @@ export const T = Object.freeze({
   wordsDone: 'Hooray! You built all the words!',
   prizeWon: 'Hooray! A new prize!',
   bookCount: Object.freeze({ one: 'You have 1 sticker!', other: 'You have {n} stickers!' }),
+  dinoHello: 'Hello, {dino}!',
+  dinoWhere: 'Where is {dino}?',
+  dinoYes: 'Yes! That is {dino}!',
+  eggsDone: 'Hooray! You hatched every dinosaur!',
+  matchDone: 'Hooray! You found all the dinosaurs!',
 
   noScript: 'Turn on JavaScript to play ABC Jam.',
 });

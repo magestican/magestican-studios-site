@@ -1151,6 +1151,19 @@ pre.five-results { min-height: 2em; }
 .site-footer p { margin: 0 auto 9px; }
 .site-footer a { color: var(--ink-soft); }
 .site-footer a:hover { color: var(--ink); }
+
+
+.site-footer .mg-network {
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid var(--ink-faint);
+  font-size: 18px; line-height: 1.5;
+  display: flex; flex-wrap: wrap; align-items: center; column-gap: 4px;
+}
+.site-footer .mg-network a {
+  display: inline-flex; align-items: center; min-height: 48px;
+  text-decoration: underline; text-underline-offset: 2px; white-space: nowrap;
+}
+.mg-network__dot { opacity: .6; }
 .footer-mark {
   display: inline-flex; align-items: center; justify-content: center;
   width: 34px; height: 34px; border-radius: 7px;

@@ -9,11 +9,11 @@
 
 
 
-import { LETTERS, LETTER, WORD_STEPS, letterPhrase, colourFor } from './content.js';
+import { LETTERS, LETTER, WORD_STEPS, DINOS, DINO, letterPhrase, colourFor } from './content.js';
 import {
   TIMING, createParade, jamPress, pickRound, createSpeller, createRain,
   loadProgress, saveProgress, addSticker, PARTY_AFTER, createResetConfirm, resetProgress,
-  PRIZES, prizesFor, newPrizes, nextGoal, meters,
+  PRIZES, prizesFor, newPrizes, nextGoal, meters, createDinoEggs, createDinoMatch, FOUND_PRIZE,
 } from './rules.js';
 import { SFX_NAMES } from './sfx.js';
 import { T, fill } from './strings.js';
@@ -64,6 +64,7 @@ const voice = createVoice({
 });
 const say = (lineId) => voice.say(lineId);
 voice.prefetch(LETTERS.map((l) => vid.phrase(l.ch)));
+voice.prefetch(DINOS.map((d) => vid.dinoFor(d.id)));
 
 
 let timers = [];
@@ -248,7 +249,7 @@ function prompt(want) {
 }
 
 function inputKeys(ch) {
-  return document.querySelectorAll(`#kb .aj-key[data-ch="${ch}"], #bubbles .aj-bubble[data-ch="${ch}"]`);
+  return document.querySelectorAll(`#kb .aj-key[data-ch="${ch}"], #bubbles .aj-bubble[data-ch="${ch}"], .aj-dino-choice[data-ch="${ch}"]`);
 }
 function markWanted() {
   for (const k of document.querySelectorAll('.aj-key, .aj-bubble')) k.classList.toggle('is-wanted', !!wanted && k.dataset.ch === wanted);
@@ -264,7 +265,8 @@ function showHint(hint, want) {
 
 function layoutInput() {
   const narrow = isNarrow();
-  const useBubbles = narrow && mode !== 'rain';
+  
+  const useBubbles = narrow && mode !== 'rain' && mode !== 'match';
   $('bubbles').hidden = !useBubbles || !mode;
   $('kb').hidden = narrow || !mode;
   $('kb-toggle').hidden = narrow || !mode;
@@ -282,7 +284,7 @@ function press(ch) {
   const c = String(ch).toUpperCase();
   if (!/^[A-Z]$/.test(c)) return;
   flashKey(c);
-  ({ parade: paradePress, jam: jamPressed, words: wordPress, rain: rainPress })[mode]?.(c);
+  ({ parade: paradePress, jam: jamPressed, words: wordPress, rain: rainPress, eggs: eggsPress, match: matchPress })[mode]?.(c);
 }
 
 document.addEventListener('keydown', (e) => {
@@ -292,7 +294,7 @@ document.addEventListener('keydown', (e) => {
   if (/^[a-z]$/i.test(e.key) && mode) { e.preventDefault(); press(e.key); }
 });
 document.addEventListener('click', (e) => {
-  const k = e.target.closest?.('.aj-key, .aj-bubble, .aj-balloon');
+  const k = e.target.closest?.('.aj-key, .aj-bubble, .aj-balloon, .aj-dino-choice');
   if (k?.dataset.ch) press(k.dataset.ch);
 });
 
@@ -403,7 +405,7 @@ const sfxNoteFor = (ch) => jamPress(ch).note;
 function onWrong(r) {
   play('oops');
   showHint(r.hint, r.want);
-  bump(document.querySelector('.aj-card, .aj-slots'), 'aj-wobble');
+  bump(document.querySelector('.aj-card, .aj-slots'), 'aj-wobble'); 
   if (r.hint === 'bounce' || r.hint === 'point') {
     later(() => { play('hint'); say(vid.find(r.want)); }, 250);
   }
@@ -644,6 +646,161 @@ function rainPress(c) {
 const rainPop = { els: null };
 
 
+
+
+let eggs = null;
+
+function startEggs() {
+  leaveMode();
+  mode = 'eggs';
+  eggs = createDinoEggs();
+  trackEvent?.('game_start', { game: GAME_ID, level: 'dino-eggs' });
+  show('play');
+  layoutInput();
+  buildKeyboard();
+  showEgg();
+}
+
+
+function nameLine(d) {
+  const w = document.createElement('div');
+  w.className = 'aj-word aj-dino-name';
+  [...d.name].forEach((c, i) => {
+    const s = document.createElement('span');
+    s.textContent = c;
+    if (i === 0) s.className = 'is-key';
+    w.appendChild(s);
+  });
+  return w;
+}
+
+function showEgg() {
+  const d = eggs.current();
+  renderProgress(DINOS.map((x, i) => (i < eggs.index ? { icon: x.pic } : { icon: 'dino_egg' })), eggs.index);
+  const st = $('stage');
+  st.className = 'aj-stage aj-stage-parade aj-stage-eggs';
+  st.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'aj-card aj-egg-card aj-enter';
+  card.style.setProperty('--c', colourFor(d.ch));
+  card.innerHTML = '<div class="aj-big"><span class="aj-up"></span><span class="aj-low"></span></div>'
+    + '<div class="aj-pic aj-egg" aria-hidden="true"></div>';
+  card.querySelector('.aj-up').textContent = d.ch;
+  card.querySelector('.aj-low').textContent = d.ch.toLowerCase();
+  setPic(card.querySelector('.aj-pic'), 'dino_egg');
+  card.appendChild(nameLine(d));
+  st.appendChild(card);
+  play('whoosh');
+  prompt(d.ch);
+  say(vid.dinoFor(d.id));
+}
+
+function eggsPress(c) {
+  const r = eggs.press(c);
+  if (r.kind === 'wrong') { onWrong(r); return; }
+  if (r.kind !== 'right') return;
+  const d = DINO[r.dino];
+  clearHints();
+  busy = true;
+  wanted = null; markWanted();
+  play(r.note);
+  
+  const pic = document.querySelector('.aj-egg');
+  if (pic) {
+    bump(pic, 'aj-wobble');
+    later(() => {
+      setPic(pic, d.pic);
+      pic.classList.add('aj-hatch', 'aj-dance');
+      play('word');
+      confetti(50);
+      stars(8, pic);
+      say(vid.dinoHello(d.id));
+    }, 450);
+  }
+  if (addSticker(progress, 'dino', r.sticker)) { save(); later(() => { play('star'); stickerToast(d.name, d.pic); }, 1500); }
+  if (r.roundDone) {
+    later(() => party(FIXED.eggsDone), TIMING.wordGapMs);
+    later(() => { busy = false; goHome(); }, TIMING.wordGapMs + TIMING.partyMs + 600);
+    return;
+  }
+  later(() => { busy = false; showEgg(); }, TIMING.wordGapMs);
+}
+
+
+
+
+let match = null;
+
+function startMatch() {
+  leaveMode();
+  mode = 'match';
+  match = createDinoMatch();
+  trackEvent?.('game_start', { game: GAME_ID, level: 'dino-match' });
+  show('play');
+  layoutInput();
+  buildKeyboard();
+  showMatch();
+}
+
+function showMatch() {
+  const q = match.current();
+  renderProgress(Array.from({ length: match.total }, (_, i) => (i < match.index ? { icon: 'star' } : '•')), match.index);
+  const st = $('stage');
+  st.className = 'aj-stage aj-stage-match';
+  st.innerHTML = '';
+  st.appendChild(nameLine(q.want));
+  const row = document.createElement('div');
+  row.className = 'aj-dino-choices aj-enter';
+  for (const d of q.choices) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'aj-dino-choice';
+    b.dataset.ch = d.ch;
+    b.style.setProperty('--c', colourFor(d.ch));
+    b.setAttribute('aria-label', d.name);
+    b.innerHTML = '<i aria-hidden="true"></i><b aria-hidden="true"></b>';
+    setPic(b.querySelector('i'), d.pic);
+    b.querySelector('b').textContent = d.ch;
+    row.appendChild(b);
+  }
+  st.appendChild(row);
+  wanted = null;
+  clearHints();
+  markWanted();
+  play('whoosh');
+  say(vid.dinoWhere(q.want.id));
+}
+
+function matchPress(c) {
+  const r = match.press(c);
+  if (r.kind === 'wrong') {
+    play('oops');
+    showHint(r.hint, r.want);
+    for (const b of document.querySelectorAll(`.aj-dino-choice[data-ch="${c}"]`)) bump(b, 'aj-wobble');
+    
+    if (r.hint === 'bounce' || r.hint === 'point') later(() => { play('hint'); say(vid.dinoWhere(r.dino)); }, 250);
+    return;
+  }
+  if (r.kind !== 'right') return;
+  clearHints();
+  busy = true;
+  play(r.note);
+  const pick = document.querySelector(`.aj-dino-choice[data-ch="${r.letter}"]`);
+  for (const b of document.querySelectorAll('.aj-dino-choice')) if (b !== pick) b.classList.add('is-out');
+  if (pick) { pick.classList.add('is-right', 'aj-dance'); stars(8, pick); }
+  confetti(40);
+  say(vid.dinoYes(r.dino));
+  progress.found += 1;
+  save();
+  if (r.roundDone) {
+    later(() => party(FIXED.matchDone), TIMING.wordGapMs);
+    later(() => { busy = false; goHome(); }, TIMING.wordGapMs + TIMING.partyMs + 600);
+    return;
+  }
+  later(() => { busy = false; showMatch(); }, TIMING.wordGapMs);
+}
+
+
 function showStickers() {
   leaveMode();
   show('stickers');
@@ -683,7 +840,22 @@ function showStickers() {
       W.appendChild(s);
     }
   }
-  const total = progress.letters.length + progress.words.length;
+  const Dn = $('book-dinos');
+  Dn.innerHTML = '';
+  for (const d of DINOS) {
+    const got = progress.dinos.includes(d.id);
+    const s = document.createElement('button');
+    s.type = 'button';
+    s.className = 'aj-sticker aj-sticker-word' + (got ? ' is-got' : '');
+    s.style.setProperty('--c', colourFor(d.ch));
+    s.innerHTML = '<i aria-hidden="true"></i><b></b>';
+    setPic(s.querySelector('i'), got ? d.pic : 'dino_egg');
+    s.querySelector('b').textContent = got ? d.name : d.ch;
+    s.setAttribute('aria-label', got ? d.name : T.wordNotYet);
+    s.addEventListener('click', () => { bump(s, 'aj-jump'); if (got) { play('word'); say(vid.dinoHello(d.id)); } else play('tap'); });
+    Dn.appendChild(s);
+  }
+  const total = progress.letters.length + progress.words.length + progress.dinos.length;
   $('book-count').innerHTML = `${iconHtml('star')} ${total}  ·  ${iconHtml('balloon')} ${progress.pops}`;
   say(countId(total));
 }
@@ -694,6 +866,8 @@ function showStickers() {
 function prizeLabel(z) {
   if (z.id === 'alphabet') return T.prizeAlphabet;
   if (z.id === 'book') return T.prizeBook;
+  if (z.id === 'dinos') return T.prizeDinos;
+  if (z.id === 'dinos-found') return fill(T.prizeFound, { n: z.n });
   if (z.size) return fill(T.stepWords, { n: z.size });
   return fill(T.prizeBalloons, { n: z.n });
 }
@@ -701,14 +875,16 @@ function prizeLabel(z) {
 function renderHub() {
   const m = meters(progress);
   const goal = nextGoal(progress);
-  const total = { parade: LETTERS.length, words: WORD_STEPS.reduce((n, s) => n + s.words.length, 0) };
-  const got = { parade: progress.letters.length, words: progress.words.length };
+  const total = { parade: LETTERS.length, words: WORD_STEPS.reduce((n, s) => n + s.words.length, 0), eggs: DINOS.length, match: FOUND_PRIZE };
+  const got = { parade: progress.letters.length, words: progress.words.length, eggs: progress.dinos.length, match: progress.found };
   const targets = {
     parade: $('start'),
     jam: document.querySelector('.aj-tile[data-go="jam"]'),
     words: document.querySelector('.aj-tile[data-go="words"]'),
     rain: document.querySelector('.aj-tile[data-go="rain"]'),
     stickers: document.querySelector('.aj-tile[data-go="stickers"]'),
+    eggs: document.querySelector('.aj-tile[data-go="eggs"]'),
+    match: document.querySelector('.aj-tile[data-go="match"]'),
   };
   for (const [k, el] of Object.entries(targets)) {
     if (!el) continue;
@@ -782,6 +958,8 @@ for (const t of document.querySelectorAll('.aj-tile')) {
     else if (go === 'words') showSteps();
     else if (go === 'rain') startRain();
     else if (go === 'stickers') showStickers();
+    else if (go === 'eggs') startEggs();
+    else if (go === 'match') startMatch();
   });
 }
 
