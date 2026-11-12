@@ -82,8 +82,12 @@ import * as boardScreen from './board.js';
 import { mirror, announce, keysAre } from './a11y.js';
 import {
   help, room as roomPanel, say as sayPanel, results, menu, moves as movesPanel,
-  bot as botPanel,
+  bot as botPanel, prizes as prizesPanel,
 } from './panels.js';
+import {
+  cleanRecord, recordAfter, newPrizes, nextGoal, rankFill, prizeCount, prizeLines, helpLines,
+  newPrizeLine, goalHeading, prizesHeading,
+} from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
@@ -179,7 +183,12 @@ let derived = replay(match);
 
 
 
-const record = readJson(RECORD_KEY) ?? { played: 0, won: 0, drawn: 0, points: 0 };
+
+
+
+let record = cleanRecord(readJson(RECORD_KEY));
+
+let lastGame = { prizes: [], vsBot: false, counted: false };
 
 
 const botName = () => t('Bot');
@@ -462,13 +471,18 @@ function checkFinished() {
   
   
   
+  lastGame = { prizes: [], vsBot: false, counted: false };
   if (seatOwner()) {
-    record.played += 1;
-    if (derived.draw) record.drawn += 1;
-    else if (won) record.won += 1;
     
-    record.points += derived.draw ? 40 : (won ? 100 : 15);
+    
+    
+    const outcome = derived.draw ? 'draw' : (won ? 'won' : 'lost');
+    const before = record;
+    const vsBot = derived.seats.includes(BOT);
+    record = recordAfter(record, outcome, { vsBot });
+    lastGame = { prizes: newPrizes(before, record), vsBot, counted: true };
     writeJson(RECORD_KEY, record);
+    showProgress();
   }
   
   
@@ -646,10 +660,13 @@ function layoutBar() {
   
   const togetherX = helpX - 8 - 176;
   const newX = togetherX - 8 - 150;
+  
+  const prizesX = newX - 8 - 150;
   barRects = [
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
     { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
     { x: newX, y, w: 150, h, id: 'new', label: t('New game') },
+    { x: prizesX, y, w: 150, h, id: 'prizes', label: t('See prizes') },
   ];
 }
 
@@ -766,6 +783,15 @@ function openResults() {
       rows: () => standings(derived).map((r) => (
         t('{name} played the {side}: {left} left, {taken} taken', { name: app.nameOf(r.id), side: sideWord(r.side), left: r.left, taken: r.taken })
       )),
+      
+      
+      
+      more: () => (lastGame.counted ? [
+        ...lastGame.prizes.map(newPrizeLine),
+        ...(lastGame.vsBot ? helpLines(record) : []),
+        `${rankFill(record).text}. ${prizeCount(record)}.`,
+        `${goalHeading()}. ${nextGoal(record)}`,
+      ] : []),
     },
     onAgain: () => { closeOverlay(); restart(); },
     onClose: closeOverlay,
@@ -893,11 +919,39 @@ function openMenu() {
         ? [{ id: 'say', label: t('Say something'), run: openSay }] : []),
       { id: 'new', label: t('New game'), run: () => { closeOverlay(); restart(); } },
       { id: 'bot', label: app.botLabel(), run: openBot },
+      { id: 'prizes', label: t('See prizes'), run: openPrizes },
       { id: 'help', label: t('How to play'), run: openHelp },
       { id: 'close', label: t('Close'), run: closeOverlay },
     ],
   }));
 }
+
+function openPrizes() {
+  show(prizesPanel(app, {
+    state: {
+      title: prizesHeading,
+      lines: () => [
+        `${prizeCount(record)}.`, ...prizeLines(record),
+        `${rankFill(record).text}.`, `${goalHeading()}. ${nextGoal(record)}`,
+      ],
+    },
+    onClose: closeOverlay,
+  }));
+}
+
+
+
+
+function showProgress() {
+  const fill = rankFill(record);
+  const $goal = document.getElementById('goal');
+  const $bar = document.getElementById('rank-bar');
+  const $rank = document.getElementById('rank-text');
+  if ($goal) $goal.textContent = `${goalHeading()}. ${nextGoal(record)}`;
+  if ($bar) $bar.style.width = `${Math.round(fill.share * 100)}%`;
+  if ($rank) $rank.textContent = `${fill.text}. ${prizeCount(record)}.`;
+}
+showProgress();
 
 
 
@@ -1003,6 +1057,7 @@ canvas.addEventListener('pointerup', (e) => {
     else if (id === 'together') openRoom();
     else if (id === 'menu') openMenu();
     else if (id === 'new') restart();
+    else if (id === 'prizes') openPrizes();
     return;
   }
   screen.pointerUp(pt);

@@ -333,12 +333,23 @@ export function results(app, { state, onAgain, onClose }) {
   return card(app, {
     id: 'results',
     title: () => t('That is the game'),
-    lines: () => [state.summary(), ...state.rows()],
+    lines: () => [state.summary(), ...state.rows(), ...(state.more?.() ?? [])],
     buttons: () => [
       { id: 'again', label: t('Play again'), tone: 'green', run: onAgain },
       { id: 'close', label: t('Look at the board'), run: onClose },
     ],
     describe: () => ({ status: state.summary() }),
+  });
+}
+
+
+export function prizes(app, { state, onClose }) {
+  return card(app, {
+    id: 'prizes',
+    title: () => state.title(),
+    lines: () => state.lines(),
+    buttons: () => [{ id: 'close', label: t('Close'), tone: 'blue', run: onClose }],
+    describe: () => ({ status: state.title() }),
   });
 }
 
