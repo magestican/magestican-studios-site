@@ -319,3 +319,28 @@ html[data-scene] .xq-help { padding: 12px 16px; }
   .xq-pt .xq-piece, .xq-tray.turn { transition: none; }
   .xq-pt.target::after, .xq-pt.landed .xq-piece::after, .xq-tray .xq-piece.fresh, .xq-banner, .xq-banner.check { animation: none; }
 }
+
+
+
+
+
+.xq-tip { max-width: 38em; margin: 0; font-size: 15px; font-weight: 700; line-height: 1.45; text-align: center; }
+.xq-tip[hidden] { display: none; }
+.xq-goal {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: min(100%, 520px); box-sizing: border-box; padding: 16px; border-radius: 12px; text-align: center;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+}
+.xq-goal[hidden], .xq-prizes[hidden] { display: none; }
+.xq-goal-head { margin: 0; font-size: 18px; }
+.xq-goal-line { margin: 0; font-size: 16px; line-height: 1.45; }
+.xq-goal-count { margin: 0; font-size: 14px; font-weight: 700; }
+.xq-goal-bar {
+  width: 100%; height: 10px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+.xq-goal-bar span { display: block; height: 100%; width: 0; border-radius: inherit; background: #B3261E; transition: width 400ms ease; }
+.xq-prizes { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.xq-prizes ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.xq-prizes li { padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, currentColor 8%, transparent); font-size: 15px; }
+@media (prefers-reduced-motion: reduce) { .xq-goal-bar span { transition: none; } }

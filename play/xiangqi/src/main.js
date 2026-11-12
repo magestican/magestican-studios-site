@@ -51,10 +51,15 @@ import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, glyphFor, pieceName, riverFor } from './strings.js';
 import { guideFor } from './guide.js';
+import {
+  progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord,
+} from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
 
 const GAME_ID = 'xiangqi';
 const SETTINGS_KEY = 'xiangqiwise-settings-v1';
+
+const RECORD_KEY = 'xiangqiwise-record-v1';
 const SOLO = 'you';
 const HOST = 'host';
 const SLIDE_MS = 320;
@@ -118,6 +123,12 @@ const settings = {
   guide: params.has('guide') ? params.get('guide') !== '0' : (typeof saved.guide === 'boolean' ? saved.guide : !lang.startsWith('zh')),
 };
 const persist = () => save(SETTINGS_KEY, { level: settings.level, side: settings.side, guide: settings.guide });
+
+
+const PW = progressWords(lang, T);
+let record = cleanRecord(load(RECORD_KEY, null));
+let prizeLine = '';
+let prizesOpen = false;
 
 
 const startParam = (() => {
@@ -196,6 +207,7 @@ function begin(m) {
   reportGate.begin(match.seats);
   startedAt = Date.now();
   lastFlash = '';
+  prizeLine = '';
   selected = null;
   traySeen.ready = false;
   refresh();
@@ -391,6 +403,15 @@ function finished() {
       myDev: deviceId(), hosting: !!net?.hosting, seconds: (Date.now() - startedAt) / 1000,
     });
     if (arg) reportMatch(arg).catch(() => {});
+    
+    
+    if (settings.mode === 'bot' && view.seats.some((s) => isBot(s)) && startParam === START_FEN) {
+      const before = record;
+      record = recordAfter(record, { result, level: settings.level, black: COLORS[me] === 'b' });
+      save(RECORD_KEY, record);
+      prizeLine = newPrizes(PW, before, record).map((name) => fill(PW.newPrize, { name })).join(' ');
+      draw();
+    }
   }
   trackEvent('xiangqi_finished', { mode: settings.mode, level: settings.level, side: settings.side, result,
     reason: view.result.reason, moves: view.moves.length });
@@ -586,11 +607,42 @@ function draw() {
   drawTray($('tray-me'), myColor());
   drawTray($('tray-them'), myColor() === 'r' ? 'b' : 'r');
   traySeen.ready = !!pos;
-  statusEl.textContent = watching && view ? `${T.watching} ${statusText()}` : statusText();
+  
+  const prize = view?.result && prizeLine ? ` ${prizeLine}` : '';
+  statusEl.textContent = watching && view ? `${T.watching} ${statusText()}` : `${statusText()}${prize}`;
   $('resign').hidden = !view || !!view.result || view.you < 0 || watching;
   $('new-game').hidden = watching;
   again.update(!!view?.result && !watching);
+  drawProgress();
 }
+
+
+
+function drawProgress() {
+  const solo = settings.mode === 'bot';
+  $('goal').hidden = !solo;
+  const tips = solo ? helpLines(PW, record, settings.level, settings.guide) : [];
+  const tipEl = $('tip');
+  tipEl.hidden = tips.length === 0;
+  tipEl.textContent = tips.join(' ');
+  if (!solo) return;
+  $('goal-line').textContent = nextGoal(PW, record);
+  const f = goalFill(PW, record);
+  $('goal-fill').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-count').textContent = f.text;
+  const btn = $('prizes-btn');
+  btn.textContent = prizesOpen ? PW.close : PW.open;
+  btn.setAttribute('aria-expanded', String(prizesOpen));
+  $('prizes').hidden = !prizesOpen;
+  $('prize-list').replaceChildren(...prizeLines(PW, record).map((line) => {
+    const li = document.createElement('li');
+    li.textContent = line;
+    return li;
+  }));
+}
+$('goal-head').textContent = PW.goal;
+$('prizes-head').textContent = PW.prizes;
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; playUi(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
 
 
 function onPoint(sq, legal) {

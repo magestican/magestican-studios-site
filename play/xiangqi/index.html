@@ -7,7 +7,7 @@
   <title>Play Xiangqiwise - free xiangqi online, Chinese chess</title>
   <meta name="description" content="Xiangqiwise is free xiangqi (Chinese chess, 象棋) in your browser: the 9x10 board with the river and the palaces, the red and black pieces, and a move guide for beginners. Play the computer at three levels or a friend in a room.">
   <meta name="keywords" content="xiangqiwise, xiangqi, chinese chess, xiangqi online, 象棋, 中國象棋, 中国象棋, 象棋 線上, 象棋 在线, cờ tướng">
-  <meta name="build" content="45954351-20261112T174226Z">
+  <meta name="build" content="e911a6a7-20261112T180424Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/xiangqi/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Xiangqiwise - free xiangqi online, Chinese chess">
@@ -25,8 +25,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=45954351-20261112T174226Z" data-game="xiangqi" data-zh="1" data-levels="easy,medium,hard" data-level-key="xiangqiwise-settings-v1" data-level-default="easy"></script>
-  <link rel="stylesheet" href="./src/style.css?v=45954351-20261112T174226Z">
+  <script src="../shared/ui/boot.js?v=e911a6a7-20261112T180424Z" data-game="xiangqi" data-zh="1" data-levels="easy,medium,hard" data-level-key="xiangqiwise-settings-v1" data-level-default="easy"></script>
+  <link rel="stylesheet" href="./src/style.css?v=e911a6a7-20261112T180424Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -143,9 +143,25 @@
         <button class="xq-btn skin-lacquer-button_secondary mg-i mg-i-give_up" id="resign" type="button" data-t="resign">Resign</button>
         <button class="xq-btn skin-lacquer-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
       </div>
+      
+
+      <p class="xq-tip" id="tip" role="status" hidden></p>
     </section>
     <p class="xq-help"><span data-t="help">Tap a piece, then a point: pieces stand where the lines cross. Checkmate the other general to win. A player with no legal move loses.</span>
       <span data-t="note">Perpetual check loses. Perpetual chase is not judged here.</span></p>
+    
+
+    <section class="xq-goal" id="goal" aria-labelledby="goal-head">
+      <h2 class="xq-goal-head" id="goal-head">Next goal</h2>
+      <p class="xq-goal-line" id="goal-line"></p>
+      <div class="xq-goal-bar" aria-hidden="true"><span id="goal-fill"></span></div>
+      <p class="xq-goal-count" id="goal-count"></p>
+      <button class="xq-btn skin-lacquer-button_secondary" type="button" id="prizes-btn" aria-expanded="false" aria-controls="prizes">See prizes</button>
+      <div class="xq-prizes" id="prizes" hidden>
+        <h3 class="xq-goal-head" id="prizes-head">Your prizes</h3>
+        <ul id="prize-list"></ul>
+      </div>
+    </section>
   </main>
 
   <noscript>
@@ -153,8 +169,8 @@
     <a href="/xiangqi.html">How to play</a>.</p>
   </noscript>
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=45954351-20261112T174226Z"></script>
-  <script type="module" src="./src/main.js?v=45954351-20261112T174226Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=45954351-20261112T174226Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=e911a6a7-20261112T180424Z"></script>
+  <script type="module" src="./src/main.js?v=e911a6a7-20261112T180424Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=e911a6a7-20261112T180424Z"></script>
 </body>
 </html>
