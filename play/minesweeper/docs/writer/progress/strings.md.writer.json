@@ -1,0 +1,44 @@
+{
+  "path": "strings.md",
+  "kind": "ui-microcopy",
+  "passed": true,
+  "stopped_at": "",
+  "tiers_run": [
+    "macro",
+    "meso",
+    "micro",
+    "tech"
+  ],
+  "counts": {
+    "E": 0,
+    "W": 1,
+    "I": 0
+  },
+  "metrics": {
+    "strings": 29,
+    "words": 124,
+    "roles": {
+      "button": 2,
+      "heading": 2,
+      "instruction": 13,
+      "toast": 1,
+      "label": 3,
+      "name": 8
+    }
+  },
+  "findings": [
+    {
+      "id": "UIM-05",
+      "level": "W",
+      "tier": "micro",
+      "message": "'Intermediate' has 4+ syllables; above an early reader's level",
+      "line": 35,
+      "excerpt": "intermediate: Intermediate cleared",
+      "rule": "WR-505",
+      "fix": "use a shorter, common word"
+    }
+  ],
+  "sha256": "2bd50d795a2838206a0add6ce49f16340519c2f670c640393a0f648b1f144713",
+  "rules_version": "2026-10-28.1",
+  "brief": "brief.md"
+}

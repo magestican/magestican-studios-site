@@ -42,11 +42,17 @@ import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill } from './strings.js';
+import {
+  PRIZES, progressWords, nextGoal, goalFill, prizeLines, earnedPrizes, newPrizes, recordAfter, recordToSave, helpLines,
+} from './progress.js';
 
 const GAME_ID = 'minesweeper';
 const LEVEL_KEY = 'sweepwise-level-v1';
 const BEST_KEY = 'sweepwise-best-v1';
 const CUSTOM_KEY = 'sweepwise-custom-v1';
+
+
+const RECORD_KEY = 'sweepwise-record-v1';
 const LONG_PRESS_MS = 420;
 
 const lang = gameLang();
@@ -102,7 +108,39 @@ let level = params.get('level') || load(LEVEL_KEY, 'beginner');
 if (!PRESETS[level] && level !== 'custom') level = 'beginner';
 let custom = clampCustom(load(CUSTOM_KEY, { rows: 12, cols: 12, mines: 24 }));
 let best = load(BEST_KEY, {});
+let record = load(RECORD_KEY, {});
 let mode = 'dig';
+
+
+
+
+const PW = progressWords(lang, T);
+const goalEl = $('goal');
+const tipEl = $('tip');
+const prizesEl = $('prizes');
+const seePrizes = $('see-prizes');
+$('goal-head').textContent = PW.goal;
+$('prizes-head').textContent = PW.prizes;
+function drawGoal() {
+  goalEl.hidden = playMode === 'race';
+  
+  tipEl.textContent = playMode === 'race' ? '' : helpLines(PW, record, level).join(' ');
+  $('goal-text').textContent = nextGoal(PW, record, best);
+  const f = goalFill(PW, record, best);
+  $('goal-fill').style.width = `${Math.round(f.share * 100)}%`;
+  $('goal-count').textContent = f.text;
+  const open = !prizesEl.hidden;
+  seePrizes.textContent = open ? PW.close : PW.open;
+  seePrizes.setAttribute('aria-expanded', String(open));
+  const earned = new Set(earnedPrizes(record, best));
+  $('prizes-list').replaceChildren(...prizeLines(PW, record, best).map((line, i) => {
+    const li = document.createElement('li');
+    li.textContent = line;
+    if (earned.has(PRIZES[i].id)) li.className = 'is-yours';
+    return li;
+  }));
+}
+seePrizes.addEventListener('click', () => { playUi('tap'); prizesEl.hidden = !prizesEl.hidden; drawGoal(); });
 let g = null;
 let focusIndex = 0;
 let ticker = null;
@@ -154,6 +192,7 @@ function start() {
   build();
   sizeCells();
   draw();
+  drawGoal();
   trackEvent('game_start', { game: GAME_ID, level });
 }
 
@@ -243,6 +282,8 @@ function draw() {
   modeEl.setAttribute('aria-pressed', String(mode === 'flag'));
   const key = level === 'custom' ? null : level;
   bestEl.textContent = key && Number.isFinite(best[key]) ? `${(best[key] / 1000).toFixed(1)} s` : T.none;
+  goalEl.hidden = playMode === 'race';
+  if (playMode === 'race') tipEl.textContent = '';
 }
 
 
@@ -256,6 +297,7 @@ function after(before) {
     clearInterval(ticker);
     ticker = null;
     const seconds = Number((elapsed(g) / 1000).toFixed(1));
+    const was = { record, best };
     if (g.state === 'won') {
       const r = recordBest(best, g);
       best = r.table;
@@ -266,6 +308,12 @@ function after(before) {
       msgEl.textContent = T.lost;
       sfx.play('boom');
     }
+    
+    
+    record = recordAfter(record, { won: g.state === 'won', level });
+    save(RECORD_KEY, recordToSave(record));
+    for (const name of newPrizes(PW, was, { record, best })) msgEl.textContent += ` ${fill(PW.newPrize, { name })}`;
+    drawGoal();
     trackEvent('minesweeper_finished', { won: g.state === 'won', level, seconds });
     
     

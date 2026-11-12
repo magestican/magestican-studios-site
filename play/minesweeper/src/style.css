@@ -251,6 +251,31 @@ html[data-kit] .sw-face { width: 56px; height: 56px; min-width: 56px; padding: 8
 .sw-best { font-size: 16px; color: var(--fc-inkSoft); }
 .sw-message { min-height: 1.4em; margin: 0; font-weight: 700; font-size: 20px; text-align: center; }
 .sw-help { max-width: 38em; margin: 0; font-size: 15px; color: var(--fc-inkSoft); text-align: center; }
+.sw-tip { max-width: 32em; margin: 0; font-size: 16px; font-weight: 700; text-align: center; }
+.sw-tip:empty { display: none; }
+
+
+.sw-goal {
+  display: flex; flex-direction: column; gap: 12px; width: min(100%, 32em); box-sizing: border-box;
+  padding: 16px; border-radius: 12px; background: var(--fc-card); border: 2px solid var(--fc-woodShade);
+}
+.sw-goal[hidden] { display: none; }
+
+
+.sw-goal-head { margin: 0; font-size: 16px; text-transform: uppercase; letter-spacing: 0.06em; color: inherit; opacity: 0.85; }
+.sw-goal-text { margin: 0; font-size: 17px; font-weight: 700; }
+.sw-goal-track { height: 12px; border-radius: 999px; overflow: hidden; background: var(--fc-wood); }
+.sw-goal-fill { height: 100%; width: 0; background: var(--fc-green); }
+.sw-goal-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sw-goal-count { font-size: 15px; font-weight: 700; color: inherit; opacity: 0.85; }
+.sw-prizes[hidden] { display: none; }
+.sw-prizes-head { margin: 4px 0 8px; font-size: 16px; }
+.sw-prizes-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.sw-prizes-list li {
+  padding: 8px 12px; border-radius: 8px; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.25);
+  color: inherit; font-size: 15px;
+}
+.sw-prizes-list li.is-yours { font-weight: 700; border-color: currentColor; background: rgba(255, 255, 255, 0.12); }
 
 
 
@@ -360,7 +385,7 @@ html[data-scene="expert"] .sw-board { background-image: url(../assets/levels/til
   .sw > .sw-foot { grid-column: 2; grid-row: 3; }
   .sw > .sw-message { grid-column: 2; grid-row: 4; }
   .sw > .sw-help { grid-column: 2; grid-row: 5; }
-  .sw > .sw-room, .sw > .sw-rival, .sw > .mg-again { grid-column: 2; }
+  .sw > .sw-room, .sw > .sw-rival, .sw > .mg-again, .sw > .sw-tip, .sw > .sw-goal { grid-column: 2; }
 }
 
 .visually-hidden {
