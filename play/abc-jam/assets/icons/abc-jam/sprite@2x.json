@@ -76,491 +76,512 @@
   "height": 256,
   "pixelRatio": 2
  },
- "book-sticker": {
+ "bomb-sticker": {
   "x": 258,
+  "y": 258,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "book-sticker": {
+  "x": 516,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "brachiosaurus-sticker": {
-  "x": 516,
+  "x": 774,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "bus-sticker": {
-  "x": 774,
+  "x": 1032,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "cake-sticker": {
-  "x": 1032,
+  "x": 1290,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "car-sticker": {
-  "x": 1290,
+  "x": 1548,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "cat-sticker": {
-  "x": 1548,
+  "x": 1806,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "clock-sticker": {
-  "x": 1806,
+  "x": 2064,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "corn-sticker": {
-  "x": 2064,
+  "x": 2322,
   "y": 258,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "cow-sticker": {
-  "x": 2322,
-  "y": 258,
+  "x": 0,
+  "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "cup-sticker": {
-  "x": 0,
+  "x": 258,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "dino_egg-sticker": {
-  "x": 258,
+  "x": 516,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "dog-sticker": {
-  "x": 516,
+  "x": 774,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "duck-sticker": {
-  "x": 774,
+  "x": 1032,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "egg-sticker": {
-  "x": 1032,
+  "x": 1290,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "fish-sticker": {
-  "x": 1290,
+  "x": 1548,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "fox-sticker": {
-  "x": 1548,
+  "x": 1806,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "frog-sticker": {
-  "x": 1806,
+  "x": 2064,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "grapes-sticker": {
-  "x": 2064,
+  "x": 2322,
   "y": 516,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "hand_down-sticker": {
-  "x": 2322,
-  "y": 516,
+  "x": 0,
+  "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "hand_up-sticker": {
-  "x": 0,
+  "x": 258,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "hat-sticker": {
-  "x": 258,
+  "x": 516,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "heart-sticker": {
-  "x": 516,
+  "x": 774,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "horse-sticker": {
-  "x": 774,
+  "x": 1032,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "house-sticker": {
-  "x": 1032,
+  "x": 1290,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "ice_cream-sticker": {
-  "x": 1290,
+  "x": 1548,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "juice-sticker": {
-  "x": 1548,
+  "x": 1806,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "key-sticker": {
-  "x": 1806,
+  "x": 2064,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "keyboard-sticker": {
-  "x": 2064,
+  "x": 2322,
   "y": 774,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "kite-sticker": {
-  "x": 2322,
-  "y": 774,
+  "x": 0,
+  "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "lion-sticker": {
-  "x": 0,
+  "x": 258,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "map-sticker": {
-  "x": 258,
+  "x": 516,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "milk-sticker": {
-  "x": 516,
+  "x": 774,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "moon-sticker": {
-  "x": 774,
+  "x": 1032,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "mouse-sticker": {
-  "x": 1032,
+  "x": 1290,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "mystery-sticker": {
-  "x": 1290,
+  "x": 1548,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "nose-sticker": {
-  "x": 1548,
+  "x": 1806,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "notes-sticker": {
-  "x": 1806,
+  "x": 2064,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "octopus-sticker": {
-  "x": 2064,
+  "x": 2322,
   "y": 1032,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "owl-sticker": {
-  "x": 2322,
-  "y": 1032,
+  "x": 0,
+  "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "panda-sticker": {
-  "x": 0,
+  "x": 258,
   "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "parasaurolophus-sticker": {
-  "x": 258,
+  "x": 516,
   "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "piano-sticker": {
-  "x": 516,
+  "x": 774,
   "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "pig-sticker": {
-  "x": 774,
+  "x": 1032,
   "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "pizza-sticker": {
-  "x": 1032,
+  "x": 1290,
   "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "play-sticker": {
-  "x": 1290,
+  "x": 1548,
   "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "puzzle-sticker": {
-  "x": 1548,
+  "x": 1806,
   "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "queen-sticker": {
-  "x": 1806,
+  "x": 2064,
   "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "rainbow-sticker": {
-  "x": 2064,
+  "x": 2322,
   "y": 1290,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "robot-sticker": {
-  "x": 2322,
-  "y": 1290,
+  "x": 0,
+  "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "sheep-sticker": {
-  "x": 0,
+  "x": 258,
   "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "shoe-sticker": {
-  "x": 258,
+  "x": 516,
   "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "snake-sticker": {
-  "x": 516,
+  "x": 774,
   "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "sparkle-sticker": {
-  "x": 774,
+  "x": 1032,
   "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "speaker-sticker": {
-  "x": 1032,
+  "x": 1290,
   "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "spinosaurus-sticker": {
-  "x": 1290,
+  "x": 1548,
   "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "star-sticker": {
-  "x": 1548,
+  "x": 1806,
   "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "stegosaurus-sticker": {
-  "x": 1806,
+  "x": 2064,
   "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "sun-sticker": {
-  "x": 2064,
+  "x": 2322,
   "y": 1548,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
  "t_rex-sticker": {
-  "x": 2322,
-  "y": 1548,
-  "width": 256,
-  "height": 256,
-  "pixelRatio": 2
- },
- "tiger-sticker": {
   "x": 0,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "train-sticker": {
+ "tiger-sticker": {
   "x": 258,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "tree-sticker": {
+ "tower-sticker": {
   "x": 516,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "triceratops-sticker": {
+ "train-sticker": {
   "x": 774,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "trophy-sticker": {
+ "tree-sticker": {
   "x": 1032,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "umbrella-sticker": {
+ "triceratops-sticker": {
   "x": 1290,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "velociraptor-sticker": {
+ "trophy-sticker": {
   "x": 1548,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "violin-sticker": {
+ "umbrella-sticker": {
   "x": 1806,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "whale-sticker": {
+ "velociraptor-sticker": {
   "x": 2064,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "yarn-sticker": {
+ "violin-sticker": {
   "x": 2322,
   "y": 1806,
   "width": 256,
   "height": 256,
   "pixelRatio": 2
  },
- "zebra-sticker": {
+ "whale-sticker": {
   "x": 0,
+  "y": 2064,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "wood_block-sticker": {
+  "x": 258,
+  "y": 2064,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "yarn-sticker": {
+  "x": 516,
+  "y": 2064,
+  "width": 256,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "zebra-sticker": {
+  "x": 774,
   "y": 2064,
   "width": 256,
   "height": 256,

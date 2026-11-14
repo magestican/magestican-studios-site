@@ -25,6 +25,7 @@ import { silentWavDataUrl } from '../../shared/audio/iosUnlock.js';
 import { gameMuted } from '../../../web-engine/brand/uiSound.js';
 import { uiSoundOn } from '../../../web-engine/brand/uiSoundPref.js';
 import { createVoice } from './voice.js';
+import { createTower, createRun } from './tower.js';
 import { id as vid, FIXED, countId } from './voiceLines.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 
@@ -251,7 +252,7 @@ function prompt(want) {
 }
 
 function inputKeys(ch) {
-  return document.querySelectorAll(`#kb .aj-key[data-ch="${ch}"], #bubbles .aj-bubble[data-ch="${ch}"], .aj-dino-choice[data-ch="${ch}"]`);
+  return document.querySelectorAll(`#kb .aj-key[data-ch="${ch}"], #bubbles .aj-bubble[data-ch="${ch}"], .aj-dino-choice[data-ch="${ch}"], .aj-trow.is-bottom .aj-tblock[data-ch="${ch}"]`);
 }
 function markWanted() {
   for (const k of document.querySelectorAll('.aj-key, .aj-bubble')) k.classList.toggle('is-wanted', !!wanted && k.dataset.ch === wanted);
@@ -268,7 +269,7 @@ function showHint(hint, want) {
 function layoutInput() {
   const narrow = isNarrow();
   
-  const useBubbles = narrow && mode !== 'rain' && mode !== 'match';
+  const useBubbles = narrow && mode !== 'rain' && mode !== 'match' && mode !== 'tower';
   $('bubbles').hidden = !useBubbles || !mode;
   $('kb').hidden = narrow || !mode;
   $('kb-toggle').hidden = narrow || !mode;
@@ -286,7 +287,7 @@ function press(ch) {
   const c = String(ch).toUpperCase();
   if (!/^[A-Z]$/.test(c)) return;
   flashKey(c);
-  ({ parade: paradePress, jam: jamPressed, words: wordPress, rain: rainPress, eggs: eggsPress, match: matchPress })[mode]?.(c);
+  ({ parade: paradePress, jam: jamPressed, words: wordPress, rain: rainPress, eggs: eggsPress, match: matchPress, tower: towerPress })[mode]?.(c);
 }
 
 document.addEventListener('keydown', (e) => {
@@ -803,6 +804,184 @@ function matchPress(c) {
 }
 
 
+
+
+
+
+
+
+let tower = null;
+let towerRun = null;
+const TOWER_SHOW_ROWS = 5; 
+const BOOM = ['#ff4f6d', '#ff8c1a', '#f5b700', '#ffd166'];
+
+function startTower({ restart = false } = {}) {
+  leaveMode();
+  mode = 'tower';
+  towerRun = towerRun || createRun(store);
+  if (restart) towerRun.restart();
+  tower = createTower(towerRun.level);
+  trackEvent?.('game_start', { game: GAME_ID, level: `tower-${towerRun.level}` });
+  show('play');
+  layoutInput();
+  buildKeyboard();
+  renderTower({ enter: true });
+  play('whoosh');
+}
+
+function towerHud() {
+  const hud = document.createElement('div');
+  hud.className = 'aj-tower-hud';
+  hud.innerHTML = '<b class="aj-tower-level"></b><span class="aj-tower-points"></span><span class="aj-tower-best"></span>'
+    + '<button class="aj-tower-again" type="button"></button>';
+  hud.querySelector('.aj-tower-level').textContent = fill(T.towerLevel, { n: towerRun.level });
+  hud.querySelector('.aj-tower-points').textContent = fill(T.towerPoints, { n: towerRun.points });
+  hud.querySelector('.aj-tower-best').textContent = fill(T.towerBest, { n: towerRun.best });
+  const again = hud.querySelector('.aj-tower-again');
+  again.textContent = T.towerAgain;
+  again.addEventListener('click', () => { unlockVoice(); play('tap'); startTower({ restart: true }); });
+  return hud;
+}
+
+function towerBlock(c, i, rowNo, isBottom) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = `aj-tblock is-${c.kind}` + (c.gone ? ' is-gone' : '') + (isBottom ? ' is-bottom' : '');
+  b.dataset.i = String(i);
+  b.dataset.row = String(rowNo);
+  if (!isBottom || c.gone) b.tabIndex = -1;
+  if (c.kind === 'bomb') {
+    b.setAttribute('aria-label', T.towerBomb);
+    b.innerHTML = '<i aria-hidden="true"></i>';
+    setPic(b.querySelector('i'), 'bomb');
+  } else {
+    b.dataset.ch = c.ch;
+    b.style.setProperty('--c', colourFor(c.ch));
+    b.setAttribute('aria-label', c.kind === 'dino' ? DINO[c.id].name : c.ch);
+    b.innerHTML = '<b aria-hidden="true"></b><i aria-hidden="true"></i>';
+    b.querySelector('b').textContent = c.ch;
+    setPic(b.querySelector('i'), c.kind === 'dino' ? DINO[c.id].pic : LETTER[c.ch].pic);
+  }
+  return b;
+}
+
+function renderTower({ enter = false, settle = false } = {}) {
+  renderProgress([], 0);
+  const st = $('stage');
+  st.className = 'aj-stage aj-stage-tower' + (tower.kind === 'dinos' ? ' is-dinos' : '');
+  st.innerHTML = '';
+  st.appendChild(towerHud());
+  const col = document.createElement('div');
+  col.className = 'aj-tower' + (enter ? ' aj-enter' : '') + (settle ? ' aj-settle' : '');
+  const from = tower.rowIndex;
+  const to = Math.min(tower.rows.length, from + TOWER_SHOW_ROWS);
+  
+  for (let r = from; r < to; r++) {
+    const row = document.createElement('div');
+    row.className = 'aj-trow' + (r === from ? ' is-bottom' : '');
+    tower.rows[r].forEach((c, i) => row.appendChild(towerBlock(c, i, r, r === from)));
+    col.appendChild(row);
+  }
+  st.appendChild(col);
+  wanted = null;
+  clearHints();
+  markWanted();
+}
+
+function towerBoom(el) {
+  const r = el?.getBoundingClientRect?.();
+  const W = globalThis.innerWidth || 1;
+  const H = globalThis.innerHeight || 1;
+  const at = r ? { x: (r.left + r.width / 2) / W, y: (r.top + r.height / 2) / H } : { x: 0.5, y: 0.6 };
+  for (let i = 0; i < (reduceMotion ? 6 : 28); i++) {
+    const p = document.createElement('span');
+    p.className = 'aj-confetti aj-spark';
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 60 + Math.random() * 160;
+    p.style.left = `${at.x * 100}%`;
+    p.style.top = `${at.y * 100}%`;
+    p.style.setProperty('--dx', `${Math.cos(ang) * dist}px`);
+    p.style.setProperty('--dy', `${Math.sin(ang) * dist}px`);
+    p.style.setProperty('--r', `${Math.random() * 360}deg`);
+    p.style.background = BOOM[i % BOOM.length];
+    fx.appendChild(p);
+    setTimeout(() => p.remove(), 1800);
+  }
+  stars(6, el);
+  if (!reduceMotion) bump($('stage'), 'aj-shake');
+}
+
+function towerPoints(n, el) {
+  if (!n) return;
+  towerRun.add(n);
+  const p = document.querySelector('.aj-tower-points');
+  if (p) { p.textContent = fill(T.towerPoints, { n: towerRun.points }); bump(p, 'aj-jump'); }
+  const b = document.querySelector('.aj-tower-best');
+  if (b) b.textContent = fill(T.towerBest, { n: towerRun.best });
+  const r = el?.getBoundingClientRect?.();
+  if (!r) return;
+  const f = document.createElement('span');
+  f.className = 'aj-plus';
+  f.textContent = `+${n}`;
+  f.style.left = `${r.left + r.width / 2}px`;
+  f.style.top = `${r.top}px`;
+  fx.appendChild(f);
+  setTimeout(() => f.remove(), 1200);
+}
+
+function towerResult(r, el) {
+  if (r.kind === 'ignored') return;
+  if (r.kind === 'wrong') { onWrong(r); return; }
+  if (r.kind === 'bomb') {
+    
+    
+    play('boom');
+    later(() => play('oops'), 450);
+    if (el) { el.classList.add('is-gone', 'aj-boom'); el.tabIndex = -1; }
+    towerBoom(el);
+    return; 
+  }
+  clearHints();
+  play(sfxNoteFor(r.ch));
+  play('knock'); 
+  if (el) { el.classList.add('is-gone', 'aj-pop'); el.tabIndex = -1; stars(5, el); }
+  if (r.block === 'dino') say(vid.dinoFor(r.id)); else say(vid.name(r.ch));
+  towerPoints(r.points, el);
+  if (!r.rowDone) return;
+  busy = true;
+  for (const j of r.fizzled || []) document.querySelector(`.aj-trow.is-bottom .aj-tblock[data-i="${j}"]`)?.classList.add('is-gone', 'aj-fizzle');
+  if (r.towerDone) {
+    later(() => { play('word'); party(FIXED.hooray); }, 700);
+    later(() => document.querySelector('.aj-tower')?.classList.add('aj-fade'), 700 + TIMING.partyMs - 900);
+    later(() => {
+      towerRun.nextLevel();
+      tower = createTower(towerRun.level);
+      trackEvent?.('game_start', { game: GAME_ID, level: `tower-${towerRun.level}` });
+      busy = false;
+      renderTower({ enter: true });
+      play('whoosh');
+    }, 700 + TIMING.partyMs + 400);
+    return;
+  }
+  
+  later(() => { play('thud'); renderTower({ settle: true }); }, 600);
+  later(() => { busy = false; }, TIMING.letterGapMs);
+}
+
+function towerPress(c) {
+  const r = tower.press(c);
+  towerResult(r, r.kind === 'right' ? document.querySelector(`.aj-trow.is-bottom .aj-tblock[data-i="${r.index}"]`) : null);
+}
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest?.('.aj-tblock');
+  if (!b || mode !== 'tower' || busy) return;
+  const r = tower.tap(Number(b.dataset.i), Number(b.dataset.row));
+  if (r.kind !== 'ignored') flashKey(b.dataset.ch || '');
+  towerResult(r, b);
+});
+
+
 function showStickers() {
   leaveMode();
   show('stickers');
@@ -962,6 +1141,7 @@ for (const t of document.querySelectorAll('.aj-tile')) {
     else if (go === 'stickers') showStickers();
     else if (go === 'eggs') startEggs();
     else if (go === 'match') startMatch();
+    else if (go === 'tower') startTower();
   });
 }
 

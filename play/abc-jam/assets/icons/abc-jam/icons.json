@@ -576,6 +576,27 @@
    "group": "ui",
    "width": 128,
    "height": 128
+  },
+  {
+   "id": "wood_block",
+   "label": "Wooden block",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "bomb",
+   "label": "Bomb",
+   "group": "ui",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "tower",
+   "label": "Block tower",
+   "group": "ui",
+   "width": 128,
+   "height": 128
   }
  ]
 }

@@ -21,6 +21,7 @@ export const T = Object.freeze({
   kbToKeys: 'Keyboard',
   resetAsk: 'Start again',
   resetSure: 'Clear all stickers',
+  towerAgain: 'Build again',
 
   freeJam: 'Free Jam',
   wordBuilder: 'Word Builder',
@@ -28,6 +29,7 @@ export const T = Object.freeze({
   stickerBook: 'Sticker Book',
   dinoEggs: 'Dino Eggs',
   dinoMatch: 'Dino Match',
+  blockTower: 'Block Tower',
 
   kbToAbcSpoken: 'Keys in ABC order',
   kbToKeysSpoken: 'Keys like a keyboard',
@@ -41,6 +43,10 @@ export const T = Object.freeze({
   prizeBook: 'The full sticker book',
   prizeDinos: 'Every dinosaur egg',
   prizeFound: '{n} dinosaurs found',
+  towerLevel: 'Level {n}',
+  towerPoints: '{n} points',
+  towerBest: 'Best {n}',
+  towerBomb: 'Bomb',
 
   find: 'Find the letter {letter}!',
   jamStart: 'Press any letter!',

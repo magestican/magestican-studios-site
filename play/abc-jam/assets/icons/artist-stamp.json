@@ -15,7 +15,7 @@
   }
  ],
  "engine": {
-  "artist_commit": "24caa53a2ae69226c80a47baf2ff9de63cb2f77e",
+  "artist_commit": "68047185a755a42fb8200bcf7a48bdef85826dc9",
   "engine": "artist-engine 0.2.0-phaseB"
  },
  "gates": {
@@ -72,9 +72,9 @@
   ]
  },
  "files": {
-  "abc-jam/preview.png": "508793db5d436825edca9bcd98d6b7541aa3256a3c1bf60f25176f5ac9137196",
-  "abc-jam/sprite.png": "44cac7749e9e55e94e9ba425fce805e119ab10e8ad5b093edea5dc36c704721d",
-  "abc-jam/sprite@2x.png": "b3948d6a986cd4f6fc7f14e7e8a7ca2f1fab978d59993fa5bb995afeb967d084",
+  "abc-jam/preview.png": "1c16e79c3b019d52bde53b8e899fae6d9dfcfadc0194fc5bc801177042cc2d12",
+  "abc-jam/sprite.png": "a0f5028186cc653b8fbbb5fc6b9eb6b45172abee88127f1e2cf8274ffe5ed5d9",
+  "abc-jam/sprite@2x.png": "51fdb503c9c579a80ae1d2392d605ffce9d516a790685a0e5a9f601f77f81905",
   "abc-jam/svg/sticker/ankylosaurus.svg": "a372397a44a791d748e8034ae3786b172ce3f9b1c0ad9ddf4a7972c566f86eb5",
   "abc-jam/svg/sticker/ant.svg": "4c5a235098b50def636c1add257783c479af84a22ccbad0aadcd06269f7d4a88",
   "abc-jam/svg/sticker/apple.svg": "3ff657d30f007998d356163147691fe2da7ca631aba85e223b452374434f6191",
@@ -86,6 +86,7 @@
   "abc-jam/svg/sticker/bird.svg": "f8f2993a93e3f5dd978f0a86dcb10c7ebf8629b98e351c6cd56c81227d2354b4",
   "abc-jam/svg/sticker/blocks.svg": "2a292ff595fe279c0901b2e9b74e440b9c43afcbaeb5e257988f5cafa95c24e5",
   "abc-jam/svg/sticker/boat.svg": "f14b52e948fb25f583471fb65264c7498b45c449e716e5e8fb9feb359c7a0d80",
+  "abc-jam/svg/sticker/bomb.svg": "109876854853ba63370343bac06cdfd3c35a126a8ba92fe1d6beb3395a47d5de",
   "abc-jam/svg/sticker/book.svg": "4ba96a9137a9bbad173b935c6eea8be5046c3abfbb52c48f6cd52604a9013654",
   "abc-jam/svg/sticker/brachiosaurus.svg": "53601483759084df1547bb2491c85d3cd9881624869d71aa126d158365d81c8b",
   "abc-jam/svg/sticker/bus.svg": "439975c0355b8444644eaa63230b8ca40e17a5d3dcb6a3097017bd3d4312d875",
@@ -146,6 +147,7 @@
   "abc-jam/svg/sticker/sun.svg": "a4e4badfde4f568ffe5ef655c9dca1b3b5cee3915d93877f05cfbbe468582dd7",
   "abc-jam/svg/sticker/t_rex.svg": "18fbe4227089af4e891cff6adb25e036af0c627e635a474bfebb7318c9f55c48",
   "abc-jam/svg/sticker/tiger.svg": "a1772edc02c84048ec62a85e7ae76734dc48e49d1cb486a056f87099cd414b0c",
+  "abc-jam/svg/sticker/tower.svg": "c149a1217d6e2ecd72061e02f3353ce689cdbef5048bec3b804474733ec3eab0",
   "abc-jam/svg/sticker/train.svg": "0e06975ece6df11e0f569c33809fce903850f7ab39e6d70327489c24fa81620c",
   "abc-jam/svg/sticker/tree.svg": "3d0b737900a9d0cbde9247531134ff3b5c3f4c258a379c7ea208b801bfc8c577",
   "abc-jam/svg/sticker/triceratops.svg": "c7ef794317e0f282c964faa02a13fa97b0940c95696da812316c5e7f9e44d58f",
@@ -154,9 +156,10 @@
   "abc-jam/svg/sticker/velociraptor.svg": "2a2f6e70c257bb70a129dbf2d561104b9f44889f8371eff1488bd9602fdefd21",
   "abc-jam/svg/sticker/violin.svg": "3873ca83f704152bdcad2d6486c1cdc6f76d80dd62b15f0be665e463d36419a3",
   "abc-jam/svg/sticker/whale.svg": "388346ce7f58c87ec8fe2fd5fa296da014aa361ee7f52a47c4daabd30e92a99a",
+  "abc-jam/svg/sticker/wood_block.svg": "a8d42d6a1072fb82d767809fe02925ee99cab451e0e57805cb27a5f2667a8db2",
   "abc-jam/svg/sticker/yarn.svg": "8f6af914c3a37a587d0a221df8602180245e4eef9f72770ba9fce3cd80bf8eb5",
   "abc-jam/svg/sticker/zebra.svg": "bb7b5485ba7a3552ec86ba831da5772ae3edc1f9e3737efe8128e106ae4ada39",
-  "abc-jam/symbols-sticker.svg": "43d093001f6f0f8bb5f0528a2fa7eef7b2521c401061774876883b9c5fd1418b",
-  "contact-sheet.png": "d59dc81ed05592a3ed757c5729ec71a35f911b78e5fc81bf9e54731f609defb2"
+  "abc-jam/symbols-sticker.svg": "bb58f4c43c7c24d554701d2e2f81091a08e2d632e3aa5e03c8ddc4a2458467e8",
+  "contact-sheet.png": "e5b6378de2b08aa90bb564d6a377ca97865d524ad61460fa8d24d7e9dccab936"
  }
 }
