@@ -25,7 +25,9 @@ import { silentWavDataUrl } from '../../shared/audio/iosUnlock.js';
 import { gameMuted } from '../../../web-engine/brand/uiSound.js';
 import { uiSoundOn } from '../../../web-engine/brand/uiSoundPref.js';
 import { createVoice } from './voice.js';
-import { createTower, createRun } from './tower.js';
+import { VOICE_KEY, VOICE_DIRS, DEFAULT_VOICE, pickVoice } from './voicePick.js';
+import { createTower, createRun, CORE_SPAN, FLOOR_H } from './tower.js';
+import { loose, step } from './fall.js';
 import { id as vid, FIXED, countId } from './voiceLines.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 
@@ -58,16 +60,28 @@ const save = () => { saveProgress(store, progress); checkPrizes(); };
 
 
 
-const voice = createVoice({
-  baseUrl: new URL('../assets/voice/', import.meta.url),
+
+
+
+const voices = {};
+const voiceFor = (name) => {
+  if (voices[name]) return voices[name];
+  const v = (voices[name] = createVoice({
+    baseUrl: new URL(VOICE_DIRS[name], import.meta.url),
+    
+    version: new URL(import.meta.url).searchParams.get('v') || '',
+    muted: () => !uiSoundOn() || gameMuted(),
+    onLine: (ms) => music.duck?.(0.3, ms + 300),
+  }));
   
-  version: new URL(import.meta.url).searchParams.get('v') || '',
-  muted: () => !uiSoundOn() || gameMuted(),
-  onLine: (ms) => music.duck?.(0.3, ms + 300),
-});
+  
+  v.prefetch(LETTERS.map((l) => vid.phrase(l.ch)));
+  v.prefetch(DINOS.map((d) => vid.dinoFor(d.id)));
+  return v;
+};
+let voiceName = (() => { try { return pickVoice(store?.getItem(VOICE_KEY)); } catch { return DEFAULT_VOICE; } })();
+let voice = voiceFor(voiceName);
 const say = (lineId) => voice.say(lineId);
-voice.prefetch(LETTERS.map((l) => vid.phrase(l.ch)));
-voice.prefetch(DINOS.map((d) => vid.dinoFor(d.id)));
 
 
 let timers = [];
@@ -252,7 +266,7 @@ function prompt(want) {
 }
 
 function inputKeys(ch) {
-  return document.querySelectorAll(`#kb .aj-key[data-ch="${ch}"], #bubbles .aj-bubble[data-ch="${ch}"], .aj-dino-choice[data-ch="${ch}"], .aj-trow.is-bottom .aj-tblock[data-ch="${ch}"]`);
+  return document.querySelectorAll(`#kb .aj-key[data-ch="${ch}"], #bubbles .aj-bubble[data-ch="${ch}"], .aj-dino-choice[data-ch="${ch}"], .aj-tblock.is-live[data-ch="${ch}"]`);
 }
 function markWanted() {
   for (const k of document.querySelectorAll('.aj-key, .aj-bubble')) k.classList.toggle('is-wanted', !!wanted && k.dataset.ch === wanted);
@@ -810,10 +824,17 @@ function matchPress(c) {
 
 
 
+
+
 let tower = null;
 let towerRun = null;
-const TOWER_SHOW_ROWS = 5; 
+let towerU = 64; 
+let towerBodies = []; 
+let towerRaf = 0;
 const BOOM = ['#ff4f6d', '#ff8c1a', '#f5b700', '#ffd166'];
+const TOWER_X0 = -1.5; 
+const TOWER_SPAN = CORE_SPAN + 3; 
+const TOWER_BELOW = 1.2; 
 
 function startTower({ restart = false } = {}) {
   leaveMode();
@@ -821,6 +842,7 @@ function startTower({ restart = false } = {}) {
   towerRun = towerRun || createRun(store);
   if (restart) towerRun.restart();
   tower = createTower(towerRun.level);
+  towerBodies = [];
   trackEvent?.('game_start', { game: GAME_ID, level: `tower-${towerRun.level}` });
   show('play');
   layoutInput();
@@ -843,49 +865,159 @@ function towerHud() {
   return hud;
 }
 
-function towerBlock(c, i, rowNo, isBottom) {
+
+const towerPos = (x, y) => ({ left: (x - TOWER_X0) * towerU, bottom: y * towerU });
+
+function towerCubeFace(el, c) {
+  if (c.kind === 'bomb') {
+    el.setAttribute('aria-label', T.towerBomb);
+    el.innerHTML = '<i aria-hidden="true"></i>';
+    setPic(el.querySelector('i'), 'bomb');
+    return;
+  }
+  el.dataset.ch = c.ch;
+  el.style.setProperty('--c', colourFor(c.ch));
+  el.setAttribute('aria-label', c.kind === 'dino' ? DINO[c.id].name : c.ch);
+  el.innerHTML = '<b aria-hidden="true"></b><i aria-hidden="true"></i>';
+  el.querySelector('b').textContent = c.ch;
+  setPic(el.querySelector('i'), c.kind === 'dino' ? DINO[c.id].pic : LETTER[c.ch].pic);
+}
+
+function towerBlock(c, i, floorNo) {
   const b = document.createElement('button');
   b.type = 'button';
-  b.className = `aj-tblock is-${c.kind}` + (c.gone ? ' is-gone' : '') + (isBottom ? ' is-bottom' : '');
+  const live = floorNo === tower.floorIndex && !c.gone;
+  b.className = `aj-tblock is-${c.kind} on-${c.side}` + (c.gone ? ' is-gone' : '') + (live ? ' is-live' : '');
   b.dataset.i = String(i);
-  b.dataset.row = String(rowNo);
-  if (!isBottom || c.gone) b.tabIndex = -1;
-  if (c.kind === 'bomb') {
-    b.setAttribute('aria-label', T.towerBomb);
-    b.innerHTML = '<i aria-hidden="true"></i>';
-    setPic(b.querySelector('i'), 'bomb');
-  } else {
-    b.dataset.ch = c.ch;
-    b.style.setProperty('--c', colourFor(c.ch));
-    b.setAttribute('aria-label', c.kind === 'dino' ? DINO[c.id].name : c.ch);
-    b.innerHTML = '<b aria-hidden="true"></b><i aria-hidden="true"></i>';
-    b.querySelector('b').textContent = c.ch;
-    setPic(b.querySelector('i'), c.kind === 'dino' ? DINO[c.id].pic : LETTER[c.ch].pic);
-  }
+  b.dataset.floor = String(floorNo);
+  if (!live) b.tabIndex = -1;
+  const p = towerPos(c.x, c.y);
+  b.style.left = `${p.left}px`;
+  b.style.bottom = `${p.bottom}px`;
+  towerCubeFace(b, c);
   return b;
 }
 
-function renderTower({ enter = false, settle = false } = {}) {
+
+const towerCam = () => Math.max(-0.6, Math.min(tower.floorIndex, tower.floors.length - 1) * FLOOR_H - TOWER_BELOW);
+
+function towerCamera({ instant = false } = {}) {
+  const world = document.querySelector('.aj-tworld');
+  const sky = document.querySelector('.aj-tsky');
+  if (!world) return;
+  const cam = towerCam();
+  world.classList.toggle('no-move', instant || reduceMotion);
+  sky?.classList.toggle('no-move', instant || reduceMotion);
+  world.style.transform = `translateY(${cam * towerU}px)`;
+  
+  if (sky) sky.style.transform = `translateY(${(cam * towerU) / 3}px)`;
+}
+
+function renderTower({ enter = false } = {}) {
   renderProgress([], 0);
   const st = $('stage');
   st.className = 'aj-stage aj-stage-tower' + (tower.kind === 'dinos' ? ' is-dinos' : '');
   st.innerHTML = '';
   st.appendChild(towerHud());
-  const col = document.createElement('div');
-  col.className = 'aj-tower' + (enter ? ' aj-enter' : '') + (settle ? ' aj-settle' : '');
-  const from = tower.rowIndex;
-  const to = Math.min(tower.rows.length, from + TOWER_SHOW_ROWS);
+  const view = document.createElement('div');
+  view.className = 'aj-tview' + (enter ? ' aj-enter' : '');
+  st.appendChild(view);
   
-  for (let r = from; r < to; r++) {
-    const row = document.createElement('div');
-    row.className = 'aj-trow' + (r === from ? ' is-bottom' : '');
-    tower.rows[r].forEach((c, i) => row.appendChild(towerBlock(c, i, r, r === from)));
-    col.appendChild(row);
+  const r = { width: view.offsetWidth, height: view.offsetHeight };
+  
+  towerU = Math.max(40, Math.floor(Math.min(r.width / TOWER_SPAN, r.height / (FLOOR_H + TOWER_BELOW + 0.8), 120)));
+  view.style.setProperty('--u', `${towerU}px`);
+  const sky = document.createElement('div');
+  sky.className = 'aj-tsky';
+  sky.style.height = `${(tower.height / 3 + FLOOR_H * 2) * towerU + r.height}px`;
+  view.appendChild(sky);
+  const world = document.createElement('div');
+  world.className = 'aj-tworld';
+  world.style.width = `${TOWER_SPAN * towerU}px`;
+  const ground = document.createElement('div');
+  ground.className = 'aj-tground';
+  world.appendChild(ground);
+  
+  for (let y = 0; y < tower.height; y++) {
+    for (let x = tower.core[y].x0; x < tower.core[y].x1; x++) {
+      const c = document.createElement('span');
+      c.className = 'aj-tcore';
+      const p = towerPos(x, y);
+      c.style.left = `${p.left}px`;
+      c.style.bottom = `${p.bottom}px`;
+      world.appendChild(c);
+    }
   }
-  st.appendChild(col);
+  const top = document.createElement('span');
+  top.className = 'aj-ttop';
+  const crown = tower.core[tower.height - 1];
+  const tp = towerPos((crown.x0 + crown.x1) / 2 - 0.5, tower.height);
+  top.style.left = `${tp.left}px`;
+  top.style.bottom = `${tp.bottom}px`;
+  setPic(top, 'star');
+  world.appendChild(top);
+  tower.floors.forEach((fl, f) => fl.forEach((c, i) => { if (!c.gone) world.appendChild(towerBlock(c, i, f)); }));
+  for (const t of towerBodies) world.appendChild(t.el); 
+  view.appendChild(world);
+  towerCamera({ instant: true });
   wanted = null;
   clearHints();
   markWanted();
+}
+
+
+function towerLive() {
+  for (const b of document.querySelectorAll('.aj-tblock')) {
+    const live = Number(b.dataset.floor) === tower.floorIndex && !b.classList.contains('is-gone');
+    b.classList.toggle('is-live', live);
+    b.tabIndex = live ? 0 : -1;
+  }
+}
+
+
+function towerDrop(el, c) {
+  if (!el) return;
+  el.classList.add('is-gone');
+  el.tabIndex = -1;
+  if (reduceMotion) return;
+  const world = document.querySelector('.aj-tworld');
+  if (!world) return;
+  const f = document.createElement('span');
+  f.className = `aj-tblock aj-tfall is-${c.kind}`;
+  towerCubeFace(f, c);
+  f.removeAttribute('aria-label');
+  f.setAttribute('aria-hidden', 'true');
+  world.appendChild(f);
+  const away = c.side === 'left' ? -1 : c.side === 'right' ? 1 : (c.x + 0.5 < (tower.core[Math.floor(c.y)].x0 + tower.core[Math.floor(c.y)].x1) / 2 ? -1 : 1);
+  const body = loose(c.x + 0.5, c.y + 0.5, { away, front: c.side === 'front' });
+  towerBodies.push({ body, el: f });
+  towerDraw();
+  if (!towerRaf) {
+    let last = performance.now();
+    const tick = (now) => {
+      if (mode !== 'tower') { towerRaf = 0; return; }
+      step(towerBodies.map((t) => t.body), Math.min(0.05, (now - last) / 1000), {
+        core: towerRects(),
+        walls: { x0: TOWER_X0, x1: TOWER_X0 + TOWER_SPAN },
+      });
+      last = now;
+      towerDraw();
+      towerRaf = towerBodies.some((t) => !t.body.rest) ? requestAnimationFrame(tick) : 0;
+    };
+    towerRaf = requestAnimationFrame(tick);
+  }
+}
+
+
+const towerRects = () => tower.core.map((r, y) => ({ x0: r.x0, x1: r.x1, y0: y, y1: y + 1 }));
+
+function towerDraw() {
+  for (const { body, el } of towerBodies) {
+    const p = towerPos(body.x - 0.5, body.y - 0.5);
+    el.style.left = `${p.left}px`;
+    el.style.bottom = `${p.bottom}px`;
+    el.style.transform = `rotate(${-body.a}rad)`;
+  }
 }
 
 function towerBoom(el) {
@@ -929,6 +1061,8 @@ function towerPoints(n, el) {
   setTimeout(() => f.remove(), 1200);
 }
 
+const towerEl = (floor, i) => document.querySelector(`.aj-tblock[data-floor="${floor}"][data-i="${i}"]`);
+
 function towerResult(r, el) {
   if (r.kind === 'ignored') return;
   if (r.kind === 'wrong') { onWrong(r); return; }
@@ -937,25 +1071,29 @@ function towerResult(r, el) {
     
     play('boom');
     later(() => play('oops'), 450);
-    if (el) { el.classList.add('is-gone', 'aj-boom'); el.tabIndex = -1; }
+    later(() => { say(FIXED.towerOops); }, 1100);
     towerBoom(el);
+    if (el) { el.classList.add('is-gone'); el.tabIndex = -1; }
     return; 
   }
   clearHints();
   play(sfxNoteFor(r.ch));
   play('knock'); 
-  if (el) { el.classList.add('is-gone', 'aj-pop'); el.tabIndex = -1; stars(5, el); }
-  if (r.block === 'dino') say(vid.dinoFor(r.id)); else say(vid.name(r.ch));
+  if (el) stars(5, el);
   towerPoints(r.points, el);
-  if (!r.rowDone) return;
+  towerDrop(el, tower.floors[r.floor][r.index]);
+  if (r.block === 'dino') say(vid.dinoFor(r.id)); else say(vid.name(r.ch));
+  if (!r.floorDone) return;
   busy = true;
-  for (const j of r.fizzled || []) document.querySelector(`.aj-trow.is-bottom .aj-tblock[data-i="${j}"]`)?.classList.add('is-gone', 'aj-fizzle');
+  
+  for (const j of r.fizzled || []) towerDrop(towerEl(r.floor, j), tower.floors[r.floor][j]);
   if (r.towerDone) {
-    later(() => { play('word'); party(FIXED.hooray); }, 700);
-    later(() => document.querySelector('.aj-tower')?.classList.add('aj-fade'), 700 + TIMING.partyMs - 900);
+    later(() => { play('word'); party(FIXED.towerDone); }, 700);
+    later(() => document.querySelector('.aj-tview')?.classList.add('aj-fade'), 700 + TIMING.partyMs - 900);
     later(() => {
       towerRun.nextLevel();
       tower = createTower(towerRun.level);
+      towerBodies = [];
       trackEvent?.('game_start', { game: GAME_ID, level: `tower-${towerRun.level}` });
       busy = false;
       renderTower({ enter: true });
@@ -964,19 +1102,26 @@ function towerResult(r, el) {
     return;
   }
   
-  later(() => { play('thud'); renderTower({ settle: true }); }, 600);
+  later(() => { play('thud'); towerLive(); towerCamera(); }, 600);
   later(() => { busy = false; }, TIMING.letterGapMs);
 }
 
+
+globalThis.addEventListener?.('resize', () => {
+  if (mode !== 'tower' || busy || !tower) return;
+  renderTower();
+  towerDraw();
+});
+
 function towerPress(c) {
   const r = tower.press(c);
-  towerResult(r, r.kind === 'right' ? document.querySelector(`.aj-trow.is-bottom .aj-tblock[data-i="${r.index}"]`) : null);
+  towerResult(r, r.kind === 'right' ? towerEl(r.floor, r.index) : null);
 }
 
 document.addEventListener('click', (e) => {
   const b = e.target.closest?.('.aj-tblock');
-  if (!b || mode !== 'tower' || busy) return;
-  const r = tower.tap(Number(b.dataset.i), Number(b.dataset.row));
+  if (!b || mode !== 'tower' || busy || !b.dataset.floor) return;
+  const r = tower.tap(Number(b.dataset.i), Number(b.dataset.floor));
   if (r.kind !== 'ignored') flashKey(b.dataset.ch || '');
   towerResult(r, b);
 });
@@ -1179,6 +1324,22 @@ $('kb-toggle').addEventListener('click', () => {
   play('tap');
   buildKeyboard();
 });
+
+function showVoice() {
+  for (const b of document.querySelectorAll('[data-voice]')) b.setAttribute('aria-pressed', String(b.dataset.voice === voiceName));
+}
+for (const b of document.querySelectorAll('[data-voice]')) {
+  b.addEventListener('click', () => {
+    voiceName = pickVoice(b.dataset.voice);
+    try { store?.setItem(VOICE_KEY, voiceName); } catch {  }
+    voice = voiceFor(voiceName);
+    showVoice();
+    unlockVoice();
+    play('tap');
+    say(FIXED.hooray); 
+  });
+}
+showVoice();
 
 if (HAS_MUSIC) {
   $('music-btn').hidden = false;

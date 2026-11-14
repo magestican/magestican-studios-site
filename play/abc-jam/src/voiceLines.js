@@ -41,6 +41,8 @@ export const FIXED = Object.freeze({
   jamStart: 'jam-start', pickWords: 'pick-words', rainTap: 'rain-tap', rainKeys: 'rain-keys',
   bookEmpty: 'book-empty', hooray: 'hooray', alphabetDone: 'alphabet-done', jamParty: 'jam-party',
   wordsDone: 'words-done', eggsDone: 'eggs-done', matchDone: 'match-done',
+  
+  towerOops: 'tower-oops', towerDone: 'tower-done',
 });
 
 const cap = (w) => w[0].toUpperCase() + w.slice(1);

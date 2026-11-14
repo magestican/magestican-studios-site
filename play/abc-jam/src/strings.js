@@ -22,6 +22,11 @@ export const T = Object.freeze({
   resetAsk: 'Start again',
   resetSure: 'Clear all stickers',
   towerAgain: 'Build again',
+  
+  
+  voiceTeacher: 'Teacher',
+  voiceWizard: 'Wizard',
+  voiceLabel: 'Voice',
 
   freeJam: 'Free Jam',
   wordBuilder: 'Word Builder',
@@ -70,6 +75,8 @@ export const T = Object.freeze({
   dinoYes: 'Yes! That is {dino}!',
   eggsDone: 'Hooray! You hatched every dinosaur!',
   matchDone: 'Hooray! You found all the dinosaurs!',
+  towerOops: 'Oh! Try again!',
+  towerDone: 'Hooray! Up we go!',
 
   noScript: 'Turn on JavaScript to play ABC Jam.',
 });
