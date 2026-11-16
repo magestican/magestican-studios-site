@@ -1,7 +1,7 @@
 {
   "$comment": "Read by the Magestican Studios iOS apps to update their bundled games without an App Store release. See multi-game-madness/app/lib/services/game_updater.dart.",
-  "buildId": "cc2c1822-20261115T035125Z",
-  "builtAt": "2026-11-15T03:51:25Z",
+  "buildId": "f26195cd-20261116T070730Z",
+  "builtAt": "2026-11-16T07:07:30Z",
   "fileCount": 8504,
   "files": {
     "assets/apple-touch-icon.png": {
@@ -1194,7 +1194,7 @@
     },
     "play/farmyshoot/index.html": {
       "bytes": 66888,
-      "sha256": "44fb6ef016194dbf7f78d7ca57ea2374f5274a23d1bb9f6ef2df87b8c5c094a9"
+      "sha256": "4b658a2c8f712b434e86c4961223e39b7626ff886551dc0ca8c20460fd7a45b0"
     },
     "play/farmyshoot/src/audio/announcerVoice.js": {
       "bytes": 8781,
@@ -1478,7 +1478,7 @@
     },
     "play/farmykart/index.html": {
       "bytes": 61066,
-      "sha256": "5c3e9a0f45e3315c91d8b1950fae1e84fceeba4c7e93cb61a270da2f769a1925"
+      "sha256": "40b240d26b96df841eb2b50037dbaaa6c7cea290deec99e04202e02e55da7f29"
     },
     "play/farmykart/src/audio/music.js": {
       "bytes": 13073,
@@ -1702,7 +1702,7 @@
     },
     "play/farmy-evil-hills/index.html": {
       "bytes": 38044,
-      "sha256": "7a1c88907a562366b9c8ada787105c5cfe0d6f5c535ae083d8dfbb67f5688888"
+      "sha256": "be560bf58f143e05d61c98cfde9f9bc27b9947566616e321cff27f50040afa11"
     },
     "play/farmy-evil-hills/src/audio/mumble.js": {
       "bytes": 4922,
@@ -1934,7 +1934,7 @@
     },
     "play/farmy-uprising/index.html": {
       "bytes": 60179,
-      "sha256": "68949be8e70d80dfa056514a2c8aeffcd0587d458633fdc7d0f2451f897ba2c7"
+      "sha256": "c130851e1ca2b2d1f874ea7e44ac9a00fdf87664f86f49a473739dc2a821de11"
     },
     "play/farmy-uprising/src/animSprites.js": {
       "bytes": 1143,
@@ -3166,7 +3166,7 @@
     },
     "play/zelakas/index.html": {
       "bytes": 9414,
-      "sha256": "7dbe01053088609acec373be42d8053b9ab10b559893696205dcc04a46f1f7ff"
+      "sha256": "564dd0db8225fdfdc97bfa22e33dc1abb1a216dfd6f0b2ac302b345d1ea500e8"
     },
     "play/zelakas/vendor/ruffle/172de42e6619eac8f371.wasm": {
       "bytes": 14302754,
@@ -3230,7 +3230,7 @@
     },
     "play/2d-fighter-ex/index.html": {
       "bytes": 10147,
-      "sha256": "f64fbeb27c06444e0f1b25388d70caa324b7b0585fb1417899b912e8c4b72e75"
+      "sha256": "a6656367c7b262b10f4eb3ca973987cc9bbc2f86b83e198efdbe6e3e7a4f9fab"
     },
     "play/2d-fighter-ex/src/animeRig.mjs": {
       "bytes": 60,
@@ -3314,7 +3314,7 @@
     },
     "play/farmy-crosswords/index.html": {
       "bytes": 6306,
-      "sha256": "37b357ccb174ec7ecd24af4beeb6f829084000e3267af3608c908cdcd2f2dd79"
+      "sha256": "d1d82124af7fb7cb8ee5bb8d6fe083e363dd19a2ea64cbc5c711062c1329c502"
     },
     "play/farmy-crosswords/src/a11y.js": {
       "bytes": 1510,
@@ -3390,7 +3390,7 @@
     },
     "play/farmy-tiles/index.html": {
       "bytes": 6056,
-      "sha256": "bd5cb9cd71d4c39a300d209a5f55bdcbe57d989f99d4defa1a9041d1eafa1617"
+      "sha256": "43ae3cadd3dd7be444921eb0fd068cd34e736d415e091f8638c53d16684ce506"
     },
     "play/farmy-tiles/src/a11y.js": {
       "bytes": 1514,
@@ -3446,7 +3446,7 @@
     },
     "play/farmy-ludo/index.html": {
       "bytes": 5854,
-      "sha256": "024afac852f570206353aabf6f63573cbcd69170d775a781c8a710d9be8b99c6"
+      "sha256": "6315deb391a8d277c6bb00451b2d890770850732a83587f95b76f6e5ed5eb540"
     },
     "play/farmy-ludo/src/a11y.js": {
       "bytes": 1510,
@@ -3490,7 +3490,7 @@
     },
     "play/farmy-chess/index.html": {
       "bytes": 6060,
-      "sha256": "eb148ed743c9b7526101f4efa2ade95093b5e944e6e2534d09e7370dbefaa394"
+      "sha256": "c5e36bc66b7134ffbe3b45c5e21fca965373eec5310ed7757d96c56940456524"
     },
     "play/farmy-chess/src/a11y.js": {
       "bytes": 1563,
@@ -3542,7 +3542,7 @@
     },
     "play/farmy-checkers/index.html": {
       "bytes": 6038,
-      "sha256": "6b33dcba3caef0dc4cbb37d293241a2017dd40aa859f6659190fa346c2b4b58d"
+      "sha256": "b57776a21ca09a0c938c12a94479626040cd4e1c7ec0ef9186957008cfd09912"
     },
     "play/farmy-checkers/src/a11y.js": {
       "bytes": 1531,
@@ -3666,7 +3666,7 @@
     },
     "play/minesweeper/index.html": {
       "bytes": 12174,
-      "sha256": "9e511ace62266348fe2b5c1807ff7a7b5121298e06a1d8ebf4dedb50ca54383d"
+      "sha256": "801633ad39df8cbcf518ba3a9f304be23f849e5775f28bac11a6f9d2bc656a4c"
     },
     "play/minesweeper/src/main.js": {
       "bytes": 36515,
@@ -3746,7 +3746,7 @@
     },
     "play/lamplighters/index.html": {
       "bytes": 7342,
-      "sha256": "9abbdfb4f58352c5b04e0c31776b68f76dcccfc5363ab734b34dc6d4773602c3"
+      "sha256": "eabbed5dec65101cfd6521d234360430c005d9fce359570118dc09b8ed6937c9"
     },
     "play/lamplighters/src/blockScene.js": {
       "bytes": 32492,
@@ -4026,7 +4026,7 @@
     },
     "play/fossick/index.html": {
       "bytes": 5605,
-      "sha256": "f3073db5fc8f777be3859a43b1842bc53669ba71c6a1b9a7756548be43a49747"
+      "sha256": "ea4e4dbc81643c76b8b0e83e40383a94a50342a8424b096663684fba6612bb1d"
     },
     "play/fossick/src/appBridge.js": {
       "bytes": 698,
@@ -4342,7 +4342,7 @@
     },
     "play/clashwell/index.html": {
       "bytes": 6257,
-      "sha256": "1c9a78bc2b79ffdaf25860243f7686b845b6d8fd23f66dd3c36eee1e45277da9"
+      "sha256": "a06080491c69422cb4400a2c8b46641a3a958012517f214ee6b1ce888f840418"
     },
     "play/clashwell/src/art.js": {
       "bytes": 1355,
@@ -6385,1512 +6385,1512 @@
       "sha256": "fdef9e8906d19f507b2a175b637474f611c689531825957c75d13ce45830ef89"
     },
     "play/abc-jam/assets/voice-wizard/alphabet-done.m4a": {
-      "bytes": 30628,
-      "sha256": "2ef3f3cb96e6c3b5af7ff672349d3bcac8266e54f79d531d0f82c09a07afe0c0"
+      "bytes": 25823,
+      "sha256": "811674341583cfe283d7cb682a2046851a6a589f5dfee97071507eb47aad14b5"
     },
     "play/abc-jam/assets/voice-wizard/book-empty.m4a": {
-      "bytes": 20188,
-      "sha256": "20bdd1a447160416870f04edd08f39345f4163778d3b8ce448ae3e15990f381c"
+      "bytes": 25330,
+      "sha256": "f99f9183c3fa6f71b4a80dd13e4f6139c92d8d97abe03a68a8e8b61975740009"
     },
     "play/abc-jam/assets/voice-wizard/count-1.m4a": {
-      "bytes": 12515,
-      "sha256": "662811336aec1d6b652a3a8b3c16c2aec7aa512bd9ce7f8c080a9c76cd75bc9d"
+      "bytes": 17022,
+      "sha256": "c87756c2d2a4f8afb5d93d24ccf99bdd623755899231fe0cf5f830439e3a1391"
     },
     "play/abc-jam/assets/voice-wizard/count-10.m4a": {
-      "bytes": 16642,
-      "sha256": "c6d7fee653125abc4e9adfc7fab0ce76632b5d05457d5089fef581f4f68877fc"
+      "bytes": 19578,
+      "sha256": "724fd885d698042576149b51909037fab4d84bbbf4cc02e1db849790127591ac"
     },
     "play/abc-jam/assets/voice-wizard/count-11.m4a": {
-      "bytes": 20518,
-      "sha256": "8c74c71ac430d75fcad5107b8e8c504c85b44af20c429ed91984bb2e4427c409"
+      "bytes": 20202,
+      "sha256": "91ebf8ab806f270211d71b9c20a6e49e5e7ac6760d7e263972b82d9eb353f6f2"
     },
     "play/abc-jam/assets/voice-wizard/count-12.m4a": {
-      "bytes": 15288,
-      "sha256": "68fd11362892f372c5a1a9659d734c1ac3f21e387fe464ecb1bb6e72c35b2262"
+      "bytes": 20491,
+      "sha256": "2e69775c37d40c1afc0d0509c69d142621594e5da45c131898dafe303e425bcf"
     },
     "play/abc-jam/assets/voice-wizard/count-13.m4a": {
-      "bytes": 21079,
-      "sha256": "6db509e90f3f69dc0b2fb522f8b8dbcd0ac281b1a71672ad8530b30c4a94ee17"
+      "bytes": 20665,
+      "sha256": "bfec3129c20d1f5f266d2142a21b1ddff7798326fc6deaad3b903ebded6548ed"
     },
     "play/abc-jam/assets/voice-wizard/count-14.m4a": {
-      "bytes": 18278,
-      "sha256": "a4fc6ad7d3a691572875f3ae081e82564dcc0810b96c6a16e844f48a47b548ea"
+      "bytes": 15999,
+      "sha256": "94a5d14a8579e67968da6f54603840bb392b106e367f9791cc7e38b85ef59011"
     },
     "play/abc-jam/assets/voice-wizard/count-15.m4a": {
-      "bytes": 17210,
-      "sha256": "9dae6500403817cdb6a18150db164db79d8985d235a71058198fd82d9a094405"
+      "bytes": 19834,
+      "sha256": "330a3af10fa2cd25c60919cee798a2d7dab56316d53da9832f5328ebef80e751"
     },
     "play/abc-jam/assets/voice-wizard/count-16.m4a": {
-      "bytes": 17908,
-      "sha256": "f685155fdad82fe0f80be832c00da0b439d420579d12dd17ab3b3f48dc37a578"
+      "bytes": 18744,
+      "sha256": "be6870383a87d9647870f74c942d9f05933a25c66cb182a81db7c912fd3aa6d3"
     },
     "play/abc-jam/assets/voice-wizard/count-17.m4a": {
-      "bytes": 17938,
-      "sha256": "a11e4d191c3972b6617215ffcf2433fa7666a962bd28b2f52a2785d5a8310c8b"
+      "bytes": 21257,
+      "sha256": "0a8815f46b393e5b2c23e137cce1c0c15484e44129ce9d1ccb0a95d7f75de207"
     },
     "play/abc-jam/assets/voice-wizard/count-18.m4a": {
-      "bytes": 16490,
-      "sha256": "f110d555e9e77ae0612d5b6667163679b3f2bb85fc00ae7eb6034f84202114c6"
+      "bytes": 21161,
+      "sha256": "c32eee381a1303b5735db2dd7d10b4a383583fc32324c5dde0ada650b4b78511"
     },
     "play/abc-jam/assets/voice-wizard/count-19.m4a": {
-      "bytes": 20345,
-      "sha256": "5c3267c8304d540f2b1fd63156ac45a46c2743012cf9217925b2b29bec066063"
+      "bytes": 23831,
+      "sha256": "1042ba169f5d901aef7feeea07cba9c002f9f2ae09a0a3c9e1737606aaf79fef"
     },
     "play/abc-jam/assets/voice-wizard/count-2.m4a": {
-      "bytes": 15604,
-      "sha256": "66b2d1774c78bb91f2870bb3823ffe7044e8648d23be6a430f2c4613bb394156"
+      "bytes": 15785,
+      "sha256": "abe23f5b1a63eff714c0752dbf9a30e158844ed35a72b4ffd1ab593930741828"
     },
     "play/abc-jam/assets/voice-wizard/count-20.m4a": {
-      "bytes": 15624,
-      "sha256": "301d5e004b81e737ed2d1022ce86c4e20b86cd05fa6f0019dbfab48741d79504"
+      "bytes": 20480,
+      "sha256": "73c0125813975da59b473a58c08268eaae8e1a2ef04ef8a97bb3e9f8c3f471bd"
     },
     "play/abc-jam/assets/voice-wizard/count-21.m4a": {
-      "bytes": 18090,
-      "sha256": "2a95eb4798fcef17e55ec21d0303b9fdee2f9df6c5b08182866a5a1fae9ccbd3"
+      "bytes": 23501,
+      "sha256": "1a2ba8810537afade1c0a6c39f1866c0049afc572be4d3c930a9b606ff56ef4d"
     },
     "play/abc-jam/assets/voice-wizard/count-22.m4a": {
-      "bytes": 19147,
-      "sha256": "a93577f9573444ad677b311698cbabb274636c94873a6db212903ab285e10e12"
+      "bytes": 21956,
+      "sha256": "7168c8a46035450f03d28ec31fe2e9be5600a87c7f958a5ba4c9e4d86e8e8b84"
     },
     "play/abc-jam/assets/voice-wizard/count-23.m4a": {
-      "bytes": 22016,
-      "sha256": "60a047c8201b80b75ed8e4714d0e5bfcbc3070abd969f29f280e56ea7748643c"
+      "bytes": 21300,
+      "sha256": "f54519330dcc63002f94babb3f5737e2c423633cf44dc2053a122749fa50089c"
     },
     "play/abc-jam/assets/voice-wizard/count-24.m4a": {
-      "bytes": 18613,
-      "sha256": "bce7277fc845e81bdeec553d9b1b8229282f25ae6dfb6ef9917f6de98d342f1a"
+      "bytes": 19148,
+      "sha256": "6032379ff613414d06403504e34dd1fb85813a8f451c1189a280b65de23bca8d"
     },
     "play/abc-jam/assets/voice-wizard/count-25.m4a": {
-      "bytes": 22141,
-      "sha256": "8472e56b5b19b98af9214c471df236544d5f606d5106c3471cfd45e29dfcb051"
+      "bytes": 21302,
+      "sha256": "00e7f84c7dbd18e7cb3b38e3e71b7439e3cac77a238af42ddbbe3f5d59fc7234"
     },
     "play/abc-jam/assets/voice-wizard/count-26.m4a": {
-      "bytes": 20953,
-      "sha256": "dc07e9120c7b5fb8ddc19326ed1f5af3441046f9dda457589e462355cecb9747"
+      "bytes": 22973,
+      "sha256": "1bfb55213843f92776567ec6a215e716647f4f80154ae468e23a648660bf822e"
     },
     "play/abc-jam/assets/voice-wizard/count-27.m4a": {
-      "bytes": 18792,
-      "sha256": "1a609b7d89557c67786a868fec3a0a5b0525ed2f99058dc4c60f6650b8368bca"
+      "bytes": 22333,
+      "sha256": "d27ab3b78af3f10efd924cc718d8894bf62bf3e28e9677fc5eb8732f6c815c81"
     },
     "play/abc-jam/assets/voice-wizard/count-28.m4a": {
-      "bytes": 17178,
-      "sha256": "9c04bf55a8bb8bf42cab5009f5c24d53b937d3a24cfba801b19ff2d3b8d58159"
+      "bytes": 20679,
+      "sha256": "3ecf465c0f13f9ea9954c4781841daf9d62764a072c5b9c70864806ad2dc7d28"
     },
     "play/abc-jam/assets/voice-wizard/count-29.m4a": {
-      "bytes": 20161,
-      "sha256": "e1c253026ec7d41f204a37dacf793db386726505929a420edd2e92c1f03664d7"
+      "bytes": 22460,
+      "sha256": "d7243749dc51617198b79c7c019110625af2cd10b87a57ca90e842cc39c7abb5"
     },
     "play/abc-jam/assets/voice-wizard/count-3.m4a": {
-      "bytes": 18093,
-      "sha256": "a144dba484bee658ecb4010794994b415fe644f127c56140b9ee286c91a8e93e"
+      "bytes": 15818,
+      "sha256": "48cc35a1356c9a3f2307c8765617e64160e7ce1c201e95ae491afdaaa41c4119"
     },
     "play/abc-jam/assets/voice-wizard/count-30.m4a": {
-      "bytes": 21250,
-      "sha256": "a61d32c5d74f61d5ee742b672350233a51639554ec99de8a643b27976604ce52"
+      "bytes": 21572,
+      "sha256": "d004b87be244f09c8f1feb3de5e0a8986eab9567d6d2cdc7e0b066911e5616e2"
     },
     "play/abc-jam/assets/voice-wizard/count-31.m4a": {
-      "bytes": 18200,
-      "sha256": "f8417c5907d427de08fd37340d9160cc3ad436aea9a3dfbf5cae5fcf09688b7b"
+      "bytes": 23974,
+      "sha256": "d738ef82211385e87bda19fb1b3a0a0eab895f765a3e4fe710231eb9b270fb3d"
     },
     "play/abc-jam/assets/voice-wizard/count-32.m4a": {
-      "bytes": 19136,
-      "sha256": "2eaf76cfcff14390429d88585f0cae346ef5deb88af69c1582c6533dfad8e782"
+      "bytes": 21707,
+      "sha256": "beda7a850d088a9a90543a5e462fc3ae1dc2890afd05ecaf831d5a7eb7506af2"
     },
     "play/abc-jam/assets/voice-wizard/count-33.m4a": {
-      "bytes": 26889,
-      "sha256": "b5c0c3e703d82cc7232724e2e7dc4077d855407a5336fbcc776f7e0fdb795778"
+      "bytes": 20003,
+      "sha256": "bd2470358e636f8c158255e9440994d60e0c1ef89b66035b570893df5a107fd3"
     },
     "play/abc-jam/assets/voice-wizard/count-34.m4a": {
-      "bytes": 18946,
-      "sha256": "aa697f8f0e4d81dac230e20a6d600cd7562224af4e4cfb0d7dd79192c92d843e"
+      "bytes": 16395,
+      "sha256": "287346e2efeaa1467074b0aa7d0e33b53b3e8881efd9fd2165d6bba5325099ac"
     },
     "play/abc-jam/assets/voice-wizard/count-35.m4a": {
-      "bytes": 26777,
-      "sha256": "ea68215271a9112d3841d71640295888fc0e846392a04de4ac2cab1b665be7c4"
+      "bytes": 20581,
+      "sha256": "14c07682e3b11f5b578fd822a85ef8a8ca562b91b02e3f5b6b10fdb2a55bff38"
     },
     "play/abc-jam/assets/voice-wizard/count-36.m4a": {
-      "bytes": 25188,
-      "sha256": "7d5743f2f7a27adce77c802ffbc273bf8bbfb0edafe6215de048f4ba3a180b81"
+      "bytes": 17345,
+      "sha256": "5e7b380e790f2e49dc4f6927fd192e6ee54d9229dc5bcb095195135921e30f77"
     },
     "play/abc-jam/assets/voice-wizard/count-37.m4a": {
-      "bytes": 25076,
-      "sha256": "5ce0cab16358e16de0fb4c133b0a5b95f15bfd2dca83ec696bc35b08a203324a"
+      "bytes": 21060,
+      "sha256": "6b3132051bacdcd11d22f615f90f2677020d07681fecb4dd68d0c6c3f946ceea"
     },
     "play/abc-jam/assets/voice-wizard/count-38.m4a": {
-      "bytes": 18790,
-      "sha256": "84673ed0f15a18e3c906b1db79f98bb54924bde9fd272ba89c46249a10545cad"
+      "bytes": 20502,
+      "sha256": "f54f43ee64643a860baddcf2711184588171bb31df27a7a07715566ed2d9ddcc"
     },
     "play/abc-jam/assets/voice-wizard/count-39.m4a": {
-      "bytes": 19695,
-      "sha256": "0c3a2a89a28834e62c1e8f3f74d47a30514d94eca4e694526325838a94092a2a"
+      "bytes": 21435,
+      "sha256": "739d52a6b47ab6c6f6f2e567a434c104bf3f7edb6437a8649b9b4aa8c98c9d74"
     },
     "play/abc-jam/assets/voice-wizard/count-4.m4a": {
-      "bytes": 11784,
-      "sha256": "7518529f7174ce88c4daacb0dae2bb8fc1178eb03be3ec3b2374e44cdbae26a4"
+      "bytes": 18202,
+      "sha256": "88bdb8443990908da60d64a0fd22a01eb9d093d2518af4544fdaa37d6e7d2500"
     },
     "play/abc-jam/assets/voice-wizard/count-40.m4a": {
-      "bytes": 17227,
-      "sha256": "d99f9a20c7e54e6a3c5061f41ccb373a8ee60bcc4c4394552fe0b382f3a1e95f"
+      "bytes": 19104,
+      "sha256": "f4e5a45e0be866e5f53e7d0fed6a80181103fc7be6b41643af28431080413003"
     },
     "play/abc-jam/assets/voice-wizard/count-41.m4a": {
-      "bytes": 19105,
-      "sha256": "392fc4e07bbdebdfa43c015e2700deb78f1c513ba9c274eda06784b607a8b6dc"
+      "bytes": 19242,
+      "sha256": "d6470eeccb8f73de4536956ca6242b1dc6bca613da0065dfa8cb86a651d9c868"
     },
     "play/abc-jam/assets/voice-wizard/count-42.m4a": {
-      "bytes": 20165,
-      "sha256": "b900f243b5066080048dc7d89bf41df9c39f6c30bc85edd8792648823da3c4e7"
+      "bytes": 17764,
+      "sha256": "5fb67c65f542211b3b02ed2b31f9f3b06f4b5dcb363dd6843af6418dc9822846"
     },
     "play/abc-jam/assets/voice-wizard/count-43.m4a": {
-      "bytes": 18316,
-      "sha256": "6a2f76a70b3bfd786f27c225ed680ec402964c4414f2350f23c09468b128c02a"
+      "bytes": 21870,
+      "sha256": "44fe27e6d57ece1c9eeb483ec992aa34dc84318019ca189c4768c29f8e71a9c2"
     },
     "play/abc-jam/assets/voice-wizard/count-44.m4a": {
-      "bytes": 18250,
-      "sha256": "0694995c851a402574a1d1e24ec0b3d5e3249d5bbca20c4a3382e1a23e378dce"
+      "bytes": 15982,
+      "sha256": "3182c955847a11b6199f4f10beeb8536e78033478bd6428357e85ea16c528fa5"
     },
     "play/abc-jam/assets/voice-wizard/count-45.m4a": {
-      "bytes": 18083,
-      "sha256": "76c40f83a8786a9996b472cb6c1bd58084e458e3b86390cd75115900951ac02b"
+      "bytes": 20043,
+      "sha256": "5ab33bea5d20e4e3b304c0654662dd80d88b3c2acf65d1940be0067c8241c347"
     },
     "play/abc-jam/assets/voice-wizard/count-46.m4a": {
-      "bytes": 19486,
-      "sha256": "aa1230b8d3388c560471212a7300e24fe108fb29e32b52446bf20760d19c7b52"
+      "bytes": 19553,
+      "sha256": "1628894f0f3550b0f8222d1652ea30cc409857b784cd4a350cc43f400b0a46ad"
     },
     "play/abc-jam/assets/voice-wizard/count-47.m4a": {
-      "bytes": 20151,
-      "sha256": "35a6e128352a2f3f016c8e3a19af52ec93014e5a7162b63ba025d03a6aa8438f"
+      "bytes": 19012,
+      "sha256": "36605b8dd5e5f8bdb17e8b49bf73b7afe7bb4ae7fa0ddfc5114a250cb24fe0f5"
     },
     "play/abc-jam/assets/voice-wizard/count-48.m4a": {
-      "bytes": 20677,
-      "sha256": "b842714d51e27275b84d631f9e791396af69ec0c7af0028045407fda62a4550c"
+      "bytes": 19748,
+      "sha256": "d598e392901b0d83af98e3724f01aaa8cfc8fdd581ff7f17ec9ac4dee9c817fa"
     },
     "play/abc-jam/assets/voice-wizard/count-49.m4a": {
-      "bytes": 19307,
-      "sha256": "77b50a03c868b241b10f27e8bff5ed2329062a8ce1a61724f19ef81fd43895bf"
+      "bytes": 21221,
+      "sha256": "2793126c06346288eebc313163e03ebeb4a2cf62cd6cdabf203c1fa247326f4e"
     },
     "play/abc-jam/assets/voice-wizard/count-5.m4a": {
-      "bytes": 15450,
-      "sha256": "ae2fff554f17ed5b87b6d9406564d28d656c7132015efc0841531ce065e94602"
+      "bytes": 17592,
+      "sha256": "1d04cc5aef78e847df29692fb33d7a67ff68a3f9ba04fbf52fb52e5d1630d0a7"
     },
     "play/abc-jam/assets/voice-wizard/count-50.m4a": {
-      "bytes": 17398,
-      "sha256": "53f920cf476d083cb639948b07215542cd2052211ea06ebccc270637d254a133"
+      "bytes": 19306,
+      "sha256": "79f0a1ad0b5863dc2a21392c44d6a658cddd7b98e5c009586799f1065d06ccb8"
     },
     "play/abc-jam/assets/voice-wizard/count-51.m4a": {
-      "bytes": 17689,
-      "sha256": "5cec5eea8fe70f44fdb79a1e226f9c621acffee3220809660e7e64ee3dd7442d"
+      "bytes": 20942,
+      "sha256": "171a9716abf39ac29494c87bc5f75cb159edc8bed2566934abeffb5d83e5ab2f"
     },
     "play/abc-jam/assets/voice-wizard/count-52.m4a": {
-      "bytes": 18124,
-      "sha256": "7cc571cde8441d1b294dc308bff55866bbfe1e14fbf9c5ddca3bb60ed4048e69"
+      "bytes": 19971,
+      "sha256": "7b18ab28e0f2a963fd1101681a3ba083711468e2ba1caaf33976067a36c76aab"
     },
     "play/abc-jam/assets/voice-wizard/count-53.m4a": {
-      "bytes": 18176,
-      "sha256": "7c3e63040b42f303b6073246e678d93709685f3e45cc2fa13a35dfe32f984854"
+      "bytes": 22309,
+      "sha256": "f4319b2c78ec93f38e3cb8eb87001b273403542a24ca93586359b3b3b0664328"
     },
     "play/abc-jam/assets/voice-wizard/count-54.m4a": {
-      "bytes": 19171,
-      "sha256": "42260203aa9c388d4886800f5bb4f7d09595e83b1106a8025af3c744ec0943c6"
+      "bytes": 21556,
+      "sha256": "f8f34d1ba0f5823a5a447ea787c6fdca4a53eecda3f87a47a96555f670ad9f0e"
     },
     "play/abc-jam/assets/voice-wizard/count-55.m4a": {
-      "bytes": 20909,
-      "sha256": "26d04c9c114e577d7f1fa9f82c9ec065408c97821ebf434f1b1cc9bca2eab3a3"
+      "bytes": 22233,
+      "sha256": "2ce504e2a10fa2ed35efb9abbb5db10dd03fd7e9bccdd11cb19080b18d34047f"
     },
     "play/abc-jam/assets/voice-wizard/count-56.m4a": {
-      "bytes": 17794,
-      "sha256": "61aac393a1799be6b0ca69f9e59a5232abf39ffa929a4fc1f2f7cb08fa177cc0"
+      "bytes": 15438,
+      "sha256": "619b8d4c16d252d06acb46fbf4ef6d3dfb50fc1be8f4022d53182f4204c18227"
     },
     "play/abc-jam/assets/voice-wizard/count-57.m4a": {
-      "bytes": 20138,
-      "sha256": "923fbf4acd42bb0234d187ddea550f168146e898cd4233139466d05d9bc1931a"
+      "bytes": 18419,
+      "sha256": "35e191c1eb83eab332345fd6d14ba63419244c89f69e232a77f6e5a5470b4b52"
     },
     "play/abc-jam/assets/voice-wizard/count-58.m4a": {
-      "bytes": 21494,
-      "sha256": "2736351cd179806fdfa9f1eac35f2b3832558dc993d3360318459e0a1a22161f"
+      "bytes": 19647,
+      "sha256": "01615056586d9f840f41e5745311445b7ee6d478d239afec950929a365899b91"
     },
     "play/abc-jam/assets/voice-wizard/count-59.m4a": {
-      "bytes": 18082,
-      "sha256": "0b1e9fe17e8d8d8594bfbff8ff62c7793906f46f062fa281a499b0fe4ab02ea2"
+      "bytes": 21629,
+      "sha256": "899f4887e05eeeb285d63a1008fc153ee123bb68c121cac7e321efe41280dba8"
     },
     "play/abc-jam/assets/voice-wizard/count-6.m4a": {
-      "bytes": 20151,
-      "sha256": "1165d27344927e2ac092e5f3fe6ddf9c655d36fbe135cd001317eabde014e657"
+      "bytes": 15563,
+      "sha256": "6e42479e7bc97363054ae2c78d153efccb9935ca27f2a0dfdf31a86ba9a7c584"
     },
     "play/abc-jam/assets/voice-wizard/count-60.m4a": {
-      "bytes": 20061,
-      "sha256": "7aa141211a8da1bf5354a5597fcdd198ed8cc2b848f6c88f5372a67cc00a8859"
+      "bytes": 20988,
+      "sha256": "f8f2d9f72d850484e6e552a4ef9784114c9ea875cca86d2f8737178d997e3c42"
     },
     "play/abc-jam/assets/voice-wizard/count-61.m4a": {
-      "bytes": 20915,
-      "sha256": "8c07c26fddf397c44272caa3ca0343b6768af15e69d0ed9d123297330b4d7691"
+      "bytes": 20574,
+      "sha256": "e4ab036134a0f994aac8236d7d98bffe8ebd96e32e7f8e6e3ff4eae7ab2593d5"
     },
     "play/abc-jam/assets/voice-wizard/count-62.m4a": {
-      "bytes": 20107,
-      "sha256": "12daeb3ee91fd3fff9aaa7d4725b3bdae79e719dc1c25d2f26d8945199fddfb9"
+      "bytes": 19521,
+      "sha256": "263a4ff144e6043d202184fec4fa932d443ffc55b90e9b1c49a081117b70f030"
     },
     "play/abc-jam/assets/voice-wizard/count-63.m4a": {
-      "bytes": 21185,
-      "sha256": "026619ecc770fd90af430deaa3fdec247df6bf8d15be6edd3d55a68ec1ecb23a"
+      "bytes": 20853,
+      "sha256": "acb8e9c5459f0690b5ad6f3d5597c13d8b987ff4513346d9759b0b538060eb6c"
     },
     "play/abc-jam/assets/voice-wizard/count-64.m4a": {
-      "bytes": 22823,
-      "sha256": "0bed584cd1422c7ce841ebc4e5fbea48bdef0651da3e287b8c3a3ec76ed109db"
+      "bytes": 22406,
+      "sha256": "74e6c0a422ffafb27ceeddb96bd93e43b7c56ca5b44da37ca76b87d1995d51c7"
     },
     "play/abc-jam/assets/voice-wizard/count-65.m4a": {
-      "bytes": 22511,
-      "sha256": "8613532badaf787fb1eb25d24bcfefa641bed2680ef4b21bf408d9a55b9d0232"
+      "bytes": 20442,
+      "sha256": "d49babda204f6a5f34c58ee889f8b42363111224628b90716b2bd394138395df"
     },
     "play/abc-jam/assets/voice-wizard/count-66.m4a": {
-      "bytes": 18972,
-      "sha256": "7803c2cbeb8834642354aed053b5acd18b338b46328bf50d9938d9f225147bb2"
+      "bytes": 21475,
+      "sha256": "9896918fcbb15fe9af8db2daaef546b35d2b370f479b466b585191bb9aff96e0"
     },
     "play/abc-jam/assets/voice-wizard/count-67.m4a": {
-      "bytes": 22740,
-      "sha256": "0cc4ff73ef8126d0e988a0041f2fd92f0bfd2131e79166e0bb0114aeebc4e9f4"
+      "bytes": 23983,
+      "sha256": "17c184da4448a64f246f80ac993c8f6ed86676873a9c82e1f2dd3726c9d390c3"
     },
     "play/abc-jam/assets/voice-wizard/count-68.m4a": {
-      "bytes": 21782,
-      "sha256": "ab1eb5c2fee10aede7e8c94fc4d5678cba21f0e410724b15c3f39f996a2a2aa7"
+      "bytes": 23487,
+      "sha256": "9aba152b21b37dae80c98687fcf593a3154edf3622043f650d781373c9db8ef3"
     },
     "play/abc-jam/assets/voice-wizard/count-69.m4a": {
-      "bytes": 22787,
-      "sha256": "fad4291132699210ebc9937f439cd2ad0f7e4dafee863a8327824593f8564cea"
+      "bytes": 24186,
+      "sha256": "b8dc7b592c6fb859e830b3b1d0889c670cf4a250fe2731e78df7ebbe476be0f4"
     },
     "play/abc-jam/assets/voice-wizard/count-7.m4a": {
-      "bytes": 45342,
-      "sha256": "df21b9283cac582f2849af0fdb53cd5b0e99bc4d1d0b44532d22c8db8825852a"
+      "bytes": 22303,
+      "sha256": "5f7da00e354e6f1b59903b0ed99f34691b37c3234038a30630c0606ad61a0c17"
     },
     "play/abc-jam/assets/voice-wizard/count-70.m4a": {
-      "bytes": 22208,
-      "sha256": "fe35d467616f2d49354490b0e4957edc3dfd075b0445e03ade4cff6f23fd6c6a"
+      "bytes": 23110,
+      "sha256": "35443dcf394d61bd2d7b2700105e620a97aafa519a6f5748a418aff2fbf71cc8"
     },
     "play/abc-jam/assets/voice-wizard/count-71.m4a": {
-      "bytes": 19759,
-      "sha256": "d485ffdd3dadad0fd02601106317de8b32e50ec312dc67f28a99a4df8b2f04eb"
+      "bytes": 20798,
+      "sha256": "6c8e4f53631bec6ef42063bee5e9f72b9ffa65df0ebe50c1a8aac13274d578a2"
     },
     "play/abc-jam/assets/voice-wizard/count-72.m4a": {
-      "bytes": 18137,
-      "sha256": "c5c5bd22577430a0a410c4768cac49e67b06832b3b18ee74bec4d23b03a0a32a"
+      "bytes": 22142,
+      "sha256": "701420c2edb56e51cd8e976ef55ac2718b6d4fc22bf569c837951a524925db4e"
     },
     "play/abc-jam/assets/voice-wizard/count-73.m4a": {
-      "bytes": 20508,
-      "sha256": "6cd859fdde67f0dfc763c522825aa14c28da80b32bbf1fba6e3cd24608670dd7"
+      "bytes": 22503,
+      "sha256": "61237f2d0baff1382c3f18b463ff1809ba13d19b25c5827024c871aee216f80e"
     },
     "play/abc-jam/assets/voice-wizard/count-74.m4a": {
-      "bytes": 22264,
-      "sha256": "1151709eefb316ff77f7eedf793e18cef2d95cfdf5647b90e364b8c8fbcb75f9"
+      "bytes": 21784,
+      "sha256": "a88f398d66dccac11bdb2ff1ab6bf54f8763b88d5b1d3157d8933b85104baae4"
     },
     "play/abc-jam/assets/voice-wizard/count-75.m4a": {
-      "bytes": 22570,
-      "sha256": "aa9ee508e255a4f39eebac6f5ea910eef06290e0b2e47b0e33405f932c2c856b"
+      "bytes": 21050,
+      "sha256": "6ac563d5219585771efb8675da0297e04ee17f6a3eac31dfb9e42650c61c51b4"
     },
     "play/abc-jam/assets/voice-wizard/count-76.m4a": {
-      "bytes": 19000,
-      "sha256": "cc41187a94e6d9d4729d283b29a84674ac84c9edc1293b23308ab1b9d90e85f2"
+      "bytes": 20329,
+      "sha256": "cda1578fad5f2865bf1c7aaa2e60beb6409efcf4b4d0a236b9757406a436625f"
     },
     "play/abc-jam/assets/voice-wizard/count-77.m4a": {
-      "bytes": 22983,
-      "sha256": "fbcf92876fd79b9335d018aaaacb68c05172b963d0036cf0b69c5b295a8ba53b"
+      "bytes": 21738,
+      "sha256": "0ca70ccfbb460570925f19816e7e1ef1dc120b47a10ff7d7f6860503dff0e810"
     },
     "play/abc-jam/assets/voice-wizard/count-78.m4a": {
-      "bytes": 18955,
-      "sha256": "a65553247e9396f69e71b18844c9aeb7717ebfcf067b7589842c8c5e9f21e7cc"
+      "bytes": 20058,
+      "sha256": "3b5a56386390c017b5f50f97be19f66ee57cd4925898f45bc59bf8aead1ae5d7"
     },
     "play/abc-jam/assets/voice-wizard/count-79.m4a": {
-      "bytes": 20465,
-      "sha256": "782e2ea16f611172045322b977d80cdeda0847bb1fdb9aa9280ba7ac096f7761"
+      "bytes": 21626,
+      "sha256": "75d68ad1c36d9770d518758f6e80ffc8c06855eda5b43cbc1a34edc2c09d9e12"
     },
     "play/abc-jam/assets/voice-wizard/count-8.m4a": {
-      "bytes": 14055,
-      "sha256": "36c916e66c5fa2ddf150705ec543cdfa5eddaeddc8f3bf12766e8f05471414af"
+      "bytes": 20551,
+      "sha256": "b8413b670a6087362000d6d133f473b696effbaa9d42d351c1c814d947c33518"
     },
     "play/abc-jam/assets/voice-wizard/count-80.m4a": {
-      "bytes": 15656,
-      "sha256": "673f89096054ab6a705beae15c22e99f925e1bc76084a164b8614421fb440b0e"
+      "bytes": 17095,
+      "sha256": "f394d0693ad72c28ed7bd3eae24cb87b844f90807ffa816535332e0688489e3c"
     },
     "play/abc-jam/assets/voice-wizard/count-81.m4a": {
-      "bytes": 18600,
-      "sha256": "97e2bf5c5836d5264615c68abbdf646f6e4934d181ec0225936f0ce394391d1c"
+      "bytes": 20472,
+      "sha256": "077d00e9a7a12aead74c75ca4a73981f98532b8a9f758532dc1c6b4aed27a9af"
     },
     "play/abc-jam/assets/voice-wizard/count-82.m4a": {
-      "bytes": 19188,
-      "sha256": "9d7d51e6681c2a171b74eb2a04cd9b7c3af1dd02cea750589538a58262e209e8"
+      "bytes": 22419,
+      "sha256": "4a3dadd4455d153e115f5925d94f2f26594503285cbce42c8a2d406b98ed79df"
     },
     "play/abc-jam/assets/voice-wizard/count-9.m4a": {
-      "bytes": 16527,
-      "sha256": "b13a61b16ea23847d3b006691112ae1f2621d14f1290163ac712d5a96b5ac7a8"
+      "bytes": 16789,
+      "sha256": "cd7f6f86874d07feb80d2591959c3147a128178d63a7a0a06f87af19bfb77b93"
     },
     "play/abc-jam/assets/voice-wizard/dino-for-ankylosaurus.m4a": {
-      "bytes": 20902,
-      "sha256": "2c00811218a7aeb5503da6c44574dc15861c3a94ed2444b45d8acfcfb1cd20f5"
+      "bytes": 17336,
+      "sha256": "d6a3e275b1637bfe00b5a5a99c0ac2be8e6dc289cd10ac49dc3ae7c02347072a"
     },
     "play/abc-jam/assets/voice-wizard/dino-for-brachiosaurus.m4a": {
-      "bytes": 16608,
-      "sha256": "fa633a86b6ddcbe50153e4df9509837c821dea91ba279ad85918b47a9bf9b1c3"
+      "bytes": 19859,
+      "sha256": "928adfd0162c4d44a8ad1525f458ae63a9c3ba1c171bfa2ab3d32f894f349d2a"
     },
     "play/abc-jam/assets/voice-wizard/dino-for-parasaurolophus.m4a": {
-      "bytes": 20833,
-      "sha256": "b780bef2a05085a75ce5b5928b37fc64996578a940de2fc516672cabcbcea530"
+      "bytes": 23067,
+      "sha256": "e2960d5ef0d87b8de2cd967edc57c3ab05914d05fa8465d934a946922c9dac2a"
     },
     "play/abc-jam/assets/voice-wizard/dino-for-spinosaurus.m4a": {
-      "bytes": 18326,
-      "sha256": "24007bbd9d1a6ca1d638a8ffea9bd67116b95cd3669abc8d84420c522f02a4b1"
+      "bytes": 18727,
+      "sha256": "905448a3efb96d8f03c81d892d569c5d7fea21e83829e391135a8511a3fcc418"
     },
     "play/abc-jam/assets/voice-wizard/dino-for-stegosaurus.m4a": {
-      "bytes": 15313,
-      "sha256": "ef40edca3ee673dc9ebfa0796c47423d895feb3bff354b9ae135dafbeb2a6983"
+      "bytes": 19097,
+      "sha256": "960e4136f86e12945e6df5cf02550451e1ab99fd96f5613415997e1f310c3daf"
     },
     "play/abc-jam/assets/voice-wizard/dino-for-t-rex.m4a": {
-      "bytes": 17246,
-      "sha256": "d78b69acebd31c5a42144acef10ef1602957a6ef287eff9e3134db9600d92cbf"
+      "bytes": 18273,
+      "sha256": "9a7b43649e4d3320aefcce91d9044693d868399d1424710f81e1038ddabd94f2"
     },
     "play/abc-jam/assets/voice-wizard/dino-for-triceratops.m4a": {
-      "bytes": 20017,
-      "sha256": "288d0c9e74e20f723b5aec2b165d039dfb92188dd2917c971c91ecdc869bbf6b"
+      "bytes": 18981,
+      "sha256": "299693abf76e48220d617c43e651f7584f7b95371d7d673e20d0e20c947e0bd4"
     },
     "play/abc-jam/assets/voice-wizard/dino-for-velociraptor.m4a": {
-      "bytes": 20878,
-      "sha256": "ec7d63a4b1e0097f3a3563a74afe606a3091077dab6fab4f7c27be878682f34f"
+      "bytes": 20472,
+      "sha256": "8742b963d014bf450847a60fade2306bd8d0db0e4c5a36869d1e44cfe9802ad8"
     },
     "play/abc-jam/assets/voice-wizard/dino-hello-ankylosaurus.m4a": {
-      "bytes": 16804,
-      "sha256": "915883face9d81168099ff35fec765ab4be852089b731d4ff9398aa938709906"
+      "bytes": 17179,
+      "sha256": "ce202bacd63da54b5889ddb968ce3e3aee08aa3d0c90f1470f1dfdbc8f927c94"
     },
     "play/abc-jam/assets/voice-wizard/dino-hello-brachiosaurus.m4a": {
-      "bytes": 20955,
-      "sha256": "d091086a7fe61d9a0a6c3d90aa207d9028715970e29aa15179c183c791706f3c"
+      "bytes": 16659,
+      "sha256": "3cc19fee67439f1ec772f051f78ecdeac6d45ba10aaddb042668bc8ad325d3fe"
     },
     "play/abc-jam/assets/voice-wizard/dino-hello-parasaurolophus.m4a": {
-      "bytes": 19492,
-      "sha256": "7e2da47d1b8279eaec2c0aebda33241d067ab351fb83c95ac9dc2d576bce1b7d"
+      "bytes": 17555,
+      "sha256": "2849f953480aa4c5cf03a7bfa28da8f2609b90d22277dd1e4fb8cea34d2aeb71"
     },
     "play/abc-jam/assets/voice-wizard/dino-hello-spinosaurus.m4a": {
-      "bytes": 17970,
-      "sha256": "d6494873ed4089fe388dc43a4847f960bce064a51205f40be93abeccd168552b"
+      "bytes": 15297,
+      "sha256": "858a98d5572facc6c244d20d796b961bbc101dbfecee08d050504365e191c277"
     },
     "play/abc-jam/assets/voice-wizard/dino-hello-stegosaurus.m4a": {
-      "bytes": 18655,
-      "sha256": "1f9573dfd6545c9c50ab82f7dfc2007ca0c481d080b322a5bff215c8a8299947"
+      "bytes": 16554,
+      "sha256": "6420fcd9a3fbb90bb82bd219b2a6ab07274122f89e7f2d75eb3c3c409a90f98c"
     },
     "play/abc-jam/assets/voice-wizard/dino-hello-t-rex.m4a": {
-      "bytes": 13813,
-      "sha256": "9642aa83f9dcce874af94d652ec56b331da111af4f9e9579d98a470de5b03dc8"
+      "bytes": 13568,
+      "sha256": "e7d3e66ca42d4432c159f9addaa6e67ccc7085de8b03ca74fd75263a0f83dd97"
     },
     "play/abc-jam/assets/voice-wizard/dino-hello-triceratops.m4a": {
-      "bytes": 16363,
-      "sha256": "ed56b8709f028a0889ab3dad6f419df8e21f9d88de40bdefddb4ca3118dd7c4a"
+      "bytes": 16489,
+      "sha256": "008b6e2e2f4ee9457ca52fa8f7120e81006a185251276ae373f00f5de7a2e9cb"
     },
     "play/abc-jam/assets/voice-wizard/dino-hello-velociraptor.m4a": {
-      "bytes": 16823,
-      "sha256": "949f8093dd63150674860fcced0e5a52ec361b2e62f5805a124eb13c1847fc4a"
+      "bytes": 16181,
+      "sha256": "bcc122acde4ba1838e76580c91450bf61f256484a9fadc9937490797e7d967c3"
     },
     "play/abc-jam/assets/voice-wizard/dino-where-ankylosaurus.m4a": {
-      "bytes": 14141,
-      "sha256": "8253e1ac8f01ba9ee90292d3f7b33796ed33094353d0803875bd298f57b512c5"
+      "bytes": 21569,
+      "sha256": "76c249ed719970bbf3c1df266ed4032fe479db86ebd2986e67b05c4dfadaa012"
     },
     "play/abc-jam/assets/voice-wizard/dino-where-brachiosaurus.m4a": {
-      "bytes": 13710,
-      "sha256": "5ff7cddc08f75ab8bcc0f9d41592ac6a920ca10ad2c7f104c3d2fe28e3c32692"
+      "bytes": 20263,
+      "sha256": "25aa3301fdecd79b7fe77573accbc920db7aedead97dc7675b6265c89741ee73"
     },
     "play/abc-jam/assets/voice-wizard/dino-where-parasaurolophus.m4a": {
-      "bytes": 18711,
-      "sha256": "0d8c112e6e22cf4523f9f4f96e04c1884e9e75f1a3071011cbfe5771565ac8cf"
+      "bytes": 16242,
+      "sha256": "7b79be859d6e5ca2f3f2b5279f50bd603b1939d7b5e72ab52540e1ffce959005"
     },
     "play/abc-jam/assets/voice-wizard/dino-where-spinosaurus.m4a": {
-      "bytes": 15081,
-      "sha256": "7b7a4cf71bc4b9238a3b510cfa33d0090606b99067a919203513cdd242d20566"
+      "bytes": 17290,
+      "sha256": "4d1eb3716d0ec33c008b8ae30e09905ffcf408e48cd76c07e2cba3f30f1188d2"
     },
     "play/abc-jam/assets/voice-wizard/dino-where-stegosaurus.m4a": {
-      "bytes": 14228,
-      "sha256": "e5ae3f43f15a906548923b1b83b26a0d804ff3b5a90d192b8348ce196de99bcf"
+      "bytes": 20280,
+      "sha256": "6f74703a4d0b5b67f6ed226aa8adf66920827821c7a79abc540a8dd4cc254c96"
     },
     "play/abc-jam/assets/voice-wizard/dino-where-t-rex.m4a": {
-      "bytes": 11443,
-      "sha256": "07db0d978ad5b80f6ac981a51cee0f397e398874732ac1250693cb58686da652"
+      "bytes": 14901,
+      "sha256": "b6ef9aa44cb3b8665ee8cc6669b8a2ba73645bda4c64b46069b496f69644b25b"
     },
     "play/abc-jam/assets/voice-wizard/dino-where-triceratops.m4a": {
-      "bytes": 13552,
-      "sha256": "0d92786a2cd7309a7e8d0b873331d92bef94f39f8feb4f9e9142354f3a2616b6"
+      "bytes": 15884,
+      "sha256": "deec98fc90701b7714dd6a564443e71896c997e0c4d6c74c63817831163e34ab"
     },
     "play/abc-jam/assets/voice-wizard/dino-where-velociraptor.m4a": {
-      "bytes": 13049,
-      "sha256": "e5a5a42c73ec983ada104a2b04e02891d1d05393ab69506a1b9ddac93c6e85e1"
+      "bytes": 15976,
+      "sha256": "383441c4224fe387f323cd65c428991fac91c1b4abef0e0e913c30d6a6fc7819"
     },
     "play/abc-jam/assets/voice-wizard/dino-yes-ankylosaurus.m4a": {
-      "bytes": 30781,
-      "sha256": "67aaad29aade9163b3d0cc867e1c92675a72f1d0ded54486dbf9ecf19f4882a6"
+      "bytes": 35968,
+      "sha256": "706ff54a6ccabdc4292b205a2e86a95fda504d291838af09f71ceaebc5c8fa00"
     },
     "play/abc-jam/assets/voice-wizard/dino-yes-brachiosaurus.m4a": {
-      "bytes": 30240,
-      "sha256": "c28946fd6d27b280f40060665fa95a1aa5d062dbabcb2204c9b09e4e601bf4e4"
+      "bytes": 34960,
+      "sha256": "5d57e4d0b9cb6f6e464f61b5a57c739b94dac62724ef0115b9e566ab3e68b9e7"
     },
     "play/abc-jam/assets/voice-wizard/dino-yes-parasaurolophus.m4a": {
-      "bytes": 30437,
-      "sha256": "f9409a6db8805b76d448bf700f544a66bd62178b8ea7d3143f58880089412434"
+      "bytes": 33052,
+      "sha256": "8cb23006a2bf658c9f695ddffc0a713f3c2a5d8bda01ebc88929acc64760043c"
     },
     "play/abc-jam/assets/voice-wizard/dino-yes-spinosaurus.m4a": {
-      "bytes": 29170,
-      "sha256": "98fa00e84cf45d9d008c203478ec0d891266e0f70b677cb209275da9b345b7e6"
+      "bytes": 36780,
+      "sha256": "408d8fcef74641e62a1316c1ed018ff8f94991ff27c53487235ebfa22b7bcf5d"
     },
     "play/abc-jam/assets/voice-wizard/dino-yes-stegosaurus.m4a": {
-      "bytes": 30944,
-      "sha256": "4ca6ee0294ec399fbc55084df42d2798418512aab4a6fed8761f2b6df377063f"
+      "bytes": 37166,
+      "sha256": "28c82c6c1bb239788e1564f5ac4bff91e8a098ec3138581c13885c31005c5fe8"
     },
     "play/abc-jam/assets/voice-wizard/dino-yes-t-rex.m4a": {
-      "bytes": 24595,
-      "sha256": "c6dd83cc0b93c8ae89659d1a9c17708de005f006fd29486bb087d5d01318eba1"
+      "bytes": 32818,
+      "sha256": "53aed20855b68f7ddfac41430110601e402c9f28f0652d555acf6e4233f93658"
     },
     "play/abc-jam/assets/voice-wizard/dino-yes-triceratops.m4a": {
-      "bytes": 28363,
-      "sha256": "33e9816c2b7437813353ee8f044f469f87c6214b40a808bb813540e20208af70"
+      "bytes": 38275,
+      "sha256": "3076e5c7bc880e2e0bc4813876784a100cc84638830135d1e13a6cca72486022"
     },
     "play/abc-jam/assets/voice-wizard/dino-yes-velociraptor.m4a": {
-      "bytes": 29453,
-      "sha256": "198850698b92abc2be16594e96bce1ccb1261048918b43d2fc40f33c3e140098"
+      "bytes": 39151,
+      "sha256": "23631821aada9d7a104f62132746593cbaeec5d5eed025792fa290dede5722d7"
     },
     "play/abc-jam/assets/voice-wizard/eggs-done.m4a": {
-      "bytes": 31258,
-      "sha256": "ad1c14cbbc287b8731c48588d2756209d6bdc75ec34705eb022478bd81f34bce"
+      "bytes": 28899,
+      "sha256": "4e166fb4af79cc07647eebd7e489812b4372abc5ad55e00f13cd98e883e0c72f"
     },
     "play/abc-jam/assets/voice-wizard/find-a.m4a": {
-      "bytes": 13584,
-      "sha256": "dffb69f70e73b71fd7af3b908a626dc5945f542a3d3b1b5745a9c94c075c5073"
+      "bytes": 17960,
+      "sha256": "0d92c243ee440332b51e22327ce364c8eafe2a135e419998c6e82e97319888dd"
     },
     "play/abc-jam/assets/voice-wizard/find-b.m4a": {
-      "bytes": 12956,
-      "sha256": "846931df7d2548576170bb824a3776111c50f38c79e0c147f85bec6b39c76d4c"
+      "bytes": 17271,
+      "sha256": "368732ad27ed879e13b02619314bc2ae1518cf5d2c4f69857456ab42142328a1"
     },
     "play/abc-jam/assets/voice-wizard/find-c.m4a": {
-      "bytes": 14522,
-      "sha256": "d2050c8e6a5e0be1e12ded862e4bf797502caee5508d7ea06b8960b17dae1853"
+      "bytes": 19262,
+      "sha256": "8f6bde719d4d107580cf74837c3de4e9b33d21bd83101ba43a19182330ed29e7"
     },
     "play/abc-jam/assets/voice-wizard/find-d.m4a": {
-      "bytes": 15018,
-      "sha256": "3fa4aa10ce1211eb642aa60a7f6ae628aac72ee9f5123a4ef5d28aa66655e207"
+      "bytes": 20340,
+      "sha256": "5f47456475d1a0e416cea24a657ab4277c9662e5f792ee650d96eed4c9a311b7"
     },
     "play/abc-jam/assets/voice-wizard/find-e.m4a": {
-      "bytes": 12621,
-      "sha256": "b6505fefccb6a1bfa9e33e8679940c8fe7a6b8144459b369cdb8cb48f1ce51c0"
+      "bytes": 19536,
+      "sha256": "f785a894644ea5048869aa343e837c420bb8ef6a3d56b7e46c6ee04c699ec3d5"
     },
     "play/abc-jam/assets/voice-wizard/find-f.m4a": {
-      "bytes": 13711,
-      "sha256": "cbd11177f83242e08feec3abf9628ac2b7750f8df0c1c4b8b890c23e18b145fa"
+      "bytes": 15833,
+      "sha256": "c289399ae94787d2e653a1488f5a2b0fb43cbef45c805e37fd9ea672b2dad032"
     },
     "play/abc-jam/assets/voice-wizard/find-g.m4a": {
-      "bytes": 15737,
-      "sha256": "1505c108059f11718ced9c7861ec03df9eb4e38d1ba413762ce5794a371195e7"
+      "bytes": 20817,
+      "sha256": "d64cf786aebb49d9a3bdb0b1a5231d4760b9c65bf2fb7e47d3d9dc2892943b53"
     },
     "play/abc-jam/assets/voice-wizard/find-h.m4a": {
-      "bytes": 14647,
-      "sha256": "ca9ae9a03b27f680aa4c1258b58909e226e37b89cec78b12f07dcda347d4eb67"
+      "bytes": 17354,
+      "sha256": "c04d4cac681be4d10dbec5009caf13445940eb56bd7ad06c9ef7216644c93883"
     },
     "play/abc-jam/assets/voice-wizard/find-i.m4a": {
-      "bytes": 15146,
-      "sha256": "451d956b884d8743af81e1586e05a0e627331c8bb48b5bf9cc84d4470dc5810a"
+      "bytes": 16147,
+      "sha256": "7c8a5a662d1f4569c1f4caa86971d1715f92452c8fd1dd85fa447637727e1607"
     },
     "play/abc-jam/assets/voice-wizard/find-j.m4a": {
-      "bytes": 15789,
-      "sha256": "4b104bbedbabddd72d468124bd431fc4a38c24f69e86924080abb696f5bbcce1"
+      "bytes": 22379,
+      "sha256": "592735268ad88010a1971cbedb2b4c584a9d4c2503cfd9e91ce813b7294a880d"
     },
     "play/abc-jam/assets/voice-wizard/find-k.m4a": {
-      "bytes": 13164,
-      "sha256": "7c5b23d33cca9ec2cbf3703caf684e1b742a3ae7547e80c2baf4948e7fc5fb3e"
+      "bytes": 20082,
+      "sha256": "5e7f868dac9c1278cd72db1ce07ee1ebfe1465ac4dff1eb795f2b51fa49a6120"
     },
     "play/abc-jam/assets/voice-wizard/find-l.m4a": {
-      "bytes": 13580,
-      "sha256": "971da45d050cfe66aefd3fbb124aca44c7120d3a161429f9e0715452da9e0b1c"
+      "bytes": 16687,
+      "sha256": "71233d30da2accaaa188138580075ae1be44ddb5a90026e90c6f80f1aea033e3"
     },
     "play/abc-jam/assets/voice-wizard/find-m.m4a": {
-      "bytes": 13706,
-      "sha256": "df35189028c3f757e6ca9a9aba06747844058ba2d8c2be2e168d10c6629a5297"
+      "bytes": 17093,
+      "sha256": "e6d74ae7b24aae7563dda0975d5d187ff030a23395d23529daffbafb16f11616"
     },
     "play/abc-jam/assets/voice-wizard/find-n.m4a": {
-      "bytes": 16021,
-      "sha256": "017eadaf608583a65941f2722c6e49dc58b414d972799837276a314f36bd77a2"
+      "bytes": 17057,
+      "sha256": "f0d170037e2a48c18d0957e05d056541bb2545f27a53dbba635188d3835d940e"
     },
     "play/abc-jam/assets/voice-wizard/find-o.m4a": {
-      "bytes": 14298,
-      "sha256": "e5ca3ed92fe32820de35ebec3f14010bda2c45fe5bb9951f92f8bbd87f0fce1b"
+      "bytes": 16821,
+      "sha256": "52387d2e2431581665611f1845257036ef9d63e6d0db37f2eca7abbde1d36546"
     },
     "play/abc-jam/assets/voice-wizard/find-p.m4a": {
-      "bytes": 16004,
-      "sha256": "2cf793b5c88de4b4b8e31873c110fb1482039218c4c9bce11a964fd5e6bb8ede"
+      "bytes": 15631,
+      "sha256": "1d37d3b2c37003fd71ec30474260ec19b5626ceb419ce9422eea3c380ab9c28d"
     },
     "play/abc-jam/assets/voice-wizard/find-q.m4a": {
-      "bytes": 16002,
-      "sha256": "89bd4f15e48e639196a3a5a3d4d75a719d315e178ed069dd90740b54ed8f6c1c"
+      "bytes": 15908,
+      "sha256": "a9a859422c0df18a8a08d65ab015e86167b1ca4babf1ebafe7774b5fb402c141"
     },
     "play/abc-jam/assets/voice-wizard/find-r.m4a": {
-      "bytes": 14378,
-      "sha256": "8db5c9dca6deb624702d294b9dc97e0c65dace35a71d835d748cffbfa8ebc0aa"
+      "bytes": 16118,
+      "sha256": "a6a7d5ae9d605fde0a56855a0fc179f69fc192e6ff9c629dd35ca7b60862cf58"
     },
     "play/abc-jam/assets/voice-wizard/find-s.m4a": {
-      "bytes": 13365,
-      "sha256": "3313a9b31d40d56c373fb6fe380b8ef8c7395d444d6ef3da566921556acb06ed"
+      "bytes": 14691,
+      "sha256": "8ece34b78b33194f262599068deac496e37ddd7b5f1241ff9699f31089a38842"
     },
     "play/abc-jam/assets/voice-wizard/find-t.m4a": {
-      "bytes": 13209,
-      "sha256": "910305201cd3c9cefecbb4e521d396b467294e1dc891dd05d358255635cb9e21"
+      "bytes": 19033,
+      "sha256": "97a58b502624677de1ff7621c25d751ce0a7dcf9635e75fdd25a96fd03d0ffdd"
     },
     "play/abc-jam/assets/voice-wizard/find-u.m4a": {
-      "bytes": 17755,
-      "sha256": "faaf20a53116c87219a4835cd15f53280cfc93af40a93aa91608d92f832c01af"
+      "bytes": 17019,
+      "sha256": "91594189a06851d602b2291fbeed75380553548afa926f2d9c0e1e6da0d59b91"
     },
     "play/abc-jam/assets/voice-wizard/find-v.m4a": {
-      "bytes": 12490,
-      "sha256": "01e246927ec0aacb00f7c4f16383bbfa0d7eb18f521ac4fef3a521e2695f0d74"
+      "bytes": 16326,
+      "sha256": "7a1f88f74932b1c0343e8f1506644206ec4995ac3fdc58dea9c05664f695188a"
     },
     "play/abc-jam/assets/voice-wizard/find-w.m4a": {
-      "bytes": 18964,
-      "sha256": "b8a4ba8d087df8de28758fbd63c960425324d667ae784618f5e0c6ce376a9010"
+      "bytes": 25110,
+      "sha256": "d9f921641994055ef4b1b2bb03a5dd0db896a268dce58a10a85fcfe33e8a8983"
     },
     "play/abc-jam/assets/voice-wizard/find-x.m4a": {
-      "bytes": 14519,
-      "sha256": "ac263eb0169d0353cc268a1684ef9458ace2b1a37d8a0ae1e9a1805f8e267cd0"
+      "bytes": 16574,
+      "sha256": "69ffaee36edbc097c76f2b0a151596134fd8ebe2dd0759e19c075bae1718837c"
     },
     "play/abc-jam/assets/voice-wizard/find-y.m4a": {
-      "bytes": 16152,
-      "sha256": "87009e5a8cfa93b01fa3b8031e04ff4b0ee7c5fc3b5252d6513db8e8b95896c2"
+      "bytes": 18852,
+      "sha256": "1d83d50017340bcf13422e8316c496a6f9f42219a6135a6ce77996c1ed13af47"
     },
     "play/abc-jam/assets/voice-wizard/find-z.m4a": {
-      "bytes": 15684,
-      "sha256": "9058cdb0a19a265cfe669911f5b0493affac51bc742f22f81415f4d072512e4f"
+      "bytes": 18270,
+      "sha256": "992149252dbb4570c79309e54c7c58d6e1ac5d428bd8df4521d43775edf0448d"
     },
     "play/abc-jam/assets/voice-wizard/hooray.m4a": {
-      "bytes": 8765,
-      "sha256": "b833d56106a9312b245e0ec1dda00dade18b05afefdafc534dc62c5e80389275"
+      "bytes": 11827,
+      "sha256": "d7c03c301ed57184aae501240318a26ac2084b903f4179a0c9cb1d143000b57f"
     },
     "play/abc-jam/assets/voice-wizard/jam-party.m4a": {
-      "bytes": 20420,
-      "sha256": "6af1fc868ffcbd2d21a9f4aa827cff50ba8e6db391f2edb0551f2576f831a95c"
+      "bytes": 24309,
+      "sha256": "1ff14ba1078f10134c97ca221775ea20c5c1ee45ecc544a370a71ccab9b2dfd1"
     },
     "play/abc-jam/assets/voice-wizard/jam-start.m4a": {
-      "bytes": 14472,
-      "sha256": "7d743711780df2210c308671f1854e417f1daf8f46dc3993b3965c3b05e204f9"
+      "bytes": 20592,
+      "sha256": "0dc77f44077ce2edff9e331f6c9bc2db37ed4c0b3c79083da7c2f9b7f11df16d"
     },
     "play/abc-jam/assets/voice-wizard/match-done.m4a": {
-      "bytes": 32096,
-      "sha256": "ed7c838d58e52904e94a5aed91cf2ee52d823e53aa031229cfb1fff311c6a1d4"
+      "bytes": 27141,
+      "sha256": "14fb694008d0ecc408c88f8753c3d81907d643a7b360f4e706a3063cfdf4d1d3"
     },
     "play/abc-jam/assets/voice-wizard/name-a.m4a": {
-      "bytes": 5327,
-      "sha256": "63a6931f341666d1d926ed6a8ee5fe0c4cd19c20fe8590e29c2d1d0187edb5a8"
+      "bytes": 4442,
+      "sha256": "758d734f816e292982f52609bcd048f0541f5c15678b2796d61891ed272b3a15"
     },
     "play/abc-jam/assets/voice-wizard/name-b.m4a": {
-      "bytes": 6759,
-      "sha256": "7cedef3663220652215728b0f88d57f7c3632325acec4543d8daeeef282a5b06"
+      "bytes": 5082,
+      "sha256": "c01eba12ea5098cf30f5772cc1a6422ec48b72fd016795450aa784c4db92b209"
     },
     "play/abc-jam/assets/voice-wizard/name-c.m4a": {
-      "bytes": 8090,
-      "sha256": "7137c5c0e3d5b7102083a4d2627772d1f09d4126acc2dc726164d9757cb2aff3"
+      "bytes": 5957,
+      "sha256": "8c31d6b38e151c9714282637ae83e04d434df41ebcdef4a92a6d1b2121f183a5"
     },
     "play/abc-jam/assets/voice-wizard/name-d.m4a": {
-      "bytes": 6944,
-      "sha256": "f7c90d6156e5bcc6b8177d72b7fe7eabb24631402c78131e4f38bf1d1d87fc92"
+      "bytes": 6533,
+      "sha256": "40d13f58c24b96519b8407775f5838490bbb83d3d7cf4ca11af0f22756b737aa"
     },
     "play/abc-jam/assets/voice-wizard/name-e.m4a": {
-      "bytes": 8138,
-      "sha256": "3c8e6c7301138453a34efdfe21ca5d1129d10c7cbef608fc7892ffa3f55aa4a6"
+      "bytes": 6892,
+      "sha256": "b9fea8113d3498c857037a02987a27227b560c36364b1d35c44c3318818b8144"
     },
     "play/abc-jam/assets/voice-wizard/name-f.m4a": {
-      "bytes": 6134,
-      "sha256": "2d4c889fa95dcd0da8e60ee4d3b634c1f15895585c65c101b3e04f08a93d641d"
+      "bytes": 4352,
+      "sha256": "abd4ba9db73a9da829c58096e59e0e4526bc99765aa4f8d3213bb113c0fbe846"
     },
     "play/abc-jam/assets/voice-wizard/name-g.m4a": {
-      "bytes": 6864,
-      "sha256": "5f9ea153fbbf234cfac60d573f9c8c519b9c0ad9bf86a7c40af25f1781863188"
+      "bytes": 6909,
+      "sha256": "077b0949c66a9d043092226cc3d6af7dc79c10429032f82b8a99d19b2e53dca8"
     },
     "play/abc-jam/assets/voice-wizard/name-h.m4a": {
-      "bytes": 7200,
-      "sha256": "4da6dfcb97aea830f77982d843499c503db4831fdad8ec415bb0f5eeac1618eb"
+      "bytes": 6460,
+      "sha256": "442b6b59ba80374939633c86e4e267152ee0143f5499391530759a7c9beccec0"
     },
     "play/abc-jam/assets/voice-wizard/name-i.m4a": {
-      "bytes": 7964,
-      "sha256": "16dfbe4ceeb8bff9486608420794d6a56d0d0465b4733c86d7eda46ffbaa345f"
+      "bytes": 5662,
+      "sha256": "630ad4e9eea95473e759d3a8b1d304c26a987ef12c6cee84e493ac75a5019e5c"
     },
     "play/abc-jam/assets/voice-wizard/name-j.m4a": {
-      "bytes": 7202,
-      "sha256": "5500cbd252895b833bd6dd05540e2a2d1333b78fe864eb8d7437679b79ea2add"
+      "bytes": 6679,
+      "sha256": "e19d24134a2bd42a08dfeb0999c148df37a65583a8d32196bedc172c0868f5f3"
     },
     "play/abc-jam/assets/voice-wizard/name-k.m4a": {
-      "bytes": 6083,
-      "sha256": "5dd1a27ba5e69614a9d0ebdbd50d99f9d03fe1a12eb3ddb23307587842990b67"
+      "bytes": 6322,
+      "sha256": "e09331e4ce2f416f585f92fb10c15aa079ba42c1361a596026b397f058f0cac2"
     },
     "play/abc-jam/assets/voice-wizard/name-l.m4a": {
-      "bytes": 5895,
-      "sha256": "ff27cfe81594b2ba15876363f583059a7fdbe201eabdf3aab7f598dc193fbb37"
+      "bytes": 4892,
+      "sha256": "4594b40173a0f79b3b378147d676c04b986ed3fa46b9bd5d1b002e85e5c4e4bf"
     },
     "play/abc-jam/assets/voice-wizard/name-m.m4a": {
-      "bytes": 6136,
-      "sha256": "186063b3957e89ffe2b94a7ef036a9c331574964b0d195e14d636a0983c286f2"
+      "bytes": 5544,
+      "sha256": "62f55393adc353bdf8b7abd4821d850fbab1c56bd3cebf89a1f7202629ae7eb1"
     },
     "play/abc-jam/assets/voice-wizard/name-n.m4a": {
-      "bytes": 11317,
-      "sha256": "d70647c3d685b4b3e1e0b4dbc7e2af0c8a77c4325c85a5c16fd2a700e8c98ac5"
+      "bytes": 5076,
+      "sha256": "108dad6bd1641d51eaec68c181e38ef8bf59b82e68032b5ad1580f71648d065e"
     },
     "play/abc-jam/assets/voice-wizard/name-o.m4a": {
-      "bytes": 7810,
-      "sha256": "32c82b62c2fbfb1a821e56bf6b49228d180cbf08c9f2c168c7766a56e369aca6"
+      "bytes": 5909,
+      "sha256": "1f5b231390bb07ddbf1ea43dd0df20d562c4ed3e7f2590c2444644388083ab49"
     },
     "play/abc-jam/assets/voice-wizard/name-p.m4a": {
-      "bytes": 6171,
-      "sha256": "dd4311c7a867881293a953d52228abf9cc0d8cb2a3c173d71d52fe730a7ab9b4"
+      "bytes": 5993,
+      "sha256": "1de262070fdc891a9cd5493471d9b2b1cc6bd079fcc550078ab5b43176c81975"
     },
     "play/abc-jam/assets/voice-wizard/name-q.m4a": {
-      "bytes": 7783,
-      "sha256": "94b1212f996e4af6d6dbd2d97aef19383838ca275e1fa59cb564ee5ca4165cf1"
+      "bytes": 6092,
+      "sha256": "c05d5b4f10945bf12c58ccefebdbead0b0944ac17d4bb75ee0a760f5f766c327"
     },
     "play/abc-jam/assets/voice-wizard/name-r.m4a": {
-      "bytes": 6210,
-      "sha256": "f2e24b00e57a2ce48791cd30e2b30077964c717daf4be2f8153a7c12f9eef90e"
+      "bytes": 6139,
+      "sha256": "1c2a71b81274ffa8dd3f89ff2f4b70d7e83f89c1efa6ec05ea802ad04b9f6fbf"
     },
     "play/abc-jam/assets/voice-wizard/name-s.m4a": {
-      "bytes": 6229,
-      "sha256": "e46d2eb4b5307d171c3151bdff9e8ecc6b3140a0c134567f37939d20697a43fc"
+      "bytes": 6436,
+      "sha256": "2a4c227a2a59e4ce5411b5cb6c2fd9bb9d9e65e737d8b4127e282833fb04dd5b"
     },
     "play/abc-jam/assets/voice-wizard/name-t.m4a": {
-      "bytes": 6348,
-      "sha256": "c470ba93301863e722cf45b7eca095b1ff94c75e4be48530a737479055ae8e77"
+      "bytes": 5515,
+      "sha256": "566548ae96d1c57c88b8bd182232f2d8968113c4ed4b924919706a9fdfaec6de"
     },
     "play/abc-jam/assets/voice-wizard/name-u.m4a": {
-      "bytes": 6759,
-      "sha256": "249246d75493d6f335490a25248c9811d6c0c7120c07b0c954bed1dc90e7ea3a"
+      "bytes": 9549,
+      "sha256": "5116aac28b5f2005fc66ac75434659b67655020035df939a49df9d48c4cb62b5"
     },
     "play/abc-jam/assets/voice-wizard/name-v.m4a": {
-      "bytes": 6158,
-      "sha256": "19709d70f492a5d34ffc58692db55272497bf97e903562cebbb48dcdfe63db5e"
+      "bytes": 6134,
+      "sha256": "3f466d6757351a58d3a40eb28666bb7d5df915e8e5a4ef27781889c5c15f4af4"
     },
     "play/abc-jam/assets/voice-wizard/name-w.m4a": {
-      "bytes": 7729,
-      "sha256": "d8ddbe83bf1717c42cc5322b6423e3e4172172d6c5582a0fa7a52607ea4a8ab4"
+      "bytes": 12921,
+      "sha256": "71ca8b79144aa7c7935b12a95e6d64faa938282ecd2651462a99d741010e01d8"
     },
     "play/abc-jam/assets/voice-wizard/name-x.m4a": {
-      "bytes": 7934,
-      "sha256": "7df8eb43c3b7ecdebe32f11c374826b0f3d26e6d4cff786f2719afc81bdbea7c"
+      "bytes": 6239,
+      "sha256": "73d12783b1a46bce5c7aac81db42a52065d314f99088bfe88c0d0ae056a66897"
     },
     "play/abc-jam/assets/voice-wizard/name-y.m4a": {
-      "bytes": 5764,
-      "sha256": "577de80bde76a6e5b72f3b445d3088726e11ee84251adf481ee217065327c377"
+      "bytes": 5207,
+      "sha256": "3619e082606f2280d47514e5d4884efab1b17a61554830463532d95a307dc01e"
     },
     "play/abc-jam/assets/voice-wizard/name-z.m4a": {
-      "bytes": 6193,
-      "sha256": "5e621a5904f5438718f07ae66216c11c3dec1931cf92b1650f2f328117058d1d"
+      "bytes": 16367,
+      "sha256": "f4968cdee92baaf30b8e01141baab97129d4df781c3f27c52ef54d78e4a9467f"
     },
     "play/abc-jam/assets/voice-wizard/party-a.m4a": {
-      "bytes": 26520,
-      "sha256": "e11c0ad28ffb51b7a46831c27e55a05b7fbfe887ba9691b30ad07c4fd8cd8ac0"
+      "bytes": 27028,
+      "sha256": "d457d2f4beeecd268be904af3dc04db13955c81a242a0a9fecd1e705dfaab54d"
     },
     "play/abc-jam/assets/voice-wizard/party-b.m4a": {
-      "bytes": 26803,
-      "sha256": "68a3394d2a97efc0208da3c29c2a8f026f4f8447f5432b53644d344c27037372"
+      "bytes": 30266,
+      "sha256": "8fa19e455f4fb29c6f11ea8064ba7d445707fa31e89246c3ae9d26dce773538e"
     },
     "play/abc-jam/assets/voice-wizard/party-c.m4a": {
-      "bytes": 25546,
-      "sha256": "fba072f27a78092c6439a0f75672d32d72e9591b7e427165a065bb035a8117fb"
+      "bytes": 24278,
+      "sha256": "40c178261bddc01eb7bca4268c41470c3960f6892582b3c66e580b2b9d826e91"
     },
     "play/abc-jam/assets/voice-wizard/party-d.m4a": {
-      "bytes": 25015,
-      "sha256": "a637391541cd01655e210f959a1a7b7dabce80814d1291f4835a22395c223703"
+      "bytes": 21631,
+      "sha256": "a06fd6f3c24a8aa37239711e38130d5f9e92554bb113d5fd586ca255cfbd4a28"
     },
     "play/abc-jam/assets/voice-wizard/party-e.m4a": {
-      "bytes": 25315,
-      "sha256": "188988cf30f73ab21bb1e7a25055f3a92d06acd6ed4099edd9b7370053debc3f"
+      "bytes": 22039,
+      "sha256": "3e38541e211e2aa604c2f7d7d07ecae9191032af11a47cd5c118b2b5bfa1586a"
     },
     "play/abc-jam/assets/voice-wizard/party-f.m4a": {
-      "bytes": 26179,
-      "sha256": "5b72d844db8c8ca47a9692fa1d3e39b7a7136d555b785b5046e916fe5e4641eb"
+      "bytes": 24857,
+      "sha256": "d6c172c022c4a910f293ff21944a2d15d6ac4f9e2d83b64a551eef5eece3cc06"
     },
     "play/abc-jam/assets/voice-wizard/party-g.m4a": {
-      "bytes": 27834,
-      "sha256": "5cc6b23fc95c2ec4aa19a5945cb9d4a2dd4243e68d8eab1ed2bdf657c3e883b4"
+      "bytes": 22959,
+      "sha256": "ef6150f9298e8ff40e57ae145b401b4b8897e9b0bc9a11e0e1459f151a7e5c8d"
     },
     "play/abc-jam/assets/voice-wizard/party-h.m4a": {
-      "bytes": 27409,
-      "sha256": "720d52f6d02a7f5d6bb2a3d88d4bd517187f52551fa0fc99e029558222c877fa"
+      "bytes": 25772,
+      "sha256": "e99fee1152d2a9f98c0bc7f9183c5249698873af7e37beeab95347b71cf3f5ec"
     },
     "play/abc-jam/assets/voice-wizard/party-i.m4a": {
-      "bytes": 24104,
-      "sha256": "5208f86e40483b21fc30280005d8116d495525ea4459fa2572880197f2cd2b84"
+      "bytes": 23934,
+      "sha256": "9e793e861239dbdeedb360a54f4d4b178aa5264410167d6405eaf51892b6ed0a"
     },
     "play/abc-jam/assets/voice-wizard/party-j.m4a": {
-      "bytes": 25548,
-      "sha256": "fa4c8cb0fe898c87d523f4714d19e69770b06e621c5942dbaff8ce4dcac9c1ae"
+      "bytes": 23254,
+      "sha256": "86e2c6f9f8aad57029259f112e8e5b40e7ba5f260aa4a7623cce1afa2745f084"
     },
     "play/abc-jam/assets/voice-wizard/party-k.m4a": {
-      "bytes": 24159,
-      "sha256": "1d13cab5e29cf867494198f6535430a2cf480f41de166296755831e23512d374"
+      "bytes": 22791,
+      "sha256": "bd09d4512a5d8991e03ae346f5e52c3cb49aea3fff5cd71c7012e6f6911f102f"
     },
     "play/abc-jam/assets/voice-wizard/party-l.m4a": {
-      "bytes": 23261,
-      "sha256": "27cd6fab97e86e152b55c8b01c5837872fce876cf73f8976adee71ab421bcec6"
+      "bytes": 21095,
+      "sha256": "705a8ffab9c2d5f36cc0237a0b8e928aaa1b35f61fc7562e9a79d229dac5da5f"
     },
     "play/abc-jam/assets/voice-wizard/party-m.m4a": {
-      "bytes": 28028,
-      "sha256": "a83ca56f4444d56e5930e139086b7eebd70371e96376c1e6c74c1cbc5583ecc3"
+      "bytes": 44089,
+      "sha256": "fcd02c04eadf0b402f5343244a6c0db94fad40236257fd4cbcf342078e4a8080"
     },
     "play/abc-jam/assets/voice-wizard/party-n.m4a": {
-      "bytes": 26016,
-      "sha256": "21255f0c61e4f9bc399054a5cb7f13104873b8725acc750494ebb9281eef7b8f"
+      "bytes": 22419,
+      "sha256": "3a3d01858982e2fa2a5cdaff3f605599d8616d52b0290d0a6b51be2e24d94bb9"
     },
     "play/abc-jam/assets/voice-wizard/party-o.m4a": {
-      "bytes": 27059,
-      "sha256": "599545d8dab9d3ea272c6c64ebd222eb529d08c4b91de23984893b8b6c03dd2e"
+      "bytes": 26384,
+      "sha256": "808462f2f470c3d136c24f1d2bf12fdcf742197a2901a1308249a74faf15b8c5"
     },
     "play/abc-jam/assets/voice-wizard/party-p.m4a": {
-      "bytes": 27815,
-      "sha256": "5c066ba8f8c9e837ca94e656beca78cd7e7779d64682b0dda632448a118abd56"
+      "bytes": 26864,
+      "sha256": "ca030db9babf0b638dd0efa1d1098da02a8db4225b87643410f4e51f71525fd1"
     },
     "play/abc-jam/assets/voice-wizard/party-q.m4a": {
-      "bytes": 26418,
-      "sha256": "501322c44009affe39a4ed96363d031f576b491880442f9c73709c4707b16f41"
+      "bytes": 21607,
+      "sha256": "f613522cea69e164e1e2fb4deefb6bf9b46a06b44187fc5bd983a12f84d48cd4"
     },
     "play/abc-jam/assets/voice-wizard/party-r.m4a": {
-      "bytes": 27793,
-      "sha256": "43efac2d66669650f531d88370af1dc0b51c33ba34fb1c23679f577d49dbb6ee"
+      "bytes": 31817,
+      "sha256": "5e7ddffe28c1b77aa07d209ecf51cb67f1226e127b6a71bcd359e2433acbda10"
     },
     "play/abc-jam/assets/voice-wizard/party-s.m4a": {
-      "bytes": 28022,
-      "sha256": "d4f40aae3f63a1ce3768de8498cf25e3e674af59cce84fab2e9045c110fc923b"
+      "bytes": 26040,
+      "sha256": "9104912240627c247a509f8b7a70db15a8d290f01594a15c4077cb43389c23ef"
     },
     "play/abc-jam/assets/voice-wizard/party-t.m4a": {
-      "bytes": 22927,
-      "sha256": "83ab6e44878e611449bd446e819c02a77ed6d3cd0f168a7d481e0ce2636d4b7c"
+      "bytes": 26150,
+      "sha256": "b66035876e8b9609330d29d82ea94b810a645ab724664020113f40557c8e5cac"
     },
     "play/abc-jam/assets/voice-wizard/party-u.m4a": {
-      "bytes": 25281,
-      "sha256": "485c61e3e19eb1ecbc26cb0fa44d291e1bfad68b19bb343a91f4c7f4aa3f6553"
+      "bytes": 23581,
+      "sha256": "7fceadcbba11154a42553a85ba7e688b8de9a575fa3140c119c7b0d847156713"
     },
     "play/abc-jam/assets/voice-wizard/party-v.m4a": {
-      "bytes": 23815,
-      "sha256": "157b75cc875165af436d58968ca416b462cc4b4a0e8d04885735dd01fde8bd05"
+      "bytes": 26576,
+      "sha256": "c25ee9ec75549d548414cddfbf646b4e3445386cce1a3e4abf7b2e6dfb4d137f"
     },
     "play/abc-jam/assets/voice-wizard/party-w.m4a": {
-      "bytes": 28406,
-      "sha256": "1e2f0c9d96339f1e5eb8d8f2a2eee5edd148d625761374b0d84082d24bd1ce67"
+      "bytes": 24547,
+      "sha256": "5b8d935d2463b6396458a959292df763bd5604c079b15941573da9f509da8b1f"
     },
     "play/abc-jam/assets/voice-wizard/party-x.m4a": {
-      "bytes": 27077,
-      "sha256": "de8e3d4f7babdf2cad5cc2bab318e896970aa9d57482f638ef3a1bb588912f55"
+      "bytes": 30879,
+      "sha256": "fe4c1b49cd3bf6b15f62d2c26a89b3895cbabd5e1924b28951ad7e27825f4f41"
     },
     "play/abc-jam/assets/voice-wizard/party-y.m4a": {
-      "bytes": 27541,
-      "sha256": "a42559a28f08cb96745675b9ba95e1879af9b18847ff778897f384f8961dba2b"
+      "bytes": 27685,
+      "sha256": "39b9fc2c31f5ebc8863a10a619cc69ad3cfd02855606d2b053bdc17cc6cc05cf"
     },
     "play/abc-jam/assets/voice-wizard/party-z.m4a": {
-      "bytes": 24151,
-      "sha256": "1de2c73c9c9721c51e1c5ae124d46e458c2cca25b79b1b21f465dd8bc5b6023a"
+      "bytes": 28003,
+      "sha256": "d8fa7a4379627c4b9f413808d0d38bafbe62918313c29b2295a629526d09a4dd"
     },
     "play/abc-jam/assets/voice-wizard/phrase-a.m4a": {
-      "bytes": 11943,
-      "sha256": "50de6804245121c1110583915a6d7437268e0e76a62a32a829693788d29f00f4"
+      "bytes": 15542,
+      "sha256": "068c8a0da2077706f9576a00ac388c8ae7f571082aed022472ae5e7914d546bc"
     },
     "play/abc-jam/assets/voice-wizard/phrase-b.m4a": {
-      "bytes": 12915,
-      "sha256": "30a1684fa1f8173159735a4ac659c78d405867a07a6aaf3fc18d1325fac153b3"
+      "bytes": 17316,
+      "sha256": "b36979f2646485b2187769c44a82df3fb77941d1fb9774c1d45eafcdfb1d2b6f"
     },
     "play/abc-jam/assets/voice-wizard/phrase-c.m4a": {
-      "bytes": 11691,
-      "sha256": "7d2df18ba11b239ba7152364d1baa365d9f2dc0bf48889ba018e5b6854f47ef1"
+      "bytes": 16006,
+      "sha256": "565ea53976f41423255de590845844107b81bf3f2dadeef1a9501019fcc9cc38"
     },
     "play/abc-jam/assets/voice-wizard/phrase-d.m4a": {
-      "bytes": 12441,
-      "sha256": "b81854bd6b657ceb8195fc8a0a017289b7429a7bc8880493b611e0710fb6a581"
+      "bytes": 15657,
+      "sha256": "18dd92d8113f1648733f35a5520b72de7ef399e035f596c626bb35419b069366"
     },
     "play/abc-jam/assets/voice-wizard/phrase-e.m4a": {
-      "bytes": 12858,
-      "sha256": "783c46a7cf405feb90ce922eec62c74b564959c804277307630876706f2e2d1d"
+      "bytes": 15699,
+      "sha256": "4474fa7d826af4fe3b533d8f876ffd310b90377e81a7c8e320ca0faf233f019c"
     },
     "play/abc-jam/assets/voice-wizard/phrase-f.m4a": {
-      "bytes": 12503,
-      "sha256": "fe654c80ecafe6b6a914b522ab37da0bfae77379dbd2e3331bce6dc6bfaec334"
+      "bytes": 14655,
+      "sha256": "532bb2df44620d048e5b43fa380c26b673cdeb9e85ce66505923bca741f8227e"
     },
     "play/abc-jam/assets/voice-wizard/phrase-g.m4a": {
-      "bytes": 13750,
-      "sha256": "f51818d931ee43c0f3a47e632016b2ff7331f3f2314648e6baf1d3bdee687603"
+      "bytes": 15951,
+      "sha256": "cb63b9129ca294ba70aaa7eeb0df6e3e81c6139aebbe0a1e35b4612bc38236ff"
     },
     "play/abc-jam/assets/voice-wizard/phrase-h.m4a": {
-      "bytes": 12971,
-      "sha256": "10cc4b1ce6c121c89c56f47ff3dcd6defc3f8454b6fd78a934cd02f85c75f13a"
+      "bytes": 18722,
+      "sha256": "1341366391dd500e2503e0046da003420b430c9552a7244491c17d2b9a316357"
     },
     "play/abc-jam/assets/voice-wizard/phrase-i.m4a": {
-      "bytes": 15303,
-      "sha256": "172d3aba8f80678315cdb029c77a8721dccdffba53e64ad78f639208fe1a3a0e"
+      "bytes": 17027,
+      "sha256": "5d9a7dce273dcd2096ee2f7609c069d0b116a0ca615d99e1f78e3d0b6ced14fc"
     },
     "play/abc-jam/assets/voice-wizard/phrase-j.m4a": {
-      "bytes": 14008,
-      "sha256": "bc97615798cfa4ee09139d55a39786d6fde4a5d6cff66fcb912e63a7a2b3e058"
+      "bytes": 17249,
+      "sha256": "35d284846eee80c772f78821b4290e5abdbe7e9a259431a7053339737af2d863"
     },
     "play/abc-jam/assets/voice-wizard/phrase-k.m4a": {
-      "bytes": 15606,
-      "sha256": "cc467d9218445e9c04d5bb3b1ddbd17f3a48d764e30b7b73f0131d3b5665d6a4"
+      "bytes": 17313,
+      "sha256": "7051edc5b490f4be39c40766c6a11caa0b637dcf72baa4bf17094eb845b25653"
     },
     "play/abc-jam/assets/voice-wizard/phrase-l.m4a": {
-      "bytes": 13544,
-      "sha256": "3c7aeca7f4cd360aba78853e2d05c54421ecd91ad743238b240e60fccb8340fe"
+      "bytes": 17746,
+      "sha256": "266a621ab326ae5a805707b5e7fb5c3fec84e335042f8d00542432af1ec11bb3"
     },
     "play/abc-jam/assets/voice-wizard/phrase-m.m4a": {
-      "bytes": 11641,
-      "sha256": "e0f182a77821220a9b09be1360067b321cf1bdd2ddd555778beb16efbe2e9c46"
+      "bytes": 17633,
+      "sha256": "ee0f6a17187983c5a4a42d15d039aad3fce5c457cb67f23c924c503d7068f0b6"
     },
     "play/abc-jam/assets/voice-wizard/phrase-n.m4a": {
-      "bytes": 16703,
-      "sha256": "b7596d4a10a327e06534df57048d41c7d7d5212e23e9486d11b3e1fee92bb10e"
+      "bytes": 14580,
+      "sha256": "17adc3b3eca6b3d63138bf773b25944aeb1fdc5b75ed6d364b2e6a175dde8d2b"
     },
     "play/abc-jam/assets/voice-wizard/phrase-o.m4a": {
-      "bytes": 14760,
-      "sha256": "92855249a68ea8d2b792320f83b64b9e26aa2f9bff24ee20b6785fbe3d2962a6"
+      "bytes": 18144,
+      "sha256": "361bdb1f2359f033aab8cb9f79b16b5fe895e6a4009ccdae802db9d3fd893ebd"
     },
     "play/abc-jam/assets/voice-wizard/phrase-p.m4a": {
-      "bytes": 14232,
-      "sha256": "cad050b21271b6b215f663b2d2cad76309c0f6b351d933f334c250d6bbd40bce"
+      "bytes": 13787,
+      "sha256": "0d5fab4fd6429c913ccf00099266d6e2c485368bd50648497ecff96806b0a93f"
     },
     "play/abc-jam/assets/voice-wizard/phrase-q.m4a": {
-      "bytes": 12519,
-      "sha256": "53a24ef23e3e28ad8cf0e925a5e188e4d8a48e4a0aa7fcfe2e86814c595a038d"
+      "bytes": 16514,
+      "sha256": "cb0f15c41d7c60a3395728fc37b376f153e05cd99ec48860db9429f68beb2b90"
     },
     "play/abc-jam/assets/voice-wizard/phrase-r.m4a": {
-      "bytes": 16649,
-      "sha256": "16d3e64984be63e704a5e01927e18198061b751cdf416a20ee0c9d73e0a10253"
+      "bytes": 18508,
+      "sha256": "1b2af0e52d41e628d0197d530c471cdb7b1dd8fb31ea43a016d4a5e009602931"
     },
     "play/abc-jam/assets/voice-wizard/phrase-s.m4a": {
-      "bytes": 12844,
-      "sha256": "a75fe2de76cc8ab030c609596b0d585515d3d6b6488f2faed5643045257225ed"
+      "bytes": 17945,
+      "sha256": "944c2806a9a3b257e1a1884b8cf85f9772de358c910a294c98f08adc134b335f"
     },
     "play/abc-jam/assets/voice-wizard/phrase-t.m4a": {
-      "bytes": 14256,
-      "sha256": "e2e2b35e106b7f7c6e7731375a84362020d11bac8ff1cf04dc472f93634365d9"
+      "bytes": 13126,
+      "sha256": "a4557b91ba3c231f17defb9b3f0e0c235898fc9f7dacc8af0921edf6cfcffda0"
     },
     "play/abc-jam/assets/voice-wizard/phrase-u.m4a": {
-      "bytes": 16480,
-      "sha256": "254ca2c78785b6795b684823c0c5bd0cc0aebe7e23b8dbea65ad3e61e173b445"
+      "bytes": 16082,
+      "sha256": "9af42475d3883a44ea54b1b6fdc37c514747b77f2735d5628572f89463ea466b"
     },
     "play/abc-jam/assets/voice-wizard/phrase-v.m4a": {
-      "bytes": 15841,
-      "sha256": "35338729f603406255d40b57e43c8fe3de855abd3ce2d3a54861c2769ff02253"
+      "bytes": 15341,
+      "sha256": "74092989290095da6121ce1853cea0e49eb62a50d13d3b6b2fdb3bc7e9866928"
     },
     "play/abc-jam/assets/voice-wizard/phrase-w.m4a": {
-      "bytes": 14144,
-      "sha256": "61d9c9411e6b59e0e18c55ddab40a62c1b86ce46ce1a398ee381258478a993f2"
+      "bytes": 19835,
+      "sha256": "a44728753e39c24d507fbfa80b98dbca21d516ba2eb31ad4694ef37311e21bba"
     },
     "play/abc-jam/assets/voice-wizard/phrase-x.m4a": {
-      "bytes": 17880,
-      "sha256": "5dce7bea2177ae0d149c4a5e0bba7571886c37e99e57edcd04212c40279153ea"
+      "bytes": 25249,
+      "sha256": "1eef74c2ffefcda18206f38d3dcc6901fa9f044cc6c4a24c319b53aadd880fa6"
     },
     "play/abc-jam/assets/voice-wizard/phrase-y.m4a": {
-      "bytes": 15249,
-      "sha256": "b02432ea911bd51285da4a0183ffde22ec789fb12b5557a6d4e47558aca1fc8e"
+      "bytes": 23141,
+      "sha256": "81354ae22558984bcb101488043db2f2eef4a9da6a2a5589484bae343a6f1ea7"
     },
     "play/abc-jam/assets/voice-wizard/phrase-z.m4a": {
-      "bytes": 17933,
-      "sha256": "81a702286f8b7aa7f2c06cdb72a24bedd4dbf3f50126776837ff7ad315206de1"
+      "bytes": 21506,
+      "sha256": "3f2e426c31676b2344975a3199fc0647c07ef7a72ae61951210ebc07d9f3b8f1"
     },
     "play/abc-jam/assets/voice-wizard/pick-words.m4a": {
-      "bytes": 10015,
-      "sha256": "23a8619a4f81612a883bca212629d492fbf06d537081377483169bde2c000016"
+      "bytes": 13091,
+      "sha256": "4a4e61484c8b3c0f28dc7c6cb7bbd036bc41a80b3214c10d8c6fe0fd1807fb9c"
     },
     "play/abc-jam/assets/voice-wizard/rain-keys.m4a": {
-      "bytes": 27943,
-      "sha256": "c63ddeed6b80a5c1b6b4d330b323ad01ea6a17d4104e86d6d5cdc5c821d69aaa"
+      "bytes": 26917,
+      "sha256": "9e786987f917ab61cd4ebc69e6d9b50ba1ea0c6e0a997a6c6ebcc28c2e138fbb"
     },
     "play/abc-jam/assets/voice-wizard/rain-tap.m4a": {
-      "bytes": 22214,
-      "sha256": "0e529cb016830dca3d5e82920d4bd627c2aba0deba6d648c6ca67edfe1596f1b"
+      "bytes": 25976,
+      "sha256": "cfc550caaa064fd3c49be9f4705a8a4a3dcaeb657607fa549675030a77e8d010"
     },
     "play/abc-jam/assets/voice-wizard/spell-ant.m4a": {
-      "bytes": 14264,
-      "sha256": "17dce0b464e32462f5a82ecbbef1b4fbca421b4026b1dfad71b6eb5d5f64a63d"
+      "bytes": 16128,
+      "sha256": "3bfdc3fa5295416f9092108623c125ebd32dc84b9ea09231b7c874d6ff1878b5"
     },
     "play/abc-jam/assets/voice-wizard/spell-apple.m4a": {
-      "bytes": 15108,
-      "sha256": "c6263b8f70c59dfa7dd0be0d0aa1128ffe56496b0f4742c33ccef44fceddec5e"
+      "bytes": 14280,
+      "sha256": "8b1bfd61075691cb0e00c552f65aa8c57c706c5f309fb910c37c19b7d8a57d85"
     },
     "play/abc-jam/assets/voice-wizard/spell-ball.m4a": {
-      "bytes": 14531,
-      "sha256": "24de1fb59681a222373014622e573493be06ed212b9c91839c00fc924547ea04"
+      "bytes": 20819,
+      "sha256": "d9f4e8aabe3ce926867295ea1c95d1f6a8c236b1effe881f717e05d1fef21a8e"
     },
     "play/abc-jam/assets/voice-wizard/spell-bear.m4a": {
-      "bytes": 14491,
-      "sha256": "563a37144e993c6efb50add3d307c821ce73d3368bb0a479cb62ccf030c4c5ce"
+      "bytes": 16721,
+      "sha256": "56e0714ec50eaab3d99b0a36c59441555504a596bf28e6eb2c7cb98370464ad9"
     },
     "play/abc-jam/assets/voice-wizard/spell-bed.m4a": {
-      "bytes": 13394,
-      "sha256": "2a7f306eb2aed8873c1a21f833e8affa980eb61f7a6a7e8e0f5734a9aa3c0295"
+      "bytes": 12707,
+      "sha256": "93c450a783e02b58dba952a9607093d63eae222340510ed6f082b505fdcd4efc"
     },
     "play/abc-jam/assets/voice-wizard/spell-bee.m4a": {
-      "bytes": 16277,
-      "sha256": "6b114c1d889e3e1dd61b32828df20c139112a9a5573522be86441503550ea047"
+      "bytes": 13137,
+      "sha256": "8caac8a23caa8052f6be9876354b34f18022bdf191552136ce9100e7bb8c7ec3"
     },
     "play/abc-jam/assets/voice-wizard/spell-bird.m4a": {
-      "bytes": 14122,
-      "sha256": "30ad8118e4a970c0b05d006ea60cdb85ce3e2adcdad3eb22d0270a1eb9acbeff"
+      "bytes": 15741,
+      "sha256": "edf6eff7f5c1670f7aaaa6321451d5a6385c1ac6ddfa209673a3b4325b9a4d73"
     },
     "play/abc-jam/assets/voice-wizard/spell-boat.m4a": {
-      "bytes": 14386,
-      "sha256": "f84c96732fb4205b892ad47c35cab867621a1f2da06341d0adf038efbaa26746"
+      "bytes": 13352,
+      "sha256": "9d83a78e7bacac93cf4a506600da5827c83d9064ad3a7e644bc72548b198365f"
     },
     "play/abc-jam/assets/voice-wizard/spell-bus.m4a": {
-      "bytes": 18994,
-      "sha256": "f06d171bf95090a69dfa4db746597d1b38ef506fa46177b6a0ff7db742b12c55"
+      "bytes": 14745,
+      "sha256": "9650b9779dca68fbc96a4a9c5e110c0400fc0898c2dcccb435e697c96ff68cc0"
     },
     "play/abc-jam/assets/voice-wizard/spell-cake.m4a": {
-      "bytes": 13988,
-      "sha256": "b70a3a3638b52ad63bed12673e94ea189612fdd2b9ff1002c31f4338132f4805"
+      "bytes": 16183,
+      "sha256": "3ce17ba93201ea6cd5933c06dc4afaa91d5b7f784ac443779d7e78f8f95fce19"
     },
     "play/abc-jam/assets/voice-wizard/spell-car.m4a": {
-      "bytes": 14234,
-      "sha256": "a931b01e9a14140b3eed086fc7302e9cd4ef5269b7c9e0361df1963f4e5419bb"
+      "bytes": 16443,
+      "sha256": "18ca035f6b52ac7645695791406cf74fe75b4b81ec3feb522b6485658561e8aa"
     },
     "play/abc-jam/assets/voice-wizard/spell-cat.m4a": {
-      "bytes": 14423,
-      "sha256": "d86ffdd7b6e5cd52c3f6094a6a3226777d55bc09dee9096db812540d3cc396a5"
+      "bytes": 15582,
+      "sha256": "0c9a217b729a44eb0b8916501221f80f8ebbf864e86eb0c1289d2b3fe37158f3"
     },
     "play/abc-jam/assets/voice-wizard/spell-clock.m4a": {
-      "bytes": 13196,
-      "sha256": "59a03a109942fb2aec798fe63c3869b2b5bc0e6b1ed356c73a673ef7d099f170"
+      "bytes": 19922,
+      "sha256": "cd0490aa990b82d2f09078bb6522cd1e85424a6ad7fcd86648a0e2217359cd9e"
     },
     "play/abc-jam/assets/voice-wizard/spell-corn.m4a": {
-      "bytes": 14109,
-      "sha256": "5a3d0d8200a987c0b49bcf5b017fc0c81e7978d5860a117d440c099ccf0e6d96"
+      "bytes": 14889,
+      "sha256": "9a9a3761ff9b6789166b893381b3e147471c26868df00affcdf2ea09d4f01986"
     },
     "play/abc-jam/assets/voice-wizard/spell-cow.m4a": {
-      "bytes": 13955,
-      "sha256": "5225b6bc9d063fcb92424ee5d53cb74cfb87d1d426019bd6806268c18c80638e"
+      "bytes": 15547,
+      "sha256": "33afad12067739fb929093ca5ccaed70a031fff8532e107c567ad7349d7072d7"
     },
     "play/abc-jam/assets/voice-wizard/spell-cup.m4a": {
-      "bytes": 13490,
-      "sha256": "63cecdccab028c4e1dbaad1d3534dfc997fd8afba6f96072f7805d0692b842fe"
+      "bytes": 26152,
+      "sha256": "21b59f4e784873845799f51c102f01642ceea3144de8f820a0ff5983808c68f2"
     },
     "play/abc-jam/assets/voice-wizard/spell-dog.m4a": {
-      "bytes": 15316,
-      "sha256": "815ff23fc86ee5341347a29dd68f57c622780b4a707788a64ade0055c2d74e9a"
+      "bytes": 12769,
+      "sha256": "d9f7f24e31b86c2485c62e6f9aedd8099fb1e87143f6a894878f618d53bc0467"
     },
     "play/abc-jam/assets/voice-wizard/spell-duck.m4a": {
-      "bytes": 13683,
-      "sha256": "e32faa6280c6b38acd9ce6e7b045825c417be66a8bc0d4c207546acf7089faee"
+      "bytes": 16160,
+      "sha256": "4eff6309976e9193de4a1258c1cc9923ee044f0f7f179935aab751cd3bfc2593"
     },
     "play/abc-jam/assets/voice-wizard/spell-egg.m4a": {
-      "bytes": 13854,
-      "sha256": "1ca59db161baec4ef1bd7c0d9741191a8115bfcfb1734f3bc33d6c639dbc8334"
+      "bytes": 13700,
+      "sha256": "a530534cd6758dbb0cf95c862da179ed63809fb167dc9f9b414353f505deced7"
     },
     "play/abc-jam/assets/voice-wizard/spell-fish.m4a": {
-      "bytes": 14044,
-      "sha256": "e277ac238f2e9dfb79391cf51500c69203f7f34df676d150e1b484cacb933955"
+      "bytes": 14657,
+      "sha256": "d6c45193e7b06f6a4a3301e68a2330c9e6b65d32d0966e7328592fc7a5644529"
     },
     "play/abc-jam/assets/voice-wizard/spell-fox.m4a": {
-      "bytes": 14644,
-      "sha256": "72c4c54d759f50532a8a30e6488ffc5a947d4a45622188c395e212ab022642e6"
+      "bytes": 17709,
+      "sha256": "04c3d509e33bf1d55bd601dcee9e01a3cda37ff17f9c362762ef0be282fc9dcf"
     },
     "play/abc-jam/assets/voice-wizard/spell-frog.m4a": {
-      "bytes": 13032,
-      "sha256": "46b6ec643247862f7c8a867a6fc8a06c701a63ad765d28ec1852a704258ad8d8"
+      "bytes": 12733,
+      "sha256": "45c8b72e16deece2b8e0312700bb3313a803446da54f70e8fe2723bd04afd9d5"
     },
     "play/abc-jam/assets/voice-wizard/spell-hat.m4a": {
-      "bytes": 13325,
-      "sha256": "0991fa6e30826f56a1541633de034f9417e8c6e5ffe7ad9e915614436c683e18"
+      "bytes": 10837,
+      "sha256": "5cbc83f7378c800b421ea8894e3e2b2496f9169051a958ea8dfb74a4d7020f2d"
     },
     "play/abc-jam/assets/voice-wizard/spell-heart.m4a": {
-      "bytes": 15455,
-      "sha256": "71ea814d303081e67bc61d07d814fc129376fbf6e771ebf4acf984fe0ed69ee6"
+      "bytes": 13014,
+      "sha256": "8b205e91c88b472c890bd51dc9da5d5c7220ffdb392b5d7b95265c0741a57591"
     },
     "play/abc-jam/assets/voice-wizard/spell-horse.m4a": {
-      "bytes": 14023,
-      "sha256": "b41dd8040328b3bbfd5e3ca5a47c0e59ae47df2f843e5bec91e5a7f309ea209e"
+      "bytes": 14889,
+      "sha256": "2587f8bcc483c5e952c56307636f3641bc1759cfbff358c5f5480a1f1339405d"
     },
     "play/abc-jam/assets/voice-wizard/spell-house.m4a": {
-      "bytes": 14717,
-      "sha256": "fb228dfcf37c8d36a9e138f9a6ee7bd3d6780c583d4b53924c404d0da6c3eb2d"
+      "bytes": 14825,
+      "sha256": "8777daf500ea7d806a2654c39324dd8f27eafe1fbe66268d4d2a84d06fc6d863"
     },
     "play/abc-jam/assets/voice-wizard/spell-kite.m4a": {
-      "bytes": 14894,
-      "sha256": "2c7789918b57c3d9a3753b921d7db79b82d47a2e4a4f03f51818622e400aa83f"
+      "bytes": 16646,
+      "sha256": "c97eeaf25dda40e13f08edd64c287dc00efc3baaf6bc95d7fb2972462f2ec152"
     },
     "play/abc-jam/assets/voice-wizard/spell-lion.m4a": {
-      "bytes": 16346,
-      "sha256": "5e6b7e894efe17e16c8235c862cebd63e69e09a62e13a383b727471c7712db31"
+      "bytes": 16577,
+      "sha256": "58648590bee222cae86877cee1feed342d777b476f7f06abca8e0057b60f3e38"
     },
     "play/abc-jam/assets/voice-wizard/spell-map.m4a": {
-      "bytes": 14702,
-      "sha256": "ec687b8131d0ce4c99249591df392540d95b544ed05bb28e7882bf43b1c8b848"
+      "bytes": 13424,
+      "sha256": "815e7f38c661c6588f98b5990cbae2e132242bf9c4e0a297850bebeb5fb1f615"
     },
     "play/abc-jam/assets/voice-wizard/spell-milk.m4a": {
-      "bytes": 15797,
-      "sha256": "e2678fae74e69a4f3024049278773b0679f5bc164f6a056b8ff02e9f88208db4"
+      "bytes": 12178,
+      "sha256": "1499ddc8032aa54c1898f5fbaa491a35df5133832fd336142b5dc1d3c8f13141"
     },
     "play/abc-jam/assets/voice-wizard/spell-moon.m4a": {
-      "bytes": 16507,
-      "sha256": "eed64a97dea37e390d76d9ddfb3b8aba548b1529e94384b4fa3d0ef23ec7f57b"
+      "bytes": 15967,
+      "sha256": "d33d3ea2024fa06ab9f449ab8a88eeece6591b7b784d19f3283db07f9acd5534"
     },
     "play/abc-jam/assets/voice-wizard/spell-mouse.m4a": {
-      "bytes": 14938,
-      "sha256": "f8ad22f6c39606d4bd63a49bfcb388b1544968c5d31b6fc573e943d018c81818"
+      "bytes": 15080,
+      "sha256": "650575b7e57c71e79abb6cf08b1e81b63fb45c0c192f7805be52d15e5e33641f"
     },
     "play/abc-jam/assets/voice-wizard/spell-owl.m4a": {
-      "bytes": 14529,
-      "sha256": "5779e63c82d4b5369820c54c2ece168ddc9b909f8014d06d81cd258a4fb28b79"
+      "bytes": 18969,
+      "sha256": "6a5b25d37a1719da1b78134ebc40e8fb63ac9562f91e537bdb25cf4d8091d169"
     },
     "play/abc-jam/assets/voice-wizard/spell-panda.m4a": {
-      "bytes": 15654,
-      "sha256": "cd942765d454ecea0d0ce1fe7a8560c6bb776d9af0e9fe5b3729c81e1e1e95ad"
+      "bytes": 19890,
+      "sha256": "1780fc9ba1f39aef5dad94023c465f98dead3eaee6d752d9fd40a9c0234b5161"
     },
     "play/abc-jam/assets/voice-wizard/spell-piano.m4a": {
-      "bytes": 15439,
-      "sha256": "fb47dda8ccf69aeb022e44c60705e7943deb4809c9e8b501a604cf05581ba4bf"
+      "bytes": 13787,
+      "sha256": "a9ad81fbd180df408f525d2e9d679f5a997aafc91712a7ce98595ddb2086af4c"
     },
     "play/abc-jam/assets/voice-wizard/spell-pig.m4a": {
-      "bytes": 14041,
-      "sha256": "33b6a6cc022dce4dd829d6b7e12847fce5ab34acc002716e109f90720cb84172"
+      "bytes": 15136,
+      "sha256": "887dee2f108bcc3f7e28c89f384b31da3cc09fe8ccbb084eebdd0d6c9e21eb1d"
     },
     "play/abc-jam/assets/voice-wizard/spell-pizza.m4a": {
-      "bytes": 16141,
-      "sha256": "0d56be27e6aba7223cfa60469cff5efcd9165bdc8818c0c959c506c01d329c37"
+      "bytes": 12406,
+      "sha256": "0d13b5c7caa699da130ee63ed8632340642d2abde4c5a1998cb959a600227045"
     },
     "play/abc-jam/assets/voice-wizard/spell-robot.m4a": {
-      "bytes": 15952,
-      "sha256": "e12ad1d429022184542602024446cbf3ba8984cce82e8d28c313e771ae192705"
+      "bytes": 17466,
+      "sha256": "814be658daed55579b728fc9f55420ac627adb8d0364c1826e61a2f457962ed7"
     },
     "play/abc-jam/assets/voice-wizard/spell-sheep.m4a": {
-      "bytes": 13884,
-      "sha256": "8177d03848827e02ec477c395018a49a5fb8b566bb6f24a4b58955af5792420b"
+      "bytes": 14778,
+      "sha256": "cf84180e6817c61b26bc0b52e1ef4f886befb8f53757ebce17a6e52147a950cf"
     },
     "play/abc-jam/assets/voice-wizard/spell-shoe.m4a": {
-      "bytes": 14408,
-      "sha256": "51aba07f5869666cda4b87a9b001a92df569f77e9d7e3fca304d8b71bccd3790"
+      "bytes": 14799,
+      "sha256": "84bd09344572ad35ffa56fce545e671cdca76eaffad8294341ad67dfe21a063c"
     },
     "play/abc-jam/assets/voice-wizard/spell-snake.m4a": {
-      "bytes": 16778,
-      "sha256": "84597932c8332e9de8c0932265373ec03e645f074a4db21ed34f4bcf3779b054"
+      "bytes": 14167,
+      "sha256": "545679befc3c8d02aaf0a932cd998edd2f752a1578b2e90a0be5571123df9515"
     },
     "play/abc-jam/assets/voice-wizard/spell-star.m4a": {
-      "bytes": 17198,
-      "sha256": "3e3d8984fd21b936bd55cf790890459454cb431ccfee419fc76dff5a09bc5fb1"
+      "bytes": 18269,
+      "sha256": "432244347782ffe07750012917eaabedb0d4f950b0d928dc310b66ee0ba4ea29"
     },
     "play/abc-jam/assets/voice-wizard/spell-sun.m4a": {
-      "bytes": 12500,
-      "sha256": "e3aaf769f9e705872f802c0e0646a1a297e82a3fdf6084aada67132bfeb9d656"
+      "bytes": 14568,
+      "sha256": "6ab6ad461acf3264b3c913f3a4f074e5e23dab488c38e6a46e09e22a10004093"
     },
     "play/abc-jam/assets/voice-wizard/spell-tiger.m4a": {
-      "bytes": 15670,
-      "sha256": "1e08e0b48cee61ccee4b720227f2a8d6e600d551d178a262aa4fc488a7b74bb2"
+      "bytes": 20335,
+      "sha256": "2364f56c6424690ceb1ceac79ad2186d0fd198253cfbf572f1fdaa0c3ac997d0"
     },
     "play/abc-jam/assets/voice-wizard/spell-train.m4a": {
-      "bytes": 14381,
-      "sha256": "486cf6a9cde6bcd3f2a47d0c6a622d81f4dbacb5c21105ac33fb6619d004abfd"
+      "bytes": 18327,
+      "sha256": "b6a192aab2c68ff70cb6274b065c3c8e3f34427db0a9c3d6173bba1d9abce83e"
     },
     "play/abc-jam/assets/voice-wizard/spell-tree.m4a": {
-      "bytes": 14772,
-      "sha256": "7344fbb0e414975d60a41152b920654f624ce9bec00411f81501e140780a5321"
+      "bytes": 15284,
+      "sha256": "7e725aba0d82dc69af202696993ad7b7b89578f2099e851f0fad3241062ad615"
     },
     "play/abc-jam/assets/voice-wizard/spell-whale.m4a": {
-      "bytes": 14454,
-      "sha256": "41714c2332cedf2ccc9a1dfa97497b112e1a21cfbc34febe20e73d000cb3a507"
+      "bytes": 13686,
+      "sha256": "0edaec0d40c002e3d7aadff9d666288a039920da61a287c5924aac3aade63ff9"
     },
     "play/abc-jam/assets/voice-wizard/spell-zebra.m4a": {
-      "bytes": 15769,
-      "sha256": "be96318cf58427a41fb7aeb5d939ff13843ef6607d9943a93968580f509f49db"
+      "bytes": 15391,
+      "sha256": "47f670ec18852ed7ef1e03fa1b5866ee72518062c28dd66258c892bf230da676"
     },
     "play/abc-jam/assets/voice-wizard/spelled-ant.m4a": {
-      "bytes": 27323,
-      "sha256": "89051c2cc69e50c9e8dbde90c31a1606ff440a9fb855c52701107d7a3cb0ad8d"
+      "bytes": 14378,
+      "sha256": "2657d8b42c3aadfb441857cc8f0e1c1219595d30b37a46c3dc1fce1cad0f6e6f"
     },
     "play/abc-jam/assets/voice-wizard/spelled-apple.m4a": {
-      "bytes": 36479,
-      "sha256": "3ab53fb96f4bcd3007a4c4afbe8e3c3906066273018e379bb442e59feca5c437"
+      "bytes": 31758,
+      "sha256": "766e028add3073d8c113b0e747b5366a4a2c8ead3ee21fd8762770b9a961f8db"
     },
     "play/abc-jam/assets/voice-wizard/spelled-ball.m4a": {
-      "bytes": 37587,
-      "sha256": "d7f5940a21345e5136a8031d0c3269f136a0a939fb62f9ce7f4881bdad5244d5"
+      "bytes": 37380,
+      "sha256": "2679f930d7da7b6c0af91c623aab89b8979569d4244cd68b31dbd16f7805274f"
     },
     "play/abc-jam/assets/voice-wizard/spelled-bear.m4a": {
-      "bytes": 29671,
-      "sha256": "da027dbe44b11c86f14b98f414a1df8bca1c102bbb3a6ba5e4673ae9b6d2398d"
+      "bytes": 27257,
+      "sha256": "5d52c3e0014335eb24d62f3fd7943e42ba70904cb1b300c39bb704c244e789f5"
     },
     "play/abc-jam/assets/voice-wizard/spelled-bed.m4a": {
-      "bytes": 23563,
-      "sha256": "eb775d9e84c5a6d1c26d83aef165fbab0d9a505a2e2ea092b4a59e498235f1aa"
+      "bytes": 22464,
+      "sha256": "1383fad29c799ad877b66b170bc65f619d08c4de5d310a3b31c8b8e70917e43a"
     },
     "play/abc-jam/assets/voice-wizard/spelled-bee.m4a": {
-      "bytes": 27076,
-      "sha256": "f76a4147ade5ffc79296ff927f29f8bd520f4baf2c9d01246bb4a4ac188f9c7b"
+      "bytes": 31872,
+      "sha256": "40c6d5077544c55453e70270ca39ef3406298e3c3e1949b8ced4d8680874183d"
     },
     "play/abc-jam/assets/voice-wizard/spelled-bird.m4a": {
-      "bytes": 34179,
-      "sha256": "0b9b93e39ddfaecdbfeb3f5065395415bc937beaf3e09b9755268011537bbff9"
+      "bytes": 33123,
+      "sha256": "4f158008eb186d75359b0edcc133115e178cacb496b2c55fa7b33011662ceb3c"
     },
     "play/abc-jam/assets/voice-wizard/spelled-boat.m4a": {
-      "bytes": 30674,
-      "sha256": "e9079904447590a5d31061b92e3c951c9200df762bf0708344923468d4e54568"
+      "bytes": 25514,
+      "sha256": "5eb8bc9959d8b0d69d32087f95d5f303fdb8bbfbb274c0efffa02dbd27d5aec7"
     },
     "play/abc-jam/assets/voice-wizard/spelled-bus.m4a": {
-      "bytes": 27896,
-      "sha256": "c00ae4f684f4dfca9d63a30dac2e8c14f6a0cea2c284ddc45149ac1480fb0566"
+      "bytes": 28421,
+      "sha256": "8ccef6ded34d3b1478842269c2929bb8a89c9085e49cd5e65007b464a39f97da"
     },
     "play/abc-jam/assets/voice-wizard/spelled-cake.m4a": {
-      "bytes": 38120,
-      "sha256": "31b42fd31b8ea8e60f77807a32c82edf9d00e9a5922f5b73280e49d190c775ea"
+      "bytes": 33780,
+      "sha256": "294e59e06d9dac7a50a9a1f632c1260a776155aa5b86e729c63abf9cef4e5e1a"
     },
     "play/abc-jam/assets/voice-wizard/spelled-car.m4a": {
-      "bytes": 29795,
-      "sha256": "c6c975727e055ddd5cefd6a78bf88ac4873983b557dcdb5c405cacd58e4334e5"
+      "bytes": 29135,
+      "sha256": "bc2640bf40c87d70ba3dc23c3bb66d2f3f62a17c7b39f727cd669bb35fbc7352"
     },
     "play/abc-jam/assets/voice-wizard/spelled-cat.m4a": {
-      "bytes": 26455,
-      "sha256": "191fba4d5a108cc3869af3a25c90376dea61076cc5ff4a56a32dbd8661cba813"
+      "bytes": 30266,
+      "sha256": "7b875e291b00c801a9a1a8c8197315722cd1110ce982fc1901f23c822ed43543"
     },
     "play/abc-jam/assets/voice-wizard/spelled-clock.m4a": {
-      "bytes": 35390,
-      "sha256": "a36ba1e8bf22ade9c2b451663a18a6136674c1c5b52fec6a8afbd6bc19e9a5f7"
+      "bytes": 29039,
+      "sha256": "34324ef259de4c2e8feb1fed7233ff5a23f995fd7107a2a7add8796a62ac9f5d"
     },
     "play/abc-jam/assets/voice-wizard/spelled-corn.m4a": {
-      "bytes": 32030,
-      "sha256": "8333c01b47330d5a16ab05ae8c18503fbd13fe84531c08da0ed873eff5ad8e17"
+      "bytes": 21998,
+      "sha256": "43309e2df3efc5f5e01a09f5c0b1221c9e906d52afb0395f008d8cf521f85af9"
     },
     "play/abc-jam/assets/voice-wizard/spelled-cow.m4a": {
-      "bytes": 27273,
-      "sha256": "a8d6c2c484e4467d294acb3dca845521ebf51459aff4f3413cedc06ee8fea69e"
+      "bytes": 26209,
+      "sha256": "e52ec741017a40f5a1399588e433dbf77f12c1ef21054fd1a27527ff688d066f"
     },
     "play/abc-jam/assets/voice-wizard/spelled-cup.m4a": {
-      "bytes": 26073,
-      "sha256": "b298b3a8a4adc60561fdbc53b9aadd3fb5f090c3caff6a8fb7b12740a5f5e00c"
+      "bytes": 23713,
+      "sha256": "ceb3a80942732a29d33863c31901a26d9e7174a95de169977f5dbb8575f9d1f2"
     },
     "play/abc-jam/assets/voice-wizard/spelled-dog.m4a": {
-      "bytes": 30361,
-      "sha256": "7482a343e2fba367bed8ec4d67928c48fbd868157ac7a93601ee46bd4d4de07a"
+      "bytes": 24710,
+      "sha256": "dc64aa0f39b1356f914916d227ba3e1dafdf0e3e2056c2eb8464ddb027e906a5"
     },
     "play/abc-jam/assets/voice-wizard/spelled-duck.m4a": {
-      "bytes": 31420,
-      "sha256": "29a6e0495dae1a391f25b74f9915472f81e3e71c3d5c5faa31d21f4b7138e089"
+      "bytes": 35048,
+      "sha256": "ffc4c39a162cdae93f80856be07dd15eb50425c73dfa908ef637653da52f7cb5"
     },
     "play/abc-jam/assets/voice-wizard/spelled-egg.m4a": {
-      "bytes": 38071,
-      "sha256": "ce82e9b0db7ac89ad3887f14da73c060c05cb11ba5c50057cee7eb9eb28ad82c"
+      "bytes": 35958,
+      "sha256": "547d2cf6707ec9eb929a147f84b890726770d535fbef7348fdb1d6db610fee22"
     },
     "play/abc-jam/assets/voice-wizard/spelled-fish.m4a": {
-      "bytes": 29512,
-      "sha256": "bde6093e43607a38fe323c70d503e01e972a1abb8924028ccc2e6890480a6da2"
+      "bytes": 24578,
+      "sha256": "cb36e57820d818eb8c7ece73e48b906884835ab599c7e884318256cac7fb0c31"
     },
     "play/abc-jam/assets/voice-wizard/spelled-fox.m4a": {
-      "bytes": 26198,
-      "sha256": "2ea3ce2fba7d44da7cf47fa76ce88a39fedcb1a033fb188eb0f80d30e193955e"
+      "bytes": 30186,
+      "sha256": "a4886bf86426401fb14cf46950a989ea7bde49e11ed81d42258afe63d0581af6"
     },
     "play/abc-jam/assets/voice-wizard/spelled-frog.m4a": {
-      "bytes": 31427,
-      "sha256": "2b0e043cf16efed10ee4072f9a7e80dcbadbde98ab69f7e85e38421cf84429f1"
+      "bytes": 33164,
+      "sha256": "1e46df6fee0d2edd0e1ec39242cb3164114d37433050348fed93e0975e9fdca5"
     },
     "play/abc-jam/assets/voice-wizard/spelled-hat.m4a": {
-      "bytes": 27169,
-      "sha256": "4a653daa2cbaaf3110959002590dce0978709def3ba9ca7224150e5bcb9cee55"
+      "bytes": 25301,
+      "sha256": "510120f38896c7b80fc548b929713663dee6b427376619878c428c0bf147e9f8"
     },
     "play/abc-jam/assets/voice-wizard/spelled-heart.m4a": {
-      "bytes": 32192,
-      "sha256": "040a391fa7473dba2756979e47907327f7a020be3c1a8e3464fec015ee9a2d72"
+      "bytes": 26155,
+      "sha256": "aff76e80395e566c3a277c430691b6d26ac65f7c4543aa87f9be904cd7e2ea80"
     },
     "play/abc-jam/assets/voice-wizard/spelled-horse.m4a": {
-      "bytes": 32831,
-      "sha256": "58c0d558f1ae5e173cf539d5dccd0fb074b92070653fcc15d7ce9aaf27d7f1b2"
+      "bytes": 30864,
+      "sha256": "c615ea02e2fafd20fce1cfc4b4e5fdb1898d7881dff46520f65543d7f23e820b"
     },
     "play/abc-jam/assets/voice-wizard/spelled-house.m4a": {
-      "bytes": 34838,
-      "sha256": "7e4173d969c575df4e35bb4b7b0274a82c15930bb64a447a7aeb3c8b28f2d11d"
+      "bytes": 38778,
+      "sha256": "7803131d84203b3631d0f6c74af8c974de4f24e07d77f1914f781518a2663d42"
     },
     "play/abc-jam/assets/voice-wizard/spelled-kite.m4a": {
-      "bytes": 30731,
-      "sha256": "b22ffa69f382b469004d58f46112121c2a74bce39e62cc736a187f45107351c2"
+      "bytes": 28009,
+      "sha256": "d4f8ba639d05bb4eb5bdb99d9f18c0c42985008a5603e0b50721ec6153fcb3d4"
     },
     "play/abc-jam/assets/voice-wizard/spelled-lion.m4a": {
-      "bytes": 30762,
-      "sha256": "ab241eabffc13757cb239adfb9ec96a0d626a93acb4f1bc86ffe0c2b1ea09261"
+      "bytes": 40405,
+      "sha256": "d71d4a2592eb2a1413fbc8601c3d5a74f95528353d8fb6bf4918bf32332d05c9"
     },
     "play/abc-jam/assets/voice-wizard/spelled-map.m4a": {
-      "bytes": 21314,
-      "sha256": "4e628bc85fa4ad378c6de506850e3cbd6573a3b1dc1f09a6e4141f3d2e49d247"
+      "bytes": 19869,
+      "sha256": "591322e1b50783d43e8a213e139147e8bbf46a8737a9d6edd970412a84a6e397"
     },
     "play/abc-jam/assets/voice-wizard/spelled-milk.m4a": {
-      "bytes": 27832,
-      "sha256": "74967536b692c24220e6afa12ec4fc38885002e18bda49c39558688079139eb9"
+      "bytes": 49374,
+      "sha256": "2d0af26d9507cd5fb9fa0aaa280c32a28e1d35a6ec5046aace76ddeee4e30556"
     },
     "play/abc-jam/assets/voice-wizard/spelled-moon.m4a": {
-      "bytes": 28507,
-      "sha256": "437e2605b4ca4cc81a792fc0dfeb6ce6f70f63bcb242c446147d4bb7297d1ff5"
+      "bytes": 31556,
+      "sha256": "ad9f1a50728aed4b64275fd714634f5ff0c3271c1d607d01e531df184798e21e"
     },
     "play/abc-jam/assets/voice-wizard/spelled-mouse.m4a": {
-      "bytes": 32675,
-      "sha256": "97dfbc805a02f2ea894ff450f9cb8bdeb66ca692e5429e5a63bdaa7bcbe4bf3d"
+      "bytes": 27307,
+      "sha256": "51495c9a8f12151201df2a215cb0b5fccb4e3ee707c867efe512e9eead4fd53f"
     },
     "play/abc-jam/assets/voice-wizard/spelled-owl.m4a": {
-      "bytes": 28560,
-      "sha256": "18411707122c15c270b889c89e83dbc73fa88258f0ce894e303bb678376be0e4"
+      "bytes": 28313,
+      "sha256": "6298815ccd479b283f2292dc1cacb34286528781cbdad1a3cf599ad74f9870b3"
     },
     "play/abc-jam/assets/voice-wizard/spelled-panda.m4a": {
-      "bytes": 30897,
-      "sha256": "30dfdccaf854f0032dd1d85a0f8f42b49eac01963d17d65560e38df36adda223"
+      "bytes": 46211,
+      "sha256": "adc07399eb0949bd1c6bc3756c7f07589727bfcecf0ac37e189a7fd036e22914"
     },
     "play/abc-jam/assets/voice-wizard/spelled-piano.m4a": {
-      "bytes": 38622,
-      "sha256": "aa50c8a213ff43fa56f6145c99b1e6b040f6dd64d7b2cc4b1aebf0bb31b75d06"
+      "bytes": 34868,
+      "sha256": "a555f8ff48ae6d2ca295c433a800297b3fd1f0bc442cf51e021c5a35d2f8c8cc"
     },
     "play/abc-jam/assets/voice-wizard/spelled-pig.m4a": {
-      "bytes": 36184,
-      "sha256": "ba688576e09396847cbc5fe9cf1454697288a54397c369d9f02c1f76c5747ef7"
+      "bytes": 24078,
+      "sha256": "2ce424e2c95711586d8a115a3fd2fcd8189525fdf9830e1c71c451586c8b4f5a"
     },
     "play/abc-jam/assets/voice-wizard/spelled-pizza.m4a": {
-      "bytes": 34907,
-      "sha256": "0acee770ed6cc2c495addb3c6f0c8e94907eab50b8cc99db326e223d869a70c5"
+      "bytes": 36262,
+      "sha256": "ba35ace85710b3ea2e91f49c5f2a0ddd22c055d2c6a6051d3ffcbed017cd6960"
     },
     "play/abc-jam/assets/voice-wizard/spelled-robot.m4a": {
-      "bytes": 37004,
-      "sha256": "7a66d0c864c370520b6fc7a6c8bef8e040b5524e02440339ed8acf8da96c60b5"
+      "bytes": 33916,
+      "sha256": "d84a785e32641a49089cb46f4c2c86c0f12def724a91cef552335a0f118ef31b"
     },
     "play/abc-jam/assets/voice-wizard/spelled-sheep.m4a": {
-      "bytes": 39125,
-      "sha256": "dfc7f8717e346eedad0556f7fccbc53c27e69c739a7854cac4283420fc91ac93"
+      "bytes": 25686,
+      "sha256": "6719ff487b0929e7b67545667f224a67562273e1e2d10b52dde5cb662d24661e"
     },
     "play/abc-jam/assets/voice-wizard/spelled-shoe.m4a": {
-      "bytes": 25601,
-      "sha256": "72c45aea8dda12ba30c2280422ac0c8cb95edb56095abec72d0ffd11a93ca97e"
+      "bytes": 29351,
+      "sha256": "1135fc458ea1fe7aa97a4523b66e82742d77c67fc1f7013d117c85534a5b1a4e"
     },
     "play/abc-jam/assets/voice-wizard/spelled-snake.m4a": {
-      "bytes": 31610,
-      "sha256": "10131e0bdd728dd841091c4814679afead8e83df66a1132b36c67ce4cfc54b6e"
+      "bytes": 49858,
+      "sha256": "57eb65f5b74405723c3c8c57948fd51fa815327019a123f364b6f75fb3561768"
     },
     "play/abc-jam/assets/voice-wizard/spelled-star.m4a": {
-      "bytes": 36649,
-      "sha256": "00199b153a35b4ed3edd2f077602bdcf78872d608051d4272e527892572e72ae"
+      "bytes": 30358,
+      "sha256": "d67c0c54e58babef6ee75a93f509c99372c74b1e5daea6882c8ed0b6c639a30a"
     },
     "play/abc-jam/assets/voice-wizard/spelled-sun.m4a": {
-      "bytes": 27006,
-      "sha256": "6b903514ae82c34812043f5cabadb1cb42fb004772e5a7c393e7d998d3b7ebfb"
+      "bytes": 26328,
+      "sha256": "663a7bcd3dc27bdb939d82479fca32f4017c768543777d1b2741c2d4aac4a7fc"
     },
     "play/abc-jam/assets/voice-wizard/spelled-tiger.m4a": {
-      "bytes": 35625,
-      "sha256": "ee122a3aa97bd4daaf336235abd3238cf963948d0fb5bfc63410fa7c236723b3"
+      "bytes": 28049,
+      "sha256": "4287ad57dfc17cec3610477e97344be610251bef7cd2fc4a97d92ec4974e4b73"
     },
     "play/abc-jam/assets/voice-wizard/spelled-train.m4a": {
-      "bytes": 32357,
-      "sha256": "1b1408db28d86bcae9151e3f2969d43087d6b95a7beeae1f012bb699b5f50fba"
+      "bytes": 37762,
+      "sha256": "fb3597d87175a02883285a79de02808e801c6e47a20f3e2b92de81681de82654"
     },
     "play/abc-jam/assets/voice-wizard/spelled-tree.m4a": {
-      "bytes": 30151,
-      "sha256": "d68fd79d4237c5af4564646e1677f264a8b22e623909d423c1f9b17584b381ac"
+      "bytes": 23532,
+      "sha256": "9ea6499f457f6605f41eaa4902259995ca9d861fee47366d8e09d9c509ecdd96"
     },
     "play/abc-jam/assets/voice-wizard/spelled-whale.m4a": {
-      "bytes": 33665,
-      "sha256": "4c8890c739c69a625bed947bd5d4f960107f37aec74c9ffb35611ec2383c18b9"
+      "bytes": 44288,
+      "sha256": "2d31efb0e1ed763700c9555df5e95db20db98afa3103c669f2490b8d6bf7015b"
     },
     "play/abc-jam/assets/voice-wizard/spelled-zebra.m4a": {
-      "bytes": 34340,
-      "sha256": "76f6b4c91dd1092285fd08f86c9f181771a6baf05ed83ba334f738d713b7eb7b"
+      "bytes": 29901,
+      "sha256": "d8a6d02c1b5f063b04ea070e1a0fb9dd3dd60497372167b81ac120b4ee66850d"
     },
     "play/abc-jam/assets/voice-wizard/tower-done.m4a": {
-      "bytes": 22918,
-      "sha256": "7cc2a4a84d5c059444284fc7d345d6f0902d831e9b3df3fdf62a75f259294826"
+      "bytes": 20678,
+      "sha256": "dbd77adf10ec88cd3cede9a31a0f457f8b481a964f7cbe2dbe9e3b55e323ed4e"
     },
     "play/abc-jam/assets/voice-wizard/tower-oops.m4a": {
-      "bytes": 21112,
-      "sha256": "e09ab773bfc3e17a1106e21dfefffaa5f6003e9250621bf0f6885fddbf8da5d8"
+      "bytes": 25924,
+      "sha256": "69f5b0fe4705936a1784ff67a6e043ccaa6d638dfb4ae90d9854b0e9cca64218"
     },
     "play/abc-jam/assets/voice-wizard/voice.json": {
-      "bytes": 37257,
-      "sha256": "6cb7d61cc0d94670230bc9a2465a4e8c64d978bd42d59af5ed11c62070869e61"
+      "bytes": 38272,
+      "sha256": "aeeef48651e3ef20cd5de35bb7aef44dd5447007e06ab1800b89300ee44ca34c"
     },
     "play/abc-jam/assets/voice-wizard/word-ant.m4a": {
-      "bytes": 6179,
-      "sha256": "2edbd711fb146baef289062599003b3734a605baca9038d0e191bc2f68fe7c75"
+      "bytes": 11654,
+      "sha256": "abe2d18d3849d1ceddce885ad65a9accb83490ac71c17351b0062dd451d39a95"
     },
     "play/abc-jam/assets/voice-wizard/word-apple.m4a": {
-      "bytes": 6530,
-      "sha256": "8be31df6713e399b838d38c4252eb9c07203918694cbea784c808ea5561a44be"
+      "bytes": 6457,
+      "sha256": "25681edf5e1910c174d89ee51d0dea69f45ff0c5e012f90728543b4762b07948"
     },
     "play/abc-jam/assets/voice-wizard/word-ball.m4a": {
-      "bytes": 6667,
-      "sha256": "9f12addbebac1e9a7f1252d0b756b2d735e03500f1f5ff0b86ff6e670c1f6a33"
+      "bytes": 8866,
+      "sha256": "a7646132e8326518431f08a2850a6a105e80a0dd3ff7df92d3c7edf7d48df7f9"
     },
     "play/abc-jam/assets/voice-wizard/word-bear.m4a": {
-      "bytes": 5631,
-      "sha256": "ae23494347b52889c326b19efaa1c2ad8b903429ff3fdfe0da5e776faf889fb4"
+      "bytes": 9247,
+      "sha256": "a4a1df765c5e0683168672f35eb48c9ab2d6dedf3d774191efd7b6f3b6d67c9a"
     },
     "play/abc-jam/assets/voice-wizard/word-bed.m4a": {
-      "bytes": 6511,
-      "sha256": "e45f8591730404bc7fe50d31ddb8f22ea4649062717ef33a43ee05a2e576087f"
+      "bytes": 15166,
+      "sha256": "4c640a194eee5d5e86ae023f7626642d4d7e8b653008bc9b3f3998cee96b6696"
     },
     "play/abc-jam/assets/voice-wizard/word-bee.m4a": {
-      "bytes": 5821,
-      "sha256": "4e7b96da6c827f0c6bab2d0218a1f612f6c503926fee585439de4aa89f2c0465"
+      "bytes": 7152,
+      "sha256": "1fcbd746c2be84862d4e0b1c7da5c6b77c28ac5170d91a3681307676f8ec6717"
     },
     "play/abc-jam/assets/voice-wizard/word-bird.m4a": {
-      "bytes": 6655,
-      "sha256": "a98ff1ee99fedab927d3169caf99b2d5fb17fd1d4b051c58b5d035a5dc532387"
+      "bytes": 8898,
+      "sha256": "3120e69b893852a603b282e146e59e541307991ada6d75ffee9afeeee7484eb8"
     },
     "play/abc-jam/assets/voice-wizard/word-boat.m4a": {
-      "bytes": 6164,
-      "sha256": "a2ffe506935fb70ea6c9ab16b6a251234eb19bd8dd46b762a04ae7cd061f9cf0"
+      "bytes": 7636,
+      "sha256": "3a91fecfb2197d77f837b5c87aa208b86961e73d2f81a12dcca2ae72abe20884"
     },
     "play/abc-jam/assets/voice-wizard/word-bus.m4a": {
-      "bytes": 8493,
-      "sha256": "9495ff78892417e0d7add55ff2f1f8eee992888b39dce4cbf21d3c65141f0029"
+      "bytes": 6314,
+      "sha256": "61ba59d977babfbb7743ea25b540d50bc7da09ca002fe58f80f304a0d56f5667"
     },
     "play/abc-jam/assets/voice-wizard/word-cake.m4a": {
-      "bytes": 6972,
-      "sha256": "4ef48d1dd81d025867bfd4d6b629162781b8d83612b6525134305528fdcb365b"
+      "bytes": 6955,
+      "sha256": "789b2a30f40e59918929a5140c5dbdb53e92df32d6f8fb4d1996c52e04799498"
     },
     "play/abc-jam/assets/voice-wizard/word-car.m4a": {
-      "bytes": 8746,
-      "sha256": "cab16d08eed0a21e1d77e99c866fe5ca4ec84e84245ce79007688dfe099c21dd"
+      "bytes": 15483,
+      "sha256": "c3572f5a7e77b8112b58bf2f4eff7fd794095bf2574709f02abe3e165573ad04"
     },
     "play/abc-jam/assets/voice-wizard/word-cat.m4a": {
-      "bytes": 6174,
-      "sha256": "2363eaea57582609c4fdcb753c110022adb35eeea44b2b95a0f78fe57145642a"
+      "bytes": 5667,
+      "sha256": "230c65709e9aebf1c3fee7ab87d5c056f9e3cc4866109e5e8c4e03f71e1666b6"
     },
     "play/abc-jam/assets/voice-wizard/word-clock.m4a": {
-      "bytes": 7809,
-      "sha256": "602464545380ae51f52c0a29325d35019f079421ecb8215973c0097884938d38"
+      "bytes": 6368,
+      "sha256": "b0086394ab7526a39b23a09c292c4b5b47d81c642ed39830cd5ddfb69d17cc5d"
     },
     "play/abc-jam/assets/voice-wizard/word-corn.m4a": {
-      "bytes": 9451,
-      "sha256": "618973e34688eff5b04b5a2b2917450d3f84cf8946ec53df243eab1c3b24f364"
+      "bytes": 9126,
+      "sha256": "08a6c63e921ffaf9aa0c2e3dedb3aaf2efabd1f3dbada89dfe4a5f6a04141584"
     },
     "play/abc-jam/assets/voice-wizard/word-cow.m4a": {
-      "bytes": 5931,
-      "sha256": "aa287d619a47e6613a7fc82c39d102fc62e62ca9e3eb04860ffc9ffbdcd62572"
+      "bytes": 5307,
+      "sha256": "3d207529c5e119050a4a94713f73d4b03471dc59961a639ce7754934ef1e1ca1"
     },
     "play/abc-jam/assets/voice-wizard/word-cup.m4a": {
-      "bytes": 5938,
-      "sha256": "cbc2c1d473fbca6945e33d836afc5282f662397e20304cb0f3352463e1171551"
+      "bytes": 8670,
+      "sha256": "e2cc3dc72268ae61ab977693a156f967eeca9868bf7d4e9b7cabc91bdfc85db5"
     },
     "play/abc-jam/assets/voice-wizard/word-dog.m4a": {
-      "bytes": 5201,
-      "sha256": "1542ff947fd60f6c0e51bef67ee3ead60218a1d0caf3515e90700f045973d5fc"
+      "bytes": 9538,
+      "sha256": "d8d9003e03d42ff163178ac498dcf37fad9048badcd9c414c5362dd832628088"
     },
     "play/abc-jam/assets/voice-wizard/word-duck.m4a": {
-      "bytes": 5781,
-      "sha256": "198fedefd616518b704a0557817e6d60774df039ba31d46f1b3c6d82acf3e24a"
+      "bytes": 14868,
+      "sha256": "297d0d3fce824168e2ab6835456e4a2a9c755550c497a0b3bbc6533b05e43c25"
     },
     "play/abc-jam/assets/voice-wizard/word-egg.m4a": {
-      "bytes": 5338,
-      "sha256": "773e2bec5cfbf781e4cd7e222737d2df399ff4b2e8e76a1bf90aa3b2585e7a50"
+      "bytes": 7726,
+      "sha256": "01b417c55a7b2b1706899f8f78b2c4cbbb6ac665be51e290265a44702a1e1197"
     },
     "play/abc-jam/assets/voice-wizard/word-fish.m4a": {
-      "bytes": 7927,
-      "sha256": "9be1266359e7e00d25577648e726f0e7bfa89b85858b74ef2fe46590051dc2a5"
+      "bytes": 12225,
+      "sha256": "b25d881e8011108a01e761a4734377b348d4d7824a684e075588e99bd21a48ac"
     },
     "play/abc-jam/assets/voice-wizard/word-fox.m4a": {
-      "bytes": 9177,
-      "sha256": "153c814759c14e0e8bba8a015a546453086293d3131b49a5d100eae5736a1939"
+      "bytes": 6579,
+      "sha256": "b0d4628c0ba03b6f0d10bb624722c760b48b6c74ab3a02256d1ea1569b4cbd70"
     },
     "play/abc-jam/assets/voice-wizard/word-frog.m4a": {
-      "bytes": 6083,
-      "sha256": "2e86af3e4964e65f14d880b383f313a18188b269e08f609b6b80f7c99f74e86d"
+      "bytes": 18171,
+      "sha256": "5754c1246b2cccae6130002689fd879e52e7cdcd064e06f9437c6faa95de6fd7"
     },
     "play/abc-jam/assets/voice-wizard/word-hat.m4a": {
-      "bytes": 7364,
-      "sha256": "f545f4a3e7891bad022a0db365784fc6580313e528e4aad1555f07fcb70b7b68"
+      "bytes": 6820,
+      "sha256": "2d0e29a1df5296b37526e9ce114a765ddc2a9e2803c617eebb441fe266f9447c"
     },
     "play/abc-jam/assets/voice-wizard/word-heart.m4a": {
-      "bytes": 5071,
-      "sha256": "6e32333cfad94ea8c11a1cf4779d0227638b61c75ac432adbec0f9e051309d6a"
+      "bytes": 7866,
+      "sha256": "a09fe2cd35528da696f91e1989475f3f60fe1e42db59629ab3f29c81355b3659"
     },
     "play/abc-jam/assets/voice-wizard/word-horse.m4a": {
-      "bytes": 9134,
-      "sha256": "9681ae4823a8729e9e9ac11ada920a996fa460466fc084c8d0ce9e9e82843632"
+      "bytes": 8061,
+      "sha256": "179eb3e489f410c60842e19133f14efdfc0005763ca2fe79d0a877df2cbb25a1"
     },
     "play/abc-jam/assets/voice-wizard/word-house.m4a": {
-      "bytes": 9631,
-      "sha256": "99912b47379feeb92390539e198d38441e3dbd9b4ab2eed677d00a4092aafe3e"
+      "bytes": 8060,
+      "sha256": "dbeaf1e576fa2801b9def8f64a499a0bc03ad06b2bff365c16e19381fb2eb1af"
     },
     "play/abc-jam/assets/voice-wizard/word-kite.m4a": {
-      "bytes": 6435,
-      "sha256": "6d63984b16a2884660afb7efc5e78a5b97a288d68c3edb7fa2b97ffef050297a"
+      "bytes": 8738,
+      "sha256": "394ba43ed8cabfefed6ec0f1b79550befd7edfd2beccd82e85266266a73f08a8"
     },
     "play/abc-jam/assets/voice-wizard/word-lion.m4a": {
-      "bytes": 6892,
-      "sha256": "680b09ebf20495acdfd3900b4bf53900983d8e40a3388405147c71c15b01c7eb"
+      "bytes": 7751,
+      "sha256": "c4cba3952c47dc563e72509e8ae9a6ab76a5178a630ce2e02a3a486b756fc89b"
     },
     "play/abc-jam/assets/voice-wizard/word-map.m4a": {
-      "bytes": 5764,
-      "sha256": "2542ac1227c02a20f4d6db9bbd02014fb2903bb36c8ad41e9c1a7a6ed8b805b8"
+      "bytes": 14065,
+      "sha256": "d9afaec2db8bfbcc10f74309ca55ad1cdda3acd20f94a79fbb4de7c3bcf2acb6"
     },
     "play/abc-jam/assets/voice-wizard/word-milk.m4a": {
-      "bytes": 7034,
-      "sha256": "2b1c5e1ddad3549777275af8911a77cee2ca303f6b83e7e8967343b2d2bc8425"
+      "bytes": 6288,
+      "sha256": "58ee06bf3eda5f2b747bde1b51218c55054dec15bef02a72bf3f862b17ccb995"
     },
     "play/abc-jam/assets/voice-wizard/word-moon.m4a": {
-      "bytes": 9189,
-      "sha256": "5f71d774b2726032ffcbe023046543f91e539680e68cc9668b87991cf852cdce"
+      "bytes": 10626,
+      "sha256": "4d11b321e71d339ab0c9ab457249b2c23eeffcf54860bdda12739559f7b6000f"
     },
     "play/abc-jam/assets/voice-wizard/word-mouse.m4a": {
-      "bytes": 6932,
-      "sha256": "8f6fcb56d9b93ad52fcee0247cbcb98f7819301cd4b1c251e3020538c4f01a3d"
+      "bytes": 10949,
+      "sha256": "aad68b83a492f6b0727387ff82f0e538406b3a93b0d1b9c0801de930757aa72a"
     },
     "play/abc-jam/assets/voice-wizard/word-owl.m4a": {
-      "bytes": 6875,
-      "sha256": "135299214028f019f01bb6a8e61ef4aa43dd229dade478b8b8e717dca83eec3a"
+      "bytes": 9627,
+      "sha256": "58d3e8e4618f42efcfc64bbca65ce7ecf27970066a6ef3b4eb259f1a543c084c"
     },
     "play/abc-jam/assets/voice-wizard/word-panda.m4a": {
-      "bytes": 6822,
-      "sha256": "abd0a81c80d96e83c7c0b6bf4b38fcfb205810e33b11ee43b692f5ce927b00df"
+      "bytes": 6329,
+      "sha256": "ca27298a912ba6bc675d08e5571c2afddb892b149c64ab9d5b98c89b4e08e201"
     },
     "play/abc-jam/assets/voice-wizard/word-piano.m4a": {
-      "bytes": 6886,
-      "sha256": "832dcd562e31cf772988eece14a495cd02d13c8ebaffb095f78097d043ef6e06"
+      "bytes": 9546,
+      "sha256": "eac00894eddb88c4e4d088dab021199a62643a61f9b37aebe49cb8d588796749"
     },
     "play/abc-jam/assets/voice-wizard/word-pig.m4a": {
-      "bytes": 7190,
-      "sha256": "48dc398873e4cd02f46d9d830ec7f19d190142702f23286056ab58db23f3c091"
+      "bytes": 8917,
+      "sha256": "c6d4bd36ac1b20e8ffd78d9d9040473aff0b01e734845ed671e650bca4b39950"
     },
     "play/abc-jam/assets/voice-wizard/word-pizza.m4a": {
-      "bytes": 8956,
-      "sha256": "dd014ee0967bd55fd2474bec83d237fa48a744a1c4d1792da62a960b5058e2f5"
+      "bytes": 7908,
+      "sha256": "e1628b19529e865821d085ae6979f0d8d39d75b4faa5f4c6b329af89c988a728"
     },
     "play/abc-jam/assets/voice-wizard/word-robot.m4a": {
-      "bytes": 8497,
-      "sha256": "65bd039e0705130433d8eec9e3a0857cc724233e3ae8500be2d4b2ad3465e5d5"
+      "bytes": 9236,
+      "sha256": "1d438a61939adf8d5167479b71b25162db4b6fffe3fe7c00175e19ec4693760c"
     },
     "play/abc-jam/assets/voice-wizard/word-sheep.m4a": {
-      "bytes": 7596,
-      "sha256": "9424ebbf484e6132f3c38aa7c0c9abbf01555993eb796ae50f6308bca8e4f4c8"
+      "bytes": 8290,
+      "sha256": "4aeac36ce602fe2b21500a24141fc393c6515cb24ae4cff32e96453d0240bc78"
     },
     "play/abc-jam/assets/voice-wizard/word-shoe.m4a": {
-      "bytes": 6883,
-      "sha256": "bce6f03512b9ccdbb46157a6bfa30dd8c5e7b476d660805b7ded8133798b836a"
+      "bytes": 15901,
+      "sha256": "cb26466248c6956935c0b7fd8ed424ebcd72de978de96d0776ccca876cf0d46f"
     },
     "play/abc-jam/assets/voice-wizard/word-snake.m4a": {
-      "bytes": 6624,
-      "sha256": "74ad316fe8d63c24d492425867b21de62cec2089d6932019bd920da4abd5af80"
+      "bytes": 5730,
+      "sha256": "5171a676bdd7456b181a041a2702caa564793b89cd14f9ac38c05bd55a1e849d"
     },
     "play/abc-jam/assets/voice-wizard/word-star.m4a": {
-      "bytes": 9359,
-      "sha256": "7443877344e8bc00fcec8a4b4e1ef25243a2727d783b44eaf0f33d5470125a49"
+      "bytes": 14368,
+      "sha256": "43b9a44636d091217a8fae2ea8ccf78ee562a255d4b78fea159a5126455fbcfb"
     },
     "play/abc-jam/assets/voice-wizard/word-sun.m4a": {
-      "bytes": 6600,
-      "sha256": "033f3bdff2dc2b7c38eccce06a192a741d204678ab1f9dfb954ca76e709ee949"
+      "bytes": 6614,
+      "sha256": "5246bf1b500ed555705113082d5e9e4f53069805d5c6dfd4ef3d8e87e772c9ee"
     },
     "play/abc-jam/assets/voice-wizard/word-tiger.m4a": {
-      "bytes": 8764,
-      "sha256": "f09e62b51ac3b77fa2dcf8e16e531463ef150e903299ff3bda5e8d14d93af4e6"
+      "bytes": 6713,
+      "sha256": "10a644d2bb14752f28a837dd40b8a32ddb2b555cf3a6522d398df7bee9b3a389"
     },
     "play/abc-jam/assets/voice-wizard/word-train.m4a": {
-      "bytes": 8191,
-      "sha256": "02c355a886151c0c707edf3beb5ffd17f1251314ae5fc1729bb1c6b269b33829"
+      "bytes": 7472,
+      "sha256": "7cc2fe9010b67063deead0119fb50b7a6292bf58dd5a5ac477cd1fe4ac0cc4fb"
     },
     "play/abc-jam/assets/voice-wizard/word-tree.m4a": {
-      "bytes": 6129,
-      "sha256": "74d9a66f5658894a5fff62adaa301c4d371c02d20b94225b04bb819d7a701725"
+      "bytes": 5598,
+      "sha256": "359951f21e0edcedd863493df0c1c112aebb56e63dc81fafca84dec9638f2a62"
     },
     "play/abc-jam/assets/voice-wizard/word-whale.m4a": {
-      "bytes": 8366,
-      "sha256": "07b86423dd3c7511dbebe7b293d55b4fc9e70002612af2fd9512c4f8863d51a4"
+      "bytes": 7051,
+      "sha256": "a296cc2dbd8c0906a57110cff2899a87261df13c072d641e4958bc0d27b89711"
     },
     "play/abc-jam/assets/voice-wizard/word-zebra.m4a": {
-      "bytes": 8736,
-      "sha256": "9622a61b3711b0f2b1496ad6a85c8fa8cfa50b36268eb995aa0aa20b80022bc3"
+      "bytes": 7640,
+      "sha256": "e948dc09bdb0cbf16f89f1daf96ad2a988003abe2e7df799a477539958b8ffc5"
     },
     "play/abc-jam/assets/voice-wizard/words-done.m4a": {
-      "bytes": 30622,
-      "sha256": "e9892ad504de6134b0a9346952904937401ca4786c83f4239141cb19d65c9d30"
+      "bytes": 29549,
+      "sha256": "da695f74f03ac719d8be2076c1468ea4678af2fd19dcaa43321214700a7d1f4d"
     },
     "play/abc-jam/index.html": {
       "bytes": 8856,
-      "sha256": "477cf8d06e3b07f424fd25f96ee5a0df0ef82053d993e1822df4c4400f7dba4f"
+      "sha256": "9703aefe20f2e3aafd39b5f3b7242b76d70f34e22a583ab66b4d097f06f201ac"
     },
     "play/abc-jam/src/content.js": {
       "bytes": 4134,
@@ -8006,7 +8006,7 @@
     },
     "play/gomoku/index.html": {
       "bytes": 10197,
-      "sha256": "8e67fd26334ad2902594cce0e99ec6a3e2acc38544091968ab65c9e817f33971"
+      "sha256": "a6c9b5581c940e2368b0fd7a3701cc249e2a925b378efec2b50c6837aa270883"
     },
     "play/gomoku/src/main.js": {
       "bytes": 28139,
@@ -8090,7 +8090,7 @@
     },
     "play/word-chain/index.html": {
       "bytes": 11443,
-      "sha256": "9c30cb5848d253e0211ac42a0381e4d55e60c760654fff777d51b215e2ecd936"
+      "sha256": "d89e3d4fe20b5200b9e31a5d98a6cf244221d39328efb5d02d1e6adf3abd7324"
     },
     "play/word-chain/src/main.js": {
       "bytes": 31706,
@@ -8206,7 +8206,7 @@
     },
     "play/truco/index.html": {
       "bytes": 10664,
-      "sha256": "ead3722a789177d1fe95787438e3637fb51f0bc300bffc6798b0b77f9b54c8f1"
+      "sha256": "ca4dc4a9661120da961dea62d25a324daa62294da5541e71ae4df3b5e7c0e2b7"
     },
     "play/truco/src/main.js": {
       "bytes": 40029,
@@ -8342,7 +8342,7 @@
     },
     "play/buraco/index.html": {
       "bytes": 10362,
-      "sha256": "46cb281930457f792c812a92c1bcb262820c039082f57fe0bdc2a9fe63d5d9f6"
+      "sha256": "ebffc131e0d612143d15b995aa0292ad0943c94eed1e7e453561a15878a6d817"
     },
     "play/buraco/src/main.js": {
       "bytes": 45061,
@@ -8458,7 +8458,7 @@
     },
     "play/conga/index.html": {
       "bytes": 10497,
-      "sha256": "94e17637cc67f8b6238322b49b3ab15a92dbd8c1ff6d9441a2c542c86a8af128"
+      "sha256": "3003349a040ca7951f2b3a5a93b551f644807c4afa5478fd06171d1f1e68efa7"
     },
     "play/conga/src/main.js": {
       "bytes": 44271,
@@ -8522,7 +8522,7 @@
     },
     "play/koikoi/index.html": {
       "bytes": 10224,
-      "sha256": "5644e3b4e25fab5102deeee31aba060258d2911e74728cf8aa20c4f25fd96a01"
+      "sha256": "9a4e22bbe9396b0f09b0bc35e374f4704862752ecd902c50c37c0a1577243e5f"
     },
     "play/koikoi/src/main.js": {
       "bytes": 38708,
@@ -8586,7 +8586,7 @@
     },
     "play/shogi/index.html": {
       "bytes": 10707,
-      "sha256": "43aa09caef39fafdc4e7441be70af20929938b069c43216869bfbb9c99b9c978"
+      "sha256": "63f34b5ea53856d50def0477b05d7b21866a63d3c1bc979ab5d4501573592335"
     },
     "play/shogi/src/main.js": {
       "bytes": 35437,
@@ -8646,7 +8646,7 @@
     },
     "play/xiangqi/index.html": {
       "bytes": 10818,
-      "sha256": "0d953eee8d911ac49efe6ddd2a08bd78292ecf05bebf4bf7f5f11ce688d6772b"
+      "sha256": "2f4200dc226e44d98b1f25fd992b69dcb2551e68f8f66957835c582a370e735b"
     },
     "play/xiangqi/src/guide.js": {
       "bytes": 878,
@@ -8714,7 +8714,7 @@
     },
     "play/go/index.html": {
       "bytes": 12092,
-      "sha256": "cf61c4a91940c1dc530346d3de8bf75811e8a07c47ba957740b6642d2c8f5f91"
+      "sha256": "749b4a25e20885a302911fb38d97987df07dc9a7c99d767ff10b6fdf62408763"
     },
     "play/go/src/confirm.js": {
       "bytes": 162,
@@ -8746,7 +8746,7 @@
     },
     "play/silk-and-seam/index.html": {
       "bytes": 4497,
-      "sha256": "046c6132f720905ab5d50cdc60171fb2f55cbd79474d93562d6c4a72dd376716"
+      "sha256": "e8aa17bbaeec8e154e63f80eff3d9877379607dbd8bd88e49b01fa85332f3008"
     },
     "play/silk-and-seam/css/scene-frames.css": {
       "bytes": 3171,
@@ -9126,7 +9126,7 @@
     },
     "play/dachis/index.html": {
       "bytes": 20888,
-      "sha256": "430034a512d2a6fcd203d185fa9a8e861f810e2849fb9c6f37c74860659f3a3e"
+      "sha256": "252198f85b48edcd34a7e84abe1c54bd790cdf5432598858c1214d0479e1b29e"
     },
     "play/dachis/css/game.css": {
       "bytes": 65322,
@@ -11162,7 +11162,7 @@
     },
     "play/space-95/index.html": {
       "bytes": 20112,
-      "sha256": "dbfce616fc3f105f040a7e77dbca7daec42090ce9cd61a2932d7a92b78e86d85"
+      "sha256": "9759e1185628c4c40fb2fc565d85d0ca5074c4de0cf14fa1a2dd4062e739341e"
     },
     "play/space-95/css/bolt.css": {
       "bytes": 842,
@@ -25810,7 +25810,7 @@
     },
     "play/magic-mirror-moves/index.html": {
       "bytes": 10078,
-      "sha256": "e83564f44658dc392e2420b73c64e3b4e5301c75aebf59c2b6abd1a1b77cbe77"
+      "sha256": "7c9bbc7b4c22c16564fb712ce16db8c5302a850c73990a7eb686bab47f266801"
     },
     "play/magic-mirror-moves/css/game.css": {
       "bytes": 14570,
@@ -27170,7 +27170,7 @@
     },
     "play/rex-rampage/index.html": {
       "bytes": 1200,
-      "sha256": "cc3cd5db610a6a87b91ad211141ca41ca68a91099a6c2d8ac83a0e4f7dbe9d59"
+      "sha256": "3095c2a49deaacea0c4cf7735dea27fcc4493244d099baf3c3cb62b5eca15871"
     },
     "play/rex-rampage/css/game.css": {
       "bytes": 9979,
@@ -30278,7 +30278,7 @@
     },
     "web-engine/progress/probe.html": {
       "bytes": 485,
-      "sha256": "d46f2b49aceb8eac308cf20898edc57cc8d2c2f7771813677f6ae97b6d19b6ef"
+      "sha256": "a5fc9fdfb082a502561469811f8f062b317194bd016b9ef249c4f414fb656d88"
     },
     "web-engine/progress/ranks.js": {
       "bytes": 681,
@@ -31034,7 +31034,7 @@
     },
     "play/farmy-moon-life/index.html": {
       "bytes": 70113,
-      "sha256": "24010e79435b36833ece46622d02089822fce58c88a7a750703e2a7d6c0f48a9"
+      "sha256": "f1a95060de5462603f9912a23408118ee46a09b4bf767693f676ec9258caa39f"
     },
     "play/farmy-moon-life/src/install/icon-192.png": {
       "bytes": 1839,
@@ -32658,91 +32658,91 @@
     },
     "play/farmyshoot/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/farmykart/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/farmy-evil-hills/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/zelakas/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/2d-fighter-ex/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/farmy-crosswords/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/farmy-tiles/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/farmy-ludo/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/farmy-chess/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/minesweeper/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/lamplighters/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/fossick/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/gomoku/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/word-chain/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/truco/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/buraco/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/conga/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/koikoi/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/shogi/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/xiangqi/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/go/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "play/farmy-checkers/version.json": {
       "bytes": 72,
-      "sha256": "92641e1a2cd93eaa7fd6153adb00811f568f74786e3a780c7c1830c7006655a2"
+      "sha256": "3aa8adcf6553dbc6288cd31edd8e0a240615905ac99fc0bb4da859d77bde4a37"
     },
     "assets/badges/first-steps.svg": {
       "bytes": 764,
@@ -34018,7 +34018,7 @@
     },
     "catalogue.json": {
       "bytes": 31388,
-      "sha256": "1920286a11e35f355534956a7f0e2931ffbad13b50d540f360b7143c9bab662f"
+      "sha256": "56c297c42daf89022d7b4e505959a86415220d9e40ce83484c4b6bfe0405c8dd"
     }
   }
 }
