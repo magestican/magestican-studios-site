@@ -168,9 +168,9 @@ function boot() {
     });
     if (role === 'host') {
       mesh.host();
-      const join = new URL(location.href); join.search = ''; join.searchParams.set('join', mesh.myId);
+      const join = new URL(location.href); join.search = ''; join.searchParams.set('net', '1'); join.searchParams.set('join', mesh.myId);
       $('join').value = join.toString();
-      const base = new URL(location.href); base.search = '';
+      const base = new URL(location.href); base.search = ''; base.searchParams.set('net', '1');
       $('watch').value = watchLinkFor(base.toString(), mesh.myId);
       $('lobby').hidden = false;
       $('start').disabled = false;

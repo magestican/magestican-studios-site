@@ -7,6 +7,10 @@
 
 
 
+
+
+
+
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { BULLET_TYPES, rasterBullet } from './bullets.js';
@@ -15,7 +19,7 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
 import { SFX_TAKES, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound } from './sound.js';
-import { BURST_COST, ENEMY_CAP, TICK_HZ, createSim, step } from './sim/sim.js';
+import { BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, step, teamScore } from './sim/sim.js';
 import { FP } from './sim/fixed.js';
 import { MOVE_MAX, pack } from './sim/input.js';
 import { BOSS_AT, SCROLL, cueAt } from './sim/stage.js';
@@ -120,27 +124,9 @@ function fit(obj, len, { axis = 'x' } = {}) {
 }
 
 let ship = null;           
-const pools = {};          
-let warden = null, furnace = null;
-const props = [];
+const ships = [];          
 
-function pool(key, proto, n, y) {
-  pools[key] = [];
-  for (let i = 0; i < n; i++) {
-    const o = proto.clone(true);
-    o.visible = false;
-    o.position.y = y;
-    scene.add(o);
-    pools[key].push(o);
-  }
-}
-
-async function loadModels() {
-  const [e, v, de, di, te, ti, fe, fi] = await Promise.all([
-    'craft/fighter_p1_ember/fighter_p1_ember', 'craft/fighter_p1_iris/fighter_p1_iris', 'craft/dart_ember/dart_ember',
-    'craft/dart_iris/dart_iris', 'craft/turret_ember/turret_ember', 'craft/turret_iris/turret_iris',
-    'craft/furnace_ember/furnace_ember', 'craft/furnace_iris/furnace_iris',
-  ].map((p) => loadGlb(`assets/${p}.glb`)));
+function makeShip(e, v) {
   const roll = new THREE.Group();
   const ember = fit(e, SHIP_LEN), iris = fit(v, SHIP_LEN);
   ember.rotation.y = iris.rotation.y = Math.PI / 2; 
@@ -159,8 +145,45 @@ async function loadModels() {
     new THREE.MeshBasicMaterial({ color: 0xfff4c8, transparent: true, opacity: 0.6, depthTest: false, toneMapped: false }));
   halo.position.y = 58; halo.renderOrder = 29;
   group.add(halo);
+  group.visible = false;
   scene.add(group);
-  ship = { group, roll, ember, iris, halo, lastX: 0, bank: 0, flipT: 0, pol: 0 };
+  return { group, roll, ember, iris, halo, lastX: 0, bank: 0, flipT: 0, pol: 0 };
+}
+
+
+const tethers = [0, 1].map(() => {
+  const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+  const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0xfff4c8, transparent: true, opacity: 0.85, depthTest: false, toneMapped: false }));
+  l.renderOrder = 28; l.visible = false; l.frustumCulled = false;
+  scene.add(l);
+  return l;
+});
+const pools = {};          
+let warden = null, furnace = null;
+const props = [];
+
+function pool(key, proto, n, y) {
+  pools[key] = [];
+  for (let i = 0; i < n; i++) {
+    const o = proto.clone(true);
+    o.visible = false;
+    o.position.y = y;
+    scene.add(o);
+    pools[key].push(o);
+  }
+}
+
+async function loadModels() {
+  const fighters = [1, 2, 3, 4].flatMap((n) => [`craft/fighter_p${n}_ember/fighter_p${n}_ember`, `craft/fighter_p${n}_iris/fighter_p${n}_iris`]);
+  const loaded = await Promise.all([
+    ...fighters, 'craft/dart_ember/dart_ember',
+    'craft/dart_iris/dart_iris', 'craft/turret_ember/turret_ember', 'craft/turret_iris/turret_iris',
+    'craft/furnace_ember/furnace_ember', 'craft/furnace_iris/furnace_iris',
+  ].map((p) => loadGlb(`assets/${p}.glb`)));
+  const [de, di, te, ti, fe, fi] = loaded.slice(8);
+  
+  for (let n = 0; n < 4; n++) ships.push(makeShip(loaded[n * 2], loaded[n * 2 + 1]));
+  ship = ships[0];
 
   for (const [key, src, len, y, opts, rot] of [
     ['dart0', de, DART_LEN, 60, {}, -Math.PI / 2], ['dart1', di, DART_LEN, 60, {}, -Math.PI / 2],
@@ -289,8 +312,14 @@ addEventListener('keydown', (e) => {
   keys.add(k);
 });
 addEventListener('keyup', (e) => keys.delete(e.key.toLowerCase()));
-addEventListener('blur', () => { keys.clear(); if (mode === 'play') setPaused(true); });
-document.addEventListener('visibilitychange', () => { if (document.hidden && mode === 'play') setPaused(true); });
+
+
+
+addEventListener('blur', () => { keys.clear(); if (mode === 'play' && !net) setPaused(true); });
+document.addEventListener('visibilitychange', () => {
+  if (net) { net.room?.setHidden(document.hidden); return; }
+  if (document.hidden && mode === 'play') setPaused(true);
+});
 
 
 const drag = { id: null, x: 0, y: 0, dx: 0, dy: 0 };
@@ -312,6 +341,11 @@ $('bomb').addEventListener('pointerdown', (e) => { e.preventDefault(); bombQueue
 
 let padFlipHeld = false, padBombHeld = false;
 function readInput() {
+  if (botSeat && net?.room?.session) { 
+    const t = net.room.session.tick;
+    const ph = Math.trunc(t / 40) + net.room.seat * 3;
+    return pack({ x: ((ph * 37) % 129) - 64, y: ((ph * 53) % 129) - 64, iris: Math.trunc(t / 150) % 2 === 1 });
+  }
   let x = 0, y = 0, focus = keys.has('shift');
   if (keys.has('arrowleft') || keys.has('a')) x -= MOVE_MAX;
   if (keys.has('arrowright') || keys.has('d')) x += MOVE_MAX;
@@ -339,6 +373,9 @@ function readInput() {
 
 
 let sim = null, mode = 'title', paused = false, gentle = true;
+
+let net = null;
+const botSeat = params.get('bot') === '1';
 let acc = 0, last = performance.now();
 const seen = { boom: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0 };
 
@@ -357,7 +394,7 @@ function start(isGentle) {
 }
 $('start').addEventListener('click', () => start(true));
 $('arcade').addEventListener('click', () => start(false));
-$('again').addEventListener('click', () => start(gentle));
+$('again').addEventListener('click', () => (net ? leaveCoop() : start(gentle)));
 
 function setPaused(p) {
   paused = p && mode === 'play';
@@ -378,8 +415,180 @@ function showTally(s) {
   $('t-kills').textContent = String(p.kills);
   $('t-time').textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   $('again').textContent = s.over ? 'Try again' : 'Play again';
+  const list = $('t-pilots');
+  list.hidden = !net;
+  if (net) {
+    
+    
+    $('t-score').textContent = teamScore(s).toLocaleString();
+    $('t-drunk').textContent = String(s.players.reduce((n, q) => n + (q.on ? q.absorbed : 0), 0));
+    $('t-bursts').textContent = String(s.players.reduce((n, q) => n + (q.on ? q.bursts : 0), 0));
+    $('t-kills').textContent = String(s.players.reduce((n, q) => n + (q.on ? q.kills : 0), 0));
+    list.replaceChildren(...s.players.map((q, i) => {
+      if (!q.on) return null;
+      const li = document.createElement('li');
+      li.style.setProperty('--c', `var(--p${i + 1})`);
+      li.textContent = `${seatName(i)}  ${q.score.toLocaleString()}`;
+      return li;
+    }).filter(Boolean));
+    $('again').textContent = 'Back to the title';
+  }
   $('tally').hidden = false;
   ui.play('open');
+}
+
+
+const seatName = (i) => `P${i + 1}${net && i === net.room.seat ? ' (you)' : ''}`;
+
+
+function viewSeat(s) {
+  const seat = net?.room?.seat;
+  if (seat !== null && seat !== undefined) return seat;
+  if (!net) return 0;
+  const i = s.players.findIndex((q) => q.on);
+  return i < 0 ? 0 : i;
+}
+
+const nameChips = [0, 1, 2, 3].map((i) => {
+  const el = document.createElement('span');
+  el.style.setProperty('--c', `var(--p${i + 1})`);
+  el.hidden = true;
+  $('names').appendChild(el);
+  return el;
+});
+function drawNames(s) {
+  for (let i = 0; i < 4; i++) {
+    const q = s.players[i], el = nameChips[i];
+    const show = !!net && q.on === 1 && (q.lives > 0 || q.pod === 1);
+    if (el.hidden !== !show) el.hidden = !show;
+    if (!show) continue;
+    const label = q.pod ? `${seatName(i)} down` : seatName(i);
+    if (el.textContent !== label) el.textContent = label;
+    el.style.left = `${(q.x / FP) * fieldScale}px`;
+    el.style.top = `${(q.y / FP + 28) * fieldScale}px`;
+  }
+}
+
+let toastTimer = 0;
+function toast(text, ms = 4000) {
+  const el = $('toast');
+  el.textContent = text;
+  el.hidden = false;
+  clearTimeout(toastTimer);
+  if (ms) toastTimer = setTimeout(() => { el.hidden = true; }, ms);
+}
+
+function lobbyStatus(text) { $('lobby-status').textContent = text; }
+
+function drawSeats(room) {
+  const seats = [{ seat: 0, who: room.role === 'host' ? 'you, host' : 'host' }];
+  if (room.role === 'host') {
+    for (const g of room.guests.values()) if (g.seat !== null) seats.push({ seat: g.seat, who: 'friend' });
+  } else if (room.seat !== null) seats.push({ seat: room.seat, who: 'you' });
+  const watching = room.role === 'host' ? [...room.guests.values()].filter((g) => g.seat === null).length : 0;
+  const rows = [0, 1, 2, 3].map((i) => {
+    const li = document.createElement('li');
+    li.style.setProperty('--c', `var(--p${i + 1})`);
+    const s = seats.find((x) => x.seat === i);
+    li.className = s ? '' : 'empty';
+    li.textContent = s ? `P${i + 1}  ${s.who}` : `P${i + 1}  open`;
+    return li;
+  });
+  if (watching) {
+    const li = document.createElement('li');
+    li.textContent = `${watching} watching`;
+    rows.push(li);
+  }
+  $('seats').replaceChildren(...rows);
+}
+
+function onRoomEvent(e) {
+  const room = net?.room;
+  if (!room) return;
+  if (e.type === 'lobby') {
+    drawSeats(room);
+    const n = [...room.guests.values()].filter((g) => g.seat !== null).length + 1;
+    if (!room.started) lobbyStatus(n === 1 ? 'Share the Play link with up to three friends.' : `${n} pilots ready. Start when everyone is in.`);
+  } else if (e.type === 'seat') {
+    drawSeats(room);
+    if (e.seat === null) lobbyStatus(e.why === 'late' ? 'The run has started, so you are watching it.' : e.why === 'full' ? 'The room is full, so you are watching.' : 'You are watching.');
+    else lobbyStatus(`You are P${e.seat + 1}. The host starts the run.`);
+  } else if (e.type === 'start') {
+    beginCoopRun(e.gentle);
+  } else if (e.type === 'unseated') {
+    if (e.me) toast(e.why === 'away' ? 'You left the game, so you are watching now.' : 'Your connection fell behind, so you are watching now.', 6000);
+    else toast(e.why === 'away' ? 'A pilot left the game and is watching.' : 'A pilot fell behind and is watching.');
+  } else if (e.type === 'pause') {
+    if (e.on) toast('The host stepped away. The game waits for them.', 0); else $('toast').hidden = true;
+  } else if (e.type === 'desync') {
+    toast('Screens fell out of step. Start a new room.', 0);
+  } else if (e.type === 'ended') {
+    toast('The host left, so the room has closed.', 0);
+    lobbyStatus('The host left, so the room has closed.');
+  } else if (e.type === 'error') {
+    if (!room.started) lobbyStatus(`Network trouble: ${e.message}`);
+  }
+}
+
+async function openCoop() {
+  if (net) return;
+  net = { room: null };
+  mode = 'lobby';
+  $('title').hidden = true; $('tally').hidden = true;
+  $('lobby').hidden = false; $('links').hidden = true; $('host-go').hidden = true;
+  $('seats').replaceChildren();
+  lobbyStatus('Opening a room...');
+  ui.play('open');
+  try {
+    const { openRoom } = await import('./coop.js');
+    const room = await openRoom({ onEvent: onRoomEvent });
+    net.room = room;
+    drawSeats(room);
+    if (room.role === 'host') {
+      $('join-link').value = room.links.join;
+      $('watch-link').value = room.links.watch;
+      $('links').hidden = false;
+      $('host-go').hidden = false;
+      lobbyStatus('Share the Play link with up to three friends.');
+    } else {
+      $('lobby-head').textContent = room.role === 'watch' ? 'Watching' : 'Joining';
+      lobbyStatus('Connecting to the host...');
+    }
+  } catch (err) {
+    lobbyStatus(`Could not open a room: ${err.message}`);
+  }
+}
+
+function beginCoopRun(isGentle) {
+  gentle = isGentle;
+  flipLevel = 0; drag.dx = drag.dy = 0;
+  Object.assign(seen, { boom: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0 });
+  mode = 'play';
+  $('lobby').hidden = true; $('title').hidden = true; $('tally').hidden = true;
+  $('lives').hidden = gentle || net.room.seat === null;
+  for (const id of ['flip', 'bomb']) $(id).hidden = net.room.seat === null;
+  if (net.room.seat === null) toast('Watching. Ships are named by seat.', 5000);
+  followSound(music, uiSoundOn());
+}
+
+function leaveCoop() {
+  
+  
+  const url = new URL(location.href);
+  url.search = '';
+  location.href = url.toString();
+}
+
+$('friends').addEventListener('click', openCoop);
+$('coop-start').addEventListener('click', () => net?.room?.start({ gentle: true }));
+$('coop-arcade').addEventListener('click', () => net?.room?.start({ gentle: false }));
+$('lobby-leave').addEventListener('click', leaveCoop);
+for (const id of ['join', 'watch']) {
+  $(`share-${id}`).addEventListener('click', async () => {
+    const { shareLink } = await import('../../../web-engine/share/shareInvite.js');
+    shareLink({ link: $(`${id}-link`).value, gameName: 'Flipwing', code: net?.room?.mesh.myId ?? null,
+      button: $(`share-${id}`), field: $(`${id}-link`) });
+  });
 }
 
 
@@ -402,7 +611,7 @@ function syncEnemies(s) {
     o.position.x = wx(s.ex[e]);
     o.position.z = wz(s.ey[e]);
     if (k !== 0 && ship) { 
-      const p = s.players[0];
+      const p = s.players[viewSeat(s)];
       o.rotation.y = Math.atan2(wx(p.x) - o.position.x, wz(p.y) - o.position.z) - Math.PI / 2;
     }
   }
@@ -427,20 +636,49 @@ function draw(s, dt) {
   dusk.material.opacity = Math.max(0, Math.min(0.35, (s.tick - (BOSS_AT - 360)) / 360 * 0.35));
   if (!ship) return;
 
-  const p = s.players[0];
-  ship.group.visible = p.on === 1 && p.lives > 0; 
-  const x = wx(p.x), z = wz(p.y);
-  const vx = x - ship.group.position.x;
-  ship.group.position.x = x; ship.group.position.z = z;
-  ship.bank += (Math.max(-1, Math.min(1, vx / 4)) - ship.bank) * Math.min(1, dt * 10);
-  if (p.iris !== ship.pol) { ship.pol = p.iris; ship.flipT = 0.3; }
-  if (ship.flipT > 0) ship.flipT = Math.max(0, ship.flipT - dt);
-  const flipping = ship.flipT > 0;
+  const me = viewSeat(s);
+  const p = s.players[me];
+  const coop = !!net;
+  for (let i = 0; i < ships.length; i++) {
+    const q = s.players[i], sh = ships[i];
+    const pod = coop && q.on === 1 && q.pod === 1;
+    sh.group.visible = q.on === 1 && (q.lives > 0 || pod); 
+    if (!sh.group.visible) continue;
+    const qx = wx(q.x), qz = wz(q.y);
+    const vx = qx - sh.group.position.x;
+    sh.group.position.x = qx; sh.group.position.z = qz;
+    sh.bank += (Math.max(-1, Math.min(1, vx / 4)) - sh.bank) * Math.min(1, dt * 10);
+    if (q.iris !== sh.pol) { sh.pol = q.iris; sh.flipT = 0.3; }
+    if (sh.flipT > 0) sh.flipT = Math.max(0, sh.flipT - dt);
+    const flipping = sh.flipT > 0;
+    
+    sh.ember.visible = flipping && sh.flipT > 0.15 ? !!q.iris : !q.iris;
+    sh.iris.visible = !sh.ember.visible;
+    if (pod) { 
+      sh.group.scale.setScalar(0.7);
+      sh.roll.rotation.z = (s.tick / 20) % (Math.PI * 2);
+      sh.halo.visible = true;
+      sh.halo.material.opacity = 0.25 + 0.75 * (q.rev / REVIVE_TICKS);
+    } else {
+      sh.group.scale.setScalar(1);
+      sh.roll.rotation.z = flipping ? (1 - sh.flipT / 0.3) * Math.PI * 2 : -sh.bank * 0.55;
+      sh.halo.material.opacity = 0.6;
+      sh.halo.visible = q.inv > 0 && Math.floor(s.tick / 6) % 2 === 0;
+    }
+  }
   
-  ship.ember.visible = flipping && ship.flipT > 0.15 ? !!p.iris : !p.iris;
-  ship.iris.visible = !ship.ember.visible;
-  ship.roll.rotation.z = flipping ? (1 - ship.flipT / 0.3) * Math.PI * 2 : -ship.bank * 0.55;
-  ship.halo.visible = p.inv > 0 && Math.floor(s.tick / 6) % 2 === 0;
+  let nt = 0;
+  for (let i = 0; i < s.players.length && nt < tethers.length; i++) {
+    const d = s.players[i].duet;
+    if (!d || d - 1 < i) continue;
+    const a = ships[i].group.position, b = ships[d - 1].group.position;
+    const pos = tethers[nt].geometry.attributes.position;
+    pos.setXYZ(0, a.x, 70, a.z); pos.setXYZ(1, b.x, 70, b.z); pos.needsUpdate = true;
+    tethers[nt++].visible = true;
+  }
+  for (; nt < tethers.length; nt++) tethers[nt].visible = false;
+  drawNames(s, me);
+  const x = wx(p.x), z = wz(p.y);
   const cue = p1Flip(p.iris ? 'iris' : 'ember');
   if (cue) sfx.play(cue);
 
@@ -466,7 +704,7 @@ function draw(s, dt) {
   if (s.tick - seen.shotTick >= 15 && mode === 'play' && !s.clear) { sfx.play('shot'); seen.shotTick = s.tick; }
 
   
-  hud.score.textContent = p.score.toLocaleString();
+  hud.score.textContent = (coop ? teamScore(s) : p.score).toLocaleString();
   hud.meter.style.transform = `scaleX(${Math.min(1, p.energy / BURST_COST)})`;
   hud.meter.dataset.pol = p.iris ? 'iris' : 'ember';
   hud.lives.textContent = `Lives ${Math.max(0, p.lives)}`;
@@ -501,7 +739,18 @@ let fpsFrames = 0, fpsAt = performance.now();
 function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
-  if (mode === 'title') { step(idle, [0, 0, 0, 0]); draw(idle, dt); }
+  if (net) {
+    
+    
+    const room = net.room, se = room?.session;
+    if (se) {
+      room.poll(now);
+      if (!room.ended) se.update(now, readInput);
+      const s = se.view();
+      if (mode === 'play' && ((s.clear && s.tick - s.clear > 150) || (s.over && s.tick - s.over > 90))) showTally(s);
+      draw(s, dt);
+    } else { step(idle, [0, 0, 0, 0]); draw(idle, dt); }
+  } else if (mode === 'title') { step(idle, [0, 0, 0, 0]); draw(idle, dt); }
   else if (sim) {
     if (!paused && mode === 'play') {
       acc += dt;
@@ -525,7 +774,8 @@ loadModels().then(() => {
   document.body.dataset.ready = '1';
   
   const play = params.get('play');
-  if (play) {
+  if (params.has('join') || params.has('watch')) openCoop(); 
+  else if (play) {
     start(play !== 'arcade');
     const skip = Math.min(20000, Number(params.get('skip')) || 0);
     for (let t = 0; t < skip; t++) {
@@ -537,4 +787,14 @@ loadModels().then(() => {
   $('err').textContent = `A model failed to load: ${err && err.message ? err.message : err}`;
 });
 requestAnimationFrame(frame);
-window.__flipwing = { get sim() { return sim; }, start, scene, renderer, ENEMY_CAP };
+window.__flipwing = {
+  get sim() { return net?.room?.session ? net.room.session.view() : sim; }, start, scene, renderer, ENEMY_CAP, openCoop,
+  
+  get net() {
+    const r = net?.room, se = r?.session;
+    if (!r) return null;
+    return { role: r.role, seat: r.seat, started: r.started, ended: r.ended, id: r.mesh.myId, links: r.links ?? null,
+      tick: se?.tick ?? 0, confirmed: se?.cs.tick ?? 0, desyncs: se?.desyncs ?? 0, stalls: se?.stalls ?? 0,
+      hashes: se ? [...se.hashes.entries()].slice(-10) : [], seats: se?.seats ?? [], gentle: r.gentle };
+  },
+};

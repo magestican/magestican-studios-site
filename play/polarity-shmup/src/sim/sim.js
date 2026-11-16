@@ -45,12 +45,27 @@ export const BURST_COST = 40;
 const BURST_SHOTS = 8, BURST_DMG = 4, BURST_TURN = 64, BURST_VMAX = 6 * FP;
 
 
+
+
+
+
+
+
+export const DUET_R = 64;
+export const REVIVE_TICKS = 90;
+const REVIVE_R = 30;
+const POD_DRIFT = FP / 2;
+
+
+export const teamScore = (s) => s.players.reduce((n, p) => n + (p.on ? p.score : 0), 0);
+
+
 const SPAWN_X = [0.2, 0.4, 0.6, 0.8].map((f) => Math.round(FIELD_W * f));
 const SPAWN_Y = FIELD_H - 120 * FP;
 
 function newPlayer(i) {
   return { on: 0, x: SPAWN_X[i], y: SPAWN_Y, iris: 0, energy: 0, lives: START_LIVES, bombs: START_BOMBS,
-    inv: 0, cool: 0, score: 0, bombHeld: 0, absorbed: 0, hits: 0, bursts: 0, kills: 0 };
+    inv: 0, cool: 0, score: 0, bombHeld: 0, absorbed: 0, hits: 0, bursts: 0, kills: 0, duet: 0, pod: 0, rev: 0, revives: 0 };
 }
 
 export function createSim({ seed = 1, gentle = true } = {}) {
@@ -158,7 +173,10 @@ export function step(s, inputs) {
     const k = unpack(inputs[i] >>> 0);
     if (!k.present) { p.on = 0; continue; }
     if (!p.on) { Object.assign(p, newPlayer(i), { on: 1, score: p.score, inv: INVULN }); }
-    if (p.lives <= 0) continue; 
+    if (p.lives <= 0) { 
+      if (p.pod) p.y = clampY(p.y + POD_DRIFT);
+      continue;
+    }
     const sp = k.focus ? FOCUS_SPEED : SPEED;
     p.x = clampX(p.x + muldiv(k.x, sp, MOVE_MAX));
     p.y = clampY(p.y + muldiv(k.y, sp, MOVE_MAX));
@@ -180,6 +198,32 @@ export function step(s, inputs) {
       p.cool = SHOT_EVERY;
       for (const ox of [-6 * FP, 6 * FP]) addShot(s, p.x + ox, p.y - 10 * FP, 0, i, 1);
     }
+  }
+
+  
+  for (let i = 0; i < MAX_PLAYERS; i++) {
+    const p = s.players[i];
+    if (!p.on || !p.pod) continue;
+    let touched = false;
+    for (let j = 0; j < MAX_PLAYERS && !touched; j++) {
+      const q = s.players[j];
+      touched = j !== i && q.on && q.lives > 0 && d2px(p.x, p.y, q.x, q.y) < REVIVE_R * REVIVE_R;
+    }
+    p.rev = touched ? p.rev + 1 : 0;
+    if (p.rev >= REVIVE_TICKS) { p.pod = 0; p.rev = 0; p.lives = 1; p.inv = INVULN; p.revives++; }
+  }
+  for (const p of s.players) p.duet = 0;
+  for (let i = 0; i < MAX_PLAYERS; i++) {
+    const p = s.players[i];
+    if (!p.on || p.lives <= 0 || p.duet) continue;
+    let best = -1, bd = DUET_R * DUET_R;
+    for (let j = i + 1; j < MAX_PLAYERS; j++) {
+      const q = s.players[j];
+      if (!q.on || q.lives <= 0 || q.duet || q.iris === p.iris) continue;
+      const d = d2px(p.x, p.y, q.x, q.y);
+      if (d < bd) { bd = d; best = j; }
+    }
+    if (best >= 0) { p.duet = best + 1; s.players[best].duet = i + 1; }
   }
 
   
@@ -284,7 +328,7 @@ export function step(s, inputs) {
       const p = s.players[i];
       if (!p.on || p.lives <= 0) continue;
       const d = d2px(x, y, p.x, p.y);
-      if (s.bpol[b] === p.iris) {
+      if (s.bpol[b] === p.iris || p.duet) { 
         if (d < (ABSORB_R >> 8) ** 2) {
           p.energy = Math.min(p.energy + 1, 999); p.absorbed++; p.score += 5;
           const [r, u] = rngNext(s.rng); s.rng = r; s.sparks += 1 + (u & 3);
@@ -295,7 +339,7 @@ export function step(s, inputs) {
         if (d < rr * rr && p.inv === 0) {
           p.hits++;
           if (s.gentle) p.inv = GENTLE_SHIELD; 
-          else { p.lives--; p.inv = INVULN; }
+          else { p.lives--; p.inv = INVULN; if (p.lives <= 0) { p.pod = 1; p.rev = 0; p.duet = 0; } }
           removeBullet(s, b); break;
         }
       }
@@ -324,7 +368,7 @@ export function snapshot(s) {
 }
 
 const PLAYER_KEYS = ['on', 'x', 'y', 'iris', 'energy', 'lives', 'bombs', 'inv', 'cool', 'score', 'bombHeld', 'absorbed', 'hits',
-  'bursts', 'kills'];
+  'bursts', 'kills', 'duet', 'pod', 'rev', 'revives'];
 const BOSS_KEYS = ['on', 'hp', 'max', 'phase', 'age', 'fa', 'rest', 'x', 'y', 'kills', 'beaten'];
 
 

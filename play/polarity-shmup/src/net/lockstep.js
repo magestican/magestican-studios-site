@@ -40,7 +40,8 @@ export class Session {
 
 
 
-  constructor({ seed, seats, seat = null, send = () => {}, onDesync = () => {}, delay = DELAY, maxRollback = MAX_ROLLBACK }) {
+  constructor({ seed, seats, seat = null, gentle = true, send = () => {}, onDesync = () => {}, delay = DELAY, maxRollback = MAX_ROLLBACK }) {
+    this.gentle = !!gentle;
     this.seed = seed;
     this.seat = seat;
     this.seats = seats.slice().sort();
@@ -54,7 +55,7 @@ export class Session {
     this.known = Array.from({ length: MAX_PLAYERS }, (_, s) => (this.seats.includes(s) ? this.delay - 1 : Infinity));
     
     this.dropAt = new Array(MAX_PLAYERS).fill(Infinity);
-    this.cs = createSim({ seed });
+    this.cs = createSim({ seed, gentle: this.gentle });
     this.ps = snapshot(this.cs);
     this.tick = 0;             
     this.dirty = false;        

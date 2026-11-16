@@ -4,7 +4,9 @@
 
 
 const q = new URL(location.href).searchParams;
-const netMode = q.has('net') || q.has('join') || q.has('watch');
+
+
+const netMode = q.has('net');
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {

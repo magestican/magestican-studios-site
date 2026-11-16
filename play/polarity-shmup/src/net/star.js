@@ -12,6 +12,9 @@
 
 import { MAX_PLAYERS } from '../sim/sim.js';
 
+
+export const LAG_MS = 4000;
+
 export class StarHub {
   
 
@@ -42,6 +45,44 @@ export class StarHub {
     if (!l || l.seat === null) return;
     const k = this.session.known[l.seat];
     if (Number.isFinite(k)) this.session.dropSeat(l.seat, k + 1);
+  }
+
+  
+
+
+
+
+  unseat(linkId) {
+    const l = this.links.get(linkId);
+    if (!l || l.seat === null) return null;
+    const seat = l.seat;
+    l.seat = null;
+    const k = this.session.known[seat];
+    this.session.dropSeat(seat, Number.isFinite(k) ? k + 1 : this.session.tick);
+    return seat;
+  }
+
+  
+
+
+
+
+
+
+
+  checkLag(nowMs, limitMs = LAG_MS) {
+    const s = this.session;
+    if (this._seen === undefined || nowMs - this._seen > 1000 || s.cs.tick !== this._tick) {
+      this._since = nowMs; this._tick = s.cs.tick;
+    }
+    this._seen = nowMs;
+    if (nowMs - this._since < limitMs) return [];
+    const holding = s.confirmedThrough();
+    const out = [];
+    for (const [id, l] of this.links) if (l.seat !== null && s.known[l.seat] <= holding) out.push(id);
+    for (const id of out) this.unseat(id);
+    this._since = nowMs;
+    return out;
   }
 
   broadcast(msg, exceptId = null) {
