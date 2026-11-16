@@ -4,8 +4,8 @@
   <meta name="robots" content="noindex">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Flipwing - art proof</title>
-  <meta name="description" content="Flipwing art proof: the player craft, enemies, boss, stage-one ground and the bullet set in the game camera.">
+  <title>Flipwing</title>
+  <meta name="description" content="Flipwing: a colour-switching shooter. Drink the bullets of your own colour, flip for the other, and take down the Furnace.">
   
 
   <link rel="canonical" href="https://magesticanstudios.com/play/polarity-shmup/">
@@ -44,16 +44,49 @@
     #pol[data-pol="ember"] { color: var(--ember); }
     #pol[data-pol="iris"] { color: #c9b2ff; }
     .stats { display: flex; flex-direction: column; gap: calc(6px * var(--fs)); align-items: flex-end; }
-    .hud.bottom { left: calc(16px * var(--fs)); bottom: calc(16px * var(--fs)); align-items: flex-end; }
+    .hud .left { display: flex; flex-direction: column; gap: calc(8px * var(--fs)); }
+    .score { font-size: calc(16px * var(--fs)); font-weight: 700; font-variant-numeric: tabular-nums; }
     
-    #bust { width: calc(104px * var(--fs)); height: calc(128px * var(--fs)); border-radius: calc(10px * var(--fs));
-      border: calc(2px * var(--fs)) solid rgba(255, 196, 64, 0.85); background:
-        repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 calc(6px * var(--fs)), transparent 0 calc(12px * var(--fs))), var(--panel);
-      display: flex; align-items: flex-end; justify-content: center; padding: calc(8px * var(--fs)); }
-    #bust span { font-size: calc(10px * var(--fs)); text-align: center; opacity: 0.85; }
-    .says { background: var(--panel); border-radius: calc(8px * var(--fs)); padding: calc(8px * var(--fs)) calc(10px * var(--fs));
-      font-size: calc(12px * var(--fs)); max-width: calc(200px * var(--fs)); }
-    .says b { color: var(--ember); }
+    .meter { width: calc(120px * var(--fs)); height: calc(10px * var(--fs)); border-radius: 99px; background: var(--panel);
+      border: 1px solid rgba(242, 239, 232, 0.35); overflow: hidden; }
+    .meter i { display: block; height: 100%; transform-origin: left; transform: scaleX(0); background: var(--ember); }
+    .meter i[data-pol="iris"] { background: #a878ff; }
+    #lives[hidden] { display: none; }
+    
+
+    .pad { position: absolute; bottom: calc(16px * var(--fs)); width: calc(72px * var(--fs)); height: calc(72px * var(--fs));
+      min-width: 56px; min-height: 56px; border-radius: 50%; border: calc(2px * var(--fs)) solid rgba(242, 239, 232, 0.5);
+      background: var(--panel); color: var(--ink); font: 700 calc(12px * var(--fs)) / 1.1 system-ui, sans-serif;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; touch-action: none;
+      cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .pad.left { left: calc(16px * var(--fs)); }
+    .pad.right { right: calc(16px * var(--fs)); }
+    .pad b { font-size: calc(14px * var(--fs)); }
+    #flip[data-pol="ember"] { border-color: var(--ember); }
+    #flip[data-pol="iris"] { border-color: #a878ff; }
+    #flip[data-cue="ember"] { box-shadow: 0 0 0 calc(4px * var(--fs)) rgba(255, 196, 64, 0.55), 0 0 calc(24px * var(--fs)) var(--ember);
+      animation: cue 0.6s ease-in-out infinite alternate; }
+    #flip[data-cue="iris"] { box-shadow: 0 0 0 calc(4px * var(--fs)) rgba(168, 120, 255, 0.6), 0 0 calc(24px * var(--fs)) #a878ff;
+      animation: cue 0.6s ease-in-out infinite alternate; }
+    @keyframes cue { to { transform: scale(1.12); } }
+    @media (prefers-reduced-motion: reduce) { #flip { animation: none !important; } }
+    
+    .overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; padding: 24px; background: rgba(9, 10, 14, 0.62); text-align: center; }
+    .overlay[hidden] { display: none; }
+    .overlay h1 { margin: 0; font-size: calc(44px * var(--fs)); letter-spacing: 0.06em; color: var(--ember);
+      text-shadow: 0 0 calc(18px * var(--fs)) rgba(255, 196, 64, 0.45); }
+    .overlay h2 { margin: 0; font-size: calc(26px * var(--fs)); }
+    .overlay .tag { margin: 0; opacity: 0.9; font-size: calc(15px * var(--fs)); }
+    .overlay .keys { margin: 8px 0 0; font-size: calc(12px * var(--fs)); opacity: 0.75; max-width: 320px; }
+    .overlay button { min-height: 48px; border: 0; border-radius: 12px; font: 700 calc(16px * var(--fs)) system-ui, sans-serif;
+      cursor: pointer; padding: 0 28px; }
+    .overlay .go { min-width: calc(220px * var(--fs)); min-height: calc(64px * var(--fs)); font-size: calc(22px * var(--fs));
+      background: var(--ember); color: #2e1404; }
+    .overlay .alt { background: #2a2d36; color: var(--ink); }
+    .overlay dl { display: grid; grid-template-columns: auto auto; gap: 8px 24px; margin: 0; font-size: calc(16px * var(--fs)); }
+    .overlay dt { text-align: left; opacity: 0.8; }
+    .overlay dd { margin: 0; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
     #err { position: absolute; left: 16px; right: 16px; top: 45%; text-align: center; color: #ffb0a0; }
     
     aside { width: 260px; margin-left: 32px; padding: 20px; background: #15171e; border-radius: 12px; line-height: 1.5; }
@@ -91,25 +124,50 @@
 <body>
   <div id="field">
     <div class="hud top">
-      <div class="chip">P1 <span id="pol" data-pol="ember">EMBER</span></div>
-      <div class="stats"><button class="chip" id="sound" type="button" aria-pressed="false">Sound off</button><div class="chip" id="fps">- fps</div><div class="chip" id="bullets">- bullets</div></div>
+      <div class="left">
+        <div class="chip score" id="score">0</div>
+        <div class="meter" aria-label="Burst meter"><i id="meter" data-pol="ember"></i></div>
+      </div>
+      <div class="stats">
+        <button class="chip" id="sound" type="button" aria-pressed="false">Sound off</button>
+        <div class="chip"><span id="pol" data-pol="ember">EMBER</span></div>
+        <div class="chip" id="lives" hidden>Lives 3</div>
+      </div>
     </div>
-    <div class="hud bottom">
-      <div id="bust"><span>SORA<br>portrait pending</span></div>
-      <div class="says"><b>Sora</b><br>Art proof: stage 1, all four wings up.</div>
-    </div>
+    <button class="pad left" id="bomb" type="button" aria-label="Bomb">Bomb<b id="bombs">2</b></button>
+    <button class="pad right" id="flip" type="button" aria-label="Flip colour" data-pol="ember">Flip</button>
+    <section class="overlay" id="title">
+      <h1>Flipwing</h1>
+      <p class="tag">Drink your colour. Flip for the other.</p>
+      <button class="go" id="start" type="button">Start</button>
+      <button class="alt" id="arcade" type="button">Arcade: 3 lives</button>
+      <p class="keys">Drag to fly. Second finger or the Flip button switches colour.<br>Desktop: arrows or WASD, Space flips, K bombs, Shift slows.</p>
+    </section>
+    <section class="overlay" id="tally" hidden>
+      <h2 id="tally-head">Dustline clear</h2>
+      <dl>
+        <dt>Score</dt><dd id="t-score">0</dd>
+        <dt>Drunk</dt><dd id="t-drunk">0</dd>
+        <dt>Bursts</dt><dd id="t-bursts">0</dd>
+        <dt>Downed</dt><dd id="t-kills">0</dd>
+        <dt>Time</dt><dd id="t-time">0:00</dd>
+      </dl>
+      <button class="go" id="again" type="button">Play again</button>
+    </section>
+    <section class="overlay" id="paused" hidden><h2>Paused</h2><p class="tag">Tap to carry on</p></section>
     <div id="err"></div>
   </div>
   <aside>
-    <h1>Flipwing - art proof</h1>
+    <h1>Flipwing</h1>
+    <p>Stage 1, Dustline. Your ship drinks bullets of its own colour and fills the burst meter; a full meter fires by
+      itself. Bullets of the other colour hurt, so flip.</p>
     <ul>
-      <li>Four player wings, each livery in Ember and Iris, banking and flipping</li>
-      <li>Darts, a ground turret and the Furnace boss</li>
-      <li>Stage-one ground and six props, scrolling</li>
-      <li>Every bullet type in both colours, drawn by code</li>
-      <li>Pilot portrait slot (portraits are being picked)</li>
+      <li>Move: arrows or WASD (Shift slows), or a gamepad stick</li>
+      <li>Flip colour: Space, J or pad A</li>
+      <li>Bomb: K or pad B (clears bullets near you)</li>
+      <li>Pause: Esc or P</li>
     </ul>
-    <p>Not the game yet: nothing here is playable. <a href="?net">Co-op netcode proof</a></p>
+    <p>Start is Gentle: a hit only costs a moment's shield. Arcade gives three lives. <a href="?net">Co-op test room</a></p>
   </aside>
   
 
@@ -131,7 +189,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=483321df-20261116T122610Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=483321df-20261116T122610Z"></script>
+  <script type="module" src="src/boot.js?v=de5431b8-20261116T130716Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=de5431b8-20261116T130716Z"></script>
 </body>
 </html>

@@ -97,7 +97,11 @@ function draw() {
   const s = room?.session?.view();
   if (!s) return;
   ctx.fillStyle = '#2b2d33';
-  ctx.beginPath(); ctx.arc(s.boss.x, s.boss.y, 44 * FP, 0, Math.PI * 2); ctx.fill();
+  if (s.boss.on) ctx.fillRect(s.boss.x - 150 * FP, s.boss.y - 56 * FP, 300 * FP, 112 * FP);
+  for (let e = 0; e < s.ne; e++) { 
+    ctx.fillStyle = rgb(COL[s.ep[e]].core);
+    ctx.beginPath(); ctx.arc(s.ex[e], s.ey[e], [16, 26, 44][s.ek[e]] * FP, 0, Math.PI * 2); ctx.fill();
+  }
   for (let i = 0; i < s.nb; i++) {
     const c = COL[s.bpol[i]];
     const r = [4, 6, 3, 5][s.bkind[i]] * FP;

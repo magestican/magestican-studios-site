@@ -2,6 +2,7 @@
 
 
 
+
 const q = new URL(location.href).searchParams;
 const netMode = q.has('net') || q.has('join') || q.has('watch');
 
@@ -24,5 +25,5 @@ if (netMode) {
     .then(() => import('./netPage.js'))
     .catch((e) => { document.getElementById('status').textContent = `Could not start: ${e.message}`; });
 } else {
-  import('./proof.js');
+  import('./game.js');
 }

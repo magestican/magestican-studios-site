@@ -9,15 +9,26 @@
 
 
 
+
+
+
+
+
 import { FP, muldiv } from './fixed.js';
 import { MOVE_MAX, unpack } from './input.js';
-import { FIELD_H, FIELD_W, bossAt, spawnsAt } from './patterns.js';
+import { FIELD_H, FIELD_W } from './patterns.js';
 import { next as rngNext } from './rng.js';
+import {
+  BOSS_AT, BOSS_ENTER, BOSS_HP, BOSS_REST, BOSS_TIME, ENEMY_HP, ENEMY_R, ENEMY_SCORE, WARDEN_LIFE,
+  bossFire, bossPhase, bossPos, enemyFire, enemyPos, rowSpawns, waveList,
+} from './stage.js';
 
 export const TICK_HZ = 60;
 export const MAX_PLAYERS = 4;
 export const BULLET_CAP = 2048;
 export const SHOT_CAP = 256;
+export const ENEMY_CAP = 48;
+export const BOOM_RING = 16;
 
 const SPEED = 9 * FP / 2;       
 const FOCUS_SPEED = 2 * FP;
@@ -26,11 +37,12 @@ const ABSORB_R = 14 * FP;
 const BULLET_R = [4 * FP, 6 * FP, 3 * FP, 5 * FP];
 const SHOT_EVERY = 5;
 const SHOT_SPEED = 14 * FP;
-const BOSS_R = 44 * FP;
-const BOSS_HP = 3000;
-const INVULN = 120;
+const BOSS_HALF_W = 150, BOSS_HALF_H = 56; 
+const INVULN = 120, GENTLE_SHIELD = 180;
 const BOMB_R = 160 * FP;
 const START_LIVES = 3, START_BOMBS = 2;
+export const BURST_COST = 40;   
+const BURST_SHOTS = 8, BURST_DMG = 4, BURST_TURN = 64, BURST_VMAX = 6 * FP;
 
 
 const SPAWN_X = [0.2, 0.4, 0.6, 0.8].map((f) => Math.round(FIELD_W * f));
@@ -38,15 +50,19 @@ const SPAWN_Y = FIELD_H - 120 * FP;
 
 function newPlayer(i) {
   return { on: 0, x: SPAWN_X[i], y: SPAWN_Y, iris: 0, energy: 0, lives: START_LIVES, bombs: START_BOMBS,
-    inv: 0, cool: 0, score: 0, bombHeld: 0, absorbed: 0, hits: 0 };
+    inv: 0, cool: 0, score: 0, bombHeld: 0, absorbed: 0, hits: 0, bursts: 0, kills: 0 };
 }
 
-export function createSim({ seed = 1 } = {}) {
+export function createSim({ seed = 1, gentle = true } = {}) {
   return {
     tick: 0,
     seed: seed | 0,
+    gentle: gentle ? 1 : 0,
     rng: seed | 0,
-    boss: { hp: BOSS_HP, x: bossAt(0).x, y: bossAt(0).y, kills: 0 },
+    wi: 0,       
+    clear: 0,    
+    over: 0,     
+    boss: { on: 0, hp: 0, max: 0, phase: 0, age: 0, fa: 0, rest: 0, x: FIELD_W >> 1, y: -120 * FP, kills: 0, beaten: 0 },
     players: [0, 1, 2, 3].map(newPlayer),
     
     nb: 0,
@@ -54,7 +70,15 @@ export function createSim({ seed = 1 } = {}) {
     bvx: new Int32Array(BULLET_CAP), bvy: new Int32Array(BULLET_CAP),
     bpol: new Uint8Array(BULLET_CAP), bkind: new Uint8Array(BULLET_CAP),
     ns: 0,
-    sx: new Int32Array(SHOT_CAP), sy: new Int32Array(SHOT_CAP), sown: new Uint8Array(SHOT_CAP),
+    sx: new Int32Array(SHOT_CAP), sy: new Int32Array(SHOT_CAP), svx: new Int32Array(SHOT_CAP),
+    sown: new Uint8Array(SHOT_CAP), sdmg: new Uint8Array(SHOT_CAP),
+    ne: 0, serial: 0,
+    ek: new Uint8Array(ENEMY_CAP), ep: new Uint8Array(ENEMY_CAP), epath: new Uint8Array(ENEMY_CAP),
+    ehp: new Int32Array(ENEMY_CAP), eage: new Int32Array(ENEMY_CAP), eid: new Int32Array(ENEMY_CAP),
+    ex0: new Int32Array(ENEMY_CAP), ey0: new Int32Array(ENEMY_CAP), edir: new Int8Array(ENEMY_CAP),
+    ex: new Int32Array(ENEMY_CAP), ey: new Int32Array(ENEMY_CAP),
+    
+    nboom: 0, boomX: new Int32Array(BOOM_RING), boomY: new Int32Array(BOOM_RING), boomK: new Uint8Array(BOOM_RING),
     sparks: 0, 
   };
 }
@@ -76,7 +100,47 @@ function removeBullet(s, i) {
 
 function removeShot(s, i) {
   const j = --s.ns;
-  s.sx[i] = s.sx[j]; s.sy[i] = s.sy[j]; s.sown[i] = s.sown[j];
+  s.sx[i] = s.sx[j]; s.sy[i] = s.sy[j]; s.svx[i] = s.svx[j]; s.sown[i] = s.sown[j]; s.sdmg[i] = s.sdmg[j];
+}
+
+const ENEMY_ARRAYS = ['ek', 'ep', 'epath', 'ehp', 'eage', 'eid', 'ex0', 'ey0', 'edir', 'ex', 'ey'];
+function removeEnemy(s, i) {
+  const j = --s.ne;
+  for (const k of ENEMY_ARRAYS) s[k][i] = s[k][j];
+}
+
+function boom(s, x, y, kind) {
+  const n = s.nboom % BOOM_RING;
+  s.boomX[n] = x; s.boomY[n] = y; s.boomK[n] = kind; s.nboom++;
+}
+
+function addShot(s, x, y, vx, owner, dmg) {
+  if (s.ns >= SHOT_CAP) return;
+  const n = s.ns++;
+  s.sx[n] = x; s.sy[n] = y; s.svx[n] = vx; s.sown[n] = owner; s.sdmg[n] = dmg;
+}
+
+function pushSpawns(s, list) {
+  for (const [x, y, vx, vy, pol, kind] of list) {
+    if (s.nb >= BULLET_CAP) break;
+    const n = s.nb++;
+    s.bx[n] = x; s.by[n] = y; s.bvx[n] = vx; s.bvy[n] = vy; s.bpol[n] = pol; s.bkind[n] = kind;
+  }
+}
+
+const bossHittable = (s) => s.boss.on && s.boss.age >= BOSS_ENTER;
+const presentCount = (s) => s.players.reduce((n, p) => n + (p.on ? 1 : 0), 0);
+
+
+function burstTarget(s, x, y) {
+  if (bossHittable(s)) return [s.boss.x, s.boss.y];
+  let best = -1, bd = Infinity;
+  for (let e = 0; e < s.ne; e++) {
+    if (s.ey[e] < 0) continue;
+    const d = d2px(x, y, s.ex[e], s.ey[e]);
+    if (d < bd) { bd = d; best = e; }
+  }
+  return best < 0 ? null : [s.ex[best], s.ey[best]];
 }
 
 
@@ -85,6 +149,8 @@ function removeShot(s, i) {
 
 export function step(s, inputs) {
   const t = s.tick;
+  const ended = s.clear > 0 || s.over > 0;
+  const thin = s.gentle === 1;
 
   
   for (let i = 0; i < MAX_PLAYERS; i++) {
@@ -98,37 +164,114 @@ export function step(s, inputs) {
     p.y = clampY(p.y + muldiv(k.y, sp, MOVE_MAX));
     p.iris = k.iris ? 1 : 0;
     if (p.inv > 0) p.inv--;
-    if (k.bomb && !p.bombHeld && p.bombs > 0) {
+    if (k.bomb && !p.bombHeld && p.bombs > 0 && !ended) {
       p.bombs--;
       p.inv = Math.max(p.inv, 60);
       for (let b = s.nb - 1; b >= 0; b--) if (d2px(s.bx[b], s.by[b], p.x, p.y) < (BOMB_R >> 8) ** 2) removeBullet(s, b);
     }
     p.bombHeld = k.bomb ? 1 : 0;
+    if (p.energy >= BURST_COST && !ended) {
+      
+      p.energy -= BURST_COST; p.bursts++;
+      for (let n = 0; n < BURST_SHOTS; n++) addShot(s, p.x, p.y - 8 * FP, (n - (BURST_SHOTS - 1) / 2) * FP, i, BURST_DMG);
+    }
     if (p.cool > 0) p.cool--;
-    else if (s.ns + 2 <= SHOT_CAP) {
+    else if (s.ns + 2 <= SHOT_CAP && !ended) {
       p.cool = SHOT_EVERY;
-      for (const ox of [-6 * FP, 6 * FP]) { s.sx[s.ns] = p.x + ox; s.sy[s.ns] = p.y - 10 * FP; s.sown[s.ns] = i; s.ns++; }
+      for (const ox of [-6 * FP, 6 * FP]) addShot(s, p.x + ox, p.y - 10 * FP, 0, i, 1);
     }
   }
 
   
-  const bp = bossAt(t);
-  s.boss.x = bp.x; s.boss.y = bp.y;
-  for (const [x, y, vx, vy, pol, kind] of spawnsAt(t, s.seed, s.players)) {
-    if (s.nb >= BULLET_CAP) break;
-    const n = s.nb++;
-    s.bx[n] = x; s.by[n] = y; s.bvx[n] = vx; s.bvy[n] = vy; s.bpol[n] = pol; s.bkind[n] = kind;
+  const spawns = [];
+  if (!ended) {
+    const list = waveList(s.seed);
+    while (s.wi < list.length && list[s.wi].at <= t) {
+      const w = list[s.wi++];
+      if (w.at < t) continue; 
+      if (w.kind === 'row') { rowSpawns(w, spawns); continue; }
+      if (s.ne >= ENEMY_CAP) continue;
+      const e = s.ne++;
+      const kind = w.kind === 'turret' ? 1 : w.kind === 'warden' ? 2 : 0;
+      const scale = kind === 2 ? 1 + presentCount(s) : 2;
+      s.ek[e] = kind; s.ep[e] = w.pol; s.epath[e] = w.path; s.ehp[e] = muldiv(ENEMY_HP[kind], scale, 2);
+      s.eage[e] = 0; s.eid[e] = ++s.serial; s.ex0[e] = w.x; s.ey0[e] = w.y; s.edir[e] = w.dir;
+      s.ex[e] = w.x; s.ey[e] = w.y;
+    }
+    if (t === BOSS_AT) {
+      const max = muldiv(BOSS_HP, 1 + Math.max(1, presentCount(s)), 2);
+      Object.assign(s.boss, { on: 1, hp: max, max, phase: 0, age: 0, fa: 0, rest: 0 });
+    }
   }
 
   
+  for (let e = s.ne - 1; e >= 0; e--) {
+    const age = s.eage[e];
+    const [x, y] = enemyPos(s.epath[e], s.ex0[e], s.ey0[e], s.edir[e], age);
+    s.ex[e] = x; s.ey[e] = y;
+    const gone = y > FIELD_H + 60 * FP || x < -60 * FP || x > FIELD_W + 60 * FP ||
+      (s.ek[e] === 2 && age > WARDEN_LIFE && y < -90 * FP);
+    if (gone) { removeEnemy(s, e); continue; }
+    if (!ended) enemyFire(s.ek[e], s.epath[e], s.ep[e], age, x, y, s.players, thin, spawns);
+    s.eage[e] = age + 1;
+  }
+
+  
+  const B = s.boss;
+  if (B.on) {
+    const [x, y] = bossPos(B.age);
+    B.x = x; B.y = y;
+    if (B.age >= BOSS_TIME) { B.on = 0; s.clear = t; }
+    else if (B.age >= BOSS_ENTER) {
+      if (B.rest > 0) B.rest--;
+      else if (!ended) { bossFire(B.phase, B.fa, s.seed, x, y, s.players, thin, spawns); B.fa++; }
+    }
+    B.age++;
+  }
+  pushSpawns(s, spawns);
+
+  
   for (let i = s.ns - 1; i >= 0; i--) {
+    if (s.sdmg[i] > 1) {
+      const tg = burstTarget(s, s.sx[i], s.sy[i]);
+      if (tg) {
+        const dx = tg[0] - s.sx[i];
+        s.svx[i] += dx > 0 ? BURST_TURN * 4 : dx < 0 ? -BURST_TURN * 4 : 0;
+        if (s.svx[i] > BURST_VMAX) s.svx[i] = BURST_VMAX; else if (s.svx[i] < -BURST_VMAX) s.svx[i] = -BURST_VMAX;
+      }
+    }
+    s.sx[i] += s.svx[i];
     s.sy[i] -= SHOT_SPEED;
-    if (s.sy[i] < 0) { removeShot(s, i); continue; }
-    if (d2px(s.sx[i], s.sy[i], s.boss.x, s.boss.y) < (BOSS_R >> 8) ** 2) {
-      const owner = s.players[s.sown[i]];
-      owner.score += 10;
-      if (--s.boss.hp <= 0) { s.boss.kills++; s.boss.hp = BOSS_HP + s.boss.kills * 500; owner.score += 5000; }
+    if (s.sy[i] < -20 * FP || s.sx[i] < -20 * FP || s.sx[i] > FIELD_W + 20 * FP) { removeShot(s, i); continue; }
+    const owner = s.players[s.sown[i]];
+    const dmg = s.sdmg[i];
+    if (bossHittable(s) && Math.abs(s.sx[i] - B.x) < BOSS_HALF_W * FP && Math.abs(s.sy[i] - B.y) < BOSS_HALF_H * FP) {
+      owner.score += 10 * dmg;
+      B.hp -= dmg;
+      if (B.hp <= 0) {
+        B.on = 0; B.kills++; B.beaten = 1; s.clear = t; owner.score += 20000; owner.kills++;
+        boom(s, B.x, B.y, 3);
+      } else {
+        const ph = bossPhase(B.hp, B.max);
+        if (ph !== B.phase) { 
+          B.phase = ph; B.fa = 0; B.rest = BOSS_REST; s.nb = 0;
+        }
+      }
       removeShot(s, i);
+      continue;
+    }
+    for (let e = 0; e < s.ne; e++) {
+      const r = ENEMY_R[s.ek[e]];
+      if (s.ey[e] < -20 * FP || d2px(s.sx[i], s.sy[i], s.ex[e], s.ey[e]) >= r * r) continue;
+      s.ehp[e] -= dmg;
+      owner.score += 10;
+      if (s.ehp[e] <= 0) {
+        owner.score += ENEMY_SCORE[s.ek[e]]; owner.kills++;
+        boom(s, s.ex[e], s.ey[e], s.ek[e]);
+        removeEnemy(s, e);
+      }
+      removeShot(s, i);
+      break;
     }
   }
 
@@ -143,47 +286,60 @@ export function step(s, inputs) {
       const d = d2px(x, y, p.x, p.y);
       if (s.bpol[b] === p.iris) {
         if (d < (ABSORB_R >> 8) ** 2) {
-          p.energy = Math.min(p.energy + 1, 999); p.absorbed++; p.score += 1;
+          p.energy = Math.min(p.energy + 1, 999); p.absorbed++; p.score += 5;
           const [r, u] = rngNext(s.rng); s.rng = r; s.sparks += 1 + (u & 3);
           removeBullet(s, b); break;
         }
       } else {
         const rr = (HIT_R + BULLET_R[s.bkind[b]]) >> 8;
         if (d < rr * rr && p.inv === 0) {
-          p.lives--; p.hits++; p.inv = INVULN;
+          p.hits++;
+          if (s.gentle) p.inv = GENTLE_SHIELD; 
+          else { p.lives--; p.inv = INVULN; }
           removeBullet(s, b); break;
         }
       }
     }
   }
 
+  
+  if (s.clear > 0) s.nb = 0;
+  if (!s.gentle && !s.over && !s.clear) {
+    let flying = 0, alive = 0;
+    for (const p of s.players) if (p.on) { flying++; if (p.lives > 0) alive++; }
+    if (flying > 0 && alive === 0) s.over = t;
+  }
+
   s.tick = t + 1;
   return s;
 }
 
+const ARRAYS = ['bx', 'by', 'bvx', 'bvy', 'bpol', 'bkind', 'sx', 'sy', 'svx', 'sown', 'sdmg', ...ENEMY_ARRAYS, 'boomX', 'boomY', 'boomK'];
+
 
 export function snapshot(s) {
-  return {
-    ...s,
-    boss: { ...s.boss },
-    players: s.players.map((p) => ({ ...p })),
-    bx: s.bx.slice(), by: s.by.slice(), bvx: s.bvx.slice(), bvy: s.bvy.slice(), bpol: s.bpol.slice(), bkind: s.bkind.slice(),
-    sx: s.sx.slice(), sy: s.sy.slice(), sown: s.sown.slice(),
-  };
+  const c = { ...s, boss: { ...s.boss }, players: s.players.map((p) => ({ ...p })) };
+  for (const k of ARRAYS) c[k] = s[k].slice();
+  return c;
 }
 
-const PLAYER_KEYS = ['on', 'x', 'y', 'iris', 'energy', 'lives', 'bombs', 'inv', 'cool', 'score', 'bombHeld', 'absorbed', 'hits'];
+const PLAYER_KEYS = ['on', 'x', 'y', 'iris', 'energy', 'lives', 'bombs', 'inv', 'cool', 'score', 'bombHeld', 'absorbed', 'hits',
+  'bursts', 'kills'];
+const BOSS_KEYS = ['on', 'hp', 'max', 'phase', 'age', 'fa', 'rest', 'x', 'y', 'kills', 'beaten'];
 
 
 export function stateHash(s) {
   let h = 0x811c9dc5;
   const add = (v) => { h = Math.imul(h ^ (v | 0), 0x01000193); };
-  add(s.tick); add(s.seed); add(s.rng); add(s.sparks);
-  add(s.boss.hp); add(s.boss.x); add(s.boss.y); add(s.boss.kills);
+  add(s.tick); add(s.seed); add(s.gentle); add(s.rng); add(s.sparks); add(s.wi); add(s.clear); add(s.over);
+  for (const k of BOSS_KEYS) add(s.boss[k]);
   for (const p of s.players) for (const k of PLAYER_KEYS) add(p[k]);
   add(s.nb);
   for (let i = 0; i < s.nb; i++) { add(s.bx[i]); add(s.by[i]); add(s.bvx[i]); add(s.bvy[i]); add(s.bpol[i]); add(s.bkind[i]); }
   add(s.ns);
-  for (let i = 0; i < s.ns; i++) { add(s.sx[i]); add(s.sy[i]); add(s.sown[i]); }
+  for (let i = 0; i < s.ns; i++) { add(s.sx[i]); add(s.sy[i]); add(s.svx[i]); add(s.sown[i]); add(s.sdmg[i]); }
+  add(s.ne); add(s.serial);
+  for (let i = 0; i < s.ne; i++) for (const k of ENEMY_ARRAYS) add(s[k][i]);
+  add(s.nboom);
   return h >>> 0;
 }
