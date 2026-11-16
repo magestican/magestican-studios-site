@@ -1,0 +1,23 @@
+{
+ "tile_size": 256,
+ "cols": 2,
+ "rows": 1,
+ "tiles": [
+  {
+   "name": "crater_rock",
+   "x": 0,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/crater_rock.png"
+  },
+  {
+   "name": "glass_scree",
+   "x": 256,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/glass_scree.png"
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+{
+ "tile_size": 256,
+ "cols": 2,
+ "rows": 1,
+ "tiles": [
+  {
+   "name": "salt_crust",
+   "x": 0,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/salt_crust.png"
+  },
+  {
+   "name": "brine_stain",
+   "x": 256,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/brine_stain.png"
+  }
+ ]
+}

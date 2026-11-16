@@ -14,7 +14,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { BULLET_TYPES, rasterBullet } from './bullets.js';
-import { FIELD_W, FIELD_H, TILE_PX, GROUND_TINT, GROUND_TILES, groundTileAt } from './field.js';
+import { FIELD_W, FIELD_H, TILE_PX, STAGE_GROUND, groundTileAt } from './field.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
@@ -87,20 +87,21 @@ scene.add(sun, sun.target);
 
 
 const texLoader = new THREE.TextureLoader();
-const tileMats = {};
-for (const id of GROUND_TILES) {
-  const tex = texLoader.load(`assets/stage1-ground/stage1_ground/tiles/${id}.png`);
+
+const tileMats = STAGE_GROUND.map((g) => Object.fromEntries([g.base, g.strip].map((id) => {
+  const tex = texLoader.load(`assets/${g.dir}/tiles/${id}.png`);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 4;
   const m = new THREE.MeshBasicMaterial({ map: tex });
-  m.color.setScalar(GROUND_TINT);
-  tileMats[id] = m;
-}
+  m.color.setScalar(g.tint);
+  return [id, m];
+})));
+const matAt = (c, row, stage) => tileMats[Math.min(stage, tileMats.length - 1)][groundTileAt(c, row, stage)];
 const COLS = Math.round(FIELD_W / TILE_PX), ROWS = Math.ceil(FIELD_H / TILE_PX) + 2;
 const tileGeo = new THREE.PlaneGeometry(TILE_PX, TILE_PX).rotateX(-Math.PI / 2);
 const tiles = [];
 for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-  const mesh = new THREE.Mesh(tileGeo, tileMats.dust_plain);
+  const mesh = new THREE.Mesh(tileGeo, matAt(c, r, 0));
   scene.add(mesh);
   tiles.push(mesh);
 }
@@ -708,7 +709,7 @@ function draw(s, dt) {
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++, i++) {
     const row = base + r - 1;
     tiles[i].position.set(-FIELD_W / 2 + TILE_PX * (c + 0.5), 0, FIELD_H / 2 - TILE_PX * (row + 0.5) + scrollPx);
-    tiles[i].material = tileMats[groundTileAt(c, row)];
+    tiles[i].material = matAt(c, row, s.stage);
   }
   const span = 14 * 120 + 200;
   for (const p of props) {

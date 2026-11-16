@@ -1,0 +1,23 @@
+{
+ "tile_size": 256,
+ "cols": 2,
+ "rows": 1,
+ "tiles": [
+  {
+   "name": "rust_deck",
+   "x": 0,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/rust_deck.png"
+  },
+  {
+   "name": "cinder_ash",
+   "x": 256,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/cinder_ash.png"
+  }
+ ]
+}
