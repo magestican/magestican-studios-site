@@ -26,11 +26,19 @@ export const BOSS_HP = 1200;
 export const WARDEN_HP = 260;
 
 
-export const DART = 0, TURRET = 1, WARDEN = 2;
-export const ENEMY_HP = [6, 30, WARDEN_HP];
-export const ENEMY_SCORE = [100, 300, 3000];
+export const DART = 0, TURRET = 1, WARDEN = 2, SKIFF = 3, BULWARK = 4, GUNSHIP = 5;
+export const ENEMY_HP = [6, 30, WARDEN_HP, 4, 240, 300];
+export const ENEMY_SCORE = [100, 300, 3000, 150, 1000, 3000];
 
-export const ENEMY_R = [16, 26, 44];
+export const ENEMY_R = [16, 26, 44, 14, 26, 40];
+
+export const ARMOUR = 1, OTHER_ONLY = 2;
+export const KIND_FLAGS = [0, 0, 0, 0, ARMOUR, 0];
+
+export const isMid = (k) => k === WARDEN || k === GUNSHIP;
+export const MID_LIFE = WARDEN_LIFE;
+
+export const LAUNCH_EVERY = 240;
 
 const px = (v) => Math.round(v * FP);
 
@@ -55,11 +63,15 @@ export const BEATS = Object.freeze([
   { at: BOSS_AT, kind: 'boss', pol: 0 },
 ]);
 
-const PATHS = { dive: 0, sweep: 1, ground: 2, warden: 3 };
+export const PATHS = { dive: 0, sweep: 1, ground: 2, warden: 3, scurve: 4, slide: 5, shuttle: 6, launch: 7, rampart: 8, pair: 9 };
+const KIND_OF = { dive: DART, sweep: DART, ground: TURRET, warden: WARDEN, scurve: SKIFF, launch: SKIFF, slide: BULWARK,
+  shuttle: GUNSHIP, rampart: BULWARK, pair: SKIFF };
+const KIND_NAME = ['dart', 'turret', 'warden', 'skiff', 'bulwark', 'gunship'];
 
-function expand(seed) {
+
+export function expandBeats(beats, seed) {
   const out = [];
-  BEATS.forEach((b, bi) => {
+  beats.forEach((b, bi) => {
     if (b.kind === 'wall') {
       const span = Math.trunc(FIELD_W / b.cols);
       const off = (hash32(seed, 21, bi) % (span >> 1)) - (span >> 2);
@@ -68,13 +80,13 @@ function expand(seed) {
         const second = b.pol2 !== undefined && r >= b.rows / 2;
         out.push({ at: b.at + r * 40 + (second ? 60 : 0), kind: 'row', pol: second ? b.pol2 : b.pol, x: off, cols: b.cols, gap });
       }
-      return;
+      if (!b.groups) return; 
     }
     if (b.kind === 'boss') return;
     b.groups.forEach((g, gi) => {
       for (let k = 0; k < g.n; k++) {
         const jit = px((hash32(seed, 23 + gi, bi * 16 + k) % 25) - 12);
-        let x, y, dir = g.dir || 0, at = b.at;
+        let x, y, dir = g.dir || 0, at = b.at + (g.delay || 0);
         if (g.path === 'dive') {
           const side = k - ((g.n - 1) >> 1);
           x = px(390 * g.cx + side * 42) + jit;
@@ -85,11 +97,18 @@ function expand(seed) {
           x = dir > 0 ? px(-20) : FIELD_W + px(20);
           y = px(844 * g.cy) + jit;
           at += k * 16;
+        } else if (g.path === 'scurve' || g.path === 'pair') {
+          
+          x = px(390 * g.cx) + jit;
+          y = px(-24);
+          at += k * 24;
+          dir = g.dir || 1;
         } else {
           x = px(390 * g.cx) + jit;
           y = g.path === 'ground' ? px(-40) : px(-70);
         }
-        out.push({ at, kind: g.path === 'ground' ? 'turret' : g.path === 'warden' ? 'warden' : 'dart', path: PATHS[g.path], pol: g.pol, x, y, dir });
+        const k2 = KIND_OF[g.path];
+        out.push({ at, kind: KIND_NAME[k2], k: k2, path: PATHS[g.path], pol: g.pol, x, y, dir, flags: KIND_FLAGS[k2] | (g.only ? OTHER_ONLY : 0) });
       }
     });
   });
@@ -101,15 +120,15 @@ function expand(seed) {
 let memoSeed = null, memoList = null;
 
 export function waveList(seed) {
-  if (memoSeed !== seed) { memoList = Object.freeze(expand(seed).map(Object.freeze)); memoSeed = seed; }
+  if (memoSeed !== seed) { memoList = Object.freeze(expandBeats(BEATS, seed).map(Object.freeze)); memoSeed = seed; }
   return memoList;
 }
 
 
-export function cueAt(t) {
-  for (const b of BEATS) {
+export function cueAt(t, beats = BEATS) {
+  for (const b of beats) {
     const d = b.at - t;
-    if (d >= 1 && d <= 120 && b.kind !== 'warden' && b.kind !== 'boss') return b.pol;
+    if (d >= 1 && d <= 120 && b.kind !== 'warden' && b.kind !== 'shuttle' && b.kind !== 'boss') return b.pol;
   }
   return -1;
 }
@@ -141,8 +160,11 @@ export function enemyPos(path, x0, y0, dir, age) {
 }
 
 
+export const FIRE_FLOOR = FIELD_H - 160 * FP;
+
+
 export function enemyFire(kind, path, pol, age, x, y, players, thin, out) {
-  if (y < 0 || y > FIELD_H - 160 * FP) return;
+  if (y < 0 || y > FIRE_FLOOR) return;
   if (kind === DART) {
     const when = path === 0 ? age === 100 || age === 220 : age === 60 || age === 130;
     if (when) fan(out, x, y, 1, aimAt(players, x, y), 0, 2 * FP, pol, 0, false);

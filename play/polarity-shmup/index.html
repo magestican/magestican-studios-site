@@ -43,6 +43,8 @@
     #pol { font-weight: 700; }
     #pol[data-pol="ember"] { color: var(--ember); }
     #pol[data-pol="iris"] { color: #c9b2ff; }
+    #chain[data-pol="ember"] { color: var(--ember); }
+    #chain[data-pol="iris"] { color: #c9b2ff; }
     .stats { display: flex; flex-direction: column; gap: calc(6px * var(--fs)); align-items: flex-end; }
     .hud .left { display: flex; flex-direction: column; gap: calc(8px * var(--fs)); }
     .score { font-size: calc(16px * var(--fs)); font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -150,6 +152,7 @@
       <div class="left">
         <div class="chip score" id="score">0</div>
         <div class="meter" aria-label="Burst meter"><i id="meter" data-pol="ember"></i></div>
+        <div class="chip" id="chain" data-pol="ember" aria-live="polite" hidden></div>
       </div>
       <div class="stats">
         <button class="chip" id="sound" type="button" aria-pressed="false">Sound off</button>
@@ -163,6 +166,7 @@
       <h1>Flipwing</h1>
       <p class="tag">Drink your colour. Flip for the other.</p>
       <button class="go" id="start" type="button">Start</button>
+      <button class="alt" id="continue" type="button" hidden>Continue</button>
       <button class="alt" id="arcade" type="button">Arcade: 3 lives</button>
       <button class="alt" id="friends" type="button">Play with friends</button>
       <p class="keys">Drag to fly. Second finger or the Flip button switches colour.<br>Desktop: arrows or WASD, Space flips, K bombs, Shift slows.</p>
@@ -174,9 +178,11 @@
         <dt>Drunk</dt><dd id="t-drunk">0</dd>
         <dt>Bursts</dt><dd id="t-bursts">0</dd>
         <dt>Downed</dt><dd id="t-kills">0</dd>
+        <dt>Best chain</dt><dd id="t-chain">0</dd>
         <dt>Time</dt><dd id="t-time">0:00</dd>
       </dl>
       <ul class="pilots" id="t-pilots" hidden></ul>
+      <p class="tag" id="t-next" hidden></p>
       <button class="go" id="again" type="button">Play again</button>
     </section>
     
@@ -202,8 +208,9 @@
   </div>
   <aside>
     <h1>Flipwing</h1>
-    <p>Stage 1, Dustline. Your ship drinks bullets of its own colour and fills the burst meter; a full meter fires by
-      itself. Bullets of the other colour hurt, so flip.</p>
+    <p>Two stages, Dustline and Saltpan. Your ship drinks bullets of its own colour and fills the burst meter; a full
+      meter fires by itself. Bullets of the other colour hurt, so flip. Shoot down three of one colour in a row for a
+      chain: each chain pays double and makes your bursts hit harder.</p>
     <ul>
       <li>Move: arrows or WASD (Shift slows), or a gamepad stick</li>
       <li>Flip colour: Space, J or pad A</li>
@@ -232,7 +239,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=65ac820c-20261116T135609Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=65ac820c-20261116T135609Z"></script>
+  <script type="module" src="src/boot.js?v=ee29d0ea-20261116T151859Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=ee29d0ea-20261116T151859Z"></script>
 </body>
 </html>

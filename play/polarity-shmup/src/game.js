@@ -19,10 +19,11 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
 import { SFX_TAKES, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound } from './sound.js';
-import { BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, step, teamScore } from './sim/sim.js';
+import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, step, teamScore } from './sim/sim.js';
 import { FP } from './sim/fixed.js';
 import { MOVE_MAX, pack } from './sim/input.js';
-import { BOSS_AT, SCROLL, cueAt } from './sim/stage.js';
+import { SCROLL } from './sim/stage.js';
+import { BOSS_NAMES, STAGES, stageCue } from './sim/stages.js';
 import { stickToMove } from './controls.js';
 
 const $ = (id) => document.getElementById(id);
@@ -50,6 +51,14 @@ soundBtn.addEventListener('click', () => {
 
 
 const SHIP_LEN = 44, DART_LEN = 36, TURRET_W = 64, WARDEN_W = 96, BOSS_W = 330, PROP_SCALE = 4.6;
+
+
+const SKIFF_LEN = 32, BULWARK_W = 60, GUNSHIP_W = 92, LOOM_W = 300;
+
+const STAGE_PROPS = [
+  ['props/bunker/bunker', 'props/hangar/hangar', 'props/pylon/pylon', 'props/radar/radar', 'props/rock/rock', 'props/silo/silo'],
+  ['stages-props/cairn/cairn', 'stages-props/pump/pump', 'stages-props/tank/tank'],
+];
 const wx = (x) => x / FP - FIELD_W / 2;
 const wz = (y) => y / FP - FIELD_H / 2;
 
@@ -160,6 +169,7 @@ const tethers = [0, 1].map(() => {
 });
 const pools = {};          
 let warden = null, furnace = null;
+const bosses = []; 
 const props = [];
 
 function pool(key, proto, n, y) {
@@ -196,25 +206,59 @@ async function loadModels() {
   warden = fit(ti.clone(true), WARDEN_W, { axis: 'max' });
   warden.visible = false;
   scene.add(warden);
-  const fEmber = fit(fe, BOSS_W, { axis: 'z' }), fIris = fit(fi, BOSS_W, { axis: 'z' });
-  furnace = new THREE.Group();
-  furnace.add(fEmber, fIris);
-  furnace.rotation.y = Math.PI / 2; 
-  furnace.visible = false;
-  scene.add(furnace);
-  furnace.userData = { ember: fEmber, iris: fIris };
+  furnace = bossGroup(fe, fi, BOSS_W);
+  bosses[0] = furnace;
 
-  const propIds = ['bunker', 'hangar', 'pylon', 'radar', 'rock', 'silo'];
-  const models = await Promise.all(propIds.map((id) => loadGlb(`assets/props/${id}/${id}.glb`)));
-  let seed = 1729;
+  
+  const craft = ['skiff', 'bulwark', 'gunship', 'loom'];
+  const more = await Promise.all(craft.flatMap((c) => ['ember', 'iris'].map((pol) =>
+    loadGlb(`assets/stages-craft/${c}_${pol}/${c}_${pol}.glb`))));
+  const [se, si, be, bi, ge, gi, le, li] = more;
+  for (const [key, src, len, y, opts, rot, n] of [
+    ['skiff0', se, SKIFF_LEN, 60, {}, -Math.PI / 2, 24], ['skiff1', si, SKIFF_LEN, 60, {}, -Math.PI / 2, 24],
+    ['bulwark0', be, BULWARK_W, 50, { axis: 'max' }, 0, 4], ['bulwark1', bi, BULWARK_W, 50, { axis: 'max' }, 0, 4],
+    ['gunship0', ge, GUNSHIP_W, 70, { axis: 'max' }, 0, 1], ['gunship1', gi, GUNSHIP_W, 70, { axis: 'max' }, 0, 1],
+  ]) {
+    const proto = fit(src.clone(true), len, opts);
+    proto.rotation.y = rot;
+    pool(key, proto, n, y);
+  }
+  bosses[1] = bossGroup(le, li, LOOM_W);
+  await loadProps(stagePropsShown = 0);
+}
+
+
+function bossGroup(e, i, w) {
+  const ember = fit(e, w, { axis: 'z' }), iris = fit(i, w, { axis: 'z' });
+  const g = new THREE.Group();
+  g.add(ember, iris);
+  g.rotation.y = Math.PI / 2;
+  g.visible = false;
+  scene.add(g);
+  g.userData = { ember, iris };
+  return g;
+}
+
+
+let stagePropsShown = -1;
+const propCache = new Map();
+async function loadProps(n) {
+  const ids = STAGE_PROPS[n] ?? STAGE_PROPS[0];
+  const models = await Promise.all(ids.map((id) => {
+    if (!propCache.has(id)) propCache.set(id, loadGlb(`assets/${id}.glb`));
+    return propCache.get(id);
+  }));
+  for (const p of props) scene.remove(p);
+  props.length = 0;
+  let seed = 1729 + n * 97;
   const rnd = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296); 
-  for (let n = 0; n < 14; n++) {
-    const p = models[n % models.length].clone(true);
+  for (let k = 0; k < 14; k++) {
+    const p = models[k % models.length].clone(true);
     p.scale.setScalar(PROP_SCALE);
     p.rotation.y = Math.floor(rnd() * 4) * (Math.PI / 2);
     p.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     p.userData.x = (rnd() - 0.5) * (FIELD_W - 70);
-    p.userData.z0 = -n * 120 - rnd() * 40;
+    p.userData.z0 = -k * 120 - rnd() * 40;
     scene.add(p);
     props.push(p);
   }
@@ -377,14 +421,31 @@ let sim = null, mode = 'title', paused = false, gentle = true;
 let net = null;
 const botSeat = params.get('bot') === '1';
 let acc = 0, last = performance.now();
-const seen = { boom: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0 };
+const seen = { boom: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0 };
+const SEEN0 = { boom: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0 };
 
-function start(isGentle) {
+
+
+const SAVE_KEY = 'flipwing.unlocked';
+function unlocked() {
+  try { return Math.max(0, Math.min(STAGES.length - 1, Number(localStorage.getItem(SAVE_KEY)) || 0)); } catch { return 0; }
+}
+function unlock(n) {
+  try { if (n > unlocked()) localStorage.setItem(SAVE_KEY, String(n)); } catch {  }
+}
+function drawContinue() {
+  const n = unlocked();
+  $('continue').hidden = n === 0;
+  $('continue').textContent = `Continue: stage ${n + 1}, ${STAGES[n].name}`;
+}
+drawContinue();
+
+function start(isGentle, stage = 0) {
   gentle = isGentle;
   
-  sim = createSim({ seed: (Date.now() & 0x7fffffff) || 1, gentle });
+  sim = createSim({ seed: (Date.now() & 0x7fffffff) || 1, gentle, stage });
   flipLevel = 0; drag.dx = drag.dy = 0;
-  Object.assign(seen, { boom: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0 });
+  Object.assign(seen, SEEN0, { stage });
   mode = 'play';
   setPaused(false);
   $('title').hidden = true; $('tally').hidden = true;
@@ -394,6 +455,7 @@ function start(isGentle) {
 }
 $('start').addEventListener('click', () => start(true));
 $('arcade').addEventListener('click', () => start(false));
+$('continue').addEventListener('click', () => start(true, unlocked()));
 $('again').addEventListener('click', () => (net ? leaveCoop() : start(gentle)));
 
 function setPaused(p) {
@@ -404,17 +466,27 @@ function setPaused(p) {
 function togglePause() { if (mode === 'play') setPaused(!paused); }
 $('paused').addEventListener('click', () => setPaused(false));
 
+
+const runGoesOn = (s) => !s.over && s.clear > 0 && s.stage + 1 < STAGES.length;
+
 function showTally(s) {
   mode = 'tally';
-  const p = s.players[0];
-  const secs = Math.round(s.tick / TICK_HZ);
-  $('tally-head').textContent = s.over ? 'Shot down' : s.boss.beaten ? 'Dustline clear' : 'The Furnace got away';
+  const p = s.players[viewSeat(s)];
+  const st = STAGES[s.stage];
+  const secs = Math.round((s.tick - s.st0) / TICK_HZ);
+  const last = !runGoesOn(s) && !s.over;
+  $('tally-head').textContent = s.over ? 'Shot down' : s.boss.beaten ? (last ? 'Run complete' : `${st.name} clear`) : `${BOSS_NAMES[st.boss]} got away`;
   $('t-score').textContent = p.score.toLocaleString();
   $('t-drunk').textContent = String(p.absorbed);
   $('t-bursts').textContent = String(p.bursts);
   $('t-kills').textContent = String(p.kills);
+  $('t-chain').textContent = String(s.sbest);
   $('t-time').textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   $('again').textContent = s.over ? 'Try again' : 'Play again';
+  
+  $('again').hidden = runGoesOn(s);
+  $('t-next').hidden = !runGoesOn(s);
+  if (runGoesOn(s)) $('t-next').textContent = `Next: stage ${s.stage + 2}, ${STAGES[s.stage + 1].name}`;
   const list = $('t-pilots');
   list.hidden = !net;
   if (net) {
@@ -435,6 +507,15 @@ function showTally(s) {
   }
   $('tally').hidden = false;
   ui.play('open');
+}
+
+
+function stageBegins(s) {
+  seen.stage = s.stage;
+  if (!net) unlock(s.stage);
+  mode = 'play';
+  $('tally').hidden = true;
+  toast(`Stage ${s.stage + 1}: ${STAGES[s.stage].name}`, 3000);
 }
 
 
@@ -562,7 +643,7 @@ async function openCoop() {
 function beginCoopRun(isGentle) {
   gentle = isGentle;
   flipLevel = 0; drag.dx = drag.dy = 0;
-  Object.assign(seen, { boom: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0 });
+  Object.assign(seen, SEEN0);
   mode = 'play';
   $('lobby').hidden = true; $('title').hidden = true; $('tally').hidden = true;
   $('lives').hidden = gentle || net.room.seat === null;
@@ -592,8 +673,10 @@ for (const id of ['join', 'watch']) {
 }
 
 
-const hud = { score: $('score'), meter: $('meter'), lives: $('lives'), pol: $('pol'), bombs: $('bombs'), flipBtn: $('flip') };
+const hud = { score: $('score'), meter: $('meter'), lives: $('lives'), pol: $('pol'), bombs: $('bombs'), flipBtn: $('flip'), chain: $('chain') };
 const enemyMeshes = new Map(); 
+const POOL_OF = ['dart', 'turret', 'warden', 'skiff', 'bulwark', 'gunship']; 
+const BOOM_SIZE = [40, 64, 120, 36, 90, 130];
 
 function syncEnemies(s) {
   const live = new Set();
@@ -603,14 +686,14 @@ function syncEnemies(s) {
     let o = enemyMeshes.get(id);
     if (!o) {
       if (k === 2) o = warden;
-      else o = pools[`${k === 0 ? 'dart' : 'turret'}${s.ep[e]}`]?.find((m) => !m.visible);
+      else o = pools[`${POOL_OF[k]}${s.ep[e]}`]?.find((m) => !m.visible);
       if (!o) continue;
       o.visible = true;
       enemyMeshes.set(id, o);
     }
     o.position.x = wx(s.ex[e]);
     o.position.z = wz(s.ey[e]);
-    if (k !== 0 && ship) { 
+    if ((k === 1 || k === 2) && ship) { 
       const p = s.players[viewSeat(s)];
       o.rotation.y = Math.atan2(wx(p.x) - o.position.x, wz(p.y) - o.position.z) - Math.PI / 2;
     }
@@ -633,8 +716,10 @@ function draw(s, dt) {
     if (z > FIELD_H / 2 + 80) z -= span;
     p.position.set(p.userData.x, 0, z);
   }
-  dusk.material.opacity = Math.max(0, Math.min(0.35, (s.tick - (BOSS_AT - 360)) / 360 * 0.35));
+  const lt = s.tick - s.st0, st = STAGES[s.stage];
+  dusk.material.opacity = s.clear ? 0 : Math.max(0, Math.min(0.35, (lt - (st.bossAt - 360)) / 360 * 0.35));
   if (!ship) return;
+  if (stagePropsShown !== s.stage) { stagePropsShown = s.stage; loadProps(s.stage); }
 
   const me = viewSeat(s);
   const p = s.players[me];
@@ -683,20 +768,29 @@ function draw(s, dt) {
   if (cue) sfx.play(cue);
 
   syncEnemies(s);
-  if (furnace) {
-    furnace.visible = s.boss.on === 1;
-    furnace.position.set(wx(s.boss.x), 90, wz(s.boss.y));
-    const irisPhase = s.boss.phase === 1;
-    furnace.userData.ember.visible = !irisPhase;
-    furnace.userData.iris.visible = irisPhase;
+  for (let k = 0; k < bosses.length; k++) {
+    const b = bosses[k];
+    if (!b) continue;
+    b.visible = s.boss.on === 1 && s.boss.kind === k;
+    if (!b.visible) continue;
+    b.position.set(wx(s.boss.x), 90, wz(s.boss.y));
+    const irisPhase = s.boss.phase === 1; 
+    b.userData.ember.visible = !irisPhase;
+    b.userData.iris.visible = irisPhase;
   }
   drawBullets(s);
 
   
   for (; seen.boom < s.nboom; seen.boom++) {
     const n = seen.boom % 16, k = s.boomK[n];
-    flash(wx(s.boomX[n]), wz(s.boomY[n]), [40, 64, 120, 260][k], k === 3 ? 0xfff1c0 : 0xffd27a);
-    sfx.play(k >= 2 ? 'boom' : 'pop');
+    if (k === BOOM_DEFLECT) { flash(wx(s.boomX[n]), wz(s.boomY[n]), 14, 0x8a8a90); continue; } 
+    const boss = k === BOOM_BOSS;
+    flash(wx(s.boomX[n]), wz(s.boomY[n]), boss ? 260 : BOOM_SIZE[k] ?? 40, boss ? 0xfff1c0 : 0xffd27a);
+    sfx.play(boss || k === 2 || k >= 4 ? 'boom' : 'pop');
+  }
+  if (s.chain !== seen.chain) {
+    if (s.chain > seen.chain) flash(x, z - 30, 30 + Math.min(s.chain, 8) * 6, s.chainPol ? 0xa878ff : 0xffc440);
+    seen.chain = s.chain;
   }
   if (p.absorbed > seen.absorbed) { sfx.play('absorb'); seen.absorbed = p.absorbed; }
   if (p.bursts > seen.bursts) { sfx.play('release'); seen.bursts = p.bursts; flash(x, z, 60, p.iris ? 0xa878ff : 0xffc440); }
@@ -711,7 +805,12 @@ function draw(s, dt) {
   hud.pol.textContent = p.iris ? 'IRIS' : 'EMBER';
   hud.pol.dataset.pol = p.iris ? 'iris' : 'ember';
   hud.bombs.textContent = String(p.bombs);
-  const c = cueAt(s.tick);
+  
+  const chainText = s.chain || s.chainN ? `Chain ${s.chain} ${'●'.repeat(s.chainN)}${'○'.repeat(3 - s.chainN)}` : '';
+  if (hud.chain.textContent !== chainText) hud.chain.textContent = chainText;
+  hud.chain.hidden = !chainText;
+  hud.chain.dataset.pol = s.chainPol ? 'iris' : 'ember';
+  const c = stageCue(s.stage, lt);
   hud.flipBtn.dataset.pol = p.iris ? 'iris' : 'ember';
   hud.flipBtn.dataset.cue = c < 0 || c === p.iris ? '' : c ? 'iris' : 'ember'; 
 }
@@ -747,7 +846,8 @@ function frame(now) {
       room.poll(now);
       if (!room.ended) se.update(now, readInput);
       const s = se.view();
-      if (mode === 'play' && ((s.clear && s.tick - s.clear > 150) || (s.over && s.tick - s.over > 90))) showTally(s);
+      if (s.stage !== seen.stage) { if (mode === 'play' || mode === 'tally') stageBegins(s); }
+      else if (mode === 'play' && ((s.clear && s.tick - s.clear > 150) || (s.over && s.tick - s.over > 90))) showTally(s);
       draw(s, dt);
     } else { step(idle, [0, 0, 0, 0]); draw(idle, dt); }
   } else if (mode === 'title') { step(idle, [0, 0, 0, 0]); draw(idle, dt); }
@@ -757,9 +857,18 @@ function frame(now) {
       let n = 0;
       while (acc >= DT && n < 5) { step(sim, [readInput(), 0, 0, 0]); acc -= DT; n++; }
       if (n === 5) acc = 0;
-      if (sim.clear && sim.tick - sim.clear > 150) showTally(sim);
+      if (sim.stage !== seen.stage) stageBegins(sim); 
+      else if (sim.clear && sim.tick - sim.clear > 150) showTally(sim);
       else if (sim.over && sim.tick - sim.over > 90) showTally(sim);
-    } else if (mode === 'tally') step(sim, [pack({}), 0, 0, 0]);
+    } else if (mode === 'tally') {
+      
+      
+      acc += dt;
+      let n = 0;
+      while (acc >= DT && n < 5) { step(sim, [pack({}), 0, 0, 0]); acc -= DT; n++; }
+      if (n === 5) acc = 0;
+      if (sim.stage !== seen.stage) stageBegins(sim);
+    }
     draw(sim, paused ? 0 : dt);
   }
   stepFlashes(paused ? 0 : dt);
@@ -776,7 +885,7 @@ loadModels().then(() => {
   const play = params.get('play');
   if (params.has('join') || params.has('watch')) openCoop(); 
   else if (play) {
-    start(play !== 'arcade');
+    start(play !== 'arcade', Math.max(0, Math.min(STAGES.length - 1, (Number(params.get('stage')) || 1) - 1)));
     const skip = Math.min(20000, Number(params.get('skip')) || 0);
     for (let t = 0; t < skip; t++) {
       const dx = (195 * FP - sim.players[0].x) >> 8;
