@@ -8,10 +8,10 @@
 
 
 import { ANG, FP, angWrap, isin, muldiv, polar } from './fixed.js';
-import { fan, gentleSpeed } from './patterns.js';
+import { aimAt, fan, gentleSpeed, ring } from './patterns.js';
 import {
   BEATS, BOSS_AT, BOSS_ENTER, BOSS_HP, BOSS_TIME, BULWARK, FIRE_FLOOR, GUNSHIP, LAUNCH_EVERY, MID_LIFE, SKIFF, WARDEN_AT,
-  bossFire, cueAt, enemyFire, enemyPos, expandBeats,
+  bossFire, bossPhase, cueAt, enemyFire, enemyPos, expandBeats,
 } from './stage.js';
 
 const px = (v) => Math.round(v * FP);
@@ -39,10 +39,58 @@ const SALTPAN = Object.freeze([
 
 
 
+const FOUNDRY = Object.freeze([
+  { at: 240, kind: 'wall', pol: 0, rows: 2, cols: 9, groups: [{ path: 'slide', pol: 0, n: 1, cx: 0.5, delay: 120 }] },
+  { at: 660, kind: 'bulwark', pol: 1, groups: [{ path: 'slide', pol: 1, n: 1, cx: 0.5 }] },
+  { at: 1080, kind: 'skiffs', pol: 0, groups: [{ path: 'scurve', pol: 0, n: 3, cx: 0.5, dir: 1 }, { path: 'slide', pol: 1, n: 1, cx: 0.5, delay: 180 }] },
+  { at: 1500, kind: 'bulwark', pol: 0, groups: [{ path: 'slide', pol: 0, n: 1, cx: 0.28 }, { path: 'slide', pol: 1, n: 1, cx: 0.72 }] },
+  { at: 2280, kind: 'turrets', pol: 0, groups: [{ path: 'ground', pol: 0, n: 1, cx: 0.3 }, { path: 'ground', pol: 1, n: 1, cx: 0.7 }, { path: 'dive', pol: 0, n: 5, cx: 0.5, delay: 90 }] },
+  { at: 2700, kind: 'bulwark', pol: 0, groups: [{ path: 'slide', pol: 0, n: 1, cx: 0.5 }, { path: 'sweep', pol: 1, n: 4, dir: 1, cy: 0.14, delay: 60 }, { path: 'sweep', pol: 1, n: 4, dir: -1, cy: 0.24, delay: 120 }] },
+  { at: 3120, kind: 'skiffs', pol: 1, groups: [{ path: 'scurve', pol: 1, n: 3, cx: 0.3, dir: 1 }, { path: 'scurve', pol: 0, n: 3, cx: 0.7, dir: -1, delay: 60 }, { path: 'slide', pol: 1, n: 1, cx: 0.5, delay: 180 }] },
+  { at: 3960, kind: 'rampart', pol: 0, groups: [{ path: 'rampart', pol: 0, n: 1, cx: 0.5, armour: true }] },
+  { at: 5520, kind: 'bulwark', pol: 0, groups: [{ path: 'slide', pol: 0, n: 1, cx: 0.2 }, { path: 'slide', pol: 1, n: 1, cx: 0.5 }, { path: 'slide', pol: 0, n: 1, cx: 0.8 }] },
+  { at: 6000, kind: 'turrets', pol: 1, groups: [{ path: 'ground', pol: 1, n: 1, cx: 0.25 }, { path: 'ground', pol: 0, n: 1, cx: 0.75 }, { path: 'scurve', pol: 0, n: 3, cx: 0.5, dir: 1, delay: 60 }, { path: 'scurve', pol: 1, n: 3, cx: 0.5, dir: -1, delay: 200 }] },
+  { at: 6480, kind: 'darts', pol: 0, groups: [{ path: 'dive', pol: 0, n: 3, cx: 0.3 }, { path: 'dive', pol: 1, n: 3, cx: 0.7 }] },
+  { at: 7320, kind: 'boss', pol: 0 },
+]);
+
+
+
+const TWINSEA = Object.freeze([
+  { at: 240, kind: 'skiffs', pol: 0, groups: [{ path: 'scurve', pol: 0, n: 3, cx: 0.3, dir: 1 }, { path: 'scurve', pol: 1, n: 3, cx: 0.7, dir: -1 }] },
+  { at: 660, kind: 'wall', pol: 0, pol2: 1, rows: 4, cols: 9 },
+  { at: 1080, kind: 'turrets', pol: 0, groups: [{ path: 'ground', pol: 0, n: 1, cx: 0.25 }, { path: 'ground', pol: 1, n: 1, cx: 0.75 }, { path: 'slide', pol: 0, n: 1, cx: 0.5, delay: 120 }] },
+  { at: 1860, kind: 'pair', pol: 0, groups: [{ path: 'tether', pol: 0, n: 1, cx: 0.3, only: true }, { path: 'tether', pol: 1, n: 1, cx: 0.7, only: true }] },
+  { at: 3420, kind: 'darts', pol: 0, groups: [{ path: 'sweep', pol: 0, n: 4, dir: 1, cy: 0.12 }, { path: 'sweep', pol: 1, n: 4, dir: -1, cy: 0.24 }] },
+  { at: 3840, kind: 'bulwark', pol: 0, groups: [{ path: 'slide', pol: 0, n: 1, cx: 0.3 }, { path: 'slide', pol: 1, n: 1, cx: 0.7 }] },
+  { at: 4260, kind: 'skiffs', pol: 0, groups: [{ path: 'scurve', pol: 0, n: 3, cx: 0.25, dir: 1 }, { path: 'scurve', pol: 1, n: 3, cx: 0.75, dir: -1, delay: 60 }] },
+  { at: 4680, kind: 'turrets', pol: 1, groups: [{ path: 'ground', pol: 1, n: 1, cx: 0.3 }, { path: 'ground', pol: 0, n: 1, cx: 0.7 }, { path: 'dive', pol: 0, n: 5, cx: 0.5, delay: 90 }] },
+  { at: 5460, kind: 'boss', pol: 0 },
+]);
+
+
+
+const HEARTFALL = Object.freeze([
+  { at: 300, kind: 'wall', pol: 0, pol2: 1, rows: 4, cols: 9 },
+  { at: 720, kind: 'skiffs', pol: 0, groups: [{ path: 'scurve', pol: 0, n: 3, cx: 0.3, dir: 1 }, { path: 'scurve', pol: 1, n: 3, cx: 0.7, dir: -1, delay: 60 }] },
+  { at: 1140, kind: 'bulwark', pol: 0, groups: [{ path: 'slide', pol: 0, n: 1, cx: 0.3 }, { path: 'slide', pol: 1, n: 1, cx: 0.7 }] },
+  { at: 1920, kind: 'darts', pol: 0, groups: [{ path: 'sweep', pol: 0, n: 4, dir: 1, cy: 0.14 }, { path: 'sweep', pol: 1, n: 4, dir: -1, cy: 0.26 }, { path: 'ground', pol: 0, n: 1, cx: 0.25, delay: 120 }, { path: 'ground', pol: 1, n: 1, cx: 0.75, delay: 120 }] },
+  { at: 2340, kind: 'skiffs', pol: 1, groups: [{ path: 'scurve', pol: 1, n: 3, cx: 0.3, dir: 1 }, { path: 'scurve', pol: 0, n: 3, cx: 0.7, dir: -1, delay: 60 }, { path: 'slide', pol: 1, n: 1, cx: 0.5, delay: 120 }] },
+  { at: 3120, kind: 'warden', pol: 1, groups: [{ path: 'warden', pol: 1, n: 1, cx: 0.5, armour: true }] },
+  { at: 4680, kind: 'darts', pol: 0, groups: [{ path: 'dive', pol: 0, n: 3, cx: 0.3 }, { path: 'sweep', pol: 1, n: 4, dir: 1, cy: 0.16, delay: 90 }, { path: 'ground', pol: 0, n: 1, cx: 0.5, delay: 150 }] },
+  { at: 5520, kind: 'boss', pol: 0 },
+]);
+
+
+
+
 
 export const STAGES = Object.freeze([
   Object.freeze({ name: 'Dustline', beats: BEATS, midAt: WARDEN_AT, bossAt: BOSS_AT, boss: FURNACE, bossHp: BOSS_HP, bossTime: BOSS_TIME }),
   Object.freeze({ name: 'Saltpan', beats: SALTPAN, midAt: 3900, bossAt: 7260, boss: LOOM, bossHp: 1300, bossTime: 6000 }),
+  Object.freeze({ name: 'Foundry', beats: FOUNDRY, midAt: 3960, bossAt: 7320, boss: ANVIL, bossHp: 1400, bossTime: 6000 }),
+  Object.freeze({ name: 'Twinsea', beats: TWINSEA, midAt: 1860, bossAt: 5460, boss: TWIN, bossHp: 760, bossTime: 6000 }),
+  Object.freeze({ name: 'Heartfall', beats: HEARTFALL, midAt: 3120, bossAt: 5520, boss: CROWN, bossHp: 1250, bossTime: 7200 }),
 ]);
 
 
@@ -81,13 +129,19 @@ export function pathPos(path, x0, y0, dir, age) {
     if (age < MID_LIFE) return [x0 + Math.trunc((isin((age - 120) * 5) * 110) / 256), land];
     return [x0, land - (age - MID_LIFE) * 2 * FP];
   }
+  if (path === 10) { 
+    const land = 170 * FP;
+    if (age < 120) return [x0, y0 + muldiv(age, land - y0, 120)];
+    if (age < MID_LIFE) return [x0 + Math.trunc((isin((age - 120) * 4) * 50) / 256), land];
+    return [x0, land - (age - MID_LIFE) * 2 * FP];
+  }
   
   const out = age < 60 ? age : 60;
   return [x0 + dir * out * 2 * FP + Math.trunc((isin(age * 10) * 30) / 256), y0 + Math.trunc((age * 3 * FP) / 2)];
 }
 
 
-export const liftedOff = (path, age, y) => y < -90 * FP && ((path === 3 && age > MID_LIFE) || (path === 6 && age > MID_LIFE) ||
+export const liftedOff = (path, age, y) => y < -90 * FP && ((path === 3 && age > MID_LIFE) || ((path === 6 || path === 10) && age > MID_LIFE) ||
   ((path === 5 || path === 8) && age > 1200));
 
 
@@ -103,6 +157,19 @@ export function fireAll(kind, path, pol, age, x, y, players, thin, out, kids) {
   if (kind === BULWARK) {
     
     if (age >= 90 && age < 1200 && (age - 90) % 20 === 0) fan(out, x, y + 20 * FP, 3, 0, 160, 3 * FP / 2, pol, 1, thin);
+    return;
+  }
+  if (kind === GUNSHIP && path === 8) {
+    
+    if (age < 90 || age >= 1200) return;
+    const c = age - 90;
+    if (c < 540) { if (c % 50 === 0) { const n = c / 50; ring(out, x, y + 20 * FP, 12, (n * ANG) / 24, 3 * FP / 2, n & 1, 1, thin); } }
+    else if (c % 45 === 0) { const n = c / 45; fan(out, x, y + 20 * FP, 5, aimAt(players, x, y), 140, 5 * FP / 2, n & 1, 3, thin); }
+    return;
+  }
+  if (kind === GUNSHIP && path === 10) {
+    
+    if (age >= 120 && age < MID_LIFE && (age - 120) % 50 === 0) fan(out, x, y + 20 * FP, 3, aimAt(players, x, y), 150, 2 * FP, pol, 3, thin);
     return;
   }
   if (kind === GUNSHIP) {
@@ -161,9 +228,95 @@ function loomFire(phase, fa, x, y, players, thin, out, kids) {
 }
 
 
+function anvilFire(phase, fa, x, y, players, thin, out) {
+  if (phase === 0) {
+    if (fa % 90 === 0) { const n = fa / 90; fan(out, x, y + 30 * FP, 5, aimAt(players, x, y), 140, 3 * FP, n & 1, 3, thin); }
+    if (fa % 150 === 75) { const n = Math.trunc(fa / 150); ring(out, x, y + 30 * FP, 12, (n * ANG) / 24, 3 * FP / 2, (n + 1) & 1, 0, thin); }
+    return;
+  }
+  if (phase === 1) {
+    if (Math.trunc(fa / 60) % 3 === 2) return; 
+    if (fa % (thin ? 10 : 5) !== 0) return;
+    const a = angWrap(fa * 72), v = gentleSpeed(5 * FP / 2, thin);
+    for (let arm = 0; arm < 2; arm++) ring(out, x, y + 30 * FP, 1, angWrap(a + arm * (ANG / 2)), v, arm, 2, false);
+    return;
+  }
+  if (fa % 60 === 0) { const n = fa / 60; ring(out, x, y + 30 * FP, 16, (n * ANG) / 32, 2 * FP, n & 1, 1, thin); }
+  if (fa % 60 === 30) { const n = Math.trunc(fa / 60); fan(out, x, y + 30 * FP, 5, aimAt(players, x, y), 120, 3 * FP, n & 1, 3, thin); }
+}
+
+
+export const twinPol = (side, phase) => (phase === 1 ? 1 - side : side);
+
+export const TWIN_SPLIT = 75;
+
+
+function twinFire(phase, fa, x, y, players, thin, out) {
+  if (phase === 2) { 
+    if (fa % (thin ? 8 : 4) !== 0) return;
+    const a = angWrap(fa * 96), v = gentleSpeed(5 * FP / 2, thin);
+    for (let arm = 0; arm < 2; arm++) ring(out, x, y + 30 * FP, 1, angWrap(a + arm * (ANG / 2)), v, 1, 2, false);
+    return;
+  }
+  const hx = (side) => x + (side ? TWIN_SPLIT : -TWIN_SPLIT) * FP;
+  if (phase === 0) {
+    if (fa % 50 !== 0) return;
+    const side = (fa / 50) & 1;
+    ring(out, hx(side), y + 30 * FP, 12, ((fa / 50) * ANG) / 24, 3 * FP / 2, twinPol(side, 0), 1, thin);
+    return;
+  }
+  if (fa % 60 !== 0) return;
+  for (const side of [0, 1]) fan(out, hx(side), y + 30 * FP, 5, aimAt(players, hx(side), y), 130, 5 * FP / 2, twinPol(side, 1), 3, thin);
+}
+
+
+export const crownCore = (fa) => Math.trunc(fa / 240) & 1;
+export const CROWN_SWITCH = 240;
+
+
+function crownFire(phase, fa, seed, x, y, players, thin, out, kids) {
+  if (phase === 0) { bossFire(0, fa, seed, x, y, players, thin, out); return; }
+  if (phase === 1) { loomFire(1, fa, x, y, players, thin, out, kids); return; }
+  if (phase === 2) { anvilFire(0, fa, x, y, players, thin, out); return; }
+  const c = crownCore(fa);
+  if (fa % CROWN_SWITCH < 30) return; 
+  if (fa % 40 === 0) fan(out, x, y + 30 * FP, 5, aimAt(players, x, y), 130, 3 * FP, c, 3, thin);
+  if (fa % 120 === 60) ring(out, x, y + 30 * FP, 12, ((fa / 120) * ANG) / 24, 3 * FP / 2, c, 1, thin);
+}
+
+
 export function bossFireAll(kind, phase, fa, seed, x, y, players, thin, out, kids) {
   if (kind === LOOM) loomFire(phase, fa, x, y, players, thin, out, kids);
+  else if (kind === ANVIL) anvilFire(phase, fa, x, y, players, thin, out);
+  else if (kind === TWIN) twinFire(phase, fa, x, y, players, thin, out);
+  else if (kind === CROWN) crownFire(phase, fa, seed, x, y, players, thin, out, kids);
   else bossFire(phase, fa, seed, x, y, players, thin, out);
 }
+
+
+export function bossPhaseOf(kind, hp, max) {
+  if (kind === TWIN) return hp * 2 > max ? 0 : hp * 4 > max ? 1 : 2;
+  if (kind === CROWN) return hp * 4 > max * 3 ? 0 : hp * 2 > max ? 1 : hp * 4 > max ? 2 : 3;
+  return bossPhase(hp, max);
+}
+
+
+
+
+
+
+export function bossDamage(kind, phase, fa, spol, sx, bx, dmg) {
+  const plated = (kind === ANVIL && phase === 0) || (kind === CROWN && phase === 2);
+  if (plated) return dmg > 1 ? dmg * 4 : dmg;
+  if (kind === TWIN) {
+    const pol = phase === 2 ? 1 : twinPol(sx < bx ? 0 : 1, phase);
+    return spol === pol ? 0 : dmg;
+  }
+  if (kind === CROWN && phase === 3) return spol === crownCore(fa) ? 0 : dmg;
+  return dmg;
+}
+
+
+export const bossShowsIris = (kind, phase, fa) => (kind === CROWN && phase === 3 ? crownCore(fa) === 1 : phase === 1);
 
 export { BOSS_ENTER };

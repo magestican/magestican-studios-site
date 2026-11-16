@@ -63,9 +63,9 @@ export const BEATS = Object.freeze([
   { at: BOSS_AT, kind: 'boss', pol: 0 },
 ]);
 
-export const PATHS = { dive: 0, sweep: 1, ground: 2, warden: 3, scurve: 4, slide: 5, shuttle: 6, launch: 7, rampart: 8, pair: 9 };
+export const PATHS = { dive: 0, sweep: 1, ground: 2, warden: 3, scurve: 4, slide: 5, shuttle: 6, launch: 7, rampart: 8, pair: 9, tether: 10 };
 const KIND_OF = { dive: DART, sweep: DART, ground: TURRET, warden: WARDEN, scurve: SKIFF, launch: SKIFF, slide: BULWARK,
-  shuttle: GUNSHIP, rampart: BULWARK, pair: SKIFF };
+  shuttle: GUNSHIP, rampart: GUNSHIP, pair: SKIFF, tether: GUNSHIP };
 const KIND_NAME = ['dart', 'turret', 'warden', 'skiff', 'bulwark', 'gunship'];
 
 
@@ -108,7 +108,7 @@ export function expandBeats(beats, seed) {
           y = g.path === 'ground' ? px(-40) : px(-70);
         }
         const k2 = KIND_OF[g.path];
-        out.push({ at, kind: KIND_NAME[k2], k: k2, path: PATHS[g.path], pol: g.pol, x, y, dir, flags: KIND_FLAGS[k2] | (g.only ? OTHER_ONLY : 0) });
+        out.push({ at, kind: KIND_NAME[k2], k: k2, path: PATHS[g.path], pol: g.pol, x, y, dir, flags: KIND_FLAGS[k2] | (g.only ? OTHER_ONLY : 0) | (g.armour ? ARMOUR : 0) });
       }
     });
   });

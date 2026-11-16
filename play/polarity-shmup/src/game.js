@@ -22,8 +22,10 @@ import { SFX_TAKES, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, fo
 import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, step, teamScore } from './sim/sim.js';
 import { FP } from './sim/fixed.js';
 import { MOVE_MAX, pack } from './sim/input.js';
-import { SCROLL } from './sim/stage.js';
-import { BOSS_NAMES, STAGES, stageCue } from './sim/stages.js';
+import { OTHER_ONLY, SCROLL } from './sim/stage.js';
+import {
+  BOSS_NAMES, CROWN, CROWN_SWITCH, STAGES, TWIN, TWIN_SPLIT, bossShowsIris, stageCue, twinPol,
+} from './sim/stages.js';
 import { stickToMove } from './controls.js';
 
 const $ = (id) => document.getElementById(id);
@@ -55,9 +57,14 @@ const SHIP_LEN = 44, DART_LEN = 36, TURRET_W = 64, WARDEN_W = 96, BOSS_W = 330, 
 
 const SKIFF_LEN = 32, BULWARK_W = 60, GUNSHIP_W = 92, LOOM_W = 300;
 
+const TWIN_HALF_W = 2 * TWIN_SPLIT;
+
 const STAGE_PROPS = [
   ['props/bunker/bunker', 'props/hangar/hangar', 'props/pylon/pylon', 'props/radar/radar', 'props/rock/rock', 'props/silo/silo'],
   ['stages-props/cairn/cairn', 'stages-props/pump/pump', 'stages-props/tank/tank'],
+  ['stages-props/chimney/chimney', 'stages-props/crane/crane', 'stages-props/pipes/pipes'],
+  ['stages-props/buoy/buoy', 'stages-props/platform/platform', 'stages-props/wreck/wreck'],
+  ['stages-props/spire/spire', 'stages-props/shard/shard', 'stages-props/arch/arch'],
 ];
 const wx = (x) => x / FP - FIELD_W / 2;
 const wz = (y) => y / FP - FIELD_H / 2;
@@ -93,7 +100,17 @@ const tileMats = STAGE_GROUND.map((g) => Object.fromEntries([g.base, g.strip].ma
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 4;
   const m = new THREE.MeshBasicMaterial({ map: tex });
-  m.color.setScalar(g.tint);
+  m.color.setScalar(g.tint * (1 - (g.veil || 0)));
+  if (g.veil) {
+    
+    
+    const add = g.veil * g.veilL;
+    m.onBeforeCompile = (sh) => {
+      sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>',
+        `#include <map_fragment>\n\tdiffuseColor.rgb += vec3(${add.toFixed(5)});`);
+    };
+    m.customProgramCacheKey = () => `veil${add.toFixed(5)}`;
+  }
   return [id, m];
 })));
 const matAt = (c, row, stage) => tileMats[Math.min(stage, tileMats.length - 1)][groundTileAt(c, row, stage)];
@@ -211,10 +228,10 @@ async function loadModels() {
   bosses[0] = furnace;
 
   
-  const craft = ['skiff', 'bulwark', 'gunship', 'loom'];
+  const craft = ['skiff', 'bulwark', 'gunship', 'loom', 'anvil', 'twin', 'crown'];
   const more = await Promise.all(craft.flatMap((c) => ['ember', 'iris'].map((pol) =>
     loadGlb(`assets/stages-craft/${c}_${pol}/${c}_${pol}.glb`))));
-  const [se, si, be, bi, ge, gi, le, li] = more;
+  const [se, si, be, bi, ge, gi, le, li, ae, ai, twe, twi, ce, ci] = more;
   for (const [key, src, len, y, opts, rot, n] of [
     ['skiff0', se, SKIFF_LEN, 60, {}, -Math.PI / 2, 24], ['skiff1', si, SKIFF_LEN, 60, {}, -Math.PI / 2, 24],
     ['bulwark0', be, BULWARK_W, 50, { axis: 'max' }, 0, 4], ['bulwark1', bi, BULWARK_W, 50, { axis: 'max' }, 0, 4],
@@ -225,6 +242,15 @@ async function loadModels() {
     pool(key, proto, n, y);
   }
   bosses[1] = bossGroup(le, li, LOOM_W);
+  bosses[2] = bossGroup(ae, ai, BOSS_W);
+  bosses[3] = bossGroup(twe, twi, TWIN_HALF_W); 
+  bosses[4] = bossGroup(ce, ci, BOSS_W);
+  for (const pol of [0, 1]) { 
+    const r = new THREE.Mesh(new THREE.RingGeometry(52, 58, 40), new THREE.MeshBasicMaterial({
+      color: pol ? 0xa878ff : 0xffc440, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
+    r.rotation.x = -Math.PI / 2;
+    pool(`halo${pol}`, r, 4, 66);
+  }
   await loadProps(stagePropsShown = 0);
 }
 
@@ -676,6 +702,7 @@ for (const id of ['join', 'watch']) {
 
 const hud = { score: $('score'), meter: $('meter'), lives: $('lives'), pol: $('pol'), bombs: $('bombs'), flipBtn: $('flip'), chain: $('chain') };
 const enemyMeshes = new Map(); 
+const haloMeshes = new Map();  
 const POOL_OF = ['dart', 'turret', 'warden', 'skiff', 'bulwark', 'gunship']; 
 const BOOM_SIZE = [40, 64, 120, 36, 90, 130];
 
@@ -694,12 +721,21 @@ function syncEnemies(s) {
     }
     o.position.x = wx(s.ex[e]);
     o.position.z = wz(s.ey[e]);
+    if (s.ef[e] & OTHER_ONLY) { 
+      let h = haloMeshes.get(id);
+      if (!h) {
+        h = pools[`halo${1 - s.ep[e]}`]?.find((m) => !m.visible);
+        if (h) { h.visible = true; haloMeshes.set(id, h); }
+      }
+      if (h) { h.position.x = o.position.x; h.position.z = o.position.z; }
+    }
     if ((k === 1 || k === 2) && ship) { 
       const p = s.players[viewSeat(s)];
       o.rotation.y = Math.atan2(wx(p.x) - o.position.x, wz(p.y) - o.position.z) - Math.PI / 2;
     }
   }
   for (const [id, o] of enemyMeshes) if (!live.has(id)) { o.visible = false; enemyMeshes.delete(id); }
+  for (const [id, o] of haloMeshes) if (!live.has(id)) { o.visible = false; haloMeshes.delete(id); }
 }
 
 function draw(s, dt) {
@@ -775,9 +811,24 @@ function draw(s, dt) {
     b.visible = s.boss.on === 1 && s.boss.kind === k;
     if (!b.visible) continue;
     b.position.set(wx(s.boss.x), 90, wz(s.boss.y));
-    const irisPhase = s.boss.phase === 1; 
-    b.userData.ember.visible = !irisPhase;
-    b.userData.iris.visible = irisPhase;
+    const { ember, iris } = b.userData;
+    if (k === TWIN) { 
+      const ph = s.boss.phase;
+      ember.visible = ph < 2;
+      iris.visible = true;
+      
+      ember.position.z = ph < 2 ? (twinPol(0, ph) === 0 ? -TWIN_SPLIT : TWIN_SPLIT) : 0;
+      iris.position.z = ph < 2 ? -ember.position.z : 0;
+      continue;
+    }
+    let irisNow = bossShowsIris(k, s.boss.phase, s.boss.fa); 
+    if (k === CROWN && s.boss.phase === 3 && s.boss.rest === 0) {
+      
+      const left = CROWN_SWITCH - (s.boss.fa % CROWN_SWITCH);
+      if (left <= 60 && ((left >> 3) & 1)) irisNow = !irisNow;
+    }
+    ember.visible = !irisNow;
+    iris.visible = irisNow;
   }
   drawBullets(s);
 

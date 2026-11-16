@@ -19,7 +19,9 @@ import { MOVE_MAX, unpack } from './input.js';
 import { FIELD_H, FIELD_W } from './patterns.js';
 import { next as rngNext } from './rng.js';
 import { ARMOUR, BOSS_ENTER, BOSS_REST, ENEMY_HP, ENEMY_R, ENEMY_SCORE, OTHER_ONLY, bossPhase, bossPos, isMid, rowSpawns } from './stage.js';
-import { BOSS_BOX, STAGES, TALLY_TICKS, bossFireAll, fireAll, liftedOff, pathPos, stageWaves } from './stages.js';
+import {
+  BOSS_BOX, STAGES, TALLY_TICKS, bossDamage, bossFireAll, bossPhaseOf, fireAll, liftedOff, pathPos, stageWaves,
+} from './stages.js';
 
 export const TICK_HZ = 60;
 export const MAX_PLAYERS = 4;
@@ -343,13 +345,20 @@ export function step(s, inputs) {
     const dmg = s.sdmg[i];
     const [bw, bh] = BOSS_BOX[B.kind];
     if (bossHittable(s) && Math.abs(s.sx[i] - B.x) < bw * FP && Math.abs(s.sy[i] - B.y) < bh * FP) {
-      owner.score += 10 * dmg;
-      B.hp -= dmg;
+      const hurt = bossDamage(B.kind, B.phase, B.fa, s.spol[i], s.sx[i], B.x, dmg);
+      if (hurt === 0) { 
+        s.deflects++;
+        boom(s, s.sx[i], s.sy[i], BOOM_DEFLECT);
+        removeShot(s, i);
+        continue;
+      }
+      owner.score += 10 * hurt;
+      B.hp -= hurt;
       if (B.hp <= 0) {
         B.on = 0; B.kills++; B.beaten = 1; s.clear = t; owner.score += bossBonus(s.stage); owner.kills++;
         boom(s, B.x, B.y, BOOM_BOSS);
       } else {
-        const ph = bossPhase(B.hp, B.max);
+        const ph = bossPhaseOf(B.kind, B.hp, B.max);
         if (ph !== B.phase) { 
           B.phase = ph; B.fa = 0; B.rest = BOSS_REST; s.nb = 0;
         }
