@@ -27,6 +27,7 @@ import {
   BOSS_NAMES, CROWN, CROWN_SWITCH, STAGES, TWIN, TWIN_SPLIT, bossShowsIris, stageCue, twinPol,
 } from './sim/stages.js';
 import { stickToMove } from './controls.js';
+import { renderEnding } from './ending.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -475,7 +476,7 @@ function start(isGentle, stage = 0) {
   Object.assign(seen, SEEN0, { stage });
   mode = 'play';
   setPaused(false);
-  $('title').hidden = true; $('tally').hidden = true;
+  $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true;
   $('lives').hidden = gentle;
   ui.play('open');
   followSound(music, uiSoundOn());
@@ -532,16 +533,27 @@ function showTally(s) {
     }).filter(Boolean));
     $('again').textContent = 'Back to the title';
   }
-  $('tally').hidden = false;
+  
+  
+  if (last && s.boss.beaten) {
+    renderEnding($('e-cards'));
+    $('ending').hidden = false;
+  } else $('tally').hidden = false;
   ui.play('open');
 }
+
+$('e-next').addEventListener('click', () => {
+  $('ending').hidden = true;
+  $('tally').hidden = false;
+  ui.play('open');
+});
 
 
 function stageBegins(s) {
   seen.stage = s.stage;
   if (!net) unlock(s.stage);
   mode = 'play';
-  $('tally').hidden = true;
+  $('tally').hidden = true; $('ending').hidden = true;
   toast(`Stage ${s.stage + 1}: ${STAGES[s.stage].name}`, 3000);
 }
 
@@ -642,7 +654,7 @@ async function openCoop() {
   if (net) return;
   net = { room: null };
   mode = 'lobby';
-  $('title').hidden = true; $('tally').hidden = true;
+  $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true;
   $('lobby').hidden = false; $('links').hidden = true; $('host-go').hidden = true;
   $('seats').replaceChildren();
   lobbyStatus('Opening a room...');
@@ -672,7 +684,7 @@ function beginCoopRun(isGentle) {
   flipLevel = 0; drag.dx = drag.dy = 0;
   Object.assign(seen, SEEN0);
   mode = 'play';
-  $('lobby').hidden = true; $('title').hidden = true; $('tally').hidden = true;
+  $('lobby').hidden = true; $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true;
   $('lives').hidden = gentle || net.room.seat === null;
   for (const id of ['flip', 'bomb']) $(id).hidden = net.room.seat === null;
   if (net.room.seat === null) toast('Watching. Ships are named by seat.', 5000);
