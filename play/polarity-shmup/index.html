@@ -62,6 +62,30 @@
     aside li + li { margin-top: 6px; }
     aside p { margin: 12px 0 0; opacity: 0.75; font-size: 13px; }
     @media (max-width: 900px) { aside { display: none; } }
+    aside a { color: var(--ember); }
+    
+    body.netmode { display: block; overflow: auto; }
+    body.netmode #field, body.netmode aside { display: none; }
+    .net { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px; }
+    .net #c { display: block; border-radius: 8px; touch-action: none; background: #4a4d55; }
+    .net #panel { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 12px; background: var(--panel);
+      border: 1px solid rgba(242, 239, 232, 0.18); border-radius: 12px; padding: 16px; }
+    .net p { margin: 0; }
+    .net #status { font-weight: 600; }
+    .net #stats { font: 12px/1.4 ui-monospace, Consolas, monospace; opacity: 0.85; overflow-wrap: anywhere; }
+    .net .row { display: flex; gap: 8px; align-items: center; }
+    .net .row label { width: 48px; flex: none; font-size: 12px; opacity: 0.8; }
+    .net .row input { flex: 1; min-width: 0; background: #16181e; color: var(--ink); border: 1px solid rgba(242, 239, 232, 0.18);
+      border-radius: 8px; padding: 8px 10px; font: 12px ui-monospace, Consolas, monospace; }
+    .net button { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 0; font: inherit; font-weight: 600;
+      cursor: pointer; background: #2a2d36; color: var(--ink); }
+    .net button.go { background: var(--ember); color: #2e1404; }
+    .net button:disabled { opacity: 0.5; cursor: default; }
+    .net #lobby { display: flex; flex-direction: column; gap: 12px; }
+    .net #controls { display: flex; gap: 12px; }
+    .net #controls button { flex: 1; }
+    .net .help { font-size: 12px; opacity: 0.75; }
+    .net [hidden] { display: none !important; }
   </style>
 </head>
 <body>
@@ -85,9 +109,29 @@
       <li>Every bullet type in both colours, drawn by code</li>
       <li>Pilot portrait slot (portraits are being picked)</li>
     </ul>
-    <p>Not the game yet: nothing here is playable.</p>
+    <p>Not the game yet: nothing here is playable. <a href="?net">Co-op netcode proof</a></p>
   </aside>
-  <script type="module" src="src/proof.js?v=ff0fc821-20261116T115125Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=ff0fc821-20261116T115125Z"></script>
+  
+
+
+  <template id="net-ui">
+    <main class="net">
+      <canvas id="c" aria-label="Flipwing co-op play field"></canvas>
+      <section id="panel">
+        <p id="status" role="status">Loading...</p>
+        <p id="stats"></p>
+        <div id="lobby" hidden>
+          <div class="row"><label for="join">Join</label><input id="join" readonly><button id="copy-join" type="button">Share</button></div>
+          <div class="row"><label for="watch">Watch</label><input id="watch" readonly><button id="copy-watch" type="button">Share</button></div>
+          <button id="start" class="go" type="button" disabled>Start</button>
+        </div>
+        <div id="controls" hidden><button id="flip" type="button">Flip colour</button><button id="bomb" type="button">Bomb</button></div>
+        <p class="help">Move: arrows or WASD, or drag on the field. Flip colour: Space. Bomb: K. Slow: Shift.
+          Bullets of your colour are absorbed; the other colour hits. Two screens in the same room show the same hash.</p>
+      </section>
+    </main>
+  </template>
+  <script type="module" src="src/boot.js?v=483321df-20261116T122610Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=483321df-20261116T122610Z"></script>
 </body>
 </html>
