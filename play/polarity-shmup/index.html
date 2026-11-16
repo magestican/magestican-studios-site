@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Flipwing - art proof</title>
+  <meta name="description" content="Flipwing art proof: the player craft, enemies, boss, stage-one ground and the bullet set in the game camera.">
+  
+
+  <link rel="canonical" href="https://magesticanstudios.com/play/polarity-shmup/">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "../../web-engine/vendor/three-0.161.0/three.module.js",
+      "three/addons/": "../../web-engine/vendor/three-0.161.0/addons/"
+    }
+  }
+  </script>
+  <style>
+    :root { --fs: 1; --ember: #ffc440; --iris: #5c28b0; --ink: #f2efe8; --panel: rgba(12, 13, 18, 0.72); }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #0b0c10; color: var(--ink);
+      font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+    body { display: flex; align-items: center; justify-content: center; }
+    #field { position: relative; overflow: hidden; background: #14161c; touch-action: none; }
+    #field canvas { display: block; }
+    
+
+    .hud { position: absolute; pointer-events: none; display: flex; gap: calc(8px * var(--fs)); }
+    .hud.top { top: calc(16px * var(--fs)); left: calc(16px * var(--fs)); right: calc(16px * var(--fs));
+      justify-content: space-between; align-items: flex-start; }
+    .chip { background: var(--panel); border-radius: calc(8px * var(--fs)); padding: calc(6px * var(--fs)) calc(10px * var(--fs));
+      font-size: calc(12px * var(--fs)); letter-spacing: 0.04em; white-space: nowrap; }
+    
+
+    #sound { pointer-events: auto; cursor: pointer; border: 0; color: var(--ink); font: inherit;
+      font-size: calc(12px * var(--fs)); min-height: 44px; }
+    #pol { font-weight: 700; }
+    #pol[data-pol="ember"] { color: var(--ember); }
+    #pol[data-pol="iris"] { color: #c9b2ff; }
+    .stats { display: flex; flex-direction: column; gap: calc(6px * var(--fs)); align-items: flex-end; }
+    .hud.bottom { left: calc(16px * var(--fs)); bottom: calc(16px * var(--fs)); align-items: flex-end; }
+    
+    #bust { width: calc(104px * var(--fs)); height: calc(128px * var(--fs)); border-radius: calc(10px * var(--fs));
+      border: calc(2px * var(--fs)) solid rgba(255, 196, 64, 0.85); background:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 calc(6px * var(--fs)), transparent 0 calc(12px * var(--fs))), var(--panel);
+      display: flex; align-items: flex-end; justify-content: center; padding: calc(8px * var(--fs)); }
+    #bust span { font-size: calc(10px * var(--fs)); text-align: center; opacity: 0.85; }
+    .says { background: var(--panel); border-radius: calc(8px * var(--fs)); padding: calc(8px * var(--fs)) calc(10px * var(--fs));
+      font-size: calc(12px * var(--fs)); max-width: calc(200px * var(--fs)); }
+    .says b { color: var(--ember); }
+    #err { position: absolute; left: 16px; right: 16px; top: 45%; text-align: center; color: #ffb0a0; }
+    
+    aside { width: 260px; margin-left: 32px; padding: 20px; background: #15171e; border-radius: 12px; line-height: 1.5; }
+    aside h1 { font-size: 18px; margin: 0 0 12px; }
+    aside ul { margin: 0; padding-left: 18px; }
+    aside li + li { margin-top: 6px; }
+    aside p { margin: 12px 0 0; opacity: 0.75; font-size: 13px; }
+    @media (max-width: 900px) { aside { display: none; } }
+  </style>
+</head>
+<body>
+  <div id="field">
+    <div class="hud top">
+      <div class="chip">P1 <span id="pol" data-pol="ember">EMBER</span></div>
+      <div class="stats"><button class="chip" id="sound" type="button" aria-pressed="false">Sound off</button><div class="chip" id="fps">- fps</div><div class="chip" id="bullets">- bullets</div></div>
+    </div>
+    <div class="hud bottom">
+      <div id="bust"><span>SORA<br>portrait pending</span></div>
+      <div class="says"><b>Sora</b><br>Art proof: stage 1, all four wings up.</div>
+    </div>
+    <div id="err"></div>
+  </div>
+  <aside>
+    <h1>Flipwing - art proof</h1>
+    <ul>
+      <li>Four player wings, each livery in Ember and Iris, banking and flipping</li>
+      <li>Darts, a ground turret and the Furnace boss</li>
+      <li>Stage-one ground and six props, scrolling</li>
+      <li>Every bullet type in both colours, drawn by code</li>
+      <li>Pilot portrait slot (portraits are being picked)</li>
+    </ul>
+    <p>Not the game yet: nothing here is playable.</p>
+  </aside>
+  <script type="module" src="src/proof.js?v=ff0fc821-20261116T115125Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=ff0fc821-20261116T115125Z"></script>
+</body>
+</html>

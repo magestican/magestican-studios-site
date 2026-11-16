@@ -1,0 +1,16 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "SKY DUET",
+      "genre": "synthwave",
+      "file": "flipwing-main.webm",
+      "loopSamples": 2880000,
+      "seed": 539495164,
+      "lufs": -14.6
+    }
+  ]
+}
