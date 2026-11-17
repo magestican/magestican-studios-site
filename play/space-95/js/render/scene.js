@@ -12,6 +12,7 @@ import { sparkState } from '../sim/pins.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
 import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js';
+import { createBoltSprite } from './boltSprite.js';
 import { bossLabelPosition } from './bossLabel.js';
 import { burrowEntityView, createBurrow } from './burrowView.js';
 import { createCameraRig, frameLift, framePull, hintDyCap, rideLead, updateCameraRig } from './cameraRig.js';
@@ -114,6 +115,8 @@ export function createView(canvas, level, labels) {
   let pendingEvents = [];
   const bolt = boltPlaceholder();
   scene.add(bolt.group);
+  const boltSprite = createBoltSprite(bolt);
+  let boltMood = 'happy';
   const boltPos = { x: level.spawn.x - 1.4, y: level.spawn.y + 1.6 };
   
   let coopRole = null;
@@ -292,6 +295,8 @@ export function createView(canvas, level, labels) {
         boltPos.x = fig.bolt.x; 
         boltPos.y = fig.bolt.y;
       } else bolt.group.visible = false;
+      if (bolt.group.visible)
+        boltSprite.update(dt, bolt.group.position.x, bolt.group.position.y, boltMood, fig.bolt?.mine && session.dead > 0);
       fur.update(session.world);
       wind.update(session.time, dt);
       arena.update(session.world, dt);
@@ -385,6 +390,7 @@ export function createView(canvas, level, labels) {
     },
     
     boltMood(mood) {
+      boltMood = mood;
       bolt.face.material.color.set(mood === 'curious' ? 0xffd34d : mood === 'worried' ? 0xff8a2a : 0x2fe0d0);
     },
     
@@ -1652,6 +1658,7 @@ export function boltPlaceholder() {
   face.position.set(0.12, 0.04, 0.3);
   const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.3, 6), new THREE.MeshLambertMaterial({ color: 0x9aa3c7 }));
   antenna.position.set(0, 0.42, 0);
+  for (const m of [body, face, antenna]) m.userData.boltPart = true; 
   group.add(body, face, antenna);
   return { group, face };
 }

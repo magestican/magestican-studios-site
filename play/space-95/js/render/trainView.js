@@ -9,6 +9,7 @@
 import * as THREE from 'three';
 import { nearestOnRail, posAt } from '../sim/track.js';
 import { nextThrowable } from '../sim/train.js';
+import { createBoltSprite } from './boltSprite.js';
 import { createTrainRig, TRAIN_CAM, trainCameraPose, updateTrainRig } from './cameraRig.js';
 import { updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
@@ -66,6 +67,8 @@ export function createTrainView(canvas, level, labels) {
   const bolt = boltPlaceholder();
   bolt.group.scale.setScalar(1.4);
   scene.add(bolt.group);
+  const boltSprite = createBoltSprite(bolt);
+  let boltMood = 'happy';
   const boltPos = { x: level.spawn.x, y: level.spawn.y, z: 3 };
   
   const views = new Map();
@@ -205,6 +208,7 @@ export function createTrainView(canvas, level, labels) {
       bolt.group.position.set(boltPos.x, boltPos.y, 3 + Math.sin(time * 3) * 0.15);
       bolt.group.quaternion.copy(camera.quaternion);
       bolt.group.scale.x = 1.4 * facing;
+      boltSprite.update(dt, boltPos.x, boltPos.y, boltMood);
 
       points.update(session, time);
       signals.update(session);
@@ -244,6 +248,7 @@ export function createTrainView(canvas, level, labels) {
     },
     
     boltMood(mood) {
+      boltMood = mood;
       bolt.face.material.color.set(mood === 'curious' ? 0xffd34d : mood === 'worried' ? 0xff8a2a : 0x2fe0d0);
     },
     
