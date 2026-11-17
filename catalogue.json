@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "2963c848-20261117T061821Z",
+ "buildId": "612d67b8-20261117T074922Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -737,7 +737,7 @@
    "ageNote": null,
    "order": 24,
    "addedAt": "2026-10-23",
-   "bytes": 336667355
+   "bytes": 336662814
   },
   {
    "id": "magic-mirror-moves",
@@ -932,6 +932,38 @@
    "bytes": 20247580
   },
   {
+   "id": "flipwake",
+   "statsId": "flipwake",
+   "title": "Flipwake",
+   "tagline": "A vertical shooter where your ship flips between amber and violet and swallows the bullets of its own colour.",
+   "description": "A vertical shooter that runs in your browser: your ship flies up the screen through waves of amber and violet bullets, and with one button it flips between those two colours. Five stages, alone or with up to three friends.",
+   "dir": "play/polarity-shmup",
+   "path": "play/polarity-shmup/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/flipwake.html",
+   "orientation": "any",
+   "players": "1-4",
+   "online": true,
+   "offline": false,
+   "cover": "assets/covers/flipwake-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/flipwake/0.webp",
+    "assets/shots/flipwake/1.webp"
+   ],
+   "accent": "#ffc440",
+   "glyph": "flipwake",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 31,
+   "addedAt": "2026-11-17",
+   "bytes": 5155667
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -959,7 +991,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 32,
+   "order": 33,
    "addedAt": "2026-09-21",
    "bytes": 225550
   },
@@ -991,7 +1023,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 33,
+   "order": 34,
    "addedAt": "2026-09-21",
    "bytes": 225550
   },
@@ -1023,7 +1055,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 34,
+   "order": 35,
    "addedAt": "2026-09-21",
    "bytes": 225550
   },
@@ -1055,7 +1087,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 35,
+   "order": 36,
    "addedAt": "2026-09-21",
    "bytes": 225550
   }

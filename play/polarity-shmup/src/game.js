@@ -706,7 +706,7 @@ $('lobby-leave').addEventListener('click', leaveCoop);
 for (const id of ['join', 'watch']) {
   $(`share-${id}`).addEventListener('click', async () => {
     const { shareLink } = await import('../../../web-engine/share/shareInvite.js');
-    shareLink({ link: $(`${id}-link`).value, gameName: 'Flipwing', code: net?.room?.mesh.myId ?? null,
+    shareLink({ link: $(`${id}-link`).value, gameName: 'Flipwake', code: net?.room?.mesh.myId ?? null,
       button: $(`share-${id}`), field: $(`${id}-link`) });
   });
 }

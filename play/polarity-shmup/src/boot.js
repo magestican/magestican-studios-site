@@ -19,7 +19,7 @@ function loadScript(src) {
 }
 
 if (netMode) {
-  document.title = 'Flipwing - co-op netcode proof';
+  document.title = 'Flipwake - co-op netcode proof';
   document.body.classList.add('netmode');
   document.body.appendChild(document.getElementById('net-ui').content.cloneNode(true));
   

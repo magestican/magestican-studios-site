@@ -206,7 +206,7 @@ $('start').addEventListener('click', () => room?.start());
 
 for (const id of ['join', 'watch']) {
   $(`copy-${id}`).addEventListener('click', () => shareLink({
-    link: $(id).value, gameName: 'Flipwing', code: room?.mesh.myId ?? null, button: $(`copy-${id}`), field: $(id),
+    link: $(id).value, gameName: 'Flipwake', code: room?.mesh.myId ?? null, button: $(`copy-${id}`), field: $(id),
   }));
 }
 

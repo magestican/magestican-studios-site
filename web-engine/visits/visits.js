@@ -260,6 +260,10 @@ const SLUG_TO_GAME_ID = Object.freeze({
   
   
   'farmy-tiles': 'farmy-scrabble',
+  
+  
+  
+  'polarity-shmup': 'flipwake',
 });
 
 export function gameIdFromPath(href = '') {
