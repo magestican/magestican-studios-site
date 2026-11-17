@@ -87,11 +87,11 @@ const HEARTFALL = Object.freeze([
 
 
 export const STAGES = Object.freeze([
-  Object.freeze({ name: 'Dustline', beats: BEATS, midAt: WARDEN_AT, bossAt: BOSS_AT, boss: FURNACE, bossHp: BOSS_HP, bossTime: BOSS_TIME }),
-  Object.freeze({ name: 'Saltpan', beats: SALTPAN, midAt: 3900, bossAt: 7260, boss: LOOM, bossHp: 1300, bossTime: 6000 }),
-  Object.freeze({ name: 'Foundry', beats: FOUNDRY, midAt: 3960, bossAt: 7320, boss: ANVIL, bossHp: 1400, bossTime: 6000 }),
-  Object.freeze({ name: 'Twinsea', beats: TWINSEA, midAt: 1860, bossAt: 5460, boss: TWIN, bossHp: 760, bossTime: 6000 }),
-  Object.freeze({ name: 'Heartfall', beats: HEARTFALL, midAt: 3120, bossAt: 5520, boss: CROWN, bossHp: 1250, bossTime: 7200 }),
+  Object.freeze({ name: 'Dustline', beats: BEATS, midAt: WARDEN_AT, bossAt: BOSS_AT, boss: FURNACE, bossHp: BOSS_HP, bossTime: BOSS_TIME, tier: 1 }),
+  Object.freeze({ name: 'Saltpan', beats: SALTPAN, midAt: 3900, bossAt: 7260, boss: LOOM, bossHp: 1300, bossTime: 6000, tier: 2 }),
+  Object.freeze({ name: 'Foundry', beats: FOUNDRY, midAt: 3960, bossAt: 7320, boss: ANVIL, bossHp: 1400, bossTime: 6000, tier: 2 }),
+  Object.freeze({ name: 'Twinsea', beats: TWINSEA, midAt: 1860, bossAt: 5460, boss: TWIN, bossHp: 760, bossTime: 6000, tier: 3 }),
+  Object.freeze({ name: 'Heartfall', beats: HEARTFALL, midAt: 3120, bossAt: 5520, boss: CROWN, bossHp: 1250, bossTime: 7200, tier: 3 }),
 ]);
 
 
@@ -127,6 +127,16 @@ const FLIGHTS = [
 export const STREAM_FORMATIONS = Object.freeze(FLIGHTS.map((f) => f[0]));
 export const HEAVY_HP = 48, HEAVY_LAND = 130, HEAVY_HOLD = 390, HEAVY_FIRE_EVERY = 45;
 
+
+
+
+
+const TIERS = [null,
+  { swoop: 4, wedge: 5, column: 4, pincer: 3, ground: 2, heavyHp: HEAVY_HP, heavies: 1, mixV: false, gap: 14 },
+  { swoop: 5, wedge: 7, column: 6, pincer: 4, ground: 3, heavyHp: 64,       heavies: 1, mixV: false, gap: 14 },
+  { swoop: 6, wedge: 7, column: 6, pincer: 5, ground: 4, heavyHp: 64,       heavies: 2, mixV: true,  gap: 10 },
+];
+
 const LIFE = { [HEAVY]: HEAVY_HOLD + 120, ground: 1150 };
 
 const SCRIPT_LIFE = [360, 1150, 1400, 300, 1400, 1400];
@@ -140,7 +150,8 @@ export function streamRests(st) {
 
 
 export function streamWaves(st, seed) {
-  const out = [], rests = streamRests(st);
+  const out = [], rests = streamRests(st), T = TIERS[st.tier || 1];
+  const size = { [SWOOP]: T.swoop, [WEDGE]: T.wedge, [COLUMN]: T.column, [PINCER]: T.pincer };
   let f = 0;
   
   const up = expandBeats(st.beats, seed).filter((w) => w.k !== SKIFF && w.k !== undefined)
@@ -158,12 +169,13 @@ export function streamWaves(st, seed) {
       if (rests.slice(0, 2).some(([a]) => a > at && a < at + life) || kinds.size > 3) [form, k, n] = [SWOOP, 3, 4];
       else up.push([at, at + life, k]);
     }
-    const h = hash32(seed, 61, f);
+    n = size[form] ?? n;
+    const fl = f, h = hash32(seed, 61, f);
     const pol = (f >> 1) & 1;                  
     const dir = h & 1 ? 1 : -1;
     f++;
     const kind = ['dart', 'turret', '', 'skiff', 'heavy'][k];
-    const add = (t, path, p, x, y, d, hp) => out.push({ at: t, kind, k, path, pol: p, x, y, dir: d, flags: 0, ...(hp ? { hp } : {}) });
+    const add = (t, path, p, x, y, d, hp) => out.push({ at: t, kind, k, path, pol: p, x, y, dir: d, flags: 0, fl, ...(hp ? { hp } : {}) });
     if (form === PINCER) { 
       for (let i = 0; i < n; i++) {
         add(at + i * 12, SWOOP, pol, px(-20), px(50 + (h % 40)), 1);
@@ -175,18 +187,31 @@ export function streamWaves(st, seed) {
       const off = 70 + (h % 60);
       add(at, 2, pol, px(195 - off), px(-24), 1);
       add(at, 2, 1 - pol, px(195 + off), px(-24), 1);
+      if (T.ground === 3) add(at, 2, pol, px(195), px(-24), 1); 
+      if (T.ground >= 4) { 
+        out[out.length - 2].x = px(195 - off - 30); out[out.length - 1].x = px(195 + off + 30);
+        add(at, 2, 1 - pol, px(165), px(-24), 1); add(at, 2, pol, px(225), px(-24), 1);
+      }
       continue;
     }
-    if (form === HEAVY) { add(at, HEAVY, pol, px(90 + (h % 210)), px(-40), dir, HEAVY_HP); continue; }
+    if (form === HEAVY) {
+      if (T.heavies === 1) add(at, HEAVY, pol, px(90 + (h % 210)), px(-40), dir, T.heavyHp);
+      else { 
+        add(at, HEAVY, pol, px(100), px(-40), -1, T.heavyHp);
+        add(at, HEAVY, 1 - pol, px(290), px(-40), 1, T.heavyHp);
+      }
+      continue;
+    }
     for (let i = 0; i < n; i++) {
       let x, y = px(-24), t = at;
       if (form === SWOOP) { x = dir > 0 ? px(-20) : px(410); y = px(40 + (h % 60)); t += i * 12; }
-      else if (form === COLUMN) { x = px(60 + (h % 270)); t += i * 14; }
+      else if (form === COLUMN) { x = px(60 + (h % 270)); t += i * T.gap; }
       else { 
         const c = 120 + (h % 150), j = i - ((n - 1) >> 1);
         x = px(c + j * 30); y = px(-24 - Math.abs(j) * 24);
       }
-      add(t, form, pol, x, y, dir);
+      
+      add(t, form, T.mixV && form === WEDGE && i !== (n - 1) >> 1 ? 1 - pol : pol, x, y, dir);
     }
   }
   return out;

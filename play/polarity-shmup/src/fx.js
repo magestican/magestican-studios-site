@@ -168,5 +168,5 @@ export function createFx(scene) {
   function step(dt) { core.step(dt); upload(); }
 
   return { core, setScale: setScaleAll, step, glowBegin, glowAdd, glowEnd, lightsBegin, lightAdd, lightsEnd,
-    explode: core.explode, absorb: core.absorb, flip: core.flip, wake: core.wake, hit: core.hit, shakeOffset: core.shakeOffset };
+    explode: core.explode, absorb: core.absorb, flip: core.flip, wake: core.wake, hit: core.hit, chain: core.chain, shakeOffset: core.shakeOffset };
 }

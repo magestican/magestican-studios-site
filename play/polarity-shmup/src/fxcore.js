@@ -36,6 +36,8 @@ function pool(cap) {
     r1: new Float32Array(cap), g1: new Float32Array(cap), b1: new Float32Array(cap),
     a0: new Float32Array(cap), len: new Float32Array(cap), pull: new Float32Array(cap),
     tx: new Float32Array(cap), tz: new Float32Array(cap),
+    
+    ring: new Uint8Array(cap), trail: new Uint8Array(cap), smoke: new Uint8Array(cap),
   };
 }
 
@@ -56,6 +58,7 @@ export function createFxCore(seed = 7) {
     p.r1[i] = c1[0]; p.g1[i] = c1[1]; p.b1[i] = c1[2];
     p.a0[i] = o.a ?? 1; p.len[i] = o.len || 0; p.pull[i] = o.pull || 0;
     p.tx[i] = o.tx || 0; p.tz[i] = o.tz || 0;
+    p.ring[i] = o.ring ? 1 : 0; p.trail[i] = o.trail ? 1 : 0; p.smoke[i] = o.smoke ? 1 : 0;
   }
   const ang = () => rnd() * Math.PI * 2;
   const deep = (c) => [c[0] * 0.55 + 0.25, c[1] * 0.25, c[2] * 0.35];
@@ -87,7 +90,15 @@ export function createFxCore(seed = 7) {
     for (let i = 0; i < nChunk; i++) {
       const a = ang(), v = 90 + rnd() * 200;
       add(pts, { x, z, vx: Math.cos(a) * v, vz: Math.sin(a) * v, life: 0.7 + rnd() * 0.6, drag: 1.4,
-        s0: 7 + rnd() * 6, s1: 2, c0: c, c1: [0.25, 0.08, 0.06], a: 1 });
+        s0: 7 + rnd() * 6, s1: 2, c0: c, c1: [0.25, 0.08, 0.06], a: 1, trail: 1 });
+    }
+    
+    
+    const nRing = Math.round(36 * Math.sqrt(k) + (boss ? 36 : 0)), vRing = size * 5;
+    for (let i = 0; i < nRing; i++) {
+      const a = (i / nRing) * Math.PI * 2;
+      add(pts, { x: x + Math.cos(a) * size * 0.15, z: z + Math.sin(a) * size * 0.15, vx: Math.cos(a) * vRing,
+        vz: Math.sin(a) * vRing, life: 0.32 + 0.04 * k, drag: 5, s0: 6, s1: 2, c0: HOT, c1: c, a: 0.7, ring: 1 });
     }
     shake.amp = Math.max(shake.amp, boss ? 9 : Math.min(4, size / 40));
     shake.t = boss ? 0.6 : 0.18;
@@ -138,6 +149,28 @@ export function createFxCore(seed = 7) {
     add(pts, { x, z, life: 0.08, s0: 14, s1: 6, c0: HOT, drag: 0, a: 0.8 });
   }
 
+  const shed = []; 
+  
+
+
+
+  function chain(x, z, count, pol) {
+    const c = polColour(pol), k = Math.min(10, Math.max(1, count));
+    const nRay = 20 + 5 * k;
+    for (let i = 0; i < nRay; i++) {
+      const a = (i / nRay) * Math.PI * 2, v = 260 + 18 * k + rnd() * 60;
+      add(str, { x, z, vx: Math.cos(a) * v, vz: Math.sin(a) * v, life: 0.3 + 0.02 * k, drag: 4,
+        s0: 2.6, s1: 0.6, c0: HOT, c1: c, len: 0.05 });
+    }
+    const nMote = 20 + 8 * k;
+    for (let i = 0; i < nMote; i++) {
+      const a = (i / nMote) * Math.PI * 6, r0 = 6 + i * 0.9, v = 70 + rnd() * 40;
+      add(pts, { x: x + Math.cos(a) * r0, z: z + Math.sin(a) * r0, vx: -Math.sin(a) * v, vz: Math.cos(a) * v - 90,
+        life: 0.6 + rnd() * 0.4, drag: 1.6, s0: 6 + rnd() * 4, s1: 1, c0: rnd() < 0.4 ? HOT : c, c1: c, a: 0.95 });
+    }
+    add(pts, { x, z, life: 0.28, s0: 40 + 6 * k, s1: 150 + 10 * k, c0: HOT, c1: c, a: 0.6, drag: 0 });
+  }
+
   function stepPool(p, dt) {
     let w = 0;
     for (let i = 0; i < p.n; i++) {
@@ -147,6 +180,7 @@ export function createFxCore(seed = 7) {
       let vx = p.vx[i] * f, vz = p.vz[i] * f;
       if (p.pull[i]) { vx += (p.tx[i] - p.x[i]) * p.pull[i] * dt; vz += (p.tz[i] - p.z[i]) * p.pull[i] * dt; }
       
+      if (p.trail[i] && rnd() < 0.75) shed.push(p.x[i], p.z[i], p.r[i], p.g[i], p.b[i]);
       if (w !== i) for (const key of KEYS) p[key][w] = p[key][i];
       p.life[w] = life; p.vx[w] = vx; p.vz[w] = vz;
       p.x[w] = p.x[w] + vx * dt; p.z[w] = p.z[w] + vz * dt;
@@ -158,6 +192,12 @@ export function createFxCore(seed = 7) {
   function step(dt) {
     stepPool(pts, dt);
     stepPool(str, dt);
+    for (let i = 0; i < shed.length; i += 5) {
+      const col = [shed[i + 2], shed[i + 3], shed[i + 4]];
+      add(pts, { x: shed[i] + (rnd() - 0.5) * 3, z: shed[i + 1] + (rnd() - 0.5) * 3, vz: 25, life: 0.3 + rnd() * 0.15,
+        drag: 2, s0: 5, s1: 9, c0: col, c1: deep(col), a: 0.4, smoke: 1 });
+    }
+    shed.length = 0;
     if (shake.t > 0) { shake.t = Math.max(0, shake.t - dt); if (!shake.t) shake.amp = 0; }
   }
 
@@ -177,7 +217,7 @@ export function createFxCore(seed = 7) {
     return [size, p.r[i] + (p.r1[i] - p.r[i]) * ck, p.g[i] + (p.g1[i] - p.g[i]) * ck, p.b[i] + (p.b1[i] - p.b[i]) * ck, a];
   }
 
-  return { pts, str, explode, absorb, flip, wake, hit, step, look, shakeOffset, shake };
+  return { pts, str, explode, absorb, flip, wake, hit, chain, step, look, shakeOffset, shake };
 }
 
-const KEYS = ['x', 'z', 'vx', 'vz', 'life', 'max', 'drag', 's0', 's1', 'r', 'g', 'b', 'r1', 'g1', 'b1', 'a0', 'len', 'pull', 'tx', 'tz'];
+const KEYS = ['x', 'z', 'vx', 'vz', 'life', 'max', 'drag', 's0', 's1', 'r', 'g', 'b', 'r1', 'g1', 'b1', 'a0', 'len', 'pull', 'tx', 'tz', 'ring', 'trail', 'smoke'];

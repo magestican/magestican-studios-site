@@ -904,7 +904,10 @@ function draw(s, dt) {
     sfx.play(boss || k === 2 || k >= 4 ? 'boom' : 'pop');
   }
   if (s.chain !== seen.chain) {
-    if (s.chain > seen.chain) flash(x, z - 30, 30 + Math.min(s.chain, 8) * 6, s.chainPol ? 0xa878ff : 0xffc440);
+    if (s.chain > seen.chain) {
+      flash(x, z - 30, 30 + Math.min(s.chain, 8) * 6, s.chainPol ? 0xa878ff : 0xffc440);
+      fx.chain(x, z - 30, s.chain, s.chainPol ? 1 : 0); 
+    }
     seen.chain = s.chain;
   }
   if (p.absorbed > seen.absorbed) {
