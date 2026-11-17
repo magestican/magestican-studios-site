@@ -107,9 +107,29 @@ export const TALLY_TICKS = 720;
 
 export const STREAM_FROM = 240;     
 export const STREAM_EVERY = 80;     
-export const SWOOP = 11, COLUMN = 12;
+export const SWOOP = 11, COLUMN = 12, WEDGE = 13, HEAVY = 14;
 
-const FLIGHTS = [[SWOOP, 3, 4], [COLUMN, 3, 4], [SWOOP, 0, 3], [4, 3, 3], [SWOOP, 3, 4], [COLUMN, 0, 3]];
+
+
+
+
+
+
+
+
+
+
+const PINCER = 'pincer', GROUND = 'ground';
+const FLIGHTS = [
+  [SWOOP, 3, 4], [WEDGE, 3, 5], [PINCER, 3, 3], [HEAVY, 4, 1], [COLUMN, 3, 4], [SWOOP, 3, 4],
+  [GROUND, 1, 2], [WEDGE, 3, 5], [COLUMN, 3, 4], [PINCER, 3, 3], [SWOOP, 3, 4], [HEAVY, 4, 1],
+];
+export const STREAM_FORMATIONS = Object.freeze(FLIGHTS.map((f) => f[0]));
+export const HEAVY_HP = 48, HEAVY_LAND = 130, HEAVY_HOLD = 390, HEAVY_FIRE_EVERY = 45;
+
+const LIFE = { [HEAVY]: HEAVY_HOLD + 120, ground: 1150 };
+
+const SCRIPT_LIFE = [360, 1150, 1400, 300, 1400, 1400];
 
 
 export function streamRests(st) {
@@ -122,19 +142,51 @@ export function streamRests(st) {
 export function streamWaves(st, seed) {
   const out = [], rests = streamRests(st);
   let f = 0;
+  
+  const up = expandBeats(st.beats, seed).filter((w) => w.k !== SKIFF && w.k !== undefined)
+    .map((w) => [w.at, w.at + (SCRIPT_LIFE[w.k] ?? 600), w.k]);
   for (let at = STREAM_FROM; at < st.bossAt; at += STREAM_EVERY) {
     if (rests.some(([a, b]) => at >= a && at < b)) continue;
-    const [path, k, n] = FLIGHTS[f % FLIGHTS.length];
+    let [form, k, n] = FLIGHTS[f % FLIGHTS.length];
+    const life = LIFE[form] || 0;
+    if (life) {
+      
+      
+      
+      const kinds = new Set([SKIFF, k]);
+      for (const [a, b, kk] of up) if (a < at + life && b > at) kinds.add(kk);
+      if (rests.slice(0, 2).some(([a]) => a > at && a < at + life) || kinds.size > 3) [form, k, n] = [SWOOP, 3, 4];
+      else up.push([at, at + life, k]);
+    }
     const h = hash32(seed, 61, f);
     const pol = (f >> 1) & 1;                  
     const dir = h & 1 ? 1 : -1;
     f++;
+    const kind = ['dart', 'turret', '', 'skiff', 'heavy'][k];
+    const add = (t, path, p, x, y, d, hp) => out.push({ at: t, kind, k, path, pol: p, x, y, dir: d, flags: 0, ...(hp ? { hp } : {}) });
+    if (form === PINCER) { 
+      for (let i = 0; i < n; i++) {
+        add(at + i * 12, SWOOP, pol, px(-20), px(50 + (h % 40)), 1);
+        add(at + i * 12, SWOOP, 1 - pol, px(410), px(90 + (h % 40)), -1);
+      }
+      continue;
+    }
+    if (form === GROUND) { 
+      const off = 70 + (h % 60);
+      add(at, 2, pol, px(195 - off), px(-24), 1);
+      add(at, 2, 1 - pol, px(195 + off), px(-24), 1);
+      continue;
+    }
+    if (form === HEAVY) { add(at, HEAVY, pol, px(90 + (h % 210)), px(-40), dir, HEAVY_HP); continue; }
     for (let i = 0; i < n; i++) {
       let x, y = px(-24), t = at;
-      if (path === SWOOP) { x = dir > 0 ? px(-20) : px(410); y = px(40 + (h % 60)); t += i * 12; }
-      else if (path === COLUMN) { x = px(60 + (h % 270)); t += i * 14; }
-      else { x = px(80 + (h % 230)); t += i * 22; }
-      out.push({ at: t, kind: k ? 'skiff' : 'dart', k, path, pol, x, y, dir, flags: 0 });
+      if (form === SWOOP) { x = dir > 0 ? px(-20) : px(410); y = px(40 + (h % 60)); t += i * 12; }
+      else if (form === COLUMN) { x = px(60 + (h % 270)); t += i * 14; }
+      else { 
+        const c = 120 + (h % 150), j = i - ((n - 1) >> 1);
+        x = px(c + j * 30); y = px(-24 - Math.abs(j) * 24);
+      }
+      add(t, form, pol, x, y, dir);
     }
   }
   return out;
@@ -166,6 +218,13 @@ export function pathPos(path, x0, y0, dir, age) {
   if (path === COLUMN) { 
     return [x0 + Math.trunc((isin(age * 14) * dir * 18) / 256), y0 + age * 4 * FP];
   }
+  if (path === WEDGE) return [x0, y0 + Math.trunc((age * 5 * FP) / 2)]; 
+  if (path === HEAVY) { 
+    const land = HEAVY_LAND * FP;
+    if (age < 90) return [x0, y0 + muldiv(age, land - y0, 90)];
+    if (age < HEAVY_HOLD) return [x0 + Math.trunc((isin((age - 90) * 4) * dir * 40) / 256), land];
+    return [x0, land - (age - HEAVY_HOLD) * 2 * FP];
+  }
   if (path === 4 || path === 9) { 
     return [x0 + Math.trunc((isin(age * 10) * dir * 60) / 256), y0 + Math.trunc((age * 3 * FP) / 2)];
   }
@@ -194,7 +253,7 @@ export function pathPos(path, x0, y0, dir, age) {
 
 
 export const liftedOff = (path, age, y) => y < -90 * FP && ((path === 3 && age > MID_LIFE) || ((path === 6 || path === 10) && age > MID_LIFE) ||
-  ((path === 5 || path === 8) && age > 1200));
+  ((path === 5 || path === 8) && age > 1200) || (path === HEAVY && age > HEAVY_HOLD));
 
 
 function launchTrio(kids, x, y, pol) {
@@ -206,6 +265,10 @@ export function fireAll(kind, path, pol, age, x, y, players, thin, out, kids) {
   if (kind <= 2) { enemyFire(kind, path, pol, age, x, y, players, thin, out); return; }
   if (y < 0 || y > FIRE_FLOOR) return;
   if (kind === SKIFF) return; 
+  if (kind === BULWARK && path === HEAVY) { 
+    if (age >= 60 && age < HEAVY_HOLD && (age - 60) % HEAVY_FIRE_EVERY === 0) fan(out, x, y + 20 * FP, 3, 0, 150, 3 * FP / 2, pol, 1, thin);
+    return;
+  }
   if (kind === BULWARK) {
     
     if (age >= 90 && age < 1200 && (age - 90) % 20 === 0) fan(out, x, y + 20 * FP, 3, 0, 160, 3 * FP / 2, pol, 1, thin);

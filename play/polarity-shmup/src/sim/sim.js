@@ -160,7 +160,7 @@ function addEnemy(s, w) {
   const e = s.ne++;
   const kind = w.k;
   const scale = isMid(kind) ? 1 + presentCount(s) : 2;
-  s.ek[e] = kind; s.ep[e] = w.pol; s.epath[e] = w.path; s.ehp[e] = muldiv(ENEMY_HP[kind], scale, 2);
+  s.ek[e] = kind; s.ep[e] = w.pol; s.epath[e] = w.path; s.ehp[e] = muldiv(w.hp || ENEMY_HP[kind], scale, 2); 
   s.eage[e] = 0; s.eid[e] = ++s.serial; s.ex0[e] = w.x; s.ey0[e] = w.y; s.edir[e] = w.dir; s.ef[e] = w.flags | 0;
   s.ex[e] = w.x; s.ey[e] = w.y;
 }

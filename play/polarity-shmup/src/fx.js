@@ -22,18 +22,29 @@ const POINT_FS = `
     vec3 c = vColor.rgb * (halo * 0.9 + core * 0.8) + vec3(core * 0.55);
     gl_FragColor = vec4(c, vColor.a * (halo + core * 0.5));
   }`;
+
+
+const LAMP_FS = `
+  varying vec4 vColor;
+  void main() {
+    vec2 q = gl_PointCoord - 0.5; float d2 = dot(q, q) * 4.0;
+    if (d2 > 1.0) discard;
+    float halo = exp(-d2 * 1.6) * (1.0 - d2), core = exp(-d2 * 14.0);
+    vec3 c = vColor.rgb * (halo * 0.85 + core) + vec3(core * 0.7);
+    gl_FragColor = vec4(c, min(1.0, vColor.a * (halo + core)));
+  }`;
 const LINE_VS = `
   attribute vec4 aColor; varying vec4 vColor;
   void main() { vColor = aColor; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const LINE_FS = `varying vec4 vColor; void main() { gl_FragColor = vColor; }`;
 
-function pointsMesh(cap, order) {
+function pointsMesh(cap, order, fs = POINT_FS) {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(cap * 3), 3).setUsage(THREE.DynamicDrawUsage));
   g.setAttribute('aColor', new THREE.BufferAttribute(new Float32Array(cap * 4), 4).setUsage(THREE.DynamicDrawUsage));
   g.setAttribute('aSize', new THREE.BufferAttribute(new Float32Array(cap), 1).setUsage(THREE.DynamicDrawUsage));
   g.setDrawRange(0, 0);
-  const m = new THREE.Points(g, new THREE.ShaderMaterial({ ...ADD, uniforms: { uScale: { value: 1 } }, vertexShader: POINT_VS, fragmentShader: POINT_FS }));
+  const m = new THREE.Points(g, new THREE.ShaderMaterial({ ...ADD, uniforms: { uScale: { value: 1 } }, vertexShader: POINT_VS, fragmentShader: fs }));
   m.frustumCulled = false; m.renderOrder = order;
   return m;
 }
@@ -135,8 +146,27 @@ export function createFx(scene) {
     ga.position.needsUpdate = ga.aColor.needsUpdate = ga.aSize.needsUpdate = true;
   }
 
+  
+  const lights = pointsMesh(512, 8, LAMP_FS);
+  scene.add(lights);
+  const la2 = lights.geometry.attributes;
+  let ln = 0;
+  function lightsBegin() { ln = 0; }
+  function lightAdd(x, z, pol, size, a) {
+    if (ln >= 512) return;
+    la2.position.setXYZ(ln, x, 2, z);
+    if (pol) la2.aColor.setXYZW(ln, 0.62, 0.42, 1.0, a); else la2.aColor.setXYZW(ln, 1.0, 0.62, 0.18, a);
+    la2.aSize.setX(ln, size);
+    ln++;
+  }
+  function lightsEnd() {
+    lights.geometry.setDrawRange(0, ln);
+    la2.position.needsUpdate = la2.aColor.needsUpdate = la2.aSize.needsUpdate = true;
+  }
+  const setScaleAll = (v) => { setScale(v); lights.material.uniforms.uScale.value = v; };
+
   function step(dt) { core.step(dt); upload(); }
 
-  return { core, setScale, step, glowBegin, glowAdd, glowEnd,
+  return { core, setScale: setScaleAll, step, glowBegin, glowAdd, glowEnd, lightsBegin, lightAdd, lightsEnd,
     explode: core.explode, absorb: core.absorb, flip: core.flip, wake: core.wake, hit: core.hit, shakeOffset: core.shakeOffset };
 }

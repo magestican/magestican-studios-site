@@ -29,6 +29,7 @@ import {
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
 import { createFx, makeAura, pulseAura, stepAura } from './fx.js';
+import { HIGH_SPAN, PARALLAX, highLayout, propLayout, propSpan, runwayLights } from './scenery.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -226,7 +227,7 @@ async function loadModels() {
   ]) {
     const proto = fit(src.clone(true), len, opts);
     proto.rotation.y = rot;
-    pool(key, proto, key.startsWith('dart') ? 28 : 6, y); 
+    pool(key, proto, key.startsWith('dart') ? 28 : 8, y); 
   }
   warden = fit(ti.clone(true), WARDEN_W, { axis: 'max' });
   warden.visible = false;
@@ -241,7 +242,7 @@ async function loadModels() {
   const [se, si, be, bi, ge, gi, le, li, ae, ai, twe, twi, ce, ci] = more;
   for (const [key, src, len, y, opts, rot, n] of [
     ['skiff0', se, SKIFF_LEN, 60, {}, -Math.PI / 2, 32], ['skiff1', si, SKIFF_LEN, 60, {}, -Math.PI / 2, 32],
-    ['bulwark0', be, BULWARK_W, 50, { axis: 'max' }, 0, 4], ['bulwark1', bi, BULWARK_W, 50, { axis: 'max' }, 0, 4],
+    ['bulwark0', be, BULWARK_W, 50, { axis: 'max' }, 0, 6], ['bulwark1', bi, BULWARK_W, 50, { axis: 'max' }, 0, 6], 
     ['gunship0', ge, GUNSHIP_W, 70, { axis: 'max' }, 0, 1], ['gunship1', gi, GUNSHIP_W, 70, { axis: 'max' }, 0, 1],
   ]) {
     const proto = fit(src.clone(true), len, opts);
@@ -284,18 +285,23 @@ async function loadProps(n) {
   }));
   for (const p of props) scene.remove(p);
   props.length = 0;
-  let seed = 1729 + n * 97;
-  const rnd = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296); 
-  for (let k = 0; k < 14; k++) {
-    const p = models[k % models.length].clone(true);
-    p.scale.setScalar(PROP_SCALE);
-    p.rotation.y = Math.floor(rnd() * 4) * (Math.PI / 2);
+  
+  
+  for (const m of models) m.traverse((o) => {
+    if (!o.isMesh) return;
+    for (const mat of [].concat(o.material)) if (mat && mat.color && !mat.userData.night) { mat.color.multiplyScalar(0.55); mat.userData.night = 1; }
+  });
+  const place = (spec, scale, high) => {
+    const p = models[spec.model % models.length].clone(true);
+    p.scale.setScalar(scale);
+    p.rotation.y = spec.rot * (Math.PI / 2);
     p.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-    p.userData.x = (rnd() - 0.5) * (FIELD_W - 70);
-    p.userData.z0 = -k * 120 - rnd() * 40;
+    Object.assign(p.userData, { x: spec.x, z0: spec.z0, high });
     scene.add(p);
     props.push(p);
-  }
+  };
+  for (const spec of propLayout(n)) place(spec, PROP_SCALE, false);  
+  for (const spec of highLayout(n)) place(spec, PROP_SCALE * 1.7, true); 
 }
 
 
@@ -789,12 +795,17 @@ function draw(s, dt) {
     tiles[i].position.set(-FIELD_W / 2 + TILE_PX * (c + 0.5), 0, FIELD_H / 2 - TILE_PX * (row + 0.5) + scrollPx);
     tiles[i].material = matAt(c, row, s.stage);
   }
-  const span = 14 * 120 + 200;
+  const span = propSpan();
   for (const p of props) {
-    let z = p.userData.z0 + (scrollPx % span);
-    if (z > FIELD_H / 2 + 80) z -= span;
-    p.position.set(p.userData.x, 0, z);
+    const hi = p.userData.high, sp = hi ? HIGH_SPAN : span;
+    let z = p.userData.z0 + ((hi ? scrollPx * PARALLAX : scrollPx) % sp);
+    if (z > FIELD_H / 2 + (hi ? 160 : 80)) z -= sp;
+    p.position.set(p.userData.x, hi ? 8 : 0, z);
   }
+  
+  fx.lightsBegin();
+  for (const [x, z, pol, size, a] of runwayLights(scrollPx, performance.now() / 1000)) fx.lightAdd(x, z, pol, size, a);
+  fx.lightsEnd();
   const lt = s.tick - s.st0, st = STAGES[s.stage];
   dusk.material.opacity = s.clear ? 0 : Math.max(0, Math.min(0.35, (lt - (st.bossAt - 360)) / 360 * 0.35));
   if (!ship) return;

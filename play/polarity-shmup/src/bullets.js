@@ -10,8 +10,13 @@
 
 
 
+
+
+
+
+
 export const POLARITY = Object.freeze({
-  ember: Object.freeze({ id: 'ember', core: [255, 196, 64], hot: [255, 244, 200], outline: [46, 20, 4] }),
+  ember: Object.freeze({ id: 'ember', core: [255, 246, 222], hot: [255, 255, 255], outline: [240, 120, 20] }),
   iris: Object.freeze({ id: 'iris', core: [92, 40, 176], hot: [168, 120, 255], outline: [244, 236, 255] }),
 });
 
