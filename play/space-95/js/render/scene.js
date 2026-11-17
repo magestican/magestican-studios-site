@@ -15,6 +15,7 @@ import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js'
 import { bossLabelPosition } from './bossLabel.js';
 import { burrowEntityView, createBurrow } from './burrowView.js';
 import { createCameraRig, frameLift, framePull, hintDyCap, rideLead, updateCameraRig } from './cameraRig.js';
+import { coopFigures } from './coopFigures.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
 import { createKitchen, kitchenEntityView } from './kitchenView.js';
@@ -114,6 +115,8 @@ export function createView(canvas, level, labels) {
   const bolt = boltPlaceholder();
   scene.add(bolt.group);
   const boltPos = { x: level.spawn.x - 1.4, y: level.spawn.y + 1.6 };
+  
+  let coopRole = null;
   
   const entityViews = new Map();
   
@@ -261,15 +264,34 @@ export function createView(canvas, level, labels) {
       squash *= Math.exp(-dt * 14);
       const sx = 1 + squash * 0.35;
       const sy = 1 - squash * 0.3;
-      jo.group.position.set(x, y, 0.35);
-      jo.body.scale.set(sx * p.facing, sy, 1);
-      joSprite.update(dt, p, pendingEvents, { punt: session.punt > 0 });
-      pendingEvents = [];
+      
+      const fig = coopFigures(coopRole, { x, y, facing: p.facing }, coopRole ? session.world.partner : null);
       const blink = session.invuln > 0 && Math.floor(session.invuln * 16) % 2 === 0;
-      jo.group.visible = (session.dead === 0 || Math.floor(session.dead * 20) % 2 === 0) && !blink;
-      followJo(boltPos, { x, y }, p.facing, dt, session.time);
-      bolt.group.position.set(boltPos.x, boltPos.y, 0.3);
-      bolt.group.scale.x = p.facing;
+      const myVisible = (session.dead === 0 || Math.floor(session.dead * 20) % 2 === 0) && !blink;
+      if (fig.jo?.mine) {
+        jo.group.position.set(x, y, 0.35);
+        jo.body.scale.set(sx * p.facing, sy, 1);
+        joSprite.update(dt, p, pendingEvents, { punt: session.punt > 0 });
+        jo.group.visible = myVisible;
+      } else if (fig.jo) {
+        jo.group.position.set(fig.jo.x, fig.jo.y, 0.34);
+        jo.body.scale.set(fig.jo.facing, 1, 1);
+        joSprite.update(dt, fig.jo.body, [], { punt: false });
+        jo.group.visible = true;
+      } else jo.group.visible = false;
+      pendingEvents = [];
+      if (fig.bolt === 'follow') {
+        followJo(boltPos, { x, y }, p.facing, dt, session.time);
+        bolt.group.position.set(boltPos.x, boltPos.y, 0.3);
+        bolt.group.scale.x = p.facing;
+        bolt.group.visible = true;
+      } else if (fig.bolt) {
+        bolt.group.position.set(fig.bolt.x, fig.bolt.y, 0.36);
+        bolt.group.scale.x = fig.bolt.facing;
+        bolt.group.visible = fig.bolt.mine ? myVisible : true;
+        boltPos.x = fig.bolt.x; 
+        boltPos.y = fig.bolt.y;
+      } else bolt.group.visible = false;
       fur.update(session.world);
       wind.update(session.time, dt);
       arena.update(session.world, dt);
@@ -351,6 +373,15 @@ export function createView(canvas, level, labels) {
       }
       backdrop?.update(!!session.plane); 
       renderer.render(scene, camera);
+    },
+    
+    setCoop(role) {
+      coopRole = role;
+    },
+    
+    project(x, y) {
+      const v = new THREE.Vector3(x, y, 0.35).project(camera);
+      return { x: v.x, y: v.y, behind: v.z > 1 };
     },
     
     boltMood(mood) {

@@ -3,53 +3,65 @@
   "tracks": [
     {
       "id": "dogfight",
-      "title": "Dragonfly Dogfight",
+      "title": "Dogfight",
       "files": {
         "webm": "dogfight.webm",
         "ogg": "dogfight.ogg",
         "m4a": "dogfight.m4a"
       },
       "loopStartSamples": 0,
-      "loopSamples": 6283636,
-      "loopSeconds": 130.909083,
-      "bpm": 132,
+      "loopSamples": 7200000,
+      "loopSeconds": 150.0,
+      "bpm": 160,
       "beats": 4,
-      "bars": 72,
+      "bars": 100,
       "key": "E minor",
       "lufsIntegrated": -16.0,
-      "truePeakDb": -5.51,
-      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "truePeakDb": -8.39,
+      "loop": "the file is the seamless loop body (DJ make_seamless: the audio after the loop end is crossfaded onto the head), so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not the decoded length",
       "decoded": {
         "webm": {
           "file": "dogfight.webm",
-          "decoded_samples": 6283636,
-          "corr": 0.9975,
-          "true_peak_db": -5.27,
-          "bytes": 2876419
+          "decoded_samples": 7200000,
+          "corr": 0.9961,
+          "true_peak_db": -7.42,
+          "bytes": 3135465
         },
         "ogg": {
           "file": "dogfight.ogg",
-          "decoded_samples": 6283636,
-          "corr": 0.9982,
-          "true_peak_db": -5.4,
-          "bytes": 2907046
+          "decoded_samples": 7200000,
+          "corr": 0.9967,
+          "true_peak_db": -7.47,
+          "bytes": 3117242
         },
         "m4a": {
           "file": "dogfight.m4a",
-          "decoded_samples": 6283636,
-          "corr": 0.9993,
-          "true_peak_db": -5.5,
-          "bytes": 4373449
+          "decoded_samples": 7200000,
+          "corr": 0.9989,
+          "true_peak_db": -7.62,
+          "bytes": 4896985
         }
       },
       "source": {
-        "dj": "Magestican DJ compose lane, style space95-dogfight, rework of the main theme (minor, transpose -1)",
-        "seed": 1583612445,
-        "cover_chord_agree": 0.479,
-        "cover_chroma_corr": 0.675,
-        "render": "D:\\magestican-dj\\renders\\space-95\\dogfight",
+        "dj": "Magestican DJ neural lane (ACE-Step), genre rock, brief space95v2-dogfight",
+        "seed": 1706605166,
+        "in_cluster": false,
+        "clap_distance": 0.2467,
+        "out_of_range": [
+          "lufs"
+        ],
+        "rank": {
+          "seed": 1706605166,
+          "wav": "space-95-bgm-rock-1.wav",
+          "caption_sim": 0.2433,
+          "signature_sim": 0.185,
+          "score": 0.3358,
+          "in_cluster": false,
+          "clap_distance": 0.2467355606123547
+        },
+        "render": "E:\\magestican-dj\\renders\\space95v2\\dogfight",
         "alternates": [
-          "D:\\magestican-dj\\renders\\space-95\\dogfight\\space-95-bgm-city-pop-2.wav (seed 1100599001, chord_agree 0.451)"
+          "E:\\magestican-dj\\renders\\space95v2\\dogfight\\space-95-bgm-rock-2.wav (seed 1320835245, clap 0.3282, in_cluster False)"
         ]
       }
     }

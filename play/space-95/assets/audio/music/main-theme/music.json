@@ -3,51 +3,67 @@
   "tracks": [
     {
       "id": "main-theme",
-      "title": "Space 95 (Clock In)",
+      "title": "Clock In",
       "files": {
         "webm": "main-theme.webm",
         "ogg": "main-theme.ogg",
         "m4a": "main-theme.m4a"
       },
       "loopStartSamples": 0,
-      "loopSamples": 7405714,
-      "loopSeconds": 154.285708,
+      "loopSamples": 6994286,
+      "loopSeconds": 145.714292,
       "bpm": 112,
       "beats": 4,
-      "bars": 72,
-      "key": "F major",
+      "bars": 68,
+      "key": "D minor",
       "lufsIntegrated": -16.0,
-      "truePeakDb": -6.12,
-      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples)",
+      "truePeakDb": -4.68,
+      "loop": "the file is the seamless loop body (DJ make_seamless: the audio after the loop end is crossfaded onto the head), so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not the decoded length",
       "decoded": {
         "webm": {
           "file": "main-theme.webm",
-          "decoded_samples": 7405714,
-          "offset_samples": 0,
-          "true_peak_db": -5.38,
-          "bytes": 3341334
+          "decoded_samples": 6994286,
+          "corr": 0.9984,
+          "true_peak_db": -3.91,
+          "bytes": 3288880
         },
         "ogg": {
           "file": "main-theme.ogg",
-          "decoded_samples": 7405714,
-          "offset_samples": 0,
-          "true_peak_db": -5.6,
-          "bytes": 3442474
+          "decoded_samples": 6994286,
+          "corr": 0.999,
+          "true_peak_db": -4.23,
+          "bytes": 2983154
         },
         "m4a": {
           "file": "main-theme.m4a",
-          "decoded_samples": 7405714,
-          "offset_samples": 0,
-          "true_peak_db": -5.62,
-          "bytes": 5191793,
-          "encoder": "ffmpeg aac twoloop 256k (corr 0.9992 vs master)"
+          "decoded_samples": 6994286,
+          "corr": 0.9996,
+          "true_peak_db": -4.13,
+          "bytes": 4808495
         }
       },
       "source": {
-        "dj": "Magestican DJ compose lane, style space95-jazzfunk",
-        "seed": 1396192479,
-        "render": "E:/magestican-dj/renders/space-95/main-theme/",
-        "alternate": "E:/magestican-dj/renders/space-95/main-theme/space-95-bgm-city-pop-2.wav (seed 517918022)"
+        "dj": "Magestican DJ neural lane (ACE-Step), genre western, brief space95v2-main-theme",
+        "seed": 1958573768,
+        "in_cluster": false,
+        "clap_distance": 0.1705,
+        "out_of_range": [
+          "lufs",
+          "band_sub"
+        ],
+        "rank": {
+          "seed": 1958573768,
+          "wav": "space-95-bgm-western-1.wav",
+          "caption_sim": 0.2333,
+          "signature_sim": 0.1735,
+          "score": 0.3201,
+          "in_cluster": false,
+          "clap_distance": 0.17052547988463118
+        },
+        "render": "E:\\magestican-dj\\renders\\space95v2\\main-theme",
+        "alternates": [
+          "E:\\magestican-dj\\renders\\space95v2\\main-theme\\space-95-bgm-western-2.wav (seed 1231974017, clap 0.2074, in_cluster False)"
+        ]
       }
     }
   ]

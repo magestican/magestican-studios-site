@@ -3,53 +3,63 @@
   "tracks": [
     {
       "id": "deep-burrow",
-      "title": "The Deep Burrow",
+      "title": "Deep Burrow",
       "files": {
         "webm": "deep-burrow.webm",
         "ogg": "deep-burrow.ogg",
         "m4a": "deep-burrow.m4a"
       },
       "loopStartSamples": 0,
-      "loopSamples": 8294400,
-      "loopSeconds": 172.8,
-      "bpm": 100,
+      "loopSamples": 6776471,
+      "loopSeconds": 141.176479,
+      "bpm": 102,
       "beats": 4,
-      "bars": 72,
-      "key": "G minor",
+      "bars": 60,
+      "key": "D minor",
       "lufsIntegrated": -16.0,
-      "truePeakDb": -4.93,
-      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "truePeakDb": -3.02,
+      "loop": "the file is the seamless loop body (DJ make_seamless: the audio after the loop end is crossfaded onto the head), so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not the decoded length",
       "decoded": {
         "webm": {
           "file": "deep-burrow.webm",
-          "decoded_samples": 8294400,
-          "corr": 0.9991,
-          "true_peak_db": -4.85,
-          "bytes": 4255759
+          "decoded_samples": 6776471,
+          "corr": 0.9985,
+          "true_peak_db": -2.33,
+          "bytes": 3238478
         },
         "ogg": {
           "file": "deep-burrow.ogg",
-          "decoded_samples": 8294400,
-          "corr": 0.9995,
-          "true_peak_db": -5.08,
-          "bytes": 3964858
+          "decoded_samples": 6776471,
+          "corr": 0.9986,
+          "true_peak_db": -2.45,
+          "bytes": 2908377
         },
         "m4a": {
           "file": "deep-burrow.m4a",
-          "decoded_samples": 8294400,
-          "corr": 0.9998,
-          "true_peak_db": -4.1,
-          "bytes": 5709542
+          "decoded_samples": 6776471,
+          "corr": 0.9995,
+          "true_peak_db": -2.15,
+          "bytes": 4885408
         }
       },
       "source": {
-        "dj": "Magestican DJ compose lane, style space95-deep-burrow, rework of the main theme (minor, transpose 2)",
-        "seed": 770005673,
-        "cover_chord_agree": 0.642,
-        "cover_chroma_corr": 0.973,
-        "render": "D:\\magestican-dj\\renders\\space-95\\deep-burrow",
+        "dj": "Magestican DJ neural lane (ACE-Step), genre gnawa, brief space95v2-deep-burrow",
+        "seed": 182343700,
+        "in_cluster": false,
+        "clap_distance": 9.0,
+        "out_of_range": [],
+        "rank": {
+          "seed": 182343700,
+          "wav": "space-95-bgm-gnawa-1.wav",
+          "caption_sim": 0.2137,
+          "signature_sim": 0.104,
+          "score": 0.2657,
+          "in_cluster": false,
+          "clap_distance": null
+        },
+        "render": "E:\\magestican-dj\\renders\\space95v2\\deep-burrow",
         "alternates": [
-          "D:\\magestican-dj\\renders\\space-95\\deep-burrow\\space-95-bgm-city-pop-2.wav (seed 1453995375, chord_agree 0.622)"
+          "E:\\magestican-dj\\renders\\space95v2\\deep-burrow\\space-95-bgm-gnawa-2.wav (seed 2115883799, clap 9.0, in_cluster False)"
         ]
       }
     }

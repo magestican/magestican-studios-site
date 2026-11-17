@@ -42,10 +42,12 @@ export const SURFACE = {
 }; 
 
 
+
+
 const MUSIC = {
   1: 'orchard',
   2: 'canopy',
-  3: 'orchard',
+  3: 'ant-highway',
   4: 'underground',
   5: 'stripecat',
   6: 'windward',
@@ -59,10 +61,10 @@ const MUSIC = {
   14: 'night-bloom',
   15: 'silk-span',
   16: 'deep-burrow',
-  17: 'dogfight', 
-  18: 'kitchen', 
-  19: 'stampede', 
-  20: 'sovereign', 
+  17: 'dogfight',
+  18: 'kitchen',
+  19: 'stampede',
+  20: 'sovereign',
 };
 
 

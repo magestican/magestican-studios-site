@@ -11,9 +11,11 @@ import { drawPortrait } from './joPortrait.js';
 
 
 
+
+
 export function showTitle(root, variant, onStart, shifts = [], onShift = () => {}, progress = {}) {
   let pick = variant;
-  const { goal, prizes = [] } = progress;
+  const { goal, prizes = [], coop } = progress;
   const won = prizes.filter((p) => p.got).length;
   root.innerHTML = `
     <div class="title-card" role="dialog" aria-label="Space 95">
@@ -26,6 +28,18 @@ export function showTitle(root, variant, onStart, shifts = [], onShift = () => {
         <button type="button" role="radio" data-v="man"><span class="title-av title-av-man"></span><strong>Jo</strong><span>man</span></button>
       </div>
       <button type="button" class="title-go" data-act="go">Clock in</button>
+      ${
+        coop
+          ? `<details class="title-coop"><summary>Play with a friend</summary>
+        <p class="title-coop-note">You are Jo. Your friend plays Bolt, on their own screen.</p>
+        <button type="button" class="title-coop-host" data-act="host">Host this shift</button>
+        <form class="title-coop-join" data-act="join"><label for="coop-code">Got a room code?</label>
+          <span class="title-coop-row"><input id="coop-code" name="code" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="s95-abcde" />
+          <button type="submit">Join</button></span>
+          <span class="title-coop-err" role="alert" hidden>That code is 5 letters, like s95-abcde.</span></form>
+      </details>`
+          : ''
+      }
       ${goal ? `<p class="title-goal" role="status"><span class="title-k">Next goal</span><strong>${goal.text}</strong></p>` : ''}
       ${
         prizes.length
@@ -69,6 +83,7 @@ export function showTitle(root, variant, onStart, shifts = [], onShift = () => {
     onStart(pick);
   };
   const onKey = (e) => {
+    if (e.target instanceof HTMLInputElement) return; 
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') pick = 'woman';
     else if (e.code === 'ArrowRight' || e.code === 'KeyD') pick = 'man';
     else if (e.code === 'Enter' || e.code === 'Space') {
@@ -82,5 +97,22 @@ export function showTitle(root, variant, onStart, shifts = [], onShift = () => {
   window.addEventListener('keydown', onKey, true);
   root.querySelector('[data-act="go"]')?.addEventListener('click', go);
   for (const b of root.querySelectorAll('[data-shift]')) b.addEventListener('click', () => onShift(Number(b.dataset.shift)));
+  if (coop) {
+    root.querySelector('[data-act="host"]')?.addEventListener('click', () => {
+      window.removeEventListener('keydown', onKey, true);
+      coop.onHost();
+    });
+    const form =  (root.querySelector('[data-act="join"]'));
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const code = coop.parse(String(new FormData(form).get('code') ?? ''));
+      const err =  (form.querySelector('.title-coop-err'));
+      err.hidden = !!code;
+      if (code) {
+        window.removeEventListener('keydown', onKey, true);
+        coop.onJoin(code);
+      }
+    });
+  }
   root.querySelector('[data-act="go"]')?.focus();
 }

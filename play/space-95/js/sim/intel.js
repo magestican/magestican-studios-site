@@ -20,6 +20,7 @@ export function emptySave() {
     bestTimes: new Array(LEVELS).fill(null), 
     lives: 5,
     hearts: 3,
+    coopClears: 0, 
   };
 }
 
@@ -76,6 +77,7 @@ export function loadSave(raw) {
         : fresh.bestTimes,
     lives: Number.isInteger(raw.lives) && raw.lives > 0 ? raw.lives : fresh.lives,
     hearts: Number.isInteger(raw.hearts) && raw.hearts >= 3 && raw.hearts <= 6 ? raw.hearts : fresh.hearts,
+    coopClears: Number.isInteger(raw.coopClears) && raw.coopClears > 0 ? raw.coopClears : 0,
   };
 }
 
@@ -94,5 +96,6 @@ export function mergeSaves(a, b) {
       return t === null ? u : u === null ? t : Math.min(t, u);
     }),
     hearts: Math.max(a.hearts, b.hearts),
+    coopClears: Math.max(a.coopClears ?? 0, b.coopClears ?? 0),
   };
 }

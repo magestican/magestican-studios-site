@@ -18,6 +18,8 @@ export const TOOL_DEBUT = Object.freeze({ double: 3, pound: 4, dash: 5, glide: 6
 
 const DOUBLE_JUMP_HEIGHT = 2.0; 
 const DOUBLE_JUMP_V = Math.sqrt(2 * GRAVITY * DOUBLE_JUMP_HEIGHT);
+
+export const THRUSTER_SCALE = 0.8;
 const DASH_SPEED = 16; 
 const DASH_TIME = 0.16; 
 const DASH_COOLDOWN = 0.3; 
@@ -81,11 +83,12 @@ export function abilityJumps(p, input, world) {
   
   
   if (has(p, 'glide')) A.glideArm = true;
-  if (has(p, 'double') && !A.usedDouble && A.pound === null) {
+  const dbl = has(p, 'double');
+  if ((dbl || p.thruster) && !A.usedDouble && A.pound === null) {
     A.usedDouble = true;
-    p.vy = DOUBLE_JUMP_V;
+    p.vy = dbl ? DOUBLE_JUMP_V : DOUBLE_JUMP_V * THRUSTER_SCALE;
     startJumpArc(p);
-    p.events.push({ type: 'doubleJump' });
+    p.events.push(dbl ? { type: 'doubleJump' } : { type: 'doubleJump', thruster: true });
   }
   void world;
 }

@@ -1,5 +1,6 @@
 
 export const MUSIC_TRACKS = [
+  'ant-highway',
   'boss-mini',
   'canopy',
   'crumb-express',

@@ -12,6 +12,7 @@ import { drillStep } from './drill.js';
 import { snareStep } from './enemies/aunt.js';
 import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
 import { jetStep } from './jetpack.js';
+import { STACK_BOOST } from './partner.js';
 import { spinUnder } from './pins.js';
 import { raftById } from './raft.js';
 import { rideStep, wakeStep } from './slipstream.js';
@@ -293,7 +294,9 @@ function tryJump(p) {
   const buffered = p.sincePressed > 0;
   
   const boost = p.grounded || fromCoyote ? Math.min(MAX_BOOST, (p.floorVs ?? 0) * LAUNCH_GAIN) : 0;
-  p.vy = K.JUMP_VELOCITY + boost;
+  
+  const stack = p.grounded && p.floor?.partner ? (STACK_BOOST - 1) * K.JUMP_VELOCITY : 0;
+  p.vy = K.JUMP_VELOCITY + boost + stack;
   if (boost >= 2) p.events.push({ type: 'heaveLaunch', vs: boost, id: p.floor?.id ?? null }); 
   p.grounded = false;
   p.jumpedThisAir = true;

@@ -470,3 +470,82 @@ kbd {
 .is-rescue .touch-dash[hidden] {
   display: inline-block;
 }
+
+
+.edge-marker {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.edge-marker[hidden] {
+  display: none;
+}
+.edge-face {
+  position: absolute;
+  left: -24px;
+  top: -24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--card);
+  border: 3px solid var(--gold);
+}
+.edge-face canvas {
+  width: 100%;
+  height: 100%;
+}
+.edge-face.is-bolt {
+  border-color: var(--teal);
+  background: radial-gradient(circle at 50% 55%, #14183a 0 16px, #c9d4e6 17px);
+}
+.edge-face.is-bolt::before,
+.edge-face.is-bolt::after {
+  content: "";
+  position: absolute;
+  top: 19px;
+  width: 6px;
+  height: 8px;
+  border-radius: 3px;
+  background: var(--teal);
+}
+.edge-face.is-bolt::before {
+  left: 15px;
+}
+.edge-face.is-bolt::after {
+  right: 15px;
+}
+.edge-arrow {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.edge-arrow::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  top: -7px;
+  border-left: 10px solid var(--gold);
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+.edge-dist {
+  position: absolute;
+  left: -32px;
+  top: 28px;
+  width: 64px;
+  text-align: center;
+  font:
+    700 13px / 1.2 system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  color: var(--card-text);
+  background: var(--card);
+  border-radius: 8px;
+  padding: 2px 6px;
+}

@@ -12,7 +12,8 @@ export function createTimesheet(root) {
 
 
 
-    show(level, s, save, secretsTotal, { onReplay, onNext, onTitle, news = null }) {
+    show(level, s, save, secretsTotal, { onReplay, onNext, onTitle, news = null, crew = '' }) {
+      
       
       const newsHtml = news
         ? `${news.newBest ? '<p class="sheet-news-best sheet-gold">New best time!</p>' : ''}${news.prizes
@@ -34,6 +35,7 @@ export function createTimesheet(root) {
           <p class="sheet-k">Space 95 Survey Co. - Timesheet</p>
           <h2>Shift ${level.id}: ${level.name}</h2>
           <dl class="sheet-rows">
+            ${crew ? `<div><dt>Crew</dt><dd>${crew}</dd></div>` : ''}
             <div><dt>Time on shift</dt><dd>${s.clearTime.toFixed(1)} s</dd></div>
             ${par ? `<div><dt>Par</dt><dd>${par.toFixed(0)} s${underPar ? ' <span class="sheet-gold">under par!</span>' : ''}</dd></div>` : ''}
             ${best ? `<div><dt>Best</dt><dd>${best.toFixed(1)} s</dd></div>` : ''}

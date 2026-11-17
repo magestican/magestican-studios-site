@@ -7,12 +7,14 @@ import { levelMusic as musicOf, SURFACE, shiftSounds } from './audio/shiftSounds
 import { readCheats } from './cheats.js';
 import { createBoltVoice } from './game/bolt.js';
 import { createCoach, TIP_SECONDS } from './game/coach.js';
+import { coopTitle, startCoop } from './game/coopBoot.js';
 import { nextGoal, prizes, sheetNews } from './game/goals.js';
 import { mergeIntoProgress, readProgress, recordShift, saveVariant } from './game/progress.js';
 import { createInput, mountTouchControls } from './input.js';
 import { loadLevelRecovering } from './level/loadRetry.js';
 import { SHIFT_IDS, SHIFT_NAMES } from './level/shiftList.js';
 import { loadLevel } from './level/shiftLoader.js';
+import { coopFromUrl } from './net/peer.js';
 import { preloadCritterSprites } from './render/critterSprite.js';
 import { joSpriteLoaded } from './render/joSprite.js';
 import { createView } from './render/scene.js';
@@ -25,9 +27,11 @@ import { fullResume } from './sim/stamps.js';
 import { placeTrain } from './sim/train.js';
 import { site } from './site/adapter.js';
 import { v } from './site/assetUrl.js';
+import { createEdgeMarker, edgeMarker } from './ui/edgeMarker.js';
 import { createEnding } from './ui/ending.js';
 import { createHud } from './ui/hud.js';
 import { KEY_ICON, LEVER_ICON } from './ui/icons.js';
+import { drawPortrait } from './ui/joPortrait.js';
 import { createPause } from './ui/pause.js';
 import { createRescuePrompt } from './ui/rescue.js';
 import { createTimesheet } from './ui/timesheet.js';
@@ -204,7 +208,9 @@ const MAX_STEPS = 12;
 
 let paused =
   !!level.id && cheats.checkpoint === 0 && cheats.x === null && cheats.rail === null && !new URLSearchParams(location.search).has('skip');
-if (paused) {
+
+const seat = level.id && SHIFT_IDS.includes(level.id) ? coopFromUrl(location.search) : null;
+if (paused && !seat) {
   document.body.classList.add('is-title');
   const save = readProgress();
   
@@ -237,11 +243,42 @@ if (paused) {
     },
     shifts,
     goShift,
-    { goal, prizes: prizes(save) },
+    { goal, prizes: prizes(save), coop: coopTitle(level.id) },
   );
 }
 
+
+const coop = seat
+  ? startCoop({
+      seat,
+      level,
+      variant: document.documentElement.dataset.variant ?? 'woman',
+      view,
+      titleRoot:  (document.getElementById('title')),
+      onStart: () => {
+        paused = false;
+        document.body.classList.remove('is-title');
+        boltSay(boltVoice.start());
+      },
+      onSeated: (e) => {
+        
+        if (e.checkpoint > 0) session = createSession(level, e.checkpoint, abilities);
+        for (const id of e.intel) {
+          session.found.add(String(id));
+          const ent = session.entities.find((x) => String(x.id) === String(id));
+          if (ent) ent.alive = false;
+        }
+      },
+    })
+  : null;
+if (coop) {
+  paused = true;
+  document.body.classList.add('is-title');
+}
+
 const coach = createCoach();
+
+let edge = null;
 
 function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
@@ -249,10 +286,13 @@ function frame(now) {
   acc += dt * cheats.slow;
   let steps = 0;
   if (paused || pause.open) acc = 0;
+  if (paused) coop?.lobbyFrame(now);
   while (acc >= STEP && steps < MAX_STEPS) {
     stepSession(session, input.sample());
     if (cheats.god && session.dead > 0) session.dead = 1;
-    for (const e of session.events) {
+    
+    const partnerEvents = coop ? coop.step(session, now) : [];
+    for (const e of partnerEvents.length ? [...session.events, ...partnerEvents] : session.events) {
       view.onEvent(e);
       hud.onEvent(e, session);
       
@@ -283,25 +323,34 @@ function frame(now) {
       
       if (e.type === 'gameOver' && level.id) {
         const save = recordShift(level, { ...session, cleared: false });
-        site.shiftEnd({ save, level: level.id, cleared: false, seconds: session.time, underPar: false, coop: false });
+        site.shiftEnd({ save, level: level.id, cleared: false, seconds: session.time, underPar: false, coop: !!coop?.active });
       }
       if (e.type === 'clear' && level.id) {
         const before = readProgress();
-        const save = recordShift(level, session);
+        const save = recordShift(level, session, !!coop?.active);
         const news = sheetNews(before, save, level.id, SHIFT_NAMES);
         if (fullResume(level, session)) site.count('fullResume'); 
-        const next = SHIFT_IDS.includes(level.id + 1) ? () => (location.search = `?level=${level.id + 1}&skip=1`) : null;
+        
+        const keep = seat ? `&${seat.role === 'host' ? 'host' : 'join'}=${seat.code}` : '&skip=1';
+        const next = SHIFT_IDS.includes(level.id + 1) ? () => (location.search = `?level=${level.id + 1}${keep}`) : null;
         site.shiftEnd({
           save,
           level: level.id,
           cleared: true,
           seconds: session.time,
           underPar: !session.partial && !!level.par && session.time <= level.par,
-          coop: false,
+          coop: !!coop?.active,
         });
         
         const onTitle = next ? undefined : () => (location.search = '?level=1');
-        const sheet = () => timesheet.show(level, session, save, secretsTotal, { onReplay: restart, onNext: next, onTitle, news });
+        const sheet = () =>
+          timesheet.show(level, session, save, secretsTotal, {
+            onReplay: restart,
+            onNext: next,
+            onTitle,
+            news,
+            crew: coop?.active ? 'Jo and Bolt' : '',
+          });
         
         if (level.id === 20) ending.play(endingTier(save), level.checklist ?? [], sheet);
         else sheet();
@@ -311,6 +360,7 @@ function frame(now) {
     steps++;
   }
   if (steps === MAX_STEPS) acc = 0;
+  coop?.frame(session, now, 'idle');
   const step = session.dead > 0 || train ? null : footsteps.update(session.player, dt * cheats.slow);
   if (step && step in SFX) audio.play(step, { volume: 0.8 });
   const paws = gallop?.update(session.dead === 0 && !session.cleared, dt * cheats.slow);
@@ -321,6 +371,13 @@ function frame(now) {
     view.boltMood('happy');
   }
   view.render(session, acc / STEP, dt);
+  
+  const mate = coop?.active && !paused && !session.cleared ? session.world.partner : null;
+  if (mate?.alive && seat) {
+    edge ??= createEdgeMarker(document.body, seat.role, (slot) => drawPortrait(slot, coop?.partnerVariant ?? 'woman'));
+    const d = { x: mate.x - session.player.x, y: mate.y - session.player.y };
+    edge.set(edgeMarker(view.project(mate.x, mate.y + 0.6), d, innerWidth, innerHeight));
+  } else edge?.set(null);
   hud.update(session, dt);
   rescuePrompt.update(session);
   requestAnimationFrame(frame);

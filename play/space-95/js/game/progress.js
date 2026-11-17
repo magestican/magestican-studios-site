@@ -41,12 +41,17 @@ export function saveVariant(variant) {
 
 
 
+export const coopRun = (save, session, coop) => (save.coopClears ?? 0) + (coop && session.cleared ? 1 : 0);
 
 
 
-export function recordShift(level, session) {
+
+
+
+export function recordShift(level, session, coop = false) {
   const save = readProgress();
   const run = emptySave();
+  run.coopClears = coopRun(save, session, coop);
   for (const e of level.entities) {
     if (!session.found.has(String(e.id))) continue;
     const kind = e.specimen ? 'specimen' : e.secret;

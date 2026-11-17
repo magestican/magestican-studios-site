@@ -681,6 +681,7 @@ export function emptyS95Save() {
     bestTimes: new Array(S95_LEVELS).fill(null),
     lives: 5,
     hearts: 3,
+    coopClears: 0, 
   };
 }
 
@@ -699,6 +700,7 @@ export function normaliseS95Save(raw) {
       : fresh.bestTimes,
     lives: Number.isInteger(raw.lives) && raw.lives > 0 ? raw.lives : fresh.lives,
     hearts: Number.isInteger(raw.hearts) && raw.hearts >= 3 && raw.hearts <= 6 ? raw.hearts : fresh.hearts,
+    coopClears: Number.isInteger(raw.coopClears) && raw.coopClears > 0 ? raw.coopClears : 0,
   };
 }
 
@@ -715,5 +717,6 @@ export function mergeS95Saves(a, b) {
       return t === null ? u : u === null ? t : Math.min(t, u);
     }),
     hearts: Math.max(x.hearts, y.hearts),
+    coopClears: Math.max(x.coopClears, y.coopClears),
   };
 }

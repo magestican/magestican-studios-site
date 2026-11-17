@@ -39,6 +39,7 @@ const PRIZES = [
   { id: 's95-exceeds', name: 'Exceeds Expectations', desc: 'Reach 90% Intel.', got: (s) => intelPercent(s) >= 90 },
   { id: 's95-par-all', name: 'Efficiency Award', desc: 'Clear all twenty shifts under par.', got: (s) => parClears(s) >= LEVELS },
   { id: 's95-eoty', name: 'Employee of the Year', desc: 'Reach 100% Intel.', got: (s) => intelPercent(s) >= 100 },
+  { id: 's95-coop', name: 'Team Building', desc: 'Clear a shift in online co-op.', got: (s) => (s.coopClears ?? 0) >= 1 },
 ];
 
 

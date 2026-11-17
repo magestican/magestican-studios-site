@@ -472,9 +472,15 @@ function respawn(s) {
     s.deedLost = false;
     s.rescue = null; 
     s.events.push({ type: 'gameOver' });
+    s.beamTo = null; 
   }
   if (s.hearts <= 0) s.hearts = s.maxHearts;
-  s.player = createPlayer(s.respawnAt.x, s.respawnAt.y, s.level.dir ?? 1);
+  
+  
+  const beam = s.beamTo && !s.train && !s.plane && !s.level.ride ? s.beamTo : null;
+  s.beamTo = null;
+  const at = beam ?? s.respawnAt;
+  s.player = createPlayer(at.x, at.y, s.level.dir ?? 1);
   s.player.abilities = s.abilities;
   if (s.train) {
     
@@ -514,7 +520,7 @@ function respawn(s) {
     s.safeLand = s.safe;
   }
   if (s.level.ride) startRide(s, s.respawnAt); 
-  s.events.push({ type: 'respawn' });
+  s.events.push(beam ? { type: 'respawn', beam: true } : { type: 'respawn' });
 }
 
 const KNOCK_EVERY = 0.3; 
