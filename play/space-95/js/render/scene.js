@@ -22,6 +22,7 @@ import { createJoSprite } from './joSprite.js';
 import { createKitchen, kitchenEntityView } from './kitchenView.js';
 import { clampLabelToView } from './labelClamp.js';
 import { createNight, nightEntityView } from './nightView.js';
+import { propBillboard } from './propArt.js';
 import { createProps } from './propLayer.js';
 import { restartPosts } from './restartPosts.js';
 import { createRide, rideEntityView } from './rideView.js';
@@ -533,8 +534,9 @@ export function entityView(e) {
   ) {
     
   } else if (e.kind === 'pebble') {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat(0xb8b1a6));
-    m.position.y = 0.15;
+    const art = propBillboard('pebble');
+    const m = art ?? new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat(0xb8b1a6));
+    if (!art) m.position.y = 0.15;
     g.add(m);
   } else if (e.kind === 'ladybot' && e.skin === 'silverfish') {
     
@@ -573,11 +575,15 @@ export function entityView(e) {
     m.name = 'lens';
     g.add(m);
   } else if (e.kind === 'seed') {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 8), mat(0xe8c27a));
-    m.scale.set(0.8, 1.2, 0.8);
-    m.position.y = 0.2;
-    m.name = 'spin';
-    g.add(m);
+    const art = propBillboard('seed'); 
+    if (art) g.add(art);
+    else {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 8), mat(0xe8c27a));
+      m.scale.set(0.8, 1.2, 0.8);
+      m.position.y = 0.2;
+      m.name = 'spin';
+      g.add(m);
+    }
   } else if (e.kind === 'aphid') {
     const m = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), mat(0x9be36a));
     m.position.y = 0.22;
@@ -604,23 +610,34 @@ export function entityView(e) {
     crumb.position.set(0, 0.75, 0);
     g.add(body, crumb);
   } else if (e.kind === 'ability') {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
-    m.position.y = 0.5;
-    m.name = 'spin';
-    g.add(m);
+    const art = propBillboard('ability_module');
+    if (art) {
+      art.position.y = 0.2;
+      g.add(art);
+    } else {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
+      m.position.y = 0.5;
+      m.name = 'spin';
+      g.add(m);
+    }
   } else if (e.kind === 'clod') {
     const m = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55), mat(0x7b4f2c));
     m.position.y = 0.5;
     g.add(m);
   } else if (e.kind === 'finish') {
-    const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3, 0.2), mat(0xffffff));
-    post.position.y = 1.5;
-    const flag = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.2, 0.7),
-      new THREE.MeshBasicMaterial({ color: 0x2fe0d0, side: THREE.DoubleSide }),
-    );
-    flag.position.set(0.7, 2.6, 0);
-    g.add(post, flag, textSprite('Clock out'));
+    
+    const art = propBillboard('clock_in_beacon', 3);
+    if (art) g.add(art, textSprite('Clock out'));
+    else {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3, 0.2), mat(0xffffff));
+      post.position.y = 1.5;
+      const flag = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.2, 0.7),
+        new THREE.MeshBasicMaterial({ color: 0x2fe0d0, side: THREE.DoubleSide }),
+      );
+      flag.position.set(0.7, 2.6, 0);
+      g.add(post, flag, textSprite('Clock out'));
+    }
   } else if (e.kind === 'snailknight') {
     const shell = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.25, 12, 24), mat(e.specimen ? 0xf4f0ff : 0x7d9bd6));
     shell.position.y = 0.8;
@@ -1596,13 +1613,17 @@ function farLayers(world) {
   return group;
 }
 
-function beacon(cp, text) {
+export function beacon(cp, text) {
   const g = new THREE.Group();
-  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.6, 8), new THREE.MeshLambertMaterial({ color: 0xffffff }));
-  post.position.y = 0.8;
-  const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
-  lamp.position.y = 1.7;
-  g.add(post, lamp);
+  const art = propBillboard('clock_in_beacon');
+  if (art) g.add(art);
+  else {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.6, 8), new THREE.MeshLambertMaterial({ color: 0xffffff }));
+    post.position.y = 0.8;
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
+    lamp.position.y = 1.7;
+    g.add(post, lamp);
+  }
   if (text) {
     const s = textSprite(text);
     s.userData.yieldTo = BOSS_NAMES; 

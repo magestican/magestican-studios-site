@@ -203,6 +203,10 @@ const BIOMES = {
 };
 
 
+
+for (const b of Object.values(BIOMES)) if (b.top && !b.oneWay) b.oneWay = b.top;
+
+
 export function biomeArt(level) {
   const b = ART_BIOME[level.id ?? 0];
   return b ? BIOMES[b] : null;
