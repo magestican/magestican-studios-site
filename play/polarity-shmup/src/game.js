@@ -26,8 +26,9 @@ import { OTHER_ONLY, SCROLL } from './sim/stage.js';
 import {
   BOSS_NAMES, CROWN, CROWN_SWITCH, STAGES, TWIN, TWIN_SPLIT, bossShowsIris, stageCue, twinPol,
 } from './sim/stages.js';
-import { stickToMove } from './controls.js';
+import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
+import { createFx, makeAura, pulseAura, stepAura } from './fx.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -92,6 +93,8 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 Object.assign(sun.shadow.camera, { left: -260, right: 260, top: 520, bottom: -520, near: 10, far: 2000 });
 scene.add(sun, sun.target);
+
+const fx = createFx(scene);
 
 
 const texLoader = new THREE.TextureLoader();
@@ -173,9 +176,12 @@ function makeShip(e, v) {
     new THREE.MeshBasicMaterial({ color: 0xfff4c8, transparent: true, opacity: 0.6, depthTest: false, toneMapped: false }));
   halo.position.y = 58; halo.renderOrder = 29;
   group.add(halo);
+  
+  const aura = makeAura();
+  group.add(aura);
   group.visible = false;
   scene.add(group);
-  return { group, roll, ember, iris, halo, lastX: 0, bank: 0, flipT: 0, pol: 0 };
+  return { group, roll, ember, iris, halo, aura, lastX: 0, bank: 0, flipT: 0, pol: 0 };
 }
 
 
@@ -220,7 +226,7 @@ async function loadModels() {
   ]) {
     const proto = fit(src.clone(true), len, opts);
     proto.rotation.y = rot;
-    pool(key, proto, key.startsWith('dart') ? 20 : 6, y);
+    pool(key, proto, key.startsWith('dart') ? 28 : 6, y); 
   }
   warden = fit(ti.clone(true), WARDEN_W, { axis: 'max' });
   warden.visible = false;
@@ -234,7 +240,7 @@ async function loadModels() {
     loadGlb(`assets/stages-craft/${c}_${pol}/${c}_${pol}.glb`))));
   const [se, si, be, bi, ge, gi, le, li, ae, ai, twe, twi, ce, ci] = more;
   for (const [key, src, len, y, opts, rot, n] of [
-    ['skiff0', se, SKIFF_LEN, 60, {}, -Math.PI / 2, 24], ['skiff1', si, SKIFF_LEN, 60, {}, -Math.PI / 2, 24],
+    ['skiff0', se, SKIFF_LEN, 60, {}, -Math.PI / 2, 32], ['skiff1', si, SKIFF_LEN, 60, {}, -Math.PI / 2, 32],
     ['bulwark0', be, BULWARK_W, 50, { axis: 'max' }, 0, 4], ['bulwark1', bi, BULWARK_W, 50, { axis: 'max' }, 0, 4],
     ['gunship0', ge, GUNSHIP_W, 70, { axis: 'max' }, 0, 1], ['gunship1', gi, GUNSHIP_W, 70, { axis: 'max' }, 0, 1],
   ]) {
@@ -337,10 +343,15 @@ function put(mesh, x, z, ang) {
 
 function drawBullets(s) {
   for (const m of [...sets.enemy.flat(), ...sets.shot, ...sets.burst]) m.count = 0;
+  fx.glowBegin();
   for (let i = 0; i < s.nb; i++) {
     
-    put(sets.enemy[s.bkind[i]][s.bpol[i]], wx(s.bx[i]), wz(s.by[i]), -Math.atan2(s.bvx[i], s.bvy[i]));
+    const bx = wx(s.bx[i]), bz = wz(s.by[i]);
+    put(sets.enemy[s.bkind[i]][s.bpol[i]], bx, bz, -Math.atan2(s.bvx[i], s.bvy[i]));
+    fx.glowAdd(bx, bz, s.bpol[i], 34);
   }
+  for (let i = 0; i < s.ns; i++) fx.glowAdd(wx(s.sx[i]), wz(s.sy[i]), s.players[s.sown[i]].iris, s.sdmg[i] > 1 ? 40 : 18);
+  fx.glowEnd();
   for (let i = 0; i < s.ns; i++) {
     const pol = s.players[s.sown[i]].iris;
     const set = s.sdmg[i] > 1 ? sets.burst[pol] : sets.shot[pol];
@@ -353,7 +364,9 @@ function drawBullets(s) {
 const flashGeo = new THREE.RingGeometry(0.6, 1, 32).rotateX(-Math.PI / 2);
 const flashes = [];
 function flash(x, z, size, color) {
-  const m = new THREE.Mesh(flashGeo, new THREE.MeshBasicMaterial({ color, transparent: true, depthTest: false, toneMapped: false }));
+  
+  const m = new THREE.Mesh(flashGeo, new THREE.MeshBasicMaterial({ color, transparent: true, depthTest: false, depthWrite: false,
+    toneMapped: false, blending: THREE.AdditiveBlending }));
   m.position.set(x, 80, z);
   m.renderOrder = 25;
   m.userData = { t: 0, size };
@@ -403,11 +416,10 @@ host.addEventListener('pointerdown', (e) => {
 });
 host.addEventListener('pointermove', (e) => {
   if (e.pointerId !== drag.id) return;
-  drag.dx += ((e.clientX - drag.x) / fieldScale) * 1.2;
-  drag.dy += ((e.clientY - drag.y) / fieldScale) * 1.2;
+  dragFeed(drag, e.clientX - drag.x, e.clientY - drag.y, fieldScale); 
   drag.x = e.clientX; drag.y = e.clientY;
 });
-for (const ev of ['pointerup', 'pointercancel']) host.addEventListener(ev, (e) => { if (e.pointerId === drag.id) drag.id = null; });
+for (const ev of ['pointerup', 'pointercancel']) host.addEventListener(ev, (e) => { if (e.pointerId === drag.id) dragRelease(drag); });
 $('flip').addEventListener('pointerdown', (e) => { e.preventDefault(); flip(); });
 $('bomb').addEventListener('pointerdown', (e) => { e.preventDefault(); bombQueued = true; });
 
@@ -433,12 +445,8 @@ function readInput() {
     padFlipHeld = a; padBombHeld = b;
     if (pad.buttons[6]?.pressed || pad.buttons[7]?.pressed) focus = true;
   }
-  if (drag.dx || drag.dy) { 
-    const per = 4.5; 
-    const mx = Math.max(-per, Math.min(per, drag.dx)), my = Math.max(-per, Math.min(per, drag.dy));
-    drag.dx -= mx; drag.dy -= my;
-    x = Math.round((mx / per) * MOVE_MAX); y = Math.round((my / per) * MOVE_MAX);
-  }
+  const dm = dragTake(drag); 
+  if (dm) { x = dm.x; y = dm.y; }
   const bomb = bombQueued; bombQueued = false;
   return pack({ x, y, iris: flipLevel === 1, bomb, focus });
 }
@@ -718,11 +726,22 @@ const haloMeshes = new Map();
 const POOL_OF = ['dart', 'turret', 'warden', 'skiff', 'bulwark', 'gunship']; 
 const BOOM_SIZE = [40, 64, 120, 36, 90, 130];
 
+
+
+const enemySeen = new Map(); 
+let enemyGone = [];          
 function syncEnemies(s) {
   const live = new Set();
+  const myPol = s.players[viewSeat(s)]?.iris || 0;
   for (let e = 0; e < s.ne; e++) {
     const id = s.eid[e], k = s.ek[e];
     live.add(id);
+    const ex = wx(s.ex[e]), ez = wz(s.ey[e]);
+    const was = enemySeen.get(id);
+    if (was) {
+      if (s.ehp[e] < was.hp) fx.hit(ex + (Math.random() - 0.5) * 10, ez + 8, myPol);
+      was.x = ex; was.z = ez; was.hp = s.ehp[e];
+    } else enemySeen.set(id, { x: ex, z: ez, pol: s.ep[e], hp: s.ehp[e] });
     let o = enemyMeshes.get(id);
     if (!o) {
       if (k === 2) o = warden;
@@ -748,6 +767,17 @@ function syncEnemies(s) {
   }
   for (const [id, o] of enemyMeshes) if (!live.has(id)) { o.visible = false; enemyMeshes.delete(id); }
   for (const [id, o] of haloMeshes) if (!live.has(id)) { o.visible = false; haloMeshes.delete(id); }
+  enemyGone = [];
+  for (const [id, v] of enemySeen) if (!live.has(id)) { enemyGone.push(v); enemySeen.delete(id); }
+}
+
+function goneColour(x, z) {
+  let best = -1, bd = 40 * 40;
+  for (const g of enemyGone) {
+    const d = (g.x - x) ** 2 + (g.z - z) ** 2;
+    if (d < bd) { bd = d; best = g.pol; }
+  }
+  return best;
 }
 
 function draw(s, dt) {
@@ -782,7 +812,13 @@ function draw(s, dt) {
     const vx = qx - sh.group.position.x;
     sh.group.position.x = qx; sh.group.position.z = qz;
     sh.bank += (Math.max(-1, Math.min(1, vx / 4)) - sh.bank) * Math.min(1, dt * 10);
-    if (q.iris !== sh.pol) { sh.pol = q.iris; sh.flipT = 0.3; }
+    if (q.iris !== sh.pol) {
+      sh.pol = q.iris; sh.flipT = 0.3;
+      if (dt > 0) { fx.flip(qx, qz, q.iris); pulseAura(sh.aura, 1); }
+    }
+    stepAura(sh.aura, q.iris, dt, s.tick / 60);
+    sh.aura.visible = !pod;
+    if (dt > 0 && !pod && q.lives > 0) fx.wake(qx, qz, q.iris, dt);
     if (sh.flipT > 0) sh.flipT = Math.max(0, sh.flipT - dt);
     const flipping = sh.flipT > 0;
     
@@ -847,17 +883,32 @@ function draw(s, dt) {
   
   for (; seen.boom < s.nboom; seen.boom++) {
     const n = seen.boom % 16, k = s.boomK[n];
-    if (k === BOOM_DEFLECT) { flash(wx(s.boomX[n]), wz(s.boomY[n]), 14, 0x8a8a90); continue; } 
+    const bx = wx(s.boomX[n]), bz = wz(s.boomY[n]);
+    if (k === BOOM_DEFLECT) { flash(bx, bz, 14, 0x8a8a90); fx.hit(bx, bz, 0); continue; } 
     const boss = k === BOOM_BOSS;
-    flash(wx(s.boomX[n]), wz(s.boomY[n]), boss ? 260 : BOOM_SIZE[k] ?? 40, boss ? 0xfff1c0 : 0xffd27a);
+    const size = boss ? 260 : BOOM_SIZE[k] ?? 40;
+    const pol = boss ? (s.boss.phase & 1) : goneColour(bx, bz);
+    flash(bx, bz, size, boss ? 0xfff1c0 : pol === 1 ? 0xb890ff : 0xffd27a);
+    fx.explode(bx, bz, size, Math.max(0, pol), { boss });
     sfx.play(boss || k === 2 || k >= 4 ? 'boom' : 'pop');
   }
   if (s.chain !== seen.chain) {
     if (s.chain > seen.chain) flash(x, z - 30, 30 + Math.min(s.chain, 8) * 6, s.chainPol ? 0xa878ff : 0xffc440);
     seen.chain = s.chain;
   }
-  if (p.absorbed > seen.absorbed) { sfx.play('absorb'); seen.absorbed = p.absorbed; }
-  if (p.bursts > seen.bursts) { sfx.play('release'); seen.bursts = p.bursts; flash(x, z, 60, p.iris ? 0xa878ff : 0xffc440); }
+  if (p.absorbed > seen.absorbed) {
+    
+    for (let a = 0, n = Math.min(6, p.absorbed - seen.absorbed); a < n; a++) {
+      const t = Math.random() * Math.PI - Math.PI; 
+      fx.absorb(x + Math.cos(t) * 30, z + Math.sin(t) * 30, x, z, p.iris);
+    }
+    pulseAura(ships[me].aura, 0.25);
+    sfx.play('absorb'); seen.absorbed = p.absorbed;
+  }
+  if (p.bursts > seen.bursts) {
+    sfx.play('release'); seen.bursts = p.bursts; flash(x, z, 60, p.iris ? 0xa878ff : 0xffc440);
+    fx.flip(x, z, p.iris); pulseAura(ships[me].aura, 1.2);
+  }
   if (p.hits > seen.hits) { sfx.play('hurt'); seen.hits = p.hits; }
   if (s.tick - seen.shotTick >= 15 && mode === 'play' && !s.clear) { sfx.play('shot'); seen.shotTick = s.tick; }
 
@@ -892,6 +943,7 @@ function layout() {
   renderer.domElement.style.width = `${w}px`; renderer.domElement.style.height = `${h}px`;
   const next = s * renderer.getPixelRatio();
   if (Math.abs(next - pxScale) > 0.01) { pxScale = next; buildBullets(pxScale); }
+  fx.setScale(next);
 }
 window.addEventListener('resize', layout);
 
@@ -936,6 +988,9 @@ function frame(now) {
     draw(sim, paused ? 0 : dt);
   }
   stepFlashes(paused ? 0 : dt);
+  fx.step(paused ? 0 : dt);
+  const [shx, shz] = fx.shakeOffset();
+  camera.position.x = shx; camera.position.z = shz;
   renderer.render(scene, camera);
   fpsFrames++;
   if (now - fpsAt >= 1000) { document.body.dataset.fps = String(fpsFrames); fpsFrames = 0; fpsAt = now; }

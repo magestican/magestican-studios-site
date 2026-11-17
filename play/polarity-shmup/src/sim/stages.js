@@ -9,6 +9,7 @@
 
 import { ANG, FP, angWrap, isin, muldiv, polar } from './fixed.js';
 import { aimAt, fan, gentleSpeed, ring } from './patterns.js';
+import { hash32 } from './rng.js';
 import {
   BEATS, BOSS_AT, BOSS_ENTER, BOSS_HP, BOSS_TIME, BULWARK, FIRE_FLOOR, GUNSHIP, LAUNCH_EVERY, MID_LIFE, SKIFF, WARDEN_AT,
   bossFire, bossPhase, cueAt, enemyFire, enemyPos, expandBeats,
@@ -96,13 +97,58 @@ export const STAGES = Object.freeze([
 
 export const TALLY_TICKS = 720;
 
+
+
+
+
+
+
+
+
+export const STREAM_FROM = 240;     
+export const STREAM_EVERY = 80;     
+export const SWOOP = 11, COLUMN = 12;
+
+const FLIGHTS = [[SWOOP, 3, 4], [COLUMN, 3, 4], [SWOOP, 0, 3], [4, 3, 3], [SWOOP, 3, 4], [COLUMN, 0, 3]];
+
+
+export function streamRests(st) {
+  const rests = [[st.midAt - 60, st.midAt + MID_LIFE + 60], [st.bossAt - 120, Infinity]];
+  for (const b of st.beats) if (b.kind === 'wall') rests.push([b.at - 30, b.at + 150]); 
+  return rests;
+}
+
+
+export function streamWaves(st, seed) {
+  const out = [], rests = streamRests(st);
+  let f = 0;
+  for (let at = STREAM_FROM; at < st.bossAt; at += STREAM_EVERY) {
+    if (rests.some(([a, b]) => at >= a && at < b)) continue;
+    const [path, k, n] = FLIGHTS[f % FLIGHTS.length];
+    const h = hash32(seed, 61, f);
+    const pol = (f >> 1) & 1;                  
+    const dir = h & 1 ? 1 : -1;
+    f++;
+    for (let i = 0; i < n; i++) {
+      let x, y = px(-24), t = at;
+      if (path === SWOOP) { x = dir > 0 ? px(-20) : px(410); y = px(40 + (h % 60)); t += i * 12; }
+      else if (path === COLUMN) { x = px(60 + (h % 270)); t += i * 14; }
+      else { x = px(80 + (h % 230)); t += i * 22; }
+      out.push({ at: t, kind: k ? 'skiff' : 'dart', k, path, pol, x, y, dir, flags: 0 });
+    }
+  }
+  return out;
+}
+
 const memo = new Map();
 
 export function stageWaves(n, seed) {
   const key = `${n}:${seed}`;
   let l = memo.get(key);
   if (!l) {
-    l = Object.freeze(expandBeats(STAGES[n].beats, seed).map(Object.freeze));
+    const all = [...expandBeats(STAGES[n].beats, seed), ...streamWaves(STAGES[n], seed)];
+    all.sort((a, b) => a.at - b.at); 
+    l = Object.freeze(all.map(Object.freeze));
     if (memo.size > 32) memo.clear();
     memo.set(key, l);
   }
@@ -114,6 +160,12 @@ export const stageCue = (n, lt) => cueAt(lt, STAGES[n].beats);
 
 export function pathPos(path, x0, y0, dir, age) {
   if (path <= 3) return enemyPos(path, x0, y0, dir, age);
+  if (path === SWOOP) { 
+    return [x0 + dir * age * 3 * FP, y0 + Math.trunc((age * age * FP) / 110)];
+  }
+  if (path === COLUMN) { 
+    return [x0 + Math.trunc((isin(age * 14) * dir * 18) / 256), y0 + age * 4 * FP];
+  }
   if (path === 4 || path === 9) { 
     return [x0 + Math.trunc((isin(age * 10) * dir * 60) / 256), y0 + Math.trunc((age * 3 * FP) / 2)];
   }
