@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "1f38cb0b-20261118T063946Z",
+ "buildId": "7b3af341-20261118T082550Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -39,7 +39,7 @@
    "ageNote": "Frequent cartoon shooting between farm animals. No gore and no realistic weapons, but it is a first-person shooter and is rated as one.",
    "order": 0,
    "addedAt": "2026-08-30",
-   "bytes": 11982714
+   "bytes": 11984628
   },
   {
    "id": "farmy-uprising",
@@ -68,7 +68,7 @@
    "ageNote": "Infrequent or mild cartoon violence - animals versus farms, no blood, no injury detail.",
    "order": 1,
    "addedAt": "2026-09-06",
-   "bytes": 10784573
+   "bytes": 10786487
   },
   {
    "id": "farmy-evil-hills",
@@ -99,7 +99,7 @@
    "ageNote": "Frequent and intense horror themes: body horror, dread, jump scares and sustained tension. This is the game the pack is rated for.",
    "order": 2,
    "addedAt": "2026-08-31",
-   "bytes": 7793019
+   "bytes": 7794933
   },
   {
    "id": "farmykart",
@@ -131,7 +131,7 @@
    "ageNote": null,
    "order": 3,
    "addedAt": "2026-08-28",
-   "bytes": 6517755
+   "bytes": 6519669
   },
   {
    "id": "farmy-tiles",
@@ -163,7 +163,7 @@
    "ageNote": null,
    "order": 4,
    "addedAt": "2026-09-21",
-   "bytes": 107626
+   "bytes": 109558
   },
   {
    "id": "farmy-crosswords",
@@ -195,7 +195,7 @@
    "ageNote": null,
    "order": 5,
    "addedAt": "2026-09-04",
-   "bytes": 225550
+   "bytes": 227482
   },
   {
    "id": "farmy-chess",
@@ -227,7 +227,7 @@
    "ageNote": null,
    "order": 6,
    "addedAt": "2026-09-06",
-   "bytes": 100333
+   "bytes": 102265
   },
   {
    "id": "farmy-checkers",
@@ -259,7 +259,7 @@
    "ageNote": null,
    "order": 7,
    "addedAt": "2026-09-06",
-   "bytes": 110043
+   "bytes": 111975
   },
   {
    "id": "farmy-ludo",
@@ -290,7 +290,7 @@
    "ageNote": null,
    "order": 8,
    "addedAt": "2026-09-06",
-   "bytes": 96073
+   "bytes": 98005
   },
   {
    "id": "minesweeper",
@@ -322,7 +322,7 @@
    "ageNote": null,
    "order": 9,
    "addedAt": "2026-10-15",
-   "bytes": 5028729
+   "bytes": 5030661
   },
   {
    "id": "gomoku",
@@ -354,7 +354,7 @@
    "ageNote": null,
    "order": 10,
    "addedAt": "2026-10-15",
-   "bytes": 5951516
+   "bytes": 5953448
   },
   {
    "id": "word-chain",
@@ -386,7 +386,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 6535994
+   "bytes": 6537926
   },
   {
    "id": "truco",
@@ -418,7 +418,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-10-15",
-   "bytes": 12284225
+   "bytes": 12286157
   },
   {
    "id": "buraco",
@@ -450,7 +450,7 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-10-15",
-   "bytes": 5549319
+   "bytes": 5551251
   },
   {
    "id": "conga",
@@ -482,7 +482,7 @@
    "ageNote": null,
    "order": 14,
    "addedAt": "2026-10-22",
-   "bytes": 8538183
+   "bytes": 8540115
   },
   {
    "id": "koikoi",
@@ -514,7 +514,7 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-10-28",
-   "bytes": 1290120
+   "bytes": 1292052
   },
   {
    "id": "shogi",
@@ -546,7 +546,7 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-10-29",
-   "bytes": 1279459
+   "bytes": 1281391
   },
   {
    "id": "xiangqi",
@@ -578,7 +578,7 @@
    "ageNote": null,
    "order": 17,
    "addedAt": "2026-10-29",
-   "bytes": 1153418
+   "bytes": 1155350
   },
   {
    "id": "go",
@@ -610,7 +610,7 @@
    "ageNote": null,
    "order": 18,
    "addedAt": "2026-10-30",
-   "bytes": 1025634
+   "bytes": 1027566
   },
   {
    "id": "farmy-moon-life",
@@ -642,7 +642,7 @@
    "ageNote": null,
    "order": 21,
    "addedAt": "2026-09-14",
-   "bytes": 779074
+   "bytes": 780975
   },
   {
    "id": "silk-and-seam",
@@ -673,7 +673,7 @@
    "ageNote": null,
    "order": 22,
    "addedAt": "2026-09-25",
-   "bytes": 12520171
+   "bytes": 12522068
   },
   {
    "id": "dachis",
@@ -705,7 +705,7 @@
    "ageNote": null,
    "order": 23,
    "addedAt": "2026-09-30",
-   "bytes": 77961681
+   "bytes": 77963578
   },
   {
    "id": "space-95",
@@ -737,7 +737,7 @@
    "ageNote": null,
    "order": 24,
    "addedAt": "2026-10-23",
-   "bytes": 336662814
+   "bytes": 336664726
   },
   {
    "id": "magic-mirror-moves",
@@ -769,7 +769,7 @@
    "ageNote": null,
    "order": 25,
    "addedAt": "2026-10-28",
-   "bytes": 95780571
+   "bytes": 95782503
   },
   {
    "id": "rex-rampage",
@@ -801,7 +801,7 @@
    "ageNote": null,
    "order": 26,
    "addedAt": "2026-11-02",
-   "bytes": 63056041
+   "bytes": 63057955
   },
   {
    "id": "lamplighters",
@@ -833,7 +833,7 @@
    "ageNote": null,
    "order": 27,
    "addedAt": "2026-11-02",
-   "bytes": 381404
+   "bytes": 383336
   },
   {
    "id": "fossick",
@@ -865,7 +865,7 @@
    "ageNote": null,
    "order": 28,
    "addedAt": "2026-11-04",
-   "bytes": 2203720
+   "bytes": 2205652
   },
   {
    "id": "clashwell",
@@ -897,7 +897,7 @@
    "ageNote": null,
    "order": 29,
    "addedAt": "2026-11-06",
-   "bytes": 3584375
+   "bytes": 3586307
   },
   {
    "id": "abc-jam",
@@ -929,7 +929,7 @@
    "ageNote": null,
    "order": 30,
    "addedAt": "2026-11-10",
-   "bytes": 20247580
+   "bytes": 20249512
   },
   {
    "id": "flipwake",
@@ -961,7 +961,7 @@
    "ageNote": null,
    "order": 31,
    "addedAt": "2026-11-17",
-   "bytes": 5328490
+   "bytes": 5335132
   },
   {
    "id": "farmy-five",
@@ -993,7 +993,7 @@
    "ageNote": null,
    "order": 33,
    "addedAt": "2026-09-21",
-   "bytes": 225550
+   "bytes": 227482
   },
   {
    "id": "farmy-hive",
@@ -1025,7 +1025,7 @@
    "ageNote": null,
    "order": 34,
    "addedAt": "2026-09-21",
-   "bytes": 225550
+   "bytes": 227482
   },
   {
    "id": "farmy-herds",
@@ -1057,7 +1057,7 @@
    "ageNote": null,
    "order": 35,
    "addedAt": "2026-09-21",
-   "bytes": 225550
+   "bytes": 227482
   },
   {
    "id": "farmy-furrows",
@@ -1089,7 +1089,7 @@
    "ageNote": null,
    "order": 36,
    "addedAt": "2026-09-21",
-   "bytes": 225550
+   "bytes": 227482
   }
  ]
 }

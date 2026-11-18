@@ -171,6 +171,60 @@ export function createFxCore(seed = 7) {
     add(pts, { x, z, life: 0.28, s0: 40 + 6 * k, s1: 150 + 10 * k, c0: HOT, c1: c, a: 0.6, drag: 0 });
   }
 
+  
+
+
+
+
+
+
+
+  function bomb(x, z, pol) {
+    const c = polColour(pol), o = polColour(pol ? 0 : 1);
+    add(pts, { x, z, life: 0.35, s0: 120, s1: 900, c0: HOT, c1: c, a: 0.75, drag: 0 });
+    add(pts, { x, z, life: 0.6, s0: 60, s1: 420, c0: c, c1: deep(c), a: 0.6, drag: 0 });
+    const nRing = 180, vRing = 1900;
+    for (let i = 0; i < nRing; i++) {
+      const a = (i / nRing) * Math.PI * 2;
+      add(pts, { x: x + Math.cos(a) * 20, z: z + Math.sin(a) * 20, vx: Math.cos(a) * vRing, vz: Math.sin(a) * vRing,
+        life: 0.9, drag: 1.5, s0: 14, s1: 6, c0: HOT, c1: c, a: 0.85, ring: 1 });
+    }
+    const nRay = 96;
+    for (let i = 0; i < nRay; i++) {
+      const a = (i / nRay) * Math.PI * 2 + rnd() * 0.04, v = 900 + rnd() * 300;
+      add(str, { x, z, vx: Math.cos(a) * v, vz: Math.sin(a) * v, life: 0.5 + rnd() * 0.2, drag: 2.5,
+        s0: 3.2, s1: 0.8, c0: HOT, c1: o, len: 0.06 });
+    }
+    for (let i = 0; i < 90; i++) {
+      const a = ang(), v = 80 + rnd() * 320;
+      add(pts, { x, z, vx: Math.cos(a) * v, vz: Math.sin(a) * v, life: 0.6 + rnd() * 0.6, drag: 2,
+        s0: 6 + rnd() * 10, s1: 1, c0: rnd() < 0.5 ? HOT : c, c1: rnd() < 0.5 ? c : o, a: 0.9 });
+    }
+    shake.amp = Math.max(shake.amp, 12);
+    shake.t = 0.6;
+  }
+
+  
+  function cancel(x, z, pol) {
+    const c = polColour(pol);
+    add(pts, { x, z, life: 0.16, s0: 16, s1: 4, c0: HOT, c1: c, a: 0.9, drag: 0 });
+    add(pts, { x, z, vx: (rnd() - 0.5) * 60, vz: -240 - rnd() * 120, life: 0.55 + rnd() * 0.25, drag: 0.6,
+      s0: 7, s1: 2, c0: HOT, c1: c, a: 0.95 });
+  }
+
+  
+
+
+
+
+  function hull(x, z, size, pol) {
+    add(pts, { x, z, life: 0.07, s0: size * 1.25, s1: size * 0.9, c0: HOT, c1: polColour(pol), a: 0.55, drag: 0 });
+  }
+
+  
+  const hold = { t: 0 };
+  function hitstop(sec) { hold.t = Math.max(hold.t, sec); }
+
   function stepPool(p, dt) {
     let w = 0;
     for (let i = 0; i < p.n; i++) {
@@ -189,7 +243,10 @@ export function createFxCore(seed = 7) {
     p.n = w;
   }
 
-  function step(dt) {
+  function step(dtReal) {
+    const shakeDt = dtReal;
+    let dt = dtReal;
+    if (hold.t > 0) { hold.t = Math.max(0, hold.t - dtReal); dt = dtReal * 0.06; } 
     stepPool(pts, dt);
     stepPool(str, dt);
     for (let i = 0; i < shed.length; i += 5) {
@@ -198,7 +255,7 @@ export function createFxCore(seed = 7) {
         drag: 2, s0: 5, s1: 9, c0: col, c1: deep(col), a: 0.4, smoke: 1 });
     }
     shed.length = 0;
-    if (shake.t > 0) { shake.t = Math.max(0, shake.t - dt); if (!shake.t) shake.amp = 0; }
+    if (shake.t > 0) { shake.t = Math.max(0, shake.t - shakeDt); if (!shake.t) shake.amp = 0; }
   }
 
   
@@ -217,7 +274,7 @@ export function createFxCore(seed = 7) {
     return [size, p.r[i] + (p.r1[i] - p.r[i]) * ck, p.g[i] + (p.g1[i] - p.g[i]) * ck, p.b[i] + (p.b1[i] - p.b[i]) * ck, a];
   }
 
-  return { pts, str, explode, absorb, flip, wake, hit, chain, step, look, shakeOffset, shake };
+  return { pts, str, explode, absorb, flip, wake, hit, chain, bomb, cancel, hull, hitstop, step, look, shakeOffset, shake };
 }
 
 const KEYS = ['x', 'z', 'vx', 'vz', 'life', 'max', 'drag', 's0', 's1', 'r', 'g', 'b', 'r1', 'g1', 'b1', 'a0', 'len', 'pull', 'tx', 'tz', 'ring', 'trail', 'smoke'];

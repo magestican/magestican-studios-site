@@ -88,22 +88,33 @@ export const PEER_TIMEOUT_MS = 15000;
 
 
 
+
+
 export const JOIN_TIMEOUT_MS = 20000;
 
 export const ICE_CONFIG = Object.freeze({
   iceServers: Object.freeze([
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    
-    { urls: 'turn:eu-0.turn.peerjs.com:3478', username: 'peerjs', credential: 'peerjsp' },
-    { urls: 'turn:us-0.turn.peerjs.com:3478', username: 'peerjs', credential: 'peerjsp' },
+    { urls: 'stun:stun.relay.metered.ca:80' },
     
     
-    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
     
     
-    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    { urls: 'turn:global.relay.metered.ca:80', username: '45c8d791d6a4229a258f2050', credential: 'gjuQjwsJEW7gFA1B' },
+    { urls: 'turn:global.relay.metered.ca:80?transport=tcp', username: '45c8d791d6a4229a258f2050', credential: 'gjuQjwsJEW7gFA1B' },
+    { urls: 'turn:global.relay.metered.ca:443', username: '45c8d791d6a4229a258f2050', credential: 'gjuQjwsJEW7gFA1B' },
+    
+    { urls: 'turns:global.relay.metered.ca:443?transport=tcp', username: '45c8d791d6a4229a258f2050', credential: 'gjuQjwsJEW7gFA1B' },
   ]),
 });
 

@@ -1,13 +1,38 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <style data-immersive-shell>
+  html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  canvas { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, textarea, select, [contenteditable=""], [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  </style>
+  <script data-immersive-shell>
+  (function () {
+    var stop = function (e) { e.preventDefault(); };
+    // iOS pinch: Safari ignores user-scalable=no, so cancel its gesture events.
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('gestureend', stop, { passive: false });
+    // Two fingers moving = a pinch; cancelling the default stops the zoom, the game still gets the touches.
+    document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+    // Ctrl + wheel / trackpad pinch on a desktop browser.
+    window.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    var editable = function (t) {
+      return !!(t && t.closest && t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]'));
+    };
+    document.addEventListener('selectstart', function (e) { if (!editable(e.target)) e.preventDefault(); });
+    document.addEventListener('dblclick', function (e) { if (!editable(e.target)) e.preventDefault(); }, { passive: false });
+    document.addEventListener('contextmenu', function (e) { if (e.target && e.target.tagName === 'CANVAS') e.preventDefault(); });
+  })();
+  </script>
   <meta name="robots" content="noindex">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Play Jumpwise - big clear draughts, no clock, play with a friend</title>
   <meta name="description" content="Jumpwise is free English draughts in your browser: twelve sheep against twelve cows, compulsory takes, multiple jumps and crowned kings. Big pieces, high contrast, no timer, no account, a computer opponent that plays at your level, and a room you can share so two people play one board.">
   <meta name="keywords" content="jumpwise, free checkers browser, english draughts online, play draughts with friends link, large print board games, accessible checkers no download">
-  <meta name="build" content="1f38cb0b-20261118T063946Z">
+  <meta name="build" content="7b3af341-20261118T082550Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/farmy-checkers/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Jumpwise - big clear draughts, no clock">
@@ -25,7 +50,7 @@
 
 
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
-  <link rel="stylesheet" href="./src/style.css?v=1f38cb0b-20261118T063946Z">
+  <link rel="stylesheet" href="./src/style.css?v=7b3af341-20261118T082550Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -130,9 +155,9 @@
 
 
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=1f38cb0b-20261118T063946Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=7b3af341-20261118T082550Z"></script>
 
-  <script type="module" src="./src/main.js?v=1f38cb0b-20261118T063946Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=1f38cb0b-20261118T063946Z"></script>
+  <script type="module" src="./src/main.js?v=7b3af341-20261118T082550Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=7b3af341-20261118T082550Z"></script>
 </body>
 </html>

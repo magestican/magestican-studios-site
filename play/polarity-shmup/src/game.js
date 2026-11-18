@@ -22,7 +22,7 @@ import { SFX_TAKES, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, fo
 import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, step, teamScore } from './sim/sim.js';
 import { FP } from './sim/fixed.js';
 import { MOVE_MAX, pack } from './sim/input.js';
-import { OTHER_ONLY, SCROLL } from './sim/stage.js';
+import { ENEMY_R, OTHER_ONLY, SCROLL } from './sim/stage.js';
 import {
   BOSS_NAMES, CROWN, CROWN_SWITCH, STAGES, TWIN, TWIN_SPLIT, bossShowsIris, stageCue, twinPol,
 } from './sim/stages.js';
@@ -351,12 +351,17 @@ function put(mesh, x, z, ang) {
   mesh.setMatrixAt(mesh.count++, _m);
 }
 
+
+
+const shownBullets = { n: 0, x: new Float32Array(2048), z: new Float32Array(2048), pol: new Uint8Array(2048) };
 function drawBullets(s) {
   for (const m of [...sets.enemy.flat(), ...sets.shot, ...sets.burst]) m.count = 0;
   fx.glowBegin();
+  shownBullets.n = Math.min(s.nb, 2048);
   for (let i = 0; i < s.nb; i++) {
     
     const bx = wx(s.bx[i]), bz = wz(s.by[i]);
+    if (i < 2048) { shownBullets.x[i] = bx; shownBullets.z[i] = bz; shownBullets.pol[i] = s.bpol[i]; }
     put(sets.enemy[s.bkind[i]][s.bpol[i]], bx, bz, -Math.atan2(s.bvx[i], s.bvy[i]));
     fx.glowAdd(bx, bz, s.bpol[i], 34);
   }
@@ -467,8 +472,8 @@ let sim = null, mode = 'title', paused = false, gentle = true;
 let net = null;
 const botSeat = params.get('bot') === '1';
 let acc = 0, last = performance.now();
-const seen = { boom: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0 };
-const SEEN0 = { boom: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0 };
+const seen = { boom: 0, bomb: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0 };
+const SEEN0 = { boom: 0, bomb: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0 };
 
 
 
@@ -738,6 +743,9 @@ $('coop-arcade').addEventListener('click', () => net?.room?.start({ gentle: fals
 $('lobby-leave').addEventListener('click', leaveCoop);
 for (const id of ['join', 'watch']) {
   $(`share-${id}`).addEventListener('click', async () => {
+    
+    
+    if (!$(`${id}-link`).value) return;
     const { shareLink } = await import('../../../web-engine/share/shareInvite.js');
     shareLink({ link: $(`${id}-link`).value, gameName: 'Flipwake', code: net?.room?.mesh.myId ?? null,
       button: $(`share-${id}`), field: $(`${id}-link`) });
@@ -764,9 +772,15 @@ function syncEnemies(s) {
     const ex = wx(s.ex[e]), ez = wz(s.ey[e]);
     const was = enemySeen.get(id);
     if (was) {
-      if (s.ehp[e] < was.hp) fx.hit(ex + (Math.random() - 0.5) * 10, ez + 8, myPol);
+      if (s.ehp[e] < was.hp) {
+        
+        fx.hit(ex + (Math.random() - 0.5) * 10, ez + 8, myPol);
+        fx.hull(ex, ez, ENEMY_R[k] * 2, s.ep[e]);
+        was.punch = 1;
+      }
       was.x = ex; was.z = ez; was.hp = s.ehp[e];
-    } else enemySeen.set(id, { x: ex, z: ez, pol: s.ep[e], hp: s.ehp[e] });
+      was.punch = Math.max(0, (was.punch || 0) - 0.25);
+    } else enemySeen.set(id, { x: ex, z: ez, pol: s.ep[e], hp: s.ehp[e], punch: 0 });
     let o = enemyMeshes.get(id);
     if (!o) {
       if (k === 2) o = warden;
@@ -777,6 +791,8 @@ function syncEnemies(s) {
     }
     o.position.x = wx(s.ex[e]);
     o.position.z = wz(s.ey[e]);
+    if (o.userData.base === undefined) o.userData.base = o.scale.x;
+    o.scale.setScalar(o.userData.base * (1 + 0.14 * (enemySeen.get(id)?.punch || 0))); 
     if (s.ef[e] & OTHER_ONLY) { 
       let h = haloMeshes.get(id);
       if (!h) {
@@ -908,9 +924,28 @@ function draw(s, dt) {
     ember.visible = !irisNow;
     iris.visible = irisNow;
   }
+  
+  
+  if (s.nbomb !== seen.bomb) {
+    seen.bomb = s.nbomb;
+    if (s.tick - s.bombT < 30) {
+      const bx = wx(s.bombX), bz = wz(s.bombY), pol = s.bombPol;
+      fx.bomb(bx, bz, pol);
+      flash(bx, bz, 900, pol ? 0xb890ff : 0xffd27a);
+      flash(bx, bz, 420, 0xfff1c0);
+      for (let i = 0, n = Math.min(shownBullets.n, 320); i < n; i++) fx.cancel(shownBullets.x[i], shownBullets.z[i], shownBullets.pol[i]);
+      if (ships[s.bombSeat]) pulseAura(ships[s.bombSeat].aura, 1.2);
+      sfxFor(s, 'boom');
+      if (s.bombSeat === viewSeat(s)) { 
+        const pad = $('bomb');
+        pad.classList.remove('spent'); void pad.offsetWidth; pad.classList.add('spent');
+      }
+    }
+  }
   drawBullets(s);
 
   
+  if (s.nboom - seen.boom > 16) seen.boom = s.nboom - 16;
   for (; seen.boom < s.nboom; seen.boom++) {
     const n = seen.boom % 16, k = s.boomK[n];
     const bx = wx(s.boomX[n]), bz = wz(s.boomY[n]);
@@ -920,6 +955,7 @@ function draw(s, dt) {
     const pol = boss ? (s.boss.phase & 1) : goneColour(bx, bz);
     flash(bx, bz, size, boss ? 0xfff1c0 : pol === 1 ? 0xb890ff : 0xffd27a);
     fx.explode(bx, bz, size, Math.max(0, pol), { boss });
+    fx.hitstop(boss ? 0.14 : size >= 90 ? 0.06 : 0.035); 
     sfxFor(s, boss || k === 2 || k >= 4 ? 'boom' : 'pop');
   }
   if (s.chain !== seen.chain) {

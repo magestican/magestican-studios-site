@@ -1,9 +1,34 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <style data-immersive-shell>
+  html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  canvas { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, textarea, select, [contenteditable=""], [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  </style>
+  <script data-immersive-shell>
+  (function () {
+    var stop = function (e) { e.preventDefault(); };
+    // iOS pinch: Safari ignores user-scalable=no, so cancel its gesture events.
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('gestureend', stop, { passive: false });
+    // Two fingers moving = a pinch; cancelling the default stops the zoom, the game still gets the touches.
+    document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+    // Ctrl + wheel / trackpad pinch on a desktop browser.
+    window.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    var editable = function (t) {
+      return !!(t && t.closest && t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]'));
+    };
+    document.addEventListener('selectstart', function (e) { if (!editable(e.target)) e.preventDefault(); });
+    document.addEventListener('dblclick', function (e) { if (!editable(e.target)) e.preventDefault(); }, { passive: false });
+    document.addEventListener('contextmenu', function (e) { if (e.target && e.target.tagName === 'CANVAS') e.preventDefault(); });
+  })();
+  </script>
   <meta name="robots" content="noindex">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <title>Silk &amp; Seam - Play the Free Sewing &amp; Dressmaking Game</title>
   <meta name="description" content="A cosy seamstress game in your browser: sketch a dress, cut it, sew it on the machine, add lace and pearls, and dress a whole town. Free, no download.">
   <meta name="theme-color" content="#3f4d3d">
@@ -24,7 +49,7 @@
 
 
 
-  <meta name="build" content="1f38cb0b-20261118T063946Z">
+  <meta name="build" content="7b3af341-20261118T082550Z">
   <script>
     (function () {
       var FILES = ['js/art.js', 'js/audio.js', 'js/bolt3d.js', 'js/cloth.js', 'js/cues.js', 'js/data.js', 'js/drape.js', 'js/drape.worker.js', 'js/dress3d.js', 'js/env3d.js', 'js/fabric3d.js', 'js/fabrics.js', 'js/form3d.js', 'js/gfx.js', 'js/gfxrules.js', 'js/logic.js', 'js/main.js', 'js/patterns.js', 'js/post3d.js', 'js/render3d.js', 'js/scene.js', 'js/skin.js', 'js/state.js', 'js/swatch.js', 'js/swatch.worker.js', 'js/swatches.js', 'js/town.js', 'js/town3d.js', 'js/town3dgeo.js', 'js/townfolk.js', 'js/townlife.js', 'js/townmap.js', 'js/ui.js',
@@ -65,7 +90,7 @@
     <div id="screen" class="screen"></div>
   </div>
   <noscript>Silk &amp; Seam needs JavaScript to run.</noscript>
-  <script type="module" src="js/main.js?v=1f38cb0b-20261118T063946Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=1f38cb0b-20261118T063946Z"></script>
+  <script type="module" src="js/main.js?v=7b3af341-20261118T082550Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=7b3af341-20261118T082550Z"></script>
 </body>
 </html>

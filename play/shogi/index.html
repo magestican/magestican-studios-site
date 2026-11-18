@@ -1,13 +1,38 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <style data-immersive-shell>
+  html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  canvas { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, textarea, select, [contenteditable=""], [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  </style>
+  <script data-immersive-shell>
+  (function () {
+    var stop = function (e) { e.preventDefault(); };
+    // iOS pinch: Safari ignores user-scalable=no, so cancel its gesture events.
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('gestureend', stop, { passive: false });
+    // Two fingers moving = a pinch; cancelling the default stops the zoom, the game still gets the touches.
+    document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+    // Ctrl + wheel / trackpad pinch on a desktop browser.
+    window.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    var editable = function (t) {
+      return !!(t && t.closest && t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]'));
+    };
+    document.addEventListener('selectstart', function (e) { if (!editable(e.target)) e.preventDefault(); });
+    document.addEventListener('dblclick', function (e) { if (!editable(e.target)) e.preventDefault(); }, { passive: false });
+    document.addEventListener('contextmenu', function (e) { if (e.target && e.target.tagName === 'CANVAS') e.preventDefault(); });
+  })();
+  </script>
   <meta name="robots" content="noindex">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Play Shogiwise - free shogi online, Japanese chess</title>
   <meta name="description" content="Shogiwise is free shogi in your browser: the 9x9 board, drops, promotion and the kanji pieces, with a move guide for beginners. Play the computer at three levels or a friend in a room.">
   <meta name="keywords" content="shogiwise, shogi, shogi online, japanese chess, 将棋, 将棋 オンライン, 日本將棋, 日本将棋">
-  <meta name="build" content="1f38cb0b-20261118T063946Z">
+  <meta name="build" content="7b3af341-20261118T082550Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/shogi/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Shogiwise - free shogi online, Japanese chess">
@@ -25,8 +50,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=1f38cb0b-20261118T063946Z" data-game="shogi" data-zh="1" data-levels="easy,medium,hard" data-level-key="shogiwise-settings-v1" data-level-default="easy"></script>
-  <link rel="stylesheet" href="./src/style.css?v=1f38cb0b-20261118T063946Z">
+  <script src="../shared/ui/boot.js?v=7b3af341-20261118T082550Z" data-game="shogi" data-zh="1" data-levels="easy,medium,hard" data-level-key="shogiwise-settings-v1" data-level-default="easy"></script>
+  <link rel="stylesheet" href="./src/style.css?v=7b3af341-20261118T082550Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -172,8 +197,8 @@
     <a href="/shogi.html">How to play</a>.</p>
   </noscript>
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=1f38cb0b-20261118T063946Z"></script>
-  <script type="module" src="./src/main.js?v=1f38cb0b-20261118T063946Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=1f38cb0b-20261118T063946Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=7b3af341-20261118T082550Z"></script>
+  <script type="module" src="./src/main.js?v=7b3af341-20261118T082550Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=7b3af341-20261118T082550Z"></script>
 </body>
 </html>

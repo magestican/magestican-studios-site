@@ -1,13 +1,38 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <style data-immersive-shell>
+  html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  canvas { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, textarea, select, [contenteditable=""], [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  </style>
+  <script data-immersive-shell>
+  (function () {
+    var stop = function (e) { e.preventDefault(); };
+    // iOS pinch: Safari ignores user-scalable=no, so cancel its gesture events.
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('gestureend', stop, { passive: false });
+    // Two fingers moving = a pinch; cancelling the default stops the zoom, the game still gets the touches.
+    document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+    // Ctrl + wheel / trackpad pinch on a desktop browser.
+    window.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    var editable = function (t) {
+      return !!(t && t.closest && t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]'));
+    };
+    document.addEventListener('selectstart', function (e) { if (!editable(e.target)) e.preventDefault(); });
+    document.addEventListener('dblclick', function (e) { if (!editable(e.target)) e.preventDefault(); }, { passive: false });
+    document.addEventListener('contextmenu', function (e) { if (e.target && e.target.tagName === 'CANVAS') e.preventDefault(); });
+  })();
+  </script>
   <meta name="robots" content="noindex">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Play Pawnrush - Ludo in your browser, with farm animals</title>
   <meta name="description" content="Pawnrush is free Ludo in your browser: four farm teams, four pieces each, six to come out, capture, exact roll to finish. Big clear pieces, high contrast, every team a shape as well as a colour, no timer and no account. Play on your own against the computer, or share a link and play with somebody else.">
   <meta name="keywords" content="pawnrush, free ludo browser, online ludo with friends no download, accessible board game large pieces, ludo multiplayer link">
-  <meta name="build" content="1f38cb0b-20261118T063946Z">
+  <meta name="build" content="7b3af341-20261118T082550Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/farmy-ludo/">
   <meta property="og:type" content="website">
   
@@ -24,7 +49,7 @@
   <meta name="twitter:title" content="Play Pawnrush - Ludo in your browser, with farm animals">
   <meta name="twitter:description" content="Free Ludo with sheep, geese, pigs and cows. Big clear pieces, no clock, and a room you can share.">
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./src/style.css?v=1f38cb0b-20261118T063946Z">
+  <link rel="stylesheet" href="./src/style.css?v=7b3af341-20261118T082550Z">
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   <script type="application/ld+json">
   {
@@ -130,9 +155,9 @@
 
 
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=1f38cb0b-20261118T063946Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=7b3af341-20261118T082550Z"></script>
 
-  <script type="module" src="./src/main.js?v=1f38cb0b-20261118T063946Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=1f38cb0b-20261118T063946Z"></script>
+  <script type="module" src="./src/main.js?v=7b3af341-20261118T082550Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=7b3af341-20261118T082550Z"></script>
 </body>
 </html>

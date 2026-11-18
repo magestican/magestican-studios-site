@@ -38,7 +38,6 @@ const BULLET_R = [4 * FP, 6 * FP, 3 * FP, 5 * FP];
 const SHOT_EVERY = 5;
 const SHOT_SPEED = 14 * FP;
 const INVULN = 120, GENTLE_SHIELD = 180;
-const BOMB_R = 160 * FP;
 const START_LIVES = 3, START_BOMBS = 2;
 export const BURST_COST = 40;   
 const BURST_SHOTS = 8, BURST_DMG = 4, BURST_TURN = 64, BURST_VMAX = 6 * FP;
@@ -114,6 +113,8 @@ export function createSim({ seed = 1, gentle = true, stage = 0 } = {}) {
     
     nboom: 0, boomX: new Int32Array(BOOM_RING), boomY: new Int32Array(BOOM_RING), boomK: new Uint8Array(BOOM_RING),
     sparks: 0, 
+    
+    nbomb: 0, bombT: 0, bombX: 0, bombY: 0, bombPol: 0, bombSeat: 0, bombCut: 0,
   };
 }
 
@@ -219,6 +220,50 @@ function burstTarget(s, x, y) {
 
 
 
+
+
+
+
+
+
+
+
+
+export const BOMB_DMG = 24, BOMB_CUT_SCORE = 10, BOMB_INV = 90;
+function bomb(s, i, p, t) {
+  p.bombs--;
+  p.inv = Math.max(p.inv, BOMB_INV);
+  const cut = s.nb;
+  s.nb = 0;
+  p.score += BOMB_CUT_SCORE * cut;
+  for (let e = s.ne - 1; e >= 0; e--) {
+    if (s.ey[e] < 0 || s.ey[e] > FIELD_H || s.ex[e] < 0 || s.ex[e] > FIELD_W) continue; 
+    s.ehp[e] -= BOMB_DMG;
+    if (s.ehp[e] <= 0) {
+      p.score += ENEMY_SCORE[s.ek[e]]; p.kills++;
+      boom(s, s.ex[e], s.ey[e], s.ek[e]);
+      removeEnemy(s, e);
+    }
+  }
+  if (bossHittable(s)) {
+    const B = s.boss;
+    const hurt = Math.min(Math.max(1, (B.max / 10) | 0), B.hp - 1);
+    if (hurt > 0) { B.hp -= hurt; p.score += 10 * hurt; bossPhaseCheck(s); }
+  }
+  s.nbomb++; s.bombT = t; s.bombX = p.x; s.bombY = p.y; s.bombPol = p.iris; s.bombCut = cut; s.bombSeat = i;
+}
+
+
+function bossPhaseCheck(s) {
+  const B = s.boss;
+  const ph = bossPhaseOf(B.kind, B.hp, B.max);
+  if (ph !== B.phase) { B.phase = ph; B.fa = 0; B.rest = BOSS_REST; s.nb = 0; }
+}
+
+
+
+
+
 export function step(s, inputs) {
   const t = s.tick;
   const lt = t - s.st0;
@@ -241,11 +286,7 @@ export function step(s, inputs) {
     p.y = clampY(p.y + muldiv(k.y, sp, MOVE_MAX));
     p.iris = k.iris ? 1 : 0;
     if (p.inv > 0) p.inv--;
-    if (k.bomb && !p.bombHeld && p.bombs > 0 && !ended) {
-      p.bombs--;
-      p.inv = Math.max(p.inv, 60);
-      for (let b = s.nb - 1; b >= 0; b--) if (d2px(s.bx[b], s.by[b], p.x, p.y) < (BOMB_R >> 8) ** 2) removeBullet(s, b);
-    }
+    if (k.bomb && !p.bombHeld && p.bombs > 0 && !ended) bomb(s, i, p, t);
     p.bombHeld = k.bomb ? 1 : 0;
     if (p.energy >= BURST_COST && !ended) {
       
@@ -357,12 +398,7 @@ export function step(s, inputs) {
       if (B.hp <= 0) {
         B.on = 0; B.kills++; B.beaten = 1; s.clear = t; owner.score += bossBonus(s.stage); owner.kills++;
         boom(s, B.x, B.y, BOOM_BOSS);
-      } else {
-        const ph = bossPhaseOf(B.kind, B.hp, B.max);
-        if (ph !== B.phase) { 
-          B.phase = ph; B.fa = 0; B.rest = BOSS_REST; s.nb = 0;
-        }
-      }
+      } else bossPhaseCheck(s);
       removeShot(s, i);
       continue;
     }
@@ -458,5 +494,6 @@ export function stateHash(s) {
   add(s.ne); add(s.serial);
   for (let i = 0; i < s.ne; i++) for (const k of ENEMY_ARRAYS) add(s[k][i]);
   add(s.nboom);
+  add(s.nbomb); add(s.bombT); add(s.bombX); add(s.bombY); add(s.bombPol); add(s.bombSeat); add(s.bombCut);
   return h >>> 0;
 }
