@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "b5e4d26f-20261117T141359Z",
+ "buildId": "22c53bdf-20261118T025622Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -39,7 +39,7 @@
    "ageNote": "Frequent cartoon shooting between farm animals. No gore and no realistic weapons, but it is a first-person shooter and is rated as one.",
    "order": 0,
    "addedAt": "2026-08-30",
-   "bytes": 11979983
+   "bytes": 11981907
   },
   {
    "id": "farmy-uprising",
@@ -131,7 +131,7 @@
    "ageNote": null,
    "order": 3,
    "addedAt": "2026-08-28",
-   "bytes": 6515377
+   "bytes": 6517755
   },
   {
    "id": "farmy-tiles",
@@ -756,7 +756,7 @@
    "cover": "assets/covers/magic-mirror-moves-16x9.webp",
    "focus": [
     0.5,
-    0.45
+    0.5
    ],
    "shots": [
     "assets/shots/magic-mirror-moves/0.webp",
@@ -851,8 +851,8 @@
    "offline": false,
    "cover": "assets/covers/fossick-16x9.webp",
    "focus": [
-    0.54,
-    0.53
+    0.5,
+    0.5
    ],
    "shots": [
     "assets/shots/fossick/0.webp",
@@ -883,7 +883,7 @@
    "offline": false,
    "cover": "assets/covers/clashwell-16x9.webp",
    "focus": [
-    0.49,
+    0.5,
     0.5
    ],
    "shots": [
@@ -915,8 +915,8 @@
    "offline": false,
    "cover": "assets/covers/abc-jam-16x9.webp",
    "focus": [
-    0.56,
-    0.55
+    0.5,
+    0.5
    ],
    "shots": [
     "assets/shots/abc-jam/0.webp",
@@ -961,7 +961,7 @@
    "ageNote": null,
    "order": 31,
    "addedAt": "2026-11-17",
-   "bytes": 5292043
+   "bytes": 5328083
   },
   {
    "id": "farmy-five",

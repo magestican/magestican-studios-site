@@ -161,6 +161,46 @@
       box-shadow: 0 8px 24px rgba(183, 58, 42, 0.28);
     }
     .primary:hover { background: #cf4632; }
+    
+
+
+
+
+
+
+    .primary.start {
+      display: block; width: 100%; max-width: 620px; min-height: 146px;
+      margin: 8px auto 16px; padding: 22px 18px;
+      font-family: "Arial Black", "Segoe UI Black", system-ui, sans-serif;
+      font-weight: 900; font-style: italic; font-size: clamp(44px, 13vw, 64px); line-height: 1;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: #1c1a17; text-shadow: 0 2px 0 rgba(255,255,255,.35);
+      background:
+        repeating-conic-gradient(#1c1a17 0 25%, #f6f1e6 0 50%) top left / 14px 14px repeat-x,
+        repeating-conic-gradient(#1c1a17 0 25%, #f6f1e6 0 50%) bottom left / 14px 14px repeat-x,
+        var(--gold);
+      border: 3px solid #1c1a17; border-radius: 10px;
+      box-shadow: 0 7px 0 #1c1a17, 0 14px 30px rgba(0,0,0,.45);
+    }
+    .primary.start:hover { background-color: #ffd977; }
+    .primary.start:active { transform: translateY(5px); box-shadow: 0 2px 0 #1c1a17; }
+    @media (min-width: 900px) { .primary.start { min-height: 160px; } }
+
+    
+
+
+
+    .see-options-body { display: block; }
+    .see-options:not([open]) > .see-options-body { display: none; }
+    .see-options > summary {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 52px; width: 100%; max-width: 360px; margin: 0 auto 8px; padding: 0 22px;
+      cursor: pointer; user-select: none; list-style: none;
+      font-weight: 800; font-size: 18px; letter-spacing: .06em; text-transform: uppercase;
+      color: #f6f1e6; background: rgba(28,26,23,.88); border: 3px solid var(--gold); border-radius: 10px;
+    }
+    .see-options > summary::-webkit-details-marker { display: none; }
+    .see-options[open] > summary { background: #2b2721; }
     .chip {
       font: inherit; font-size: 14px; background: #262320; color: #c9c0ae;
       border: 1px solid #3a352e; border-radius: 999px; padding: 8px 15px;
@@ -1421,7 +1461,32 @@
       <button id="login-chip" class="chip" type="button" hidden>Log in</button>
       <p class="sub">Farm animals, karts, and a great deal of dirt. Drift to charge a turbo, throw a cowpat at whoever is winning.</p>
 
-      <button id="start-btn" class="primary">Race</button>
+      <p id="join-note" class="join-note"></p>
+
+      
+      <div id="driver-air" aria-hidden="true"></div>
+      
+
+
+
+
+
+      <div id="char-stage">
+        <canvas id="char-canvas"></canvas>
+      </div>
+
+      
+
+
+
+
+
+
+      <button id="start-btn" class="primary start" type="button">Start</button>
+
+      <details id="see-options" class="see-options">
+      <summary>See options</summary>
+      <div class="see-options-body">
       <button id="host-btn" class="primary alt">Race with friends</button>
       
 
@@ -1430,21 +1495,9 @@
 
 
       
-      <p id="join-note" class="join-note"></p>
-
-      
-      <div id="driver-air" aria-hidden="true"></div>
-      
 
       <p class="join-note">Opens a room and gives you a link to send. They open it and they are on the grid &mdash; no signup, no download, and bots fill the empty seats.</p>
       <h2>Driver</h2>
-      
-
-
-
-      <div id="char-stage">
-        <canvas id="char-canvas"></canvas>
-      </div>
       
 
 
@@ -1458,15 +1511,6 @@
 
 
 
-      <section id="goal" aria-labelledby="goal-head">
-        <h2 id="goal-head">Next goal</h2>
-        <p id="goal-line"></p>
-        <div id="goal-meter" role="progressbar" aria-labelledby="goal-head" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="goal-bar"></span></div>
-        <p id="goal-foot"><span id="goal-count"></span>
-          <button id="goal-toggle" class="chip" type="button" aria-controls="goal-prizes" aria-expanded="false">See prizes</button></p>
-        <ul id="goal-prizes" hidden></ul>
-        <ul id="goal-tips" class="fk-tips" hidden></ul>
-      </section>
 
       <h2>Circuit</h2>
       
@@ -1565,6 +1609,23 @@
         <b>On the grid</b> &mdash; start accelerating on the last beat of the countdown for a
         launch turbo. Too early and you bog down. The ring round the item slot shows the charge.
       </p>
+      </div>
+      </details>
+
+      
+
+
+
+
+      <section id="goal" aria-labelledby="goal-head">
+        <h2 id="goal-head">Next goal</h2>
+        <p id="goal-line"></p>
+        <div id="goal-meter" role="progressbar" aria-labelledby="goal-head" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="goal-bar"></span></div>
+        <p id="goal-foot"><span id="goal-count"></span>
+          <button id="goal-toggle" class="chip" type="button" aria-controls="goal-prizes" aria-expanded="false">See prizes</button></p>
+        <ul id="goal-prizes" hidden></ul>
+        <ul id="goal-tips" class="fk-tips" hidden></ul>
+      </section>
 
       <div class="footer">
         <button id="mute-btn" style="pointer-events:auto">Sound on</button>
@@ -1925,7 +1986,7 @@
 
 
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=b5e4d26f-20261117T141359Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=22c53bdf-20261118T025622Z"></script>
 
   <script type="importmap">
   {
@@ -1988,7 +2049,7 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=b5e4d26f-20261117T141359Z"></script>
+  <script type="module" src="./src/main.js?v=22c53bdf-20261118T025622Z"></script>
 
   
 
@@ -2003,6 +2064,6 @@
       contentFrom: "#fk-controls-body",
     });
   </script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=b5e4d26f-20261117T141359Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=22c53bdf-20261118T025622Z"></script>
 </body>
 </html>

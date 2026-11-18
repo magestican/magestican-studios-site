@@ -1164,6 +1164,20 @@ pre.five-results { min-height: 2em; }
   text-decoration: underline; text-underline-offset: 2px; white-space: nowrap;
 }
 .mg-network__dot { opacity: .6; }
+
+
+.mg-directory__group, main section.mg-directory__group:last-child { margin: 32px 0; }
+.mg-directory__group h2 { font-size: 24px; margin: 0 0 12px; }
+ul.mg-directory { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.mg-directory li {
+  margin: 0; padding: 4px 16px 14px;
+  border: 1px solid var(--ink-faint); border-radius: 10px;
+}
+.mg-directory li > a {
+  display: flex; align-items: center; min-height: 48px;
+  font-weight: 700; text-decoration: underline; text-underline-offset: 3px;
+}
+.mg-directory__tagline { display: block; color: var(--ink-soft); font-size: 18px; line-height: 1.45; }
 .footer-mark {
   display: inline-flex; align-items: center; justify-content: center;
   width: 34px; height: 34px; border-radius: 7px;

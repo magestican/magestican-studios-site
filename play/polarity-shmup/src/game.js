@@ -29,6 +29,7 @@ import {
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
 import { createFx, makeAura, pulseAura, stepAura } from './fx.js';
+import { ATTRACT_TICKS, attractInputs, createAttract } from './attract.js';
 import { HIGH_SPAN, PARALLAX, highLayout, propLayout, propSpan, runwayLights } from './scenery.js';
 
 const $ = (id) => document.getElementById(id);
@@ -39,6 +40,9 @@ const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), Object.key
 const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES);
 const music = createTrackMusic({ game: 'polarity-shmup', manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS });
 const p1Flip = createFlipWatch();
+
+
+const sfxFor = (s, cue) => { if (s !== attract) sfx.play(cue); };
 const soundBtn = $('sound');
 function drawSound() {
   const on = uiSoundOn();
@@ -478,7 +482,10 @@ function unlock(n) {
 function drawContinue() {
   const n = unlocked();
   $('continue').hidden = n === 0;
-  $('continue').textContent = `Continue: stage ${n + 1}, ${STAGES[n].name}`;
+  const b = document.createElement('b'), small = document.createElement('small');
+  b.textContent = 'Continue';
+  small.textContent = `Stage ${n + 1}, ${STAGES[n].name}`;
+  $('continue').replaceChildren(b, small);
 }
 drawContinue();
 
@@ -490,7 +497,7 @@ function start(isGentle, stage = 0) {
   Object.assign(seen, SEEN0, { stage });
   mode = 'play';
   setPaused(false);
-  $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true;
+  $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true; $('field').dataset.screen = 'play';
   $('lives').hidden = gentle;
   ui.play('open');
   followSound(music, uiSoundOn());
@@ -498,6 +505,18 @@ function start(isGentle, stage = 0) {
 $('start').addEventListener('click', () => start(true));
 $('arcade').addEventListener('click', () => start(false));
 $('continue').addEventListener('click', () => start(true, unlocked()));
+
+
+for (const el of document.querySelectorAll('#title .plate')) {
+  const on = () => {
+    if (el.hasAttribute('data-flipped')) return;
+    el.setAttribute('data-flipped', '');
+    ui.play(el.dataset.pol === 'iris' ? 'toggleOff' : 'toggleOn');
+  };
+  const off = () => el.removeAttribute('data-flipped');
+  for (const ev of ['pointerenter', 'pointerdown', 'focus']) el.addEventListener(ev, on);
+  for (const ev of ['pointerleave', 'pointercancel', 'blur']) el.addEventListener(ev, off);
+}
 $('again').addEventListener('click', () => (net ? leaveCoop() : start(gentle)));
 
 function setPaused(p) {
@@ -698,7 +717,7 @@ function beginCoopRun(isGentle) {
   flipLevel = 0; drag.dx = drag.dy = 0;
   Object.assign(seen, SEEN0);
   mode = 'play';
-  $('lobby').hidden = true; $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true;
+  $('lobby').hidden = true; $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true; $('field').dataset.screen = 'play';
   $('lives').hidden = gentle || net.room.seat === null;
   for (const id of ['flip', 'bomb']) $(id).hidden = net.room.seat === null;
   if (net.room.seat === null) toast('Watching. Ships are named by seat.', 5000);
@@ -861,7 +880,7 @@ function draw(s, dt) {
   drawNames(s, me);
   const x = wx(p.x), z = wz(p.y);
   const cue = p1Flip(p.iris ? 'iris' : 'ember');
-  if (cue) sfx.play(cue);
+  if (cue) sfxFor(s, cue);
 
   syncEnemies(s);
   for (let k = 0; k < bosses.length; k++) {
@@ -901,7 +920,7 @@ function draw(s, dt) {
     const pol = boss ? (s.boss.phase & 1) : goneColour(bx, bz);
     flash(bx, bz, size, boss ? 0xfff1c0 : pol === 1 ? 0xb890ff : 0xffd27a);
     fx.explode(bx, bz, size, Math.max(0, pol), { boss });
-    sfx.play(boss || k === 2 || k >= 4 ? 'boom' : 'pop');
+    sfxFor(s, boss || k === 2 || k >= 4 ? 'boom' : 'pop');
   }
   if (s.chain !== seen.chain) {
     if (s.chain > seen.chain) {
@@ -917,14 +936,14 @@ function draw(s, dt) {
       fx.absorb(x + Math.cos(t) * 30, z + Math.sin(t) * 30, x, z, p.iris);
     }
     pulseAura(ships[me].aura, 0.25);
-    sfx.play('absorb'); seen.absorbed = p.absorbed;
+    sfxFor(s, 'absorb'); seen.absorbed = p.absorbed;
   }
   if (p.bursts > seen.bursts) {
-    sfx.play('release'); seen.bursts = p.bursts; flash(x, z, 60, p.iris ? 0xa878ff : 0xffc440);
+    sfxFor(s, 'release'); seen.bursts = p.bursts; flash(x, z, 60, p.iris ? 0xa878ff : 0xffc440);
     fx.flip(x, z, p.iris); pulseAura(ships[me].aura, 1.2);
   }
-  if (p.hits > seen.hits) { sfx.play('hurt'); seen.hits = p.hits; }
-  if (s.tick - seen.shotTick >= 15 && mode === 'play' && !s.clear) { sfx.play('shot'); seen.shotTick = s.tick; }
+  if (p.hits > seen.hits) { sfxFor(s, 'hurt'); seen.hits = p.hits; }
+  if (s.tick - seen.shotTick >= 15 && mode === 'play' && !s.clear) { sfxFor(s, 'shot'); seen.shotTick = s.tick; }
 
   
   hud.score.textContent = (coop ? teamScore(s) : p.score).toLocaleString();
@@ -964,6 +983,16 @@ window.addEventListener('resize', layout);
 
 const idle = createSim({ seed: 1 });
 const DT = 1 / TICK_HZ;
+
+
+let attract = createAttract(1), attractAcc = 0;
+function stepAttract(dt) {
+  attractAcc += dt;
+  let n = 0;
+  while (attractAcc >= DT && n < 5) { step(attract, attractInputs(attract)); attractAcc -= DT; n++; }
+  if (n === 5) attractAcc = 0;
+  if (attract.tick >= ATTRACT_TICKS) { attract = createAttract(1); Object.assign(seen, SEEN0); }
+}
 let fpsFrames = 0, fpsAt = performance.now();
 function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
@@ -980,7 +1009,7 @@ function frame(now) {
       else if (mode === 'play' && ((s.clear && s.tick - s.clear > 150) || (s.over && s.tick - s.over > 90))) showTally(s);
       draw(s, dt);
     } else { step(idle, [0, 0, 0, 0]); draw(idle, dt); }
-  } else if (mode === 'title') { step(idle, [0, 0, 0, 0]); draw(idle, dt); }
+  } else if (mode === 'title') { stepAttract(dt); draw(attract, dt); }
   else if (sim) {
     if (!paused && mode === 'play') {
       acc += dt;

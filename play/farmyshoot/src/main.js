@@ -702,6 +702,10 @@ const url = new URL(location.href);
 const joinFromUrl = url.searchParams.get('join');
 if (joinFromUrl) {
   $('joinIdInput').value = joinFromUrl;
+  
+  
+  
+  $('see-options').open = true;
 }
 
 

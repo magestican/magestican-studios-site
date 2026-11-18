@@ -72,7 +72,7 @@
     #menu { position: fixed; inset: 0; z-index: 10;
       background: radial-gradient(circle at 50% 40%, #16202c 0%, #0a0d12 100%);
       display: flex; align-items: flex-start; justify-content: center;
-      padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+      padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
       overflow-y: auto; -webkit-overflow-scrolling: touch;
     }
     .menu-card { background: rgba(24,30,42,0.9); border: 1px solid #2b3648; border-radius: 12px;
@@ -127,7 +127,7 @@
     .lobby-head h1 .accent { color: #f4c95d; }
     .lobby-head .sub { color: #9aa5b8; font-size: 15px; margin: 0 auto 16px;
       max-width: 62ch; }
-    .lobby-head .quickplay { width: 100%; max-width: 560px; margin-inline: auto; }
+    .lobby-head .quickplay { width: 100%; max-width: 620px; margin-inline: auto; }
     
     .lobby-head .mg-level-chip { margin-top: 10px; }
     
@@ -320,16 +320,46 @@
     button.primary:hover { background: #5a8ce8; }
     
 
+
+
+
+
+
     button.quickplay {
-      display: block; width: 100%; margin: 4px 0 18px;
-      padding: 14px 18px; font-size: 19px; line-height: 1.25;
-      background: #f4c95d; color: #1c1a17; border-color: #ffe08a;
+      display: block; width: 100%; min-height: 146px; margin: 6px 0 18px;
+      padding: 12px 18px;
+      font-family: "Arial Black", "Segoe UI Black", system-ui, sans-serif;
+      font-weight: 900; font-size: clamp(44px, 13vw, 64px); line-height: 1;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: #fff8e6; text-shadow: 0 3px 0 #5a1610;
+      background:
+        linear-gradient(to top right, transparent calc(50% - 5px), rgba(255,248,230,.16) calc(50% - 5px),
+          rgba(255,248,230,.16) calc(50% + 5px), transparent calc(50% + 5px)),
+        linear-gradient(to bottom right, transparent calc(50% - 5px), rgba(255,248,230,.16) calc(50% - 5px),
+          rgba(255,248,230,.16) calc(50% + 5px), transparent calc(50% + 5px)),
+        #b73a2a;
+      border: 6px solid #f3e6c4; border-radius: 14px;
+      box-shadow: 0 8px 0 #5a1610, 0 14px 30px rgba(0,0,0,.45);
     }
-    button.quickplay:hover { background: #ffd977; }
-    .qp-sub {
-      display: block; margin-top: 3px;
-      font: 600 12px/1.3 inherit; letter-spacing: .01em; opacity: .72;
+    button.quickplay:hover { background-color: #c8452f; }
+    button.quickplay:active { transform: translateY(6px); box-shadow: 0 2px 0 #5a1610; }
+    @media (min-width: 900px) { button.quickplay { min-height: 160px; } }
+
+    
+
+
+
+    .see-options { width: 100%; }
+    .see-options:not([open]) > .lobby-grid { display: none; }
+    .see-options > summary {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 52px; max-width: 360px; margin: 0 auto 16px; padding: 0 22px;
+      cursor: pointer; user-select: none; list-style: none;
+      font-weight: 800; font-size: 18px; letter-spacing: .06em; text-transform: uppercase;
+      color: #f3e6c4; background: #2a1a14; border: 3px solid #8a3a2a; border-radius: 12px;
     }
+    .see-options > summary::-webkit-details-marker { display: none; }
+    .see-options[open] > summary { background: #3a2118; }
     button.team-red   { background: #b73a2a; border-color: #d0503e; }
     button.team-blue  { background: #336bbf; border-color: #4f8adb; }
     
@@ -1472,10 +1502,13 @@
       <header class="lobby-head">
         <h1>Splat<span class="accent">barn</span></h1>
         <p class="sub">A P2P browser FPS with ice-drift movement and farm-animal soldiers. First team to 5 flags wins &mdash; unless the losing team can solve an anagram in 10 seconds.</p>
-        <button class="primary quickplay" id="quickPlayBtn">
-          &#9654; Play now
-          <span class="qp-sub">random map, mode and animal &middot; a full 16-player match</span>
-        </button>
+        
+
+
+
+
+
+        <button class="primary quickplay" id="quickPlayBtn" type="button">Start</button>
         <section id="goal" aria-labelledby="goal-head" hidden>
           <h2 id="goal-head">Next goal</h2>
           <p id="goal-line"></p>
@@ -1487,6 +1520,11 @@
         </section>
       </header>
 
+      
+
+
+      <details id="see-options" class="see-options">
+      <summary>See options</summary>
       <div class="lobby-grid">
 
         
@@ -1615,6 +1653,7 @@
         </section>
 
       </div>
+      </details>
     </div>
   </div>
 
@@ -1856,8 +1895,8 @@
   </div>
 
   
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=b5e4d26f-20261117T141359Z"></script>
-  <script type="module" src="./src/main.js?v=b5e4d26f-20261117T141359Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=b5e4d26f-20261117T141359Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=22c53bdf-20261118T025622Z"></script>
+  <script type="module" src="./src/main.js?v=22c53bdf-20261118T025622Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=22c53bdf-20261118T025622Z"></script>
 </body>
 </html>

@@ -91,6 +91,91 @@
     .overlay dt { text-align: left; opacity: 0.8; }
     .overlay dd { margin: 0; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
     
+
+
+    @font-face { font-family: "Flipwake Petch"; src: url(assets/fonts/chakra-petch-latin-700-italic.woff2) format("woff2");
+      font-weight: 700; font-style: italic; font-display: swap; }
+    @font-face { font-family: "Flipwake Petch"; src: url(assets/fonts/chakra-petch-latin-600-normal.woff2) format("woff2");
+      font-weight: 600; font-style: normal; font-display: swap; }
+    :root { --iris-lit: #a878ff; --iris-ink: #c9b2ff; --petch: "Flipwake Petch", system-ui, sans-serif; }
+    #field[data-screen="menu"] .hud .left, #field[data-screen="menu"] .stats > .chip, #field[data-screen="menu"] .pad,
+    #field[data-screen="menu"] #names { display: none; }
+    
+
+    .overlay.title { justify-content: flex-start; gap: 16px; padding: calc(24px * var(--fs)) 16px calc(20px * var(--fs));
+      background: linear-gradient(to bottom, rgba(6, 7, 14, 0.2) 0%, rgba(6, 7, 14, 0) 38%, rgba(6, 7, 14, 0) 56%,
+        rgba(6, 7, 14, 0.78) 74%, rgba(6, 7, 14, 0.9) 100%); }
+    .title .key { position: absolute; left: 0; right: 0; top: 0; height: 46%; pointer-events: none;
+      background: var(--key-art, none) center 30% / cover no-repeat;
+      -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent); mask-image: linear-gradient(to bottom, #000 55%, transparent); }
+    .brand { position: relative; display: flex; flex-direction: column; align-items: center; gap: calc(6px * var(--fs));
+      margin-top: calc(56px * var(--fs)); }
+    .mark { margin: 0; font: 700 italic calc(58px * var(--fs)) / 0.95 var(--petch); letter-spacing: 0.01em; text-transform: uppercase;
+      display: flex; }
+    .mark span { display: inline-block; }
+    .m-flip { color: var(--ember); text-shadow: 0 0 calc(22px * var(--fs)) rgba(255, 196, 64, 0.55), 0 2px 0 #6a3a00; }
+    .m-wake { color: var(--iris-ink); text-shadow: 0 0 calc(22px * var(--fs)) rgba(168, 120, 255, 0.7), 0 2px 0 #2a1060; }
+    .braid { width: calc(230px * var(--fs)); height: calc(18px * var(--fs)); overflow: visible; }
+    .braid path { fill: none; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 26 14; animation: braid 2.4s linear infinite; }
+    .b-ember { stroke: var(--ember); filter: drop-shadow(0 0 4px var(--ember)); }
+    .b-iris { stroke: var(--iris-lit); filter: drop-shadow(0 0 4px var(--iris-lit)); animation-direction: reverse !important; }
+    @keyframes braid { to { stroke-dashoffset: -80; } }
+    .title .tag { font: 600 calc(14px * var(--fs)) var(--petch); letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.92;
+      text-shadow: 0 1px 6px #000; }
+    
+
+    .plates { position: relative; display: flex; flex-direction: column; gap: 12px; width: min(340px, 100%); margin-top: auto; }
+    .plate[hidden] { display: none; }
+    .plate { --c: var(--ember); --c2: var(--iris-lit); position: relative; display: grid; grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto; align-items: center; align-content: center; column-gap: 12px; row-gap: 2px; text-align: left; min-height: calc(60px * var(--fs));
+      padding: calc(10px * var(--fs)) calc(22px * var(--fs)) calc(10px * var(--fs)) calc(26px * var(--fs));
+      border: 0; border-radius: 0; cursor: pointer; color: var(--ink); background:
+        linear-gradient(90deg, var(--c) 0 6px, transparent 6px),
+        linear-gradient(100deg, rgba(20, 22, 34, 0.94), rgba(28, 24, 46, 0.86));
+      clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+      box-shadow: inset 0 0 0 1px rgba(242, 239, 232, 0.08);
+      transition: transform 0.12s ease-out, filter 0.18s; -webkit-tap-highlight-color: transparent; }
+    .plate[data-pol="iris"] { --c: var(--iris-lit); --c2: var(--ember); }
+    .plate b { font: 700 italic calc(19px * var(--fs)) / 1.1 var(--petch); letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--c); transition: color 0.18s; }
+    .plate small { grid-column: 1; font: 600 calc(12px * var(--fs)) / 1.3 var(--petch); letter-spacing: 0.03em; opacity: 0.78; }
+    .plate .glyph { grid-column: 2; grid-row: 1 / 3; display: flex; gap: 5px; }
+    .glyph s { display: block; width: 10px; height: 10px; transform: rotate(45deg); background: var(--c); transition: background 0.18s; }
+    .glyph.wing4 s:nth-child(1) { background: var(--p1); } .glyph.wing4 s:nth-child(2) { background: var(--p2); }
+    .glyph.wing4 s:nth-child(3) { background: var(--p3); } .glyph.wing4 s:nth-child(4) { background: var(--p4); }
+    .plate:is(:hover, :focus-visible, [data-flipped]) { --c: var(--c2); filter: brightness(1.12); }
+    .plate:active { transform: translateX(4px) scale(0.98); }
+    .plate:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
+    
+    .plate.go { min-height: calc(76px * var(--fs)); color: #1a0d02; background:
+        linear-gradient(112deg, var(--ember) 0 50%, var(--iris-lit) 50% 100%) 30% 0 / 160% 100%;
+      transition: background-position 0.35s ease-out, transform 0.12s ease-out; }
+    .plate.go b { color: #1a0d02; font-size: calc(28px * var(--fs)); }
+    .plate.go small { opacity: 0.85; color: #1a0d02; }
+    .plate.go:is(:hover, :focus-visible, [data-flipped]) { background-position: 100% 0; }
+    .plate.go:is(:hover, :focus-visible, [data-flipped]) b, .plate.go:is(:hover, :focus-visible, [data-flipped]) small { color: #12062a; }
+    .title .keys { margin: 0; font: 600 calc(11px * var(--fs)) / 1.6 var(--petch); letter-spacing: 0.04em; opacity: 0.8; max-width: none; }
+    .title kbd { display: inline-block; padding: 1px 6px; margin: 0 2px; border-radius: 4px; border: 1px solid rgba(242, 239, 232, 0.35);
+      border-bottom-width: 2px; font: inherit; }
+    .title .keys.desk { display: none; }
+    @media (pointer: fine) { .title .keys.desk { display: block; } .title .keys.touch { display: none; } }
+    @media (prefers-reduced-motion: reduce) { .braid path { animation: none; } .plate, .plate.go { transition: none; } }
+    
+
+    .overlay h2 { font: 700 italic calc(30px * var(--fs)) / 1.1 var(--petch); letter-spacing: 0.03em; text-transform: uppercase;
+      color: var(--ember); text-shadow: 0 0 calc(16px * var(--fs)) rgba(255, 196, 64, 0.45); }
+    .overlay:not(.title) .tag, .overlay dl, .pilots li { font-family: var(--petch); font-weight: 600; }
+    .overlay:not(.title) > button, .overlay .pair > button, .links button {
+      border-radius: 0; clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); padding: 0 32px;
+      font: 700 italic calc(17px * var(--fs)) var(--petch); letter-spacing: 0.05em; text-transform: uppercase; }
+    .overlay:not(.title) .go { color: #1a0d02; transition: background-position 0.35s ease-out;
+      background: linear-gradient(112deg, var(--ember) 0 50%, var(--iris-lit) 50% 100%) 30% 0 / 160% 100%; }
+    .overlay:not(.title) .go:is(:hover, :focus-visible) { background-position: 100% 0; }
+    .overlay:not(.title) .alt { color: var(--ink);
+      background: linear-gradient(90deg, var(--ember) 0 5px, transparent 5px), linear-gradient(100deg, #161826, #1e1a30); }
+    .overlay:not(.title) .alt:is(:hover, :focus-visible) {
+      background: linear-gradient(90deg, var(--iris-lit) 0 5px, transparent 5px), linear-gradient(100deg, #161826, #1e1a30); }
+    
     
     :root { --p1: #f4f2ea; --p2: #3fd6cf; --p3: #a6e04a; --p4: #ff5f75; }
     .pilots { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; min-width: min(300px, 100%); }
@@ -159,7 +244,7 @@
   </style>
 </head>
 <body>
-  <div id="field">
+  <div id="field" data-screen="menu">
     <div class="hud top">
       <div class="left">
         <div class="chip score" id="score">0</div>
@@ -174,14 +259,30 @@
     </div>
     <button class="pad left" id="bomb" type="button" aria-label="Bomb">Bomb<b id="bombs">2</b></button>
     <button class="pad right" id="flip" type="button" aria-label="Flip colour" data-pol="ember">Flip</button>
-    <section class="overlay" id="title">
-      <h1>Flipwake</h1>
-      <p class="tag">Drink your colour. Flip for the other.</p>
-      <button class="go" id="start" type="button">Start</button>
-      <button class="alt" id="continue" type="button" hidden>Continue</button>
-      <button class="alt" id="arcade" type="button">Arcade: 3 lives</button>
-      <button class="alt" id="friends" type="button">Play with friends</button>
-      <p class="keys">Drag to fly. Second finger or the Flip button switches colour.<br>Desktop: arrows or WASD, Space flips, K bombs, Shift slows.</p>
+    
+
+
+
+    <section class="overlay title" id="title">
+      <div class="key" aria-hidden="true"></div>
+      <header class="brand">
+        <h1 class="mark" aria-label="Flipwake"><span class="m-flip">Flip</span><span class="m-wake">wake</span></h1>
+        <svg class="braid" viewBox="0 0 240 24" aria-hidden="true" preserveAspectRatio="none">
+          <path class="b-ember" d="M0 12 C 30 0, 50 0, 80 12 S 130 24, 160 12 S 210 0, 240 12"/>
+          <path class="b-iris" d="M0 12 C 30 24, 50 24, 80 12 S 130 0, 160 12 S 210 24, 240 12"/>
+        </svg>
+        <p class="tag">Drink your colour. Flip for the other.</p>
+      </header>
+      <nav class="plates" aria-label="Modes">
+        <button class="plate go" id="start" type="button"><b>Start</b><small>Gentle: a hit costs a moment's shield</small></button>
+        <button class="plate" id="continue" type="button" data-pol="ember" hidden>Continue</button>
+        <button class="plate" id="arcade" type="button" data-pol="iris"><b>Arcade</b><small>3 lives</small>
+          <i class="glyph lives" aria-hidden="true"><s></s><s></s><s></s></i></button>
+        <button class="plate" id="friends" type="button" data-pol="ember"><b>Play with friends</b><small>Up to 4 pilots</small>
+          <i class="glyph wing4" aria-hidden="true"><s></s><s></s><s></s><s></s></i></button>
+      </nav>
+      <p class="keys touch">Drag to fly <kbd>2nd finger</kbd> or <kbd>Flip</kbd> switches colour</p>
+      <p class="keys desk"><kbd>WASD</kbd> fly <kbd>Space</kbd> flip <kbd>K</kbd> bomb <kbd>Shift</kbd> slow</p>
     </section>
     
     <section class="overlay" id="ending" hidden>
@@ -260,7 +361,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=b5e4d26f-20261117T141359Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=b5e4d26f-20261117T141359Z"></script>
+  <script type="module" src="src/boot.js?v=22c53bdf-20261118T025622Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=22c53bdf-20261118T025622Z"></script>
 </body>
 </html>
