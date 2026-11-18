@@ -7,6 +7,7 @@
 import { installPointerLockPromise } from 'arbelo/pointer-lock-compat';
 
 import { Game } from './game.js';
+import { createHowtoGate } from './howtoGate.js';
 
 
 
@@ -674,18 +675,16 @@ function rememberLocalCharacter() {
 
 
 
-(function howtoOnboarding() {
-  const overlay = document.getElementById('howto-overlay');
-  const close = document.getElementById('howto-close');
-  if (!overlay || !close) return;
-  if (!localStorage.getItem('tb.howto')) {
-    overlay.style.display = 'flex';
-  }
-  close.addEventListener('click', () => {
-    localStorage.setItem('tb.howto', '1');
-    overlay.style.display = 'none';
-  });
-})();
+
+
+
+
+const howtoOverlay = document.getElementById('howto-overlay');
+const howtoClose = document.getElementById('howto-close');
+const howto = howtoOverlay && howtoClose
+  ? createHowtoGate({ overlay: howtoOverlay, close: howtoClose, storage: localStorage })
+  : null;
+if (howto && !howto.seen() && new URL(location.href).searchParams.get('join')) howto.show();
 
 
 
@@ -770,7 +769,8 @@ try { paintGoal(); } catch (err) { console.warn('[goal] card unavailable:', err)
 
 
 
-$('quickPlayBtn')?.addEventListener('click', async () => {
+$('quickPlayBtn')?.addEventListener('click', () => (howto ? howto.before(quickPlay) : quickPlay()));
+async function quickPlay() {
   const roll = assertPlayable(randomLoadout({
     maps: MAP_IDS, modes: MODE_IDS,
     
@@ -800,7 +800,7 @@ $('quickPlayBtn')?.addEventListener('click', async () => {
   if (!validate()) return;
   state.mode = 'host';
   await startGame(null);
-});
+}
 
 $('hostBtn').addEventListener('click', async () => {
   if (!validate()) return;
