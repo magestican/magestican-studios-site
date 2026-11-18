@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "f8516cb9-20261118T091450Z",
+ "buildId": "26ddc307-20261118T093300Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -30,7 +30,8 @@
     0.5
    ],
    "shots": [
-    "assets/shots/farmyshoot/0.webp"
+    "assets/shots/farmyshoot/0.webp",
+    "assets/shots/farmyshoot/1.webp"
    ],
    "accent": "#8a6a2a",
    "glyph": "farmyshoot",
