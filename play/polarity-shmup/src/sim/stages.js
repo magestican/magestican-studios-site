@@ -134,8 +134,11 @@ export const HEAVY_HP = 48, HEAVY_LAND = 130, HEAVY_HOLD = 390, HEAVY_FIRE_EVERY
 const TIERS = [null,
   { swoop: 4, wedge: 5, column: 4, pincer: 3, ground: 2, heavyHp: HEAVY_HP, heavies: 1, mixV: false, gap: 14 },
   { swoop: 5, wedge: 7, column: 6, pincer: 4, ground: 3, heavyHp: 64,       heavies: 1, mixV: false, gap: 14 },
-  { swoop: 6, wedge: 7, column: 6, pincer: 5, ground: 4, heavyHp: 64,       heavies: 2, mixV: true,  gap: 10 },
+  { swoop: 6, wedge: 7, column: 6, pincer: 5, ground: 4, heavyHp: 64,       heavies: 2, mixV: true,  gap: 10, layer: true },
 ];
+
+const LAYERED = [0, 10];
+export const LAYER_LEAD = 36, LAYER_COUNT = 4; 
 
 const LIFE = { [HEAVY]: HEAVY_HOLD + 120, ground: 1150 };
 
@@ -201,6 +204,13 @@ export function streamWaves(st, seed) {
         add(at, HEAVY, 1 - pol, px(290), px(-40), 1, T.heavyHp);
       }
       continue;
+    }
+    
+    
+    
+    if (T.layer && form === SWOOP && LAYERED.includes(fl % FLIGHTS.length) && FLIGHTS[fl % FLIGHTS.length][0] === SWOOP) {
+      const lx = dir > 0 ? 260 + (h % 70) : 60 + (h % 70);
+      for (let i = 0; i < LAYER_COUNT; i++) add(at + LAYER_LEAD + i * T.gap, COLUMN, 1 - pol, px(lx), px(-24), dir);
     }
     for (let i = 0; i < n; i++) {
       let x, y = px(-24), t = at;
