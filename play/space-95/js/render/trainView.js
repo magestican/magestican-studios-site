@@ -9,10 +9,12 @@
 import * as THREE from 'three';
 import { nearestOnRail, posAt } from '../sim/track.js';
 import { nextThrowable } from '../sim/train.js';
+import { skinMaterial } from './biomeArt.js';
 import { createBoltSprite } from './boltSprite.js';
 import { createTrainRig, TRAIN_CAM, trainCameraPose, updateTrainRig } from './cameraRig.js';
 import { updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
+import { trainFloorArt } from './phaseFArt.js';
 import { boltPlaceholder, entityView, joPlaceholder, textSprite } from './scene.js';
 
 const GAUGE_HALF = 0.75; 
@@ -416,21 +418,27 @@ function floorMeshes(level, renderer) {
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
     ctx.fillRect(10, 10, 40, 6);
   });
-  for (const [tex, rx, ry] of [
-    [carpet, 46 / TILE, h / TILE],
-    [tiles, (w - 46) / TILE, h / TILE],
-  ]) {
+  for (const tex of [carpet, tiles]) {
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(rx, ry);
     tex.anisotropy = aniso;
   }
+  
+  const floorPlane = (pw) => {
+    const geo = new THREE.PlaneGeometry(pw, h);
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) * pw) / TILE, (uv.getY(i) * h) / TILE);
+    return geo;
+  };
+  const skins = trainFloorArt();
   const cw = Math.min(46, w);
-  const cm = new THREE.Mesh(new THREE.PlaneGeometry(cw, h), lambert(0xffffff, { map: carpet }));
+  const cm = new THREE.Mesh(floorPlane(cw), lambert(0xffffff, { map: carpet }));
   cm.position.set(cw / 2, h / 2, 0);
+  if (skins.rug) skinMaterial(cm.material, skins.rug);
   g.add(cm);
   if (w > 46) {
-    const tm = new THREE.Mesh(new THREE.PlaneGeometry(w - 46, h), lambert(0xffffff, { map: tiles }));
+    const tm = new THREE.Mesh(floorPlane(w - 46), lambert(0xffffff, { map: tiles }));
     tm.position.set(46 + (w - 46) / 2, h / 2, 0);
+    if (skins.tiles) skinMaterial(tm.material, skins.tiles);
     g.add(tm);
   }
   

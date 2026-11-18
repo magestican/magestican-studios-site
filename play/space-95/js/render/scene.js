@@ -377,7 +377,8 @@ export function createView(canvas, level, labels) {
           v.rotation.z = fall.t * 7;
         }
       }
-      backdrop?.update(!!session.plane); 
+      
+      backdrop?.update(!!session.plane || (art?.swapX != null && session.player.x >= art.swapX));
       renderer.render(scene, camera);
     },
     

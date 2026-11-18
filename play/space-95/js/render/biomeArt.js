@@ -7,6 +7,7 @@ import { v } from '../site/assetUrl.js';
 import { CANOPY_COMIC } from './canopyArt.js';
 import { GORGE, gardenFrontLeaf, gardenNightSway } from './gorgeArt.js';
 import { ORCHARD_COMIC, orchardBackSway } from './orchardArt.js';
+import { stampedeArt } from './phaseFArt.js';
 import { comicPlate } from './platesComicArt.js';
 import { plateWindow } from './plateWindow.js';
 
@@ -31,6 +32,8 @@ export const ART_BIOME = {
   18: 'kitchen',
   20: 'sovereign',
 };
+
+if (stampedeArt()) ART_BIOME[19] = 'stampede';
 
 const B = 'assets/art/biome/';
 
@@ -192,6 +195,8 @@ const BIOMES = {
   
   silkGorge: { ...GORGE, oneWay: GORGE.top },
   deepBurrow: { plate: plate('batch4', 'deepburrow-far'), plateAspect: 16 / 9, sky: 0x5a3a22, top: null, solid: null },
+  
+  ...(stampedeArt() ? { stampede: stampedeArt() } : {}),
   desk: {
     plate: plate('batch2', 'desk-far'),
     plateAspect: 16 / 9,
@@ -295,7 +300,7 @@ export function paintedBackdrop(camera, art, worldW = 0) {
       t.wrapT = THREE.ClampToEdgeWrapping;
       plates[key] = t;
     });
-  want('ground', art.plate);
+  if (art.plate) want('ground', art.plate);
   if (art.planePlate) want('plane', art.planePlate);
   
   
@@ -327,8 +332,16 @@ export function paintedBackdrop(camera, art, worldW = 0) {
       const w = h * camera.aspect;
       quad.scale.set(w, h, 1);
       if (haze) haze.scale.set(w, h, 1);
-      const tex = (flying && plates.plane) || plates.ground;
-      if (!tex) return;
+      
+      const tex = flying && art.planeSky != null ? plates.plane : (flying && plates.plane) || plates.ground;
+      if (!tex) {
+        if (mat.map) {
+          mat.map = null;
+          mat.needsUpdate = true;
+        }
+        mat.color.set(flying && art.planeSky != null ? art.planeSky : art.sky);
+        return;
+      }
       if (mat.map !== tex) {
         mat.map = tex;
         mat.color.copy(shade);
