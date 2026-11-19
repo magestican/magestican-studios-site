@@ -158,6 +158,14 @@ export class PeerMesh extends EventTarget {
     });
     this.peer.on('connection', (conn) => this._onIncoming(conn));
     
+    
+    
+    this.peer.on('disconnected', () => {
+      if (!this.peer.destroyed && typeof this.peer.reconnect === 'function') {
+        try { this.peer.reconnect(); } catch {  }
+      }
+    });
+    
     this._onPageHide = () => this.broadcast({ t: BYE });
     globalThis.addEventListener?.('pagehide', this._onPageHide);
   }
@@ -183,6 +191,8 @@ export class PeerMesh extends EventTarget {
       this._watch.addPeer(hostId, this._now());
     }
     this._dispatch('role', { role: 'joiner' });
+    
+    if (this._joinTimer) { clearTimeout(this._joinTimer); this._joinTimer = null; }
     const conn = this.peer.connect(hostId, { reliable: true });
     this._wireConnection(conn);
 

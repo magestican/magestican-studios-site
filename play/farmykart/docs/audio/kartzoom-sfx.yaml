@@ -1,0 +1,320 @@
+# dj sfx-set brief - Kartzoom (games/farmykart), 2026-11-19, task KZ-AAA-3. Run from projects/magestican-dj:
+#   .venv/Scripts/python -m studio.cli sfx-set <this file> --no-deliver
+#   then: python docs/audio/deliver.py E:/magestican-dj/renders/kartzoom-sfx games/farmykart/assets/sfx
+# Bryan, 2026-11-18: "I asked you for a second part to make it look awesome and Aaa" (he chose upgrading the live
+# game); 2026-11-09: "every game needs unique music sound menus etc. Make it a hard rule forever".
+# The fantasy (docs/design/DOSSIER.md): "A cow, a pig or a chicken in a go-kart, drifting through a muddy farm
+# circuit with a cowpat ready for the leader." So the palette is FARMYARD JUNK: tin buckets and milk churns, a
+# cowbell, a bulb horn, a wooden crate, wet mud and cowpats, hay and seed tins, a farm-gate rail, and the animals'
+# own voices for the emotes (a lowing moo, a snorting oink, a clucking chicken). Never a sci-fi blip, never a
+# "piece on a table". Fully synthesised (tone, noise, modal, grains, impact, formant voices): no sample family
+# another game picks for the same role (scripts/audioUnique.test.mjs). Key: G major (G A B D E), the bells and
+# tonal stingers sit in it. Levels: the engine (runtime synth) and the music run under everything, so hits and
+# pickups sit on top and the per-lap furniture (bump, land) sits low.
+out_root: E:/magestican-dj/renders/kartzoom-sfx
+defaults:
+  space: none
+  peak_db: -3
+  new: true
+sounds:
+  # ---------- the start line ----------
+  countdown:
+    new: true
+    idea: one cowbell tonk for 3, 2, 1; the game pitches it up a step each beat
+    prompt: a single cowbell hit
+    seed: 72001
+    variants: 1
+    length_ms: 420
+    lufs: -19.5
+    lufs_range: [-22, -17]
+    layers:
+      - {type: modal, material: metal, freq: 587, ms: 400, decay_mul: 0.35}
+      - {type: modal, material: metal, freq: 845, ms: 300, decay_mul: 0.25, gain_db: -6}
+      - {type: click, ms: 4, gain_db: -8}
+  go:
+    new: true
+    idea: GO - two cowbells struck together with a bulb-horn honk under them, the yard bursting into the race
+    prompt: a cowbell and a bulb horn honk together
+    seed: 72002
+    variants: 1
+    length_ms: 700
+    lufs: -15
+    lufs_range: [-18, -12]
+    layers:
+      - {type: modal, material: metal, freq: 784, ms: 600, decay_mul: 0.5}
+      - {type: modal, material: metal, freq: 1175, ms: 500, decay_mul: 0.4, gain_db: -5}
+      - {type: tone, freq: 392, freq_end: 370, ms: 420, attack_ms: 8, decay_db: 10, formants: [[600, 4, 0], [1100, 5, -6]], gain_db: -4}
+  # ---------- the drive ----------
+  miniTurbo:
+    new: true
+    idea: the drift spark kicking out, a whoosh of straw and a rising rasp; the game pitches it by tier
+    prompt: a short rising whoosh boost
+    seed: 72003
+    variants: 2
+    length_ms: 520
+    lufs: -18
+    lufs_range: [-21, -15]
+    pitch_jitter: 0.03
+    layers:
+      - {type: noise, band: [600, 2400], band_end: [2000, 7000], ms: 480, attack_ms: 30, decay_db: 18}
+      - {type: tone, freq: 220, freq_end: 660, ms: 420, attack_ms: 10, decay_db: 14, fm_ratio: 2.0, fm_index: 1.2, gain_db: -8}
+      - {type: grains, at_ms: 40, ms: 300, density: 400, band: [3000, 8000], grain_ms: 1.0, gain_db: -16}
+  jump:
+    new: true
+    idea: a kart leaving a hay-bale ramp, a wooden creak and a rising whoosh of air
+    prompt: a wooden creak and a rising whoosh
+    seed: 72004
+    variants: 2
+    length_ms: 520
+    lufs: -20
+    lufs_range: [-23, -17]
+    pitch_jitter: 0.04
+    layers:
+      - {type: modal, material: wood, freq: 260, ms: 120, decay_mul: 0.8, gain_db: -4}
+      - {type: noise, band: [400, 1200], band_end: [1200, 4000], ms: 480, attack_ms: 60, decay_db: 16, gain_db: -4}
+  land:
+    new: true
+    idea: the kart thumping back onto packed dirt, a dull thud and a puff of dust
+    prompt: a heavy thud on dirt
+    seed: 72005
+    variants: 3
+    length_ms: 320
+    lufs: -21
+    lufs_range: [-24, -18]
+    pitch_jitter: 0.06
+    layers:
+      - {type: impact, material: wood, freq: 110, ms: 160}
+      - {type: modal, material: dirt, freq: 140, ms: 200, decay_mul: 1.2}
+      - {type: noise, band: [300, 1500], ms: 260, attack_ms: 5, decay_db: 20, gain_db: -10}
+  bump:
+    new: true
+    idea: a wheel knocking a fence post or a crate edge, a short wooden knock
+    prompt: a short wooden knock
+    seed: 72006
+    variants: 4
+    length_ms: 160
+    lufs: -24
+    lufs_range: [-27, -21]
+    pitch_jitter: 0.08
+    layers:
+      - {type: modal, material: wood, freq: 330, ms: 120, decay_mul: 0.6}
+      - {type: noise, band: [200, 900], ms: 80, decay_db: 24, gain_db: -10}
+  # ---------- items ----------
+  itemGet:
+    new: true
+    idea: driving through an item crate - a seed tin rattled once and a little bucket ding
+    prompt: a rattle of seeds in a tin and a small bell ding
+    seed: 72007
+    variants: 2
+    length_ms: 480
+    lufs: -18.5
+    lufs_range: [-21, -16]
+    layers:
+      - {type: grains, ms: 220, density: 900, band: [2500, 7000], grain_ms: 0.7, gain_db: -6}
+      - {type: modal, material: metal, freq: 1568, ms: 420, at_ms: 120, decay_mul: 0.3, gain_db: -3}
+  itemUse:
+    new: true
+    idea: lobbing the item out of the kart, a quick throw whoosh with a wooden flick
+    prompt: a quick throw whoosh
+    seed: 72008
+    variants: 2
+    length_ms: 300
+    lufs: -19
+    lufs_range: [-22, -16]
+    pitch_jitter: 0.05
+    layers:
+      - {type: click, ms: 5, gain_db: -8}
+      - {type: noise, band: [800, 3000], band_end: [300, 1200], ms: 260, attack_ms: 20, decay_db: 18}
+  hit:
+    new: true
+    idea: a cowpat splattering over a kart, a wet squelch and a thick splat
+    prompt: a wet mud splat squelch
+    seed: 72009
+    variants: 3
+    length_ms: 560
+    lufs: -16
+    lufs_range: [-19, -13]
+    pitch_jitter: 0.05
+    layers:
+      - {type: noise, band: [150, 900], ms: 180, attack_ms: 2, decay_db: 20}
+      - {type: tone, freq: 180, freq_end: 90, ms: 260, attack_ms: 4, decay_db: 18, formants: [[400, 3, 0], [900, 4, -6]], formants_end: [[250, 3, 0], [600, 4, -6]], gain_db: -4}
+      - {type: grains, at_ms: 60, ms: 420, density: 120, band: [400, 2500], grain_ms: 6.0, gain_db: -10}
+  shieldBlock:
+    new: true
+    idea: an item bouncing off a tin-bucket shield, a hollow metal bong
+    prompt: a hollow metal bucket bong
+    seed: 72010
+    variants: 2
+    length_ms: 700
+    lufs: -17
+    lufs_range: [-20, -14]
+    layers:
+      - {type: modal, material: metal, freq: 392, ms: 680, decay_mul: 0.6}
+      - {type: impact, material: metal, freq: 500, ms: 120, gain_db: -6}
+  thunder:
+    new: true
+    idea: the storm item, a rolling thunder over the fields, low and wide
+    prompt: a rolling thunder rumble
+    seed: 72011
+    variants: 1
+    length_ms: 1800
+    lufs: -16
+    lufs_range: [-19, -13]
+    layers:
+      - {type: noise, band: [40, 400], ms: 1750, attack_ms: 30, decay_db: 18}
+      - {type: noise, band: [200, 1600], ms: 260, attack_ms: 2, decay_db: 24, gain_db: -6}
+      - {type: grains, at_ms: 200, ms: 1200, density: 40, band: [60, 500], grain_ms: 30.0, gain_db: -8}
+  # ---------- the laps ----------
+  lap:
+    new: true
+    idea: crossing the line, two quick milk-churn pings a fourth apart, D then G
+    prompt: two bright metal pings
+    seed: 72012
+    variants: 1
+    length_ms: 620
+    lufs: -17
+    lufs_range: [-20, -14]
+    layers:
+      - {type: modal, material: metal, freq: 1175, ms: 300, decay_mul: 0.3}
+      - {type: modal, material: metal, freq: 1568, ms: 480, at_ms: 120, decay_mul: 0.35}
+  finish:
+    new: true
+    idea: the chequered flag, a cowbell run up G B D G and a bulb-horn honk on the top note
+    prompt: a cheerful bell run up and a horn honk
+    seed: 72013
+    variants: 1
+    length_ms: 1400
+    lufs: -14
+    lufs_range: [-17, -11]
+    layers:
+      - {type: modal, material: metal, freq: 784, ms: 400, decay_mul: 0.35}
+      - {type: modal, material: metal, freq: 988, ms: 400, at_ms: 130, decay_mul: 0.35}
+      - {type: modal, material: metal, freq: 1175, ms: 400, at_ms: 260, decay_mul: 0.35}
+      - {type: modal, material: metal, freq: 1568, ms: 900, at_ms: 390, decay_mul: 0.6}
+      - {type: tone, freq: 392, freq_end: 380, ms: 500, at_ms: 390, attack_ms: 8, decay_db: 10, formants: [[600, 4, 0], [1100, 5, -6]], gain_db: -6}
+  # ---------- the farm-gate rail (FK-07) ----------
+  railOn:
+    new: true
+    idea: hopping onto a steel farm-gate rail, a bright metal clang
+    prompt: a bright metal clang
+    seed: 72014
+    variants: 2
+    length_ms: 500
+    lufs: -18
+    lufs_range: [-21, -15]
+    pitch_jitter: 0.03
+    layers:
+      - {type: impact, material: metal, freq: 1400, ms: 200}
+      - {type: modal, material: metal, freq: 1175, ms: 460, decay_mul: 0.4, gain_db: -4}
+  railOff:
+    new: true
+    idea: slipping off the rail, a short falling scrape
+    prompt: a short falling metal scrape
+    seed: 72015
+    variants: 2
+    length_ms: 380
+    lufs: -21
+    lufs_range: [-24, -18]
+    layers:
+      - {type: noise, band: [2500, 6000], band_end: [800, 2000], ms: 340, attack_ms: 5, decay_db: 18}
+      - {type: modal, material: metal, freq: 880, ms: 260, decay_mul: 0.3, gain_db: -8}
+  railJump:
+    new: true
+    idea: the paid jump off the rail, a sprung clang that rises - it earns a turbo
+    prompt: a rising metal spring twang
+    seed: 72016
+    variants: 1
+    length_ms: 520
+    lufs: -18
+    lufs_range: [-21, -15]
+    layers:
+      - {type: impact, material: metal, freq: 1600, ms: 160}
+      - {type: tone, freq: 392, freq_end: 1175, ms: 420, attack_ms: 4, decay_db: 14, fm_ratio: 3.0, fm_index: 0.8, gain_db: -6}
+  # ---------- water, milk and the airship ----------
+  splash:
+    new: true
+    idea: the kart ploughing into the duck-pond ford, a thump then aerated spray
+    prompt: a splash into water
+    seed: 72017
+    variants: 3
+    length_ms: 800
+    lufs: -17
+    lufs_range: [-20, -14]
+    pitch_jitter: 0.05
+    layers:
+      - {type: tone, freq: 160, freq_end: 80, ms: 160, attack_ms: 2, decay_db: 20}
+      - {type: noise, band: [300, 1200], ms: 220, attack_ms: 3, decay_db: 20, gain_db: -4}
+      - {type: grains, at_ms: 40, ms: 700, density: 500, band: [1500, 7000], grain_ms: 2.0, gain_db: -8}
+  milkRamp:
+    new: true
+    idea: crossing the milk ramp, a wet slap on milk then a rising launch
+    prompt: a wet slap and a rising whoosh
+    seed: 72018
+    variants: 2
+    length_ms: 560
+    lufs: -18
+    lufs_range: [-21, -15]
+    layers:
+      - {type: noise, band: [1200, 4000], ms: 120, attack_ms: 1, decay_db: 24}
+      - {type: tone, freq: 240, freq_end: 660, ms: 420, at_ms: 40, attack_ms: 10, decay_db: 14, gain_db: -6}
+  airshipGrab:
+    new: true
+    idea: the rescue airship's winch taking hold, a low warm creak and a rope tightening - help arriving
+    prompt: a low winch creak and rope tightening
+    seed: 72019
+    variants: 1
+    length_ms: 1100
+    lufs: -18
+    lufs_range: [-21, -15]
+    layers:
+      - {type: tone, freq: 70, freq_end: 130, ms: 900, attack_ms: 40, decay_db: 10, gain_db: -2}
+      - {type: grains, ms: 800, density: 60, band: [300, 1500], grain_ms: 8.0, gain_db: -8}
+  # ---------- emotes: the drivers' own voices ----------
+  emoteHappy:
+    new: true
+    idea: a happy chicken cluck-cluck, bright and quick
+    prompt: a chicken clucking
+    seed: 72020
+    variants: 2
+    length_ms: 420
+    lufs: -18
+    lufs_range: [-21, -15]
+    pitch_jitter: 0.04
+    layers:
+      - {type: tone, freq: 620, freq_end: 820, ms: 110, attack_ms: 3, decay_db: 16, formants: [[900, 5, 0], [2200, 6, -4]], formants_end: [[1300, 5, 0], [2600, 6, -4]]}
+      - {type: tone, freq: 640, freq_end: 900, ms: 140, at_ms: 160, attack_ms: 3, decay_db: 16, formants: [[900, 5, 0], [2200, 6, -4]], formants_end: [[1400, 5, 0], [2800, 6, -4]]}
+  emoteBoast:
+    new: true
+    idea: a proud rooster crow, rising then held
+    prompt: a short rooster crow
+    seed: 72021
+    variants: 1
+    length_ms: 800
+    lufs: -17
+    lufs_range: [-20, -14]
+    layers:
+      - {type: tone, freq: 520, freq_end: 760, ms: 760, attack_ms: 20, decay_db: 8, formants: [[700, 4, 0], [1800, 5, -4]], formants_end: [[1000, 4, 0], [2400, 5, -4]], tremolo_hz: 9, tremolo_depth: 0.25}
+  emoteRude:
+    new: true
+    idea: a rude pig snort and oink, low and nasal
+    prompt: a pig snorting and oinking
+    seed: 72022
+    variants: 2
+    length_ms: 520
+    lufs: -18
+    lufs_range: [-21, -15]
+    pitch_jitter: 0.05
+    layers:
+      - {type: noise, band: [200, 900], ms: 140, attack_ms: 4, decay_db: 16, gain_db: -4}
+      - {type: tone, freq: 190, freq_end: 140, ms: 300, at_ms: 160, attack_ms: 8, decay_db: 12, formants: [[500, 6, 0], [1500, 8, -2]], formants_end: [[380, 6, 0], [1100, 8, -2]]}
+  emoteSulk:
+    new: true
+    idea: a sulking cow, a long low falling moo
+    prompt: a cow mooing
+    seed: 72023
+    variants: 1
+    length_ms: 1000
+    lufs: -18
+    lufs_range: [-21, -15]
+    layers:
+      - {type: tone, freq: 150, freq_end: 110, ms: 960, attack_ms: 60, decay_db: 10, formants: [[300, 4, 0], [700, 5, -6]], formants_end: [[650, 4, 0], [1100, 5, -6]]}

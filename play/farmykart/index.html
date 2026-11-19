@@ -2052,7 +2052,7 @@
 
 
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=04d95f86-20261119T080422Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=b11e6ae2-20261119T115310Z"></script>
 
   <script type="importmap">
   {
@@ -2247,6 +2247,7 @@
   <link rel="modulepreload" href="../shared/ui/infoButton.js">
   <link rel="modulepreload" href="../shared/ui/muteButton.js">
   <link rel="modulepreload" href="./src/audio/music.js">
+  <link rel="modulepreload" href="./src/audio/samples.js">
   <link rel="modulepreload" href="./src/audio/sfx.js">
   <link rel="modulepreload" href="./src/game.js">
   <link rel="modulepreload" href="./src/input/controls.js">
@@ -2309,7 +2310,7 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=04d95f86-20261119T080422Z"></script>
+  <script type="module" src="./src/main.js?v=b11e6ae2-20261119T115310Z"></script>
 
   
 
@@ -2322,8 +2323,10 @@
     installInfo({
       title: "Kartzoom - controls",
       contentFrom: "#fk-controls-body",
+      
+      sound: (name) => window.dispatchEvent(new CustomEvent('kz-ui-sound', { detail: name })),
     });
   </script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=b11e6ae2-20261119T115310Z"></script>
 </body>
 </html>

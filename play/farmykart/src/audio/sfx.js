@@ -14,6 +14,7 @@
 
 
 
+
 const noteCache = new Map();
 
 
@@ -36,6 +37,9 @@ import {
   firingWobble, lumpHz, lumpDepth, slowDrift, enginePitch,
 } from '../../../../web-engine/audio/engineVoice.js';
 import { rivalMix, MAX_VOICES } from '../../../../web-engine/audio/rivalMix.js';
+import {
+  playSample, loadSampleBank, countdownRate, turboRate, EMOTE_SOUND,
+} from './samples.js';
 
 export function createAudio() {
   return {
@@ -49,6 +53,8 @@ export function createAudio() {
     
     
     rail: null,
+    
+    samples: null,
   };
 }
 
@@ -130,6 +136,8 @@ export function resumeAudio(audio) {
     audio.master = audio.ctx.createGain();
     audio.master.gain.value = audio.muted ? 0 : 0.55;
     audio.master.connect(audio.ctx.destination);
+    
+    loadSampleBank(audio);
   }
   if (audio.ctx.state === 'suspended') audio.ctx.resume();
   
@@ -850,6 +858,7 @@ function countdownPitch(audio, beat) {
 
 export const SFX = {
   countdown: (audio, beat) => {
+    if (playSample(audio, 'countdown', { rate: countdownRate(beat) })) return;
     const freq = countdownPitch(audio, beat);
     blip(audio, { freq, dur: 0.16, gain: 0.22, type: 'square' });
     
@@ -857,6 +866,7 @@ export const SFX = {
     blip(audio, { freq: freq / 2, dur: 0.20, gain: 0.09, type: 'triangle' });
   },
   go: (audio) => {
+    if (playSample(audio, 'go')) return;
     blip(audio, { freq: 660, dur: 0.3, gain: 0.28, type: 'square' });
     blip(audio, { freq: 990, dur: 0.34, gain: 0.18, type: 'triangle', delay: 0.04 });
   },
@@ -864,6 +874,7 @@ export const SFX = {
   
   
   miniTurbo: (audio, tier) => {
+    if (playSample(audio, 'miniTurbo', { rate: turboRate(tier) })) return;
     blip(audio, { freq: 300 + tier * 120, dur: 0.28, gain: 0.26, type: 'sawtooth', sweep: 420 + tier * 220 });
     noiseBurst(audio, { dur: 0.22, gain: 0.14, freq: 1800 + tier * 500 });
   },
@@ -871,12 +882,14 @@ export const SFX = {
   
   
   jump: (audio, strength = 1) => {
+    if (playSample(audio, 'jump', { rate: 0.94 + 0.12 * Math.min(1, strength) })) return;
     blip(audio, { freq: 240, dur: 0.34, gain: 0.2, type: 'triangle', sweep: 420 * strength });
     noiseBurst(audio, { dur: 0.42, gain: 0.10, freq: 900, q: 0.7 });
   },
   
   
   land: (audio, hard = 0.5) => {
+    if (playSample(audio, 'land', { gain: 0.6 + 0.4 * Math.min(1, hard), rate: 1.06 - 0.12 * Math.min(1, hard) })) return;
     blip(audio, { freq: 150 - hard * 50, dur: 0.16, gain: 0.16 + hard * 0.12, type: 'sine', sweep: -80 });
     noiseBurst(audio, { dur: 0.2, gain: 0.10 + hard * 0.1, freq: 320, q: 0.8 });
   },
@@ -886,6 +899,7 @@ export const SFX = {
   
   
   emote: (audio, id) => {
+    if (EMOTE_SOUND[id] && playSample(audio, EMOTE_SOUND[id])) return;
     const voice = {
       happy: { freq: 620, sweep: 340, type: 'square', dur: 0.18 },
       boast: { freq: 300, sweep: 260, type: 'sawtooth', dur: 0.34 },
@@ -896,24 +910,28 @@ export const SFX = {
     blip(audio, { ...voice, freq: voice.freq * 1.5, gain: 0.12, delay: 0.07 });
   },
   itemGet: (audio) => {
+    if (playSample(audio, 'itemGet')) return;
     blip(audio, { freq: 520, dur: 0.09, gain: 0.2, type: 'square' });
     blip(audio, { freq: 780, dur: 0.11, gain: 0.2, type: 'square', delay: 0.08 });
   },
-  itemUse: (audio) => blip(audio, { freq: 340, dur: 0.14, gain: 0.22, type: 'square', sweep: 240 }),
+  itemUse: (audio) => playSample(audio, 'itemUse') || blip(audio, { freq: 340, dur: 0.14, gain: 0.22, type: 'square', sweep: 240 }),
   hit: (audio) => {
+    if (playSample(audio, 'hit')) return;
     noiseBurst(audio, { dur: 0.4, gain: 0.32, freq: 400, q: 0.5 });
     blip(audio, { freq: 180, dur: 0.34, gain: 0.24, type: 'sawtooth', sweep: -120 });
   },
-  shieldBlock: (audio) => blip(audio, { freq: 880, dur: 0.2, gain: 0.24, type: 'triangle', sweep: 400 }),
+  shieldBlock: (audio) => playSample(audio, 'shieldBlock') || blip(audio, { freq: 880, dur: 0.2, gain: 0.24, type: 'triangle', sweep: 400 }),
   lap: (audio) => {
+    if (playSample(audio, 'lap')) return;
     blip(audio, { freq: 620, dur: 0.13, gain: 0.2, type: 'square' });
     blip(audio, { freq: 830, dur: 0.16, gain: 0.2, type: 'square', delay: 0.1 });
   },
   finish: (audio) => {
+    if (playSample(audio, 'finish')) return;
     [523, 659, 784, 1046].forEach((f, i) => blip(audio, { freq: f, dur: 0.3, gain: 0.24, type: 'square', delay: i * 0.11 }));
   },
-  thunder: (audio) => noiseBurst(audio, { dur: 0.9, gain: 0.34, freq: 220, q: 0.4 }),
-  bump: (audio) => noiseBurst(audio, { dur: 0.13, gain: 0.16, freq: 260, q: 1.4 }),
+  thunder: (audio) => playSample(audio, 'thunder') || noiseBurst(audio, { dur: 0.9, gain: 0.34, freq: 220, q: 0.4 }),
+  bump: (audio) => playSample(audio, 'bump', { gain: 0.8 }) || noiseBurst(audio, { dur: 0.13, gain: 0.16, freq: 260, q: 1.4 }),
 
   
   
@@ -932,6 +950,7 @@ export const SFX = {
 
 
   railOn: (audio) => {
+    if (playSample(audio, 'railOn')) return;
     blip(audio, { freq: 720, dur: 0.12, gain: 0.20, type: 'square', sweep: 620 });
     blip(audio, { freq: 960, dur: 0.16, gain: 0.13, type: 'triangle', sweep: 820, delay: 0.03 });
     noiseBurst(audio, { dur: 0.14, gain: 0.16, freq: 4200, q: 3.2 });
@@ -974,6 +993,7 @@ export const SFX = {
 
 
   railOff: (audio, paid = false) => {
+    if (playSample(audio, paid ? 'railJump' : 'railOff')) return;
     if (paid) {
       blip(audio, { freq: 520, dur: 0.24, gain: 0.22, type: 'square', sweep: 700 });
       noiseBurst(audio, { dur: 0.20, gain: 0.13, freq: 3000, q: 2.0 });
@@ -1007,6 +1027,7 @@ export const SFX = {
 
 
   milkRamp: (audio) => {
+    if (playSample(audio, 'milkRamp')) return;
     noiseBurst(audio, { dur: 0.12, gain: 0.2, freq: 2400, q: 0.6 });
     blip(audio, { freq: 240, type: 'triangle', dur: 0.28, gain: 0.16, sweep: 420 });
     blip(audio, { freq: 120, type: 'sine', dur: 0.16, gain: 0.14, delay: 0.02 });
@@ -1018,12 +1039,14 @@ export const SFX = {
 
 
   airshipGrab: (audio) => {
+    if (playSample(audio, 'airshipGrab')) return;
     blip(audio, { freq: 70, type: 'sine', dur: 0.7, gain: 0.3, sweep: 60 });
     blip(audio, { freq: 220, type: 'triangle', dur: 0.5, gain: 0.12, sweep: 160, delay: 0.1 });
     noiseBurst(audio, { dur: 0.4, gain: 0.08, freq: 500, q: 0.5 });
   },
 
   splash: (audio, hard = 0.5) => {
+    if (playSample(audio, 'splash', { gain: 0.6 + 0.4 * Math.max(0, Math.min(1, hard)) })) return;
     const h = Math.max(0, Math.min(1, hard));
     blip(audio, { freq: 190 - h * 70, dur: 0.16, gain: 0.14 + h * 0.14, type: 'sine', sweep: -110 });
     noiseBurst(audio, { dur: 0.16, gain: 0.14 + h * 0.10, freq: 480, q: 0.7 });

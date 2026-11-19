@@ -8,8 +8,9 @@
 
 
 
+
 export const MOVE_MAX = 64;
-export const F_IRIS = 1, F_BOMB = 2, F_FOCUS = 4, F_PRESENT = 8;
+export const F_IRIS = 1, F_BOMB = 2, F_FOCUS = 4, F_PRESENT = 8, F_NEXT = 16;
 export const BYTES = 3;
 
 
@@ -18,9 +19,9 @@ export const IDLE = 0;
 const clamp = (v) => (v < -MOVE_MAX ? -MOVE_MAX : v > MOVE_MAX ? MOVE_MAX : v | 0);
 
 
-export function pack({ x = 0, y = 0, iris = false, bomb = false, focus = false } = {}) {
+export function pack({ x = 0, y = 0, iris = false, bomb = false, focus = false, next = false } = {}) {
   return ((clamp(x) & 0xff) | ((clamp(y) & 0xff) << 8) | ((F_PRESENT | (iris ? F_IRIS : 0) | (bomb ? F_BOMB : 0) |
-    (focus ? F_FOCUS : 0)) << 16)) >>> 0;
+    (focus ? F_FOCUS : 0) | (next ? F_NEXT : 0)) << 16)) >>> 0;
 }
 
 export function unpack(v) {
@@ -32,6 +33,7 @@ export function unpack(v) {
     bomb: (f & F_BOMB) !== 0,
     focus: (f & F_FOCUS) !== 0,
     present: (f & F_PRESENT) !== 0,
+    next: (f & F_NEXT) !== 0,
   };
 }
 

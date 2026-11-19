@@ -110,7 +110,22 @@ export class StarHub {
     }
   }
 
+  
+  seatLink(linkId, seat) {
+    const l = this.links.get(linkId);
+    if (l) l.seat = seat;
+  }
+
   _catchUp(linkId) {
+    
+    
+    const se = this.session;
+    for (let s = 0; s < MAX_PLAYERS; s++) {
+      se.spans[s].forEach(([from, to], i) => {
+        if (!(i === 0 && se.startSeats.includes(s))) this.sendTo(linkId, { t: 'join', s, k: from });
+        if (Number.isFinite(to)) this.sendTo(linkId, { t: 'drop', s, k: to });
+      });
+    }
     for (let s = 0; s < MAX_PLAYERS; s++) {
       const row = this.log[s];
       let from = -1;
@@ -122,10 +137,6 @@ export class StarHub {
           from = have ? k : -1;
         }
       }
-    }
-    for (let s = 0; s < MAX_PLAYERS; s++) {
-      const d = this.session.dropAt[s];
-      if (Number.isFinite(d)) this.sendTo(linkId, { t: 'drop', s, k: d });
     }
   }
 }

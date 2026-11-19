@@ -233,6 +233,9 @@ export function _mountedCount() { return toggles.size; }
 export function mountSoundToggle({
   host, isMuted, setMuted, className = '', id = '', title = '', prepend = false,
   label = soundLabel, describe = soundDescription, doc = null,
+  
+  
+  sound = uiClick,
 }) {
   const d = doc || host?.ownerDocument || globalThis.document;
   if (!host || !d?.createElement) return null;
@@ -273,9 +276,9 @@ export function mountSoundToggle({
     
     
     const wasMuted = !!isMuted();
-    if (!wasMuted) uiClick('toggleOff');
+    if (!wasMuted) sound('toggleOff');
     setMuted(!wasMuted);
-    if (wasMuted) uiClick('toggleOn');
+    if (wasMuted) sound('toggleOn');
     
     syncSoundToggles();
   });

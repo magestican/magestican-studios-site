@@ -1,0 +1,15 @@
+# Kartzoom race loop, 2026-11-19, task KZ-AAA-3 (Bryan 2026-11-18: "I asked you for a second part to make it look
+# awesome and Aaa"). Farm animals in go-karts, drifting through a muddy farm circuit: a FAST BLUEGRASS BREAKDOWN,
+# banjo rolls and a fiddle lead over a driving train beat. Own palette, never another game's files (no other game on
+# this machine races to bluegrass). Style dossier: magestican-dj knowledge/styles/country.md (bluegrass 160-240,
+# cut time). Run: dj compose <this file> (background + gpuq/heavyq wait-turn).
+game: farmykart
+use: bgm
+genre: country
+title: Mud Run
+duration: 90
+bpm: 168
+key: G major
+loop: true
+candidates: 4
+extra: "fast bluegrass breakdown, rolling banjo, fiddle lead, mandolin chop on the backbeat, upright bass, driving train beat drums, playful farmyard racing energy, instrumental"

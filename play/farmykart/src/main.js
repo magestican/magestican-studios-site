@@ -75,6 +75,7 @@ import { drawItemIcon } from './render/itemMesh.js';
 import { hex, PALETTE } from './palette.js';
 import { showTouchOverlay } from './input/controls.js';
 import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState, SFX } from './audio/sfx.js';
+import { playUiSound } from './audio/samples.js';
 
 
 
@@ -1520,6 +1521,23 @@ function syncMuteButton() {
 
 
 
+
+
+
+
+const UI_BACK = new Set(['pause-quit', 'results-menu', 'lobby-leave']);
+const UI_SELF = new Set(['pause-sound', 'lobby-sound', 'mg-info-btn']); 
+function uiSound(name) {
+  try { playUiSound(audio, name); } catch {  }
+}
+document.addEventListener('click', (e) => {
+  const b = e.target?.closest?.('button');
+  if (!b || b.disabled || UI_SELF.has(b.id) || b.closest('.mg-info-panel')) return;
+  uiSound(UI_BACK.has(b.id) ? 'back' : 'tap');
+});
+
+window.addEventListener('kz-ui-sound', (e) => uiSound(e.detail));
+
 function mountMenuSoundToggles() {
   const read = () => state.muted;
   const write = (m) => setMuted(m);
@@ -1527,6 +1545,7 @@ function mountMenuSoundToggles() {
   if (pauseRow) {
     mountSoundToggle({
       host: pauseRow, id: 'pause-sound', className: 'chip', isMuted: read, setMuted: write,
+      sound: uiSound,
     });
   }
   
@@ -1535,6 +1554,7 @@ function mountMenuSoundToggles() {
   if (lobbyRow) {
     mountSoundToggle({
       host: lobbyRow, id: 'lobby-sound', className: 'chip', isMuted: read, setMuted: write,
+      sound: uiSound,
     });
   }
 }

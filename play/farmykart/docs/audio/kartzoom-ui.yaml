@@ -1,0 +1,46 @@
+# Kartzoom (arbelo-games games/farmykart) - its OWN menu sound kit, 2026-11-19, task KZ-AAA-3.
+# Render (from projects/magestican-dj):
+#   .venv/Scripts/python -m studio.cli kit <this file> --game-files --out E:/magestican-dj/renders/kartzoom-ui
+# Bryan 2026-11-09: "every game needs unique music sound menus etc. Make it a hard rule forever".
+# The fantasy: farm animals racing go-karts round a muddy farm, so the menus are a BANJO on the porch - short
+# plucked banjo notes (GM 105; no other kit on this machine uses it for menus) for taps and toggles, and a fiddle
+# (GM 110, also unused) running up for the open/swell, the barn-dance tuning up. G major, the key of the SFX set
+# and the race music. Quiet, quick: the race is the loud part.
+name: kartzoom-ui
+key: G major
+lane: symbolic
+gap_s: 3.0
+program: 105
+reward_pitch_classes: [G, A, B, D, E]
+reward_min_peak_db: -6.5
+shots:
+  - name: tap
+    ms: 130
+    peak_db: -4.0
+    idea: one plucked banjo string
+    fade_out_ms: 30
+    notes: ["D5@0:80"]
+  - name: back
+    ms: 140
+    peak_db: -4.5
+    idea: two falling banjo plucks, D to G
+    fade_out_ms: 40
+    notes: ["D5@0:66", "G4@50:70"]
+  - name: toggleOn
+    ms: 140
+    peak_db: -3.5
+    idea: two rising banjo plucks, G to D
+    fade_out_ms: 40
+    notes: ["G4@0:62", "D5@50:76"]
+  - name: toggleOff
+    ms: 140
+    peak_db: -5.5
+    idea: two falling plucks a fourth apart
+    fade_out_ms: 40
+    notes: ["G5@0:64", "D5@50:60"]
+  - name: open
+    ms: 340
+    peak_db: -2.5
+    idea: the fiddle tuning up, a quick rising run G B D G
+    fade_out_ms: 90
+    notes: [{note: G4, at: 0, vel: 54, program: 110}, {note: B4, at: 55, vel: 64, program: 110}, {note: D5, at: 110, vel: 74, program: 110}, {note: G5, at: 165, vel: 86, program: 110}]

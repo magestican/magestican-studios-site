@@ -65,7 +65,10 @@ export function createPlayerChoice({ el, builds, names, onChoose }) {
       b.classList.toggle('on', k === build);
       b.setAttribute('aria-pressed', String(k === build));
     }
-    play.textContent = `Play as ${names[build]}`;
+    
+    
+    play.textContent = 'Start';
+    play.setAttribute('aria-label', `Start as ${names[build]}`);
   }
   function go() {
     if (!open) return;

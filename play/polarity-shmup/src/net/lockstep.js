@@ -21,12 +21,33 @@
 
 
 
-import { MAX_PLAYERS, TICK_HZ, createSim, snapshot, stateHash, step } from '../sim/sim.js';
-import { IDLE } from '../sim/input.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { MAX_PLAYERS, TICK_HZ, createSim, deserialize, snapshot, stateHash, step } from '../sim/sim.js';
+import { IDLE, pack } from '../sim/input.js';
 
 export const DELAY = 2;
-export const MAX_ROLLBACK = 6;
+export const MAX_DELAY = 9;
+export const MAX_ROLLBACK = 8;
 export const HASH_EVERY = 60;
+
+const PRESENT_IDLE = pack({});
 const REDUNDANCY = 8;
 export const WATCH_CATCHUP = 16;
 const TICK_MS = 1000 / TICK_HZ;
@@ -40,24 +61,43 @@ export class Session {
 
 
 
-  constructor({ seed, seats, seat = null, gentle = true, send = () => {}, onDesync = () => {}, delay = DELAY, maxRollback = MAX_ROLLBACK }) {
-    this.gentle = !!gentle;
+
+
+
+
+  constructor({ seed, seats, seat = null, gentle = true, hard = false, stage = 0, base = null, send = () => {}, onDesync = () => {}, delay = DELAY, maxRollback = MAX_ROLLBACK }) {
+    this.gentle = !!gentle && !hard;
+    this.hard = !!hard;
     this.seed = seed;
     this.seat = seat;
     this.seats = seats.slice().sort();
+    
+    this.startSeats = this.seats.slice();
     this.send = send;
     this.onDesync = onDesync;
     this.delay = delay;
+    
+    this.inputDelay = delay;
     this.maxRollback = maxRollback;
+    this.cs = base ? deserialize(base) : createSim({ seed, gentle: this.gentle, hard: this.hard, stage });
+    
+    this.t0 = this.cs.tick;
+    
+    this.first = this.t0 + delay;
+    
+    
+    
+    const openAt = base ? this.t0 : this.first;
+    
+    this.spans = Array.from({ length: MAX_PLAYERS }, (_, s) => (this.seats.includes(s) ? [[openAt, Infinity]] : []));
+    this._late = -Infinity; 
     
     this.inputs = Array.from({ length: MAX_PLAYERS }, () => new Map());
     
-    this.known = Array.from({ length: MAX_PLAYERS }, (_, s) => (this.seats.includes(s) ? this.delay - 1 : Infinity));
-    
-    this.dropAt = new Array(MAX_PLAYERS).fill(Infinity);
-    this.cs = createSim({ seed, gentle: this.gentle });
+    this.known = Array.from({ length: MAX_PLAYERS }, (_, s) => (this.seats.includes(s) ? this.first - 1 : Infinity));
+    if (base) for (const s of this.seats) for (let t = this.t0; t < this.first; t++) this.inputs[s].set(t, PRESENT_IDLE);
     this.ps = snapshot(this.cs);
-    this.tick = 0;             
+    this.tick = this.t0;       
     this.dirty = false;        
     this.hashes = new Map();   
     this.remoteHashes = new Map(); 
@@ -69,9 +109,25 @@ export class Session {
   }
 
   
+  spanAt(seat, k) {
+    for (const sp of this.spans[seat]) if (k >= sp[0] && k < sp[1]) return sp;
+    return null;
+  }
+
+  
+  openSpan(seat) {
+    const sp = this.spans[seat].at(-1);
+    return sp && sp[1] === Infinity ? sp : null;
+  }
+
+  
+  get dropAt() {
+    return this.spans.map((list) => { const sp = list.at(-1); return sp ? sp[1] : Infinity; });
+  }
+
+  
   inputAt(seat, k) {
-    if (k >= this.dropAt[seat]) return IDLE;
-    if (!this.seats.includes(seat) || k < this.delay) return IDLE;
+    if (!this.spanAt(seat, k)) return IDLE;
     return this.inputs[seat].get(k);
   }
 
@@ -80,14 +136,24 @@ export class Session {
     const v = this.inputAt(seat, k);
     if (v !== undefined) return v;
     const last = Math.min(this.known[seat], k - 1);
-    const p = last >= this.delay ? this.inputs[seat].get(last) : undefined;
-    return p === undefined ? IDLE : p;
+    const p = this.inputs[seat].get(last);
+    return p === undefined ? PRESENT_IDLE : p;
   }
 
   _advanceKnown(seat) {
-    while (this.inputs[seat].has(this.known[seat] + 1) || this.known[seat] + 1 >= this.dropAt[seat]) {
-      if (this.known[seat] + 1 >= this.dropAt[seat]) { this.known[seat] = Infinity; break; }
-      this.known[seat]++;
+    for (;;) {
+      const k = this.known[seat] + 1;
+      if (!Number.isFinite(k)) return;
+      if (this.spanAt(seat, k)) {
+        if (!this.inputs[seat].has(k)) return;
+        this.known[seat] = k;
+        continue;
+      }
+      
+      let next = Infinity;
+      for (const sp of this.spans[seat]) if (sp[0] >= k && sp[0] < next) next = sp[0];
+      this.known[seat] = next === Infinity ? Infinity : next - 1;
+      if (next === Infinity) return;
     }
   }
 
@@ -101,29 +167,60 @@ export class Session {
   
   setLocalInput(packed) {
     if (this.seat === null) return null;
-    const k = this.tick + this.delay;
-    if (this.inputs[this.seat].has(k)) return k; 
-    this.inputs[this.seat].set(k, packed >>> 0);
+    const sp = this.openSpan(this.seat);
+    if (!sp) return null;
+    const k = this.tick + this.inputDelay;
+    if (k < sp[0]) return null; 
+    const row = this.inputs[this.seat];
+    if (row.has(k)) return k; 
+    
+    
+    const v0 = packed >>> 0;
+    const fillFrom = Math.max(sp[0], this.known[this.seat] + 1);
+    for (let t = fillFrom; t < k; t++) row.set(t, row.get(t - 1) ?? v0);
+    row.set(k, v0);
     this._advanceKnown(this.seat);
-    const from = Math.max(this.delay, k - REDUNDANCY + 1);
+    const from = Math.max(sp[0], k - REDUNDANCY + 1);
     const v = [];
-    for (let t = from; t <= k; t++) v.push(this.inputs[this.seat].get(t) ?? IDLE);
-    this.send({ t: 'in', s: this.seat, k: from, v });
+    for (let t = from; t <= k; t++) v.push(row.get(t) ?? IDLE);
+    this.send({ t: 'in', s: this.seat, k: from, v, d: this.inputDelay });
     return k;
+  }
+
+  
+  setInputDelay(d) {
+    this.inputDelay = Math.max(DELAY, Math.min(MAX_DELAY, d | 0));
+  }
+
+  
+
+
+
+  takeNeed() {
+    const late = this._late;
+    this._late = -Infinity;
+    if (late === -Infinity) return null;
+    return Math.max(DELAY, Math.min(MAX_DELAY, Math.ceil(late) + 1));
   }
 
   receive(msg) {
     if (!msg || typeof msg !== 'object') return;
     if (msg.t === 'in') {
       const s = msg.s | 0;
-      if (s === this.seat || !this.seats.includes(s) || !Array.isArray(msg.v)) return;
+      if (s === this.seat || s < 0 || s >= MAX_PLAYERS || !Array.isArray(msg.v)) return;
       for (let i = 0; i < msg.v.length; i++) {
         const k = (msg.k | 0) + i;
-        if (k < this.delay || k >= this.dropAt[s] || this.inputs[s].has(k)) continue;
+        if (!this.spanAt(s, k) || this.inputs[s].has(k)) continue;
         this.inputs[s].set(k, msg.v[i] >>> 0);
         if (k < this.tick) this.dirty = true;
       }
       this._advanceKnown(s);
+      
+      
+      if (this.seat !== null && Number.isFinite(msg.d) && msg.v.length) {
+        const late = this.tick - ((msg.k | 0) + msg.v.length - 1 - (msg.d | 0));
+        if (late > this._late) this._late = late;
+      }
     } else if (msg.t === 'h') {
       const k = msg.k | 0;
       if (!this.remoteHashes.has(k)) this.remoteHashes.set(k, new Map());
@@ -131,17 +228,52 @@ export class Session {
       this._checkHash(k);
     } else if (msg.t === 'drop') {
       this.dropSeat(msg.s | 0, msg.k | 0, false);
+    } else if (msg.t === 'join') {
+      this.joinSeat(msg.s | 0, msg.k | 0, false);
     }
   }
 
   
   dropSeat(seat, k, announce = true) {
-    if (this.dropAt[seat] <= k) return;
-    this.dropAt[seat] = Math.max(k, this.delay);
-    for (const t of [...this.inputs[seat].keys()]) if (t >= this.dropAt[seat]) this.inputs[seat].delete(t);
-    if (this.known[seat] >= this.dropAt[seat] - 1) this.known[seat] = Infinity; else this._advanceKnown(seat);
-    if (this.dropAt[seat] < this.tick) this.dirty = true;
-    if (announce) this.send({ t: 'drop', s: seat, k: this.dropAt[seat] });
+    const sp = this.openSpan(seat);
+    if (!sp) return;
+    sp[1] = Math.max(k, sp[0]);
+    for (const t of [...this.inputs[seat].keys()]) if (t >= sp[1]) this.inputs[seat].delete(t);
+    this.known[seat] = Math.min(this.known[seat], sp[1] - 1);
+    this._advanceKnown(seat);
+    if (sp[1] < this.tick) this.dirty = true;
+    if (announce) this.send({ t: 'drop', s: seat, k: sp[1] });
+  }
+
+  
+
+
+
+  joinSeat(seat, k, announce = true) {
+    if (seat < 0 || seat >= MAX_PLAYERS || this.openSpan(seat)) return null;
+    const list = this.spans[seat];
+    const at = Math.max(k, this.first, list.length ? list.at(-1)[1] : 0);
+    list.push([at, Infinity]);
+    if (!this.seats.includes(seat)) { this.seats.push(seat); this.seats.sort(); }
+    this.known[seat] = Math.min(this.known[seat], at - 1);
+    this._advanceKnown(seat);
+    if (at < this.tick) this.dirty = true;
+    if (announce) this.send({ t: 'join', s: seat, k: at });
+    return at;
+  }
+
+  
+
+
+
+  takeSeat(seat, send) {
+    this.seat = seat;
+    this.send = send;
+    this.tick = this.cs.tick;
+    this.ps = snapshot(this.cs);
+    this.dirty = false;
+    this._acc = 0;
+    this._last = null;
   }
 
   _frame(k, guess) {
@@ -240,6 +372,6 @@ export class Session {
 }
 
 
-export function watcherSession({ seed, seats }) {
-  return new Session({ seed, seats, seat: null, send: () => {} });
+export function watcherSession({ seed, seats, gentle = true, hard = false, stage = 0, base = null }) {
+  return new Session({ seed, seats, seat: null, gentle, hard, stage, base, send: () => {} });
 }

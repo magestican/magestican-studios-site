@@ -8389,6 +8389,9 @@ function wireCoopMenu(api, go) {
   
   const linked = coop()?.mode === 'off' ? joinFromUrl() : null;
   if (linked) {
+    
+    
+    el('bootMore') && (el('bootMore').open = true);
     el('coopCode') && (el('coopCode').value = linked);
     joinRow.style.display = 'block';
     joinRow.dataset.watch = '0';

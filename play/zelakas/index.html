@@ -74,7 +74,7 @@
 
 
 
-  <script src="./vendor/ruffle/ruffle.js?v=04d95f86-20261119T080422Z"></script>
+  <script src="./vendor/ruffle/ruffle.js?v=b11e6ae2-20261119T115310Z"></script>
   <style>
     :root { color-scheme: dark; }
     html, body {
@@ -94,6 +94,7 @@
     }
     header p { margin: 0; opacity: 0.7; font-size: 14px; }
     #stage-wrap {
+      position: relative;
       width: 100%; max-width: 1360px; aspect-ratio: 1360 / 768;
       background: #000;
       border: 1px solid #1a1e28;
@@ -105,12 +106,50 @@
     
 
 
+
+
+
+
+    #startBtn {
+      position: absolute; z-index: 2;
+      left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: min(620px, calc(100% - 32px));
+      height: min(146px, calc(100% - 24px));
+      font-family: 'Arial Black', 'Segoe UI Black', Impact, sans-serif;
+      font-weight: 900;
+      font-size: clamp(40px, 11vw, 64px);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff4e0;
+      text-shadow: 0 3px 0 #b8430e;
+      background:
+        radial-gradient(circle at 12% 28%, #fff 0 1.5px, transparent 2px),
+        radial-gradient(circle at 84% 22%, #cfe3ff 0 1.5px, transparent 2px),
+        radial-gradient(circle at 70% 78%, #fff 0 1px, transparent 1.5px),
+        radial-gradient(circle at 26% 80%, #cfe3ff 0 1px, transparent 1.5px),
+        linear-gradient(180deg, #1b2a4a 0%, #0c1426 100%);
+      border: 4px solid #ff7a2e;
+      border-radius: 18px;
+      box-shadow: 0 8px 0 #7a2a08, 0 0 40px rgba(255, 122, 46, 0.35);
+      cursor: pointer;
+    }
+    #startBtn:hover, #startBtn:focus-visible {
+      outline: none; border-color: #ffb066;
+      box-shadow: 0 8px 0 #7a2a08, 0 0 56px rgba(255, 160, 80, 0.55);
+    }
+    #startBtn:active { transform: translate(-50%, calc(-50% + 4px)); box-shadow: 0 4px 0 #7a2a08; }
+    @media (min-width: 900px) {
+      #startBtn { height: 160px; }
+    }
+    
+
+
     #stage-controls { display: flex; justify-content: center; }
     
 
 
     #stage-controls button {
-      font: 600 14px inherit; padding: 12px 22px; min-height: 44px; border-radius: 6px;
+      font-family: inherit; font-size: 15px; font-weight: 800; padding: 12px 22px; min-height: 44px; border-radius: 6px;
       background: #0d1017; color: #d8dde8; border: 1px solid #2a3140;
       cursor: pointer;
     }
@@ -129,7 +168,7 @@
     <p>Original 2014 Flash build · Bryan Arbelo · Gonzalo · Christian · running in-browser via Ruffle</p>
   </header>
 
-  <div id="stage-wrap"><div id="stage"></div></div>
+  <div id="stage-wrap"><button id="startBtn" type="button">Start</button><div id="stage"></div></div>
 
   
 
@@ -223,6 +262,8 @@
       
       
       if (!window.RufflePlayer || typeof window.RufflePlayer.newest !== "function") {
+        const start = document.getElementById("startBtn");
+        if (start) start.remove();
         const stage = document.getElementById("stage");
         if (stage) {
           const say = document.createElement("p");
@@ -266,9 +307,22 @@
       
       
       
+      
+      
+      
+      
+      let loaded = false;
+      let wantPlay = false;
+      const startBtn = document.getElementById("startBtn");
+      startBtn.addEventListener("click", () => {
+        wantPlay = true;
+        startBtn.remove();
+        if (loaded) { try { player.play(); } catch (_) {} }
+        try { player.focus(); } catch (_) {}
+      });
       player.load({
         url: "./ZelakasInSpace.swf",
-        autoplay: "on",
+        autoplay: "off",
         unmuteOverlay: "hidden",
         splashScreen: false,
         volume: muted ? 0 : 1,
@@ -280,7 +334,10 @@
         
         try { player.volume = readMuted(MUTE_KEY, false) ? 0 : 1; } catch (_) {}
         syncSoundToggles();
+        loaded = true;
+        if (wantPlay) { try { player.play(); } catch (_) {} }
       }).catch(() => {
+        if (startBtn.isConnected) startBtn.remove();
         
         
         
@@ -322,6 +379,6 @@
       });
     });
   </script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=b11e6ae2-20261119T115310Z"></script>
 </body>
 </html>

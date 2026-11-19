@@ -19,7 +19,8 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
 import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitGate } from './sound.js';
-import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, step, teamScore } from './sim/sim.js';
+import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore } from './sim/sim.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { FP } from './sim/fixed.js';
 import { MOVE_MAX, pack } from './sim/input.js';
 import { ENEMY_R, OTHER_ONLY, SCROLL } from './sim/stage.js';
@@ -32,6 +33,7 @@ import { renderEnding } from './ending.js';
 import { createFx, makeAura, pulseAura, stepAura } from './fx.js';
 import { ATTRACT_TICKS, attractInputs, createAttract } from './attract.js';
 import { HIGH_SPAN, PARALLAX, highLayout, propLayout, propSpan, runwayLights } from './scenery.js';
+import { setData, setHidden, setText, setTransform } from './hudWrite.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -443,6 +445,8 @@ $('flip').addEventListener('pointerdown', (e) => { e.preventDefault(); flip(); }
 $('bomb').addEventListener('pointerdown', (e) => { e.preventDefault(); bombQueued = true; });
 
 let padFlipHeld = false, padBombHeld = false;
+
+let nextQueued = false;
 function readInput() {
   if (botSeat && net?.room?.session) { 
     const t = net.room.session.tick;
@@ -467,11 +471,11 @@ function readInput() {
   const dm = dragTake(drag); 
   if (dm) { x = dm.x; y = dm.y; }
   const bomb = bombQueued; bombQueued = false;
-  return pack({ x, y, iris: flipLevel === 1, bomb, focus });
+  return pack({ x, y, iris: flipLevel === 1, bomb, focus, next: nextQueued });
 }
 
 
-let sim = null, mode = 'title', paused = false, gentle = true;
+let sim = null, mode = 'title', paused = false, gentle = true, hard = false;
 
 let net = null;
 const botSeat = params.get('bot') === '1';
@@ -498,21 +502,43 @@ function drawContinue() {
 }
 drawContinue();
 
-function start(isGentle, stage = 0) {
-  gentle = isGentle;
+
+for (const id of ['stage-pick', 'lobby-stage']) {
+  $(id).replaceChildren(...STAGES.map((st, i) => {
+    const o = document.createElement('option');
+    o.value = String(i);
+    o.textContent = `${i + 1}. ${st.name}`;
+    return o;
+  }));
+}
+const pickedStage = (id) => Math.max(0, Math.min(STAGES.length - 1, Number($(id).value) || 0));
+
+
+function seenFrom(s) {
+  const p = s.players[viewSeat(s)];
+  Object.assign(seen, { boom: s.nboom, bomb: s.nbomb, absorbed: p.absorbed, bursts: p.bursts, hits: p.hits, kills: p.kills,
+    shotTick: s.tick, chain: s.chain, stage: s.stage });
+}
+
+function start(isGentle, stage = 0, isHard = false) {
+  gentle = isGentle && !isHard;
+  hard = !!isHard;
+  nextQueued = false;
   
-  sim = createSim({ seed: (Date.now() & 0x7fffffff) || 1, gentle, stage });
+  sim = createSim({ seed: (Date.now() & 0x7fffffff) || 1, gentle, hard, stage });
   flipLevel = 0; drag.dx = drag.dy = 0;
   Object.assign(seen, SEEN0, { stage });
   mode = 'play';
   setPaused(false);
   $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true; $('field').dataset.screen = 'play';
   $('lives').hidden = gentle;
+  $('invite').hidden = false;
   ui.play('open');
   followSound(music, uiSoundOn());
 }
-$('start').addEventListener('click', () => start(true));
-$('arcade').addEventListener('click', () => start(false));
+$('start').addEventListener('click', () => start(true, pickedStage('stage-pick')));
+$('arcade').addEventListener('click', () => start(false, pickedStage('stage-pick')));
+$('hard').addEventListener('click', () => start(false, pickedStage('stage-pick'), true));
 $('continue').addEventListener('click', () => start(true, unlocked()));
 
 
@@ -526,7 +552,8 @@ for (const el of document.querySelectorAll('#title .plate')) {
   for (const ev of ['pointerenter', 'pointerdown', 'focus']) el.addEventListener(ev, on);
   for (const ev of ['pointerleave', 'pointercancel', 'blur']) el.addEventListener(ev, off);
 }
-$('again').addEventListener('click', () => (net ? leaveCoop() : start(gentle)));
+$('again').addEventListener('click', () => (net ? leaveCoop() : start(gentle, 0, hard)));
+$('t-go').addEventListener('click', () => { nextQueued = true; $('t-go').disabled = true; $('t-go').textContent = net ? 'Waiting for the team...' : 'Next level'; ui.play('open'); });
 
 function setPaused(p) {
   paused = p && mode === 'play';
@@ -541,6 +568,7 @@ const runGoesOn = (s) => !s.over && s.clear > 0 && s.stage + 1 < STAGES.length;
 
 function showTally(s) {
   mode = 'tally';
+  $('invite').hidden = true;
   const p = s.players[viewSeat(s)];
   const st = STAGES[s.stage];
   const secs = Math.round((s.tick - s.st0) / TICK_HZ);
@@ -554,8 +582,13 @@ function showTally(s) {
   $('t-time').textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   $('again').textContent = s.over ? 'Try again' : 'Play again';
   
+  
   $('again').hidden = runGoesOn(s);
   $('t-next').hidden = !runGoesOn(s);
+  const canNext = runGoesOn(s) && !(net && net.room.seat === null);
+  $('t-go').hidden = !canNext;
+  $('t-go').disabled = false;
+  $('t-go').textContent = 'Next level';
   if (runGoesOn(s)) $('t-next').textContent = `Next: stage ${s.stage + 2}, ${STAGES[s.stage + 1].name}`;
   const list = $('t-pilots');
   list.hidden = !net;
@@ -593,7 +626,8 @@ $('e-next').addEventListener('click', () => {
 
 function stageBegins(s) {
   seen.stage = s.stage;
-  if (!net) unlock(s.stage);
+  nextQueued = false;
+  if (!net) { unlock(s.stage); $('invite').hidden = false; }
   mode = 'play';
   $('tally').hidden = true; $('ending').hidden = true;
   toast(`Stage ${s.stage + 1}: ${STAGES[s.stage].name}`, 3000);
@@ -671,14 +705,29 @@ function onRoomEvent(e) {
     drawSeats(room);
     const n = [...room.guests.values()].filter((g) => g.seat !== null).length + 1;
     if (!room.started) lobbyStatus(n === 1 ? 'Share the Play link with up to three friends.' : `${n} pilots ready. Start when everyone is in.`);
+  } else if (e.type === 'seat' && e.why === 'joined') {
+    
+    $('lives').hidden = gentle;
+    for (const id of ['flip', 'bomb']) $(id).hidden = false;
+    flipLevel = 0; drag.dx = drag.dy = 0;
+    seenFrom(room.session.view());
+    toast(`You are in: P${e.seat + 1}`, 4000);
+  } else if (e.type === 'joined') {
+    drawSeats(room);
+    toast(`P${e.seat + 1} joined the run.`, 3000);
+  } else if (e.type === 'retrying') {
+    if (!room.started) lobbyStatus(`Looking for the host's room (try ${e.n + 1})...`);
   } else if (e.type === 'seat') {
     drawSeats(room);
     if (e.seat === null) lobbyStatus(e.why === 'late' ? 'The run has started, so you are watching it.' : e.why === 'full' ? 'The room is full, so you are watching.' : 'You are watching.');
     else lobbyStatus(`You are P${e.seat + 1}. The host starts the run.`);
   } else if (e.type === 'start') {
-    beginCoopRun(e.gentle);
+    beginCoopRun(e);
   } else if (e.type === 'unseated') {
-    if (e.me) toast(e.why === 'away' ? 'You left the game, so you are watching now.' : 'Your connection fell behind, so you are watching now.', 6000);
+    if (e.me) {
+      for (const id of ['flip', 'bomb']) $(id).hidden = true;
+      toast(e.why === 'away' ? 'You left the game, so you are watching. You fly again when you are back.' : 'Your connection fell behind, so you are watching. You fly again once it catches up.', 6000);
+    }
     else toast(e.why === 'away' ? 'A pilot left the game and is watching.' : 'A pilot fell behind and is watching.');
   } else if (e.type === 'pause') {
     if (e.on) toast('The host stepped away. The game waits for them.', 0); else $('toast').hidden = true;
@@ -688,16 +737,24 @@ function onRoomEvent(e) {
     toast('The host left, so the room has closed.', 0);
     lobbyStatus('The host left, so the room has closed.');
   } else if (e.type === 'error') {
-    if (!room.started) lobbyStatus(`Network trouble: ${e.message}`);
+    if (!room.started) lobbyStatus(e.plain ? e.message : `Network trouble: ${e.message}`);
+    else if (e.plain) toast(e.message, 0);
   }
 }
 
-async function openCoop() {
+
+
+
+
+
+async function openCoop({ invite = false } = {}) {
   if (net) return;
-  net = { room: null };
+  net = { room: null, invite };
   mode = 'lobby';
-  $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true;
-  $('lobby').hidden = false; $('links').hidden = true; $('host-go').hidden = true;
+  $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true; $('paused').hidden = true;
+  $('lobby').hidden = false; $('links').hidden = true; $('host-go').hidden = true; $('invite-go').hidden = true;
+  $('lobby-head').textContent = invite ? 'Invite friends' : 'Play with friends';
+  $('lobby-leave').textContent = invite ? 'Back to my run' : 'Back';
   $('seats').replaceChildren();
   lobbyStatus('Opening a room...');
   ui.play('open');
@@ -710,8 +767,10 @@ async function openCoop() {
       $('join-link').value = room.links.join;
       $('watch-link').value = room.links.watch;
       $('links').hidden = false;
-      $('host-go').hidden = false;
-      lobbyStatus('Share the Play link with up to three friends.');
+      $('host-go').hidden = invite;
+      $('invite-go').hidden = !invite;
+      newCode.show(true);
+      lobbyStatus(invite ? 'Share the Play link. Your run waits here; press Carry on when you are ready.' : 'Share the Play link with up to three friends.');
     } else {
       $('lobby-head').textContent = room.role === 'watch' ? 'Watching' : 'Joining';
       lobbyStatus('Connecting to the host...');
@@ -721,11 +780,23 @@ async function openCoop() {
   }
 }
 
-function beginCoopRun(isGentle) {
-  gentle = isGentle;
+
+function closeRoom() {
+  try { net?.room?.mesh.destroy(); } catch {  }
+  net = null;
+  newCode.show(false);
+}
+
+function beginCoopRun(e) {
+  gentle = !!e.gentle && !e.hard;
+  hard = !!e.hard;
+  nextQueued = false;
   flipLevel = 0; drag.dx = drag.dy = 0;
-  Object.assign(seen, SEEN0);
+  if (e.base) seenFrom(net.room.session.view()); else Object.assign(seen, SEEN0, { stage: e.stage | 0 });
   mode = 'play';
+  sim = null;
+  newCode.show(false);
+  $('invite').hidden = true;
   $('lobby').hidden = true; $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true; $('field').dataset.screen = 'play';
   $('lives').hidden = gentle || net.room.seat === null;
   for (const id of ['flip', 'bomb']) $(id).hidden = net.room.seat === null;
@@ -741,10 +812,41 @@ function leaveCoop() {
   location.href = url.toString();
 }
 
-$('friends').addEventListener('click', openCoop);
-$('coop-start').addEventListener('click', () => net?.room?.start({ gentle: true }));
-$('coop-arcade').addEventListener('click', () => net?.room?.start({ gentle: false }));
-$('lobby-leave').addEventListener('click', leaveCoop);
+$('friends').addEventListener('click', () => openCoop());
+$('coop-start').addEventListener('click', () => net?.room?.start({ gentle: true, stage: pickedStage('lobby-stage') }));
+$('coop-arcade').addEventListener('click', () => net?.room?.start({ gentle: false, stage: pickedStage('lobby-stage') }));
+$('coop-hard').addEventListener('click', () => net?.room?.start({ gentle: false, hard: true, stage: pickedStage('lobby-stage') }));
+$('invite').addEventListener('click', () => {
+  if (net || !sim || mode !== 'play') return;
+  setPaused(false); 
+  openCoop({ invite: true });
+});
+$('invite-carry').addEventListener('click', () => {
+  const room = net?.room;
+  if (!room || room.started || !sim) return;
+  room.start({ gentle, hard, stage: sim.stage, base: serialize(sim) });
+});
+$('lobby-leave').addEventListener('click', () => {
+  if (net?.invite && !net.room?.started && sim) { 
+    closeRoom();
+    $('lobby').hidden = true;
+    mode = 'play';
+    setPaused(true);
+    return;
+  }
+  leaveCoop();
+});
+
+const newCode = newCodeButton($('share-join'), {
+  onReset: async () => {
+    if (!net?.room || net.room.role !== 'host' || net.room.started) return;
+    const invite = net.invite;
+    const { forgetRoomCode } = await import('./coop.js');
+    forgetRoomCode();
+    closeRoom();
+    openCoop({ invite });
+  },
+});
 for (const id of ['join', 'watch']) {
   $(`share-${id}`).addEventListener('click', async () => {
     
@@ -952,10 +1054,10 @@ function draw(s, dt) {
       b.scale.setScalar(b.userData.base * (1 + BOSS_KICK * bossPunch));
     }
     bossPunch = Math.max(0, bossPunch - 0.25);
-    hud.bossBar.hidden = !bh.on;
+    setHidden(hud.bossBar, !bh.on);
     if (bh.on) {
-      hud.bossHp.style.transform = `scaleX(${bh.frac})`;
-      hud.bossName.textContent = BOSS_NAMES[s.boss.kind] || '';
+      setTransform(hud.bossHp, `scaleX(${bh.frac.toFixed(3)})`);
+      setText(hud.bossName, BOSS_NAMES[s.boss.kind] || '');
     }
   }
   
@@ -1017,21 +1119,22 @@ function draw(s, dt) {
   if (s.tick - seen.shotTick >= 15 && mode === 'play' && !s.clear) { sfxFor(s, 'shot'); seen.shotTick = s.tick; }
 
   
-  hud.score.textContent = (coop ? teamScore(s) : p.score).toLocaleString();
-  hud.meter.style.transform = `scaleX(${Math.min(1, p.energy / BURST_COST)})`;
-  hud.meter.dataset.pol = p.iris ? 'iris' : 'ember';
-  hud.lives.textContent = `Lives ${Math.max(0, p.lives)}`;
-  hud.pol.textContent = p.iris ? 'IRIS' : 'EMBER';
-  hud.pol.dataset.pol = p.iris ? 'iris' : 'ember';
-  hud.bombs.textContent = String(p.bombs);
+  
+  setText(hud.score, (coop ? teamScore(s) : p.score).toLocaleString());
+  setTransform(hud.meter, `scaleX(${Math.min(1, p.energy / BURST_COST).toFixed(3)})`);
+  setData(hud.meter, 'pol', p.iris ? 'iris' : 'ember');
+  setText(hud.lives, `Lives ${Math.max(0, p.lives)}`);
+  setText(hud.pol, p.iris ? 'IRIS' : 'EMBER');
+  setData(hud.pol, 'pol', p.iris ? 'iris' : 'ember');
+  setText(hud.bombs, String(p.bombs));
   
   const chainText = s.chain || s.chainN ? `Chain ${s.chain} ${'●'.repeat(s.chainN)}${'○'.repeat(3 - s.chainN)}` : '';
-  if (hud.chain.textContent !== chainText) hud.chain.textContent = chainText;
-  hud.chain.hidden = !chainText;
-  hud.chain.dataset.pol = s.chainPol ? 'iris' : 'ember';
+  setText(hud.chain, chainText);
+  setHidden(hud.chain, !chainText);
+  setData(hud.chain, 'pol', s.chainPol ? 'iris' : 'ember');
   const c = stageCue(s.stage, lt);
-  hud.flipBtn.dataset.pol = p.iris ? 'iris' : 'ember';
-  hud.flipBtn.dataset.cue = c < 0 || c === p.iris ? '' : c ? 'iris' : 'ember'; 
+  setData(hud.flipBtn, 'pol', p.iris ? 'iris' : 'ember');
+  setData(hud.flipBtn, 'cue', c < 0 || c === p.iris ? '' : c ? 'iris' : 'ember'); 
 }
 
 
@@ -1092,10 +1195,9 @@ function frame(now) {
       else if (sim.over && sim.tick - sim.over > 90) showTally(sim);
     } else if (mode === 'tally') {
       
-      
       acc += dt;
       let n = 0;
-      while (acc >= DT && n < 5) { step(sim, [pack({}), 0, 0, 0]); acc -= DT; n++; }
+      while (acc >= DT && n < 5) { step(sim, [pack({ next: nextQueued }), 0, 0, 0]); acc -= DT; n++; }
       if (n === 5) acc = 0;
       if (sim.stage !== seen.stage) stageBegins(sim);
     }
@@ -1137,6 +1239,6 @@ window.__flipwing = {
     if (!r) return null;
     return { role: r.role, seat: r.seat, started: r.started, ended: r.ended, id: r.mesh.myId, links: r.links ?? null,
       tick: se?.tick ?? 0, confirmed: se?.cs.tick ?? 0, desyncs: se?.desyncs ?? 0, stalls: se?.stalls ?? 0,
-      hashes: se ? [...se.hashes.entries()].slice(-10) : [], seats: se?.seats ?? [], gentle: r.gentle };
+      hashes: se ? [...se.hashes.entries()].slice(-10) : [], seats: se?.seats ?? [], gentle: r.gentle, hard: r.hard, delay: se?.inputDelay ?? 0 };
   },
 };

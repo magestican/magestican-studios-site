@@ -1,0 +1,14 @@
+# Kartzoom menu / garage loop, 2026-11-19, task KZ-AAA-3. The porch before the race: a relaxed country two-step,
+# a banjo and acoustic guitar picking, a harmonica answering, warm and sunny, so the race loop (Mud Run) is the lift.
+# Own palette, never another game's files. Style dossier: magestican-dj knowledge/styles/country.md (two-step 96-120).
+# Run: dj compose <this file> (background + gpuq/heavyq wait-turn).
+game: farmykart
+use: menu
+genre: country
+title: Porch Time
+duration: 60
+bpm: 108
+key: G major
+loop: true
+candidates: 4
+extra: "relaxed country two-step, banjo and acoustic guitar picking, harmonica answers, brushed drums, warm sunny farmyard morning, instrumental"

@@ -136,6 +136,8 @@ export function installInfo({
   label = 'How to play',
   onOpen = null,
   doc = typeof document === 'undefined' ? null : document,
+  
+  sound = uiClick,
 } = {}) {
   if (!doc) return null;
   installStyle(doc);
@@ -202,7 +204,7 @@ export function installInfo({
       if (open) return;
       open = true;
       button.setAttribute('aria-expanded', 'true');
-      uiClick('open');
+      sound('open');
       
       
       try { window.dispatchEvent(new CustomEvent('mg-info-open')); } catch {  }
@@ -215,7 +217,7 @@ export function installInfo({
       if (!open) return;
       open = false;
       button.setAttribute('aria-expanded', 'false');
-      uiClick('back');
+      sound('back');
       if (back) back.classList.remove('mg-info-on');
       try { window.dispatchEvent(new CustomEvent('mg-info-close')); } catch {  }
       try { button.focus(); } catch {  }

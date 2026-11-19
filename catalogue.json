@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "04d95f86-20261119T080422Z",
+ "buildId": "b11e6ae2-20261119T115310Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -100,7 +100,7 @@
    "ageNote": "Frequent and intense horror themes: body horror, dread, jump scares and sustained tension. This is the game the pack is rated for.",
    "order": 2,
    "addedAt": "2026-08-31",
-   "bytes": 7794933
+   "bytes": 7796354
   },
   {
    "id": "farmykart",
@@ -132,7 +132,7 @@
    "ageNote": null,
    "order": 3,
    "addedAt": "2026-08-28",
-   "bytes": 6540326
+   "bytes": 8756107
   },
   {
    "id": "farmy-tiles",
@@ -643,7 +643,7 @@
    "ageNote": null,
    "order": 21,
    "addedAt": "2026-09-14",
-   "bytes": 780975
+   "bytes": 781579
   },
   {
    "id": "silk-and-seam",
@@ -962,7 +962,39 @@
    "ageNote": null,
    "order": 31,
    "addedAt": "2026-11-17",
-   "bytes": 6483394
+   "bytes": 6521040
+  },
+  {
+   "id": "tiny-throttle",
+   "statsId": "tiny-throttle",
+   "title": "Tiny Throttle",
+   "tagline": "Race a toy RC car round a giant kitchen, along the worktop and over the sink.",
+   "description": "A toy-car racer that runs in your browser: you drive a small RC car round a kitchen built at toy scale, up onto the worktop, past cans and boxes, and along a track bridge off the counter. One kitchen track, four laps, eleven bot cars to beat.",
+   "dir": "play/tiny-throttle",
+   "path": "play/tiny-throttle/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/tiny-throttle.html",
+   "orientation": "any",
+   "players": "1",
+   "online": false,
+   "offline": false,
+   "cover": "assets/covers/tiny-throttle-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/tiny-throttle/0.webp",
+    "assets/shots/tiny-throttle/1.webp"
+   ],
+   "accent": "#ff3b30",
+   "glyph": "tiny-throttle",
+   "pack": "family",
+   "age": 6,
+   "ageNote": null,
+   "order": 32,
+   "addedAt": "2026-11-19",
+   "bytes": 4649429
   },
   {
    "id": "farmy-five",
@@ -992,7 +1024,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 33,
+   "order": 34,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1024,7 +1056,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 34,
+   "order": 35,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1056,7 +1088,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 35,
+   "order": 36,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1088,7 +1120,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 36,
+   "order": 37,
    "addedAt": "2026-09-21",
    "bytes": 228531
   }

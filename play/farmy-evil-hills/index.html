@@ -32,7 +32,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="04d95f86-20261119T080422Z">
+<meta name="build" content="b11e6ae2-20261119T115310Z">
 <title>Play Evil Hills — free browser survival horror, no download | Magestican Studios</title>
 <meta name="description" content="Play Evil Hills free in your browser: PS1-era survival horror on a Space Farming Agency station on Venus. A virus has mutated the livestock. Take a chicken's leg off with a bolt driver, or mash one off your boot when it latches. Phone and desktop. No download, no install, no account.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2305060a'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23b6392c'%3EE%3C/text%3E%3C/svg%3E">
@@ -298,7 +298,7 @@
   #pause h2 { font-size: 22px; margin: 0 0 2px; letter-spacing: .10em; color: #cfe3dc; }
   #pause .sub { opacity: .55; font-size: 11px; margin-bottom: 14px; letter-spacing: .14em; }
   #pause button, #boot button { pointer-events: auto; margin: 5px; padding: 12px 26px;
-    font: inherit; font-weight: 700; letter-spacing: .08em; min-height: 44px;
+    font: inherit; font-weight: 900; letter-spacing: .08em; min-height: 44px;
     background: #2a2620; color: #e8e4d8; border: 1px solid #6a5f4c;
     border-radius: 6px; cursor: pointer; }
   #pause button.primary, #boot button.primary { background: #8d2f24; border-color: #c4553f; color: #fff; }
@@ -382,10 +382,35 @@
   #bootBtns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
     margin-top: 16px; }
   #boot .menuBtn, #coopSlot .menuBtn { pointer-events: auto; padding: 12px 26px;
-    font: inherit; font-weight: 700; letter-spacing: .12em; min-height: 44px;
+    font: inherit; font-weight: 900; letter-spacing: .12em; min-height: 44px;
     background: #1b2a2f; color: #cfe3dc; border: 1px solid #3d5a63;
     border-radius: 6px; cursor: pointer; }
-  #boot .menuBtn.primary { background: #8d2f24; border-color: #c4553f; color: #fff; }
+  
+
+
+
+
+
+  #boot .menuBtn.primary { display: block; width: 100%; min-height: 146px;
+    margin: 0; padding: 14px 18px; font-weight: 900;
+    font-size: clamp(34px, 10vw, 56px); line-height: 1.05; letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #fff; border: 7px solid transparent; border-radius: 8px;
+    background:
+      linear-gradient(180deg, #a83a2b 0%, #7a2419 100%) padding-box,
+      repeating-linear-gradient(-45deg, #e0a526 0 12px, #141008 12px 24px) border-box;
+    text-shadow: 0 2px 0 #3a0d08, 0 0 18px rgba(255,120,90,.55);
+    box-shadow: 0 0 28px rgba(196,85,63,.45), inset 0 0 0 2px rgba(0,0,0,.35); }
+  #boot .menuBtn.primary:hover, #boot .menuBtn.primary:focus-visible {
+    filter: brightness(1.12); outline: 3px solid #e0a526; outline-offset: 3px; }
+  #boot .menuBtn.primary:active { transform: translateY(2px); }
+  @media (min-width: 900px) { #boot .menuBtn.primary { min-height: 160px; font-size: 64px; } }
+  #bootBtns .menuBtn:not(.primary) { width: 100%; margin: 0; }
+  #bootMore { margin-top: 16px; text-align: center; }
+  #bootMore summary { display: inline-block; cursor: pointer; padding: 12px 22px;
+    min-height: 44px; font-weight: 900; letter-spacing: .12em; color: #cfe3dc;
+    border: 1px solid #3d5a63; border-radius: 6px; background: #1b2a2f; }
+  #boot .coopBtn { font-weight: 900; }
   kbd { background: #2a2620; border: 1px solid #5a5142; border-bottom-width: 2px;
     border-radius: 3px; padding: 1px 5px; font: 11px/1 ui-monospace, monospace; }
 
@@ -1177,7 +1202,7 @@
         
 
 
-        <button id="startBtn" class="menuBtn primary">BEGIN</button>
+        <button id="startBtn" class="menuBtn primary" type="button">Start</button>
       </div>
 
       
@@ -1188,6 +1213,12 @@
 
 
 
+      
+
+
+
+      <details id="bootMore">
+      <summary>See options</summary>
       <div id="access">
         <label><input type="checkbox" id="acReduced"> reduced motion</label>
         <label><input type="checkbox" id="acFlash"> fewer flashes</label>
@@ -1247,6 +1278,7 @@
 
         <div id="liveHost" style="margin-top:8px"></div>
       </div>
+      </details>
     </div>
   </div>
 </div>
@@ -1278,9 +1310,9 @@
 
 
 
-<script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=04d95f86-20261119T080422Z"></script>
+<script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=b11e6ae2-20261119T115310Z"></script>
 
-<script type="module" src="./src/main.js?v=04d95f86-20261119T080422Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
+<script type="module" src="./src/main.js?v=b11e6ae2-20261119T115310Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=b11e6ae2-20261119T115310Z"></script>
 </body>
 </html>

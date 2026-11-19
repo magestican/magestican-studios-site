@@ -1,0 +1,461 @@
+{
+ "airshipGrab": {
+  "idea": "the rescue airship's winch taking hold, a low warm creak and a rope tightening - help arriving",
+  "seed": 72019,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "airshipGrab.wav",
+    "lufs": -17.99,
+    "true_peak_db": -9.07,
+    "sources": []
+   }
+  ]
+ },
+ "bump": {
+  "idea": "a wheel knocking a fence post or a crate edge, a short wooden knock",
+  "seed": 72006,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "bump.wav",
+    "lufs": -23.99,
+    "true_peak_db": -3.79,
+    "sources": []
+   },
+   {
+    "file": "bump_2.wav",
+    "lufs": -24.01,
+    "true_peak_db": -3.82,
+    "sources": []
+   },
+   {
+    "file": "bump_3.wav",
+    "lufs": -24.01,
+    "true_peak_db": -5.54,
+    "sources": []
+   },
+   {
+    "file": "bump_4.wav",
+    "lufs": -24.0,
+    "true_peak_db": -3.85,
+    "sources": []
+   }
+  ]
+ },
+ "countdown": {
+  "idea": "one cowbell tonk for 3, 2, 1; the game pitches it up a step each beat",
+  "seed": 72001,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "countdown.wav",
+    "lufs": -19.49,
+    "true_peak_db": -3.22,
+    "sources": []
+   }
+  ]
+ },
+ "emoteBoast": {
+  "idea": "a proud rooster crow, rising then held",
+  "seed": 72021,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "emoteBoast.wav",
+    "lufs": -16.99,
+    "true_peak_db": -10.85,
+    "sources": []
+   }
+  ]
+ },
+ "emoteHappy": {
+  "idea": "a happy chicken cluck-cluck, bright and quick",
+  "seed": 72020,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "emoteHappy.wav",
+    "lufs": -18.0,
+    "true_peak_db": -5.85,
+    "sources": []
+   },
+   {
+    "file": "emoteHappy_2.wav",
+    "lufs": -18.0,
+    "true_peak_db": -5.58,
+    "sources": []
+   }
+  ]
+ },
+ "emoteRude": {
+  "idea": "a rude pig snort and oink, low and nasal",
+  "seed": 72022,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "emoteRude.wav",
+    "lufs": -18.01,
+    "true_peak_db": -7.26,
+    "sources": []
+   },
+   {
+    "file": "emoteRude_2.wav",
+    "lufs": -18.0,
+    "true_peak_db": -7.3,
+    "sources": []
+   }
+  ]
+ },
+ "emoteSulk": {
+  "idea": "a sulking cow, a long low falling moo",
+  "seed": 72023,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "emoteSulk.wav",
+    "lufs": -18.0,
+    "true_peak_db": -10.13,
+    "sources": []
+   }
+  ]
+ },
+ "finish": {
+  "idea": "the chequered flag, a cowbell run up G B D G and a bulb-horn honk on the top note",
+  "seed": 72013,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "finish.wav",
+    "lufs": -14.01,
+    "true_peak_db": -3.41,
+    "sources": []
+   }
+  ]
+ },
+ "go": {
+  "idea": "GO - two cowbells struck together with a bulb-horn honk under them, the yard bursting into the race",
+  "seed": 72002,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "go.wav",
+    "lufs": -15.0,
+    "true_peak_db": -3.31,
+    "sources": []
+   }
+  ]
+ },
+ "hit": {
+  "idea": "a cowpat splattering over a kart, a wet squelch and a thick splat",
+  "seed": 72009,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "hit.wav",
+    "lufs": -16.0,
+    "true_peak_db": -3.24,
+    "sources": []
+   },
+   {
+    "file": "hit_2.wav",
+    "lufs": -15.99,
+    "true_peak_db": -3.29,
+    "sources": []
+   },
+   {
+    "file": "hit_3.wav",
+    "lufs": -16.07,
+    "true_peak_db": -3.22,
+    "sources": []
+   }
+  ]
+ },
+ "itemGet": {
+  "idea": "driving through an item crate - a seed tin rattled once and a little bucket ding",
+  "seed": 72007,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "itemGet.wav",
+    "lufs": -18.51,
+    "true_peak_db": -3.2,
+    "sources": []
+   },
+   {
+    "file": "itemGet_2.wav",
+    "lufs": -18.5,
+    "true_peak_db": -3.5,
+    "sources": []
+   }
+  ]
+ },
+ "itemUse": {
+  "idea": "lobbing the item out of the kart, a quick throw whoosh with a wooden flick",
+  "seed": 72008,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "itemUse.wav",
+    "lufs": -19.01,
+    "true_peak_db": -3.93,
+    "sources": []
+   },
+   {
+    "file": "itemUse_2.wav",
+    "lufs": -18.99,
+    "true_peak_db": -4.28,
+    "sources": []
+   }
+  ]
+ },
+ "jump": {
+  "idea": "a kart leaving a hay-bale ramp, a wooden creak and a rising whoosh of air",
+  "seed": 72004,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "jump.wav",
+    "lufs": -20.02,
+    "true_peak_db": -6.72,
+    "sources": []
+   },
+   {
+    "file": "jump_2.wav",
+    "lufs": -20.0,
+    "true_peak_db": -5.58,
+    "sources": []
+   }
+  ]
+ },
+ "land": {
+  "idea": "the kart thumping back onto packed dirt, a dull thud and a puff of dust",
+  "seed": 72005,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "land.wav",
+    "lufs": -21.0,
+    "true_peak_db": -3.49,
+    "sources": []
+   },
+   {
+    "file": "land_2.wav",
+    "lufs": -21.0,
+    "true_peak_db": -3.55,
+    "sources": []
+   },
+   {
+    "file": "land_3.wav",
+    "lufs": -20.99,
+    "true_peak_db": -3.78,
+    "sources": []
+   }
+  ]
+ },
+ "lap": {
+  "idea": "crossing the line, two quick milk-churn pings a fourth apart, D then G",
+  "seed": 72012,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "lap.wav",
+    "lufs": -17.0,
+    "true_peak_db": -3.33,
+    "sources": []
+   }
+  ]
+ },
+ "milkRamp": {
+  "idea": "crossing the milk ramp, a wet slap on milk then a rising launch",
+  "seed": 72018,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "milkRamp.wav",
+    "lufs": -18.0,
+    "true_peak_db": -4.72,
+    "sources": []
+   },
+   {
+    "file": "milkRamp_2.wav",
+    "lufs": -18.0,
+    "true_peak_db": -5.15,
+    "sources": []
+   }
+  ]
+ },
+ "miniTurbo": {
+  "idea": "the drift spark kicking out, a whoosh of straw and a rising rasp; the game pitches it by tier",
+  "seed": 72003,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "miniTurbo.wav",
+    "lufs": -18.02,
+    "true_peak_db": -5.92,
+    "sources": []
+   },
+   {
+    "file": "miniTurbo_2.wav",
+    "lufs": -18.01,
+    "true_peak_db": -5.76,
+    "sources": []
+   }
+  ]
+ },
+ "railJump": {
+  "idea": "the paid jump off the rail, a sprung clang that rises - it earns a turbo",
+  "seed": 72016,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "railJump.wav",
+    "lufs": -18.01,
+    "true_peak_db": -6.56,
+    "sources": []
+   }
+  ]
+ },
+ "railOff": {
+  "idea": "slipping off the rail, a short falling scrape",
+  "seed": 72015,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "railOff.wav",
+    "lufs": -20.99,
+    "true_peak_db": -6.56,
+    "sources": []
+   },
+   {
+    "file": "railOff_2.wav",
+    "lufs": -20.98,
+    "true_peak_db": -4.53,
+    "sources": []
+   }
+  ]
+ },
+ "railOn": {
+  "idea": "hopping onto a steel farm-gate rail, a bright metal clang",
+  "seed": 72014,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "railOn.wav",
+    "lufs": -18.0,
+    "true_peak_db": -4.48,
+    "sources": []
+   },
+   {
+    "file": "railOn_2.wav",
+    "lufs": -17.98,
+    "true_peak_db": -5.25,
+    "sources": []
+   }
+  ]
+ },
+ "shieldBlock": {
+  "idea": "an item bouncing off a tin-bucket shield, a hollow metal bong",
+  "seed": 72010,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "shieldBlock.wav",
+    "lufs": -17.01,
+    "true_peak_db": -3.26,
+    "sources": []
+   },
+   {
+    "file": "shieldBlock_2.wav",
+    "lufs": -17.01,
+    "true_peak_db": -3.24,
+    "sources": []
+   }
+  ]
+ },
+ "splash": {
+  "idea": "the kart ploughing into the duck-pond ford, a thump then aerated spray",
+  "seed": 72017,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "splash.wav",
+    "lufs": -17.01,
+    "true_peak_db": -3.46,
+    "sources": []
+   },
+   {
+    "file": "splash_2.wav",
+    "lufs": -17.01,
+    "true_peak_db": -3.35,
+    "sources": []
+   },
+   {
+    "file": "splash_3.wav",
+    "lufs": -17.0,
+    "true_peak_db": -3.32,
+    "sources": []
+   }
+  ]
+ },
+ "thunder": {
+  "idea": "the storm item, a rolling thunder over the fields, low and wide",
+  "seed": 72011,
+  "licences": [
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "thunder.wav",
+    "lufs": -16.0,
+    "true_peak_db": -3.94,
+    "sources": []
+   }
+  ]
+ }
+}

@@ -40,6 +40,28 @@ const SHOT_SPEED = 14 * FP;
 const INVULN = 120, GENTLE_SHIELD = 180;
 const START_LIVES = 3, START_BOMBS = 2;
 export const BURST_COST = 40;   
+
+
+
+
+
+
+
+
+
+
+
+export const HEAT_MAX = 4, HEAT_START = 2, HEAT_CLEAN = 900;
+export const thinAt = (gentle, heat, hard = false) => (hard ? false : gentle ? heat < 3 : heat === 0);
+
+
+export const hardHp = (hp, hard) => (hard ? Math.max(1, muldiv(hp, 5, 4)) : hp);
+const bossMax = (S, n, hard) => hardHp(muldiv(S.bossHp, 1 + n, 2), hard);
+
+
+
+export const NEXT_READY = 120;
+const heatHp = (hp, heat) => Math.max(1, muldiv(hp, 8 + heat, 10));
 const BURST_SHOTS = 8, BURST_DMG = 4, BURST_TURN = 64, BURST_VMAX = 6 * FP;
 
 
@@ -80,7 +102,7 @@ function newPlayer(i) {
 
 const newBoss = () => ({ on: 0, kind: 0, hp: 0, max: 0, phase: 0, age: 0, fa: 0, rest: 0, x: FIELD_W >> 1, y: -120 * FP, kills: 0, beaten: 0 });
 
-export function createSim({ seed = 1, gentle = true, stage = 0 } = {}) {
+export function createSim({ seed = 1, gentle = true, hard = false, stage = 0 } = {}) {
   const st = Math.max(0, Math.min(STAGES.length - 1, stage | 0));
   return {
     tick: 0,
@@ -90,7 +112,8 @@ export function createSim({ seed = 1, gentle = true, stage = 0 } = {}) {
     chain: 0, chainN: 0, chainPol: 0, maxChain: 0, sbest: 0, deflects: 0,
     bests: [0, 0, 0, 0, 0], 
     seed: seed | 0,
-    gentle: gentle ? 1 : 0,
+    gentle: gentle && !hard ? 1 : 0,
+    hard: hard ? 1 : 0,
     rng: seed | 0,
     wi: 0,       
     clear: 0,    
@@ -115,6 +138,8 @@ export function createSim({ seed = 1, gentle = true, stage = 0 } = {}) {
     sparks: 0, 
     
     nbomb: 0, bombT: 0, bombX: 0, bombY: 0, bombPol: 0, bombSeat: 0, bombCut: 0,
+    
+    heat: HEAT_START, calm: 0, bossN: 0,
   };
 }
 
@@ -161,7 +186,7 @@ function addEnemy(s, w) {
   const e = s.ne++;
   const kind = w.k;
   const scale = isMid(kind) ? 1 + presentCount(s) : 2;
-  s.ek[e] = kind; s.ep[e] = w.pol; s.epath[e] = w.path; s.ehp[e] = muldiv(w.hp || ENEMY_HP[kind], scale, 2); 
+  s.ek[e] = kind; s.ep[e] = w.pol; s.epath[e] = w.path; s.ehp[e] = hardHp(heatHp(muldiv(w.hp || ENEMY_HP[kind], scale, 2), s.heat), s.hard === 1); 
   s.eage[e] = 0; s.eid[e] = ++s.serial; s.ex0[e] = w.x; s.ey0[e] = w.y; s.edir[e] = w.dir; s.ef[e] = w.flags | 0;
   s.ex[e] = w.x; s.ey[e] = w.y;
 }
@@ -269,13 +294,15 @@ export function step(s, inputs) {
   const lt = t - s.st0;
   const S = STAGES[s.stage];
   const ended = s.clear > 0 || s.over > 0;
-  const thin = s.gentle === 1;
+  const thin = thinAt(s.gentle === 1, s.heat, s.hard === 1);
+  let next = false;
 
   
   for (let i = 0; i < MAX_PLAYERS; i++) {
     const p = s.players[i];
     const k = unpack(inputs[i] >>> 0);
     if (!k.present) { p.on = 0; continue; }
+    if (k.next) next = true;
     if (!p.on) { Object.assign(p, newPlayer(i), { on: 1, score: p.score, inv: INVULN }); }
     if (p.lives <= 0) { 
       if (p.pod) p.y = clampY(p.y + POD_DRIFT);
@@ -338,10 +365,24 @@ export function step(s, inputs) {
       addEnemy(s, w);
     }
     if (lt === S.bossAt) {
-      const max = muldiv(S.bossHp, 1 + Math.max(1, presentCount(s)), 2);
+      const max = bossMax(S, Math.max(1, presentCount(s)), s.hard === 1);
       Object.assign(s.boss, { on: 1, kind: S.boss, hp: max, max, phase: 0, age: 0, fa: 0, rest: 0 });
+      s.bossN = Math.max(1, presentCount(s));
     }
   }
+  
+  
+  if (s.boss.on && s.boss.hp > 0 && !ended) {
+    const n = Math.max(1, presentCount(s));
+    if (s.bossN > 0 && n !== s.bossN) { 
+      const max = bossMax(S, n, s.hard === 1);
+      s.boss.hp = Math.max(1, muldiv(s.boss.hp, max, s.boss.max));
+      s.boss.max = max;
+      s.bossN = n;
+    }
+  }
+  
+  if (!ended && presentCount(s) > 0 && t - s.calm >= HEAT_CLEAN) { s.calm = t; if (s.heat < HEAT_MAX) s.heat++; }
 
   
   for (let e = s.ne - 1; e >= 0; e--) {
@@ -443,6 +484,8 @@ export function step(s, inputs) {
         const rr = (HIT_R + BULLET_R[s.bkind[b]]) >> 8;
         if (d < rr * rr && p.inv === 0) {
           p.hits++;
+          if (s.heat > 0) s.heat--;
+          s.calm = t;
           if (s.gentle) p.inv = GENTLE_SHIELD; 
           else { p.lives--; p.inv = INVULN; if (p.lives <= 0) { p.pod = 1; p.rev = 0; p.duet = 0; } }
           removeBullet(s, b); break;
@@ -459,7 +502,11 @@ export function step(s, inputs) {
     if (flying > 0 && alive === 0) s.over = t;
   }
   
-  if (s.clear > 0 && !s.over && !s.done && t >= s.clear + TALLY_TICKS) nextStage(s, t);
+  
+  if (s.clear > 0 && !s.over && !s.done) {
+    const last = s.stage + 1 >= STAGES.length;
+    if (last ? t >= s.clear + TALLY_TICKS : next && t >= s.clear + NEXT_READY) nextStage(s, t);
+  }
 
   s.tick = t + 1;
   return s;
@@ -474,6 +521,32 @@ export function snapshot(s) {
   return c;
 }
 
+const TYPED = { Int32Array, Uint8Array, Int8Array };
+
+
+
+
+
+
+export function serialize(s) {
+  const o = { ...s, boss: { ...s.boss }, players: s.players.map((p) => ({ ...p })), bests: s.bests.slice() };
+  for (const k of ARRAYS) o[k] = { $t: s[k].constructor.name, n: s[k].length, v: Array.from(s[k]) };
+  return o;
+}
+
+export function deserialize(o) {
+  const s = { ...o, boss: { ...o.boss }, players: o.players.map((p) => ({ ...p })), bests: o.bests.slice() };
+  for (const k of ARRAYS) {
+    const T = TYPED[o[k].$t];
+    if (!T) throw new Error('serialize: unknown array ' + k);
+    const a = new T(o[k].n);
+    a.set(o[k].v);
+    s[k] = a;
+  }
+  if (s.hard === undefined) s.hard = 0;
+  return s;
+}
+
 const PLAYER_KEYS = ['on', 'x', 'y', 'iris', 'energy', 'lives', 'bombs', 'inv', 'cool', 'score', 'bombHeld', 'absorbed', 'hits',
   'bursts', 'kills', 'duet', 'pod', 'rev', 'revives'];
 const BOSS_KEYS = ['on', 'kind', 'hp', 'max', 'phase', 'age', 'fa', 'rest', 'x', 'y', 'kills', 'beaten'];
@@ -482,7 +555,7 @@ const BOSS_KEYS = ['on', 'kind', 'hp', 'max', 'phase', 'age', 'fa', 'rest', 'x',
 export function stateHash(s) {
   let h = 0x811c9dc5;
   const add = (v) => { h = Math.imul(h ^ (v | 0), 0x01000193); };
-  add(s.tick); add(s.seed); add(s.gentle); add(s.rng); add(s.sparks); add(s.wi); add(s.clear); add(s.over);
+  add(s.tick); add(s.seed); add(s.gentle); add(s.hard); add(s.rng); add(s.sparks); add(s.wi); add(s.clear); add(s.over);
   add(s.stage); add(s.st0); add(s.done); add(s.chain); add(s.chainN); add(s.chainPol); add(s.maxChain); add(s.sbest);
   add(s.deflects); for (const b of s.bests) add(b);
   for (const k of BOSS_KEYS) add(s.boss[k]);
@@ -494,6 +567,7 @@ export function stateHash(s) {
   add(s.ne); add(s.serial);
   for (let i = 0; i < s.ne; i++) for (const k of ENEMY_ARRAYS) add(s[k][i]);
   add(s.nboom);
+  add(s.heat); add(s.calm); add(s.bossN);
   add(s.nbomb); add(s.bombT); add(s.bombX); add(s.bombY); add(s.bombPol); add(s.bombSeat); add(s.bombCut);
   return h >>> 0;
 }

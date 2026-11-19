@@ -236,7 +236,10 @@
     .cards p { margin: 0; font-size: calc(14px * var(--fs)); line-height: 1.35; }
     .cards li div { display: flex; flex-direction: column; gap: 4px; }
     .links { display: flex; flex-direction: column; gap: 12px; width: min(340px, 100%); }
-    .links .row { display: flex; gap: 8px; align-items: center; }
+    .links .row { display: flex; flex-wrap: wrap; gap: 12px 8px; align-items: center; }
+    
+
+    .links #new-room-code { flex: 1 0 100%; }
     .links label { width: 48px; flex: none; font-size: 12px; opacity: 0.8; text-align: left; }
     .links input { flex: 1; min-width: 0; min-height: 44px; background: #16181e; color: var(--ink); border-radius: 8px;
       border: 1px solid rgba(242, 239, 232, 0.18); padding: 0 10px; font: 12px ui-monospace, Consolas, monospace; }
@@ -245,6 +248,14 @@
     
 
     .pilots[hidden], .links[hidden], .pair[hidden] { display: none; }
+    
+    .stagepick { display: flex; align-items: center; justify-content: center; gap: 10px; font: 600 calc(13px * var(--fs)) var(--petch);
+      letter-spacing: 0.05em; text-transform: uppercase; }
+    .stagepick[hidden] { display: none; }
+    .stagepick select { font: inherit; text-transform: none; min-height: 40px; padding: 6px 12px; border-radius: 8px;
+      background: var(--panel); color: var(--ink); border: 1px solid rgba(255, 255, 255, 0.25); }
+    .chip.invite { cursor: pointer; border: 0; color: var(--ink); font: inherit; }
+    .chip.invite[hidden] { display: none; }
     .names { position: absolute; inset: 0; pointer-events: none; }
     .names span { position: absolute; transform: translate(-50%, 0); padding: 2px 8px; border-radius: 99px;
       background: rgba(12, 13, 18, 0.7); color: var(--c); font: 700 calc(11px * var(--fs)) / 1.3 system-ui, sans-serif;
@@ -298,6 +309,7 @@
       </div>
       <div class="stats">
         <button class="chip" id="sound" type="button" aria-pressed="false">Sound off</button>
+        <button class="chip invite" id="invite" type="button" hidden>Invite</button>
         <div class="chip"><span id="pol" data-pol="ember">EMBER</span></div>
         <div class="chip" id="lives" hidden>Lives 3</div>
       </div>
@@ -323,8 +335,10 @@
         <button class="plate" id="continue" type="button" data-pol="ember" hidden>Continue</button>
         <button class="plate" id="arcade" type="button" data-pol="iris"><b>Arcade</b><small>3 lives</small>
           <i class="glyph lives" aria-hidden="true"><s></s><s></s><s></s></i></button>
+        <button class="plate" id="hard" type="button" data-pol="ember"><b>Hard</b><small>3 lives, thicker fire, tougher foes</small></button>
         <button class="plate" id="friends" type="button" data-pol="ember"><b>Play with friends</b><small>Up to 4 pilots</small>
           <i class="glyph wing4" aria-hidden="true"><s></s><s></s><s></s><s></s></i></button>
+        <label class="stagepick" for="stage-pick">Stage <select id="stage-pick"></select></label>
       </nav>
       <p class="keys touch">Drag to fly <kbd>2nd finger</kbd> or <kbd>Flip</kbd> switches colour</p>
       <p class="keys desk"><kbd>WASD</kbd> fly <kbd>Space</kbd> flip <kbd>K</kbd> bomb <kbd>Shift</kbd> slow</p>
@@ -347,6 +361,7 @@
       </dl>
       <ul class="pilots" id="t-pilots" hidden></ul>
       <p class="tag" id="t-next" hidden></p>
+      <button class="go" id="t-go" type="button" hidden>Next level</button>
       <button class="go" id="again" type="button">Play again</button>
     </section>
     
@@ -360,8 +375,13 @@
         <div class="row"><label for="watch-link">Watch</label><input id="watch-link" readonly><button class="alt" id="share-watch" type="button">Share</button></div>
       </div>
       <div class="pair" id="host-go" hidden>
+        <label class="stagepick" for="lobby-stage">Stage <select id="lobby-stage"></select></label>
         <button class="go" id="coop-start" type="button">Start</button>
         <button class="alt" id="coop-arcade" type="button">Arcade: 3 lives each</button>
+        <button class="alt" id="coop-hard" type="button">Hard: 3 lives, tougher</button>
+      </div>
+      <div class="pair" id="invite-go" hidden>
+        <button class="go" id="invite-carry" type="button">Carry on</button>
       </div>
       <button class="alt" id="lobby-leave" type="button">Back</button>
     </section>
@@ -406,7 +426,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=04d95f86-20261119T080422Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
+  <script type="module" src="src/boot.js?v=b11e6ae2-20261119T115310Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=b11e6ae2-20261119T115310Z"></script>
 </body>
 </html>
