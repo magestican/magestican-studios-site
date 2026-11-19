@@ -42,6 +42,24 @@ import {
   fehRoomCode, fehNormaliseCode, fehCodeError, fehShareLink, fehJoinIdFrom, GAME_KEY,
 } from '../../../web-engine/horror/coopCode.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
+import { stickyRoomCode } from '../../../web-engine/net/stickyRoomCode.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+const stickyCode = stickyRoomCode('feh', { valid: (c) => fehNormaliseCode(c) === c });
+
+
+export function forgetRoomCode() { stickyCode.forget(); }
 
 
 
@@ -166,7 +184,10 @@ export function createNet({
     
     host(attempt = 0) {
       if (mesh) return null;
-      const hint = attempt < CODE_TRIES ? fehRoomCode(Math.random) : null;
+      
+      
+      
+      const hint = stickyCode.hint(attempt, () => fehRoomCode(Math.random), CODE_TRIES);
       const mine = newMesh(hint ? { hostIdHint: hint } : {});
       mesh = mine;
       hosting = true;
@@ -176,9 +197,12 @@ export function createNet({
         if (mesh !== mine) return;           
         try { mine.destroy(); } catch {  }
         mesh = null;
-        api.host(attempt + 1);
+        stickyCode.retry(attempt, () => api.host(attempt + 1));
       });
-      mine.addEventListener('open', () => mine.host(), { once: true });
+      mine.addEventListener('open', (e) => {
+        stickyCode.keep(e.detail?.id);
+        mine.host();
+      }, { once: true });
       if (attempt === 0) announce('Opening a room...');
       return hint;
     },
@@ -213,6 +237,8 @@ export function createNet({
     shareLink(href) { return myId ? fehShareLink(href, myId) : null; },
 
     leave() {
+      
+      stickyCode.cancel();
       try { mesh?.destroy(); } catch {  }
       mesh = null;
       myId = null;

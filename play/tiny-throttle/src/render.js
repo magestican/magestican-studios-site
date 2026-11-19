@@ -86,7 +86,7 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
   sun.shadow.bias = -0.0004;
   scene.add(sun, sun.target);
 
-  buildRoom(scene);
+  buildRoom(scene, race.track.def);
   buildLanes(scene, race.track);
   buildConnector(scene, race.track, models);
   buildProps(scene, race.track.def, models);
@@ -147,47 +147,81 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
   return { renderer, scene, camera, resize, draw, cars };
 }
 
-function buildRoom(scene) {
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80),
-    new THREE.MeshLambertMaterial({ color: 0xe2d2b6 }));
+
+
+
+const FLOORS = {
+  tile: { color: 0xe2d2b6, line: 0xc9b799 },
+  boards: { color: 0xc79a64, line: 0x9c7344 },
+};
+
+
+function buildRoom(scene, def) {
+  const R = def.room;
+  const cx = (R.x0 + R.x1) / 2; const cz = (R.z0 + R.z1) / 2;
+  const W = R.x1 - R.x0; const D = R.z1 - R.z0;
+  const look = FLOORS[R.floor] ?? FLOORS.tile;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W + 40, D + 40),
+    new THREE.MeshLambertMaterial({ color: look.color }));
   floor.rotation.x = -Math.PI / 2;
-  floor.position.set(13, 0, -10);
+  floor.position.set(cx, 0, cz);
   floor.receiveShadow = true;
   scene.add(floor);
-  
-  const grout = new THREE.GridHelper(80, 80 / 0.3, 0xc9b799, 0xc9b799);
-  grout.position.set(13, 0.0008, -10);
-  grout.material.transparent = true;
-  grout.material.opacity = 0.55;
-  scene.add(grout);
-  const wallMat = new THREE.MeshLambertMaterial({ color: 0xf7efe0 });
-  const back = new THREE.Mesh(new THREE.PlaneGeometry(60, 3), wallMat);
-  back.position.set(13, 1.5, -22.45);
-  back.receiveShadow = true;
-  const side = new THREE.Mesh(new THREE.PlaneGeometry(40, 3), wallMat);
-  side.rotation.y = -Math.PI / 2;
-  side.position.set(26.45, 1.5, -10);
-  side.receiveShadow = true;
-  
-  
-  const left = new THREE.Mesh(new THREE.PlaneGeometry(40, 3), wallMat);
-  left.rotation.y = Math.PI / 2;
-  left.position.set(-2.4, 1.5, -10);
-  left.receiveShadow = true;
-  const front = new THREE.Mesh(new THREE.PlaneGeometry(60, 3), wallMat);
-  front.rotation.y = Math.PI;
-  front.position.set(13, 1.5, 6.5);
-  front.receiveShadow = true;
-  
-  const skirt = new THREE.MeshLambertMaterial({ color: 0xc9b08a });
-  for (const [w, x, z, ry] of [[60, 13, -22.44, 0], [40, 26.44, -10, -Math.PI / 2], [40, -2.39, -10, Math.PI / 2],
-    [60, 13, 6.49, Math.PI]]) {
-    const s = new THREE.Mesh(new THREE.PlaneGeometry(w, 0.08), skirt);
-    s.rotation.y = ry;
-    s.position.set(x, 0.04, z);
-    scene.add(s);
+  if (R.floor === 'boards') scene.add(boardLines(R, look.line));
+  else {
+    const size = Math.max(W, D) + 40;
+    const grout = new THREE.GridHelper(size, Math.round(size / 0.3), look.line, look.line);
+    grout.position.set(cx, 0.0008, cz);
+    grout.material.transparent = true;
+    grout.material.opacity = 0.55;
+    scene.add(grout);
   }
-  scene.add(back, side, left, front);
+  for (const r of def.rugs ?? []) scene.add(rugMesh(r));
+  
+  
+  const wallMat = new THREE.MeshLambertMaterial({ color: 0xf7efe0 });
+  const skirt = new THREE.MeshLambertMaterial({ color: 0xc9b08a });
+  for (const [w, x, z, ry] of [[W, cx, R.z0, 0], [D, R.x1, cz, -Math.PI / 2], [D, R.x0, cz, Math.PI / 2],
+    [W, cx, R.z1, Math.PI]]) {
+    const wall = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.2, 3), wallMat);
+    wall.rotation.y = ry;
+    wall.position.set(x, 1.5, z);
+    wall.receiveShadow = true;
+    const s = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.2, 0.08), skirt);
+    s.rotation.y = ry;
+    
+    s.position.set(x + Math.sign(cx - x) * 0.01 * (ry !== 0 && ry !== Math.PI ? 1 : 0), 0.04,
+      z + Math.sign(cz - z) * 0.01 * (ry === 0 || ry === Math.PI ? 1 : 0));
+    scene.add(wall, s);
+  }
+}
+
+function boardLines(R, colour) {
+  const pos = [];
+  const x0 = R.x0 - 20; const x1 = R.x1 + 20;
+  for (let z = R.z0 - 20; z <= R.z1 + 20; z += 0.14) pos.push(x0, 0.0008, z, x1, 0.0008, z);
+  
+  let row = 0;
+  for (let z = R.z0; z <= R.z1; z += 0.14, row += 1) {
+    for (let x = R.x0 + (row % 3) * 0.4; x <= R.x1; x += 1.2) pos.push(x, 0.0008, z, x, 0.0008, z + 0.14);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  const mat = new THREE.LineBasicMaterial({ color: colour, transparent: true, opacity: 0.6 });
+  return new THREE.LineSegments(g, mat);
+}
+
+
+function rugMesh(r) {
+  const grp = new THREE.Group();
+  const w = r.x1 - r.x0; const d = r.z1 - r.z0;
+  const edge = new THREE.Mesh(new THREE.BoxGeometry(w, 0.006, d), new THREE.MeshLambertMaterial({ color: r.border }));
+  const mid = new THREE.Mesh(new THREE.BoxGeometry(w - 0.3, 0.007, d - 0.3), new THREE.MeshLambertMaterial({ color: r.color }));
+  edge.position.set(0, 0.003, 0); mid.position.set(0, 0.0035, 0);
+  edge.receiveShadow = true; mid.receiveShadow = true;
+  grp.add(edge, mid);
+  grp.position.set((r.x0 + r.x1) / 2, 0, (r.z0 + r.z1) / 2);
+  return grp;
 }
 
 
@@ -205,7 +239,10 @@ function buildLanes(scene, track) {
   for (let i = 0; i < N; i += 1) {
     const s0 = (i / N) * path.length; const s1 = ((i + 1) / N) * path.length;
     if (isConnector(s0) || isConnector(s1)) continue;
-    const a = sampleAt(path, s0); const b = sampleAt(path, s1);
+    const a = { ...sampleAt(path, s0) }; const b = { ...sampleAt(path, s1) };
+    
+    a.lift = onRug(track.def, m(a.x), m(a.z)) ? 0.009 : 0.002;
+    b.lift = onRug(track.def, m(b.x), m(b.z)) ? 0.009 : 0.002;
     for (const side of [-1, 1]) {
       const off = side * m(a.width) / 2; const offB = side * m(b.width) / 2;
       quad(pos, a, b, off - tw / 2, off + tw / 2, offB - tw / 2, offB + tw / 2);
@@ -217,8 +254,10 @@ function buildLanes(scene, track) {
   scene.add(stripMesh(pos, tape), stripMesh(posLine, line));
 }
 
+const onRug = (def, x, z) => (def.rugs ?? []).some((r) => x > r.x0 && x < r.x1 && z > r.z0 && z < r.z1);
+
 function quad(out, a, b, a0, a1, b0, b1) {
-  const y = (p) => m(p.y) + 0.002;
+  const y = (p) => m(p.y) + (p.lift ?? 0.002);
   const P = (p, off) => [m(p.x) + p.nx * off, y(p), m(p.z) + p.nz * off];
   const A0 = P(a, a0); const A1 = P(a, a1); const B0 = P(b, b0); const B1 = P(b, b1);
   out.push(...A0, ...B0, ...A1, ...A1, ...B0, ...B1);
@@ -235,13 +274,14 @@ function stripMesh(pos, mat) {
 }
 
 
-function supportY(def, x, z) {
+
+export function supportY(def, x, z) {
   for (const p of def.props) {
     if (p.support != null && Math.hypot(p.x - x, p.z - z) < 0.3) return p.support;
   }
-  const onLeg1 = x > 12.5 && x < 25.2 && z > -22.42 && z < -21.18;
-  const onLeg2 = x > 25.18 && x < 26.42 && z > -22.42 && z < -4.6;
-  if (onLeg1 || onLeg2) return 0.905;
+  for (const q of def.platforms ?? []) {
+    if (x > q.x0 && x < q.x1 && z > q.z0 && z < q.z1) return q.y;
+  }
   return 0;
 }
 

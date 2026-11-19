@@ -65,6 +65,13 @@
     .keys { margin: 0; font-size: 14px; font-weight: 600; opacity: 0.8; }
     #loading { font-weight: 800; font-size: 18px; }
     
+    #tracks { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    #tracks .pick { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
+    #trackList { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+    #trackList a { display: inline-flex; align-items: center; min-height: 48px; padding: 8px 18px; border-radius: 14px;
+      border: 3px solid var(--ink); background: var(--panel); color: var(--ink); font-weight: 900; text-decoration: none; }
+    #trackList a[aria-current] { background: var(--tape); color: #fff; }
+    
     #hud { position: fixed; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between;
       gap: 12px; pointer-events: none; }
     #hud[hidden] { display: none; }
@@ -101,8 +108,9 @@
   <div id="game"></div>
   <section id="title" class="screen">
     <h1>Tiny<br>Throttle</h1>
-    <p class="sub">Race a toy RC car round a giant kitchen: up the cutting board, along the counter, over the sink.</p>
+    <p class="sub" id="blurb">Race a toy RC car round a giant kitchen, up the cutting board and over the sink.</p>
     <button id="start" class="big" disabled>Loading</button>
+    <nav id="tracks" aria-label="Pick a track"><span class="pick">Pick a track</span><div id="trackList"></div></nav>
     <p class="keys" id="keys">Arrows or WASD to drive &middot; Space to hop &middot; Shift to drift</p>
   </section>
   <div id="hud" hidden>
@@ -121,7 +129,7 @@
     <table id="table"></table>
     <button id="again" class="big">Race again</button>
   </section>
-  <script type="module" src="./src/main.js?v=2b1bd11b-20261119T163509Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2b1bd11b-20261119T163509Z"></script>
+  <script type="module" src="./src/main.js?v=c5a650eb-20261119T180816Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=c5a650eb-20261119T180816Z"></script>
 </body>
 </html>

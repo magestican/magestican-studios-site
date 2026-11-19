@@ -5,7 +5,7 @@
 
 
 
-import { TRACKS } from './tracks/index.js';
+import { TRACKS, TRACK_ORDER } from './tracks/index.js';
 import { createRace, stepRace, standings, PHASE } from './race.js';
 import { loadModels, createView } from './render.js';
 import { formatTime, ordinal } from '../../../web-engine/kart/raceProgress.js';
@@ -25,6 +25,18 @@ function clampInt(v, lo, hi, dflt) {
 }
 
 const $ = (id) => document.getElementById(id);
+
+
+
+$('blurb').textContent = def.blurb;
+for (const id of TRACK_ORDER) {
+  const a = document.createElement('a');
+  a.href = `?track=${id}`;
+  a.textContent = TRACKS[id].name;
+  if (id === def.id) a.setAttribute('aria-current', 'true');
+  $('trackList').appendChild(a);
+}
+
 const host = $('game');
 const canvas = document.createElement('canvas');
 host.appendChild(canvas);

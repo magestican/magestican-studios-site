@@ -43,7 +43,7 @@ import { createCoopSession, createLoopback } from '../../../web-engine/horror/co
 import { bodyAt, pickTarget, stateName } from '../../../web-engine/horror/coopWire.js';
 import { resolveHit, applyDamage, statusOf } from '../../../web-engine/horror/dismemberment.js';
 import { WEAPONS } from '../../../web-engine/horror/weapons.js';
-import { createNet, fehPresence, joinCodeInUrl } from './net.js';
+import { createNet, fehPresence, joinCodeInUrl, forgetRoomCode } from './net.js';
 import { spokenFehCode } from '../../../web-engine/horror/coopCode.js';
 
 
@@ -489,6 +489,22 @@ export function createCoopRuntime(ctx) {
       code = hint || code;
       paintStatus();
       return code;
+    },
+
+    
+
+
+
+
+
+
+    newCode() {
+      if (mode !== 'host') return code;
+      api.leave();
+      pending = null;
+      code = null;
+      forgetRoomCode();
+      return api.openHost();
     },
 
     

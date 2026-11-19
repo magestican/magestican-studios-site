@@ -30,6 +30,7 @@ import {
   turnStep, TURN_RATE_MIN, reachPose, REACH_TIME, deathFall, idleShift, fightWave,
 } from '../../../web-engine/horror/gait.js';
 import { XANDER_SPANS } from '../../../web-engine/horror/xanderRig.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { buildBoltDriver, muzzlePoint } from '../../../web-engine/ps1/props/boltDriver.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
 import { buildPorker, PORKER_HEIGHT_M } from '../../../web-engine/ps1/creatures/porker.mjs';
@@ -8321,10 +8322,26 @@ function wireCoopMenu(api, go) {
   const joinRow = el('coopJoin');
   if (!statusEl) return;
 
+  
+  
+  
+  const newCode = newCodeButton(el('hostBtn'), {
+    lang: document.documentElement.lang || 'en',
+    onReset: () => {
+      const c = coop();
+      if (!c || c.mode !== 'host') return;
+      c.newCode();
+      show();
+      statusEl.textContent = 'New code. Read this one out, then press BEGIN.';
+    },
+  });
+  if (newCode.button) newCode.button.textContent = newCode.button.textContent.toUpperCase();
+
   const show = () => {
     const c = coop();
     if (!c) return;
     statusEl.textContent = c.status || '';
+    newCode.show(c.mode === 'host' && !!c.code);
     if (!c.code) { card.style.display = 'none'; return; }
     card.style.display = 'block';
     idEl.textContent = (c.spoken || c.code).toUpperCase();

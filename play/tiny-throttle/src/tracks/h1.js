@@ -21,6 +21,7 @@ const TOP = 0.905;
 export const H1 = Object.freeze({
   id: 'H1',
   name: 'Countertop Canyon',
+  blurb: 'Race a toy RC car round a giant kitchen, up the cutting board and over the sink.', 
   world: 'house',
   laps: 4,
   parLap: 28,
@@ -70,6 +71,15 @@ export const H1 = Object.freeze({
   
   
   basinY: 0.72, 
+  
+  room: Object.freeze({ x0: -2.4, x1: 26.45, z0: -22.45, z1: 6.5, floor: 'tile' }),
+  rugs: Object.freeze([]),
+  
+  
+  platforms: Object.freeze([
+    { x0: 12.5, x1: 25.2, z0: -22.42, z1: -21.18, y: TOP },
+    { x0: 25.18, x1: 26.42, z0: -22.42, z1: -4.6, y: TOP },
+  ]),
   
   
   

@@ -1577,6 +1577,7 @@ export function createDebug(ctx) {
         
         
         host: () => rt.openHost(),
+        newCode: () => rt.newCode(),
         join: (code, watch) => rt.joinRoom(code, !!watch),
         local: () => rt.openLocal(),
         begin: () => rt.beginRun(),
