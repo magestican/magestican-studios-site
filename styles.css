@@ -1446,6 +1446,28 @@ blockquote.pull {
   .site-header nav a { font-size: 18px; padding: 4px 10px; }
   .site-header nav a:nth-child(n+2) { display: none; }
 }
+
+
+
+
+
+
+@media (max-width: 560px) {
+  .site-header { gap: 6px; }
+  .site-header .brand { margin-right: auto; }
+  .site-header nav { display: none; }
+  .lang-switch > summary { padding: 4px 10px; gap: 4px; }
+}
+
+@media (max-width: 375px) {
+  .lang-switch > summary { padding: 4px 6px; box-shadow: none; }
+}
+
+
+@media (max-width: 340px) {
+  .lang-switch > summary > span { display: none; }
+  .site-header { gap: 4px; }
+}
 .site-footer .footer-nav { margin: 0 0 14px; }
 .site-footer .footer-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 6px; }
 .site-footer .footer-nav a { display: inline-flex; align-items: center; min-height: 48px; padding: 0 8px; }

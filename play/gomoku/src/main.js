@@ -46,6 +46,8 @@ import {
   progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord,
 } from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
+import { forgetRoomCode } from './net.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 
 const GAME_ID = 'gomoku';
 const SETTINGS_KEY = 'gomowise-settings-v1';
@@ -314,6 +316,7 @@ function drawControls() {
   roomEl.hidden = settings.mode !== 'room';
   $('room-start').hidden = room.active;
   $('room-live').hidden = !room.active;
+  document.getElementById('new-room-code')?.toggleAttribute('hidden', !(room.active && net?.hosting));
   $('room-code').textContent = room.code ?? '-';
   
   $('copy-link').hidden = room.watching;
@@ -764,6 +767,12 @@ $('leave-room').addEventListener('click', () => {
   leaveRoom();
   newMatch();
   afterChange();
+});
+
+
+newCodeButton($('copy-link'), {
+  lang,
+  onReset: () => { forgetRoomCode(); leaveRoom(); openRoom(); },
 });
 $('copy-link').addEventListener('click', () => {
   if (!net?.id) return;

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <style data-immersive-shell>
+  html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  canvas { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, textarea, select, [contenteditable=""], [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  </style>
+  <script data-immersive-shell>
+  (function () {
+    var stop = function (e) { e.preventDefault(); };
+    // iOS pinch: Safari ignores user-scalable=no, so cancel its gesture events.
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('gestureend', stop, { passive: false });
+    // Two fingers moving = a pinch; cancelling the default stops the zoom, the game still gets the touches.
+    document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+    // Ctrl + wheel / trackpad pinch on a desktop browser.
+    window.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    var editable = function (t) {
+      return !!(t && t.closest && t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]'));
+    };
+    document.addEventListener('selectstart', function (e) { if (!editable(e.target)) e.preventDefault(); });
+    document.addEventListener('dblclick', function (e) { if (!editable(e.target)) e.preventDefault(); }, { passive: false });
+    document.addEventListener('contextmenu', function (e) { if (e.target && e.target.tagName === 'CANVAS') e.preventDefault(); });
+  })();
+  </script>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <title>Tiny Throttle</title>
+  <meta name="description" content="Tiny Throttle: race a hand-sized RC car across a giant kitchen, up the cutting board, along the counter and over the sink on orange clip-track.">
+  
+
+  <link rel="canonical" href="https://magesticanstudios.com/play/tiny-throttle/">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "../../web-engine/vendor/three-0.161.0/three.module.js",
+      "three/addons/": "../../web-engine/vendor/three-0.161.0/addons/"
+    }
+  }
+  </script>
+  <style>
+    :root { --ink: #1d1a16; --paper: #fff8ec; --hot: #ff3b30; --tape: #2f8cff; --panel: rgba(255, 248, 236, 0.9); }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #f3e6cf; color: var(--ink); overflow: hidden;
+      font: 16px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-user-select: none; user-select: none; }
+    #game { position: fixed; inset: 0; touch-action: none; }
+    #game canvas { display: block; width: 100%; height: 100%; }
+    .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 24px; padding: 16px; text-align: center; }
+    .screen[hidden] { display: none; }
+    #title { background: linear-gradient(180deg, rgba(243, 230, 207, 0.55), rgba(243, 230, 207, 0.92)); }
+    h1 { margin: 0; font-size: clamp(40px, 12vw, 96px); font-weight: 900; letter-spacing: -0.02em; line-height: 0.95;
+      text-transform: uppercase; color: var(--hot); text-shadow: 0 4px 0 var(--ink); }
+    .sub { margin: 0; font-size: clamp(16px, 4.2vw, 22px); font-weight: 700; max-width: 30em; }
+    .big { font: 900 clamp(28px, 8vw, 48px)/1 system-ui, sans-serif; text-transform: uppercase; letter-spacing: 0.02em;
+      color: #fff; background: var(--hot); border: 4px solid var(--ink); border-radius: 20px; padding: 20px 48px;
+      min-width: min(320px, 100%); cursor: pointer; box-shadow: 0 6px 0 var(--ink); }
+    .big:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
+    .keys { margin: 0; font-size: 14px; font-weight: 600; opacity: 0.8; }
+    #loading { font-weight: 800; font-size: 18px; }
+    
+    #hud { position: fixed; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between;
+      gap: 12px; pointer-events: none; }
+    #hud[hidden] { display: none; }
+    .chip { background: var(--panel); border: 3px solid var(--ink); border-radius: 14px; padding: 8px 14px;
+      font-weight: 900; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #pos { font-size: clamp(28px, 8vw, 44px); line-height: 1; color: var(--hot); }
+    #pos small { font-size: 0.45em; color: var(--ink); }
+    .right { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+    #lap { font-size: clamp(18px, 4.6vw, 24px); }
+    #time { font-size: clamp(14px, 3.6vw, 18px); }
+    #banner { position: fixed; left: 16px; right: 16px; top: 30%; text-align: center; pointer-events: none;
+      font: 900 clamp(56px, 18vw, 140px)/1 system-ui, sans-serif; color: #fff; text-shadow: 0 6px 0 var(--ink),
+      0 0 24px rgba(0, 0, 0, 0.25); text-transform: uppercase; }
+    #banner[hidden] { display: none; }
+    
+    #pads { position: fixed; left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); display: none;
+      justify-content: space-between; align-items: flex-end; pointer-events: none; gap: 12px; }
+    body.touch #pads.on { display: flex; }
+    .pad-group { display: flex; gap: 12px; }
+    .pad { pointer-events: auto; width: 76px; height: 76px; border-radius: 50%; border: 4px solid var(--ink);
+      background: var(--panel); font: 900 22px/1 system-ui, sans-serif; color: var(--ink); touch-action: none; }
+    .pad.hop { background: var(--tape); color: #fff; }
+    .pad.on { transform: scale(0.94); background: #ffe08a; }
+    #results { background: rgba(243, 230, 207, 0.94); }
+    #table { border-collapse: collapse; font-weight: 700; min-width: min(360px, 100%); background: var(--paper);
+      border: 3px solid var(--ink); border-radius: 14px; overflow: hidden; }
+    #table td { padding: 6px 14px; border-bottom: 1px solid rgba(0, 0, 0, 0.1); text-align: left;
+      font-variant-numeric: tabular-nums; }
+    #table tr.you td { background: #ffe08a; font-weight: 900; }
+    #results h2 { margin: 0; font-size: clamp(32px, 9vw, 56px); font-weight: 900; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+  <section id="title" class="screen">
+    <h1>Tiny<br>Throttle</h1>
+    <p class="sub">Race a toy RC car round a giant kitchen: up the cutting board, along the counter, over the sink.</p>
+    <button id="start" class="big" disabled>Loading</button>
+    <p class="keys" id="keys">Arrows or WASD to drive &middot; Space to hop &middot; Shift to drift</p>
+  </section>
+  <div id="hud" hidden>
+    <div class="chip" id="pos">12<small>/12</small></div>
+    <div class="right"><div class="chip" id="lap">Lap 1/4</div><div class="chip" id="time">0:00.00</div></div>
+  </div>
+  <div id="banner" hidden></div>
+  <div id="pads">
+    <div class="pad-group"><button class="pad" data-k="left" aria-label="Steer left">&#9664;</button>
+      <button class="pad" data-k="right" aria-label="Steer right">&#9654;</button></div>
+    <div class="pad-group"><button class="pad" data-k="brake" aria-label="Brake">BRK</button>
+      <button class="pad hop" data-k="hop" aria-label="Hop">HOP</button></div>
+  </div>
+  <section id="results" class="screen" hidden>
+    <h2 id="place">1st!</h2>
+    <table id="table"></table>
+    <button id="again" class="big">Race again</button>
+  </section>
+  <script type="module" src="./src/main.js?v=04d95f86-20261119T080422Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
+</body>
+</html>

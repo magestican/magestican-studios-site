@@ -8,11 +8,17 @@
 
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
+import { stickyRoomCode } from '../../../web-engine/net/stickyRoomCode.js';
 import { roomCode, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
 import { createRoster, sanitiseRoom, sanitiseStatus } from './roomRoster.js';
 
 const MY_PREFIX = GAME_PREFIX.fossick;
 const CODE_TRIES = 5;
+
+
+const sticky = stickyRoomCode(MY_PREFIX);
+
+export const forgetRoomCode = () => sticky.forget();
 export const REPORT_MS = 2000;
 
 const FULL_FLUSH_MS = 500;
@@ -156,7 +162,7 @@ export function createRoomNet({ status, isLevel, onRoom, onStatus, now = () => p
     
     host(attempt = 0) {
       if (mesh) return;
-      const hint = attempt < CODE_TRIES ? roomCode(Math.random, MY_PREFIX) : null;
+      const hint = sticky.hint(attempt, () => roomCode(Math.random, MY_PREFIX), CODE_TRIES);
       const mine = new PeerMesh({ hostIdHint: hint ?? undefined, star: true });
       hosting = true;
       code = null;
@@ -166,7 +172,7 @@ export function createRoomNet({ status, isLevel, onRoom, onStatus, now = () => p
         if (mesh !== mine || !/unavailable-id/.test(e.detail?.message ?? '')) return;
         try { mine.destroy(); } catch {  }
         mesh = null;
-        this.host(attempt + 1);
+        sticky.retry(attempt, () => this.host(attempt + 1));
       });
       if (attempt === 0) say('opening');
     },
@@ -197,6 +203,8 @@ export function createRoomNet({ status, isLevel, onRoom, onStatus, now = () => p
     report,
 
     leave() {
+
+      sticky.cancel();
       stopTimer();
       try { mesh?.destroy(); } catch {  }
       mesh = null;

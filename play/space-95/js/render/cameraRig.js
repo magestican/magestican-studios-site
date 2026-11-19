@@ -42,7 +42,18 @@ export const rideLead = (halfW) => halfW * RIDE_LEAD_SHARE;
 
 
 
-export const framePull = (frame, viewW, viewH) => Math.max(1, (frame.x1 - frame.x0) / viewW, (frame.y1 - frame.y0) / viewH);
+export const framePull = (frame, viewW, viewH, freeW = 1) =>
+  Math.max(1, (frame.x1 - frame.x0) / (viewW * Math.max(0.2, freeW)), (frame.y1 - frame.y0) / viewH);
+
+
+
+
+
+
+export const frameShift = (frameW, viewW, leftShare, rightShare) => {
+  const room = Math.max(0, (viewW - frameW) / 2);
+  return Math.min(room, Math.max(-room, ((leftShare - rightShare) / 2) * viewW));
+};
 
 
 

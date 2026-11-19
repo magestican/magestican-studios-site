@@ -31,6 +31,8 @@ import { bootDone } from '../../shared/ui/fitScreen.js';
 import { setupPanels, togglePanel } from './setupPanels.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { createNet, canPlayTogether } from './net.js';
+import { forgetRoomCode } from './net.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { AIM_BELOW_PX, availableBoard, layoutBlock, layoutBoard } from './layout.js';
 import { NO_CUT, maxCut } from './blockView.js';
 import { stringsFor, pictureName, count, fill } from './strings.js';
@@ -242,6 +244,7 @@ function drawSetup() {
   $('rivals').hidden = !panels.rival;
   $('room-start').hidden = !panels.friend;
   $('room-live').hidden = !panels.roomLive;
+  document.getElementById('new-room-code')?.toggleAttribute('hidden', !(panels.roomLive && net?.hosting));
   $('options-btn').setAttribute('aria-expanded', String(panels.options));
   $('friend-btn').setAttribute('aria-expanded', String(panels.friend));
   $('picked').textContent = [
@@ -1338,6 +1341,12 @@ function wireButtons() {
   });
   $('leave-room').addEventListener('click', () => { playUi('toggleOff'); leaveToSetup(); });
   $('start-room').addEventListener('click', () => { playUi('tap'); startRoomRound(room.picture ?? setup.picture); });
+  
+  
+  newCodeButton($('copy-link'), {
+    lang,
+    onReset: () => { forgetRoomCode(); leaveRoom(); openRoom(); },
+  });
   $('copy-link').addEventListener('click', () => {
     if (!net?.id) return;
     const link = shareLinkFor(shareBase(), roomId(), {});

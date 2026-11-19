@@ -18,6 +18,7 @@
 
 
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
+import { newCodeWords } from '../../../web-engine/net/stickyRoomCode.js';
 import { grid, rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, sink, DURATION } from '../../../web-engine/words/motion.js';
 import {
@@ -274,7 +275,7 @@ export function sides(app, { state, onChoose, onClose }) {
 
 
 export function room(app, {
-  state, onHost, onJoin, onLeave, onCopy, onClose,
+  state, onHost, onJoin, onLeave, onCopy, onNewCode = () => {}, onClose,
 }) {
   let typed = '';
   const typeChar = (ch) => {
@@ -311,6 +312,8 @@ export function room(app, {
     buttons: () => (state.active
       ? [
         { id: 'copy', label: state.copied ? 'Link copied' : 'Invite', tone: 'blue', run: onCopy },
+        
+        ...(state.hosting ? [{ id: 'newcode', label: newCodeWords(globalThis.document?.documentElement?.lang).label, run: onNewCode }] : []),
         ...(typed.length === 6 ? [{ id: 'join', label: `Join ${typed}`, run: () => onJoin(normaliseCode(typed)) }] : []),
         { id: 'leave', label: 'Leave the room', run: onLeave },
         { id: 'close', label: 'Back to the board', run: onClose },

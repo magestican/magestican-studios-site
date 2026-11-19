@@ -22,6 +22,7 @@
 
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
+import { stickyRoomCode } from '../../../web-engine/net/stickyRoomCode.js';
 import { roomCode, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
 import { GMSG, sanitiseMatch } from '../../../web-engine/gomoku/gomokuMatch.js';
 import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
@@ -36,6 +37,11 @@ const MY_PREFIX = GAME_PREFIX.gomoku;
 
 
 const CODE_TRIES = 5;
+
+
+const sticky = stickyRoomCode(MY_PREFIX);
+
+export const forgetRoomCode = () => sticky.forget();
 
 
 
@@ -197,7 +203,7 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
     
     host(attempt = 0) {
       if (mesh) return;
-      const hint = attempt < CODE_TRIES ? roomCode(Math.random, MY_PREFIX) : null;
+      const hint = sticky.hint(attempt, () => roomCode(Math.random, MY_PREFIX), CODE_TRIES);
       const mine = new PeerMesh(hint ? { hostIdHint: hint } : {});
       mesh = mine;
       hosting = true;
@@ -208,7 +214,7 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
         if (mesh !== mine) return;
         try { mine.destroy(); } catch {  }
         mesh = null;
-        this.host(attempt + 1);
+        sticky.retry(attempt, () => this.host(attempt + 1));
       });
       mine.addEventListener('open', () => mine.host(), { once: true });
       if (attempt === 0) say('opening');
@@ -249,6 +255,8 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
     refuse: (peer) => sendFullTo(peer, { nack: true }),
 
     leave() {
+
+      sticky.cancel();
       try { mesh?.destroy(); } catch {  }
       mesh = null;
       myId = null;

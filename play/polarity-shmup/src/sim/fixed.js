@@ -45,7 +45,10 @@ const SIN = new Int32Array(ANG);
   }
 }
 
-export const angWrap = (a) => ((a % ANG) + ANG) % ANG;
+
+
+
+export const angWrap = (a) => ((Math.trunc(a) % ANG) + ANG) % ANG;
 export const isin = (a) => SIN[angWrap(a)];
 export const icos = (a) => SIN[angWrap(a + ANG / 4)];
 

@@ -30,6 +30,7 @@ import { HERD } from '../../../web-engine/rts/roster.js';
 import { MAPS, PLAYABLE_MAP_IDS } from '../../../web-engine/rts/maps/index.js';
 import { whoIsIn } from '../../../web-engine/net/presence.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -38,6 +39,7 @@ export function spoken(code) {
   const s = String(code ?? '');
   return s.length > 6 ? s.slice(-6) : s;
 }
+
 
 
 
@@ -138,6 +140,12 @@ export function createLobbyPanel(actions) {
   });
   el.start.addEventListener('click', () => actions.onStart());
   el.leave.addEventListener('click', () => actions.onLeave());
+  
+  
+  const newCode = newCodeButton(el.copy, {
+    lang: document.documentElement.lang || 'en',
+    onReset: () => actions.onNewCode?.(el.map.value),
+  });
   el.back.addEventListener('click', () => actions.onBack());
   el.map.addEventListener('change', () => actions.onMap(el.map.value));
 
@@ -195,6 +203,7 @@ export function createLobbyPanel(actions) {
       last = v;
       const inRoom = !!v;
       el.room.hidden = !inRoom;
+      if (!inRoom) newCode.show(false);
       el.forces.hidden = !inRoom;
       
       
@@ -212,6 +221,7 @@ export function createLobbyPanel(actions) {
       
       el.map.disabled = !(me && me.isHost);
       el.start.hidden = !(me && me.isHost);
+      newCode.show(!!(me && me.isHost));
       el.start.disabled = !v.canStart;
       el.ready.hidden = !!(me && me.observer);
       el.ready.classList.toggle('on', !!(me && me.ready));

@@ -25,6 +25,8 @@ import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { shareLinkFor } from '../../../web-engine/words/coop.js';
 import { ROLE, roomFromHref, watchLinkFor, watchingLabel } from '../../../web-engine/net/watchers.js';
 import { createNet, canPlayTogether } from './net.js';
+import { forgetRoomCode } from './net.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
@@ -834,6 +836,7 @@ function drawRoom() {
   document.querySelector('[data-level="custom"]').hidden = on;
   $('room-start').hidden = room.active;
   $('room-live').hidden = !room.active;
+  document.getElementById('new-room-code')?.toggleAttribute('hidden', !(room.active && net?.hosting));
   
   
   $('room').classList.toggle('racing', room.active && race.live && !viewer() && !resultFor(race.round));
@@ -999,6 +1002,12 @@ $('race-go').addEventListener('click', () => {
   playUi('tap');
   if (net?.hosting) startNextRace();
   else net?.propose({ kind: 'again' });
+});
+
+
+newCodeButton($('copy-link'), {
+  lang,
+  onReset: () => { forgetRoomCode(); leaveRoom(); openRoom(); },
 });
 $('copy-link').addEventListener('click', () => {
   if (!net?.id) return;

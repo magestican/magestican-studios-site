@@ -12,7 +12,8 @@ import { mountSoundToggle, readMuted, writeMuted } from '../../shared/ui/muteBut
 import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { joinIdFrom, shareLinkFor, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
 import { shareInvite, publicUrlFor } from '../../../web-engine/share/shareInvite.js';
-import { createRoomNet, canPlayTogether } from './net.js';
+import { createRoomNet, canPlayTogether, forgetRoomCode } from './net.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { createRoomUi, seatLevel, dugStatus, fakeRoom } from './roomUi.js';
 import { tell, tellFelt, onBack } from './appBridge.js';
 import { PRIZES, goalFor, tallyFor, prizesFrom, newPrizes, nextStreak, tipFor } from './progress.js';
@@ -676,6 +677,9 @@ function wireRoom() {
   $('t-room').addEventListener('click', hostRoom);
   $('l-start').addEventListener('click', () => net.startRound(nextToDig().id));
   $('l-share').addEventListener('click', shareRoom);
+  
+  
+  newCodeButton($('l-share'), { lang, onReset: () => { forgetRoomCode(); hostRoom(); } }).show(true);
   $('l-leave').addEventListener('click', leaveRoom);
   $('l-join').addEventListener('submit', (e) => {
     e.preventDefault();

@@ -48,6 +48,7 @@
 
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
+import { stickyRoomCode } from '../../../web-engine/net/stickyRoomCode.js';
 import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
 import { roomCode, normaliseCode, sayingText } from '../../../web-engine/words/coop.js';
 import { SMSG } from '../../../web-engine/words/scrabbleMatch.js';
@@ -84,6 +85,11 @@ function codeError(typed) {
 }
 
 const CODE_TRIES = 5;
+
+
+const sticky = stickyRoomCode(MY_PREFIX);
+
+export const forgetRoomCode = () => sticky.forget();
 
 
 
@@ -209,7 +215,7 @@ export function createNet({
       
       
       
-      const hint = attempt < CODE_TRIES ? roomCode(Math.random, MY_PREFIX) : null;
+      const hint = sticky.hint(attempt, () => roomCode(Math.random, MY_PREFIX), CODE_TRIES);
       const mine = new PeerMesh(hint ? { hostIdHint: hint } : {});
       mesh = mine;
       hosting = true;
@@ -219,7 +225,7 @@ export function createNet({
         if (mesh !== mine) return;           
         try { mine.destroy(); } catch {  }
         mesh = null;
-        this.host(attempt + 1);
+        sticky.retry(attempt, () => this.host(attempt + 1));
       });
       mine.addEventListener('open', () => mine.host(), { once: true });
       if (attempt === 0) announce('Opening a room...');
@@ -266,6 +272,8 @@ export function createNet({
     },
 
     leave() {
+
+      sticky.cancel();
       try { mesh?.destroy(); } catch {  }
       mesh = null;
       myId = null;

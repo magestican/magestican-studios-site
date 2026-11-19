@@ -186,7 +186,7 @@ const pause = createPause(document.getElementById('pause'), {
     document.documentElement.dataset.variant = v;
   },
   onSound: () => audio.toggleMute(),
-  getState: () => ({ variant: document.documentElement.dataset.variant, muted: audio.muted }),
+  getState: () => ({ variant: document.documentElement.dataset.variant, muted: audio.muted, dark: !!level.dark }),
 });
 
 document.getElementById('pause-btn')?.addEventListener('click', () => {

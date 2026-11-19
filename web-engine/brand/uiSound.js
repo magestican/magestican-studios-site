@@ -133,10 +133,20 @@ function preloadAll(c) {
   for (const url of fileUrls) loadKey(c, url, url);
 }
 
-function start(c, buf) {
+
+
+
+function start(c, buf, gain = 1) {
   const src = c.createBufferSource();
   src.buffer = buf;
-  src.connect(bus);
+  if (gain !== 1 && Number.isFinite(gain) && gain >= 0) {
+    const g = c.createGain();
+    g.gain.value = gain;
+    g.connect(bus);
+    src.connect(g);
+  } else {
+    src.connect(bus);
+  }
   src.start(c.currentTime + 0.005);
 }
 
@@ -145,7 +155,7 @@ function silenced() {
 }
 
 
-function play(key, fetchIt) {
+function play(key, fetchIt, gain = 1) {
   if (silenced()) return false;
   const c = ensureContext();
   if (!c || !bus) return false;
@@ -153,12 +163,12 @@ function play(key, fetchIt) {
     try { c.resume()?.catch?.(() => {}); } catch {  }
   }
   const have = buffers.get(key);
-  if (have && typeof have.then !== 'function') { start(c, have); return true; }
+  if (have && typeof have.then !== 'function') { start(c, have, gain); return true; }
   if (have === null || typeof globalThis.fetch !== 'function') return false;
   const asked = Date.now();
   fetchIt(c).then((buf) => {
     try {
-      if (buf && Date.now() - asked <= LATE_MS && !silenced()) start(c, buf);
+      if (buf && Date.now() - asked <= LATE_MS && !silenced()) start(c, buf, gain);
     } catch {  }
   });
   return true;
@@ -175,12 +185,12 @@ export function playUi(name) {
 }
 
 
-export function playFile(url) {
+export function playFile(url, gain = 1) {
   try {
     const key = String(url ?? '');
     if (!key) return false;
     fileUrls.add(key);
-    return play(key, (c) => loadKey(c, key, key));
+    return play(key, (c) => loadKey(c, key, key), gain);
   } catch {
     return false;
   }

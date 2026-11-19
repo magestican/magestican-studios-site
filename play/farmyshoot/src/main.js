@@ -14,6 +14,7 @@ import { createHowtoGate } from './howtoGate.js';
 
 import { CHARACTERS as ROSTER } from '../../../web-engine/stats/careerStats.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
+import { stickyRoomCode, newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { MAPS, MAP_IDS, DEFAULT_MAP } from 'arbelo/mapspec';
 import { MODES, MODE_IDS, DEFAULT_MODE } from 'arbelo/modes';
 import { PeerMesh } from 'arbelo/net';
@@ -697,8 +698,18 @@ selectFrom('teamRow', 'team', initialTeam);
 
 
 
+
+
+
+
+const makeShootCode = () => `tb-${Math.random().toString(36).slice(2, 8)}`;
+const stickyCode = stickyRoomCode('tb-');
+
 const url = new URL(location.href);
-const joinFromUrl = url.searchParams.get('join');
+
+
+const ownRoom = url.searchParams.get('join');
+const joinFromUrl = ownRoom && ownRoom === stickyCode.saved() ? null : ownRoom;
 if (joinFromUrl) {
   $('joinIdInput').value = joinFromUrl;
   
@@ -836,33 +847,40 @@ function validate() {
 
 
 
-async function startGame(hostIdToJoin) {
-  
-  const hostIdHint = state.mode === 'host'
-    ? `tb-${Math.random().toString(36).slice(2, 8)}`
-    : undefined;
 
-  const mesh = new PeerMesh({ hostIdHint });
-  
-  
-  exchangeCards(mesh, 'team-bonding');
 
-  
-  const myId = await new Promise((resolve, reject) => {
-    mesh.addEventListener('open', (e) => resolve(e.detail.id), { once: true });
+
+
+
+
+
+function openMesh(hosting, attempt = 0) {
+  const hint = hosting ? stickyCode.hint(attempt, makeShootCode, 5) : null;
+  const mesh = new PeerMesh({ hostIdHint: hint ?? undefined });
+  return new Promise((resolve, reject) => {
+    mesh.addEventListener('open', (e) => resolve({ mesh, myId: e.detail.id }), { once: true });
     mesh.addEventListener('error', (e) => {
-      
-      
       if (String(e.detail.message).includes('unavailable-id')) {
-        console.warn('room code taken - taking a random one');
-      } else {
-        reject(new Error(e.detail.message));
+        if (!hosting) return;
+        console.warn('room code taken - trying again');
+        try { mesh.destroy(); } catch (_) {  }
+        stickyCode.retry(attempt, () => openMesh(hosting, attempt + 1).then(resolve, reject));
+        return;
       }
+      reject(new Error(e.detail.message));
     });
-  }).catch((err) => {
+  });
+}
+
+async function startGame(hostIdToJoin) {
+  const { mesh, myId } = await openMesh(state.mode === 'host').catch((err) => {
     alert('Network error opening room: ' + err.message);
     throw err;
   });
+  
+  
+  
+  exchangeCards(mesh, 'team-bonding');
 
   if (state.mode === 'host') {
     mesh.host();
@@ -910,6 +928,18 @@ async function startGame(hostIdToJoin) {
           button: shareCopy, field: shareUrl,
         });
       });
+      
+      
+      
+      newCodeButton(shareCopy, {
+        lang: document.documentElement.lang || 'en',
+        onReset: () => {
+          stickyCode.forget();
+          const clean = new URL(location.href);
+          clean.searchParams.delete('join');
+          location.replace(clean.toString());
+        },
+      }).show(true);
     }
   } else {
     mesh.connectTo(hostIdToJoin);

@@ -48,6 +48,8 @@ import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, EXAMPLES, LANG_NAMES } from './strings.js';
 import { createNet, canPlayTogether } from './net.js';
+import { forgetRoomCode } from './net.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import {
   progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord, earnedPrizes, PRIZES,
 } from './progress.js';
@@ -385,6 +387,7 @@ function drawControls() {
   roomEl.hidden = settings.mode !== 'room';
   $('room-start').hidden = room.active;
   $('room-live').hidden = !room.active;
+  document.getElementById('new-room-code')?.toggleAttribute('hidden', !(room.active && net?.hosting));
   $('room-code').textContent = room.code ?? '-';
   
   $('copy-link').hidden = room.watching;
@@ -871,6 +874,12 @@ $('leave-room').addEventListener('click', async () => {
   leaveRoom();
   await newMatch();
   afterChange();
+});
+
+
+newCodeButton($('copy-link'), {
+  lang,
+  onReset: () => { forgetRoomCode(); leaveRoom(); openRoom(); },
 });
 $('copy-link').addEventListener('click', () => {
   if (!net?.id) return;

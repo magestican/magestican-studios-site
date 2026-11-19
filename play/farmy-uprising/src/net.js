@@ -49,6 +49,7 @@
 
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
+import { stickyRoomCode } from '../../../web-engine/net/stickyRoomCode.js';
 import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
 import { GAME_PREFIX, roomCode, normaliseCode, gameOfCode, codeGameName, nameFor } from '../../../web-engine/words/coop.js';
 import { createMeshTransport } from '../../../web-engine/rts/net/meshTransport.js';
@@ -79,6 +80,11 @@ export const LIVE_GAME = 'uprising';
 
 
 const CODE_TRIES = 5;
+
+
+const sticky = stickyRoomCode(MY_PREFIX);
+
+export const forgetRoomCode = () => sticky.forget();
 
 
 export const canPlayTogether = () => typeof window !== 'undefined'
@@ -332,7 +338,7 @@ export function createNet({ onRoom, onStatus, onStart, onError = () => {} }) {
       if (mesh) return;
       wantedMap = MAPS[mapId] ? mapId : DEFAULT_MAP;
       if (!canPlayTogether()) { onError('This browser cannot open a room.'); return; }
-      const hint = attempt < CODE_TRIES ? roomCode(Math.random, MY_PREFIX) : null;
+      const hint = sticky.hint(attempt, () => roomCode(Math.random, MY_PREFIX), CODE_TRIES);
       const mine = new PeerMesh(hint ? { hostIdHint: hint } : {});
       mesh = mine;
       hosting = true;
@@ -342,7 +348,7 @@ export function createNet({ onRoom, onStatus, onStart, onError = () => {} }) {
         if (mesh !== mine) return;                 
         try { mine.destroy(); } catch {  }
         mesh = null;
-        this.host(wantedMap, attempt + 1);
+        sticky.retry(attempt, () => this.host(wantedMap, attempt + 1));
       });
       mine.addEventListener('open', () => mine.host(), { once: true });
       if (attempt === 0) say('Opening a room...');
@@ -406,6 +412,8 @@ export function createNet({ onRoom, onStatus, onStart, onError = () => {} }) {
     },
 
     leave() {
+
+      sticky.cancel();
       
       
       

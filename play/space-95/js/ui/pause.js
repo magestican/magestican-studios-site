@@ -14,6 +14,19 @@ const nightPct = () => {
 };
 
 
+export function pauseRows(st, night) {
+  const rows = [
+    { act: 'resume', label: 'Back to work', primary: true },
+    { act: 'beacon', label: 'Restart from beacon' },
+    { act: 'shift', label: 'Restart shift' },
+    { act: 'variant', label: `Explorer: Jo (${st.variant})` },
+    { act: 'sound', label: `Sound: ${st.muted ? 'off' : 'on'}` },
+  ];
+  if (st.dark) rows.push({ act: 'night', label: `Night brightness: ${night} %` });
+  return rows;
+}
+
+
 export function createPause(root, { onResume, onRestartBeacon, onRestartShift, onVariant, onSound, getState }) {
   root.hidden = true;
   const render = () => {
@@ -24,12 +37,9 @@ export function createPause(root, { onResume, onRestartBeacon, onRestartShift, o
         <p class="sheet-k">Space 95 Survey Co. - Break room</p>
         <h2>Paused</h2>
         <div class="pause-actions">
-          <button type="button" data-act="resume" class="is-primary">Back to work</button>
-          <button type="button" data-act="beacon">Restart from beacon</button>
-          <button type="button" data-act="shift">Restart shift</button>
-          <button type="button" data-act="variant">Explorer: Jo (${st.variant})</button>
-          <button type="button" data-act="sound">Sound: ${st.muted ? 'off' : 'on'}</button>
-          <button type="button" data-act="night">Night brightness: ${nightPct()} %</button>
+          ${pauseRows(st, nightPct())
+            .map((r) => `<button type="button" data-act="${r.act}"${r.primary ? ' class="is-primary"' : ''}>${r.label}</button>`)
+            .join('\n          ')}
         </div>
       </div>`;
     const on = (act, fn) => root.querySelector(`[data-act="${act}"]`)?.addEventListener('click', fn);

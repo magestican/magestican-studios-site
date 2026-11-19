@@ -21,6 +21,7 @@ import { rectAt } from '../../../web-engine/words/layout.js';
 import { DURATION, easeOut, lift, progress } from '../../../web-engine/words/motion.js';
 import { CODE_LENGTH, spokenCode } from '../../../web-engine/words/coop.js';
 import { SAYINGS } from '../../../web-engine/board/ludoRoom.js';
+import { newCodeWords } from '../../../web-engine/net/stickyRoomCode.js';
 import * as paint from './paint.js';
 
 const PAD = 20;
@@ -246,7 +247,7 @@ export function say(app, { onSay, onClose }) {
 
 
 export function room(app, {
-  state, onHost, onJoin, onCopy, onLeave, onClose,
+  state, onHost, onJoin, onCopy, onNewCode = () => {}, onLeave, onClose,
 }) {
   let typed = '';
   const CODE_H = 74;
@@ -298,6 +299,8 @@ export function room(app, {
     buttons: () => (state.active
       ? [
         { id: 'copy', label: state.copied ? 'Link copied' : 'Invite', run: onCopy },
+        
+        ...(state.hosting ? [{ id: 'newcode', label: newCodeWords(globalThis.document?.documentElement?.lang).label, run: onNewCode }] : []),
         { id: 'leave', label: 'Leave the room', run: onLeave },
         { id: 'close', label: 'Back to the board', run: onClose },
       ]

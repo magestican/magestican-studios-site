@@ -67,11 +67,15 @@
     "Web browser",
     "Mobile browser"
   ],
-  "playMode": "SinglePlayer",
+  "playMode": [
+    "SinglePlayer",
+    "MultiPlayer",
+    "CoOp"
+  ],
   "numberOfPlayers": {
     "@type": "QuantitativeValue",
     "minValue": 1,
-    "maxValue": 1
+    "maxValue": 2
   },
   "operatingSystem": "Any (browser)",
   "applicationCategory": "Game",
@@ -128,11 +132,19 @@
         "@type": "Answer",
         "text": "Sim, na horizontal: um analógico para o polegar à esquerda e os botões de pulo e dash à direita. No computador, use o teclado ou um controle."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Posso jogar Space 95 com um amigo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim, online, cada um na sua tela. Escolha Play with a friend na tela de título e envie o código da sala ou o link. Quem cria a sala joga com Jo e o amigo com Bolt, e a Intel e as balizas que qualquer um dos dois encontrar contam para ambos."
+      }
     }
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2ee0f3b4-20261118T095924Z">
+  <link rel="stylesheet" href="/styles.css?v=04d95f86-20261119T080422Z">
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     try {
@@ -182,7 +194,7 @@
     <h2>Vinte turnos, nenhum igual ao outro</h2>
     <p>Cada turno tem uma ideia só dele. Você corre pelo chão do pomar, escala um tronco roxo até a copa, cava para baixo pela terra fofa, plana entre as árvores numa semente, foge na direção contrária de um sapato gigante, navega uma poça de chuva do tamanho de um mar, dirige um <strong>trenzinho de brinquedo</strong> pelo chão da cozinha visto de cima, <strong>pilota um avião</strong> num combate aéreo sobre o jardim e monta nas costas de uma fera adormecida que respira debaixo dos seus pés.</p>
     <p>E em cada turno o mundo te ajuda de um jeito diferente: uma pedrinha que você chuta rola até o besouro lá na frente, uma gota de orvalho azul te quica mais alto do que você mirou, uma fila de formigas em que você sobe leva os inimigos embora. Há chefes nos turnos 4, 8, 10, 12 e 16.</p>
-    <p><strong>Em que pé está:</strong> os vinte turnos já estão abertos, incluindo o final. A maioria das fases já tem cenários de fundo pintados, e os chefes e alguns insetos ainda têm corpos provisórios enquanto suas animações são feitas.</p>
+    <p><strong>Em que pé está:</strong> os vinte turnos já estão abertos, incluindo o final. Dois turnos, o trem de brinquedo no chão da cozinha e a viagem nas costas da fera listrada, ainda usam cenários montados mais simples em vez de fundos pintados.</p>
 
     <h2>Controles que perdoam</h2>
     <p>Segure o pulo para pular mais alto, e um pulo apertado um instante cedo ou tarde demais ainda conta. Movimentos novos chegam no caminho: o pulo duplo, o golpe no chão, o dash, o planeio na folha, o pulo na parede e o gancho do Bolt. Os <strong>pontos de bater o ponto</strong> aparecem mais ou menos a cada meio minuto e logo depois de cada trecho difícil.</p>
@@ -193,6 +205,14 @@
     <p>Cada turno esconde <strong>três segredos</strong>: um esconderijo atrás de uma parede ou embaixo do cenário, um feito fora do caminho principal e um espécime raro que se comporta diferente dos outros. A fase te leva até eles sem você perceber, então achar um parece ideia sua. O que você encontra vira <strong>Intel</strong> arquivada sobre o planeta.</p>
     <p>No fim de cada turno a <strong>folha de ponto</strong> mostra seu tempo contra o par, uns dois minutos em velocidade máxima, seu melhor tempo e a Intel que você arquivou. Conclua os vinte, incluindo o final, e a sede envia a sua avaliação de desempenho.</p>
 
+    <h2>Jogar com um amigo</h2>
+    <p>Escolha <strong>Play with a friend</strong> na tela de título e o jogo dá a você um código de sala, como s95-abcde, e um link para enviar. Seu amigo digita o código ou abre o link, e cada um joga na própria tela. Quem cria a sala joga com Jo e o amigo com Bolt, cujo propulsor dá um pulo extra no ar. Um amigo também pode entrar num turno que já começou.</p>
+    <p>Trabalhar em dupla tem seus truques. Pule da cabeça do seu parceiro para alcançar uma borda que um pulo sozinho não alcança, embora nada do que é preciso para a pontuação completa dependa disso. Se você cair enquanto o parceiro está de pé, o raio de Bolt traz você de volta ao lado dele em vez da baliza. A Intel e as balizas que qualquer um encontrar contam para os dois, e o turno termina quando o primeiro bate o ponto de saída. Quando o parceiro está fora da tela, um marcador na borda aponta o caminho, e se você ficar muito para trás, Beam to partner leva você direto até ele.</p>
+    <p>No cooperativo, um inimigo que reage a um jogador pode estar num lugar um pouco diferente em cada tela; cada um só leva dano do que vê.</p>
+
+    <h2>Uma música para cada turno</h2>
+    <p>Space 95 agora tem 22 músicas novas da Magestican Records, uma para cada turno, mais um tema principal de faroeste e um tema de chefe. Cada turno tem seu próprio estilo: country no pomar, gamelão, afrobeat, flamenco, techno dentro da máquina, ska, drum and bass e um final orquestral, entre outros, então a música muda tanto quanto o lugar.</p>
+
     <h2>Medalhas no seu perfil Magestican</h2>
     <p>Space 95 conta no seu perfil do estúdio como qualquer outro jogo daqui: experiência, seu nível e o desafio diário, com medalhas próprias, de First Day on the Job e Lucky Kick a Pest Control, On Schedule e Exceeds Expectations. Algumas, como Meets Expectations e Employee of the Year, são ganhas no final. Seu progresso fica salvo no navegador, e não precisa de conta.</p>
 
@@ -200,6 +220,9 @@
     <p>Para um mundo maior para explorar, experimente <a href="/pt/dachis.html">Dachis</a>, um RPG de monstros-amigos numa ilha. Para algo mais rápido, corra em <a href="/pt/farmykart.html">Kartzoom: Corrida de Kart</a>. Para uma vida tranquila em outro mundinho, experimente <a href="/pt/farmy-moon-life.html">Moon Life</a>.</p>
 
     <p><a class="cta" href="/play/space-95/?lang=pt">Jogar Space 95 agora &rarr;</a></p>
+    
+    <p class="more-like-this">Mais assim: <a href="/pt/2-player-games-online.html">Jogos online para 2 jogadores</a> &middot; <a href="/pt/multiplayer-browser-games.html">Jogos multijogador no navegador</a></p>
+    
     
     <div class="play-bar" data-page="space-95">
       <a class="cta cta-primary" href="/play/space-95/?lang=pt">Jogar agora</a>
@@ -222,7 +245,7 @@
     <nav class="mg-network" aria-label="Sites da Magestican Studios"><a href="/sites.html">Todos os nossos sites</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://workchillout.com/">Work Chill Out</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://music.workchillout.com/">Magestican Music</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://bryanarbelo.com/">Bryan Arbelo</a></nav>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/site.js?v=04d95f86-20261119T080422Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {
@@ -230,8 +253,8 @@
       });
     }
   </script>
-  <script type="module" src="/assets/landing.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/landing.js?v=04d95f86-20261119T080422Z"></script>
   <p class="lang-note">Esta página está em português. Os jogos em si estão em inglês; xadrez, damas e ludo quase não têm texto.</p>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
 </body>
 </html>

@@ -1969,6 +1969,27 @@
   (function () {
     var msg = document.getElementById('boot-msg');
     var t0 = Date.now();
+    
+    
+    
+    
+    
+    
+    var firstError = null;
+    window.addEventListener('error', function (e) {
+      
+      
+      
+      var own = e && e.filename && e.filename.indexOf(location.origin) === 0;
+      if (own && !firstError && !window.__fkBooted) firstError = e.message || 'unknown error';
+    });
+    var lastCount = -1, lastMove = Date.now(), shown = '';
+    function filesIn() {
+      try { return performance.getEntriesByType('resource').length; } catch (e) { return 0; }
+    }
+    function reloadButton() {
+      return '<br><br><button type="button" class="primary" onclick="location.reload()">Reload</button>';
+    }
     var timer = setInterval(function () {
       if (window.__fkBooted) { clearInterval(timer); return; }
       var ms = Date.now() - t0;
@@ -1978,16 +1999,36 @@
           + '<br><br>Try a current Chrome, Edge, Firefox or Safari.';
         return;
       }
-      if (!window.__fkImportMap && ms > 2500) {
+      
+      
+      
+      
+      
+      
+      var canAsk = typeof HTMLScriptElement !== 'undefined' && typeof HTMLScriptElement.supports === 'function';
+      var noMap = canAsk ? !HTMLScriptElement.supports('importmap') : ms > 15000;
+      if (!window.__fkImportMap && noMap && ms > 2500) {
         clearInterval(timer);
         msg.innerHTML = 'This browser does not support import maps, so the game engine cannot be located.'
           + '<br><br>Try a current Chrome, Edge, Firefox or Safari.';
         return;
       }
-      if (ms > 12000) {
+      if (firstError && ms > 2500) {
         clearInterval(timer);
-        msg.innerHTML = 'The game files are taking an unusually long time to arrive.'
-          + '<br><br>Check the connection and reload.';
+        msg.textContent = 'The game hit an error while starting: ' + firstError;
+        msg.insertAdjacentHTML('beforeend', reloadButton());
+        return;
+      }
+      var n = filesIn();
+      if (n !== lastCount) { lastCount = n; lastMove = Date.now(); }
+      if (ms > 8000) {
+        var stalled = Date.now() - lastMove > 20000;
+        var html = stalled
+          ? 'The game files have stopped arriving (' + n + ' in). The connection may have dropped.' + reloadButton()
+          : 'Still loading on a slow connection (' + n + ' files in).<br><br>It starts by itself as soon as they arrive.';
+        
+        
+        if (html !== shown) { shown = html; msg.innerHTML = html; }
       }
     }, 400);
   }());
@@ -2011,7 +2052,7 @@
 
 
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=04d95f86-20261119T080422Z"></script>
 
   <script type="importmap">
   {
@@ -2058,6 +2099,200 @@
     }
   }
   </script>
+  
+  <link rel="modulepreload" href="../../web-engine/account/account.js">
+  <link rel="modulepreload" href="../../web-engine/account/accountBadge.js">
+  <link rel="modulepreload" href="../../web-engine/account/accountConfig.js">
+  <link rel="modulepreload" href="../../web-engine/account/accountPanel.js">
+  <link rel="modulepreload" href="../../web-engine/account/accountUi.js">
+  <link rel="modulepreload" href="../../web-engine/account/achievements.js">
+  <link rel="modulepreload" href="../../web-engine/account/badgeArt.js">
+  <link rel="modulepreload" href="../../web-engine/account/dailyChallenge.js">
+  <link rel="modulepreload" href="../../web-engine/account/dailyTasks.js">
+  <link rel="modulepreload" href="../../web-engine/account/dayKey.js">
+  <link rel="modulepreload" href="../../web-engine/account/firebaseAccount.js">
+  <link rel="modulepreload" href="../../web-engine/account/firstRun.js">
+  <link rel="modulepreload" href="../../web-engine/account/gameSave.js">
+  <link rel="modulepreload" href="../../web-engine/account/gameStats.js">
+  <link rel="modulepreload" href="../../web-engine/account/passwordPolicy.js">
+  <link rel="modulepreload" href="../../web-engine/account/playerLevel.js">
+  <link rel="modulepreload" href="../../web-engine/account/profile.js">
+  <link rel="modulepreload" href="../../web-engine/account/profileDto.js">
+  <link rel="modulepreload" href="../../web-engine/account/saveConflict.js">
+  <link rel="modulepreload" href="../../web-engine/account/savePrompt.js">
+  <link rel="modulepreload" href="../../web-engine/account/season.js">
+  <link rel="modulepreload" href="../../web-engine/account/shareCard.js">
+  <link rel="modulepreload" href="../../web-engine/account/signupMoment.js">
+  <link rel="modulepreload" href="../../web-engine/account/streak.js">
+  <link rel="modulepreload" href="../../web-engine/account/syncBudget.js">
+  <link rel="modulepreload" href="../../web-engine/account/weeklyGoals.js">
+  <link rel="modulepreload" href="../../web-engine/audio/engineVoice.js">
+  <link rel="modulepreload" href="../../web-engine/audio/kartSongSpec.js">
+  <link rel="modulepreload" href="../../web-engine/audio/lobbyMusic.js">
+  <link rel="modulepreload" href="../../web-engine/audio/rivalMix.js">
+  <link rel="modulepreload" href="../../web-engine/brand/glyphs.js">
+  <link rel="modulepreload" href="../../web-engine/brand/tokens.js">
+  <link rel="modulepreload" href="../../web-engine/brand/uiSound.js">
+  <link rel="modulepreload" href="../../web-engine/brand/uiSoundPref.js">
+  <link rel="modulepreload" href="../../web-engine/brand/uiSounds.js">
+  <link rel="modulepreload" href="../../web-engine/i18n/gameNames.js">
+  <link rel="modulepreload" href="../../web-engine/i18n/tr.js">
+  <link rel="modulepreload" href="../../web-engine/kart/ceremonyFraming.js">
+  <link rel="modulepreload" href="../../web-engine/kart/characterShowcase.js">
+  <link rel="modulepreload" href="../../web-engine/kart/cityBlocks.js">
+  <link rel="modulepreload" href="../../web-engine/kart/doubleTap.js">
+  <link rel="modulepreload" href="../../web-engine/kart/driftBoost.js">
+  <link rel="modulepreload" href="../../web-engine/kart/edgeGuard.js">
+  <link rel="modulepreload" href="../../web-engine/kart/emotes.js">
+  <link rel="modulepreload" href="../../web-engine/kart/glide.js">
+  <link rel="modulepreload" href="../../web-engine/kart/guardWall.js">
+  <link rel="modulepreload" href="../../web-engine/kart/itemRoulette.js">
+  <link rel="modulepreload" href="../../web-engine/kart/items.js">
+  <link rel="modulepreload" href="../../web-engine/kart/kartAi.js">
+  <link rel="modulepreload" href="../../web-engine/kart/kartLeaderboard.js">
+  <link rel="modulepreload" href="../../web-engine/kart/kartPhysics.js">
+  <link rel="modulepreload" href="../../web-engine/kart/kartTuning.js">
+  <link rel="modulepreload" href="../../web-engine/kart/lobby.js">
+  <link rel="modulepreload" href="../../web-engine/kart/menuStage.js">
+  <link rel="modulepreload" href="../../web-engine/kart/milkRamps.js">
+  <link rel="modulepreload" href="../../web-engine/kart/minimap.js">
+  <link rel="modulepreload" href="../../web-engine/kart/netRace.js">
+  <link rel="modulepreload" href="../../web-engine/kart/raceFlow.js">
+  <link rel="modulepreload" href="../../web-engine/kart/raceFov.js">
+  <link rel="modulepreload" href="../../web-engine/kart/raceProgress.js">
+  <link rel="modulepreload" href="../../web-engine/kart/raceScore.js">
+  <link rel="modulepreload" href="../../web-engine/kart/raceStats.js">
+  <link rel="modulepreload" href="../../web-engine/kart/raceStep.js">
+  <link rel="modulepreload" href="../../web-engine/kart/racingLine.js">
+  <link rel="modulepreload" href="../../web-engine/kart/railGrind.js">
+  <link rel="modulepreload" href="../../web-engine/kart/rainField.js">
+  <link rel="modulepreload" href="../../web-engine/kart/recovery.js">
+  <link rel="modulepreload" href="../../web-engine/kart/rescueAirship.js">
+  <link rel="modulepreload" href="../../web-engine/kart/steerAssist.js">
+  <link rel="modulepreload" href="../../web-engine/kart/touchLayout.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackCamber.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackGlides.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackGround.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackHazards.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackJumps.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackPath.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackPreview.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackRails.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackRotation.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackTerrain.js">
+  <link rel="modulepreload" href="../../web-engine/kart/trackUndulation.js">
+  <link rel="modulepreload" href="../../web-engine/kart/vehicles.js">
+  <link rel="modulepreload" href="../../web-engine/kart/water.js">
+  <link rel="modulepreload" href="../../web-engine/library/libraryDto.js">
+  <link rel="modulepreload" href="../../web-engine/library/libraryIds.js">
+  <link rel="modulepreload" href="../../web-engine/library/libraryModel.js">
+  <link rel="modulepreload" href="../../web-engine/library/libraryStore.js">
+  <link rel="modulepreload" href="../../web-engine/loop/tickPolicy.js">
+  <link rel="modulepreload" href="../../web-engine/net/firebaseRooms.js">
+  <link rel="modulepreload" href="../../web-engine/net/hostElection.js">
+  <link rel="modulepreload" href="../../web-engine/net/peerMesh.js">
+  <link rel="modulepreload" href="../../web-engine/net/presence.js">
+  <link rel="modulepreload" href="../../web-engine/net/stickyRoomCode.js">
+  <link rel="modulepreload" href="../../web-engine/progress/elo.js">
+  <link rel="modulepreload" href="../../web-engine/progress/fleet.js">
+  <link rel="modulepreload" href="../../web-engine/progress/gameIds.js">
+  <link rel="modulepreload" href="../../web-engine/progress/levelChip.js">
+  <link rel="modulepreload" href="../../web-engine/progress/mastery.js">
+  <link rel="modulepreload" href="../../web-engine/progress/peerCards.js">
+  <link rel="modulepreload" href="../../web-engine/progress/ranks.js">
+  <link rel="modulepreload" href="../../web-engine/progress/report.js">
+  <link rel="modulepreload" href="../../web-engine/progress/reportModel.js">
+  <link rel="modulepreload" href="../../web-engine/progress/snapshot.js">
+  <link rel="modulepreload" href="../../web-engine/progress/toast.js">
+  <link rel="modulepreload" href="../../web-engine/progress/toastModel.js">
+  <link rel="modulepreload" href="../../web-engine/progress/trophies.js">
+  <link rel="modulepreload" href="../../web-engine/progress/youModel.js">
+  <link rel="modulepreload" href="../../web-engine/render/boatRig.js">
+  <link rel="modulepreload" href="../../web-engine/render/boatSpec.js">
+  <link rel="modulepreload" href="../../web-engine/render/contextBudget.js">
+  <link rel="modulepreload" href="../../web-engine/render/contextLease.js">
+  <link rel="modulepreload" href="../../web-engine/render/contextRecovery.js">
+  <link rel="modulepreload" href="../../web-engine/render/frameGuard.js">
+  <link rel="modulepreload" href="../../web-engine/render/groundRecipe.js">
+  <link rel="modulepreload" href="../../web-engine/render/lightRig.js">
+  <link rel="modulepreload" href="../../web-engine/render/lookGrade.js">
+  <link rel="modulepreload" href="../../web-engine/render/materialCache.js">
+  <link rel="modulepreload" href="../../web-engine/render/shaderChain.js">
+  <link rel="modulepreload" href="../../web-engine/render/shadowRelease.js">
+  <link rel="modulepreload" href="../../web-engine/render/shadowRoles.js">
+  <link rel="modulepreload" href="../../web-engine/rng/seededRng.js">
+  <link rel="modulepreload" href="../../web-engine/scenarios/matchRoster.js">
+  <link rel="modulepreload" href="../../web-engine/share/shareGame.js">
+  <link rel="modulepreload" href="../../web-engine/share/shareInvite.js">
+  <link rel="modulepreload" href="../../web-engine/stats/firebaseLeaderboard.js">
+  <link rel="modulepreload" href="../../web-engine/stats/leaderboardConfig.js">
+  <link rel="modulepreload" href="../../web-engine/stats/leaderboardDto.js">
+  <link rel="modulepreload" href="../../web-engine/updater/updateNotice.js">
+  <link rel="modulepreload" href="../../web-engine/updater/versionChecker.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/loaders/GLTFLoader.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/postprocessing/EffectComposer.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/postprocessing/MaskPass.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/postprocessing/Pass.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/postprocessing/RenderPass.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/postprocessing/ShaderPass.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/postprocessing/UnrealBloomPass.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/shaders/CopyShader.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/shaders/LuminosityHighPassShader.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/addons/utils/BufferGeometryUtils.js">
+  <link rel="modulepreload" href="../../web-engine/vendor/three-0.161.0/three.module.js">
+  <link rel="modulepreload" href="../../web-engine/visits/playCounts.js">
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  <link rel="modulepreload" href="../shared/input/zoomLock.js">
+  <link rel="modulepreload" href="../shared/net/roomPresence.js">
+  <link rel="modulepreload" href="../shared/ui/infoButton.js">
+  <link rel="modulepreload" href="../shared/ui/muteButton.js">
+  <link rel="modulepreload" href="./src/audio/music.js">
+  <link rel="modulepreload" href="./src/audio/sfx.js">
+  <link rel="modulepreload" href="./src/game.js">
+  <link rel="modulepreload" href="./src/input/controls.js">
+  <link rel="modulepreload" href="./src/input/touchMode.js">
+  <link rel="modulepreload" href="./src/kartReport.js">
+  <link rel="modulepreload" href="./src/main.js">
+  <link rel="modulepreload" href="./src/net/kartRoom.js">
+  <link rel="modulepreload" href="./src/net/raceNet.js">
+  <link rel="modulepreload" href="./src/net/session.js">
+  <link rel="modulepreload" href="./src/palette.js">
+  <link rel="modulepreload" href="./src/progress.js">
+  <link rel="modulepreload" href="./src/render/airshipMesh.js">
+  <link rel="modulepreload" href="./src/render/ceremony.js">
+  <link rel="modulepreload" href="./src/render/cityMesh.js">
+  <link rel="modulepreload" href="./src/render/fx.js">
+  <link rel="modulepreload" href="./src/render/hazardMesh.js">
+  <link rel="modulepreload" href="./src/render/itemMesh.js">
+  <link rel="modulepreload" href="./src/render/kartMesh.js">
+  <link rel="modulepreload" href="./src/render/lazyDrivers.js">
+  <link rel="modulepreload" href="./src/render/materials.js">
+  <link rel="modulepreload" href="./src/render/menuScene.js">
+  <link rel="modulepreload" href="./src/render/milkRampMesh.js">
+  <link rel="modulepreload" href="./src/render/post.js">
+  <link rel="modulepreload" href="./src/render/props.js">
+  <link rel="modulepreload" href="./src/render/rainFx.js">
+  <link rel="modulepreload" href="./src/render/showcase.js">
+  <link rel="modulepreload" href="./src/render/spectators.js">
+  <link rel="modulepreload" href="./src/render/speedFx.js">
+  <link rel="modulepreload" href="./src/render/startGate.js">
+  <link rel="modulepreload" href="./src/render/textures.js">
+  <link rel="modulepreload" href="./src/render/themes.js">
+  <link rel="modulepreload" href="./src/render/touchIcons.js">
+  <link rel="modulepreload" href="./src/render/trackMesh.js">
+  <link rel="modulepreload" href="./src/render/world.js">
+  <link rel="modulepreload" href="./src/tracks/trackFacts.js">
+  <link rel="modulepreload" href="./src/tracks/tracks.js">
+  <link rel="modulepreload" href="./src/ui/driverPanel.js">
+  <link rel="modulepreload" href="./src/ui/emptyItemSlot.js">
+  <link rel="modulepreload" href="./src/ui/hud.js">
+  <link rel="modulepreload" href="./src/ui/itemSpin.js">
+  <link rel="modulepreload" href="./src/ui/kartBoard.js">
+  <link rel="modulepreload" href="./src/ui/lobby.js">
+  <link rel="modulepreload" href="./src/ui/minimapView.js">
+  <link rel="modulepreload" href="./src/ui/podium.js">
+  <link rel="modulepreload" href="./src/ui/touchControls.js">
+  
 
   
 
@@ -2074,7 +2309,7 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="./src/main.js?v=04d95f86-20261119T080422Z"></script>
 
   
 
@@ -2089,6 +2324,6 @@
       contentFrom: "#fk-controls-body",
     });
   </script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
 </body>
 </html>

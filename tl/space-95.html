@@ -67,11 +67,15 @@
     "Web browser",
     "Mobile browser"
   ],
-  "playMode": "SinglePlayer",
+  "playMode": [
+    "SinglePlayer",
+    "MultiPlayer",
+    "CoOp"
+  ],
   "numberOfPlayers": {
     "@type": "QuantitativeValue",
     "minValue": 1,
-    "maxValue": 1
+    "maxValue": 2
   },
   "operatingSystem": "Any (browser)",
   "applicationCategory": "Game",
@@ -128,11 +132,19 @@
         "@type": "Answer",
         "text": "Oo, nang nakatagilid: may thumb stick sa kaliwa at mga button para sa jump at dash sa kanan. Sa computer, gamitin ang keyboard o isang gamepad."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Puwede ko bang laruin ang Space 95 kasama ang kaibigan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo, online, bawat isa sa sariling screen. Piliin ang Play with a friend sa title screen at ipadala ang room code o link. Si Jo ang gamit ng host at si Bolt ang sa kaibigan, at ang Intel at mga beacon na makita ng sinuman sa inyo ay bilang para sa inyong dalawa."
+      }
     }
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2ee0f3b4-20261118T095924Z">
+  <link rel="stylesheet" href="/styles.css?v=04d95f86-20261119T080422Z">
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     try {
@@ -182,7 +194,7 @@
     <h2>Dalawampung shift, walang magkapareho</h2>
     <p>May sariling ideya ang bawat shift. Tatakbo ka sa sahig ng taniman, aakyat sa lilang puno hanggang sa itaas, maghuhukay pababa sa malambot na lupa, lilipad sa pagitan ng mga puno sakay ng buto, tatakbo pabalik palayo sa isang higanteng sapatos, maglalayag sa lusak ng ulan na kasinlaki ng dagat, magmamaneho ng <strong>laruang tren</strong> sa sahig ng kusina na tanaw mula sa itaas, <strong>magpapalipad ng eroplano</strong> sa isang dogfight sa ibabaw ng hardin at sasakay sa likod ng isang natutulog na halimaw na humihinga sa ilalim ng mga paa mo.</p>
     <p>At sa bawat shift, iba-iba ang paraan ng mundo sa pagtulong sa iyo: gugulong ang batong sinipa mo papunta sa salagubang sa harap, patatalbugin ka ng isang patak ng asul na hamog nang mas mataas sa inasinta mo, dadalhin palayo ng hanay ng mga langgam na sinakyan mo ang mga kalaban. May mga boss sa shift 4, 8, 10, 12 at 16.</p>
-    <p><strong>Nasaan na ito:</strong> bukas na ang lahat ng dalawampung shift, kasama ang finale. May pinintang background na ang karamihan sa mga level, at pansamantala pa ang katawan ng mga boss at ilang insekto habang ginagawa ang kanilang animasyon.</p>
+    <p><strong>Nasaan na ito:</strong> bukas na ang lahat ng dalawampung shift, kasama ang finale. Dalawang shift, ang laruang tren sa sahig ng kusina at ang pagsakay sa likod ng guhitang halimaw, ang gumagamit pa ng mas simpleng binuong tanawin sa halip na pinintang background.</p>
 
     <h2>Mga kontrol na mapagpatawad</h2>
     <p>Pindutin nang matagal ang jump para tumalon nang mas mataas, at bilang pa rin ang talong napindot nang medyo maaga o medyo huli. Dumarating ang mga bagong galaw habang tumatagal: ang double jump, ang ground pound, ang dash, ang leaf glide, ang wall jump at ang hook ni Bolt. May mga <strong>clock-in beacon</strong> mga bawat kalahating minuto at kaagad pagkatapos ng bawat mahirap na bahagi.</p>
@@ -193,6 +205,14 @@
     <p>May <strong>tatlong sikreto</strong> ang bawat shift: isang taguan sa likod ng pader o sa ilalim ng tanawin, isang gawaing wala sa pangunahing daan, at isang bihirang specimen na iba ang kilos sa iba. Tahimik kang inaakay ng level papunta sa kanila, kaya parang sarili mong ideya ang paghahanap. Ang mahahanap mo ay itinatala bilang <strong>Intel</strong> tungkol sa planeta.</p>
     <p>Sa dulo ng bawat shift, ipinapakita ng <strong>timesheet</strong> ang oras mo laban sa par, mga dalawang minuto sa buong bilis, ang pinakamabilis mong oras at ang Intel na naitala mo. Tapusin ang lahat ng dalawampu, kasama ang finale, at ipapadala ng HQ ang performance review nito.</p>
 
+    <h2>Paglalaro kasama ang kaibigan</h2>
+    <p>Piliin ang <strong>Play with a friend</strong> sa title screen at bibigyan ka ng laro ng room code, gaya ng s95-abcde, at link na ipapadala. Ita-type ng kaibigan mo ang code o bubuksan ang link, at bawat isa ay maglalaro sa sariling screen. Si Jo ang gamit ng host at si Bolt ang sa kaibigan, at may dagdag na talon sa ere si Bolt dahil sa thruster niya. Puwede ring sumali ang kaibigan sa shift na nagsimula na.</p>
+    <p>May sariling diskarte ang paglalaro nang magkapares. Tumalon mula sa ulo ng kapartner mo para maabot ang ledge na hindi kaya ng isang talon, pero walang kailangan para sa buong score na nakadepende rito. Kapag nahulog ka habang nakatayo ang kapartner mo, ibabalik ka ng beam ni Bolt sa tabi niya sa halip na sa beacon. Ang Intel at mga beacon na makita ng sinuman ay bilang para sa dalawa, at tapos ang shift kapag nag-clock out ang nauna. Kapag wala sa screen ang kapartner mo, may marker sa gilid na tumuturo sa kanya, at kapag napag-iwanan ka nang malayo, dadalhin ka ng Beam to partner diretso sa kanya.</p>
+    <p>Sa co-op, ang kalabang tumutugon sa isang player ay puwedeng nasa bahagyang ibang puwesto sa bawat screen; bawat isa ay tatamaan lang ng kalabang nakikita niya.</p>
+
+    <h2>Isang kanta sa bawat shift</h2>
+    <p>May 22 bagong kanta na ngayon ang Space 95 mula sa Magestican Records, isa sa bawat shift, dagdag ang western na main theme at boss theme. Iba-iba ang estilo ng bawat shift: country sa taniman, gamelan, afrobeat, flamenco, techno sa loob ng makina, ska, drum and bass at orchestral na finale, kaya nagbabago ang musika kasabay ng lugar.</p>
+
     <h2>Mga badge sa Magestican profile mo</h2>
     <p>Bilang ang Space 95 sa studio profile mo gaya ng iba pang laro rito: experience, ang level mo at ang daily challenge, na may sarili nitong mga badge, mula First Day on the Job at Lucky Kick hanggang Pest Control, On Schedule at Exceeds Expectations. Ang ilan, gaya ng Meets Expectations at Employee of the Year, ay nakukuha sa finale. Naka-save ang progreso mo sa browser mo, at hindi kailangan ng account.</p>
 
@@ -200,6 +220,9 @@
     <p>Para sa mas malaking mundong gagalugarin, subukan ang <a href="/tl/dachis.html">Dachis</a>, isang monster-friend RPG sa isang isla. Para sa mas mabilis, makipagkarera sa <a href="/tl/farmykart.html">Kartzoom</a>. Para sa tahimik na buhay sa isa pang maliit na mundo, subukan ang <a href="/tl/farmy-moon-life.html">Moon Life</a>.</p>
 
     <p><a class="cta" href="/play/space-95/?lang=tl">Laruin ang Space 95 ngayon &rarr;</a></p>
+    
+    <p class="more-like-this">Iba pang katulad nito: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a></p>
+    
     
     <div class="play-bar" data-page="space-95">
       <a class="cta cta-primary" href="/play/space-95/?lang=tl">Laruin na</a>
@@ -222,7 +245,7 @@
     <nav class="mg-network" aria-label="Mga site ng Magestican Studios"><a href="/sites.html">Lahat ng aming site</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://workchillout.com/">Work Chill Out</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://music.workchillout.com/">Magestican Music</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://bryanarbelo.com/">Bryan Arbelo</a></nav>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/site.js?v=04d95f86-20261119T080422Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {
@@ -230,8 +253,8 @@
       });
     }
   </script>
-  <script type="module" src="/assets/landing.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/landing.js?v=04d95f86-20261119T080422Z"></script>
   <p class="lang-note">Nasa Tagalog ang pahinang ito. Nasa English ang mismong mga laro; halos walang text ang chess, checkers at ludo.</p>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
 </body>
 </html>

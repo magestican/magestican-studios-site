@@ -26,6 +26,7 @@ import {
 import { poseAt, EMOTE_TIME } from 'arbelo/emotes';
 import { CHARACTERS, characterById } from 'arbelo/kartTuning';
 import { loadDriver } from './kartMesh.js';
+import { driversToLoad } from './lazyDrivers.js';
 import { configureRenderer, surface, paintedSurface } from './materials.js';
 
 
@@ -152,7 +153,24 @@ function buildFigure(character) {
   placeholder.userData.baseScale = 1;
   pivot.add(placeholder);
 
-  loadDriver(character.species).then((scene) => {
+  
+  
+  
+  
+  
+  
+  let requested = false;
+  root.userData.ensureLoaded = () => {
+    if (requested) return;
+    requested = true;
+    root.userData.loading = loadModel();
+  };
+  root.userData.pivot = pivot;
+  root.userData.body = placeholder;
+  return root;
+
+  function loadModel() {
+  return loadDriver(character.species).then((scene) => {
     if (!scene) return;                       
     
     
@@ -177,10 +195,7 @@ function buildFigure(character) {
     pivot.add(body);
     root.userData.body = body;
   });
-
-  root.userData.pivot = pivot;
-  root.userData.body = placeholder;
-  return root;
+  }
 }
 
 
@@ -310,7 +325,25 @@ export function createShowcaseView({
   let last = selectedId(state);
   let time = 0;
 
+  
+  
+  
+  
+  let neighbours = 'idle';      
+  function ensureNear() {
+    const shown = slotsOf(state).map((s) => s.at);
+    for (const i of driversToLoad(shown, figures.length, neighbours === 'ready')) {
+      figures[i]?.userData.ensureLoaded();
+    }
+    if (neighbours === 'idle') {
+      neighbours = 'waiting';
+      const firsts = shown.map((i) => figures[i]?.userData.loading).filter(Boolean);
+      Promise.all(firsts).then(() => { neighbours = 'ready'; });
+    }
+  }
+
   function layout() {
+    ensureNear();
     for (const s of slotsOf(state)) {
       const fig = figures[s.at];
       if (!fig) continue;

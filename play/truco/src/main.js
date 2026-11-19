@@ -52,6 +52,8 @@ import {
   progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord, trucoHandWon,
 } from './progress.js';
 import { createNet, canPlayTogether } from './net.js';
+import { forgetRoomCode } from './net.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 
 const GAME_ID = 'truco';
 
@@ -753,6 +755,7 @@ function draw() {
   roomEl.hidden = settings.mode !== 'room';
   $('room-start').hidden = room.active;
   $('room-live').hidden = !room.active;
+  document.getElementById('new-room-code')?.toggleAttribute('hidden', !(room.active && net?.hosting));
   $('room-code').textContent = room.code ?? '-';
   const guest = isGuest();
   const watching = watcher();
@@ -1110,6 +1113,12 @@ $('leave-room').addEventListener('click', () => {
   leaveRoom();
   settings.mode = 'bot';
   newMatch();
+});
+
+
+newCodeButton($('copy-link'), {
+  lang,
+  onReset: () => { forgetRoomCode(); leaveRoom(); openRoom(); },
 });
 $('copy-link').addEventListener('click', () => {
   if (!net?.id) return;

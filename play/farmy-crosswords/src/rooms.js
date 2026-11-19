@@ -7,6 +7,7 @@
 
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { rectAt } from '../../../web-engine/words/layout.js';
+import { newCodeWords } from '../../../web-engine/net/stickyRoomCode.js';
 import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
 import {
   CODE_ALPHABET, CODE_LENGTH, normaliseCode, spokenCode, SAYINGS, cleanName, NAME_MAX,
@@ -34,7 +35,7 @@ import { panelBox } from './overlay.js';
 
 
 export function room(app, {
-  state, onHost, onJoin, onLeave, onCopy, onMode,
+  state, onHost, onJoin, onLeave, onCopy, onMode, onNewCode = () => {},
 }) {
   let box = panelBox(app, !!state.active);
   let buttons = [];
@@ -70,7 +71,14 @@ export function room(app, {
         
         { id: 'together', label: 'Together', x, y: box.y + 54, w: w / 2 - 4, h: h - 6 },
         { id: 'race', label: 'Race', x: x + w / 2 + 4, y: box.y + 54, w: w / 2 - 4, h: h - 6 },
-        { id: 'copy', label: 'Invite', x, y: bottom - h * 3 - 24, w, h },
+        
+        
+        ...(state.hosting
+          ? [
+            { id: 'copy', label: 'Invite', x, y: bottom - h * 3 - 24, w: w / 2 - 4, h },
+            { id: 'newcode', label: newCodeWords(globalThis.document?.documentElement?.lang).label, x: x + w / 2 + 4, y: bottom - h * 3 - 24, w: w / 2 - 4, h },
+          ]
+          : [{ id: 'copy', label: 'Invite', x, y: bottom - h * 3 - 24, w, h }]),
         { id: 'leave', label: 'Leave the room', x, y: bottom - h * 2 - 12, w, h },
         { id: 'close', label: 'Close', x, y: bottom - h, w, h },
       ]
@@ -254,6 +262,7 @@ export function room(app, {
       if (id === 'host') onHost();
       else if (id === 'leave') onLeave();
       else if (id === 'copy') onCopy();
+      else if (id === 'newcode') onNewCode();
       else if (id === 'join') { if (complete()) onJoin(normaliseCode(typed)); }
       else app.closeOverlay();
     },

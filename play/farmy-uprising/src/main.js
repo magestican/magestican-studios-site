@@ -36,6 +36,7 @@ import { createInput } from './input.js';
 import { createAudio } from './audio.js';
 import { createVoices } from './voices.js';
 import { createNet, openRooms, canPlayTogether } from './net.js';
+import { forgetRoomCode } from './net.js';
 import { createLobbyPanel } from './lobbyPanel.js';
 import { saveMatch, restoreMatch, matchChecksum, checksumFields } from '../../../web-engine/rts/sim/save.js';
 import { MAX_UNITS } from '../../../web-engine/rts/sim/world.js';
@@ -884,6 +885,15 @@ lobbyUi = createLobbyPanel({
     if (net) net.leave();
     net = null;
     lobbyUi.room(null);
+  },
+  
+  onNewCode(mapId) {
+    if (!net?.hosting) return;
+    forgetRoomCode();
+    net.leave();
+    net = null;
+    lobbyUi.room(null);
+    startNet().host(mapId);
   },
   onBack() {
     lobbyUi.close();

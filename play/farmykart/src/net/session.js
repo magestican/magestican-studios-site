@@ -28,6 +28,7 @@
 
 import { PeerMesh } from 'arbelo/net';
 import { exchangeCards } from '../../../../web-engine/progress/peerCards.js';
+import { stickyRoomCode } from '../../../../web-engine/net/stickyRoomCode.js';
 import { publishKartRoom } from './kartRoom.js';
 import {
   KART_MSG, buildSeats, seatOf, releaseSeat, claimSeat, reassignBots,
@@ -61,6 +62,45 @@ export function shareLinkFor(href, myId) {
 
 
 
+const makeKartCode = () => `fk-${Math.random().toString(36).slice(2, 8)}`;
+
+
+
+const sticky = stickyRoomCode('fk-');
+
+export const forgetRoomCode = () => sticky.forget();
+
+export const isMyRoomCode = (id) => !!id && id === sticky.saved();
+
+export const cancelRoomRetry = () => sticky.cancel();
+
+
+
+
+
+
+
+function openMesh(mode, attempt = 0) {
+  const hint = mode === 'host' ? sticky.hint(attempt, makeKartCode, 5) : null;
+  const mesh = new PeerMesh({ hostIdHint: hint ?? undefined });
+  return new Promise((resolve, reject) => {
+    mesh.addEventListener('open', (e) => resolve({ mesh, myId: e.detail.id }), { once: true });
+    mesh.addEventListener('error', (e) => {
+      if (String(e.detail.message).includes('unavailable-id')) {
+        if (mode !== 'host') return;
+        try { mesh.destroy(); } catch {  }
+        sticky.retry(attempt, () => openMesh(mode, attempt + 1).then(resolve, reject));
+        return;
+      }
+      reject(new Error(e.detail.message));
+    });
+  });
+}
+
+
+
+
+
 
 
 
@@ -69,22 +109,7 @@ export function shareLinkFor(href, myId) {
 
 
 export async function createSession({ mode, hostId, name, characterId, settings = {} }) {
-  
-  
-  
-  
-  const hostIdHint = mode === 'host' ? `fk-${Math.random().toString(36).slice(2, 8)}` : undefined;
-  const mesh = new PeerMesh({ hostIdHint });
-
-  const myId = await new Promise((resolve, reject) => {
-    mesh.addEventListener('open', (e) => resolve(e.detail.id), { once: true });
-    mesh.addEventListener('error', (e) => {
-      
-      
-      if (String(e.detail.message).includes('unavailable-id')) return;
-      reject(new Error(e.detail.message));
-    });
-  });
+  const { mesh, myId } = await openMesh(mode);
 
   const session = new KartSession({ mesh, myId, mode, hostId, name, characterId, settings });
   

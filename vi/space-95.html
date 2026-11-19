@@ -67,11 +67,15 @@
     "Web browser",
     "Mobile browser"
   ],
-  "playMode": "SinglePlayer",
+  "playMode": [
+    "SinglePlayer",
+    "MultiPlayer",
+    "CoOp"
+  ],
   "numberOfPlayers": {
     "@type": "QuantitativeValue",
     "minValue": 1,
-    "maxValue": 1
+    "maxValue": 2
   },
   "operatingSystem": "Any (browser)",
   "applicationCategory": "Game",
@@ -128,11 +132,19 @@
         "@type": "Answer",
         "text": "Được, khi cầm ngang: cần điều khiển cho ngón cái ở bên trái và nút nhảy, nút lướt ở bên phải. Trên máy tính, dùng bàn phím hoặc tay cầm."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Tôi có thể chơi Space 95 cùng bạn bè không?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Có, chơi trực tuyến, mỗi người trên màn hình của mình. Chọn Play with a friend ở màn hình tiêu đề rồi gửi mã phòng hoặc đường liên kết. Chủ phòng điều khiển Jo, người bạn điều khiển Bolt, và Intel cùng các đèn hiệu mà bất kỳ ai tìm được đều tính cho cả hai."
+      }
     }
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2ee0f3b4-20261118T095924Z">
+  <link rel="stylesheet" href="/styles.css?v=04d95f86-20261119T080422Z">
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     try {
@@ -182,7 +194,7 @@
     <h2>Hai mươi ca, không ca nào giống ca nào</h2>
     <p>Mỗi ca có một ý tưởng riêng. Bạn chạy trên nền vườn cây, leo thân cây tím lên tận tán lá, đào xuống qua lớp đất mềm, lượn giữa những tán cây trên một hạt giống, chạy ngược chiều để tránh một chiếc giày khổng lồ, vượt một vũng nước mưa rộng như biển, lái <strong>tàu hỏa đồ chơi</strong> trên sàn bếp nhìn từ trên xuống, <strong>lái máy bay</strong> trong một trận không chiến trên khu vườn và cưỡi trên lưng một con thú đang ngủ, thở phập phồng dưới chân bạn.</p>
     <p>Và ở mỗi ca, thế giới giúp bạn theo một cách khác: viên sỏi bạn đá lăn thẳng vào con bọ phía trước, một giọt sương xanh bật bạn lên cao hơn bạn nhắm, đàn kiến bạn nhảy lên chở đám kẻ địch đi mất. Trùm chờ bạn ở các ca 4, 8, 10, 12 và 16.</p>
-    <p><strong>Tình trạng hiện tại:</strong> cả hai mươi ca đều đã chơi được, kể cả màn kết. Hầu hết các màn giờ đã có phông nền vẽ tay, còn các trùm và vài loài côn trùng vẫn dùng hình tạm trong lúc hoạt ảnh của chúng được làm.</p>
+    <p><strong>Tình trạng hiện tại:</strong> cả hai mươi ca đều đã chơi được, kể cả màn kết. Hai ca, đoàn tàu đồ chơi trên sàn bếp và chuyến cưỡi trên lưng con thú vằn, vẫn dùng cảnh dựng đơn giản hơn thay cho phông nền vẽ tay.</p>
 
     <h2>Điều khiển dễ tha thứ</h2>
     <p>Giữ nút nhảy để nhảy cao hơn, và cú nhảy bấm hơi sớm hay hơi muộn một chút vẫn được tính. Các chiêu mới đến dần trên đường đi: nhảy đôi, dậm đất, lướt, lượn bằng lá, nhảy tường và móc kéo của Bolt. <strong>Trạm chấm công</strong> xuất hiện khoảng mỗi nửa phút và ngay sau mỗi đoạn khó.</p>
@@ -193,6 +205,14 @@
     <p>Mỗi ca giấu <strong>ba bí mật</strong>: một kho đồ sau bức tường hoặc dưới cảnh vật, một thử thách nằm ngoài đường chính, và một mẫu vật hiếm có hành vi khác hẳn những con còn lại. Màn chơi lặng lẽ dẫn bạn về phía chúng, nên khi tìm ra, bạn sẽ thấy như đó là ý tưởng của chính mình. Những gì bạn tìm thấy được lưu thành <strong>Intel</strong> về hành tinh.</p>
     <p>Cuối mỗi ca, <strong>bảng chấm công</strong> cho thấy thời gian của bạn so với mức chuẩn, khoảng hai phút khi chạy hết tốc lực, thời gian tốt nhất và số Intel bạn đã lưu. Hoàn thành cả hai mươi ca, kể cả màn kết, và trụ sở sẽ gửi bản đánh giá năng lực.</p>
 
+    <h2>Chơi cùng bạn bè</h2>
+    <p>Chọn <strong>Play with a friend</strong> ở màn hình tiêu đề và trò chơi sẽ cho bạn một mã phòng, như s95-abcde, cùng một đường liên kết để gửi. Bạn của bạn nhập mã hoặc mở đường liên kết, và mỗi người chơi trên màn hình riêng. Chủ phòng điều khiển Jo, người bạn điều khiển Bolt, và động cơ đẩy của Bolt cho thêm một cú nhảy trên không. Bạn bè cũng có thể vào một ca đã bắt đầu.</p>
+    <p>Làm việc theo cặp có những mẹo riêng. Nhảy từ đầu bạn đồng hành để lên một gờ mà một cú nhảy không tới được, dù không thứ gì cần cho điểm tối đa phụ thuộc vào điều đó. Nếu bạn rơi khi bạn đồng hành đang đứng, tia của Bolt đưa bạn về cạnh họ thay vì về đèn hiệu. Intel và đèn hiệu mà bất kỳ ai tìm được đều tính cho cả hai, và ca kết thúc khi người đầu tiên chấm công ra về. Khi bạn đồng hành ở ngoài màn hình, một dấu ở mép màn hình chỉ hướng, và nếu bạn tụt lại quá xa, Beam to partner đưa bạn thẳng tới chỗ họ.</p>
+    <p>Khi chơi hợp tác, một kẻ địch phản ứng theo người chơi có thể đứng ở chỗ hơi khác trên mỗi màn hình; mỗi người chỉ bị kẻ địch mình nhìn thấy gây sát thương.</p>
+
+    <h2>Mỗi ca một bài hát</h2>
+    <p>Space 95 giờ có 22 bài hát mới của Magestican Records, mỗi ca một bài, cùng một bản nhạc chủ đề phong cách miền Tây và một bản nhạc trùm. Mỗi ca có phong cách riêng: country trong vườn cây, gamelan, afrobeat, flamenco, techno bên trong cỗ máy, ska, drum and bass và một màn kết hòa tấu, nên âm nhạc thay đổi theo từng nơi.</p>
+
     <h2>Huy hiệu trên hồ sơ Magestican của bạn</h2>
     <p>Space 95 được tính trên hồ sơ studio của bạn như mọi game khác ở đây: điểm kinh nghiệm, cấp độ và thử thách hằng ngày, cùng bộ huy hiệu riêng, từ First Day on the Job và Lucky Kick đến Pest Control, On Schedule và Exceeds Expectations. Một vài huy hiệu, như Meets Expectations và Employee of the Year, nhận được ở màn kết. Tiến trình của bạn được lưu trong trình duyệt, và không cần tài khoản.</p>
 
@@ -200,6 +220,9 @@
     <p>Muốn một thế giới rộng hơn để khám phá, hãy thử <a href="/vi/dachis.html">Dachis</a>, game RPG bạn đồng hành quái vật trên một hòn đảo. Muốn nhanh hơn, hãy đua cùng <a href="/vi/farmykart.html">Kartzoom: Đua Xe</a>. Muốn một cuộc sống yên bình trên một thế giới nhỏ khác, hãy thử <a href="/vi/farmy-moon-life.html">Moon Life</a>.</p>
 
     <p><a class="cta" href="/play/space-95/?lang=vi">Chơi Space 95 ngay &rarr;</a></p>
+    
+    <p class="more-like-this">Xem thêm: <a href="/vi/2-player-games-online.html">Game 2 người chơi online</a> &middot; <a href="/vi/multiplayer-browser-games.html">Game nhiều người chơi trên trình duyệt</a></p>
+    
     
     <div class="play-bar" data-page="space-95">
       <a class="cta cta-primary" href="/play/space-95/?lang=vi">Chơi ngay</a>
@@ -222,7 +245,7 @@
     <nav class="mg-network" aria-label="Các trang của Magestican Studios"><a href="/sites.html">Tất cả các trang của chúng tôi</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://workchillout.com/">Work Chill Out</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://music.workchillout.com/">Magestican Music</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://bryanarbelo.com/">Bryan Arbelo</a></nav>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/site.js?v=04d95f86-20261119T080422Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {
@@ -230,8 +253,8 @@
       });
     }
   </script>
-  <script type="module" src="/assets/landing.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/landing.js?v=04d95f86-20261119T080422Z"></script>
   <p class="lang-note">Trang này bằng tiếng Việt. Bản thân các trò chơi bằng tiếng Anh; cờ vua, cờ đam và cờ cá ngựa hầu như không có chữ.</p>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
 </body>
 </html>

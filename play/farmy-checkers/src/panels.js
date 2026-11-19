@@ -16,6 +16,7 @@
 
 
 import { t } from '../../../web-engine/i18n/tr.js';
+import { newCodeWords } from '../../../web-engine/net/stickyRoomCode.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { grid, rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, sink, DURATION } from '../../../web-engine/words/motion.js';
@@ -255,7 +256,7 @@ export function bot(app, { state, onPlay, onStop, onClose }) {
 
 
 export function room(app, {
-  state, onHost, onJoin, onLeave, onCopy, onClose, onStart,
+  state, onHost, onJoin, onLeave, onCopy, onNewCode = () => {}, onClose, onStart,
 }) {
   let typed = '';
   const typeChar = (ch) => {
@@ -291,6 +292,8 @@ export function room(app, {
     buttons: () => (state.active
       ? [
         { id: 'copy', label: state.copied ? t('Link copied') : t('Invite'), tone: 'blue', run: onCopy },
+        
+        ...(state.hosting ? [{ id: 'newcode', label: newCodeWords(globalThis.document?.documentElement?.lang).label, run: onNewCode }] : []),
         ...(state.canStart ? [{ id: 'start', label: t('Start a new game together'), tone: 'green', run: onStart }] : []),
         ...(typed.length === 6 ? [{ id: 'join', label: t('Join {code}', { code: typed }), run: () => onJoin(normaliseCode(typed)) }] : []),
         { id: 'leave', label: t('Leave the room'), run: onLeave },

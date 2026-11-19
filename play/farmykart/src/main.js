@@ -65,7 +65,10 @@ import {
 } from './tracks/tracks.js';
 import { trackBadges, factsLine, trackPreviewShape } from './tracks/trackFacts.js';
 import { createRace } from './game.js';
-import { createSession, joinIdFromLocation, shareLinkFor } from './net/session.js';
+import {
+  createSession, joinIdFromLocation, shareLinkFor, forgetRoomCode, isMyRoomCode, cancelRoomRetry,
+} from './net/session.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { createLobbyUi } from './ui/lobby.js';
 import { driverPanelHtml } from './ui/driverPanel.js';
 import { drawItemIcon } from './render/itemMesh.js';
@@ -307,6 +310,13 @@ function boot() {
     onStart: () => state.session?.start(),
     onLeave: leaveRoom,
   });
+  
+  
+  
+  newCodeButton($('lobby-copy'), {
+    lang: document.documentElement.lang || 'en',
+    onReset: () => { forgetRoomCode(); leaveRoom(); openRoom('host'); },
+  }).show(true);
 
   
   installHistoryRouter();
@@ -316,6 +326,13 @@ function boot() {
   
   
   const invite = joinIdFromLocation(location.href);
+  
+  
+  if (invite && isMyRoomCode(invite)) {
+    show('menu');
+    openRoom('host');
+    return;
+  }
   if (invite) {
     $('join-note').textContent = 'Joining room ' + invite + '\u2026';
     show('menu');
@@ -444,6 +461,7 @@ function backToLobby() {
 }
 
 function leaveRoom() {
+  cancelRoomRetry();
   if (state.race) { state.race.dispose(); state.race = null; }
   state.session?.destroy();
   state.session = null;

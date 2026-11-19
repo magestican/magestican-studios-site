@@ -111,7 +111,8 @@ import { buildSky, updateSky, buildLights, buildSun, updateSun, fogFor, createCh
 
 
 
-import { configureRenderer, buildEnvironment, releaseEnvironment, setQuality, detectQuality } from './render/materials.js';
+import { configureRenderer, buildEnvironment, releaseEnvironment, setQuality, detectQuality, getQuality } from './render/materials.js';
+import { createPost } from './render/post.js';
 
 
 
@@ -300,6 +301,11 @@ export function createRace(options) {
   const camera = new THREE.PerspectiveCamera(
     raceFov(window.innerWidth, window.innerHeight, { touch }),
     window.innerWidth / window.innerHeight, 0.4, 1200);
+  
+  
+  
+  const post = createPost(renderer, scene, camera, { quality: getQuality() });
+  post?.setSize(window.innerWidth, window.innerHeight);
   const chase = createChaseCamera(camera, {
     baseFov: raceFov(window.innerWidth, window.innerHeight, { touch }),
     ceiling: fovCeiling(window.innerWidth, window.innerHeight),
@@ -677,6 +683,7 @@ export function createRace(options) {
     chase.baseFov = raceFov(window.innerWidth, window.innerHeight, { touch });
     chase.ceiling = fovCeiling(window.innerWidth, window.innerHeight);
     camera.updateProjectionMatrix();
+    post?.setSize(window.innerWidth, window.innerHeight);
   };
   window.addEventListener('resize', onResize);
   window.addEventListener('orientationchange', onResize);
@@ -1747,7 +1754,7 @@ export function createRace(options) {
       }
       ceremony.update(clock);
     }
-    renderer.render(scene, camera);
+    if (post) post.render(); else renderer.render(scene, camera);
   }
 
   
@@ -2196,7 +2203,8 @@ export function createRace(options) {
       
       
       
-      releaseRenderer('scene', renderer, { before: () => releaseShadows(scene) });
+      
+      releaseRenderer('scene', renderer, { before: () => { post?.dispose(); releaseShadows(scene); } });
 
     },
   };

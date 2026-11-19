@@ -67,11 +67,15 @@
     "Web browser",
     "Mobile browser"
   ],
-  "playMode": "SinglePlayer",
+  "playMode": [
+    "SinglePlayer",
+    "MultiPlayer",
+    "CoOp"
+  ],
   "numberOfPlayers": {
     "@type": "QuantitativeValue",
     "minValue": 1,
-    "maxValue": 1
+    "maxValue": 2
   },
   "operatingSystem": "Any (browser)",
   "applicationCategory": "Game",
@@ -128,11 +132,19 @@
         "@type": "Answer",
         "text": "はい、横向きで遊べます。左にスティック、右にジャンプとダッシュのボタンがあります。パソコンではキーボードかゲームパッドを使います。"
       }
+    },
+    {
+      "@type": "Question",
+      "name": "友だちと一緒にSpace 95を遊べますか？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "はい、オンラインで、それぞれ自分の画面で遊べます。タイトル画面で「Play with a friend」を選び、ルームコードかリンクを送ってください。ホストはJo、友だちはBoltを操作し、どちらが見つけたインテルやビーコンも二人の分として数えられます。"
+      }
     }
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2ee0f3b4-20261118T095924Z">
+  <link rel="stylesheet" href="/styles.css?v=04d95f86-20261119T080422Z">
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     try {
@@ -182,7 +194,7 @@
     <h2>同じものはひとつもない、20のシフト</h2>
     <p>どのシフトにも独自のアイデアがあります。果樹園の地面を走り、紫の幹を木のてっぺんまで登り、やわらかい土を掘り進み、種に乗って木々の間を滑空し、巨大な靴から逆方向に逃げ、海ほどもある雨の水たまりを渡り、上から見たキッチンの床で<strong>おもちゃの汽車</strong>を走らせ、庭の上空のドッグファイトで<strong>飛行機を飛ばし</strong>、足の下で呼吸する眠った獣の背中に乗ります。</p>
     <p>そしてシフトごとに、世界がちがう形で助けてくれます。蹴った小石が前方の甲虫まで転がり、青いしずくに乗ると狙ったより高く跳ね上がり、飛び乗ったアリの行列が敵を運び去ってくれます。ボスはシフト4、8、10、12、16で待っています。</p>
-    <p><strong>現在の状況：</strong>フィナーレを含む20シフトすべてが遊べます。ほとんどのステージには描き込んだ背景が入りました。ボスと一部の虫は、アニメーションを作っている間、まだ仮の姿です。</p>
+    <p><strong>現在の状況：</strong>フィナーレを含む20シフトすべてが遊べます。台所の床を走るおもちゃの列車と、しま模様の巨獣の背中に乗るシフトの2つは、描き込んだ背景ではなく、まだシンプルに組んだ景色です。</p>
 
     <h2>ミスに優しい操作</h2>
     <p>ジャンプを長押しすると高く跳べて、少し早すぎたり遅すぎたりしたジャンプも受け付けます。進むにつれて新しい動きが増えます。二段ジャンプ、ヒップドロップ、ダッシュ、葉っぱでの滑空、壁ジャンプ、そしてボルトのフック。<strong>出勤ビーコン</strong>はだいたい30秒ごと、そして難しい区間の直後にもあります。</p>
@@ -193,6 +205,14 @@
     <p>どのシフトにも<strong>秘密が3つ</strong>隠れています。壁の向こうや背景の下にある隠し場所、本道から外れた挑戦、そしてほかとはちがう動きをする珍しい標本。ステージはさりげなく秘密へと導くので、見つけたときは自分のひらめきのように感じられます。見つけたものは惑星についての<strong>インテル</strong>として記録されます。</p>
     <p>シフトの終わりには<strong>タイムシート</strong>が出て、全速力でおよそ2分のパーと比べたタイム、ベストタイム、記録したインテルが表示されます。フィナーレを含む20シフトすべてをクリアすると、本社から人事評価が届きます。</p>
 
+    <h2>友だちと遊ぶ</h2>
+    <p>タイトル画面で<strong>Play with a friend</strong>を選ぶと、s95-abcdeのようなルームコードと送るためのリンクが表示されます。友だちがコードを入力するかリンクを開けば、それぞれ自分の画面で遊べます。ホストはJo、友だちはBoltを操作し、Boltはスラスターで空中にもう一回ジャンプできます。すでに始まったシフトに途中から加わることもできます。</p>
+    <p>二人で働くと、二人ならではのコツがあります。相棒の頭を踏み台にすれば、一人のジャンプでは届かない足場に届きます。ただし、満点に必要なものはそれに頼りません。相棒が立っているときに落ちると、ビーコンではなくBoltのビームで相棒のそばに戻れます。どちらが見つけたインテルやビーコンも二人の分になり、先にどちらかが退勤した時点でシフトはクリアです。相棒が画面の外にいるときは画面の端のマーカーが方向を示し、大きく遅れたときは「Beam to partner」で相棒のところへ一気に移れます。</p>
+    <p>協力プレイでは、プレイヤーに反応する敵が、画面ごとに少しずれた位置にいることがあります。ダメージを受けるのは、自分の画面に見えている敵からだけです。</p>
+
+    <h2>シフトごとに一曲</h2>
+    <p>Space 95には、Magestican Recordsによる新曲が22曲入りました。シフトごとに一曲ずつ、さらにウエスタン調のメインテーマとボス戦のテーマがあります。シフトごとにスタイルが違い、果樹園のカントリー、ガムラン、アフロビート、フラメンコ、機械の中のテクノ、スカ、ドラムンベース、オーケストラのフィナーレなどがあるので、場所が変われば音楽もがらりと変わります。</p>
+
     <h2>マゲスティカンのプロフィールに並ぶバッジ</h2>
     <p>Space 95も、ここにあるほかのゲームと同じようにスタジオのプロフィールに反映されます。経験値、レベル、デイリーチャレンジ、そしてFirst Day on the JobやLucky KickからPest Control、On Schedule、Exceeds Expectationsまで、専用のバッジがあります。Meets ExpectationsやEmployee of the Yearなど一部のバッジは、フィナーレで手に入ります。進行状況はブラウザに保存され、アカウントは不要です。</p>
 
@@ -200,6 +220,9 @@
     <p>もっと広い世界を冒険するなら、島が舞台のモンスターフレンドRPG<a href="/ja/dachis.html">Dachis</a>を。もっとスピードがほしいなら<a href="/ja/farmykart.html">Kartzoom カートレース</a>でレースを。別の小さな世界でのんびり暮らすなら<a href="/ja/farmy-moon-life.html">Moon Life</a>をどうぞ。</p>
 
     <p><a class="cta" href="/play/space-95/?lang=ja">今すぐSpace 95をプレイ &rarr;</a></p>
+    
+    <p class="more-like-this">こちらもおすすめ: <a href="/ja/2-player-games-online.html">2人で遊べるオンラインゲーム</a> &middot; <a href="/ja/multiplayer-browser-games.html">マルチプレイ ブラウザゲーム</a></p>
+    
     
     <div class="play-bar" data-page="space-95">
       <a class="cta cta-primary" href="/play/space-95/?lang=ja">今すぐプレイ</a>
@@ -222,7 +245,7 @@
     <nav class="mg-network" aria-label="Magestican Studios のサイト"><a href="/sites.html">サイト一覧</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://workchillout.com/">Work Chill Out</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://music.workchillout.com/">Magestican Music</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://bryanarbelo.com/">Bryan Arbelo</a></nav>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/site.js?v=04d95f86-20261119T080422Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {
@@ -230,8 +253,8 @@
       });
     }
   </script>
-  <script type="module" src="/assets/landing.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/landing.js?v=04d95f86-20261119T080422Z"></script>
   <p class="lang-note">このページは日本語です。ゲーム本体は英語ですが、チェス・チェッカー・ルドーには文字がほとんどありません。</p>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
 </body>
 </html>

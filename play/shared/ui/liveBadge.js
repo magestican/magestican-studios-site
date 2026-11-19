@@ -110,6 +110,7 @@ const CSS = `
   cursor: pointer; white-space: nowrap;
 }
 .studio-live[data-live="1"] { display: inline-flex; }
+.studio-live .live-short { display: none; }
 .studio-live:hover, .studio-live:focus-visible {
   background: rgba(255,255,255,0.20); border-color: #fff; outline: none;
 }
@@ -221,7 +222,15 @@ export function mountLiveBadge({
   dot.className = 'live-dot';
   dot.setAttribute('aria-hidden', 'true');
   const text = doc.createElement('span');
-  button.append(dot, text);
+  text.className = 'live-text';
+  
+  
+  
+  
+  const short = doc.createElement('span');
+  short.className = 'live-short';
+  short.setAttribute('aria-hidden', 'true');
+  button.append(dot, text, short);
   host.appendChild(button);
 
   const sheet = doc.createElement('div');
@@ -394,6 +403,7 @@ export function mountLiveBadge({
     const label = rooms.length ? badgeText(rooms.length) : (onlyMine ? 'Your room is live' : '');
     const lit = rooms.length > 0 || onlyMine;
     text.textContent = label;
+    short.textContent = rooms.length ? `${rooms.length} live` : (onlyMine ? 'Live' : '');
     button.dataset.live = lit ? '1' : '0';
     button.dataset.own = onlyMine ? '1' : '0';
     

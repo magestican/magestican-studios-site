@@ -67,11 +67,15 @@
     "Web browser",
     "Mobile browser"
   ],
-  "playMode": "SinglePlayer",
+  "playMode": [
+    "SinglePlayer",
+    "MultiPlayer",
+    "CoOp"
+  ],
   "numberOfPlayers": {
     "@type": "QuantitativeValue",
     "minValue": 1,
-    "maxValue": 1
+    "maxValue": 2
   },
   "operatingSystem": "Any (browser)",
   "applicationCategory": "Game",
@@ -128,11 +132,19 @@
         "@type": "Answer",
         "text": "네, 가로로 들고 할 수 있습니다. 왼쪽에는 엄지 스틱, 오른쪽에는 점프와 대시 버튼이 있습니다. 컴퓨터에서는 키보드나 게임패드를 사용하세요."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "친구와 함께 Space 95를 할 수 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "네, 온라인으로 각자 자기 화면에서 할 수 있습니다. 타이틀 화면에서 Play with a friend를 고르고 방 코드나 링크를 보내세요. 방을 만든 사람은 Jo를, 친구는 Bolt를 맡고, 누가 찾든 인텔과 비콘은 두 사람 모두의 것으로 셉니다."
+      }
     }
   ]
 }
   </script>
-  <link rel="stylesheet" href="/styles.css?v=2ee0f3b4-20261118T095924Z">
+  <link rel="stylesheet" href="/styles.css?v=04d95f86-20261119T080422Z">
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     try {
@@ -182,7 +194,7 @@
     <h2>하나도 같지 않은 스무 개의 근무</h2>
     <p>근무마다 고유한 아이디어가 하나씩 있습니다. 과수원 바닥을 달리고, 보라색 나무 기둥을 꼭대기까지 오르고, 부드러운 흙을 파 내려가고, 씨앗을 타고 나무 사이를 활공하고, 거대한 신발을 피해 반대 방향으로 달리고, 바다만 한 빗물 웅덩이를 건너고, 위에서 내려다본 부엌 바닥에서 <strong>장난감 기차</strong>를 몰고, 정원 위 공중전에서 <strong>비행기를 조종하고</strong>, 발밑에서 숨 쉬는 잠든 짐승의 등에 올라탑니다.</p>
     <p>그리고 근무마다 세상이 다른 방식으로 도와줍니다. 걷어찬 조약돌이 앞에 있는 딱정벌레에게 굴러가고, 파란 이슬방울이 노린 것보다 더 높이 튕겨 주고, 올라탄 개미 행렬이 적들을 실어 가 버립니다. 보스는 근무 4, 8, 10, 12, 16에서 기다립니다.</p>
-    <p><strong>현재 상황:</strong> 피날레를 포함해 스무 개 근무를 모두 플레이할 수 있습니다. 대부분의 스테이지에는 이제 그림으로 그린 배경이 들어갔고, 보스와 일부 곤충은 애니메이션을 만드는 동안 아직 임시 모습입니다.</p>
+    <p><strong>현재 상황:</strong> 피날레를 포함해 스무 개 근무를 모두 플레이할 수 있습니다. 부엌 바닥의 장난감 기차와 줄무늬 거수의 등에 타는 근무, 이 두 곳은 아직 그림 배경 대신 더 단순하게 만든 풍경을 씁니다.</p>
 
     <h2>실수를 봐주는 조작</h2>
     <p>점프를 길게 누르면 더 높이 뛰고, 조금 이르거나 늦게 누른 점프도 인정됩니다. 진행하면서 새로운 동작이 생깁니다. 이단 점프, 내려찍기, 대시, 나뭇잎 활공, 벽 점프, 그리고 볼트의 갈고리. <strong>출근 비콘</strong>은 대략 30초마다, 그리고 어려운 구간 바로 뒤마다 있습니다.</p>
@@ -193,6 +205,14 @@
     <p>근무마다 <strong>비밀이 세 개</strong> 숨어 있습니다. 벽 뒤나 배경 아래의 은닉처, 주요 경로에서 벗어난 도전, 그리고 다른 것들과 다르게 움직이는 희귀 표본. 스테이지가 슬며시 비밀 쪽으로 이끌어 주기 때문에, 찾아내면 내 아이디어처럼 느껴집니다. 찾은 것은 행성에 대한 <strong>인텔</strong>로 기록됩니다.</p>
     <p>근무가 끝나면 <strong>근무 기록표</strong>에 전속력으로 약 2분인 기준 시간과 비교한 기록, 최고 기록, 기록한 인텔이 나옵니다. 피날레를 포함해 스무 개를 모두 마치면 본사가 인사 평가를 보내 줍니다.</p>
 
+    <h2>친구와 함께 플레이하기</h2>
+    <p>타이틀 화면에서 <strong>Play with a friend</strong>를 고르면 s95-abcde 같은 방 코드와 보낼 링크가 나옵니다. 친구가 코드를 입력하거나 링크를 열면 각자 자기 화면에서 플레이합니다. 방을 만든 사람은 Jo를, 친구는 Bolt를 맡으며, Bolt는 추진기로 공중에서 한 번 더 점프할 수 있습니다. 이미 시작한 근무에 친구가 중간에 들어올 수도 있습니다.</p>
+    <p>둘이 함께 일하면 둘만의 요령이 있습니다. 파트너의 머리를 밟고 뛰면 혼자서는 닿지 않는 턱에 닿을 수 있지만, 만점에 필요한 것은 여기에 기대지 않습니다. 파트너가 서 있을 때 떨어지면 Bolt의 빔이 비콘 대신 파트너 옆으로 데려다줍니다. 누가 찾든 인텔과 비콘은 두 사람 모두의 것이고, 먼저 퇴근한 사람이 있으면 근무가 끝납니다. 파트너가 화면 밖에 있으면 화면 가장자리의 표시가 방향을 알려 주고, 많이 뒤처지면 Beam to partner로 파트너에게 바로 갈 수 있습니다.</p>
+    <p>협동 플레이에서는 플레이어에게 반응하는 적이 화면마다 조금 다른 자리에 있을 수 있습니다. 각자 자기 화면에 보이는 적에게서만 피해를 받습니다.</p>
+
+    <h2>근무마다 한 곡</h2>
+    <p>Space 95에는 이제 Magestican Records의 신곡 22곡이 있습니다. 근무마다 한 곡씩, 그리고 웨스턴 풍 메인 테마와 보스 테마가 있습니다. 근무마다 스타일이 달라서 과수원의 컨트리, 가믈란, 아프로비트, 플라멩코, 기계 속의 테크노, 스카, 드럼 앤 베이스, 오케스트라 피날레 등이 있으니, 장소가 바뀌는 만큼 음악도 바뀝니다.</p>
+
     <h2>매지스티칸 프로필의 배지</h2>
     <p>Space 95도 이곳의 다른 게임들처럼 스튜디오 프로필에 반영됩니다. 경험치, 레벨, 일일 도전, 그리고 First Day on the Job과 Lucky Kick부터 Pest Control, On Schedule, Exceeds Expectations까지 전용 배지가 있습니다. Meets Expectations와 Employee of the Year 같은 몇몇 배지는 피날레에서 얻을 수 있습니다. 진행 상황은 브라우저에 저장되며 계정은 필요 없습니다.</p>
 
@@ -200,6 +220,9 @@
     <p>더 넓은 세계를 탐험하고 싶다면 섬을 무대로 한 몬스터 친구 RPG <a href="/ko/dachis.html">Dachis</a>를, 더 빠른 게임을 원한다면 <a href="/ko/farmykart.html">Kartzoom 카트 레이싱</a>에서 레이스를, 또 다른 작은 세계에서 조용히 살고 싶다면 <a href="/ko/farmy-moon-life.html">Moon Life</a>를 해 보세요.</p>
 
     <p><a class="cta" href="/play/space-95/?lang=ko">지금 Space 95 플레이 &rarr;</a></p>
+    
+    <p class="more-like-this">이런 것도 있어요: <a href="/ko/2-player-games-online.html">2인 온라인 게임</a> &middot; <a href="/ko/multiplayer-browser-games.html">멀티플레이어 브라우저 게임</a></p>
+    
     
     <div class="play-bar" data-page="space-95">
       <a class="cta cta-primary" href="/play/space-95/?lang=ko">지금 플레이</a>
@@ -222,7 +245,7 @@
     <nav class="mg-network" aria-label="Magestican Studios 사이트"><a href="/sites.html">모든 사이트</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://workchillout.com/">Work Chill Out</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://music.workchillout.com/">Magestican Music</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://bryanarbelo.com/">Bryan Arbelo</a></nav>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/site.js?v=04d95f86-20261119T080422Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {
@@ -230,8 +253,8 @@
       });
     }
   </script>
-  <script type="module" src="/assets/landing.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/assets/landing.js?v=04d95f86-20261119T080422Z"></script>
   <p class="lang-note">이 페이지는 한국어입니다. 게임 자체는 영어이지만 체스, 체커, 루도에는 글자가 거의 없습니다.</p>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
 </body>
 </html>

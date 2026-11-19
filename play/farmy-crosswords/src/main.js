@@ -49,6 +49,7 @@ import {
   length as lengthPanel, nameEditor as namePanel,
 } from './rooms.js';
 import { createNet, canPlayTogether } from './net.js';
+import { forgetRoomCode } from './net.js';
 import {
   puzzleKey, mergeMoves, movesFromState, stateFromMoves, nextSeq,
   nameFor, colourFor, describeRoom, joinIdFrom, shareLinkFor, puzzleFrom, PUBLIC_GAME,
@@ -1570,6 +1571,7 @@ function openRoom() {
       get who() { return roomWho(); },
       get copied() { return roomState.copied; },
       get mode() { return roomState.mode; },
+      get hosting() { return !!net?.hosting; },
     },
     onHost: () => {
       roomState.copied = false;
@@ -1598,6 +1600,19 @@ function openRoom() {
       roomState.copied = false;
       roomState.active = true;
       startNet().join(code);
+      relayout();
+      invalidate();
+    },
+    
+    
+    onNewCode: () => {
+      if (!net?.hosting) return;
+      presence.withdraw();
+      forgetRoomCode();
+      net.leave();
+      net = null;
+      roomState.copied = false;
+      startNet().host();
       relayout();
       invalidate();
     },

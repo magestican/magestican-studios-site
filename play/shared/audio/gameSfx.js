@@ -40,11 +40,17 @@ export function takeFiles(name, count = 1) {
 
 
 
-export function createGameSfx(baseUrl, names, takes = {}, random = Math.random) {
+
+
+export function createGameSfx(baseUrl, names, takes = {}, random = Math.random, gains = {}) {
   const urls = Object.freeze(Object.fromEntries(names.map((n) => [n,
     Object.freeze(takeFiles(n, takes[n]).map((f) => new URL(f, baseUrl).href))])));
   preloadFiles(Object.values(urls).flat());
   const last = {};
+  const gainOf = (name) => {
+    const g = Object.prototype.hasOwnProperty.call(gains, name) ? Number(gains[name]) : 1;
+    return Number.isFinite(g) && g >= 0 ? g : 1;
+  };
   return {
     names: Object.freeze([...names]),
     urls,
@@ -55,8 +61,10 @@ export function createGameSfx(baseUrl, names, takes = {}, random = Math.random) 
       let i = Math.floor(random() * list.length) % list.length;
       if (list.length > 1 && i === last[name]) i = (i + 1) % list.length;
       last[name] = i;
-      return playFile(list[i]);
+      return playFile(list[i], gainOf(name));
     },
+    
+    gainOf,
     
     lastTake(name) {
       return last[name];

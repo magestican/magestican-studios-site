@@ -81,6 +81,18 @@
     #lives[hidden] { display: none; }
     
 
+    .bossbar { position: absolute; top: calc(124px * var(--fs)); left: 50%; transform: translateX(-50%);
+      width: min(calc(260px * var(--fs)), calc(100% - 32px)); pointer-events: none; display: flex; flex-direction: column;
+      gap: calc(4px * var(--fs)); align-items: center; }
+    .bossbar[hidden], #field[data-screen="menu"] .bossbar { display: none; }
+    .bossbar b { font: 700 italic calc(12px * var(--fs)) / 1 var(--petch, system-ui), sans-serif; letter-spacing: 0.08em;
+      color: var(--ink); text-transform: uppercase; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); }
+    .bossbar .track { width: 100%; height: calc(8px * var(--fs)); border-radius: 99px; background: var(--panel);
+      border: 1px solid rgba(242, 239, 232, 0.45); overflow: hidden; }
+    .bossbar .track i { display: block; height: 100%; transform-origin: left; transform: scaleX(1);
+      background: linear-gradient(90deg, #ff6a3d, #ffc440); transition: transform 120ms linear; }
+    
+
     .pad { position: absolute; bottom: calc(16px * var(--fs)); width: calc(72px * var(--fs)); height: calc(72px * var(--fs));
       min-width: 56px; min-height: 56px; border-radius: 50%; border: calc(2px * var(--fs)) solid rgba(242, 239, 232, 0.5);
       background: var(--panel); color: var(--ink); font: 700 calc(12px * var(--fs)) / 1.1 system-ui, sans-serif;
@@ -277,6 +289,7 @@
 </head>
 <body>
   <div id="field" data-screen="menu">
+    <div class="bossbar" id="bossbar" aria-label="Boss hull" hidden><b id="bossname"></b><div class="track"><i id="bosshp"></i></div></div>
     <div class="hud top">
       <div class="left">
         <div class="chip score" id="score">0</div>
@@ -393,7 +406,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=2ee0f3b4-20261118T095924Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2ee0f3b4-20261118T095924Z"></script>
+  <script type="module" src="src/boot.js?v=04d95f86-20261119T080422Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=04d95f86-20261119T080422Z"></script>
 </body>
 </html>

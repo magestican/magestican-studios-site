@@ -20,6 +20,8 @@ import { createFx } from './fx.js';
 import { loadArt } from './art.js';
 import { CHEATS, applyCheat } from './cheats.js';
 import { createNet, canPlayTogether } from './net.js';
+import { forgetRoomCode } from './net.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { STRINGS, stringsFor, fill } from './strings.js';
 import { gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
@@ -523,6 +525,12 @@ function wire() {
     const typed = $('join-code').value.trim();
     if (typed) joinRoom(typed);
   });
+  
+  
+  newCodeButton($('copy-link'), {
+    lang,
+    onReset: () => { forgetRoomCode(); leaveRoom(); createRoom(); },
+  }).show(true);
   $('copy-link').addEventListener('click', () => invite(shareLinkFor(location.href, net?.id)));
   $('watch-link').addEventListener('click', () => invite(watchLinkFor(location.href, net?.id), T.watchInvite));
   $('leave-room').addEventListener('click', leaveRoom);

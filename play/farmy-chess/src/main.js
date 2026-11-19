@@ -85,6 +85,7 @@ import {
   prizes as prizesPanel,
 } from './panels.js';
 import { createNet, canPlayTogether } from './net.js';
+import { forgetRoomCode } from './net.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
@@ -914,6 +915,7 @@ function openRoom() {
     
     state: {
       get active() { return roomState.active; },
+      get hosting() { return !!net?.hosting; },
       get code() { return net?.id ?? ''; },
       get summary() { return describeRoom({ peers: roomState.peers, me: roomState.me }); },
       get status() { return roomState.status; },
@@ -938,6 +940,19 @@ function openRoom() {
       roomState.copied = false;
       roomState.active = true;
       startNet().join(code);
+      relayout();
+      invalidate();
+    },
+    
+    
+    onNewCode: () => {
+      if (!net?.hosting) return;
+      presence.withdraw();
+      forgetRoomCode();
+      net.leave();
+      net = null;
+      roomState.copied = false;
+      startNet().host();
       relayout();
       invalidate();
     },

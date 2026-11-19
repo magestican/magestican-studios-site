@@ -11,6 +11,7 @@
 
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
+import { stickyRoomCode } from '../../../web-engine/net/stickyRoomCode.js';
 import { roomCode, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
 import {
   CMSG, keysMessage, readKeys, readSnapshot, readHash, readAction, keysAllowedFrom,
@@ -21,6 +22,11 @@ import {
 
 const MY_PREFIX = GAME_PREFIX.clashwell;
 const CODE_TRIES = 5;
+
+
+const sticky = stickyRoomCode(MY_PREFIX);
+
+export const forgetRoomCode = () => sticky.forget();
 const BYE = 'cw-bye';
 const BYE_FLUSH_MS = 150;
 const BEAT = 'cw-beat';
@@ -195,7 +201,7 @@ export function createNet({
 
     host(attempt = 0) {
       if (mesh) return;
-      const hint = attempt < CODE_TRIES ? roomCode(Math.random, MY_PREFIX) : null;
+      const hint = sticky.hint(attempt, () => roomCode(Math.random, MY_PREFIX), CODE_TRIES);
       const mine = new PeerMesh(hint ? { hostIdHint: hint } : {});
       mesh = mine;
       hosting = true;
@@ -206,7 +212,7 @@ export function createNet({
         if (mesh !== mine) return;
         try { mine.destroy(); } catch {  }
         mesh = null;
-        this.host(attempt + 1);
+        sticky.retry(attempt, () => this.host(attempt + 1));
       });
       mine.addEventListener('open', () => mine.host(), { once: true });
       if (attempt === 0) say('opening');
@@ -255,6 +261,8 @@ export function createNet({
     publish: sendRoom,
 
     leave() {
+
+      sticky.cancel();
       const closing = mesh;
       try { closing?.broadcast({ t: BYE }); } catch {  }
       setTimeout(() => { try { closing?.destroy(); } catch {  } }, BYE_FLUSH_MS);

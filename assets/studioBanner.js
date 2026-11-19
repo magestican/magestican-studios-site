@@ -129,6 +129,23 @@ const CSS = `
 @media (max-width: 480px) {
   .site-header .brand-name { display: none; }
 }
+/* PHONES (asked 2026-11-18, "Make that top section more responsive"): at 390 px the
+   badge read "1 game live" and ran off the right edge. The short form keeps a word
+   beside the count; the full sentence stays in the button's aria-label. styles.css
+   sends the controls right by giving the brand margin-right: auto. */
+@media (max-width: 560px) {
+  .site-header .studio-tools { margin-left: 0; gap: 4px; }
+  .site-header .studio-live { margin-left: 0; padding: 6px 12px; font-size: 18px; gap: 6px; }
+  .site-header .studio-live .live-text { display: none; }
+  .site-header .studio-live .live-short { display: inline; }
+}
+/* 320 px with the Lv chip: ~13 px short, so the tightest padding that keeps 18 px type. */
+@media (max-width: 340px) {
+  .site-header .studio-tools { gap: 2px; }
+  .site-header .studio-live { padding: 6px 9px; }
+  .site-header .studio-music { width: 40px; }
+  .site-header .studio-tools { min-width: 40px; }
+}
 `;
 
 const NOTE_SVG = `

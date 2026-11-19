@@ -15,7 +15,7 @@ import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js'
 import { createBoltSprite } from './boltSprite.js';
 import { bossLabelPosition } from './bossLabel.js';
 import { burrowEntityView, createBurrow } from './burrowView.js';
-import { createCameraRig, frameLift, framePull, hintDyCap, rideLead, updateCameraRig } from './cameraRig.js';
+import { createCameraRig, frameLift, framePull, frameShift, hintDyCap, rideLead, updateCameraRig } from './cameraRig.js';
 import { coopFigures } from './coopFigures.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
@@ -34,6 +34,9 @@ import { createTrainView } from './trainView.js';
 const CAM_DIST = 20;
 const PORTRAIT_RIDE_PULL = 1.25;
 const TILE_DEPTH = 2.4;
+
+
+const HEAVE_INSET = 0.04;
 
 export const VIEW_H = 7.5;
 export const VIEW_MIN_W = 12;
@@ -195,12 +198,26 @@ export function createView(canvas, level, labels) {
   
   const arenaInsets = () => {
     const buttons = [...document.querySelectorAll('.touch button')].map((b) => b.getBoundingClientRect()).filter((r) => r.height > 0);
-    if (!buttons.length) return { top: 0, bottom: 0 };
+    const els = [...document.querySelectorAll('.touch button, .touch .touch-stick')]
+      .map((b) => b.getBoundingClientRect())
+      .filter((r) => r.height > 0);
+    if (!buttons.length) return { top: 0, bottom: 0, left: 0, right: 0 };
     const h = Math.max(1, canvas.clientHeight);
+    const w = Math.max(1, canvas.clientWidth);
     const hud = document.querySelector('.hud')?.getBoundingClientRect();
-    return { top: (hud?.bottom ?? 0) / h, bottom: 1 - Math.min(...buttons.map((r) => r.top)) / h };
+    
+    
+    const low = w > h ? els.filter((r) => r.top > h / 2) : [];
+    const lefts = low.filter((r) => r.left + r.right < w);
+    const rights = low.filter((r) => r.left + r.right >= w);
+    return {
+      top: (hud?.bottom ?? 0) / h,
+      bottom: 1 - Math.min(...buttons.map((r) => r.top)) / h,
+      left: lefts.length ? Math.max(...lefts.map((r) => r.right)) / w : 0,
+      right: rights.length ? 1 - Math.min(...rights.map((r) => r.left)) / w : 0,
+    };
   };
-  let frameInsets = { top: 0, bottom: 0 };
+  let frameInsets = { top: 0, bottom: 0, left: 0, right: 0 };
 
   return {
     
@@ -247,9 +264,11 @@ export function createView(canvas, level, labels) {
       if (fr && fr !== lastFrame) frameInsets = arenaInsets();
       if (fr) lastFrame = fr;
       const followX = hint?.lock ? hint.lock.x : x + rig.ahead * aheadK;
-      const camX = lastFrame ? followX + ((lastFrame.x0 + lastFrame.x1) / 2 - followX) * frameK : followX;
       const viewW = (2 * viewHalfW * camDist()) / CAM_DIST;
-      const frameViewH = lastFrame ? (viewW / viewAspect) * framePull(lastFrame, viewW, viewW / viewAspect) : 0;
+      const pullNow = lastFrame ? framePull(lastFrame, viewW, viewW / viewAspect, 1 - frameInsets.left - frameInsets.right) : 1;
+      const shift = lastFrame ? frameShift(lastFrame.x1 - lastFrame.x0, viewW * pullNow, frameInsets.left, frameInsets.right) : 0;
+      const camX = lastFrame ? followX + ((lastFrame.x0 + lastFrame.x1) / 2 - shift - followX) * frameK : followX;
+      const frameViewH = lastFrame ? (viewW / viewAspect) * pullNow : 0;
       const lift = lastFrame ? frameLift(lastFrame.y1 - lastFrame.y0, frameViewH, frameInsets.top, frameInsets.bottom) : 0;
       const frameDy = lastFrame ? ((lastFrame.y0 + lastFrame.y1) / 2 - lift - rig.y) * frameK : 0;
       hintDy +=
@@ -261,7 +280,7 @@ export function createView(canvas, level, labels) {
       
       
       planePull += ((session.plane && !level.camDist ? PLANE_PULL : 1) - planePull) * Math.min(1, dt * 2);
-      const arenaPull = lastFrame ? 1 + (framePull(lastFrame, viewW, viewW / viewAspect) - 1) * frameK : 1;
+      const arenaPull = lastFrame ? 1 + (pullNow - 1) * frameK : 1;
       camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, camDist() * planePull * arenaPull); 
       camera.lookAt(camX + sx0, rig.y + hintDy + 0.6 + sy0, 0);
 
@@ -1127,7 +1146,7 @@ function heaveMeshes(level) {
     let i = 0;
     for (let x = h.x0; x < h.x1 - 1e-6; x += T, i++) {
       const keyMat = h.group === 'type' ? (i % 6 === 5 ? keyGap : keyCap) : null; 
-      const m = new THREE.Mesh(new THREE.BoxGeometry(T, 1, TILE_DEPTH), keyMat ?? (i % 7 < 2 ? furB : furA));
+      const m = new THREE.Mesh(new THREE.BoxGeometry(T, 1, TILE_DEPTH - HEAVE_INSET), keyMat ?? (i % 7 < 2 ? furB : furA));
       group.add(m);
       cols.push({ h, x: x + T / 2, m, floor: h.base - (h.sink ?? 0) - 2 });
     }
@@ -1140,7 +1159,7 @@ function heaveMeshes(level) {
         const top = s ? s.y : c.h.base;
         const hgt = Math.max(0.05, top - c.floor);
         c.m.scale.y = hgt;
-        c.m.position.set(c.x, c.floor + hgt / 2, -TILE_DEPTH / 2 + 0.3);
+        c.m.position.set(c.x, c.floor + hgt / 2, -TILE_DEPTH / 2 + 0.3 - HEAVE_INSET / 2);
       }
     },
   };
