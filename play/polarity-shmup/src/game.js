@@ -30,6 +30,8 @@ import {
 import { BOSS_KICK, bossImpact, createBossWatch } from './bossHit.js';
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
+import { PILOTS, bustImg, pilotOf } from './pilots.js';
+import { beatItem, introTimeline, renderAfter } from './story.js';
 import { createFx, makeAura, pulseAura, stepAura } from './fx.js';
 import { ATTRACT_TICKS, attractInputs, createAttract } from './attract.js';
 import { HIGH_SPAN, PARALLAX, highLayout, propLayout, propSpan, runwayLights } from './scenery.js';
@@ -533,6 +535,8 @@ function start(isGentle, stage = 0, isHard = false) {
   $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true; $('field').dataset.screen = 'play';
   $('lives').hidden = gentle;
   $('invite').hidden = false;
+  hudPilot(0);
+  radioIntro(stage);
   ui.play('open');
   followSound(music, uiSoundOn());
 }
@@ -590,6 +594,9 @@ function showTally(s) {
   $('t-go').disabled = false;
   $('t-go').textContent = 'Next level';
   if (runGoesOn(s)) $('t-next').textContent = `Next: stage ${s.stage + 2}, ${STAGES[s.stage + 1].name}`;
+  
+  radioOff();
+  if (runGoesOn(s) && s.boss.beaten) renderAfter($('t-story'), s.stage); else $('t-story').hidden = true;
   const list = $('t-pilots');
   list.hidden = !net;
   if (net) {
@@ -603,7 +610,12 @@ function showTally(s) {
       if (!q.on) return null;
       const li = document.createElement('li');
       li.style.setProperty('--c', `var(--p${i + 1})`);
-      li.textContent = `${seatName(i)}  ${q.score.toLocaleString()}`;
+      const who = document.createElement('span');
+      who.className = 'who';
+      who.textContent = `${seatName(i)} ${pilotOf(i).name}`;
+      const score = document.createElement('span');
+      score.textContent = q.score.toLocaleString();
+      li.append(bustImg(document, i, 40), who, score);
       return li;
     }).filter(Boolean));
     $('again').textContent = 'Back to the title';
@@ -630,7 +642,38 @@ function stageBegins(s) {
   if (!net) { unlock(s.stage); $('invite').hidden = false; }
   mode = 'play';
   $('tally').hidden = true; $('ending').hidden = true;
+  hudPilot(viewSeat(s));
   toast(`Stage ${s.stage + 1}: ${STAGES[s.stage].name}`, 3000);
+  radioIntro(s.stage, 3200);
+}
+
+
+
+let radioTimers = [];
+function radioOff() {
+  for (const t of radioTimers) clearTimeout(t);
+  radioTimers = [];
+  $('radio').hidden = true;
+}
+function radioIntro(stage, after = 0) {
+  radioOff();
+  const el = $('radio');
+  for (const step of introTimeline(stage)) {
+    radioTimers.push(setTimeout(() => {
+      el.replaceChildren(beatItem(step));
+      el.hidden = false;
+    }, after + step.at));
+    radioTimers.push(setTimeout(() => { el.hidden = true; }, after + step.at + step.ms));
+  }
+}
+
+
+
+function hudPilot(seat) {
+  const p = pilotOf(seat);
+  const hud = $('hud-bust');
+  if (hud.getAttribute('src') !== p.img) { hud.src = p.img; hud.alt = p.name; }
+  hud.style.setProperty('--c', `var(--p${PILOTS.indexOf(p) + 1})`);
 }
 
 
@@ -687,7 +730,12 @@ function drawSeats(room) {
     li.style.setProperty('--c', `var(--p${i + 1})`);
     const s = seats.find((x) => x.seat === i);
     li.className = s ? '' : 'empty';
-    li.textContent = s ? `P${i + 1}  ${s.who}` : `P${i + 1}  open`;
+    const who = document.createElement('span');
+    who.className = 'who';
+    who.textContent = `P${i + 1} ${pilotOf(i).name}`;
+    const state = document.createElement('span');
+    state.textContent = s ? s.who : 'open';
+    li.append(bustImg(document, i, 40), who, state);
     return li;
   });
   if (watching) {
@@ -801,6 +849,8 @@ function beginCoopRun(e) {
   $('lives').hidden = gentle || net.room.seat === null;
   for (const id of ['flip', 'bomb']) $(id).hidden = net.room.seat === null;
   if (net.room.seat === null) toast('Watching. Ships are named by seat.', 5000);
+  else hudPilot(net.room.seat);
+  radioIntro(seen.stage, net.room.seat === null ? 5200 : 0);
   followSound(music, uiSoundOn());
 }
 

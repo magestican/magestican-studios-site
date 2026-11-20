@@ -71,7 +71,10 @@
     #chain[data-pol="ember"] { color: var(--ember); }
     #chain[data-pol="iris"] { color: #c9b2ff; }
     .stats { display: flex; flex-direction: column; gap: calc(6px * var(--fs)); align-items: flex-end; }
-    .hud .left { display: flex; flex-direction: column; gap: calc(8px * var(--fs)); }
+    .hud .left { display: grid; grid-template-columns: auto auto; gap: calc(8px * var(--fs)); align-items: start;
+      justify-items: start; }
+    .hud .left > :not(.hud-bust) { grid-column: 2; }
+    .hud .left > .hud-bust { grid-column: 1; grid-row: 1 / span 3; }
     .score { font-size: calc(16px * var(--fs)); font-weight: 700; font-variant-numeric: tabular-nums; }
     
     .meter { width: calc(120px * var(--fs)); height: calc(10px * var(--fs)); border-radius: 99px; background: var(--panel);
@@ -264,6 +267,32 @@
       background: var(--panel); border-radius: 8px; padding: 8px 14px; font-size: calc(13px * var(--fs)); text-align: center;
       pointer-events: none; }
     .toast[hidden] { display: none; }
+    
+
+    .hud-bust { width: calc(44px * var(--fs)); height: calc(44px * var(--fs)); border-radius: calc(8px * var(--fs));
+      border: 2px solid var(--c, var(--p1)); background: var(--panel); flex: none; object-fit: cover; }
+    .crew { list-style: none; margin: calc(8px * var(--fs)) 0 0; padding: 0; display: flex; gap: 12px; justify-content: center; }
+    .crew li { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .crew img { width: calc(64px * var(--fs)); height: calc(64px * var(--fs)); border-radius: 10px;
+      border: 2px solid var(--c); background: var(--panel); }
+    .crew span { font: 600 calc(12px * var(--fs)) var(--petch); letter-spacing: 0.04em; }
+    .pilots li img { width: 40px; height: 40px; border-radius: 6px; flex: none; }
+    .pilots li .who { flex: 1; display: flex; align-items: center; }
+    .pilots li:has(img) { align-items: center; padding: 8px 12px 8px 8px; }
+    
+
+    .radio { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px;
+      width: min(460px, 100%); }
+    .radio[hidden] { display: none; }
+    .radio li { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px;
+      background: var(--panel); border-left: 4px solid var(--c, var(--ember)); text-align: left; }
+    .radio img { width: 56px; height: 56px; border-radius: 8px; flex: none; }
+    .radio li div { display: flex; flex-direction: column; gap: 4px; }
+    .radio b { font-size: calc(14px * var(--fs)); }
+    .radio p { margin: 0; font-size: calc(14px * var(--fs)); line-height: 1.35; }
+    .radio.live { position: absolute; left: 50%; top: calc(148px * var(--fs));  transform: translateX(-50%);
+      width: min(460px, calc(100% - 32px)); pointer-events: none; opacity: 0.92; }
+    .radio.live img { width: calc(128px * var(--fs)); height: calc(128px * var(--fs)); }
     #err { position: absolute; left: 16px; right: 16px; top: 45%; text-align: center; color: #ffb0a0; }
     
     aside { width: 260px; margin-left: 32px; padding: 20px; background: #15171e; border-radius: 12px; line-height: 1.5; }
@@ -303,6 +332,7 @@
     <div class="bossbar" id="bossbar" aria-label="Boss hull" hidden><b id="bossname"></b><div class="track"><i id="bosshp"></i></div></div>
     <div class="hud top">
       <div class="left">
+        <img class="hud-bust" id="hud-bust" src="assets/busts/sora/candidate_1.webp" alt="Sora" width="44" height="44">
         <div class="chip score" id="score">0</div>
         <div class="meter" aria-label="Burst meter"><i id="meter" data-pol="ember"></i></div>
         <div class="chip" id="chain" data-pol="ember" aria-live="polite" hidden></div>
@@ -329,6 +359,13 @@
           <path class="b-iris" d="M0 12 C 30 24, 50 24, 80 12 S 130 0, 160 12 S 210 24, 240 12"/>
         </svg>
         <p class="tag">Drink your colour. Flip for the other.</p>
+        
+        <ul class="crew" aria-label="Pilots">
+          <li style="--c: var(--p1)"><img src="assets/busts/sora/candidate_1.webp" alt="" width="64" height="64"><span>Sora</span></li>
+          <li style="--c: var(--p2)"><img src="assets/busts/rook/candidate_1.webp" alt="" width="64" height="64"><span>Rook</span></li>
+          <li style="--c: var(--p3)"><img src="assets/busts/mina/candidate_2.webp" alt="" width="64" height="64"><span>Mina</span></li>
+          <li style="--c: var(--p4)"><img src="assets/busts/tevi/candidate_1.webp" alt="" width="64" height="64"><span>Tevi</span></li>
+        </ul>
       </header>
       <nav class="plates" aria-label="Modes">
         <button class="plate go" id="start" type="button"><b>Start</b><small>Gentle: a hit costs a moment's shield</small></button>
@@ -351,6 +388,7 @@
     </section>
     <section class="overlay" id="tally" hidden>
       <h2 id="tally-head">Dustline clear</h2>
+      <ul class="radio" id="t-story" hidden></ul>
       <dl>
         <dt>Score</dt><dd id="t-score">0</dd>
         <dt>Drunk</dt><dd id="t-drunk">0</dd>
@@ -387,6 +425,7 @@
     </section>
     <div class="names" id="names" aria-hidden="true"></div>
     <div class="toast" id="toast" role="status" hidden></div>
+    <ul class="radio live" id="radio" aria-live="polite" hidden></ul>
     <section class="overlay" id="paused" hidden><h2>Paused</h2><p class="tag">Tap to carry on</p></section>
     <div id="err"></div>
   </div>
@@ -426,7 +465,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=c5a650eb-20261119T182211Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=c5a650eb-20261119T182211Z"></script>
+  <script type="module" src="src/boot.js?v=429a7c78-20261120T021117Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=429a7c78-20261120T021117Z"></script>
 </body>
 </html>

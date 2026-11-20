@@ -14,6 +14,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { sampleAt } from '../../../web-engine/kart/trackPath.js';
 import { deckRuns, piecesAlong, trestlesAlong } from '../../../web-engine/rc/connector.js';
 import { SIM_SCALE, METRICS } from '../../../web-engine/rc/rcTuning.js';
+import { propDir } from './propDirs.js';
 
 const m = (units) => units / SIM_SCALE;
 
@@ -25,13 +26,14 @@ export const LIVERIES = Object.freeze([
 ]);
 
 const ASSET_DIRS = {
-  car: 'cars', connector: 'connector', house: 'house',
+  car: 'cars', connector: 'connector', house: 'house', yard: 'yard',
 };
+
 
 
 export function modelsFor(def) {
   const names = new Set(def.props.map((p) => p.model));
-  const out = [...names].map((n) => [ASSET_DIRS.house, n]);
+  const out = [...names].map((n) => [propDir(n), n]);
   out.push([ASSET_DIRS.connector, 'track_piece'], [ASSET_DIRS.connector, 'trestle'], [ASSET_DIRS.connector, 'start_arch']);
   for (const b of BODIES) out.push([ASSET_DIRS.car, `car_${b}`]);
   return out;
@@ -70,10 +72,13 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf3e6cf);
   
   
-  scene.fog = new THREE.Fog(0xf3e6cf, 12, 40);
+  const air = race.track.def.room?.sky ?? 0xf3e6cf;
+  scene.background = new THREE.Color(air);
+  
+  
+  scene.fog = new THREE.Fog(air, 12, 40);
 
   const camera = new THREE.PerspectiveCamera(METRICS.fov.base, 1, 0.01, 90);
 
@@ -153,6 +158,9 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
 const FLOORS = {
   tile: { color: 0xe2d2b6, line: 0xc9b799 },
   boards: { color: 0xc79a64, line: 0x9c7344 },
+  
+  
+  lawn: { color: 0x6fae45, line: 0x5f9a3a },
 };
 
 
@@ -168,6 +176,7 @@ function buildRoom(scene, def) {
   floor.receiveShadow = true;
   scene.add(floor);
   if (R.floor === 'boards') scene.add(boardLines(R, look.line));
+  else if (R.floor === 'lawn') scene.add(mowStripes(R, look.line));
   else {
     const size = Math.max(W, D) + 40;
     const grout = new THREE.GridHelper(size, Math.round(size / 0.3), look.line, look.line);
@@ -181,8 +190,11 @@ function buildRoom(scene, def) {
   
   const wallMat = new THREE.MeshLambertMaterial({ color: 0xf7efe0 });
   const skirt = new THREE.MeshLambertMaterial({ color: 0xc9b08a });
-  for (const [w, x, z, ry] of [[W, cx, R.z0, 0], [D, R.x1, cz, -Math.PI / 2], [D, R.x0, cz, Math.PI / 2],
-    [W, cx, R.z1, Math.PI]]) {
+  
+  
+  const sides = { z0: [W, cx, R.z0, 0], x1: [D, R.x1, cz, -Math.PI / 2], x0: [D, R.x0, cz, Math.PI / 2],
+    z1: [W, cx, R.z1, Math.PI] };
+  for (const [w, x, z, ry] of (R.walls ?? Object.keys(sides)).map((k) => sides[k])) {
     const wall = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.2, 3), wallMat);
     wall.rotation.y = ry;
     wall.position.set(x, 1.5, z);
@@ -194,6 +206,21 @@ function buildRoom(scene, def) {
       z + Math.sign(cz - z) * 0.01 * (ry === 0 || ry === Math.PI ? 1 : 0));
     scene.add(wall, s);
   }
+}
+
+
+function mowStripes(R, colour) {
+  const grp = new THREE.Group();
+  const mat = new THREE.MeshLambertMaterial({ color: colour });
+  const D = R.z1 - R.z0 + 40;
+  for (let x = R.x0 - 20; x < R.x1 + 20; x += 1.0) {
+    const band = new THREE.Mesh(new THREE.PlaneGeometry(0.5, D), mat);
+    band.rotation.x = -Math.PI / 2;
+    band.position.set(x + 0.25, 0.0006, (R.z0 + R.z1) / 2);
+    band.receiveShadow = true;
+    grp.add(band);
+  }
+  return grp;
 }
 
 function boardLines(R, colour) {
@@ -220,6 +247,14 @@ function rugMesh(r) {
   edge.position.set(0, 0.003, 0); mid.position.set(0, 0.0035, 0);
   edge.receiveShadow = true; mid.receiveShadow = true;
   grp.add(edge, mid);
+  if (r.boards) {
+    
+    const pos = [];
+    for (let z = -d / 2 + 0.14; z < d / 2; z += 0.14) pos.push(-w / 2, 0.0075, z, w / 2, 0.0075, z);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    grp.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: r.border })));
+  }
   grp.position.set((r.x0 + r.x1) / 2, 0, (r.z0 + r.z1) / 2);
   return grp;
 }
@@ -292,6 +327,10 @@ function buildConnector(scene, track, models) {
   const pieceLen = piece.box.max.x - piece.box.min.x;
   const deckTop = piece.box.max.y - METRICS.connector.lip;
   const trestleH = trestle.box.max.y - trestle.box.min.y;
+  
+  
+  
+  const beamHalf = (trestle.box.max.z - trestle.box.min.z) / 2;
   for (const span of spans) {
     for (const run of deckRuns(span)) {
       for (const pc of piecesAlong(run, pieceLen * SIM_SCALE)) {
@@ -311,7 +350,9 @@ function buildConnector(scene, track, models) {
         { minHeight: 0.04 * SIM_SCALE })) {
         const p = sampleAt(path, t.s);
         const o = clone(models, 'trestle');
-        const h = m(t.height) - (piece.box.max.y - piece.box.min.y);
+        const d = 0.1 * SIM_SCALE;
+        const slope = Math.abs(deckY(t.s + d) - deckY(t.s - d)) / (2 * d);
+        const h = m(t.height) - (piece.box.max.y - piece.box.min.y) - beamHalf * slope;
         if (h <= 0.02) continue;
         o.position.set(m(p.x), m(floorY(t.s)) - trestle.box.min.y, m(p.z));
         o.rotation.y = yawOf(p.tx, p.tz) + Math.PI / 2;

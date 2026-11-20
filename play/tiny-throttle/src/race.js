@@ -37,7 +37,9 @@ export function buildTrack(def) {
   for (let i = 0; i < path.count; i += 1) surfaceAt[i] = control[Math.floor(i / SAMPLES)].surface ?? 'tile';
   return {
     def, control, path, spans, surfaceAt,
-    line: buildRacingLine(path),
+    
+    
+    line: buildRacingLine(path, def.lineMargin != null ? { margin: toSim(def.lineMargin) } : {}),
     startS: toSim(6),
     basinY: toSim(def.basinY ?? 0),
   };
