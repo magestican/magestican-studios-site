@@ -304,6 +304,25 @@
     .radio.live button { pointer-events: auto; min-height: 40px; padding: 8px 16px; border-radius: 10px; border: 0;
       background: var(--panel); color: inherit; font: inherit; font-size: calc(14px * var(--fs)); }
     #t-skip { align-self: center; }
+    
+
+    .overlay.pick, .overlay.brief { justify-content: flex-start; padding: 24px 16px; gap: 16px; background: rgba(9, 10, 14, 0.9); }
+    .pick-row { display: flex; gap: 12px; justify-content: center; flex: none; }
+    .pick-row button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; min-height: 0;
+      border-radius: 12px; background: var(--panel); color: var(--ink); border: 2px solid transparent;
+      font: 600 calc(13px * var(--fs)) var(--petch); }
+    .pick-row button[aria-checked="true"] { border-color: var(--c); box-shadow: 0 0 calc(14px * var(--fs)) var(--c); }
+    .pick-row img { width: calc(64px * var(--fs)); height: calc(64px * var(--fs)); border-radius: 8px; display: block; }
+    .pick-story { width: min(520px, 100%); flex: 1 1 auto; min-height: 0; overflow-y: auto; text-align: left;
+      padding: 16px; border-radius: 12px; background: var(--panel); border-left: 4px solid var(--c, var(--ember)); }
+    .pick-story h3 { margin: 0; font: 700 italic calc(22px * var(--fs)) / 1.1 var(--petch); color: var(--c, var(--ember)); }
+    .pick-story .sign { margin: 4px 0 12px; font: 600 calc(12px * var(--fs)) var(--petch); letter-spacing: 0.08em;
+      text-transform: uppercase; opacity: 0.8; }
+    .pick-story p { margin: 0 0 12px; font-size: calc(15px * var(--fs)); line-height: 1.5; }
+    .pick .pair, .brief .pair { flex-direction: row; flex-wrap: wrap; justify-content: center; flex: none; }
+    .pick .pair .go, .brief .pair .go { min-width: calc(160px * var(--fs)); }
+    .brief .radio { flex: 1 1 auto; min-height: 0; overflow-y: auto; width: min(520px, 100%); }
+    .pick-story, .brief .radio { scrollbar-width: thin; scrollbar-color: rgba(242, 239, 232, 0.35) transparent; }
     #err { position: absolute; left: 16px; right: 16px; top: 45%; text-align: center; color: #ffb0a0; }
     
     aside { width: 260px; margin-left: 32px; padding: 20px; background: #15171e; border-radius: 12px; line-height: 1.5; }
@@ -393,6 +412,25 @@
       <div class="langs" id="langs" role="group" aria-label="Language"></div>
     </section>
     
+
+    <section class="overlay pick" id="pick" hidden>
+      <h2>Choose your pilot</h2>
+      <div class="pick-row" id="pick-row" role="radiogroup" aria-label="Pilots" translate="no"></div>
+      <article class="pick-story" id="pick-story" aria-live="polite" translate="no"></article>
+      <div class="pair">
+        <button class="alt" id="pick-back" type="button">Back</button>
+        <button class="go" id="pick-go" type="button">Fly</button>
+      </div>
+    </section>
+    <section class="overlay brief" id="brief" hidden>
+      <h2>Mission briefing</h2>
+      <ul class="radio" id="b-lines" translate="no"></ul>
+      <div class="pair">
+        <button class="alt" id="b-back" type="button">Back</button>
+        <button class="go" id="b-launch" type="button">Launch</button>
+      </div>
+    </section>
+    
     <section class="overlay" id="ending" hidden>
       <h2>Run complete</h2>
       <ul class="cards" id="e-cards"></ul>
@@ -478,7 +516,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=dca58e73-20261120T095147Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=dca58e73-20261120T095147Z"></script>
+  <script type="module" src="src/boot.js?v=ecc6f363-20261120T120112Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=ecc6f363-20261120T120112Z"></script>
 </body>
 </html>

@@ -33,7 +33,8 @@ import { BOSS_KICK, bossImpact, createBossWatch } from './bossHit.js';
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
 import { PILOTS, bustImg, pilotOf } from './pilots.js';
-import { AFTER, INTRO, beatItem, introTimeline, renderAfter } from './story.js';
+import { AFTER, INTRO, beatItem, introTimeline, renderAfter, renderBriefing } from './story.js';
+import { chosenPilot, choosePilot, pilotColour, renderStory } from './crew.js';
 import { ENDING } from './ending.js';
 import { createFx, makeAura, pulseAura, stepAura } from './fx.js';
 import { ATTRACT_TICKS, attractInputs, createAttract } from './attract.js';
@@ -560,10 +561,10 @@ function start(isGentle, stage = 0, isHard = false) {
   ui.play('open');
   followSound(music, uiSoundOn());
 }
-$('start').addEventListener('click', () => start(true, pickedStage('stage-pick')));
-$('arcade').addEventListener('click', () => start(false, pickedStage('stage-pick')));
-$('hard').addEventListener('click', () => start(false, pickedStage('stage-pick'), true));
-$('continue').addEventListener('click', () => start(true, unlocked()));
+$('start').addEventListener('click', () => openPick(true, pickedStage('stage-pick')));
+$('arcade').addEventListener('click', () => openPick(false, pickedStage('stage-pick')));
+$('hard').addEventListener('click', () => openPick(false, pickedStage('stage-pick'), true));
+$('continue').addEventListener('click', () => openPick(true, unlocked()));
 
 
 for (const el of document.querySelectorAll('#title .plate')) {
@@ -576,8 +577,59 @@ for (const el of document.querySelectorAll('#title .plate')) {
   for (const ev of ['pointerenter', 'pointerdown', 'focus']) el.addEventListener(ev, on);
   for (const ev of ['pointerleave', 'pointercancel', 'blur']) el.addEventListener(ev, off);
 }
-$('again').addEventListener('click', () => (net ? leaveCoop() : start(gentle, 0, hard)));
+$('again').addEventListener('click', () => (net ? leaveCoop() : openPick(gentle, 0, hard)));
 $('t-go').addEventListener('click', () => { nextQueued = true; $('t-go').disabled = true; $('t-go').textContent = net ? t('Waiting for the team...') : t('Next level'); ui.play('open'); });
+
+
+
+
+
+
+let pending = null;
+const pickRow = $('pick-row');
+pickRow.replaceChildren(...PILOTS.map((p) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('role', 'radio');
+  b.dataset.id = p.id;
+  b.style.setProperty('--c', `var(--p${pilotColour(p)})`);
+  const name = document.createElement('span');
+  name.textContent = p.name;
+  b.append(bustImg(document, PILOTS.indexOf(p), 64, ''), name);
+  b.addEventListener('click', () => { showPick(p.id); ui.play('toggleOn'); });
+  return b;
+}));
+function showPick(id) {
+  const p = renderStory($('pick-story'), id);
+  choosePilot(p.id);
+  for (const b of pickRow.children) b.setAttribute('aria-checked', String(b.dataset.id === p.id));
+  $('pick-story').scrollTop = 0;
+  $('pick-go').textContent = t('Fly as {name}', { name: p.name });
+}
+function openPick(isGentle, stage = 0, isHard = false) {
+  pending = { isGentle, stage, isHard };
+  radioOff();
+  $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true; $('brief').hidden = true;
+  showPick(chosenPilot().id);
+  $('pick').hidden = false;
+  ui.play('open');
+}
+function openBriefing() {
+  renderBriefing($('b-lines'), chosenPilot().id);
+  $('pick').hidden = true;
+  $('brief').hidden = false;
+  $('b-lines').scrollTop = 0;
+  ui.play('open');
+}
+$('pick-go').addEventListener('click', () => openBriefing());
+$('pick-back').addEventListener('click', () => { $('pick').hidden = true; $('title').hidden = false; ui.play('back'); });
+$('b-back').addEventListener('click', () => { hush(); $('brief').hidden = true; $('pick').hidden = false; ui.play('back'); });
+$('b-launch').addEventListener('click', () => {
+  hush();
+  $('brief').hidden = true;
+  const { isGentle, stage, isHard } = pending || { isGentle: true, stage: 0, isHard: false };
+  start(isGentle, stage, isHard);
+});
 
 function setPaused(p) {
   paused = p && mode === 'play';
@@ -740,10 +792,10 @@ function hush() {
 
 
 function hudPilot(seat) {
-  const p = pilotOf(seat);
+  const p = net ? pilotOf(seat) : chosenPilot();
   const hud = $('hud-bust');
   if (hud.getAttribute('src') !== p.img) { hud.src = p.img; hud.alt = p.name; }
-  hud.style.setProperty('--c', `var(--p${PILOTS.indexOf(p) + 1})`);
+  hud.style.setProperty('--c', `var(--p${pilotColour(p)})`);
 }
 
 
@@ -1342,6 +1394,7 @@ loadModels().then(() => {
   const play = params.get('play');
   if (params.has('join') || params.has('watch')) openCoop(); 
   else if (play) {
+    if (params.get('pilot')) choosePilot(params.get('pilot')); 
     start(play !== 'arcade', Math.max(0, Math.min(STAGES.length - 1, (Number(params.get('stage')) || 1) - 1)));
     const skip = Math.min(20000, Number(params.get('skip')) || 0);
     for (let t = 0; t < skip; t++) {
