@@ -107,7 +107,8 @@ export const briefingFor = (id) => BRIEFING[id] || BRIEFING.sora;
 
 
 export function renderBriefing(list, id, doc = document) {
-  list.replaceChildren(...briefingFor(id).map((b) => beatItem(b, doc, false)));
+  
+  list.replaceChildren(...briefingFor(id).map((b) => beatItem(b, doc)));
 }
 
 

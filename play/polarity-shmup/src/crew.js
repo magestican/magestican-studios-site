@@ -13,6 +13,7 @@
 
 
 import { PILOTS } from './pilots.js';
+import { tv } from '../../../web-engine/i18n/tr.js';
 
 const C = (o) => Object.freeze({ ...o, story: Object.freeze(o.story) });
 
@@ -93,10 +94,11 @@ export function renderStory(panel, id, doc = document) {
   head.textContent = p.name;
   const sign = doc.createElement('p');
   sign.className = 'sign';
-  sign.textContent = crew.callsign;
+  
+  sign.textContent = tv(crew.callsign);
   const paras = crew.story.map((s) => {
     const el = doc.createElement('p');
-    el.textContent = s;
+    el.textContent = tv(s);
     return el;
   });
   panel.replaceChildren(head, sign, ...paras);
