@@ -1,0 +1,29 @@
+{
+ "name": "flipwake-sora",
+ "voice": "af_heart",
+ "lang": "en-us",
+ "speed": 1.0,
+ "engine": "kokoro-v1.0",
+ "lines": {
+  "intro-1-2": {
+   "file": "intro-1-2.m4a",
+   "ms": 5499,
+   "text": "Dustline below. Its fields went grey first. Now the Furnace burns off what's left of them."
+  },
+  "intro-4-1": {
+   "file": "intro-4-1.m4a",
+   "ms": 8354,
+   "text": "Twinsea. One sea burns amber, the other runs violet. The Twin wears both of them, one half each. Hit each half with the other light."
+  },
+  "after-2-2": {
+   "file": "after-2-2.m4a",
+   "ms": 3746,
+   "text": "Then we keep it behind us. Those threads run on to the Foundry."
+  },
+  "ending-sora": {
+   "file": "ending-sora.m4a",
+   "ms": 2545,
+   "text": "Crown's down. Check in, everyone."
+  }
+ }
+}

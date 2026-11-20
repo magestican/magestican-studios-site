@@ -1,0 +1,29 @@
+{
+ "name": "flipwake-halden",
+ "voice": "bm_george",
+ "lang": "en-gb",
+ "speed": 1.0,
+ "engine": "kokoro-v1.0",
+ "lines": {
+  "intro-1-1": {
+   "file": "intro-1-1.m4a",
+   "ms": 12961,
+   "text": "Out at Heartfall, the Crown is drinking our sky, Ember and Iris both. Without that light, the land below is losing its colour. You four fly the last ships that still flip between the two lights."
+  },
+  "intro-5-1": {
+   "file": "intro-5-1.m4a",
+   "ms": 6884,
+   "text": "Heartfall. Every light we lost pours into the Crown here. Bring that light home, pilots."
+  },
+  "after-3-2": {
+   "file": "after-3-2.m4a",
+   "ms": 5120,
+   "text": "Good, because the next one wears both colours. Save the bragging for after it."
+  },
+  "ending-halden": {
+   "file": "ending-halden.m4a",
+   "ms": 6634,
+   "text": "That closes it. Four ships out, four ships coming home. Land gently, pilots."
+  }
+ }
+}

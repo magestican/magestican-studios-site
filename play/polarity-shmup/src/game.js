@@ -17,7 +17,8 @@ import { BULLET_TYPES, rasterBullet } from './bullets.js';
 import { FIELD_W, FIELD_H, TILE_PX, STAGE_GROUND, groundTileAt } from './field.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
-import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
+import { uiSoundOn, setUiSound, playFile, preloadFiles } from '../../../web-engine/brand/uiSound.js';
+import { VOICE_MS, afterIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
 import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitGate } from './sound.js';
 import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore } from './sim/sim.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
@@ -31,7 +32,8 @@ import { BOSS_KICK, bossImpact, createBossWatch } from './bossHit.js';
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
 import { PILOTS, bustImg, pilotOf } from './pilots.js';
-import { beatItem, introTimeline, renderAfter } from './story.js';
+import { AFTER, INTRO, beatItem, introTimeline, renderAfter } from './story.js';
+import { ENDING } from './ending.js';
 import { createFx, makeAura, pulseAura, stepAura } from './fx.js';
 import { ATTRACT_TICKS, attractInputs, createAttract } from './attract.js';
 import { HIGH_SPAN, PARALLAX, highLayout, propLayout, propSpan, runwayLights } from './scenery.js';
@@ -50,6 +52,20 @@ const p1Flip = createFlipWatch();
 
 
 const sfxFor = (s, cue) => { if (s !== attract) sfx.play(cue); };
+
+
+const VOICE_BASE = new URL('../', import.meta.url);
+const voiceUrl = (file) => new URL(file, VOICE_BASE).href;
+const VOICE_URLS = voicePlan([...INTRO.flatMap((b, s) => introIds(s, b)), ...AFTER.flatMap((b, s) => afterIds(s, b)),
+  ...endingIds(ENDING)]).map((p) => voiceUrl(p.file));
+preloadFiles(VOICE_URLS);
+
+
+
+
+const RUN_VOICE_DELAY_MS = 1500;
+for (const u of VOICE_URLS) { try { fetch(u, { priority: 'low' }).catch(() => {}); } catch {  } }
+let voiceBusyUntil = 0;
 const hitGate = createHitGate(); 
 const bossWatch = createBossWatch(); 
 let bossPunch = 0;
@@ -538,7 +554,7 @@ function start(isGentle, stage = 0, isHard = false) {
   $('lives').hidden = gentle;
   $('invite').hidden = false;
   hudPilot(0);
-  radioIntro(stage);
+  radioIntro(stage, voiced(activeLanguage()) ? RUN_VOICE_DELAY_MS : 0);
   ui.play('open');
   followSound(music, uiSoundOn());
 }
@@ -598,7 +614,10 @@ function showTally(s) {
   if (runGoesOn(s)) $('t-next').textContent = t('Next: stage {n}, {name}', { n: s.stage + 2, name: tv(STAGES[s.stage + 1].name) });
   
   radioOff();
-  if (runGoesOn(s) && s.boss.beaten) renderAfter($('t-story'), s.stage); else $('t-story').hidden = true;
+  if (runGoesOn(s) && s.boss.beaten) {
+    renderAfter($('t-story'), s.stage);
+    speak(voicePlan(afterIds(s.stage, AFTER[s.stage] || []), activeLanguage()), 600);
+  } else $('t-story').hidden = true;
   const list = $('t-pilots');
   list.hidden = !net;
   if (net) {
@@ -627,6 +646,7 @@ function showTally(s) {
   if (last && s.boss.beaten) {
     renderEnding($('e-cards'));
     $('ending').hidden = false;
+    speak(voicePlan(endingIds(ENDING), activeLanguage()), 800);
   } else $('tally').hidden = false;
   ui.play('open');
 }
@@ -660,13 +680,30 @@ function radioOff() {
 function radioIntro(stage, after = 0) {
   radioOff();
   const el = $('radio');
-  for (const step of introTimeline(stage)) {
+  
+  const ids = introIds(stage, INTRO[stage] || []);
+  const talk = voiced(activeLanguage());
+  
+  if (talk) after = Math.max(after, voiceBusyUntil - Date.now());
+  introTimeline(stage, (i) => (talk ? VOICE_MS[ids[i].id] : 0)).forEach((step, i) => {
+    const clip = talk ? voiceClip(ids[i].who, ids[i].id) : null;
     radioTimers.push(setTimeout(() => {
       el.replaceChildren(beatItem(step));
       el.hidden = false;
+      if (clip) sayNow(clip, VOICE_MS[ids[i].id]);
     }, after + step.at));
     radioTimers.push(setTimeout(() => { el.hidden = true; }, after + step.at + step.ms));
-  }
+  });
+}
+
+
+
+
+function sayNow(file, ms) {
+  if (playFile(voiceUrl(file))) voiceBusyUntil = Date.now() + ms;
+}
+function speak(plan, after = 0) {
+  for (const p of plan) radioTimers.push(setTimeout(() => sayNow(p.file, p.ms), after + p.at));
 }
 
 

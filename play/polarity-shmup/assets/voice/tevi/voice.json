@@ -1,0 +1,29 @@
+{
+ "name": "flipwake-tevi",
+ "voice": "am_michael",
+ "lang": "en-us",
+ "speed": 1.0,
+ "engine": "kokoro-v1.0",
+ "lines": {
+  "intro-3-1": {
+   "file": "intro-3-1.m4a",
+   "ms": 7688,
+   "text": "Foundry. In there the Anvil beats stolen light into ships. So stay close. Nobody flies this one alone."
+  },
+  "after-2-1": {
+   "file": "after-2-1.m4a",
+   "ms": 3213,
+   "text": "The salt's shining again. Behind us, anyway."
+  },
+  "after-4-2": {
+   "file": "after-4-2.m4a",
+   "ms": 4230,
+   "text": "They're falling toward Heartfall. And after Heartfall, we go home."
+  },
+  "ending-tevi": {
+   "file": "ending-tevi.m4a",
+   "ms": 3821,
+   "text": "Good flying, all of you. First round back home is mine."
+  }
+ }
+}

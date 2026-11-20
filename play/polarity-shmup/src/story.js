@@ -45,10 +45,14 @@ export const AFTER = Object.freeze([
 export const readMs = (line) => 2000 + 400 * line.split(/\s+/).filter(Boolean).length;
 
 
-export function introTimeline(stage) {
+
+
+
+
+export function introTimeline(stage, spokenMs = () => 0) {
   let at = 0;
-  return (INTRO[stage] || []).map((b) => {
-    const ms = readMs(b.line);
+  return (INTRO[stage] || []).map((b, i) => {
+    const ms = Math.max(readMs(b.line), (spokenMs(i) || 0) + 1000);
     const step = { at, ms, id: b.id, line: b.line };
     at += ms + 600;
     return step;

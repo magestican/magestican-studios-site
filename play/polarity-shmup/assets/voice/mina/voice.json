@@ -1,0 +1,29 @@
+{
+ "name": "flipwake-mina",
+ "voice": "af_nicole",
+ "lang": "en-us",
+ "speed": 1.0,
+ "engine": "kokoro-v1.0",
+ "lines": {
+  "intro-2-1": {
+   "file": "intro-2-1.m4a",
+   "ms": 8785,
+   "text": "Saltpan. Here the Loom spins our light into threads and sends them east. So we cut every thread."
+  },
+  "after-1-2": {
+   "file": "after-1-2.m4a",
+   "ms": 5760,
+   "text": "Hush. Out on the salt, something's humming. It sounds like a loom."
+  },
+  "after-4-1": {
+   "file": "after-4-1.m4a",
+   "ms": 4343,
+   "text": "Hear that? Both lights are falling the same way now."
+  },
+  "ending-mina": {
+   "file": "ending-mina.m4a",
+   "ms": 4583,
+   "text": "Listen. The channel's gone quiet. Only the wind now."
+  }
+ }
+}

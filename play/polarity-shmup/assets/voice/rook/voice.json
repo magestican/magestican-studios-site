@@ -1,0 +1,24 @@
+{
+ "name": "flipwake-rook",
+ "voice": "am_puck",
+ "lang": "en-us",
+ "speed": 1.0,
+ "engine": "kokoro-v1.0",
+ "lines": {
+  "after-1-1": {
+   "file": "after-1-1.m4a",
+   "ms": 3249,
+   "text": "One Furnace, cold. So tell me they built a harder one."
+  },
+  "after-3-1": {
+   "file": "after-3-1.m4a",
+   "ms": 2752,
+   "text": "That anvil missed me. It missed every swing."
+  },
+  "ending-rook": {
+   "file": "ending-rook.m4a",
+   "ms": 3687,
+   "text": "Still flying. Told you nothing they fire can touch me twice."
+  }
+ }
+}
