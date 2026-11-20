@@ -136,8 +136,18 @@ function preloadAll(c) {
 
 
 
-function start(c, buf, gain = 1) {
+
+
+const live = new Map();
+const pending = new Map();
+
+function start(c, buf, gain = 1, key = null) {
   const src = c.createBufferSource();
+  if (key !== null) {
+    if (!live.has(key)) live.set(key, new Set());
+    live.get(key).add(src);
+    src.onended = () => { live.get(key)?.delete(src); };
+  }
   src.buffer = buf;
   if (gain !== 1 && Number.isFinite(gain) && gain >= 0) {
     const g = c.createGain();
@@ -163,12 +173,16 @@ function play(key, fetchIt, gain = 1) {
     try { c.resume()?.catch?.(() => {}); } catch {  }
   }
   const have = buffers.get(key);
-  if (have && typeof have.then !== 'function') { start(c, have, gain); return true; }
+  if (have && typeof have.then !== 'function') { start(c, have, gain, key); return true; }
   if (have === null || typeof globalThis.fetch !== 'function') return false;
   const asked = Date.now();
+  const ask = Symbol('ask');
+  if (!pending.has(key)) pending.set(key, new Set());
+  pending.get(key).add(ask);
   fetchIt(c).then((buf) => {
     try {
-      if (buf && Date.now() - asked <= LATE_MS && !silenced()) start(c, buf, gain);
+      const skipped = !pending.get(key)?.delete(ask);
+      if (buf && !skipped && Date.now() - asked <= LATE_MS && !silenced()) start(c, buf, gain, key);
     } catch {  }
   });
   return true;
@@ -197,6 +211,18 @@ export function playFile(url, gain = 1) {
 }
 
 
+export function stopFile(url) {
+  try {
+    const key = String(url ?? '');
+    pending.delete(key);
+    for (const src of live.get(key) || []) {
+      try { src.stop(); } catch {  }
+    }
+    live.delete(key);
+  } catch {  }
+}
+
+
 
 let unlockStarted = false;
 function bootUnlock() {
@@ -219,4 +245,4 @@ function bootUnlock() {
 bootUnlock();
 
 
-export function _resetUiSoundPlayer() { ctx = null; bus = null; muteSources.clear(); buffers.clear(); fileUrls.clear(); }
+export function _resetUiSoundPlayer() { ctx = null; bus = null; muteSources.clear(); buffers.clear(); fileUrls.clear(); live.clear(); pending.clear(); }

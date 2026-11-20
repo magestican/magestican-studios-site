@@ -59,6 +59,9 @@ export const ES = {
   
   'Run complete': 'Misión cumplida',
   'Scores': 'Puntuaciones',
+  'Next': 'Siguiente',
+  'Skip': 'Saltar',
+  'Skip all': 'Saltar todo',
   'Dustline clear': 'Polvareda superada',
   '{stage} clear': '{stage} superada',
   '{boss} got away': '{boss} escapó',

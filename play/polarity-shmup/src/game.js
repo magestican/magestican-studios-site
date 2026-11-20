@@ -17,7 +17,8 @@ import { BULLET_TYPES, rasterBullet } from './bullets.js';
 import { FIELD_W, FIELD_H, TILE_PX, STAGE_GROUND, groundTileAt } from './field.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
-import { uiSoundOn, setUiSound, playFile, preloadFiles } from '../../../web-engine/brand/uiSound.js';
+import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../../web-engine/brand/uiSound.js';
+import { createRadio } from './radio.js';
 import { VOICE_MS, afterIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
 import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitGate } from './sound.js';
 import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore } from './sim/sim.js';
@@ -435,6 +436,7 @@ addEventListener('keydown', (e) => {
   if (k === ' ' || k === 'j' || k === 'z') { flip(); e.preventDefault(); }
   else if (k === 'k' || k === 'x') bombQueued = true;
   else if (k === 'escape' || k === 'p') togglePause();
+  else if (k === 'enter' && mode === 'play' && radio.active) { radio.next(); e.preventDefault(); }
   keys.add(k);
 });
 addEventListener('keyup', (e) => keys.delete(e.key.toLowerCase()));
@@ -618,6 +620,7 @@ function showTally(s) {
     renderAfter($('t-story'), s.stage);
     speak(voicePlan(afterIds(s.stage, AFTER[s.stage] || []), activeLanguage()), 600);
   } else $('t-story').hidden = true;
+  $('t-skip').hidden = $('t-story').hidden;
   const list = $('t-pilots');
   list.hidden = !net;
   if (net) {
@@ -652,9 +655,20 @@ function showTally(s) {
 }
 
 $('e-next').addEventListener('click', () => {
+  radioOff();
+  hush();
   $('ending').hidden = true;
   $('tally').hidden = false;
   ui.play('open');
+});
+
+
+$('t-skip').addEventListener('click', () => {
+  radioOff();
+  hush();
+  $('t-story').hidden = true;
+  $('t-skip').hidden = true;
+  ui.play('back');
 });
 
 
@@ -671,29 +685,41 @@ function stageBegins(s) {
 
 
 
+
+
+const radioBtns = $('r-btns');
+const radio = createRadio({
+  show: (step) => {
+    const el = $('radio');
+    el.replaceChildren(beatItem(step), radioBtns);
+    el.hidden = false;
+    if (step.clip) sayNow(step.clip, step.clipMs);
+  },
+  hide: () => { $('radio').hidden = true; },
+  hush,
+});
+$('r-next').addEventListener('click', () => { radio.next(); });
+$('r-skip').addEventListener('click', () => { radio.skipAll(); });
 let radioTimers = [];
 function radioOff() {
   for (const t of radioTimers) clearTimeout(t);
   radioTimers = [];
+  radio.stop();
+  hush();
   $('radio').hidden = true;
 }
 function radioIntro(stage, after = 0) {
   radioOff();
-  const el = $('radio');
   
   const ids = introIds(stage, INTRO[stage] || []);
   const talk = voiced(activeLanguage());
   
   if (talk) after = Math.max(after, voiceBusyUntil - Date.now());
-  introTimeline(stage, (i) => (talk ? VOICE_MS[ids[i].id] : 0)).forEach((step, i) => {
-    const clip = talk ? voiceClip(ids[i].who, ids[i].id) : null;
-    radioTimers.push(setTimeout(() => {
-      el.replaceChildren(beatItem(step));
-      el.hidden = false;
-      if (clip) sayNow(clip, VOICE_MS[ids[i].id]);
-    }, after + step.at));
-    radioTimers.push(setTimeout(() => { el.hidden = true; }, after + step.at + step.ms));
-  });
+  radio.play(introTimeline(stage, (i) => (talk ? VOICE_MS[ids[i].id] : 0)).map((step, i) => ({
+    ...step,
+    clip: talk ? voiceClip(ids[i].who, ids[i].id) : null,
+    clipMs: VOICE_MS[ids[i].id],
+  })), after);
 }
 
 
@@ -704,6 +730,11 @@ function sayNow(file, ms) {
 }
 function speak(plan, after = 0) {
   for (const p of plan) radioTimers.push(setTimeout(() => sayNow(p.file, p.ms), after + p.at));
+}
+
+function hush() {
+  for (const url of VOICE_URLS) stopFile(url);
+  voiceBusyUntil = 0;
 }
 
 

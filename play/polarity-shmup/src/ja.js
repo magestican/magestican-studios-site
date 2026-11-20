@@ -53,6 +53,9 @@ export const JA = {
   
   'Run complete': '全ステージ制覇',
   'Scores': 'スコア',
+  'Next': '次へ',
+  'Skip': 'スキップ',
+  'Skip all': 'すべてスキップ',
   'Dustline clear': 'ダストライン クリア',
   '{stage} clear': '{stage} クリア',
   '{boss} got away': '{boss}に逃げられた',

@@ -299,6 +299,11 @@
     .radio.live { position: absolute; left: 50%; top: calc(148px * var(--fs));  transform: translateX(-50%);
       width: min(460px, calc(100% - 32px)); pointer-events: none; opacity: 0.92; }
     .radio.live img { width: calc(128px * var(--fs)); height: calc(128px * var(--fs)); }
+    
+    .radio .r-btns { display: flex; justify-content: flex-end; gap: 12px; padding: 0; background: none; border: 0; }
+    .radio.live button { pointer-events: auto; min-height: 40px; padding: 8px 16px; border-radius: 10px; border: 0;
+      background: var(--panel); color: inherit; font: inherit; font-size: calc(14px * var(--fs)); }
+    #t-skip { align-self: center; }
     #err { position: absolute; left: 16px; right: 16px; top: 45%; text-align: center; color: #ffb0a0; }
     
     aside { width: 260px; margin-left: 32px; padding: 20px; background: #15171e; border-radius: 12px; line-height: 1.5; }
@@ -396,6 +401,7 @@
     <section class="overlay" id="tally" hidden>
       <h2 id="tally-head">Dustline clear</h2>
       <ul class="radio" id="t-story" hidden></ul>
+      <button class="alt" id="t-skip" type="button" hidden>Skip</button>
       <dl>
         <dt>Score</dt><dd id="t-score">0</dd>
         <dt>Drunk</dt><dd id="t-drunk">0</dd>
@@ -432,7 +438,7 @@
     </section>
     <div class="names" id="names" aria-hidden="true"></div>
     <div class="toast" id="toast" role="status" hidden></div>
-    <ul class="radio live" id="radio" aria-live="polite" hidden></ul>
+    <ul class="radio live" id="radio" aria-live="polite" hidden><li class="r-btns" id="r-btns"><button id="r-next" type="button">Next</button><button id="r-skip" type="button">Skip all</button></li></ul>
     <section class="overlay" id="paused" hidden><h2>Paused</h2><p class="tag">Tap to carry on</p></section>
     <div id="err"></div>
   </div>
@@ -472,7 +478,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=f845889e-20261120T073843Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=f845889e-20261120T073843Z"></script>
+  <script type="module" src="src/boot.js?v=dca58e73-20261120T095147Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=dca58e73-20261120T095147Z"></script>
 </body>
 </html>
