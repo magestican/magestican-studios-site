@@ -9,6 +9,7 @@
 
 
 import { ENDING } from './ending.js';
+import { tv } from '../../../web-engine/i18n/tr.js';
 
 
 export const SPEAKERS = Object.freeze(Object.fromEntries(ENDING.map((e, i) => [e.id, Object.freeze({
@@ -68,7 +69,7 @@ export function beatItem(b, doc = document) {
   const name = doc.createElement('b');
   name.textContent = who.name;
   const line = doc.createElement('p');
-  line.textContent = b.line;
+  line.textContent = tv(b.line);
   const words = doc.createElement('div');
   words.append(name, line);
   li.append(img, words);

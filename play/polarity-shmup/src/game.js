@@ -36,6 +36,8 @@ import { createFx, makeAura, pulseAura, stepAura } from './fx.js';
 import { ATTRACT_TICKS, attractInputs, createAttract } from './attract.js';
 import { HIGH_SPAN, PARALLAX, highLayout, propLayout, propSpan, runwayLights } from './scenery.js';
 import { setData, setHidden, setText, setTransform } from './hudWrite.js';
+import { activeLanguage, t, tv } from '../../../web-engine/i18n/tr.js';
+import { mountPicker } from './lang.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -54,7 +56,7 @@ let bossPunch = 0;
 const soundBtn = $('sound');
 function drawSound() {
   const on = uiSoundOn();
-  soundBtn.textContent = on ? 'Sound on' : 'Sound off';
+  soundBtn.textContent = on ? t('Sound on') : t('Sound off');
   soundBtn.setAttribute('aria-pressed', String(on));
 }
 drawSound();
@@ -498,8 +500,8 @@ function drawContinue() {
   const n = unlocked();
   $('continue').hidden = n === 0;
   const b = document.createElement('b'), small = document.createElement('small');
-  b.textContent = 'Continue';
-  small.textContent = `Stage ${n + 1}, ${STAGES[n].name}`;
+  b.textContent = t('Continue');
+  small.textContent = t('Stage {n}, {name}', { n: n + 1, name: tv(STAGES[n].name) });
   $('continue').replaceChildren(b, small);
 }
 drawContinue();
@@ -509,7 +511,7 @@ for (const id of ['stage-pick', 'lobby-stage']) {
   $(id).replaceChildren(...STAGES.map((st, i) => {
     const o = document.createElement('option');
     o.value = String(i);
-    o.textContent = `${i + 1}. ${st.name}`;
+    o.textContent = `${i + 1}. ${tv(st.name)}`;
     return o;
   }));
 }
@@ -557,7 +559,7 @@ for (const el of document.querySelectorAll('#title .plate')) {
   for (const ev of ['pointerleave', 'pointercancel', 'blur']) el.addEventListener(ev, off);
 }
 $('again').addEventListener('click', () => (net ? leaveCoop() : start(gentle, 0, hard)));
-$('t-go').addEventListener('click', () => { nextQueued = true; $('t-go').disabled = true; $('t-go').textContent = net ? 'Waiting for the team...' : 'Next level'; ui.play('open'); });
+$('t-go').addEventListener('click', () => { nextQueued = true; $('t-go').disabled = true; $('t-go').textContent = net ? t('Waiting for the team...') : t('Next level'); ui.play('open'); });
 
 function setPaused(p) {
   paused = p && mode === 'play';
@@ -577,14 +579,14 @@ function showTally(s) {
   const st = STAGES[s.stage];
   const secs = Math.round((s.tick - s.st0) / TICK_HZ);
   const last = !runGoesOn(s) && !s.over;
-  $('tally-head').textContent = s.over ? 'Shot down' : s.boss.beaten ? (last ? 'Run complete' : `${st.name} clear`) : `${BOSS_NAMES[st.boss]} got away`;
+  $('tally-head').textContent = s.over ? t('Shot down') : s.boss.beaten ? (last ? t('Run complete') : t('{stage} clear', { stage: tv(st.name) })) : t('{boss} got away', { boss: tv(BOSS_NAMES[st.boss]) });
   $('t-score').textContent = p.score.toLocaleString();
   $('t-drunk').textContent = String(p.absorbed);
   $('t-bursts').textContent = String(p.bursts);
   $('t-kills').textContent = String(p.kills);
   $('t-chain').textContent = String(s.sbest);
   $('t-time').textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
-  $('again').textContent = s.over ? 'Try again' : 'Play again';
+  $('again').textContent = s.over ? t('Try again') : t('Play again');
   
   
   $('again').hidden = runGoesOn(s);
@@ -592,8 +594,8 @@ function showTally(s) {
   const canNext = runGoesOn(s) && !(net && net.room.seat === null);
   $('t-go').hidden = !canNext;
   $('t-go').disabled = false;
-  $('t-go').textContent = 'Next level';
-  if (runGoesOn(s)) $('t-next').textContent = `Next: stage ${s.stage + 2}, ${STAGES[s.stage + 1].name}`;
+  $('t-go').textContent = t('Next level');
+  if (runGoesOn(s)) $('t-next').textContent = t('Next: stage {n}, {name}', { n: s.stage + 2, name: tv(STAGES[s.stage + 1].name) });
   
   radioOff();
   if (runGoesOn(s) && s.boss.beaten) renderAfter($('t-story'), s.stage); else $('t-story').hidden = true;
@@ -618,7 +620,7 @@ function showTally(s) {
       li.append(bustImg(document, i, 40), who, score);
       return li;
     }).filter(Boolean));
-    $('again').textContent = 'Back to the title';
+    $('again').textContent = t('Back to the title');
   }
   
   
@@ -643,7 +645,7 @@ function stageBegins(s) {
   mode = 'play';
   $('tally').hidden = true; $('ending').hidden = true;
   hudPilot(viewSeat(s));
-  toast(`Stage ${s.stage + 1}: ${STAGES[s.stage].name}`, 3000);
+  toast(t('Stage {n}: {name}', { n: s.stage + 1, name: tv(STAGES[s.stage].name) }), 3000);
   radioIntro(s.stage, 3200);
 }
 
@@ -677,7 +679,7 @@ function hudPilot(seat) {
 }
 
 
-const seatName = (i) => `P${i + 1}${net && i === net.room.seat ? ' (you)' : ''}`;
+const seatName = (i) => `P${i + 1}${net && i === net.room.seat ? t(' (you)') : ''}`;
 
 
 function viewSeat(s) {
@@ -701,7 +703,7 @@ function drawNames(s) {
     const show = !!net && q.on === 1 && (q.lives > 0 || q.pod === 1);
     if (el.hidden !== !show) el.hidden = !show;
     if (!show) continue;
-    const label = q.pod ? `${seatName(i)} down` : seatName(i);
+    const label = q.pod ? t('{who} down', { who: seatName(i) }) : seatName(i);
     if (el.textContent !== label) el.textContent = label;
     el.style.left = `${(q.x / FP) * fieldScale}px`;
     el.style.top = `${(q.y / FP + 28) * fieldScale}px`;
@@ -720,10 +722,10 @@ function toast(text, ms = 4000) {
 function lobbyStatus(text) { $('lobby-status').textContent = text; }
 
 function drawSeats(room) {
-  const seats = [{ seat: 0, who: room.role === 'host' ? 'you, host' : 'host' }];
+  const seats = [{ seat: 0, who: room.role === 'host' ? t('you, host') : t('host') }];
   if (room.role === 'host') {
-    for (const g of room.guests.values()) if (g.seat !== null) seats.push({ seat: g.seat, who: 'friend' });
-  } else if (room.seat !== null) seats.push({ seat: room.seat, who: 'you' });
+    for (const g of room.guests.values()) if (g.seat !== null) seats.push({ seat: g.seat, who: t('friend') });
+  } else if (room.seat !== null) seats.push({ seat: room.seat, who: t('you') });
   const watching = room.role === 'host' ? [...room.guests.values()].filter((g) => g.seat === null).length : 0;
   const rows = [0, 1, 2, 3].map((i) => {
     const li = document.createElement('li');
@@ -734,13 +736,13 @@ function drawSeats(room) {
     who.className = 'who';
     who.textContent = `P${i + 1} ${pilotOf(i).name}`;
     const state = document.createElement('span');
-    state.textContent = s ? s.who : 'open';
+    state.textContent = s ? s.who : t('open');
     li.append(bustImg(document, i, 40), who, state);
     return li;
   });
   if (watching) {
     const li = document.createElement('li');
-    li.textContent = `${watching} watching`;
+    li.textContent = t('{n} watching', { n: watching });
     rows.push(li);
   }
   $('seats').replaceChildren(...rows);
@@ -752,41 +754,41 @@ function onRoomEvent(e) {
   if (e.type === 'lobby') {
     drawSeats(room);
     const n = [...room.guests.values()].filter((g) => g.seat !== null).length + 1;
-    if (!room.started) lobbyStatus(n === 1 ? 'Share the Play link with up to three friends.' : `${n} pilots ready. Start when everyone is in.`);
+    if (!room.started) lobbyStatus(n === 1 ? t('Share the Play link with up to three friends.') : t('{n} pilots ready. Start when everyone is in.', { n }));
   } else if (e.type === 'seat' && e.why === 'joined') {
     
     $('lives').hidden = gentle;
     for (const id of ['flip', 'bomb']) $(id).hidden = false;
     flipLevel = 0; drag.dx = drag.dy = 0;
     seenFrom(room.session.view());
-    toast(`You are in: P${e.seat + 1}`, 4000);
+    toast(t('You are in: P{n}', { n: e.seat + 1 }), 4000);
   } else if (e.type === 'joined') {
     drawSeats(room);
-    toast(`P${e.seat + 1} joined the run.`, 3000);
+    toast(t('P{n} joined the run.', { n: e.seat + 1 }), 3000);
   } else if (e.type === 'retrying') {
-    if (!room.started) lobbyStatus(`Looking for the host's room (try ${e.n + 1})...`);
+    if (!room.started) lobbyStatus(t("Looking for the host's room (try {n})...", { n: e.n + 1 }));
   } else if (e.type === 'seat') {
     drawSeats(room);
-    if (e.seat === null) lobbyStatus(e.why === 'late' ? 'The run has started, so you are watching it.' : e.why === 'full' ? 'The room is full, so you are watching.' : 'You are watching.');
-    else lobbyStatus(`You are P${e.seat + 1}. The host starts the run.`);
+    if (e.seat === null) lobbyStatus(e.why === 'late' ? t('The run has started, so you are watching it.') : e.why === 'full' ? t('The room is full, so you are watching.') : t('You are watching.'));
+    else lobbyStatus(t('You are P{n}. The host starts the run.', { n: e.seat + 1 }));
   } else if (e.type === 'start') {
     beginCoopRun(e);
   } else if (e.type === 'unseated') {
     if (e.me) {
       for (const id of ['flip', 'bomb']) $(id).hidden = true;
-      toast(e.why === 'away' ? 'You left the game, so you are watching. You fly again when you are back.' : 'Your connection fell behind, so you are watching. You fly again once it catches up.', 6000);
+      toast(e.why === 'away' ? t('You left the game, so you are watching. You fly again when you are back.') : t('Your connection fell behind, so you are watching. You fly again once it catches up.'), 6000);
     }
-    else toast(e.why === 'away' ? 'A pilot left the game and is watching.' : 'A pilot fell behind and is watching.');
+    else toast(e.why === 'away' ? t('A pilot left the game and is watching.') : t('A pilot fell behind and is watching.'));
   } else if (e.type === 'pause') {
-    if (e.on) toast('The host stepped away. The game waits for them.', 0); else $('toast').hidden = true;
+    if (e.on) toast(t('The host stepped away. The game waits for them.'), 0); else $('toast').hidden = true;
   } else if (e.type === 'desync') {
-    toast('Screens fell out of step. Start a new room.', 0);
+    toast(t('Screens fell out of step. Start a new room.'), 0);
   } else if (e.type === 'ended') {
-    toast('The host left, so the room has closed.', 0);
-    lobbyStatus('The host left, so the room has closed.');
+    toast(t('The host left, so the room has closed.'), 0);
+    lobbyStatus(t('The host left, so the room has closed.'));
   } else if (e.type === 'error') {
-    if (!room.started) lobbyStatus(e.plain ? e.message : `Network trouble: ${e.message}`);
-    else if (e.plain) toast(e.message, 0);
+    if (!room.started) lobbyStatus(e.plain ? tv(e.message) : t('Network trouble: {why}', { why: e.message }));
+    else if (e.plain) toast(tv(e.message), 0);
   }
 }
 
@@ -801,10 +803,10 @@ async function openCoop({ invite = false } = {}) {
   mode = 'lobby';
   $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true; $('paused').hidden = true;
   $('lobby').hidden = false; $('links').hidden = true; $('host-go').hidden = true; $('invite-go').hidden = true;
-  $('lobby-head').textContent = invite ? 'Invite friends' : 'Play with friends';
-  $('lobby-leave').textContent = invite ? 'Back to my run' : 'Back';
+  $('lobby-head').textContent = invite ? t('Invite friends') : t('Play with friends');
+  $('lobby-leave').textContent = invite ? t('Back to my run') : t('Back');
   $('seats').replaceChildren();
-  lobbyStatus('Opening a room...');
+  lobbyStatus(t('Opening a room...'));
   ui.play('open');
   try {
     const { openRoom } = await import('./coop.js');
@@ -818,13 +820,13 @@ async function openCoop({ invite = false } = {}) {
       $('host-go').hidden = invite;
       $('invite-go').hidden = !invite;
       newCode.show(true);
-      lobbyStatus(invite ? 'Share the Play link. Your run waits here; press Carry on when you are ready.' : 'Share the Play link with up to three friends.');
+      lobbyStatus(invite ? t('Share the Play link. Your run waits here; press Carry on when you are ready.') : t('Share the Play link with up to three friends.'));
     } else {
-      $('lobby-head').textContent = room.role === 'watch' ? 'Watching' : 'Joining';
-      lobbyStatus('Connecting to the host...');
+      $('lobby-head').textContent = room.role === 'watch' ? t('Watching') : t('Joining');
+      lobbyStatus(t('Connecting to the host...'));
     }
   } catch (err) {
-    lobbyStatus(`Could not open a room: ${err.message}`);
+    lobbyStatus(t('Could not open a room: {why}', { why: err.message }));
   }
 }
 
@@ -848,7 +850,7 @@ function beginCoopRun(e) {
   $('lobby').hidden = true; $('title').hidden = true; $('tally').hidden = true; $('ending').hidden = true; $('field').dataset.screen = 'play';
   $('lives').hidden = gentle || net.room.seat === null;
   for (const id of ['flip', 'bomb']) $(id).hidden = net.room.seat === null;
-  if (net.room.seat === null) toast('Watching. Ships are named by seat.', 5000);
+  if (net.room.seat === null) toast(t('Watching. Ships are named by seat.'), 5000);
   else hudPilot(net.room.seat);
   radioIntro(seen.stage, net.room.seat === null ? 5200 : 0);
   followSound(music, uiSoundOn());
@@ -887,7 +889,9 @@ $('lobby-leave').addEventListener('click', () => {
   leaveCoop();
 });
 
+mountPicker($('langs'));
 const newCode = newCodeButton($('share-join'), {
+  lang: activeLanguage(),
   onReset: async () => {
     if (!net?.room || net.room.role !== 'host' || net.room.started) return;
     const invite = net.invite;
@@ -1173,12 +1177,12 @@ function draw(s, dt) {
   setText(hud.score, (coop ? teamScore(s) : p.score).toLocaleString());
   setTransform(hud.meter, `scaleX(${Math.min(1, p.energy / BURST_COST).toFixed(3)})`);
   setData(hud.meter, 'pol', p.iris ? 'iris' : 'ember');
-  setText(hud.lives, `Lives ${Math.max(0, p.lives)}`);
-  setText(hud.pol, p.iris ? 'IRIS' : 'EMBER');
+  setText(hud.lives, t('Lives {n}', { n: Math.max(0, p.lives) }));
+  setText(hud.pol, p.iris ? t('IRIS') : t('EMBER'));
   setData(hud.pol, 'pol', p.iris ? 'iris' : 'ember');
   setText(hud.bombs, String(p.bombs));
   
-  const chainText = s.chain || s.chainN ? `Chain ${s.chain} ${'●'.repeat(s.chainN)}${'○'.repeat(3 - s.chainN)}` : '';
+  const chainText = s.chain || s.chainN ? `${t('Chain')} ${s.chain} ${'●'.repeat(s.chainN)}${'○'.repeat(3 - s.chainN)}` : '';
   setText(hud.chain, chainText);
   setHidden(hud.chain, !chainText);
   setData(hud.chain, 'pol', s.chainPol ? 'iris' : 'ember');
@@ -1278,7 +1282,7 @@ loadModels().then(() => {
     }
   }
 }).catch((err) => {
-  $('err').textContent = `A model failed to load: ${err && err.message ? err.message : err}`;
+  $('err').textContent = t('A model failed to load: {why}', { why: err && err.message ? err.message : err });
 });
 requestAnimationFrame(frame);
 window.__flipwing = {

@@ -203,6 +203,12 @@
       border-bottom-width: 2px; font: inherit; }
     .title .keys.desk { display: none; }
     @media (pointer: fine) { .title .keys.desk { display: block; } .title .keys.touch { display: none; } }
+    
+    .title .langs { position: absolute; top: calc(10px * var(--fs)); right: 16px; display: flex; gap: 8px; z-index: 1; }
+    .title .langs button { min-height: 44px; min-width: 44px; padding: 0 12px; border-radius: 0; cursor: pointer; color: var(--ink);
+      font: 600 calc(12px * var(--fs)) var(--petch), sans-serif; letter-spacing: 0.03em; background: rgba(20, 22, 34, 0.72);
+      border: 1px solid rgba(242, 239, 232, 0.22); clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+    .title .langs button[aria-pressed="true"] { border-color: var(--ember); color: var(--ember); }
     @media (prefers-reduced-motion: reduce) { .braid path { animation: none; } .plate, .plate.go { transition: none; } }
     
 
@@ -353,14 +359,14 @@
     <section class="overlay title" id="title">
       <div class="key" aria-hidden="true"></div>
       <header class="brand">
-        <h1 class="mark" aria-label="Flipwake"><span class="m-flip">Flip</span><span class="m-wake">wake</span></h1>
+        <h1 class="mark" aria-label="Flipwake" translate="no"><span class="m-flip">Flip</span><span class="m-wake">wake</span></h1>
         <svg class="braid" viewBox="0 0 240 24" aria-hidden="true" preserveAspectRatio="none">
           <path class="b-ember" d="M0 12 C 30 0, 50 0, 80 12 S 130 24, 160 12 S 210 0, 240 12"/>
           <path class="b-iris" d="M0 12 C 30 24, 50 24, 80 12 S 130 0, 160 12 S 210 24, 240 12"/>
         </svg>
         <p class="tag">Drink your colour. Flip for the other.</p>
         
-        <ul class="crew" aria-label="Pilots">
+        <ul class="crew" aria-label="Pilots" translate="no">
           <li style="--c: var(--p1)"><img src="assets/busts/sora/candidate_1.webp" alt="" width="64" height="64"><span>Sora</span></li>
           <li style="--c: var(--p2)"><img src="assets/busts/rook/candidate_1.webp" alt="" width="64" height="64"><span>Rook</span></li>
           <li style="--c: var(--p3)"><img src="assets/busts/mina/candidate_2.webp" alt="" width="64" height="64"><span>Mina</span></li>
@@ -377,8 +383,9 @@
           <i class="glyph wing4" aria-hidden="true"><s></s><s></s><s></s><s></s></i></button>
         <label class="stagepick" for="stage-pick">Stage <select id="stage-pick"></select></label>
       </nav>
-      <p class="keys touch">Drag to fly <kbd>2nd finger</kbd> or <kbd>Flip</kbd> switches colour</p>
-      <p class="keys desk"><kbd>WASD</kbd> fly <kbd>Space</kbd> flip <kbd>K</kbd> bomb <kbd>Shift</kbd> slow</p>
+      <p class="keys touch" data-t-html>Drag to fly <kbd>2nd finger</kbd> or <kbd>Flip</kbd> switches colour</p>
+      <p class="keys desk" data-t-html><kbd>WASD</kbd> fly <kbd>Space</kbd> flip <kbd>K</kbd> bomb <kbd>Shift</kbd> slow</p>
+      <div class="langs" id="langs" role="group" aria-label="Language"></div>
     </section>
     
     <section class="overlay" id="ending" hidden>
@@ -430,7 +437,7 @@
     <div id="err"></div>
   </div>
   <aside>
-    <h1>Flipwake</h1>
+    <h1 translate="no">Flipwake</h1>
     
 
     <p data-panel="stages flip chain">Fly five stages, Dustline, Saltpan, Foundry, Twinsea and Heartfall. Your ship
@@ -465,7 +472,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=429a7c78-20261120T021117Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=429a7c78-20261120T021117Z"></script>
+  <script type="module" src="src/boot.js?v=0d4e9187-20261120T054110Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=0d4e9187-20261120T054110Z"></script>
 </body>
 </html>

@@ -3,6 +3,9 @@
 
 
 
+
+import './lang.js';
+
 const q = new URL(location.href).searchParams;
 
 
