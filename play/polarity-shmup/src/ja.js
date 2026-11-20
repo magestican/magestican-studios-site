@@ -124,31 +124,54 @@ export const JA = {
   'The host left, so the room has closed.': 'ホストが退出したため、ルームは閉じられました。',
   'A model failed to load: {why}': 'モデルを読み込めませんでした：{why}',
   
-  'Out at Heartfall, the Crown is drinking our sky, Ember and Iris both. Without that light, the land below is losing its colour. You four fly the last ships that still flip between the two lights.':
-    'ハートフォールで、王冠が俺たちの空を飲み込んでいる。エンバーもアイリスも、両方だ。その光を失って、地上は色をなくしつつある。二つの光を切り替えて飛べる機体は、もうお前たち四人のものしか残っていない。',
-  "Dustline below. Its fields went grey first. Now the Furnace burns off what's left of them.":
-    '下はダストライン。最初に色を失った畑よ。残った分も、今は溶鉱炉が焼き尽くしてる。',
-  'Saltpan. Here the Loom spins our light into threads and sends them east. So we cut every thread.':
-    'ソルトパン。ここで織機が私たちの光を糸に紡いで、東へ送ってる。だから糸は全部切る。',
-  'Foundry. In there the Anvil beats stolen light into ships. So stay close. Nobody flies this one alone.':
-    'ファウンドリー。あの中で金床が、盗んだ光を叩いて機体にしてる。離れるなよ。ここは誰も一人じゃ飛ばせない。',
-  'Twinsea. One sea burns amber, the other runs violet. The Twin wears both of them, one half each. Hit each half with the other light.':
-    'ツインシー。片方の海は琥珀に燃えて、もう片方は紫に流れてる。双子は両方の色を半分ずつまとってる。それぞれの半身を、反対の光で撃って。',
-  'Heartfall. Every light we lost pours into the Crown here. Bring that light home, pilots.':
-    'ハートフォール。失った光はすべて、ここで王冠に流れ込んでいる。その光を持ち帰れ、パイロット諸君。',
-  'One Furnace, cold. So tell me they built a harder one.': '溶鉱炉ひとつ、火は消した。で、もっと手ごわいのも作ってあるんだろ？',
-  "Hush. Out on the salt, something's humming. It sounds like a loom.": '静かに。塩の原で何かがうなってる。機織りみたいな音。',
-  "The salt's shining again. Behind us, anyway.": '塩がまた輝いてる。少なくとも、俺たちの後ろはな。',
-  'Then we keep it behind us. Those threads run on to the Foundry.': 'なら、後ろはそのまま守ろう。あの糸はファウンドリーまで続いてる。',
-  'That anvil missed me. It missed every swing.': 'あの金床、俺には一発も当たらなかったぜ。全部空振りだ。',
-  'Good, because the next one wears both colours. Save the bragging for after it.': '上出来だ。次の相手は両方の色をまとっている。自慢はそいつを倒してからにしろ。',
-  'Hear that? Both lights are falling the same way now.': '聞こえる？二つの光が、今は同じ方へ落ちていく。',
-  "They're falling toward Heartfall. And after Heartfall, we go home.": 'ハートフォールへ向かってる。ハートフォールの先は、家に帰るだけだ。',
-  "Crown's down. Check in, everyone.": '王冠、撃墜。みんな、応答して。',
-  'Still flying. Told you nothing they fire can touch me twice.': 'まだ飛んでるぜ。言っただろ、あいつらの弾なんか二度も当たらないって。',
-  "Listen. The channel's gone quiet. Only the wind now.": '聞いて。無線が静かになった。今は風の音だけ。',
-  'Good flying, all of you. First round back home is mine.': 'みんな、いい飛びっぷりだった。帰ったら最初の一杯は俺のおごりだ。',
-  'That closes it. Four ships out, four ships coming home. Land gently, pilots.': 'これで終わりだ。出撃四機、帰還四機。静かに降りてこい、パイロット諸君。',
+  "Wake Squadron, this is Harrow! The Furnace column is burning its way across Dustline. Stop it before it reaches the river!":
+    "ウェイク隊、こちらハロウ！溶鉱炉の部隊がダストラインを焼き払いながら進んでいる。川に届く前に止めろ！",
+  "Wake copies. Weapons hot. Everybody stay on me!":
+    "ウェイク了解。兵装、準備よし。全員、私について来て！",
+  "Saltpan was our listening post once. Now it's their depot. Burn it, and their whole front goes hungry.":
+    "ソルトパンはかつて我々の聴音基地だった。今は奴らの補給所だ。焼き払え。そうすれば奴らの前線は丸ごと飢える。",
+  "I'm hearing them on every channel. They know we're coming.":
+    "どの回線にも、あの人たちの声が聞こえる。私たちが来るって、もう知ってる。",
+  "The Foundry builds their gunships day and night. Today it builds nothing! Hit the Anvil and don't stop!":
+    "ファウンドリーは昼も夜も奴らの砲艦を造っている。今日は何も造らせるな！金床を叩け、手を止めるな！",
+  "Finally, a target big enough to be worth the fuel!":
+    "やっと燃料を使う甲斐のあるデカい的だぜ！",
+  "The Twin leads their fleet. Break it, and the strait is ours. Harrow holds as long as you do!":
+    "双子が奴らの艦隊を率いている。それを砕けば、海峡は我々のものだ。お前たちが持ちこたえる限り、ハロウも持ちこたえる！",
+  "Hang on, Commander! We're coming!":
+    "司令、踏ん張ってください！今行きます！",
+  "Heartfall. The Crown has shelled our coast for six years. I lost my first squadron under those guns. I will not lose this one!":
+    "ハートフォール。王冠は六年間、我々の海岸を砲撃し続けてきた。私はあの砲火の下で最初の部隊を失った。この部隊は失わない！",
+  "All Wake, this is it. Everything we've got!":
+    "ウェイク全機、ここが勝負よ。ありったけを叩き込んで！",
+  "The column's broken! The farms are still standing!":
+    "部隊は崩れた！畑はまだ無事だ！",
+  "One down. Who's buying?":
+    "まずは一つ。で、誰がおごる？",
+  "Hold the cheering. Their supply road runs on through Saltpan.":
+    "喜ぶのはまだ早い。奴らの補給路はソルトパンへ続いている。",
+  "The depot's quiet now. Quieter than the night it fell.":
+    "補給所は静かになった。あそこが落ちた夜よりも、ずっと静か。",
+  "You came back for it, Mina. That counts.":
+    "あなたはここに戻ってきたのよ、Mina。それには意味がある。",
+  "Did you see that? The whole Foundry folded!":
+    "見たか？ファウンドリーが丸ごと潰れたぜ！",
+  "Wake, Harrow is taking fire! Their fleet came out of Twinsea behind us. Get back here, now!":
+    "ウェイク、ハロウが被弾している！奴らの艦隊がツインシーから背後に現れた。今すぐ戻れ！",
+  "Harrow, Harrow, this is Wake Lead. Commander, do you read me?":
+    "ハロウ、ハロウ、こちらウェイク・リード。司令官、聞こえますか？",
+  "Still here, Lead. The bridge is full of smoke, but I'm here. Heartfall is open. Finish it.":
+    "まだ生きているぞ、リード。艦橋は煙だらけだが、私はここにいる。ハートフォールへの道は開いた。終わらせろ。",
+  "The Crown is down! Wake Squadron, check in!":
+    "王冠、撃墜！ウェイク隊、応答して！",
+  "Still flying! Told you. Nothing they fire touches me twice!":
+    "まだ飛んでるぜ！言っただろ。奴らの弾なんか二度も当たらねえって！",
+  "Listen. Their channels are silent. Every single one.":
+    "聞いて。あの人たちの回線が静かになった。一つ残らず。",
+  "We did it. Next harvest is on my farm, and you're all invited.":
+    "やったな。次の収穫はうちの畑でやるんだ。みんな招待するよ。",
+  "Four ships out, four ships coming home. The war is over, pilots. Bring them in gently.":
+    "出撃四機、帰還四機。戦争は終わったぞ、パイロット諸君。静かに降りてこい。",
   
   'Fly five stages, Dustline, Saltpan, Foundry, Twinsea and Heartfall. Your ship drinks bullets of its own colour and fills the burst meter. A full meter fires by itself. Bullets of the other colour hurt, so flip. Shoot down three of one colour in a row for a chain. Each chain pays double and makes your bursts hit harder.':
     'ダストライン、ソルトパン、ファウンドリー、ツインシー、ハートフォールの5ステージを飛ぼう。自機は同じ色の弾を吸収して、バーストゲージをためる。ゲージが満タンになると自動で発射。違う色の弾はダメージになるので、フリップしてかわそう。同じ色の敵を3機続けて撃墜するとチェイン。チェインごとに得点が倍になり、バーストも強くなる。',

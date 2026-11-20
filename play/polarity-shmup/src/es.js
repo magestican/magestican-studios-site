@@ -130,31 +130,54 @@ export const ES = {
   'The host left, so the room has closed.': 'El anfitrión se fue, así que la sala se cerró.',
   'A model failed to load: {why}': 'No se pudo cargar un modelo: {why}',
   
-  'Out at Heartfall, the Crown is drinking our sky, Ember and Iris both. Without that light, the land below is losing its colour. You four fly the last ships that still flip between the two lights.':
-    'Allá en Corazón Caído, la Corona se está bebiendo nuestro cielo, la Brasa y el Iris a la vez. Sin esa luz, la tierra de abajo pierde su color. Ustedes cuatro vuelan las últimas naves que todavía cambian entre las dos luces.',
-  "Dustline below. Its fields went grey first. Now the Furnace burns off what's left of them.":
-    'Abajo, Polvareda. Sus campos fueron los primeros en volverse grises. Ahora el Horno quema lo que queda de ellos.',
-  'Saltpan. Here the Loom spins our light into threads and sends them east. So we cut every thread.':
-    'Salinas. Aquí el Telar hila nuestra luz en hebras y las manda al este. Así que cortamos cada hebra.',
-  'Foundry. In there the Anvil beats stolen light into ships. So stay close. Nobody flies this one alone.':
-    'La Fundición. Ahí dentro el Yunque forja naves con luz robada. Así que no se separen. Aquí nadie vuela solo.',
-  'Twinsea. One sea burns amber, the other runs violet. The Twin wears both of them, one half each. Hit each half with the other light.':
-    'Mar Gemelo. Un mar arde ámbar y el otro corre violeta. El Gemelo lleva los dos, una mitad cada uno. Denle a cada mitad con la otra luz.',
-  'Heartfall. Every light we lost pours into the Crown here. Bring that light home, pilots.':
-    'Corazón Caído. Toda la luz que perdimos cae aquí dentro de la Corona. Traigan esa luz a casa, pilotos.',
-  'One Furnace, cold. So tell me they built a harder one.': 'Un Horno, apagado. A ver, díganme que construyeron uno más difícil.',
-  "Hush. Out on the salt, something's humming. It sounds like a loom.": 'Shh. Allá en la sal algo zumba. Suena como un telar.',
-  "The salt's shining again. Behind us, anyway.": 'La sal vuelve a brillar. Detrás de nosotros, por lo menos.',
-  'Then we keep it behind us. Those threads run on to the Foundry.': 'Entonces que siga detrás. Esas hebras llegan hasta la Fundición.',
-  'That anvil missed me. It missed every swing.': 'Ese yunque no me dio. Falló cada golpe.',
-  'Good, because the next one wears both colours. Save the bragging for after it.': 'Bien, porque el siguiente lleva los dos colores. Guárdate la fanfarronería para después.',
-  'Hear that? Both lights are falling the same way now.': '¿Oyen eso? Las dos luces caen hacia el mismo lado ahora.',
-  "They're falling toward Heartfall. And after Heartfall, we go home.": 'Caen hacia Corazón Caído. Y después de Corazón Caído, volvemos a casa.',
-  "Crown's down. Check in, everyone.": 'La Corona cayó. Repórtense todos.',
-  'Still flying. Told you nothing they fire can touch me twice.': 'Sigo volando. Les dije que nada de lo que disparan me toca dos veces.',
-  "Listen. The channel's gone quiet. Only the wind now.": 'Escuchen. El canal quedó en silencio. Ahora solo el viento.',
-  'Good flying, all of you. First round back home is mine.': 'Buen vuelo, todos. La primera ronda en casa la invito yo.',
-  'That closes it. Four ships out, four ships coming home. Land gently, pilots.': 'Se acabó. Cuatro naves salieron, cuatro vuelven a casa. Aterricen suave, pilotos.',
+  "Wake Squadron, this is Harrow! The Furnace column is burning its way across Dustline. Stop it before it reaches the river!":
+    "¡Escuadrón Wake, aquí Harrow! La columna del Horno avanza quemando Polvareda. ¡Deténganla antes de que llegue al río!",
+  "Wake copies. Weapons hot. Everybody stay on me!":
+    "Wake recibido. Armas listas. ¡Todos conmigo!",
+  "Saltpan was our listening post once. Now it's their depot. Burn it, and their whole front goes hungry.":
+    "Salinas fue nuestro puesto de escucha. Ahora es su depósito. Quémenlo, y todo su frente pasará hambre.",
+  "I'm hearing them on every channel. They know we're coming.":
+    "Los oigo en todos los canales. Saben que vamos.",
+  "The Foundry builds their gunships day and night. Today it builds nothing! Hit the Anvil and don't stop!":
+    "La Fundición construye sus cañoneras día y noche. ¡Hoy no construye nada! ¡Denle al Yunque y no paren!",
+  "Finally, a target big enough to be worth the fuel!":
+    "¡Por fin, un blanco tan grande que vale el combustible!",
+  "The Twin leads their fleet. Break it, and the strait is ours. Harrow holds as long as you do!":
+    "El Gemelo dirige su flota. Rómpanlo, y el estrecho es nuestro. ¡Harrow aguanta mientras ustedes aguanten!",
+  "Hang on, Commander! We're coming!":
+    "¡Aguante, comandante! ¡Ya vamos!",
+  "Heartfall. The Crown has shelled our coast for six years. I lost my first squadron under those guns. I will not lose this one!":
+    "Corazón Caído. La Corona lleva seis años bombardeando nuestra costa. Bajo esos cañones perdí mi primer escuadrón. ¡No voy a perder este!",
+  "All Wake, this is it. Everything we've got!":
+    "Todo Wake, llegó la hora. ¡Con todo lo que tenemos!",
+  "The column's broken! The farms are still standing!":
+    "¡La columna se rompió! ¡Las granjas siguen en pie!",
+  "One down. Who's buying?":
+    "Uno menos. ¿Quién invita?",
+  "Hold the cheering. Their supply road runs on through Saltpan.":
+    "Guarden los festejos. Su ruta de suministros sigue por Salinas.",
+  "The depot's quiet now. Quieter than the night it fell.":
+    "El depósito está en silencio. Más callado que la noche en que cayó.",
+  "You came back for it, Mina. That counts.":
+    "Volviste por él, Mina. Eso cuenta.",
+  "Did you see that? The whole Foundry folded!":
+    "¿Vieron eso? ¡Toda la Fundición se vino abajo!",
+  "Wake, Harrow is taking fire! Their fleet came out of Twinsea behind us. Get back here, now!":
+    "¡Wake, Harrow está bajo fuego! Su flota salió de Mar Gemelo detrás de nosotros. ¡Vuelvan ya!",
+  "Harrow, Harrow, this is Wake Lead. Commander, do you read me?":
+    "Harrow, Harrow, aquí Líder Wake. Comandante, ¿me copia?",
+  "Still here, Lead. The bridge is full of smoke, but I'm here. Heartfall is open. Finish it.":
+    "Sigo aquí, Líder. El puente está lleno de humo, pero sigo aquí. Corazón Caído está abierto. Termínenlo.",
+  "The Crown is down! Wake Squadron, check in!":
+    "¡La Corona cayó! ¡Escuadrón Wake, repórtense!",
+  "Still flying! Told you. Nothing they fire touches me twice!":
+    "¡Sigo volando! Se los dije. ¡Nada de lo que disparan me toca dos veces!",
+  "Listen. Their channels are silent. Every single one.":
+    "Escuchen. Sus canales están en silencio. Todos y cada uno.",
+  "We did it. Next harvest is on my farm, and you're all invited.":
+    "Lo logramos. La próxima cosecha es en mi granja, y están todos invitados.",
+  "Four ships out, four ships coming home. The war is over, pilots. Bring them in gently.":
+    "Cuatro naves salieron, cuatro vuelven a casa. La guerra terminó, pilotos. Tráiganlas con suavidad.",
   
   'Fly five stages, Dustline, Saltpan, Foundry, Twinsea and Heartfall. Your ship drinks bullets of its own colour and fills the burst meter. A full meter fires by itself. Bullets of the other colour hurt, so flip. Shoot down three of one colour in a row for a chain. Each chain pays double and makes your bursts hit harder.':
     'Vuela cinco etapas: Polvareda, Salinas, La Fundición, Mar Gemelo y Corazón Caído. Tu nave se bebe las balas de su color y llena el medidor de ráfaga. Con el medidor lleno, dispara sola. Las balas del otro color hacen daño, así que cambia. Derriba tres del mismo color seguidos para hacer una cadena. Cada cadena paga el doble y hace más fuertes tus ráfagas.',

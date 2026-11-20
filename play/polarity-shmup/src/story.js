@@ -8,6 +8,7 @@
 
 
 
+
 import { ENDING } from './ending.js';
 import { tv } from '../../../web-engine/i18n/tr.js';
 
@@ -19,23 +20,53 @@ export const SPEAKERS = Object.freeze(Object.fromEntries(ENDING.map((e, i) => [e
 const L = (id, line) => Object.freeze({ id, line });
 
 
+
+
+
+
+
 export const INTRO = Object.freeze([
   Object.freeze([
-    L('halden', 'Out at Heartfall, the Crown is drinking our sky, Ember and Iris both. Without that light, the land below is losing its colour. You four fly the last ships that still flip between the two lights.'),
-    L('sora', "Dustline below. Its fields went grey first. Now the Furnace burns off what's left of them."),
+    L('halden', 'Wake Squadron, this is Harrow! The Furnace column is burning its way across Dustline. Stop it before it reaches the river!'),
+    L('sora', 'Wake copies. Weapons hot. Everybody stay on me!'),
   ]),
-  Object.freeze([L('mina', 'Saltpan. Here the Loom spins our light into threads and sends them east. So we cut every thread.')]),
-  Object.freeze([L('tevi', 'Foundry. In there the Anvil beats stolen light into ships. So stay close. Nobody flies this one alone.')]),
-  Object.freeze([L('sora', 'Twinsea. One sea burns amber, the other runs violet. The Twin wears both of them, one half each. Hit each half with the other light.')]),
-  Object.freeze([L('halden', 'Heartfall. Every light we lost pours into the Crown here. Bring that light home, pilots.')]),
+  Object.freeze([
+    L('halden', "Saltpan was our listening post once. Now it's their depot. Burn it, and their whole front goes hungry."),
+    L('mina', "I'm hearing them on every channel. They know we're coming."),
+  ]),
+  Object.freeze([
+    L('halden', "The Foundry builds their gunships day and night. Today it builds nothing! Hit the Anvil and don't stop!"),
+    L('rook', 'Finally, a target big enough to be worth the fuel!'),
+  ]),
+  Object.freeze([
+    L('halden', 'The Twin leads their fleet. Break it, and the strait is ours. Harrow holds as long as you do!'),
+    L('tevi', "Hang on, Commander! We're coming!"),
+  ]),
+  Object.freeze([
+    L('halden', 'Heartfall. The Crown has shelled our coast for six years. I lost my first squadron under those guns. I will not lose this one!'),
+    L('sora', "All Wake, this is it. Everything we've got!"),
+  ]),
 ]);
 
 
 export const AFTER = Object.freeze([
-  Object.freeze([L('rook', 'One Furnace, cold. So tell me they built a harder one.'), L('mina', "Hush. Out on the salt, something's humming. It sounds like a loom.")]),
-  Object.freeze([L('tevi', "The salt's shining again. Behind us, anyway."), L('sora', 'Then we keep it behind us. Those threads run on to the Foundry.')]),
-  Object.freeze([L('rook', 'That anvil missed me. It missed every swing.'), L('halden', 'Good, because the next one wears both colours. Save the bragging for after it.')]),
-  Object.freeze([L('mina', 'Hear that? Both lights are falling the same way now.'), L('tevi', "They're falling toward Heartfall. And after Heartfall, we go home.")]),
+  Object.freeze([
+    L('tevi', "The column's broken! The farms are still standing!"),
+    L('rook', "One down. Who's buying?"),
+    L('halden', 'Hold the cheering. Their supply road runs on through Saltpan.'),
+  ]),
+  Object.freeze([
+    L('mina', "The depot's quiet now. Quieter than the night it fell."),
+    L('sora', 'You came back for it, Mina. That counts.'),
+  ]),
+  Object.freeze([
+    L('rook', 'Did you see that? The whole Foundry folded!'),
+    L('halden', 'Wake, Harrow is taking fire! Their fleet came out of Twinsea behind us. Get back here, now!'),
+  ]),
+  Object.freeze([
+    L('sora', 'Harrow, Harrow, this is Wake Lead. Commander, do you read me?'),
+    L('halden', "Still here, Lead. The bridge is full of smoke, but I'm here. Heartfall is open. Finish it."),
+  ]),
 ]);
 
 

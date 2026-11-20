@@ -124,13 +124,22 @@ export function zhScript(s) {
 }
 
 
-export function gameLang(loc = globalThis.location, store = globalThis.localStorage, nav = globalThis.navigator, { zh = false } = {}) {
+
+
+
+
+
+
+
+
+
+export function gameLang(loc = globalThis.location, store = globalThis.localStorage, nav = globalThis.navigator, { zh = false, offered = null } = {}) {
   const norm = (s) => {
-    if (zh && zhScript(s)) return zhScript(s);
-    let c = String(s || '').toLowerCase().split('-')[0];
+    let c = zh && zhScript(s) ? zhScript(s) : String(s || '').toLowerCase().split('-')[0];
     if (c === 'fil') c = 'tl';
     if (c === 'in') c = 'id';
-    return NAME_LANGS.includes(c) ? c : null;
+    if (!(ZH_LANGS.includes(c) || NAME_LANGS.includes(c))) return null;
+    return !offered || offered.includes(c) ? c : null;
   };
   try {
     const q = loc && new URLSearchParams(loc.search).get('lang');
@@ -145,6 +154,12 @@ export function gameLang(loc = globalThis.location, store = globalThis.localStor
     if (norm(l)) return norm(l);
   }
   return 'en';
+}
+
+
+export function pageLangFor(dicts, loc, store, nav) {
+  const codes = Object.keys(dicts || {});
+  return gameLang(loc, store, nav, { zh: codes.some((c) => ZH_LANGS.includes(c)), offered: ['en', ...codes] });
 }
 
 

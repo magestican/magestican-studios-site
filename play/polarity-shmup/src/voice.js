@@ -11,12 +11,14 @@
 
 
 
-export const VOICE_MS = Object.freeze({
-  'intro-1-1': 12961, 'intro-1-2': 5499, 'intro-2-1': 8785, 'intro-3-1': 7688, 'intro-4-1': 8354, 'intro-5-1': 6884,
-  'after-1-1': 3249, 'after-1-2': 5760, 'after-2-1': 3213, 'after-2-2': 3746, 'after-3-1': 2752, 'after-3-2': 5120,
-  'after-4-1': 4343, 'after-4-2': 4230,
-  'ending-sora': 2545, 'ending-rook': 3687, 'ending-mina': 4583, 'ending-tevi': 3821, 'ending-halden': 6634,
-});
+
+
+
+
+
+
+
+export const VOICE_MS = Object.freeze({});
 
 
 export const VOICE_GAP_MS = 500;

@@ -9,14 +9,15 @@
 
 
 
+
 import { tv } from '../../../web-engine/i18n/tr.js';
 
 export const ENDING = [
-  { id: 'sora', name: 'Sora', img: 'assets/busts/sora/candidate_1.webp', line: "Crown's down. Check in, everyone." },
-  { id: 'rook', name: 'Rook', img: 'assets/busts/rook/candidate_1.webp', line: 'Still flying. Told you nothing they fire can touch me twice.' },
-  { id: 'mina', name: 'Mina', img: 'assets/busts/mina/candidate_2.webp', line: "Listen. The channel's gone quiet. Only the wind now." },
-  { id: 'tevi', name: 'Tevi', img: 'assets/busts/tevi/candidate_1.webp', line: 'Good flying, all of you. First round back home is mine.' },
-  { id: 'halden', name: 'Halden', img: 'assets/busts/halden/candidate_2.webp', line: 'That closes it. Four ships out, four ships coming home. Land gently, pilots.' },
+  { id: 'sora', name: 'Sora', img: 'assets/busts/sora/candidate_1.webp', line: 'The Crown is down! Wake Squadron, check in!' },
+  { id: 'rook', name: 'Rook', img: 'assets/busts/rook/candidate_1.webp', line: 'Still flying! Told you. Nothing they fire touches me twice!' },
+  { id: 'mina', name: 'Mina', img: 'assets/busts/mina/candidate_2.webp', line: 'Listen. Their channels are silent. Every single one.' },
+  { id: 'tevi', name: 'Tevi', img: 'assets/busts/tevi/candidate_1.webp', line: "We did it. Next harvest is on my farm, and you're all invited." },
+  { id: 'halden', name: 'Halden', img: 'assets/busts/halden/candidate_2.webp', line: 'Four ships out, four ships coming home. The war is over, pilots. Bring them in gently.' },
 ];
 
 

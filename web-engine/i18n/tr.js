@@ -13,7 +13,7 @@
 
 
 
-import { gameLang } from './gameNames.js';
+import { pageLangFor } from './gameNames.js';
 
 let active = null;
 let activeCode = 'en';
@@ -31,7 +31,11 @@ export function t(english, values) {
 export const tv = t;
 
 
-export function useLanguage(dicts, lang = gameLang(), doc = globalThis.document) {
+
+
+
+
+export function useLanguage(dicts, lang = pageLangFor(dicts), doc = globalThis.document) {
   active = dicts[lang] ?? null;
   activeCode = active ? lang : 'en';
   if (doc?.documentElement) doc.documentElement.lang = activeCode;
