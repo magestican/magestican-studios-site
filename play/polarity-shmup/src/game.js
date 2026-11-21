@@ -13,7 +13,8 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { BULLET_TYPES, rasterBullet } from './bullets.js';
+import { BULLET_TYPES, SIGNATURES, rasterBullet } from './bullets.js';
+import { BOSS_LOOK, chargeAhead, chargeLevel, deathPlan } from './bossLook.js';
 import { FIELD_W, FIELD_H, TILE_PX, STAGE_GROUND, groundTileAt, STAGE_FEATURES, featureAt } from './field.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
@@ -21,11 +22,11 @@ import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../.
 import { createRadio } from './radio.js';
 import { VOICE_MS, afterIds, briefingIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
 import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitStream } from './sound.js';
-import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore } from './sim/sim.js';
+import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore, thinAt } from './sim/sim.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { FP } from './sim/fixed.js';
 import { MOVE_MAX, pack } from './sim/input.js';
-import { ENEMY_R, OTHER_ONLY, SCROLL } from './sim/stage.js';
+import { BOSS_ENTER, ENEMY_R, OTHER_ONLY, SCROLL } from './sim/stage.js';
 import {
   BOSS_BOX, BOSS_NAMES, CROWN, CROWN_SWITCH, STAGES, TWIN, TWIN_SPLIT, bossShowsIris, stageCue, twinPol,
 } from './sim/stages.js';
@@ -83,6 +84,9 @@ const playHit = (s, h) => {
 };
 const bossWatch = createBossWatch(); 
 let bossPunch = 0;
+
+let bossSeen = { on: 0, kind: -1, phase: 0 };
+const bossDeaths = [];
 const soundBtn = $('sound');
 function drawSound() {
   const on = uiSoundOn();
@@ -431,6 +435,7 @@ const ENEMY_TYPES = BULLET_TYPES.slice(0, 4);
 const SHOT_TYPE = BULLET_TYPES.find((t) => t.id === 'shot');
 const ORB_TYPE = BULLET_TYPES.find((t) => t.id === 'orb');
 let sets = null; 
+const allSets = () => [...sets.enemy.flat(), ...sets.sig.flat(2), ...sets.shot, ...sets.burst];
 
 function makeSet(type, pol, pxScale, cap) {
   const r = rasterBullet(type, pol ? 'iris' : 'ember', pxScale);
@@ -449,11 +454,13 @@ function makeSet(type, pol, pxScale, cap) {
 }
 
 function buildBullets(pxScale) {
-  if (sets) for (const m of [...sets.enemy.flat(), ...sets.shot, ...sets.burst]) {
+  if (sets) for (const m of allSets()) {
     scene.remove(m); m.geometry.dispose(); m.material.map.dispose(); m.material.dispose();
   }
   sets = {
     enemy: ENEMY_TYPES.map((t) => [0, 1].map((pol) => makeSet(t, pol, pxScale, 1024))),
+    
+    sig: SIGNATURES.map((row) => row.map((t) => [0, 1].map((pol) => makeSet(t, pol, pxScale, 1024)))),
     shot: [0, 1].map((pol) => makeSet(SHOT_TYPE, pol, pxScale, 256)),
     burst: [0, 1].map((pol) => makeSet(ORB_TYPE, pol, pxScale, 64)),
   };
@@ -472,14 +479,16 @@ function put(mesh, x, z, ang) {
 
 const shownBullets = { n: 0, x: new Float32Array(2048), z: new Float32Array(2048), pol: new Uint8Array(2048) };
 function drawBullets(s) {
-  for (const m of [...sets.enemy.flat(), ...sets.shot, ...sets.burst]) m.count = 0;
+  for (const m of allSets()) m.count = 0;
   fx.glowBegin();
   shownBullets.n = Math.min(s.nb, 2048);
+  
+  const look = s.boss.on ? sets.sig[s.boss.kind] || sets.enemy : sets.enemy;
   for (let i = 0; i < s.nb; i++) {
     
     const bx = wx(s.bx[i]), bz = wz(s.by[i]);
     if (i < 2048) { shownBullets.x[i] = bx; shownBullets.z[i] = bz; shownBullets.pol[i] = s.bpol[i]; }
-    put(sets.enemy[s.bkind[i]][s.bpol[i]], bx, bz, -Math.atan2(s.bvx[i], s.bvy[i]));
+    put(look[s.bkind[i]][s.bpol[i]], bx, bz, -Math.atan2(s.bvx[i], s.bvy[i]));
     fx.glowAdd(bx, bz, s.bpol[i], 34);
   }
   for (let i = 0; i < s.ns; i++) fx.glowAdd(wx(s.sx[i]), wz(s.sy[i]), s.players[s.sown[i]].iris, s.sdmg[i] > 1 ? 40 : 18);
@@ -489,7 +498,7 @@ function drawBullets(s) {
     const set = s.sdmg[i] > 1 ? sets.burst[pol] : sets.shot[pol];
     if (set.count < set.instanceMatrix.count) put(set, wx(s.sx[i]), wz(s.sy[i]), -Math.atan2(s.svx[i], -14 * FP));
   }
-  for (const m of [...sets.enemy.flat(), ...sets.shot, ...sets.burst]) m.instanceMatrix.needsUpdate = true;
+  for (const m of allSets()) if (m.count || m.userData.drawn) { m.instanceMatrix.needsUpdate = true; m.userData.drawn = m.count > 0; }
 }
 
 
@@ -1491,6 +1500,34 @@ function draw(s, dt) {
   }
   
   
+  
+  {
+    const B = s.boss, L = BOSS_LOOK[B.kind];
+    if (L && B.on && B.age >= BOSS_ENTER && B.rest === 0 && dt > 0 && !s.clear && !s.over) {
+      const thin = thinAt(s.gentle === 1, s.heat, s.hard === 1);
+      const c = chargeAhead(B.kind, B.phase, B.fa, s.seed, B.x, B.y, s.players, thin);
+      if (c) for (const [mx, my] of c.at) fx.charge(wx(mx), wz(my), chargeLevel(c.left), c.pol, L.charge, s.tick / 60);
+    }
+    if (L && B.on && bossSeen.on && B.kind === bossSeen.kind && B.phase > bossSeen.phase) {
+      const pol = bossShowsIris(B.kind, B.phase, B.fa) ? 1 : 0, bx = wx(B.x), bz = wz(B.y);
+      fx.bossBurst(bx, bz, L.burst, pol, BOSS_BOX[B.kind][0]);
+      flash(bx, bz, 260, pol ? 0xb890ff : 0xffd27a);
+      sfxFor(s, 'crash');
+    }
+    bossSeen = { on: B.on, kind: B.kind, phase: B.phase };
+    const now = performance.now();
+    while (bossDeaths.length && bossDeaths[0].at <= now) {
+      const d = bossDeaths.shift();
+      for (const pol of d.pol === 'both' ? [0, 1] : [d.pol]) {
+        fx.explode(d.x + (d.pol === 'both' ? (pol ? 14 : -14) : 0), d.z, d.size, pol, { boss: d.last });
+        if (d.last) flash(d.x, d.z, d.size, 0xfff1c0); 
+      }
+      if (d.last) fx.hitstop(0.1);
+      sfxFor(s, d.last ? 'bossDown' : 'crash');
+    }
+  }
+  
+  
   if (s.nbomb !== seen.bomb) {
     seen.bomb = s.nbomb;
     if (s.tick - s.bombT < 30) {
@@ -1521,6 +1558,10 @@ function draw(s, dt) {
     flash(bx, bz, size, boss ? 0xfff1c0 : pol === 1 ? 0xb890ff : 0xffd27a);
     fx.explode(bx, bz, size, Math.max(0, pol), { boss });
     fx.hitstop(boss ? 0.14 : size >= 90 ? 0.06 : 0.035); 
+    if (boss && BOSS_LOOK[s.boss.kind]) { 
+      const now = performance.now(), plan = deathPlan(s.boss.kind);
+      plan.forEach((d, i) => bossDeaths.push({ at: now + d.t * 1000, x: bx + d.dx, z: bz + d.dz, size: d.size, pol: d.pol, last: i === plan.length - 1 }));
+    }
     sfxFor(s, killCue(k, boss));
   }
   { const tick = hitGate.take(performance.now()); if (tick) playHit(s, tick); }

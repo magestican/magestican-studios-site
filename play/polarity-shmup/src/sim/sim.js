@@ -40,7 +40,7 @@ const SPEED = 9 * FP / 2;
 const FOCUS_SPEED = 2 * FP;
 const HIT_R = 3 * FP;           
 const ABSORB_R = 14 * FP;       
-const BULLET_R = [4 * FP, 6 * FP, 3 * FP, 5 * FP];
+export const BULLET_R = [4 * FP, 6 * FP, 3 * FP, 5 * FP];
 const SHOT_EVERY = 5;
 const SHOT_SPEED = 14 * FP;
 const INVULN = 120, GENTLE_SHIELD = 180;
@@ -62,7 +62,7 @@ export const thinAt = (gentle, heat, hard = false) => (hard ? false : gentle ? h
 
 
 export const hardHp = (hp, hard) => (hard ? Math.max(1, muldiv(hp, 5, 4)) : hp);
-const bossMax = (S, n, hard) => hardHp(muldiv(S.bossHp, 1 + n, 2), hard);
+export const bossMax = (S, n, hard) => hardHp(muldiv(S.bossHp, 1 + n, 2), hard);
 
 
 

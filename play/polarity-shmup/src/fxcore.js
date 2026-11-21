@@ -255,6 +255,105 @@ export function createFxCore(seed = 7) {
   }
 
   
+
+
+
+
+
+
+
+
+  function charge(x, z, level, pol, style, t = 0) {
+    const c = polColour(pol), o = polColour(pol ? 0 : 1), L = Math.max(0, Math.min(1, level));
+    add(pts, { x, z, life: 0.05, s0: 10 + 34 * L, s1: 8 + 30 * L, c0: L > 0.8 ? HOT : c, c1: c, a: 0.35 + 0.5 * L, drag: 0 });
+    if (rnd() > 0.35 + 0.6 * L) return;
+    const r = 70 - 40 * L;
+    if (style === 'kiln') {
+      const a = Math.PI * (0.15 + 0.7 * rnd()); 
+      add(pts, { x: x + Math.cos(a) * r, z: z + Math.sin(a) * r, life: 0.3, s0: 5, s1: 2, c0: HOT, c1: c, pull: 30, tx: x, tz: z, drag: 3, a: 0.9 });
+    } else if (style === 'warp') {
+      const side = rnd() < 0.5 ? -1 : 1;
+      add(str, { x: x + side * (r + 50), z: z + (rnd() - 0.5) * 8, vx: -side * (260 + 200 * L), vz: 0, life: 0.22, drag: 1,
+        s0: 2, s1: 0.6, c0: HOT, c1: c, len: 0.05 });
+    } else if (style === 'forge') {
+      const a = ang();
+      add(str, { x: x + Math.cos(a) * r, z: z + Math.sin(a) * r, vx: -Math.cos(a) * 520, vz: -Math.sin(a) * 520, life: 0.1, drag: 0,
+        s0: 2.4, s1: 1, c0: HOT, c1: [1, 0.95, 0.8], len: 0.03 });
+    } else if (style === 'mirror') {
+      const a = ang(), mine = rnd() < 0.5;
+      add(pts, { x: x + Math.cos(a) * r, z: z + Math.sin(a) * r, vx: -Math.sin(a) * 120, vz: Math.cos(a) * 120, life: 0.35,
+        s0: 5, s1: 2, c0: mine ? c : o, c1: mine ? c : o, pull: 22, tx: x, tz: z, drag: 1.5, a: 0.9 });
+    } else { 
+      for (let i = 0; i < 4; i++) {
+        const a = t * 3 + (i * Math.PI) / 2;
+        add(pts, { x: x + Math.cos(a) * r, z: z + Math.sin(a) * r, life: 0.06, s0: 7, s1: 5, c0: i & 1 ? o : c, c1: HOT, drag: 0, a: 0.9 });
+      }
+    }
+  }
+
+  
+
+
+
+
+
+
+
+
+  function bossBurst(x, z, style, pol, w = 150) {
+    const c = polColour(pol), o = polColour(pol ? 0 : 1);
+    add(pts, { x, z, life: 0.22, s0: w * 0.6, s1: w * 1.4, c0: HOT, c1: c, a: 0.4, drag: 0 });
+    if (style === 'flare') {
+      for (let i = 0; i < 48; i++) {
+        const a = (i / 48) * Math.PI * 2, v = 520 + rnd() * 120;
+        add(str, { x, z, vx: Math.cos(a) * v, vz: Math.sin(a) * v, life: 0.35, drag: 4, s0: 3, s1: 0.8, c0: HOT, c1: c, len: 0.05 });
+      }
+      for (let i = 0; i < 40; i++) {
+        add(pts, { x: x + (rnd() - 0.5) * w, z, vx: (rnd() - 0.5) * 40, vz: -160 - rnd() * 200, life: 0.7 + rnd() * 0.4, drag: 1,
+          s0: 6 + rnd() * 6, s1: 1, c0: HOT, c1: c, a: 0.9 });
+      }
+    } else if (style === 'threads') {
+      for (let row = -3; row <= 3; row++) {
+        for (const side of [-1, 1]) for (let k = 0; k < 3; k++) {
+          add(str, { x: x + side * (20 + k * 30), z: z + row * 14, vx: side * (500 + k * 250 + rnd() * 120), vz: 0, life: 0.45,
+            drag: 2.5, s0: 2.2, s1: 0.8, c0: HOT, c1: (row + 3) & 1 ? o : c, len: 0.09 });
+        }
+      }
+    } else if (style === 'strike') {
+      add(pts, { x, z, life: 0.12, s0: w * 2.2, s1: w * 1.6, c0: HOT, c1: HOT, a: 0.8, drag: 0 });
+      for (let i = 0; i < 70; i++) {
+        const a = Math.PI * (0.1 + 0.8 * rnd()), v = 300 + rnd() * 500;
+        add(str, { x: x + (rnd() - 0.5) * w * 1.4, z: z + 20, vx: Math.cos(a) * v, vz: Math.sin(a) * v, life: 0.4 + rnd() * 0.3,
+          drag: 2, s0: 2.6, s1: 0.6, c0: HOT, c1: [1, 0.8, 0.45], len: 0.035 });
+      }
+      shake.amp = Math.max(shake.amp, 10); shake.t = 0.35;
+    } else if (style === 'split') {
+      for (const side of [-1, 1]) {
+        const cx = x + side * w * 0.5, col = side < 0 ? c : o;
+        for (let i = 0; i < 36; i++) {
+          const a = (i / 36) * Math.PI * 2;
+          add(pts, { x: cx + Math.cos(a) * 10, z: z + Math.sin(a) * 10, vx: Math.cos(a) * 420, vz: Math.sin(a) * 420, life: 0.4,
+            drag: 4, s0: 6, s1: 2, c0: HOT, c1: col, a: 0.8, ring: 1 });
+        }
+      }
+    } else { 
+      for (let d = 0; d < 4; d++) {
+        const a0 = Math.PI / 4 + (d * Math.PI) / 2;
+        for (let i = 0; i < 14; i++) {
+          const a = a0 + (rnd() - 0.5) * 0.18, v = 500 + rnd() * 420;
+          add(str, { x, z, vx: Math.cos(a) * v, vz: Math.sin(a) * v, life: 0.45, drag: 2.5, s0: 3, s1: 0.8, c0: HOT, c1: d & 1 ? o : c, len: 0.06 });
+        }
+      }
+      for (let i = 0; i < 48; i++) {
+        const a = (i / 48) * Math.PI * 2;
+        add(pts, { x: x + Math.cos(a) * 14, z: z + Math.sin(a) * 14, vx: Math.cos(a) * 360, vz: Math.sin(a) * 360, life: 0.45,
+          drag: 4, s0: 6, s1: 2, c0: HOT, c1: i & 1 ? o : c, a: 0.8, ring: 1 });
+      }
+    }
+    shake.amp = Math.max(shake.amp, 5); shake.t = Math.max(shake.t, 0.25);
+  }
+
+  
   const hold = { t: 0 };
   function hitstop(sec) { hold.t = Math.max(hold.t, sec); }
 
@@ -307,7 +406,7 @@ export function createFxCore(seed = 7) {
     return [size, p.r[i] + (p.r1[i] - p.r[i]) * ck, p.g[i] + (p.g1[i] - p.g[i]) * ck, p.b[i] + (p.b1[i] - p.b[i]) * ck, a];
   }
 
-  return { pts, str, explode, absorb, flip, wake, thrust, muzzle, hit, chain, bomb, cancel, hull, hitstop, step, look, shakeOffset, shake };
+  return { pts, str, explode, absorb, flip, wake, thrust, muzzle, hit, chain, bomb, cancel, hull, hitstop, charge, bossBurst, step, look, shakeOffset, shake };
 }
 
 const KEYS = ['x', 'z', 'vx', 'vz', 'life', 'max', 'drag', 's0', 's1', 'r', 'g', 'b', 'r1', 'g1', 'b1', 'a0', 'len', 'pull', 'tx', 'tz', 'ring', 'trail', 'smoke'];
