@@ -1,29 +1,40 @@
 {
- "name": "flipwake-mina",
+ "name": "f20-mina-ref-s21-s1234",
  "voice": "af_nicole",
  "lang": "en-us",
- "speed": 1.0,
- "engine": "kokoro-v1.0",
+ "speed": 1,
+ "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 af_nicole, exaggeration 0.5, cfg_weight 0.3, seed 1234, tempo 1.0, ref mina-s21.wav, acted Mina)",
+ "source": "Magestican DJ F20 (branch claude/actor-roles 859fe49), D:/magestican-dj/voice-design/f20-render",
  "lines": {
-  "intro-2-1": {
-   "file": "intro-2-1.m4a",
-   "ms": 8785,
-   "text": "Saltpan. Here the Loom spins our light into threads and sends them east. So we cut every thread."
+  "intro-2-2": {
+   "file": "intro-2-2.m4a",
+   "ms": 3921,
+   "text": "I'm hearing them on every channel. They know we're coming.",
+   "dj": "saltpan-hearing"
   },
-  "after-1-2": {
-   "file": "after-1-2.m4a",
-   "ms": 5760,
-   "text": "Hush. Out on the salt, something's humming. It sounds like a loom."
-  },
-  "after-4-1": {
-   "file": "after-4-1.m4a",
-   "ms": 4343,
-   "text": "Hear that? Both lights are falling the same way now."
+  "after-2-1": {
+   "file": "after-2-1.m4a",
+   "ms": 4012,
+   "text": "The depot's quiet now. Quieter than the night it fell.",
+   "dj": "saltpan-quiet"
   },
   "ending-mina": {
    "file": "ending-mina.m4a",
-   "ms": 4583,
-   "text": "Listen. The channel's gone quiet. Only the wind now."
+   "ms": 4257,
+   "text": "Listen. Their channels are silent. Every single one.",
+   "dj": "ending-listen"
+  },
+  "brief-mina-2": {
+   "file": "brief-mina-2.m4a",
+   "ms": 2398,
+   "text": "Nobody came back to say sorry, sir.",
+   "dj": "brief-sorry"
+  },
+  "brief-mina-4": {
+   "file": "brief-mina-4.m4a",
+   "ms": 3357,
+   "text": "Then keep yours open. I'll hear them first.",
+   "dj": "brief-open"
   }
  }
 }

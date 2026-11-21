@@ -1,24 +1,46 @@
 {
- "name": "flipwake-rook",
- "voice": "am_puck",
+ "name": "f20-rook",
+ "voice": "am_fenrir",
  "lang": "en-us",
- "speed": 1.0,
- "engine": "kokoro-v1.0",
+ "speed": 1,
+ "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 am_fenrir, exaggeration 0.5, cfg_weight 0.3, seed 1234, tempo 1.0, ref rook-s42.wav, acted Rook)",
+ "source": "Magestican DJ F20 (branch claude/actor-roles 859fe49), D:/magestican-dj/voice-design/f20-render",
  "lines": {
-  "after-1-1": {
-   "file": "after-1-1.m4a",
-   "ms": 3249,
-   "text": "One Furnace, cold. So tell me they built a harder one."
+  "intro-3-2": {
+   "file": "intro-3-2.m4a",
+   "ms": 3366,
+   "text": "Finally, a target big enough to be worth the fuel!",
+   "dj": "foundry-finally"
+  },
+  "after-1-2": {
+   "file": "after-1-2.m4a",
+   "ms": 2531,
+   "text": "One down. Who's buying?",
+   "dj": "dustline-onedown"
   },
   "after-3-1": {
    "file": "after-3-1.m4a",
-   "ms": 2752,
-   "text": "That anvil missed me. It missed every swing."
+   "ms": 3244,
+   "text": "Did you see that? The whole Foundry folded!",
+   "dj": "foundry-folded"
   },
   "ending-rook": {
    "file": "ending-rook.m4a",
-   "ms": 3687,
-   "text": "Still flying. Told you nothing they fire can touch me twice."
+   "ms": 5409,
+   "text": "Still flying! Told you. Nothing they fire touches me twice!",
+   "dj": "ending-flying"
+  },
+  "brief-rook-2": {
+   "file": "brief-rook-2.m4a",
+   "ms": 3229,
+   "text": "Three, sir. I never reported the third one.",
+   "dj": "brief-third"
+  },
+  "brief-rook-4": {
+   "file": "brief-rook-4.m4a",
+   "ms": 6223,
+   "text": "Relax, Commander. I always come home. Ask anybody on the docks!",
+   "dj": "brief-relax"
   }
  }
 }

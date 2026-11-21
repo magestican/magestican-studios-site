@@ -19,7 +19,7 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../../web-engine/brand/uiSound.js';
 import { createRadio } from './radio.js';
-import { VOICE_MS, afterIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
+import { VOICE_MS, afterIds, briefingIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
 import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitGate } from './sound.js';
 import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore } from './sim/sim.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
@@ -33,7 +33,7 @@ import { BOSS_KICK, bossImpact, createBossWatch } from './bossHit.js';
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
 import { PILOTS, bustImg, pilotOf } from './pilots.js';
-import { AFTER, INTRO, beatItem, introTimeline, renderAfter, renderBriefing } from './story.js';
+import { AFTER, BRIEFING, INTRO, beatItem, briefingFor, introTimeline, renderAfter, renderBriefing } from './story.js';
 import { chosenPilot, choosePilot, pilotColour, renderStory } from './crew.js';
 import { ENDING } from './ending.js';
 import { createFx, makeAura, pulseAura, stepAura } from './fx.js';
@@ -59,7 +59,7 @@ const sfxFor = (s, cue) => { if (s !== attract) sfx.play(cue); };
 const VOICE_BASE = new URL('../', import.meta.url);
 const voiceUrl = (file) => new URL(file, VOICE_BASE).href;
 const VOICE_URLS = voicePlan([...INTRO.flatMap((b, s) => introIds(s, b)), ...AFTER.flatMap((b, s) => afterIds(s, b)),
-  ...endingIds(ENDING)]).map((p) => voiceUrl(p.file));
+  ...endingIds(ENDING), ...Object.entries(BRIEFING).flatMap(([p, b]) => briefingIds(p, b))]).map((p) => voiceUrl(p.file));
 preloadFiles(VOICE_URLS);
 
 
@@ -615,17 +615,23 @@ function openPick(isGentle, stage = 0, isHard = false) {
   ui.play('open');
 }
 function openBriefing() {
-  renderBriefing($('b-lines'), chosenPilot().id);
+  const id = chosenPilot().id;
+  renderBriefing($('b-lines'), id);
   $('pick').hidden = true;
   $('brief').hidden = false;
   $('b-lines').scrollTop = 0;
   ui.play('open');
+  
+  
+  radioOff();
+  const who = BRIEFING[id] ? id : 'sora'; 
+  speak(voicePlan(briefingIds(who, briefingFor(who)), activeLanguage()), 400);
 }
 $('pick-go').addEventListener('click', () => openBriefing());
 $('pick-back').addEventListener('click', () => { $('pick').hidden = true; $('title').hidden = false; ui.play('back'); });
-$('b-back').addEventListener('click', () => { hush(); $('brief').hidden = true; $('pick').hidden = false; ui.play('back'); });
+$('b-back').addEventListener('click', () => { radioOff(); $('brief').hidden = true; $('pick').hidden = false; ui.play('back'); });
 $('b-launch').addEventListener('click', () => {
-  hush();
+  radioOff();
   $('brief').hidden = true;
   const { isGentle, stage, isHard } = pending || { isGentle: true, stage: 0, isHard: false };
   start(isGentle, stage, isHard);
