@@ -333,6 +333,16 @@
     aside li + li { margin-top: 6px; }
     aside p { margin: 12px 0 0; opacity: 0.75; font-size: 13px; }
     @media (max-width: 900px) { aside { display: none; } }
+    
+
+    #wings { position: fixed; inset: 0; z-index: 0; display: none; pointer-events: none; background-repeat: repeat; }
+    #wings.on { display: block; }
+    #wings::after { content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 120% at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.75) 100%); }
+    #field, aside { z-index: 1; }
+    aside { position: relative; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6); }
+    #wings.on ~ #field { box-shadow: 0 0 0 1px rgba(242, 239, 232, 0.14), 0 0 48px 12px rgba(0, 0, 0, 0.8); }
+    body.netmode #wings { display: none; }
     aside a { color: var(--ember); }
     
     body.netmode { display: block; overflow: auto; }
@@ -360,6 +370,7 @@
   </style>
 </head>
 <body>
+  <div id="wings" aria-hidden="true"></div>
   <div id="field" data-screen="menu">
     <div class="bossbar" id="bossbar" aria-label="Boss hull" hidden><b id="bossname"></b><div class="track"><i id="bosshp"></i></div></div>
     <div class="hud top">
@@ -521,7 +532,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=de1a6a99-20261121T134705Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=de1a6a99-20261121T134705Z"></script>
+  <script type="module" src="src/boot.js?v=6e14dcc5-20261121T135910Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=6e14dcc5-20261121T135910Z"></script>
 </body>
 </html>

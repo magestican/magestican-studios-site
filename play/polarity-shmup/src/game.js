@@ -32,6 +32,7 @@ import {
 import { BOSS_KICK, bossImpact, createBossWatch } from './bossHit.js';
 import { createMotion, stepMotion } from './craftMotion.js';
 import { gunYaw } from './gunFacing.js';
+import { WING_BLUR_PX, wingBrightness, wingImage, wingLayout, wingsShown } from './wings.js';
 import { bayOpen, bossRig, corePulse, muzzlesSince, shipRoll, sway, thrustLevel } from './craftFx.js';
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
@@ -1293,8 +1294,25 @@ function goneColour(x, z) {
   return best;
 }
 
+
+
+const wings = $('wings');
+let wingRect = null, wingStage = -1;
+function drawWings(stage, scrollPx) {
+  if (!wingRect) return;
+  if (stage !== wingStage) {
+    wingStage = stage;
+    wings.style.backgroundImage = `url(${wingImage(stage)})`;
+    wings.style.filter = `brightness(${wingBrightness(stage).toFixed(3)}) blur(${WING_BLUR_PX}px)`;
+  }
+  const { size, x, y } = wingLayout({ ...wingRect, scrollPx });
+  wings.style.backgroundSize = `${size}px ${size}px`;
+  wings.style.backgroundPosition = `${x.toFixed(2)}px ${y.toFixed(2)}px`;
+}
+
 function draw(s, dt) {
   const scrollPx = (s.tick * SCROLL) / FP;
+  drawWings(s.stage, scrollPx);
   const base = Math.floor(scrollPx / TILE_PX);
   let i = 0;
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++, i++) {
@@ -1562,6 +1580,10 @@ function layout() {
   const next = s * renderer.getPixelRatio();
   if (Math.abs(next - pxScale) > 0.01) { pxScale = next; buildBullets(pxScale); }
   fx.setScale(next);
+  const on = wingsShown(vw, w);
+  wings.classList.toggle('on', on);
+  const r = host.getBoundingClientRect();
+  wingRect = on ? { left: r.left, top: r.top, fs: s } : null;
 }
 window.addEventListener('resize', layout);
 
