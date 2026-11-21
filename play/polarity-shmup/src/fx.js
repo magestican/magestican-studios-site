@@ -172,6 +172,6 @@ export function createFx(scene) {
   function step(dt) { core.step(dt); upload(); }
 
   return { core, setScale: setScaleAll, step, glowBegin, glowAdd, glowEnd, lightsBegin, lightAdd, lightsEnd,
-    explode: core.explode, absorb: core.absorb, flip: core.flip, wake: core.wake, hit: core.hit, chain: core.chain, bomb: core.bomb, cancel: core.cancel, hull: core.hull, hitstop: core.hitstop,
+    explode: core.explode, absorb: core.absorb, flip: core.flip, wake: core.wake, thrust: core.thrust, muzzle: core.muzzle, hit: core.hit, chain: core.chain, bomb: core.bomb, cancel: core.cancel, hull: core.hull, hitstop: core.hitstop,
     shakeOffset: core.shakeOffset };
 }

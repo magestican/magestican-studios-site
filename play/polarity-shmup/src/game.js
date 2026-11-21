@@ -31,6 +31,7 @@ import {
 } from './sim/stages.js';
 import { BOSS_KICK, bossImpact, createBossWatch } from './bossHit.js';
 import { createMotion, stepMotion } from './craftMotion.js';
+import { bayOpen, bossRig, corePulse, muzzlesSince, shipRoll, sway, thrustLevel } from './craftFx.js';
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
 import { PILOTS, bustImg, pilotOf } from './pilots.js';
@@ -204,6 +205,7 @@ function makeShip(e, v) {
   const ember = fit(e, SHIP_LEN), iris = fit(v, SHIP_LEN);
   ember.rotation.y = iris.rotation.y = Math.PI / 2; 
   roll.add(ember, iris);
+  rig(ember); rig(iris); 
   const group = new THREE.Group();
   group.add(roll);
   group.position.y = 40;
@@ -245,9 +247,51 @@ function pool(key, proto, n, y) {
     const o = proto.clone(true);
     o.visible = false;
     o.position.y = y;
+    o.userData.y0 = y;
+    rig(o);
     scene.add(o);
     pools[key].push(o);
   }
+}
+
+
+
+
+
+
+
+const GLOW_PARTS = new Set(['core', 'polarity', 'vent']);
+function rig(root) {
+  const r = { cores: [], parts: {} };
+  const meshes = [];
+  root.traverse((m) => { if (m.isMesh && m.material && !Array.isArray(m.material)) meshes.push(m); });
+  for (const m of meshes) {
+    const name = m.material.name;
+    if (GLOW_PARTS.has(name)) {
+      m.material = m.material.clone();
+      r.cores.push([m.material, m.material.emissiveIntensity || 1]);
+    } else if (['bay', 'barrel', 'armour_l', 'armour_r', 'hammer_l', 'hammer_r', 'turret_l', 'turret_r'].includes(name)) {
+      if (!m.userData.pivoted) { 
+        m.geometry = m.geometry.clone();
+        m.geometry.computeBoundingBox();
+        const c = m.geometry.boundingBox.getCenter(new THREE.Vector3());
+        m.geometry.translate(-c.x, -c.y, -c.z);
+        m.position.add(c.multiply(m.scale).applyQuaternion(m.quaternion));
+        m.userData.pivoted = true;
+      }
+      if (name === 'bay') { m.material = m.material.clone(); m.material.emissive = new THREE.Color(0, 0, 0); }
+      r.parts[name] = { mesh: m, p0: m.position.clone(), r0: m.rotation.clone(), s0: m.scale.clone() };
+    }
+  }
+  root.userData.rig = r;
+  return r;
+}
+
+function pulseCores(root, t, seed) {
+  const r = root?.userData.rig;
+  if (!r) return;
+  const k = corePulse(t, seed);
+  for (const [mat, base] of r.cores) mat.emissiveIntensity = base * k;
 }
 
 async function loadModels() {
@@ -272,6 +316,7 @@ async function loadModels() {
   }
   warden = fit(ti.clone(true), WARDEN_W, { axis: 'max' });
   warden.visible = false;
+  rig(warden);
   scene.add(warden);
   furnace = bossGroup(fe, fi, BOSS_W);
   bosses[0] = furnace;
@@ -311,6 +356,7 @@ function bossGroup(e, i, w) {
   g.rotation.y = Math.PI / 2;
   g.visible = false;
   scene.add(g);
+  rig(ember); rig(iris); 
   g.userData = { ember, iris };
   return g;
 }
@@ -1120,6 +1166,8 @@ const enemySeen = new Map();
 let enemyGone = [];          
 function syncEnemies(s, dt = 1 / 60) {
   const live = new Set();
+  const tSec = s.tick / 60;
+  let fxBudget = 40; 
   const myPol = s.players[viewSeat(s)]?.iris || 0;
   for (let e = 0; e < s.ne; e++) {
     const id = s.eid[e], k = s.ek[e];
@@ -1165,13 +1213,35 @@ function syncEnemies(s, dt = 1 / 60) {
         o.userData.motionId = id;
       }
       stepMotion(mo, o.position.x, o.position.z, dt);
+      
+      
+      const sw = sway(tSec, id);
       o.rotation.order = 'YXZ'; 
-      o.rotation.y = mo.yaw;
+      o.rotation.y = mo.yaw + sw.yaw;
       o.rotation.x = mo.roll;
+      o.rotation.z = -mo.pitch + sw.pitch;
+      if (o.userData.y0 !== undefined) o.position.y = o.userData.y0 + sw.bob;
+      if (dt > 0 && fxBudget > 0) {
+        fxBudget--;
+        fx.thrust(o.position.x, o.position.z, Math.cos(mo.yaw), -Math.sin(mo.yaw), ENEMY_R[k] * 2, thrustLevel(mo.speed), s.ep[e], dt);
+      }
     }
     if ((k === 1 || k === 2) && ship) { 
       const p = s.players[viewSeat(s)];
       o.rotation.y = Math.atan2(wx(p.x) - o.position.x, wz(p.y) - o.position.z) - Math.PI / 2;
+    }
+    pulseCores(o, tSec, id);
+    const parts = o.userData.rig?.parts;
+    if (parts?.bay) { 
+      const open = k === 5 ? bayOpen(s.eage[e]) : 0, b = parts.bay;
+      b.mesh.scale.set(b.s0.x * (1 - 0.6 * open), b.s0.y, b.s0.z * (1 - 0.35 * open));
+      b.mesh.material.emissive.setHex(s.ep[e] ? 0xa070ff : 0xffb030);
+      b.mesh.material.emissiveIntensity = 2.2 * open;
+    }
+    if (parts?.barrel) { 
+      const rc = o.userData.recoil || 0, b = parts.barrel;
+      b.mesh.position.x = b.p0.x - rc * 0.35 * b.s0.x * Math.abs(b.mesh.geometry.boundingBox?.max.x || 1);
+      o.userData.recoil = Math.max(0, rc - dt * 6);
     }
   }
   for (const [id, o] of enemyMeshes) if (!live.has(id)) { o.visible = false; enemyMeshes.delete(id); }
@@ -1223,16 +1293,31 @@ function draw(s, dt) {
     sh.group.visible = q.on === 1 && (q.lives > 0 || pod); 
     if (!sh.group.visible) continue;
     const qx = wx(q.x), qz = wz(q.y);
-    const vx = qx - sh.group.position.x;
+    const vx = qx - sh.group.position.x, vz = qz - sh.group.position.z;
     sh.group.position.x = qx; sh.group.position.z = qz;
-    sh.bank += (Math.max(-1, Math.min(1, vx / 4)) - sh.bank) * Math.min(1, dt * 10);
+    
+    
+    if (dt > 0) {
+      const svx = Math.abs(vx) > 60 ? 0 : vx / dt, svz = Math.abs(vz) > 60 ? 0 : vz / dt; 
+      sh.bank = shipRoll(sh.bank, svx, dt);
+      sh.pitch = shipRoll(sh.pitch || 0, svz * 0.5, dt);
+      sh.speed = Math.hypot(svx, svz);
+    }
+    const sw = sway(s.tick / 60, i + 11);
+    sh.group.position.y = 40 + sw.bob * 0.6;
+    sh.roll.rotation.x = -(sh.pitch || 0) * 0.4 + sw.pitch * 0.5;
+    pulseCores(sh.ember, s.tick / 60, i); pulseCores(sh.iris, s.tick / 60, i);
+    if (dt > 0 && q.cool > (sh.cool ?? 0) && q.lives > 0 && !pod) {
+      for (const ox of [-6, 6]) fx.muzzle(qx + ox, qz - 14, q.iris, 0, -1);
+    }
+    sh.cool = q.cool;
     if (q.iris !== sh.pol) {
       sh.pol = q.iris; sh.flipT = 0.3;
       if (dt > 0) { fx.flip(qx, qz, q.iris); pulseAura(sh.aura, 1); }
     }
     stepAura(sh.aura, q.iris, dt, s.tick / 60);
     sh.aura.visible = !pod;
-    if (dt > 0 && !pod && q.lives > 0) fx.wake(qx, qz, q.iris, dt);
+    if (dt > 0 && !pod && q.lives > 0) fx.wake(qx, qz, q.iris, dt, 0.7 + thrustLevel(sh.speed || 0) * 0.5);
     if (sh.flipT > 0) sh.flipT = Math.max(0, sh.flipT - dt);
     const flipping = sh.flipT > 0;
     
@@ -1245,7 +1330,7 @@ function draw(s, dt) {
       sh.halo.material.opacity = 0.25 + 0.75 * (q.rev / REVIVE_TICKS);
     } else {
       sh.group.scale.setScalar(1);
-      sh.roll.rotation.z = flipping ? (1 - sh.flipT / 0.3) * Math.PI * 2 : -sh.bank * 0.55;
+      sh.roll.rotation.z = flipping ? (1 - sh.flipT / 0.3) * Math.PI * 2 : sh.bank;
       sh.halo.material.opacity = 0.6;
       sh.halo.visible = q.inv > 0 && Math.floor(s.tick / 6) % 2 === 0;
     }
@@ -1267,13 +1352,42 @@ function draw(s, dt) {
   if (cue) sfxFor(s, cue);
 
   syncEnemies(s, dt);
+  
+  {
+    const got = muzzlesSince(s, seen.fire || 0);
+    seen.fire = got.seen;
+    if (dt > 0) for (const m of got.list.slice(-24)) {
+      const mx = wx(m.x), mz = wz(m.y);
+      fx.muzzle(mx, mz, m.pol);
+      for (const o of enemyMeshes.values()) {
+        if (o.userData.rig?.parts.barrel && (o.position.x - mx) ** 2 + (o.position.z - mz) ** 2 < 50 * 50) o.userData.recoil = 1;
+      }
+    }
+  }
   for (let k = 0; k < bosses.length; k++) {
     const b = bosses[k];
     if (!b) continue;
     b.visible = s.boss.on === 1 && s.boss.kind === k;
     if (!b.visible) continue;
-    b.position.set(wx(s.boss.x), 90, wz(s.boss.y));
+    const bt = s.tick / 60, bs = sway(bt * 0.6, k + 5);
+    b.position.set(wx(s.boss.x), 90 + bs.bob * 1.5, wz(s.boss.y));
     const { ember, iris } = b.userData;
+    
+    
+    b.rotation.x = bs.pitch * 0.6;
+    const br = bossRig(bt, s.boss.rest, s.boss.fa);
+    for (const m of [ember, iris]) {
+      pulseCores(m, bt, k);
+      const P = m.userData.rig?.parts;
+      if (!P) continue;
+      for (const side of ['l', 'r']) {
+        const a = P[`armour_${side}`], h = P[`hammer_${side}`], tu = P[`turret_${side}`];
+        
+        if (a) a.mesh.position.z = a.p0.z + Math.sign(a.p0.z || (side === 'l' ? 1 : -1)) * br.armour / (m.children[0]?.scale.x || 1);
+        if (h) h.mesh.position.x = h.p0.x + br.hammer * (side === 'l' ? 1 : -1) * 0.8 * h.s0.x * Math.abs(h.mesh.geometry.boundingBox?.max.x || 1);
+        if (tu) tu.mesh.rotation.y = tu.r0.y + br.turret * (side === 'l' ? 1 : -1);
+      }
+    }
     if (k === TWIN) { 
       const ph = s.boss.phase;
       ember.visible = ph < 2;

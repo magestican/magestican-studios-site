@@ -30,6 +30,12 @@ export const SHOT_CAP = 256;
 export const ENEMY_CAP = 48;
 export const BOOM_RING = 16;
 
+
+
+
+
+export const FIRE_RING = 64;
+
 const SPEED = 9 * FP / 2;       
 const FOCUS_SPEED = 2 * FP;
 const HIT_R = 3 * FP;           
@@ -135,6 +141,7 @@ export function createSim({ seed = 1, gentle = true, hard = false, stage = 0 } =
     ex: new Int32Array(ENEMY_CAP), ey: new Int32Array(ENEMY_CAP), ef: new Uint8Array(ENEMY_CAP),
     
     nboom: 0, boomX: new Int32Array(BOOM_RING), boomY: new Int32Array(BOOM_RING), boomK: new Uint8Array(BOOM_RING),
+    nfire: 0, fireX: new Int32Array(FIRE_RING), fireY: new Int32Array(FIRE_RING), fireP: new Uint8Array(FIRE_RING),
     sparks: 0, 
     
     nbomb: 0, bombT: 0, bombX: 0, bombY: 0, bombPol: 0, bombSeat: 0, bombCut: 0,
@@ -219,6 +226,11 @@ function pushSpawns(s, list) {
     if (s.nb >= BULLET_CAP) break;
     const n = s.nb++;
     s.bx[n] = x; s.by[n] = y; s.bvx[n] = vx; s.bvy[n] = vy; s.bpol[n] = pol; s.bkind[n] = kind;
+    
+    const last = (s.nfire - 1) & (FIRE_RING - 1);
+    if (s.nfire && s.fireX[last] === x && s.fireY[last] === y) continue;
+    const f = s.nfire & (FIRE_RING - 1);
+    s.fireX[f] = x; s.fireY[f] = y; s.fireP[f] = pol; s.nfire++;
   }
 }
 
@@ -512,7 +524,8 @@ export function step(s, inputs) {
   return s;
 }
 
-const ARRAYS = ['bx', 'by', 'bvx', 'bvy', 'bpol', 'bkind', 'sx', 'sy', 'svx', 'sown', 'sdmg', 'spol', ...ENEMY_ARRAYS, 'boomX', 'boomY', 'boomK'];
+const ARRAYS = ['bx', 'by', 'bvx', 'bvy', 'bpol', 'bkind', 'sx', 'sy', 'svx', 'sown', 'sdmg', 'spol', ...ENEMY_ARRAYS, 'boomX', 'boomY', 'boomK',
+  'fireX', 'fireY', 'fireP'];
 
 
 export function snapshot(s) {
@@ -537,6 +550,8 @@ export function serialize(s) {
 export function deserialize(o) {
   const s = { ...o, boss: { ...o.boss }, players: o.players.map((p) => ({ ...p })), bests: o.bests.slice() };
   for (const k of ARRAYS) {
+    
+    if (!o[k] && k.startsWith('fire')) { s[k] = k === 'fireP' ? new Uint8Array(FIRE_RING) : new Int32Array(FIRE_RING); s.nfire = 0; continue; }
     const T = TYPED[o[k].$t];
     if (!T) throw new Error('serialize: unknown array ' + k);
     const a = new T(o[k].n);

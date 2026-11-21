@@ -127,14 +127,47 @@ export function createFxCore(seed = 7) {
   }
 
   
-  function wake(x, z, pol, dt) {
+  
+  function wake(x, z, pol, dt, level = 1) {
     const c = polColour(pol);
     const n = Math.max(1, Math.round(dt * 90));
+    const L = Math.max(0.5, level);
     for (let i = 0; i < n; i++) {
       for (const side of [-6, 6]) {
-        add(pts, { x: x + side + (rnd() - 0.5) * 2, z: z + 18, vx: (rnd() - 0.5) * 20, vz: 160 + rnd() * 80,
-          life: 0.16 + rnd() * 0.1, drag: 3, s0: 7, s1: 1.5, c0: HOT, c1: c, a: 0.85 });
+        add(pts, { x: x + side + (rnd() - 0.5) * 2, z: z + 18, vx: (rnd() - 0.5) * 20, vz: (160 + rnd() * 80) * L,
+          life: 0.16 + rnd() * 0.1, drag: 3, s0: 7 * Math.sqrt(L), s1: 1.5, c0: HOT, c1: c, a: 0.85 });
       }
+    }
+  }
+
+  
+
+
+
+
+  function thrust(x, z, nx, nz, len, level, pol, dt) {
+    const c = polColour(pol);
+    const tx = x - nx * len * 0.5, tz = z - nz * len * 0.5;
+    const n = Math.max(1, Math.round(dt * 60 * level));
+    const k = Math.max(0.9, len / 30);
+    for (let i = 0; i < n + 1; i++) {
+      const v = (110 + rnd() * 70) * level;
+      add(pts, { x: tx + (rnd() - 0.5) * 3, z: tz + (rnd() - 0.5) * 3, vx: -nx * v + (rnd() - 0.5) * 16,
+        vz: -nz * v + (rnd() - 0.5) * 16, life: 0.14 + rnd() * 0.1, drag: 2.5, s0: 10 * k * Math.sqrt(level), s1: 2,
+        c0: HOT, c1: c, a: 0.9 });
+    }
+    
+    add(pts, { x: tx, z: tz, life: dt * 1.5, s0: (14 + rnd() * 6) * k * Math.sqrt(level), s1: 9 * k, c0: HOT, c1: c, a: 0.85, drag: 0 });
+  }
+
+  
+  function muzzle(x, z, pol, dx = 0, dz = 1) {
+    const c = polColour(pol);
+    add(pts, { x, z, life: 0.07, s0: 22, s1: 6, c0: HOT, c1: c, a: 0.9, drag: 0 });
+    for (let i = 0; i < 3; i++) {
+      const a = Math.atan2(dz, dx) + (rnd() - 0.5) * 0.9, v = 180 + rnd() * 120;
+      add(str, { x, z, vx: Math.cos(a) * v, vz: Math.sin(a) * v, life: 0.08 + rnd() * 0.05, drag: 6,
+        s0: 1.6, s1: 0.4, c0: HOT, c1: c, len: 0.03 });
     }
   }
 
@@ -274,7 +307,7 @@ export function createFxCore(seed = 7) {
     return [size, p.r[i] + (p.r1[i] - p.r[i]) * ck, p.g[i] + (p.g1[i] - p.g[i]) * ck, p.b[i] + (p.b1[i] - p.b[i]) * ck, a];
   }
 
-  return { pts, str, explode, absorb, flip, wake, hit, chain, bomb, cancel, hull, hitstop, step, look, shakeOffset, shake };
+  return { pts, str, explode, absorb, flip, wake, thrust, muzzle, hit, chain, bomb, cancel, hull, hitstop, step, look, shakeOffset, shake };
 }
 
 const KEYS = ['x', 'z', 'vx', 'vz', 'life', 'max', 'drag', 's0', 's1', 'r', 'g', 'b', 'r1', 'g1', 'b1', 'a0', 'len', 'pull', 'tx', 'tz', 'ring', 'trail', 'smoke'];
