@@ -694,10 +694,10 @@ function showTally(s) {
       li.style.setProperty('--c', `var(--p${i + 1})`);
       const who = document.createElement('span');
       who.className = 'who';
-      who.textContent = `${seatName(i)} ${pilotOf(i).name}`;
+      who.textContent = `${seatName(i)} ${flyer(i).name}`;
       const score = document.createElement('span');
       score.textContent = q.score.toLocaleString();
-      li.append(bustImg(document, i, 40), who, score);
+      li.append(bustImg(document, PILOTS.indexOf(flyer(i)), 40), who, score);
       return li;
     }).filter(Boolean));
     $('again').textContent = t('Back to the title');
@@ -798,7 +798,7 @@ function hush() {
 
 
 function hudPilot(seat) {
-  const p = net ? pilotOf(seat) : chosenPilot();
+  const p = net ? flyer(seat) : chosenPilot();
   const hud = $('hud-bust');
   if (hud.getAttribute('src') !== p.img) { hud.src = p.img; hud.alt = p.name; }
   hud.style.setProperty('--c', `var(--p${pilotColour(p)})`);
@@ -806,6 +806,47 @@ function hudPilot(seat) {
 
 
 const seatName = (i) => `P${i + 1}${net && i === net.room.seat ? t(' (you)') : ''}`;
+
+
+function flyer(seat) {
+  const id = net?.room?.pilots?.[seat];
+  return PILOTS.find((p) => p.id === id) ?? pilotOf(seat);
+}
+
+
+
+
+
+
+const lobbyPick = $('lobby-pick');
+lobbyPick.replaceChildren(...PILOTS.map((p) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('role', 'radio');
+  b.dataset.id = p.id;
+  b.style.setProperty('--c', `var(--p${pilotColour(p)})`);
+  const name = document.createElement('span');
+  name.textContent = p.name;
+  b.append(bustImg(document, PILOTS.indexOf(p), 64, ''), name);
+  b.addEventListener('click', () => {
+    if (!net?.room?.pick(p.id)) return;
+    choosePilot(p.id);
+    ui.play('toggleOn');
+  });
+  return b;
+}));
+function drawLobbyPick(room) {
+  const show = room.seat !== null && !room.started;
+  lobbyPick.hidden = !show;
+  $('lobby-pick-head').hidden = !show;
+  if (!show) return;
+  const mine = room.pilots[room.seat];
+  for (const b of lobbyPick.children) {
+    const holder = room.pilots.indexOf(b.dataset.id);
+    b.setAttribute('aria-checked', String(b.dataset.id === mine));
+    b.disabled = holder >= 0 && holder !== room.seat;
+  }
+}
 
 
 function viewSeat(s) {
@@ -851,7 +892,13 @@ function drawSeats(room) {
   const seats = [{ seat: 0, who: room.role === 'host' ? t('you, host') : t('host') }];
   if (room.role === 'host') {
     for (const g of room.guests.values()) if (g.seat !== null) seats.push({ seat: g.seat, who: t('friend') });
-  } else if (room.seat !== null) seats.push({ seat: room.seat, who: t('you') });
+  } else {
+    
+    for (let i = 1; i < room.pilots.length; i++) {
+      if (i === room.seat) seats.push({ seat: i, who: t('you') });
+      else if (room.pilots[i]) seats.push({ seat: i, who: t('friend') });
+    }
+  }
   const watching = room.role === 'host' ? [...room.guests.values()].filter((g) => g.seat === null).length : 0;
   const rows = [0, 1, 2, 3].map((i) => {
     const li = document.createElement('li');
@@ -860,10 +907,11 @@ function drawSeats(room) {
     li.className = s ? '' : 'empty';
     const who = document.createElement('span');
     who.className = 'who';
-    who.textContent = `P${i + 1} ${pilotOf(i).name}`;
+    const p = s ? flyer(i) : pilotOf(i);
+    who.textContent = s ? `P${i + 1} ${p.name}` : `P${i + 1}`;
     const state = document.createElement('span');
     state.textContent = s ? s.who : t('open');
-    li.append(bustImg(document, i, 40), who, state);
+    li.append(bustImg(document, PILOTS.indexOf(p), 40), who, state);
     return li;
   });
   if (watching) {
@@ -877,8 +925,14 @@ function drawSeats(room) {
 function onRoomEvent(e) {
   const room = net?.room;
   if (!room) return;
-  if (e.type === 'lobby') {
+  if (e.type === 'pilots') {
     drawSeats(room);
+    drawLobbyPick(room);
+    if (e.refused) toast(t('Another pilot is flying {name}.', { name: PILOTS.find((p) => p.id === e.refused)?.name ?? '' }), 3000);
+    if (room.started && room.seat !== null) hudPilot(room.seat);
+  } else if (e.type === 'lobby') {
+    drawSeats(room);
+    drawLobbyPick(room);
     const n = [...room.guests.values()].filter((g) => g.seat !== null).length + 1;
     if (!room.started) lobbyStatus(n === 1 ? t('Share the Play link with up to three friends.') : t('{n} pilots ready. Start when everyone is in.', { n }));
   } else if (e.type === 'seat' && e.why === 'joined') {
@@ -894,7 +948,10 @@ function onRoomEvent(e) {
   } else if (e.type === 'retrying') {
     if (!room.started) lobbyStatus(t("Looking for the host's room (try {n})...", { n: e.n + 1 }));
   } else if (e.type === 'seat') {
+    
+    if (e.seat !== null && !room.started) room.pick(chosenPilot().id);
     drawSeats(room);
+    drawLobbyPick(room);
     if (e.seat === null) lobbyStatus(e.why === 'late' ? t('The run has started, so you are watching it.') : e.why === 'full' ? t('The room is full, so you are watching.') : t('You are watching.'));
     else lobbyStatus(t('You are P{n}. The host starts the run.', { n: e.seat + 1 }));
   } else if (e.type === 'start') {
@@ -938,7 +995,9 @@ async function openCoop({ invite = false } = {}) {
     const { openRoom } = await import('./coop.js');
     const room = await openRoom({ onEvent: onRoomEvent });
     net.room = room;
+    if (room.role === 'host') room.pick(chosenPilot().id); 
     drawSeats(room);
+    drawLobbyPick(room);
     if (room.role === 'host') {
       $('join-link').value = room.links.join;
       $('watch-link').value = room.links.watch;

@@ -308,6 +308,8 @@
 
     .overlay.pick, .overlay.brief { justify-content: flex-start; padding: 24px 16px; gap: 16px; background: rgba(9, 10, 14, 0.9); }
     .pick-row { display: flex; gap: 12px; justify-content: center; flex: none; }
+    .pick-row[hidden] { display: none; }
+    .pick-row button:disabled { opacity: 0.35; }
     .pick-row button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; min-height: 0;
       border-radius: 12px; background: var(--panel); color: var(--ink); border: 2px solid transparent;
       font: 600 calc(13px * var(--fs)) var(--petch); }
@@ -459,6 +461,9 @@
       <h2 id="lobby-head">Play with friends</h2>
       <p class="tag" id="lobby-status" role="status">Opening a room...</p>
       <ul class="pilots" id="seats"></ul>
+      
+      <p class="tag" id="lobby-pick-head" hidden>Pick your pilot</p>
+      <div class="pick-row" id="lobby-pick" role="radiogroup" aria-label="Your pilot" translate="no" hidden></div>
       <div class="links" id="links" hidden>
         <div class="row"><label for="join-link">Play</label><input id="join-link" readonly><button class="alt" id="share-join" type="button">Share</button></div>
         <div class="row"><label for="watch-link">Watch</label><input id="watch-link" readonly><button class="alt" id="share-watch" type="button">Share</button></div>
@@ -516,7 +521,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=479bb0d1-20261121T075948Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=479bb0d1-20261121T075948Z"></script>
+  <script type="module" src="src/boot.js?v=14ca62aa-20261121T083724Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=14ca62aa-20261121T083724Z"></script>
 </body>
 </html>

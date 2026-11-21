@@ -41,10 +41,13 @@ import { ROLE, helloFor, roleOf } from '../../../../web-engine/net/watchers.js';
 import { Session } from './lockstep.js';
 import { StarHub } from './star.js';
 import { MAX_PLAYERS } from '../sim/sim.js';
+import { emptyPilots, freePilot, pickPilot, pilotsFromWire, seatPilot } from './seatPilots.js';
 
 export const ROOM_MSG = Object.freeze({
   HELLO: 'fw-hello', SEAT: 'fw-seat', START: 'fw-start', AWAY: 'fw-away', PAUSE: 'fw-pause',
   JOIN: 'fw-join', NEED: 'fw-need', DELAY: 'fw-delay',
+  
+  PICK: 'fw-pick', PILOTS: 'fw-pilots',
 });
 const SIM_TYPES = new Set(['in', 'h', 'drop', 'join']);
 
@@ -78,7 +81,10 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
     askAt: 0, needAt: 0, lowRuns: 0,
     
     run: null,
+    
+    pilots: emptyPilots(),
   };
+  if (role === 'host') seatPilot(room.pilots, 0);
   const emit = (type, detail = {}) => onEvent({ type, ...detail });
   const lobby = () => emit('lobby', { guests: [...room.guests.values()] });
 
@@ -93,7 +99,24 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
     seed: run.seed, seats: run.seats, seat, gentle: run.gentle, hard: run.hard, stage: run.stage, base: run.base,
     send, onDesync: (d) => emit('desync', d),
   });
-  const startMsg = () => ({ t: ROOM_MSG.START, ...room.run });
+  const startMsg = () => ({ t: ROOM_MSG.START, ...room.run, pilots: room.pilots });
+
+  
+  function sharePilots() {
+    mesh.broadcast({ t: ROOM_MSG.PILOTS, pilots: room.pilots });
+    emit('pilots', { pilots: room.pilots });
+  }
+
+  
+
+
+
+  function pick(id) {
+    if (room.started || room.seat === null) return false;
+    if (role === 'host') { const ok = pickPilot(room.pilots, 0, id); if (ok) sharePilots(); return ok; }
+    mesh.send(hostId, { t: ROOM_MSG.PICK, id });
+    return true;
+  }
 
   
 
@@ -107,6 +130,7 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
     room.hard = !!hard;
     const seats = [0, ...[...room.guests.values()].map((g) => g.seat).filter((s) => s !== null)].sort();
     room.run = { seed: base ? base.seed : seedFor() | 0, seats, gentle: room.gentle, hard: room.hard, stage: stage | 0, base };
+    room.run.pilots = room.pilots;
     room.session = sessionFor(room.run, 0, undefined);
     room.hub = new StarHub({ session: room.session, sendTo: (id, msg) => mesh.send(id, msg) });
     for (const [id, g] of room.guests) room.hub.addLink(id, g.seat);
@@ -130,7 +154,9 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
     const k = se.joinSeat(seat, se.tick + se.inputDelay + JOIN_LEAD);
     room.hub.seatLink(id, seat);
     g.seat = seat; g.role = ROLE.PLAY;
+    seatPilot(room.pilots, seat);
     mesh.send(id, { t: ROOM_MSG.SEAT, seat, k });
+    sharePilots();
     emit('joined', { seat });
     lobby();
   }
@@ -158,7 +184,9 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
     if (!g || g.seat === null) return;
     const seat = room.hub ? room.hub.unseat(id) : g.seat;
     g.seat = null; g.role = ROLE.WATCH;
+    freePilot(room.pilots, seat);
     mesh.send(id, { t: ROOM_MSG.SEAT, seat: null, why });
+    sharePilots();
     emit('unseated', { seat, why });
     lobby();
   }
@@ -179,7 +207,9 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
         const wantsPlay = roleOf(msg) === ROLE.PLAY;
         const seat = wantsPlay && !room.started ? freeSeat() : null;
         room.guests.set(from, { seat, role: seat === null ? ROLE.WATCH : ROLE.PLAY, wants: wantsPlay, need: 0 });
+        seatPilot(room.pilots, seat);
         mesh.send(from, { t: ROOM_MSG.SEAT, seat, why: wantsPlay && room.started ? 'late' : wantsPlay && seat === null ? 'full' : undefined });
+        if (!room.started) sharePilots();
         if (room.started) {
           mesh.send(from, startMsg());
           mesh.send(from, { t: ROOM_MSG.DELAY, d: room.session.inputDelay });
@@ -187,6 +217,13 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
           if (room.hostPaused) mesh.send(from, { t: ROOM_MSG.PAUSE, on: true });
         }
         lobby();
+        return;
+      }
+      if (msg.t === ROOM_MSG.PICK) {
+        const g = room.guests.get(from);
+        if (!g || room.started) return;
+        if (pickPilot(room.pilots, g.seat, msg.id)) sharePilots();
+        else mesh.send(from, { t: ROOM_MSG.PILOTS, pilots: room.pilots, refused: msg.id }); 
         return;
       }
       if (msg.t === ROOM_MSG.AWAY) { if (room.started) unseatGuest(from, 'away'); return; }
@@ -216,8 +253,16 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
       room.gentle = msg.gentle !== false && !msg.hard;
       room.hard = !!msg.hard;
       room.run = { seed: msg.seed, seats: msg.seats, gentle: room.gentle, hard: room.hard, stage: msg.stage | 0, base: msg.base ?? null };
+      room.pilots = pilotsFromWire(msg.pilots);
+      room.run.pilots = room.pilots;
       room.session = sessionFor(room.run, room.seat, room.seat === null ? () => {} : (m) => mesh.send(hostId, m));
       emit('start', { ...room.run, seat: room.seat });
+      return;
+    }
+    if (msg.t === ROOM_MSG.PILOTS) {
+      room.pilots = pilotsFromWire(msg.pilots);
+      if (room.run) room.run.pilots = room.pilots;
+      emit('pilots', { pilots: room.pilots, refused: msg.refused ?? null });
       return;
     }
     if (msg.t === ROOM_MSG.DELAY) { room.session?.setInputDelay(msg.d | 0); return; }
@@ -258,8 +303,10 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
       for (const id of room.hub.checkLag(nowMs)) {
         const g = room.guests.get(id);
         if (!g) continue;
+        freePilot(room.pilots, g.seat);
         g.seat = null; g.role = ROLE.WATCH;
         mesh.send(id, { t: ROOM_MSG.SEAT, seat: null, why: 'lag' });
+        sharePilots();
         emit('unseated', { why: 'lag' });
         lobby();
       }
@@ -291,6 +338,8 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
     const id = e.detail.id;
     if (role === 'host') {
       room.hub?.removeLink(id);
+      const g = room.guests.get(id);
+      if (g && g.seat !== null) { freePilot(room.pilots, g.seat); sharePilots(); }
       room.guests.delete(id);
       lobby();
     } else if (id === hostId) {
@@ -299,6 +348,6 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
     }
   });
 
-  Object.assign(room, { start, setHidden, poll });
+  Object.assign(room, { start, setHidden, poll, pick });
   return room;
 }
