@@ -74,6 +74,26 @@ const BURST_SHOTS = 8, BURST_DMG = 4, BURST_TURN = 64, BURST_VMAX = 6 * FP;
 
 
 
+
+
+
+
+
+
+export const PU_WING = 0, PU_PRISM = 1, PU_HALO = 2, PU_KINDS = 3;
+export const PICK_CAP = 4, PICK_PER_STAGE = 3, PICK_EVERY = 45, PICK_R = 18;
+export const WING_TICKS = 20 * 60, HALO_TICKS = 15 * 60, PRISM_FILL = BURST_COST >> 1;
+export const PICK_QUIET = WING_TICKS;
+const PICK_FALL = (3 * FP) >> 2; 
+const HALO_R = 22 * FP;
+const WING_SPREAD = (3 * FP) >> 1; 
+
+export const pickKind = (stage, n) => (stage + n) % PU_KINDS;
+
+
+
+
+
 export const CHAIN_SET = 3;
 export const chainBonus = (chain) => 100 << Math.min(chain - 1, 8);
 export const burstDamage = (chain) => BURST_DMG + Math.min(chain, 8);
@@ -103,7 +123,35 @@ const SPAWN_Y = FIELD_H - 120 * FP;
 
 function newPlayer(i) {
   return { on: 0, x: SPAWN_X[i], y: SPAWN_Y, iris: 0, energy: 0, lives: START_LIVES, bombs: START_BOMBS, brl: 0,
-    inv: 0, cool: 0, score: 0, bombHeld: 0, absorbed: 0, hits: 0, bursts: 0, kills: 0, duet: 0, pod: 0, rev: 0, revives: 0 };
+    inv: 0, cool: 0, score: 0, bombHeld: 0, absorbed: 0, hits: 0, bursts: 0, kills: 0, duet: 0, pod: 0, rev: 0, revives: 0,
+    wing: 0, halo: 0, picks: 0 }; 
+}
+
+
+
+
+
+function killDrop(s, x, y, kind, lt) {
+  s.skills++;
+  if (!isMid(kind) && s.skills % PICK_EVERY !== 0) return;
+  if (s.sdrops >= PICK_PER_STAGE || s.npk >= PICK_CAP || s.boss.on || s.clear || s.over) return;
+  if (lt >= STAGES[s.stage].bossAt - PICK_QUIET) return;
+  const n = s.npk++;
+  s.pkx[n] = x; s.pky[n] = y; s.pkk[n] = pickKind(s.stage, s.sdrops++);
+}
+
+function removePick(s, i) {
+  const j = --s.npk;
+  s.pkx[i] = s.pkx[j]; s.pky[i] = s.pky[j]; s.pkk[i] = s.pkk[j];
+}
+
+
+function catchPick(s, i, p, k) {
+  if (k === PU_WING) p.wing = WING_TICKS;
+  else if (k === PU_HALO) p.halo = HALO_TICKS;
+  else p.energy = Math.min(p.energy + PRISM_FILL, 999);
+  p.picks++;
+  s.ncatch++; s.catchSeat = i; s.catchKind = k;
 }
 
 const newBoss = () => ({ on: 0, kind: 0, hp: 0, max: 0, phase: 0, age: 0, fa: 0, rest: 0, x: FIELD_W >> 1, y: -120 * FP, kills: 0, beaten: 0 });
@@ -147,6 +195,9 @@ export function createSim({ seed = 1, gentle = true, hard = false, stage = 0 } =
     nbomb: 0, bombT: 0, bombX: 0, bombY: 0, bombPol: 0, bombSeat: 0, bombCut: 0,
     
     heat: HEAT_START, calm: 0, bossN: 0,
+    
+    npk: 0, pkx: new Int32Array(PICK_CAP), pky: new Int32Array(PICK_CAP), pkk: new Uint8Array(PICK_CAP),
+    skills: 0, sdrops: 0, ncatch: 0, catchSeat: 0, catchKind: 0,
   };
 }
 
@@ -218,6 +269,7 @@ function nextStage(s, t) {
   s.boss = newBoss();
   s.nb = 0; s.ns = 0; s.ne = 0;
   s.chain = 0; s.chainN = 0; s.sbest = 0;
+  s.npk = 0; s.skills = 0; s.sdrops = 0; 
   for (const p of s.players) { p.bombs = Math.max(p.bombs, START_BOMBS); if (p.on && p.lives > 0) p.inv = INVULN; }
 }
 
@@ -280,6 +332,7 @@ function bomb(s, i, p, t) {
     if (s.ehp[e] <= 0) {
       p.score += ENEMY_SCORE[s.ek[e]]; p.kills++;
       boom(s, s.ex[e], s.ey[e], s.ek[e]);
+      killDrop(s, s.ex[e], s.ey[e], s.ek[e], t - s.st0);
       removeEnemy(s, e);
     }
   }
@@ -356,10 +409,26 @@ export function step(s, inputs) {
       const dmg = burstDamage(s.chain);
       for (let n = 0; n < BURST_SHOTS; n++) addShot(s, p.x, p.y - 8 * FP, (n - (BURST_SHOTS - 1) / 2) * FP, i, dmg, p.iris);
     }
+    if (p.wing > 0) p.wing--;
+    if (p.halo > 0) p.halo--;
     if (p.cool > 0) p.cool--;
-    else if (s.ns + 2 <= SHOT_CAP && !ended) {
+    else if (s.ns + (p.wing > 0 ? 4 : 2) <= SHOT_CAP && !ended) {
       p.cool = SHOT_EVERY;
       for (const ox of [-6 * FP, 6 * FP]) addShot(s, p.x + ox, p.y - 10 * FP, 0, i, 1, p.iris);
+      if (p.wing > 0) for (const ox of [-1, 1]) addShot(s, p.x + ox * 12 * FP, p.y - 6 * FP, ox * WING_SPREAD, i, 1, p.iris);
+    }
+  }
+
+  
+  for (let n = s.npk - 1; n >= 0; n--) {
+    s.pky[n] += PICK_FALL;
+    if (s.pky[n] > FIELD_H + 20 * FP) { removePick(s, n); continue; }
+    for (let i = 0; i < MAX_PLAYERS; i++) {
+      const p = s.players[i];
+      if (!p.on || p.lives <= 0 || d2px(s.pkx[n], s.pky[n], p.x, p.y) >= PICK_R * PICK_R) continue;
+      catchPick(s, i, p, s.pkk[n]);
+      removePick(s, n);
+      break;
     }
   }
 
@@ -493,6 +562,7 @@ export function step(s, inputs) {
         owner.score += ENEMY_SCORE[s.ek[e]]; owner.kills++;
         chainKill(s, owner, s.ep[e]);
         boom(s, s.ex[e], s.ey[e], s.ek[e]);
+        killDrop(s, s.ex[e], s.ey[e], s.ek[e], lt);
         removeEnemy(s, e);
       }
       removeShot(s, i);
@@ -510,7 +580,7 @@ export function step(s, inputs) {
       if (!p.on || p.lives <= 0) continue;
       const d = d2px(x, y, p.x, p.y);
       if (s.bpol[b] === p.iris || p.duet) { 
-        if (d < (ABSORB_R >> 8) ** 2) {
+        if (d < ((p.halo > 0 ? HALO_R : ABSORB_R) >> 8) ** 2) {
           p.energy = Math.min(p.energy + 1, 999); p.absorbed++; p.score += 5;
           const [r, u] = rngNext(s.rng); s.rng = r; s.sparks += 1 + (u & 3);
           removeBullet(s, b); break;
@@ -548,7 +618,7 @@ export function step(s, inputs) {
 }
 
 const ARRAYS = ['bx', 'by', 'bvx', 'bvy', 'bpol', 'bkind', 'sx', 'sy', 'svx', 'sown', 'sdmg', 'spol', ...ENEMY_ARRAYS, 'boomX', 'boomY', 'boomK',
-  'fireX', 'fireY', 'fireP'];
+  'fireX', 'fireY', 'fireP', 'pkx', 'pky', 'pkk'];
 
 
 export function snapshot(s) {
@@ -575,6 +645,8 @@ export function deserialize(o) {
   for (const k of ARRAYS) {
     
     if (!o[k] && k.startsWith('fire')) { s[k] = k === 'fireP' ? new Uint8Array(FIRE_RING) : new Int32Array(FIRE_RING); s.nfire = 0; continue; }
+    
+    if (!o[k] && k.startsWith('pk')) { s[k] = k === 'pkk' ? new Uint8Array(PICK_CAP) : new Int32Array(PICK_CAP); s.npk = 0; continue; }
     const T = TYPED[o[k].$t];
     if (!T) throw new Error('serialize: unknown array ' + k);
     const a = new T(o[k].n);
@@ -583,11 +655,13 @@ export function deserialize(o) {
   }
   if (s.hard === undefined) s.hard = 0;
   for (const p of s.players) if (p.brl === undefined) p.brl = 0; 
+  for (const p of s.players) for (const k of ['wing', 'halo', 'picks']) if (p[k] === undefined) p[k] = 0; 
+  for (const k of ['npk', 'skills', 'sdrops', 'ncatch', 'catchSeat', 'catchKind']) if (s[k] === undefined) s[k] = 0;
   return s;
 }
 
 const PLAYER_KEYS = ['on', 'x', 'y', 'iris', 'energy', 'lives', 'bombs', 'inv', 'cool', 'score', 'bombHeld', 'absorbed', 'hits',
-  'bursts', 'kills', 'duet', 'pod', 'rev', 'revives', 'brl'];
+  'bursts', 'kills', 'duet', 'pod', 'rev', 'revives', 'brl', 'wing', 'halo', 'picks'];
 const BOSS_KEYS = ['on', 'kind', 'hp', 'max', 'phase', 'age', 'fa', 'rest', 'x', 'y', 'kills', 'beaten'];
 
 
@@ -608,5 +682,7 @@ export function stateHash(s) {
   add(s.nboom);
   add(s.heat); add(s.calm); add(s.bossN);
   add(s.nbomb); add(s.bombT); add(s.bombX); add(s.bombY); add(s.bombPol); add(s.bombSeat); add(s.bombCut);
+  add(s.npk); for (let i = 0; i < s.npk; i++) { add(s.pkx[i]); add(s.pky[i]); add(s.pkk[i]); } 
+  add(s.skills); add(s.sdrops); add(s.ncatch); add(s.catchSeat); add(s.catchKind);
   return h >>> 0;
 }

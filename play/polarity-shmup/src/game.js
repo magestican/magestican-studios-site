@@ -22,7 +22,8 @@ import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../.
 import { createRadio } from './radio.js';
 import { VOICE_MS, afterIds, briefingIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
 import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitStream, bossCue, createBossVoice } from './sound.js';
-import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore, thinAt } from './sim/sim.js';
+import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, PICK_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore, thinAt } from './sim/sim.js';
+import { PICK_CUE, PICK_GLYPH, PICK_LOOK, POWER_END_CUE, pickPulse, powersEnded } from './pickups.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { FP } from './sim/fixed.js';
 import { MOVE_MAX, pack } from './sim/input.js';
@@ -502,6 +503,71 @@ function drawBullets(s) {
 }
 
 
+
+
+
+const pickMeshes = [], haloRings = [];
+{
+  const col = ([r, g, b]) => new THREE.Color(r / 255, g / 255, b / 255);
+  const mat = (c, o = 1) => new THREE.MeshBasicMaterial({ color: col(c), transparent: true, opacity: o, depthTest: false,
+    depthWrite: false, toneMapped: false });
+  const flat = (g) => g.rotateX(-Math.PI / 2);
+  const R = PICK_LOOK.radius;
+  const chevron = (dy) => {
+    const w = R * 0.5, h = R * 0.22, t = R * 0.2, sh = new THREE.Shape();
+    sh.moveTo(-w, dy - h); sh.lineTo(0, dy + h); sh.lineTo(w, dy - h); sh.lineTo(w - t, dy - h); sh.lineTo(0, dy + h - t * 1.4);
+    sh.lineTo(-w + t, dy - h); sh.closePath();
+    return sh;
+  };
+  const diamond = new THREE.Shape();
+  diamond.moveTo(0, R * 0.6); diamond.lineTo(R * 0.42, 0); diamond.lineTo(0, -R * 0.6); diamond.lineTo(-R * 0.42, 0); diamond.closePath();
+  const glyphGeo = {
+    chevrons: flat(new THREE.ShapeGeometry([chevron(R * 0.2), chevron(-R * 0.22)])),
+    diamond: flat(new THREE.ShapeGeometry(diamond)),
+    ring: flat(new THREE.RingGeometry(R * 0.3, R * 0.55, 24)),
+  };
+  const rimGeo = flat(new THREE.CircleGeometry(R, 32)), discGeo = flat(new THREE.CircleGeometry(R - PICK_LOOK.rimWidth, 32));
+  const rimMat = mat(PICK_LOOK.rim), discMat = mat(PICK_LOOK.disc), glyphMat = mat(PICK_LOOK.glyph);
+  for (let n = 0; n < PICK_CAP; n++) {
+    const g = new THREE.Group();
+    const rim = new THREE.Mesh(rimGeo, rimMat), disc = new THREE.Mesh(discGeo, discMat);
+    rim.renderOrder = 7; disc.renderOrder = 8;
+    g.add(rim, disc);
+    g.userData.glyphs = {};
+    for (const [k, geo] of Object.entries(glyphGeo)) {
+      const m = new THREE.Mesh(geo, glyphMat);
+      m.renderOrder = 9; m.position.y = 0.2;
+      g.add(m); g.userData.glyphs[k] = m;
+    }
+    g.visible = false;
+    scene.add(g); pickMeshes.push(g);
+  }
+  const ringGeo = flat(new THREE.RingGeometry(20, 22.5, 40));
+  for (let i = 0; i < 4; i++) {
+    const r = new THREE.Mesh(ringGeo, mat(PICK_LOOK.disc, 0.55));
+    r.renderOrder = 9; r.visible = false; scene.add(r); haloRings.push(r);
+  }
+}
+function drawPickups(s) {
+  const now = performance.now() / 1000;
+  for (let n = 0; n < PICK_CAP; n++) {
+    const g = pickMeshes[n];
+    g.visible = n < s.npk;
+    if (!g.visible) continue;
+    g.position.set(wx(s.pkx[n]), 66, wz(s.pky[n]));
+    g.scale.setScalar(pickPulse(now + n * 0.3));
+    const shape = PICK_GLYPH[s.pkk[n]];
+    for (const [k, m] of Object.entries(g.userData.glyphs)) m.visible = k === shape;
+  }
+  for (let i = 0; i < haloRings.length; i++) {
+    const q = s.players[i], r = haloRings[i];
+    const left = q.on && q.lives > 0 ? q.halo | 0 : 0;
+    r.visible = left > 0 && (left > 180 || Math.floor(now * 6) % 2 === 0); 
+    if (r.visible) r.position.set(wx(q.x), 66, wz(q.y));
+  }
+}
+
+
 const flashGeo = new THREE.RingGeometry(0.6, 1, 32).rotateX(-Math.PI / 2);
 const flashes = [];
 function flash(x, z, size, color) {
@@ -601,8 +667,8 @@ let sim = null, mode = 'title', paused = false, gentle = true, hard = false;
 let net = null;
 const botSeat = params.get('bot') === '1';
 let acc = 0, last = performance.now();
-const seen = { boom: 0, bomb: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0 };
-const SEEN0 = { boom: 0, bomb: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0 };
+const seen = { boom: 0, bomb: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0, catch: 0, wing: 0, halo: 0 };
+const SEEN0 = { boom: 0, bomb: 0, absorbed: 0, bursts: 0, hits: 0, kills: 0, shotTick: 0, chain: 0, stage: 0, catch: 0, wing: 0, halo: 0 };
 
 
 
@@ -638,7 +704,7 @@ const pickedStage = (id) => Math.max(0, Math.min(STAGES.length - 1, Number($(id)
 function seenFrom(s) {
   const p = s.players[viewSeat(s)];
   Object.assign(seen, { boom: s.nboom, bomb: s.nbomb, absorbed: p.absorbed, bursts: p.bursts, hits: p.hits, kills: p.kills,
-    shotTick: s.tick, chain: s.chain, stage: s.stage });
+    shotTick: s.tick, chain: s.chain, stage: s.stage, catch: s.ncatch | 0, wing: p.wing | 0, halo: p.halo | 0 });
 }
 
 function start(isGentle, stage = 0, isHard = false) {
@@ -1546,6 +1612,7 @@ function draw(s, dt) {
     }
   }
   drawBullets(s);
+  drawPickups(s);
 
   
   if (s.nboom - seen.boom > 16) seen.boom = s.nboom - 16;
@@ -1587,6 +1654,17 @@ function draw(s, dt) {
     sfxFor(s, 'release'); seen.bursts = p.bursts; flash(x, z, 60, p.iris ? 0xa878ff : 0xffc440);
     fx.flip(x, z, p.iris); pulseAura(ships[me].aura, 1.2);
   }
+  
+  
+  const caught = (s.ncatch | 0) - seen.catch;
+  if (caught > 0 && caught <= PICK_CAP) {
+    sfxFor(s, PICK_CUE[s.catchKind]);
+    const q = s.players[s.catchSeat];
+    if (q && ships[s.catchSeat]) { flash(wx(q.x), wz(q.y), 70, 0x78f0be); pulseAura(ships[s.catchSeat].aura, 0.8); }
+  }
+  seen.catch = s.ncatch | 0;
+  if (powersEnded(seen, p)) sfxFor(s, POWER_END_CUE);
+  seen.wing = p.wing | 0; seen.halo = p.halo | 0;
   if (p.hits > seen.hits) { sfxFor(s, 'hurt'); seen.hits = p.hits; }
   if (s.tick - seen.shotTick >= 15 && mode === 'play' && !s.clear) { sfxFor(s, 'shot'); seen.shotTick = s.tick; }
 

@@ -37,6 +37,9 @@ export const bossCue = (kind, role) => (BOSS_VOICE[kind] && BOSS_ROLES.includes(
 export const SFX_TAKES = Object.freeze({
   shot: 4, absorb: 5, flipEmber: 3, flipIris: 3, release: 2, full: 2, pop: 4, crash: 3, bossDown: 2, bomb: 2,
   hurt: 3, link: 2, hit1: 4, hit2: 4, hit3: 4, hit4: 4, hit5: 4,
+  
+  
+  pickWing: 2, pickPrism: 2, pickHalo: 2, powerEnd: 2,
   ...Object.fromEntries(BOSS_VOICE.flatMap((v) => BOSS_ROLES.map((r) => [v + r, BOSS_TAKES]))),
 });
 
