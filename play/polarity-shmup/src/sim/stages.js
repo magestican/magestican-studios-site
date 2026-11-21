@@ -8,7 +8,8 @@
 
 
 import { ANG, FP, angWrap, isin, muldiv, polar } from './fixed.js';
-import { aimAt, fan, gentleSpeed, ring } from './patterns.js';
+import { aimAt, fan, gentleSpeed, noseAt, ring } from './patterns.js';
+import { gunsOf, muzzleR } from './mounts.js';
 import { hash32 } from './rng.js';
 import {
   BEATS, BOSS_AT, BOSS_ENTER, BOSS_HP, BOSS_TIME, BULWARK, FIRE_FLOOR, GUNSHIP, LAUNCH_EVERY, MID_LIFE, SKIFF, WARDEN_AT,
@@ -301,12 +302,12 @@ export function fireAll(kind, path, pol, age, x, y, players, thin, out, kids) {
   if (y < 0 || y > FIRE_FLOOR) return;
   if (kind === SKIFF) return; 
   if (kind === BULWARK && path === HEAVY) { 
-    if (age >= 60 && age < HEAVY_HOLD && (age - 60) % HEAVY_FIRE_EVERY === 0) fan(out, x, y + 20 * FP, 3, 0, 150, 3 * FP / 2, pol, 1, thin);
+    if (age >= 60 && age < HEAVY_HOLD && (age - 60) % HEAVY_FIRE_EVERY === 0) fan(out, x, y + muzzleR(BULWARK, path, 'fixed') * FP, 3, 0, 150, 3 * FP / 2, pol, 1, thin);
     return;
   }
   if (kind === BULWARK) {
     
-    if (age >= 90 && age < 1200 && (age - 90) % 20 === 0) fan(out, x, y + 20 * FP, 3, 0, 160, 3 * FP / 2, pol, 1, thin);
+    if (age >= 90 && age < 1200 && (age - 90) % 20 === 0) fan(out, x, y + muzzleR(BULWARK, path, 'fixed') * FP, 3, 0, 160, 3 * FP / 2, pol, 1, thin);
     return;
   }
   if (kind === GUNSHIP && path === 8) {
@@ -314,12 +315,12 @@ export function fireAll(kind, path, pol, age, x, y, players, thin, out, kids) {
     if (age < 90 || age >= 1200) return;
     const c = age - 90;
     if (c < 540) { if (c % 50 === 0) { const n = c / 50; ring(out, x, y + 20 * FP, 12, (n * ANG) / 24, 3 * FP / 2, n & 1, 1, thin); } }
-    else if (c % 45 === 0) { const n = c / 45; fan(out, x, y + 20 * FP, 5, aimAt(players, x, y), 140, 5 * FP / 2, n & 1, 3, thin); }
+    else if (c % 45 === 0) { const n = c / 45, a = aimAt(players, x, y), [mx, my] = noseAt(x, y, a, muzzleR(GUNSHIP, path, 'player')); fan(out, mx, my, 5, a, 140, 5 * FP / 2, n & 1, 3, thin); }
     return;
   }
   if (kind === GUNSHIP && path === 10) {
     
-    if (age >= 120 && age < MID_LIFE && (age - 120) % 50 === 0) fan(out, x, y + 20 * FP, 3, aimAt(players, x, y), 150, 2 * FP, pol, 3, thin);
+    if (age >= 120 && age < MID_LIFE && (age - 120) % 50 === 0) { const a = aimAt(players, x, y), [mx, my] = noseAt(x, y, a, muzzleR(GUNSHIP, path, 'player')); fan(out, mx, my, 3, a, 150, 2 * FP, pol, 3, thin); }
     return;
   }
   if (kind === GUNSHIP) {
@@ -328,9 +329,9 @@ export function fireAll(kind, path, pol, age, x, y, players, thin, out, kids) {
     if (c % 30 === 0) { 
       const n = c / 30;
       const v = gentleSpeed(5 * FP / 2, thin);
-      for (const ox of [-40, 40]) {
-        if (thin && (ox < 0) === ((n & 1) === 1)) continue;
-        out.push([x + ox * FP, y + 20 * FP, 0, v, n & 1, 2]);
+      for (const g of gunsOf(GUNSHIP, path)) { 
+        if (thin && (g.ox < 0) === ((n & 1) === 1)) continue;
+        out.push([x + g.ox * FP, y + g.r * FP, 0, v, n & 1, 2]);
       }
     }
     if (c % LAUNCH_EVERY === 60) launchTrio(kids, x, y + 30 * FP, Math.trunc(c / LAUNCH_EVERY) & 1);

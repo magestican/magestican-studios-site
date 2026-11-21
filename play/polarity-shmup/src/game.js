@@ -31,6 +31,7 @@ import {
 } from './sim/stages.js';
 import { BOSS_KICK, bossImpact, createBossWatch } from './bossHit.js';
 import { createMotion, stepMotion } from './craftMotion.js';
+import { gunYaw } from './gunFacing.js';
 import { bayOpen, bossRig, corePulse, muzzlesSince, shipRoll, sway, thrustLevel } from './craftFx.js';
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
@@ -1244,7 +1245,8 @@ function syncEnemies(s, dt = 1 / 60) {
         mo = o.userData.motion = createMotion(o.position.x, o.position.z);
         o.userData.motionId = id;
       }
-      stepMotion(mo, o.position.x, o.position.z, dt);
+      
+      stepMotion(mo, o.position.x, o.position.z, dt, gunYaw(k, s.epath[e], s.eage[e], s.ex[e], s.ey[e], s.players));
       
       
       const sw = sway(tSec, id);

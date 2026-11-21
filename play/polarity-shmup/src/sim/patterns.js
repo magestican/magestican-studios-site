@@ -36,6 +36,17 @@ export function aimAt(players, x, y) {
 }
 
 
+
+
+
+
+
+export function noseAt(x, y, aim, r) {
+  const o = polar(aim, r * FP);
+  return [x + o.vx, y + o.vy];
+}
+
+
 export function ring(out, x, y, n, off, speed, pol, kind, thin) {
   const v0 = gentleSpeed(speed, thin);
   for (let i = 0; i < n; i++) {

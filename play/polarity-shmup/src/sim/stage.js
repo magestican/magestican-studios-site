@@ -7,7 +7,8 @@
 
 
 import { ANG, FP, angWrap, isin, muldiv } from './fixed.js';
-import { FIELD_H, FIELD_W, aimAt, fan, gentleSpeed, ring } from './patterns.js';
+import { FIELD_H, FIELD_W, aimAt, fan, gentleSpeed, noseAt, ring } from './patterns.js';
+import { muzzleR } from './mounts.js';
 import { hash32 } from './rng.js';
 
 
@@ -163,16 +164,20 @@ export function enemyPos(path, x0, y0, dir, age) {
 export const FIRE_FLOOR = FIELD_H - 160 * FP;
 
 
+export const dartShots = (path) => (path === 0 ? [100, 220] : [60, 130]);
+
+
 export function enemyFire(kind, path, pol, age, x, y, players, thin, out) {
   if (y < 0 || y > FIRE_FLOOR) return;
   if (kind === DART) {
-    const when = path === 0 ? age === 100 || age === 220 : age === 60 || age === 130;
-    if (when) fan(out, x, y, 1, aimAt(players, x, y), 0, 2 * FP, pol, 0, false);
+    const when = dartShots(path).includes(age);
+    if (when) { const a = aimAt(players, x, y), [mx, my] = noseAt(x, y, a, muzzleR(DART, path, 'player')); fan(out, mx, my, 1, a, 0, 2 * FP, pol, 0, false); }
     return;
   }
   if (kind === TURRET) {
     if (age >= 90 && (age - 90) % 100 === 0) {
-      fan(out, x, y, thin ? 1 : 3, aimAt(players, x, y), 110, gentleSpeed(5 * FP / 2, thin), pol, 3, false);
+      const a = aimAt(players, x, y), [mx, my] = noseAt(x, y, a, muzzleR(TURRET, path, 'player'));
+      fan(out, mx, my, thin ? 1 : 3, a, 110, gentleSpeed(5 * FP / 2, thin), pol, 3, false);
     }
     return;
   }
@@ -184,7 +189,8 @@ export function enemyFire(kind, path, pol, age, x, y, players, thin, out) {
     ring(out, x, y, 12, (n * ANG) / 24, 2 * FP, n & 1, 1, thin);
   } else if (c >= 540 && c < 780 && (c - 540) % 48 === 0) {
     const n = Math.trunc((c - 540) / 48);
-    fan(out, x, y, 5, aimAt(players, x, y), 120, 3 * FP, n & 1, 3, thin);
+    const a = aimAt(players, x, y), [mx, my] = noseAt(x, y, a, muzzleR(WARDEN, path, 'player'));
+    fan(out, mx, my, 5, a, 120, 3 * FP, n & 1, 3, thin);
   }
 }
 

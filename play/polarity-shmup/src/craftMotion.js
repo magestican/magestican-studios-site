@@ -24,7 +24,18 @@ export const BANK_MAX = 0.7;
 export const PITCH_GAIN = 0.0004;
 export const PITCH_MAX = 0.18;
 
+
+
+
+
+
+
+export const LOOK_MAX = (100 * Math.PI) / 180;
+
+export const MAX_TURN = 5;
+
 const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 
 export function createMotion(x, z, yaw = REST_YAW) {
@@ -35,7 +46,10 @@ export function createMotion(x, z, yaw = REST_YAW) {
 
 
 
-export function stepMotion(m, x, z, dt) {
+
+
+
+export function stepMotion(m, x, z, dt, gun = null) {
   if (!(dt > 0)) { m.x = x; m.z = z; return m; }
   const vx = (x - m.x) / dt, vz = (z - m.z) / dt;
   const speed = Math.hypot(vx, vz);
@@ -43,9 +57,14 @@ export function stepMotion(m, x, z, dt) {
   if (speed > 4000) { m.x = x; m.z = z; m.speed = 0; return m; }
   const accel = (speed - m.speed) / dt;
   m.speed = speed;
-  const target = speed < STILL_SPEED ? REST_YAW : yawOf(vx, vz);
   const k = 1 - Math.exp(-TURN_RATE * dt);
-  const dYaw = wrap(target - m.yaw) * k;
+  
+  
+  const off = wrap(m.yaw - REST_YAW);
+  let dOff;
+  if (gun !== null && gun !== undefined) dOff = wrap(gun - REST_YAW - off);
+  else dOff = clamp(speed < STILL_SPEED ? 0 : wrap(yawOf(vx, vz) - REST_YAW), -LOOK_MAX, LOOK_MAX) - off;
+  const dYaw = clamp(dOff * k, -MAX_TURN * dt, MAX_TURN * dt);
   m.yaw = wrap(m.yaw + dYaw);
   const wantRoll = Math.max(-BANK_MAX, Math.min(BANK_MAX, -(dYaw / dt) * BANK_GAIN));
   m.roll += (wantRoll - m.roll) * k;
