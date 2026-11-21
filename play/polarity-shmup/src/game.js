@@ -20,7 +20,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../../web-engine/brand/uiSound.js';
 import { createRadio } from './radio.js';
 import { VOICE_MS, afterIds, briefingIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
-import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitGate } from './sound.js';
+import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitStream } from './sound.js';
 import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore } from './sim/sim.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { FP } from './sim/fixed.js';
@@ -69,7 +69,15 @@ preloadFiles(VOICE_URLS);
 const RUN_VOICE_DELAY_MS = 1500;
 for (const u of VOICE_URLS) { try { fetch(u, { priority: 'low' }).catch(() => {}); } catch {  } }
 let voiceBusyUntil = 0;
-const hitGate = createHitGate(); 
+
+
+
+const hitGate = createHitStream();
+const playHit = (s, h) => {
+  if (s === attract) return;
+  const list = sfx.urls[h.cue];
+  if (list?.length) playFile(list[Math.floor(Math.random() * list.length)], sfx.gainOf(h.cue) * h.gain);
+};
 const bossWatch = createBossWatch(); 
 let bossPunch = 0;
 const soundBtn = $('sound');
@@ -1124,7 +1132,7 @@ function syncEnemies(s, dt = 1 / 60) {
         fx.hit(ex + (Math.random() - 0.5) * 10, ez + 8, myPol);
         fx.hull(ex, ez, ENEMY_R[k] * 2, s.ep[e]);
         was.punch = 1;
-        hitGate.offer(hitTickCue(s.ehp[e], was.hp0));
+        hitGate.offer(hitTickCue(s.ehp[e], was.hp0), id, performance.now());
       }
       was.x = ex; was.z = ez; was.hp = s.ehp[e];
       was.punch = Math.max(0, (was.punch || 0) - 0.25);
@@ -1299,7 +1307,7 @@ function draw(s, dt) {
       fx.hit(imp.x + (Math.random() - 0.5) * 40, imp.z - 10, myPol);
       if (bh.flash) fx.hull(imp.x, imp.z, 90, s.boss.phase & 1);
       bossPunch = 1;
-      hitGate.offer(hitTickCue(s.boss.hp, s.boss.max));
+      hitGate.offer(hitTickCue(s.boss.hp, s.boss.max), 'boss', performance.now());
     }
     if (b) {
       if (b.userData.base === undefined) b.userData.base = b.scale.x;
@@ -1346,7 +1354,7 @@ function draw(s, dt) {
     fx.hitstop(boss ? 0.14 : size >= 90 ? 0.06 : 0.035); 
     sfxFor(s, killCue(k, boss));
   }
-  { const tick = hitGate.take(performance.now()); if (tick) sfxFor(s, tick); }
+  { const tick = hitGate.take(performance.now()); if (tick) playHit(s, tick); }
   if (s.chain !== seen.chain) {
     if (s.chain > seen.chain) {
       flash(x, z - 30, 30 + Math.min(s.chain, 8) * 6, s.chainPol ? 0xa878ff : 0xffc440);

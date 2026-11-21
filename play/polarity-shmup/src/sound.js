@@ -22,14 +22,18 @@
 
 export const SFX_TAKES = Object.freeze({
   shot: 4, absorb: 5, flipEmber: 3, flipIris: 3, release: 2, full: 2, pop: 4, crash: 3, bossDown: 2, bomb: 2,
-  hurt: 3, link: 2, hit1: 2, hit2: 2, hit3: 2, hit4: 2, hit5: 2,
+  hurt: 3, link: 2, hit1: 4, hit2: 4, hit3: 4, hit4: 4, hit5: 4,
 });
 
 
 
 
 
-export const SFX_GAIN = Object.freeze({ shot: 0.8 });
+
+export const HIT_LEVEL = 0.85;
+export const SFX_GAIN = Object.freeze({
+  shot: 0.8, hit1: HIT_LEVEL, hit2: HIT_LEVEL, hit3: HIT_LEVEL, hit4: HIT_LEVEL, hit5: HIT_LEVEL,
+});
 
 
 const HEAVY = new Set([2, 4, 5]);
@@ -67,6 +71,42 @@ export function createHitGate(minMs = 60) {
       if (!pending || now - last < minMs) return null;
       const c = pending; pending = null; last = now;
       return c;
+    },
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export const HIT_GAP_MS = 110, HIT_TARGET_MS = 160, HIT_RECOVER_MS = 320;
+export const HIT_DUCK_STEP = 0.14, HIT_DUCK_FLOOR = 0.4, HIT_JITTER = 0.08;
+export function createHitStream(random = Math.random) {
+  let pending = null, pendingTarget = null, last = -Infinity, streak = 0;
+  const heard = new Map();
+  const rung = (c) => Number(c.slice(3));
+  return {
+    offer(cue, target = null, now = 0) {
+      if (target !== null && now - (heard.get(target) ?? -Infinity) < HIT_TARGET_MS) return;
+      if (!pending || rung(cue) > rung(pending)) { pending = cue; pendingTarget = target; }
+    },
+    take(now) {
+      if (!pending || now - last < HIT_GAP_MS) return null;
+      streak = now - last < HIT_RECOVER_MS ? streak + 1 : 0;
+      const cue = pending;
+      if (pendingTarget !== null) heard.set(pendingTarget, now);
+      if (heard.size > 256) for (const [t, at] of heard) if (now - at > HIT_TARGET_MS) heard.delete(t);
+      pending = null; pendingTarget = null; last = now;
+      const duck = Math.max(HIT_DUCK_FLOOR, 1 - HIT_DUCK_STEP * streak);
+      const gain = duck * (1 + HIT_JITTER * (2 * random() - 1));
+      return { cue, gain };
     },
   };
 }
