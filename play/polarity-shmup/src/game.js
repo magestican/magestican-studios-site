@@ -30,6 +30,7 @@ import {
   BOSS_BOX, BOSS_NAMES, CROWN, CROWN_SWITCH, STAGES, TWIN, TWIN_SPLIT, bossShowsIris, stageCue, twinPol,
 } from './sim/stages.js';
 import { BOSS_KICK, bossImpact, createBossWatch } from './bossHit.js';
+import { createMotion, stepMotion } from './craftMotion.js';
 import { dragFeed, dragRelease, dragTake, stickToMove } from './controls.js';
 import { renderEnding } from './ending.js';
 import { PILOTS, bustImg, pilotOf } from './pilots.js';
@@ -1109,7 +1110,7 @@ const BOOM_SIZE = [40, 64, 120, 36, 90, 130];
 
 const enemySeen = new Map(); 
 let enemyGone = [];          
-function syncEnemies(s) {
+function syncEnemies(s, dt = 1 / 60) {
   const live = new Set();
   const myPol = s.players[viewSeat(s)]?.iris || 0;
   for (let e = 0; e < s.ne; e++) {
@@ -1147,6 +1148,18 @@ function syncEnemies(s) {
         if (h) { h.visible = true; haloMeshes.set(id, h); }
       }
       if (h) { h.position.x = o.position.x; h.position.z = o.position.z; }
+    }
+    if (k !== 1 && k !== 2) { 
+      
+      let mo = o.userData.motion;
+      if (!mo || o.userData.motionId !== id) {
+        mo = o.userData.motion = createMotion(o.position.x, o.position.z);
+        o.userData.motionId = id;
+      }
+      stepMotion(mo, o.position.x, o.position.z, dt);
+      o.rotation.order = 'YXZ'; 
+      o.rotation.y = mo.yaw;
+      o.rotation.x = mo.roll;
     }
     if ((k === 1 || k === 2) && ship) { 
       const p = s.players[viewSeat(s)];
@@ -1245,7 +1258,7 @@ function draw(s, dt) {
   const cue = p1Flip(p.iris ? 'iris' : 'ember');
   if (cue) sfxFor(s, cue);
 
-  syncEnemies(s);
+  syncEnemies(s, dt);
   for (let k = 0; k < bosses.length; k++) {
     const b = bosses[k];
     if (!b) continue;
