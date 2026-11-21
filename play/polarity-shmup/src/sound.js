@@ -20,10 +20,54 @@
 
 
 
+
+
+
+
+
+
+
+
+export const BOSS_VOICE = Object.freeze(['furnace', 'loom', 'anvil', 'twin', 'crown']);
+export const BOSS_ROLES = Object.freeze(['Tell', 'Volley', 'Burst', 'Fall']);
+export const BOSS_TAKES = 2;
+
+export const bossCue = (kind, role) => (BOSS_VOICE[kind] && BOSS_ROLES.includes(role) ? BOSS_VOICE[kind] + role : null);
+
 export const SFX_TAKES = Object.freeze({
   shot: 4, absorb: 5, flipEmber: 3, flipIris: 3, release: 2, full: 2, pop: 4, crash: 3, bossDown: 2, bomb: 2,
   hurt: 3, link: 2, hit1: 4, hit2: 4, hit3: 4, hit4: 4, hit5: 4,
+  ...Object.fromEntries(BOSS_VOICE.flatMap((v) => BOSS_ROLES.map((r) => [v + r, BOSS_TAKES]))),
 });
+
+
+
+
+
+
+
+
+
+
+
+export function createBossVoice(minLeft = 6) {
+  let target = null, key = null;
+  return {
+    step(kind, phase, fa, charge) {
+      const out = [];
+      const k = `${kind}:${phase}`;
+      if (k !== key) { key = k; target = null; }
+      if (target !== null && fa > target) { out.push(bossCue(kind, 'Volley')); target = null; }
+      if (charge && charge.left > 0) {
+        const t = fa + charge.left; 
+        if (target === null && charge.left >= minLeft) out.push(bossCue(kind, 'Tell'));
+        if (target === null || t !== target) target = t;
+      }
+      return out.filter(Boolean);
+    },
+    reset() { target = null; key = null; },
+  };
+}
 
 
 

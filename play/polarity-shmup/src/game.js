@@ -21,7 +21,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../../web-engine/brand/uiSound.js';
 import { createRadio } from './radio.js';
 import { VOICE_MS, afterIds, briefingIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
-import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitStream } from './sound.js';
+import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitStream, bossCue, createBossVoice } from './sound.js';
 import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore, thinAt } from './sim/sim.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { FP } from './sim/fixed.js';
@@ -87,6 +87,7 @@ let bossPunch = 0;
 
 let bossSeen = { on: 0, kind: -1, phase: 0 };
 const bossDeaths = [];
+const bossVoice = createBossVoice(); 
 const soundBtn = $('sound');
 function drawSound() {
   const on = uiSoundOn();
@@ -1507,12 +1508,13 @@ function draw(s, dt) {
       const thin = thinAt(s.gentle === 1, s.heat, s.hard === 1);
       const c = chargeAhead(B.kind, B.phase, B.fa, s.seed, B.x, B.y, s.players, thin);
       if (c) for (const [mx, my] of c.at) fx.charge(wx(mx), wz(my), chargeLevel(c.left), c.pol, L.charge, s.tick / 60);
-    }
+      for (const cue of bossVoice.step(B.kind, B.phase, B.fa, c)) sfxFor(s, cue); 
+    } else bossVoice.reset();
     if (L && B.on && bossSeen.on && B.kind === bossSeen.kind && B.phase > bossSeen.phase) {
       const pol = bossShowsIris(B.kind, B.phase, B.fa) ? 1 : 0, bx = wx(B.x), bz = wz(B.y);
       fx.bossBurst(bx, bz, L.burst, pol, BOSS_BOX[B.kind][0]);
       flash(bx, bz, 260, pol ? 0xb890ff : 0xffd27a);
-      sfxFor(s, 'crash');
+      sfxFor(s, bossCue(B.kind, 'Burst') ?? 'crash');
     }
     bossSeen = { on: B.on, kind: B.kind, phase: B.phase };
     const now = performance.now();
@@ -1523,7 +1525,7 @@ function draw(s, dt) {
         if (d.last) flash(d.x, d.z, d.size, 0xfff1c0); 
       }
       if (d.last) fx.hitstop(0.1);
-      sfxFor(s, d.last ? 'bossDown' : 'crash');
+      if (!d.voiced) sfxFor(s, d.last ? 'bossDown' : 'crash'); 
     }
   }
   
@@ -1559,10 +1561,11 @@ function draw(s, dt) {
     fx.explode(bx, bz, size, Math.max(0, pol), { boss });
     fx.hitstop(boss ? 0.14 : size >= 90 ? 0.06 : 0.035); 
     if (boss && BOSS_LOOK[s.boss.kind]) { 
-      const now = performance.now(), plan = deathPlan(s.boss.kind);
-      plan.forEach((d, i) => bossDeaths.push({ at: now + d.t * 1000, x: bx + d.dx, z: bz + d.dz, size: d.size, pol: d.pol, last: i === plan.length - 1 }));
+      const now = performance.now(), plan = deathPlan(s.boss.kind), voiced = !!bossCue(s.boss.kind, 'Fall');
+      plan.forEach((d, i) => bossDeaths.push({ at: now + d.t * 1000, x: bx + d.dx, z: bz + d.dz, size: d.size, pol: d.pol, last: i === plan.length - 1, voiced }));
     }
-    sfxFor(s, killCue(k, boss));
+    
+    sfxFor(s, (boss && bossCue(s.boss.kind, 'Fall')) || killCue(k, boss));
   }
   { const tick = hitGate.take(performance.now()); if (tick) playHit(s, tick); }
   if (s.chain !== seen.chain) {
