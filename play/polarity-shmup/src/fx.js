@@ -38,13 +38,13 @@ const LINE_VS = `
   void main() { vColor = aColor; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const LINE_FS = `varying vec4 vColor; void main() { gl_FragColor = vColor; }`;
 
-function pointsMesh(cap, order, fs = POINT_FS) {
+function pointsMesh(cap, order, fs = POINT_FS, extra = {}) {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(cap * 3), 3).setUsage(THREE.DynamicDrawUsage));
   g.setAttribute('aColor', new THREE.BufferAttribute(new Float32Array(cap * 4), 4).setUsage(THREE.DynamicDrawUsage));
   g.setAttribute('aSize', new THREE.BufferAttribute(new Float32Array(cap), 1).setUsage(THREE.DynamicDrawUsage));
   g.setDrawRange(0, 0);
-  const m = new THREE.Points(g, new THREE.ShaderMaterial({ ...ADD, uniforms: { uScale: { value: 1 } }, vertexShader: POINT_VS, fragmentShader: fs }));
+  const m = new THREE.Points(g, new THREE.ShaderMaterial({ ...ADD, ...extra, uniforms: { uScale: { value: 1 } }, vertexShader: POINT_VS, fragmentShader: fs }));
   m.frustumCulled = false; m.renderOrder = order;
   return m;
 }
@@ -147,7 +147,11 @@ export function createFx(scene) {
   }
 
   
-  const lights = pointsMesh(512, 8, LAMP_FS);
+  
+  
+  
+  
+  const lights = pointsMesh(512, 8, LAMP_FS, { depthTest: true });
   scene.add(lights);
   const la2 = lights.geometry.attributes;
   let ln = 0;
