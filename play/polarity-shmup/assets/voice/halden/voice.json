@@ -1,110 +1,110 @@
 {
- "name": "f20-halden-r2",
+ "name": "f20-halden-r3",
  "voice": "am_onyx",
  "lang": "en-us",
  "speed": 1,
- "engine": "chatterbox-0.1.4 (ref Parler mini design halden-s42 from role.voice, age 57; acted Halden; retakes seed 7)",
- "source": "Magestican DJ F20c Halden r2 from scratch (DJ claude/actor-age, brief f20-halden-r2.yaml, design s42) + G30 radio layer, D:/magestican-dj/voice-design/f20-radio-r2",
+ "engine": "parler-tts large design s42 (role.age 57, brief f20-halden-r3.yaml) -> chatterbox-0.1.4 acted Halden, tempo 1.0, no stretch; brief-tevi-dustline p7 seed 17 (SP-16 say)",
+ "source": "Magestican DJ F20d Halden r3 (brief f20-halden-r3.yaml, Parler large design s42) + G30 radio layer, D:/magestican-dj/voice-design/f20-radio-r3",
  "lines": {
   "intro-1-1": {
    "file": "intro-1-1.m4a",
-   "ms": 8933,
+   "ms": 7943,
    "text": "Wake Squadron, this is Harrow! The Furnace column is burning its way across Dustline. Stop it before it reaches the river!",
    "dj": "harrow"
   },
   "intro-2-1": {
    "file": "intro-2-1.m4a",
-   "ms": 9681,
+   "ms": 7098,
    "text": "Saltpan was our listening post once. Now it's their depot. Burn it, and their whole front goes hungry.",
    "dj": "saltpan-burn"
   },
   "intro-3-1": {
    "file": "intro-3-1.m4a",
-   "ms": 8312,
+   "ms": 7731,
    "text": "The Foundry builds their gunships day and night. Today it builds nothing! Hit the Anvil and don't stop!",
    "dj": "foundry-anvil"
   },
   "intro-4-1": {
    "file": "intro-4-1.m4a",
-   "ms": 7466,
+   "ms": 7185,
    "text": "The Twin leads their fleet. Break it, and the strait is ours. Harrow holds as long as you do!",
    "dj": "twinsea-holds"
   },
   "intro-5-1": {
    "file": "intro-5-1.m4a",
-   "ms": 12151,
+   "ms": 8843,
    "text": "Heartfall. The Crown has shelled our coast for six years. I lost my first squadron under those guns. I will not lose this one!",
    "dj": "heartfall"
   },
   "after-1-3": {
    "file": "after-1-3.m4a",
-   "ms": 4917,
+   "ms": 4888,
    "text": "Hold the cheering. Their supply road runs on through Saltpan.",
    "dj": "after-dustline-hold"
   },
   "after-3-2": {
    "file": "after-3-2.m4a",
-   "ms": 6742,
+   "ms": 7728,
    "text": "Wake, Harrow is taking fire! Their fleet came out of Twinsea behind us. Get back here, now!",
    "dj": "after-foundry-fire"
   },
   "after-4-2": {
    "file": "after-4-2.m4a",
-   "ms": 8192,
+   "ms": 7332,
    "text": "Still here, Lead. The bridge is full of smoke, but I'm here. Heartfall is open. Finish it.",
    "dj": "smoke"
   },
   "ending-halden": {
    "file": "ending-halden.m4a",
-   "ms": 7304,
+   "ms": 6298,
    "text": "Four ships out, four ships coming home. The war is over, pilots. Bring them in gently.",
    "dj": "ending-home"
   },
   "brief-sora-1": {
    "file": "brief-sora-1.m4a",
-   "ms": 10635,
+   "ms": 8129,
    "text": "Lieutenant Sora. Seven years ago the Dominion shelled your lighthouse at Cape Merrow. You turned that lamp by hand until dawn.",
    "dj": "brief-sora-lamp"
   },
   "brief-sora-3": {
    "file": "brief-sora-3.m4a",
-   "ms": 7937,
+   "ms": 6834,
    "text": "Tonight the whole coast needs that lamp. You lead Wake Squadron to Heartfall, and you bring every one of them back.",
    "dj": "brief-sora-lead"
   },
   "brief-rook-1": {
    "file": "brief-rook-1.m4a",
-   "ms": 5803,
+   "ms": 5354,
    "text": "Rook. Two crashes behind enemy lines, and you walked home from both.",
    "dj": "brief-rook-crashes"
   },
   "brief-rook-3": {
    "file": "brief-rook-3.m4a",
-   "ms": 8942,
+   "ms": 7785,
    "text": "Then that was your last free one. The Dominion is moving on Port Lyle. You fly wing with the best pilots I have left.",
    "dj": "brief-rook-wing"
   },
   "brief-mina-1": {
    "file": "brief-mina-1.m4a",
-   "ms": 6576,
+   "ms": 4930,
    "text": "Mina. At Saltpan you heard their fleet coming, and nobody believed you.",
    "dj": "brief-mina-saltpan"
   },
   "brief-mina-3": {
    "file": "brief-mina-3.m4a",
-   "ms": 5651,
+   "ms": 5142,
    "text": "I'm listening now. Every channel you catch out there comes straight to my bridge.",
    "dj": "brief-mina-listening"
   },
   "brief-tevi-1": {
    "file": "brief-tevi-1.m4a",
-   "ms": 7112,
+   "ms": 6664,
    "text": "Tevi. First sortie, and it's over Dustline. Your family's farm is under that smoke.",
    "dj": "brief-tevi-dustline"
   },
   "brief-tevi-3": {
    "file": "brief-tevi-3.m4a",
-   "ms": 5949,
+   "ms": 4931,
    "text": "Then you know what we're fighting for. Stay close to your squad and don't fly angry.",
    "dj": "brief-tevi-angry"
   }

@@ -28,15 +28,15 @@
 
 
 export const VOICE_MS = Object.freeze({
-  'intro-1-1': 8933, 'intro-1-2': 5735, 'intro-2-1': 9681, 'intro-2-2': 5083, 'intro-3-1': 8312, 'intro-3-2': 3966,
-  'intro-4-1': 7466, 'intro-4-2': 3451, 'intro-5-1': 12151, 'intro-5-2': 4611,
-  'after-1-1': 4230, 'after-1-2': 3446, 'after-1-3': 4917, 'after-2-1': 4714, 'after-2-2': 3393, 'after-3-1': 3844,
-  'after-3-2': 6742, 'after-4-1': 4512, 'after-4-2': 8192,
-  'ending-sora': 4527, 'ending-rook': 6352, 'ending-mina': 6203, 'ending-tevi': 4917, 'ending-halden': 7304,
-  'brief-sora-1': 10635, 'brief-sora-2': 3859, 'brief-sora-3': 7937, 'brief-sora-4': 3662,
-  'brief-rook-1': 5803, 'brief-rook-2': 3829, 'brief-rook-3': 8942, 'brief-rook-4': 6823,
-  'brief-mina-1': 6576, 'brief-mina-2': 2980, 'brief-mina-3': 5651, 'brief-mina-4': 3418,
-  'brief-tevi-1': 7112, 'brief-tevi-2': 5172, 'brief-tevi-3': 5949, 'brief-tevi-4': 4734,});
+  'intro-1-1': 7943, 'intro-1-2': 5735, 'intro-2-1': 7098, 'intro-2-2': 5083, 'intro-3-1': 7731, 'intro-3-2': 3966,
+  'intro-4-1': 7185, 'intro-4-2': 3451, 'intro-5-1': 8843, 'intro-5-2': 4611,
+  'after-1-1': 4230, 'after-1-2': 3446, 'after-1-3': 4888, 'after-2-1': 4714, 'after-2-2': 3393, 'after-3-1': 3844,
+  'after-3-2': 7728, 'after-4-1': 4512, 'after-4-2': 7332,
+  'ending-sora': 4527, 'ending-rook': 6352, 'ending-mina': 6203, 'ending-tevi': 4917, 'ending-halden': 6298,
+  'brief-sora-1': 8129, 'brief-sora-2': 3859, 'brief-sora-3': 6834, 'brief-sora-4': 3662,
+  'brief-rook-1': 5354, 'brief-rook-2': 3829, 'brief-rook-3': 7785, 'brief-rook-4': 6823,
+  'brief-mina-1': 4930, 'brief-mina-2': 2980, 'brief-mina-3': 5142, 'brief-mina-4': 3418,
+  'brief-tevi-1': 6664, 'brief-tevi-2': 5172, 'brief-tevi-3': 4931, 'brief-tevi-4': 4734,});
 
 
 export const VOICE_GAP_MS = 500;
