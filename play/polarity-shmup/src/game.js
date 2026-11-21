@@ -276,7 +276,7 @@ const tethers = [0, 1].map(() => {
   return l;
 });
 const pools = {};          
-let warden = null, furnace = null;
+let warden = null;
 const bosses = []; 
 const props = [];
 
@@ -338,9 +338,8 @@ async function loadModels() {
   const loaded = await Promise.all([
     ...fighters, 'craft/dart_ember/dart_ember',
     'craft/dart_iris/dart_iris', 'craft/turret_ember/turret_ember', 'craft/turret_iris/turret_iris',
-    'craft/furnace_ember/furnace_ember', 'craft/furnace_iris/furnace_iris',
   ].map((p) => loadGlb(`assets/${p}.glb`)));
-  const [de, di, te, ti, fe, fi] = loaded.slice(8);
+  const [de, di, te, ti] = loaded.slice(8);
   
   for (let n = 0; n < 4; n++) ships.push(makeShip(loaded[n * 2], loaded[n * 2 + 1]));
   ship = ships[0];
@@ -357,14 +356,12 @@ async function loadModels() {
   warden.visible = false;
   rig(warden);
   scene.add(warden);
-  furnace = bossGroup(fe, fi, BOSS_W);
-  bosses[0] = furnace;
 
   
-  const craft = ['skiff', 'bulwark', 'gunship', 'loom', 'anvil', 'twin', 'crown'];
+  const craft = ['skiff', 'bulwark', 'gunship'];
   const more = await Promise.all(craft.flatMap((c) => ['ember', 'iris'].map((pol) =>
     loadGlb(`assets/stages-craft/${c}_${pol}/${c}_${pol}.glb`))));
-  const [se, si, be, bi, ge, gi, le, li, ae, ai, twe, twi, ce, ci] = more;
+  const [se, si, be, bi, ge, gi] = more;
   for (const [key, src, len, y, opts, rot, n] of [
     ['skiff0', se, SKIFF_LEN, 60, {}, -Math.PI / 2, 32], ['skiff1', si, SKIFF_LEN, 60, {}, -Math.PI / 2, 32],
     ['bulwark0', be, BULWARK_W, 50, { axis: 'max' }, 0, 6], ['bulwark1', bi, BULWARK_W, 50, { axis: 'max' }, 0, 6], 
@@ -374,10 +371,12 @@ async function loadModels() {
     proto.rotation.y = rot;
     pool(key, proto, n, y);
   }
-  bosses[1] = bossGroup(le, li, LOOM_W);
-  bosses[2] = bossGroup(ae, ai, BOSS_W);
-  bosses[3] = bossGroup(twe, twi, TWIN_HALF_W); 
-  bosses[4] = bossGroup(ce, ci, BOSS_W);
+  
+  
+  const bossGlb = await Promise.all(BOSS_LOOK.flatMap((look) => ['ember', 'iris'].map((pol) =>
+    loadGlb(`assets/${look.model}_${pol}/${look.model.split('/')[1]}_${pol}.glb`))));
+  const bossFit = [BOSS_W, LOOM_W, BOSS_W, TWIN_HALF_W, BOSS_W];
+  BOSS_LOOK.forEach((look, k) => { bosses[k] = bossGroup(bossGlb[2 * k], bossGlb[2 * k + 1], bossFit[k]); });
   for (const pol of [0, 1]) { 
     const r = new THREE.Mesh(new THREE.RingGeometry(52, 58, 40), new THREE.MeshBasicMaterial({
       color: pol ? 0xa878ff : 0xffc440, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));

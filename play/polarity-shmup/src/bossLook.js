@@ -21,15 +21,15 @@ export const BIG_VOLLEY = 5;
 export const CHARGE_QUIET = 30;
 
 export const BOSS_LOOK = Object.freeze([
-  Object.freeze({ kind: FURNACE, signature: SIGNATURE_IDS[FURNACE], charge: 'kiln', burst: 'flare', death: 'meltdown',
+  Object.freeze({ kind: FURNACE, model: 'bosses/furnace', signature: SIGNATURE_IDS[FURNACE], charge: 'kiln', burst: 'flare', death: 'meltdown',
     words: 'heat gathers in its mouth; a flare of fire at each phase; it melts down from the core up' }),
-  Object.freeze({ kind: LOOM, signature: SIGNATURE_IDS[LOOM], charge: 'warp', burst: 'threads', death: 'unravel',
+  Object.freeze({ kind: LOOM, model: 'bosses/loom', signature: SIGNATURE_IDS[LOOM], charge: 'warp', burst: 'threads', death: 'unravel',
     words: 'threads draw in along its beam; a weave of streaks at each phase; it unravels end to end' }),
-  Object.freeze({ kind: ANVIL, signature: SIGNATURE_IDS[ANVIL], charge: 'forge', burst: 'strike', death: 'shatter',
+  Object.freeze({ kind: ANVIL, model: 'bosses/anvil', signature: SIGNATURE_IDS[ANVIL], charge: 'forge', burst: 'strike', death: 'shatter',
     words: 'sparks gather on the plate; a hammer strike shower at each phase; it shatters plate by plate' }),
-  Object.freeze({ kind: TWIN, signature: SIGNATURE_IDS[TWIN], charge: 'mirror', burst: 'split', death: 'sundered',
+  Object.freeze({ kind: TWIN, model: 'bosses/twin', signature: SIGNATURE_IDS[TWIN], charge: 'mirror', burst: 'split', death: 'sundered',
     words: 'each half gathers its own colour; mirrored rings at each phase; its halves burst in turn, then together' }),
-  Object.freeze({ kind: CROWN, signature: SIGNATURE_IDS[CROWN], charge: 'halo', burst: 'regalia', death: 'coronation',
+  Object.freeze({ kind: CROWN, model: 'bosses/crown', signature: SIGNATURE_IDS[CROWN], charge: 'halo', burst: 'regalia', death: 'coronation',
     words: 'a halo of both colours turns in; four jewelled rays at each phase; four corner blasts, then the jewel' }),
 ]);
 
