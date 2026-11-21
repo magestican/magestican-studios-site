@@ -1,40 +1,41 @@
 {
- "name": "f20-mina-ref-s21-s1234",
+ "name": "f20-mina-r2b-s27",
  "voice": "af_nicole",
  "lang": "en-us",
  "speed": 1,
- "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 af_nicole, exaggeration 0.5, cfg_weight 0.3, seed 1234, tempo 1.0, ref mina-s21.wav, acted Mina)",
- "source": "Magestican DJ F20 (branch claude/actor-roles 859fe49), D:/magestican-dj/voice-design/f20-render",
+ "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 af_nicole, exaggeration 0.5, cfg_weight 0.3, seed 1234 (ending-listen 42), tempo 1.0, ref f20-mina-r2b/mina-s27.wav, acted Mina)",
+ "source": "Magestican DJ F20 + G30 radio layer (branch claude/f20-mina-r2 40ad3a1), D:/magestican-dj/voice-design/f20-radio",
  "lines": {
   "intro-2-2": {
    "file": "intro-2-2.m4a",
-   "ms": 3921,
+   "ms": 5083,
    "text": "I'm hearing them on every channel. They know we're coming.",
    "dj": "saltpan-hearing"
   },
   "after-2-1": {
    "file": "after-2-1.m4a",
-   "ms": 4012,
+   "ms": 4714,
    "text": "The depot's quiet now. Quieter than the night it fell.",
    "dj": "saltpan-quiet"
   },
   "ending-mina": {
    "file": "ending-mina.m4a",
-   "ms": 4257,
+   "ms": 6203,
    "text": "Listen. Their channels are silent. Every single one.",
    "dj": "ending-listen"
   },
   "brief-mina-2": {
    "file": "brief-mina-2.m4a",
-   "ms": 2398,
+   "ms": 2980,
    "text": "Nobody came back to say sorry, sir.",
    "dj": "brief-sorry"
   },
   "brief-mina-4": {
    "file": "brief-mina-4.m4a",
-   "ms": 3357,
+   "ms": 3418,
    "text": "Then keep yours open. I'll hear them first.",
    "dj": "brief-open"
   }
- }
+ },
+ "effect": "radio static LAYER beside the untouched take (DJ RULES G30, studio/voice_fx.py)"
 }

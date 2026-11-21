@@ -4,37 +4,38 @@
  "lang": "en-us",
  "speed": 1,
  "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 am_michael, exaggeration 0.5, cfg_weight 0.3, seed 1234, tempo 1.0, ref tevi-s7.wav, acted Tevi)",
- "source": "Magestican DJ F20 (branch claude/actor-roles 859fe49), D:/magestican-dj/voice-design/f20-render",
+ "source": "Magestican DJ F20 + G30 radio layer (branch claude/f20-mina-r2 40ad3a1), D:/magestican-dj/voice-design/f20-radio",
  "lines": {
   "intro-4-2": {
    "file": "intro-4-2.m4a",
-   "ms": 2851,
+   "ms": 3451,
    "text": "Hang on, Commander! We're coming!",
    "dj": "twinsea-coming"
   },
   "after-1-1": {
    "file": "after-1-1.m4a",
-   "ms": 3630,
+   "ms": 4230,
    "text": "The column's broken! The farms are still standing!",
    "dj": "dustline-broken"
   },
   "ending-tevi": {
    "file": "ending-tevi.m4a",
-   "ms": 4856,
+   "ms": 4917,
    "text": "We did it. Next harvest is on my farm, and you're all invited.",
    "dj": "ending-harvest"
   },
   "brief-tevi-2": {
    "file": "brief-tevi-2.m4a",
-   "ms": 4572,
+   "ms": 5172,
    "text": "I know every field down there, sir. My sisters planted half of them.",
    "dj": "brief-fields"
   },
   "brief-tevi-4": {
    "file": "brief-tevi-4.m4a",
-   "ms": 4134,
+   "ms": 4734,
    "text": "Yes, sir. Nobody gets left behind. Not today!",
    "dj": "brief-behind"
   }
- }
+ },
+ "effect": "radio static LAYER beside the untouched take (DJ RULES G30, studio/voice_fx.py)"
 }

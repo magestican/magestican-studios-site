@@ -4,43 +4,44 @@
  "lang": "en-us",
  "speed": 1,
  "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 am_fenrir, exaggeration 0.5, cfg_weight 0.3, seed 1234, tempo 1.0, ref rook-s42.wav, acted Rook)",
- "source": "Magestican DJ F20 (branch claude/actor-roles 859fe49), D:/magestican-dj/voice-design/f20-render",
+ "source": "Magestican DJ F20 + G30 radio layer (branch claude/f20-mina-r2 40ad3a1), D:/magestican-dj/voice-design/f20-radio",
  "lines": {
   "intro-3-2": {
    "file": "intro-3-2.m4a",
-   "ms": 3366,
+   "ms": 3966,
    "text": "Finally, a target big enough to be worth the fuel!",
    "dj": "foundry-finally"
   },
   "after-1-2": {
    "file": "after-1-2.m4a",
-   "ms": 2531,
+   "ms": 3446,
    "text": "One down. Who's buying?",
    "dj": "dustline-onedown"
   },
   "after-3-1": {
    "file": "after-3-1.m4a",
-   "ms": 3244,
+   "ms": 3844,
    "text": "Did you see that? The whole Foundry folded!",
    "dj": "foundry-folded"
   },
   "ending-rook": {
    "file": "ending-rook.m4a",
-   "ms": 5409,
+   "ms": 6352,
    "text": "Still flying! Told you. Nothing they fire touches me twice!",
    "dj": "ending-flying"
   },
   "brief-rook-2": {
    "file": "brief-rook-2.m4a",
-   "ms": 3229,
+   "ms": 3829,
    "text": "Three, sir. I never reported the third one.",
    "dj": "brief-third"
   },
   "brief-rook-4": {
    "file": "brief-rook-4.m4a",
-   "ms": 6223,
+   "ms": 6823,
    "text": "Relax, Commander. I always come home. Ask anybody on the docks!",
    "dj": "brief-relax"
   }
- }
+ },
+ "effect": "radio static LAYER beside the untouched take (DJ RULES G30, studio/voice_fx.py)"
 }
