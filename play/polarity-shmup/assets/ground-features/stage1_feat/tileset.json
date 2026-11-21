@@ -1,0 +1,23 @@
+{
+ "tile_size": 256,
+ "cols": 2,
+ "rows": 1,
+ "tiles": [
+  {
+   "name": "dry_wash",
+   "x": 0,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/dry_wash.png"
+  },
+  {
+   "name": "cracked_mud",
+   "x": 256,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/cracked_mud.png"
+  }
+ ]
+}

@@ -14,7 +14,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { BULLET_TYPES, rasterBullet } from './bullets.js';
-import { FIELD_W, FIELD_H, TILE_PX, STAGE_GROUND, groundTileAt } from './field.js';
+import { FIELD_W, FIELD_H, TILE_PX, STAGE_GROUND, groundTileAt, STAGE_FEATURES, featureAt } from './field.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../../web-engine/brand/uiSound.js';
@@ -169,6 +169,38 @@ for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
   scene.add(mesh);
   tiles.push(mesh);
 }
+
+
+
+
+const FEATURE_MASK = (() => {
+  const N = 64, d = new Uint8Array(N * N * 4);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const u = Math.abs((x + 0.5) / N * 2 - 1), v = Math.abs((y + 0.5) / N * 2 - 1);
+    const r = Math.min(1, Math.hypot(Math.max(0, u - 0.4), Math.max(0, v - 0.4)) / 0.6 + Math.max(u, v) * 0.15);
+    const t = Math.max(0, Math.min(1, (1 - r) / 0.55));
+    d.fill(Math.round(255 * t * t * (3 - 2 * t)), (y * N + x) * 4, (y * N + x) * 4 + 4);
+  }
+  const tex = new THREE.DataTexture(d, N, N, THREE.RGBAFormat);
+  tex.magFilter = tex.minFilter = THREE.LinearFilter;
+  tex.needsUpdate = true;
+  return tex;
+})();
+const featMats = STAGE_FEATURES.map((f, n) => Object.fromEntries(f.tiles.map((id) => {
+  const tex = texLoader.load(`assets/${f.dir}/tiles/${id}.png`);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  const m = new THREE.MeshBasicMaterial({ map: tex, alphaMap: FEATURE_MASK, transparent: true, depthWrite: false });
+  m.color.setScalar(STAGE_GROUND[Math.min(n, STAGE_GROUND.length - 1)].tint);
+  return [id, m];
+})));
+const featTiles = tiles.map(() => {
+  const mesh = new THREE.Mesh(tileGeo, null);
+  mesh.visible = false;
+  mesh.renderOrder = -1; 
+  scene.add(mesh);
+  return mesh;
+});
 const shadowSheet = new THREE.Mesh(new THREE.PlaneGeometry(FIELD_W + 40, FIELD_H + 40).rotateX(-Math.PI / 2),
   new THREE.ShadowMaterial({ opacity: 0.32 }));
 shadowSheet.position.y = 0.5;
@@ -1267,6 +1299,9 @@ function draw(s, dt) {
     const row = base + r - 1;
     tiles[i].position.set(-FIELD_W / 2 + TILE_PX * (c + 0.5), 0, FIELD_H / 2 - TILE_PX * (row + 0.5) + scrollPx);
     tiles[i].material = matAt(c, row, s.stage);
+    const f = featureAt(c, row, s.stage), fm = f && featMats[Math.min(s.stage, featMats.length - 1)][f];
+    featTiles[i].visible = !!fm;
+    if (fm) { featTiles[i].material = fm; featTiles[i].position.copy(tiles[i].position); featTiles[i].position.y = 0.05; }
   }
   const span = propSpan();
   for (const p of props) {
