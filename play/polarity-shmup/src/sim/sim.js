@@ -102,7 +102,7 @@ const SPAWN_X = [0.2, 0.4, 0.6, 0.8].map((f) => Math.round(FIELD_W * f));
 const SPAWN_Y = FIELD_H - 120 * FP;
 
 function newPlayer(i) {
-  return { on: 0, x: SPAWN_X[i], y: SPAWN_Y, iris: 0, energy: 0, lives: START_LIVES, bombs: START_BOMBS,
+  return { on: 0, x: SPAWN_X[i], y: SPAWN_Y, iris: 0, energy: 0, lives: START_LIVES, bombs: START_BOMBS, brl: 0,
     inv: 0, cool: 0, score: 0, bombHeld: 0, absorbed: 0, hits: 0, bursts: 0, kills: 0, duet: 0, pod: 0, rev: 0, revives: 0 };
 }
 
@@ -269,6 +269,7 @@ function burstTarget(s, x, y) {
 export const BOMB_DMG = 24, BOMB_CUT_SCORE = 10, BOMB_INV = 90;
 function bomb(s, i, p, t) {
   p.bombs--;
+  p.brl = 0; 
   p.inv = Math.max(p.inv, BOMB_INV);
   const cut = s.nb;
   s.nb = 0;
@@ -288,6 +289,27 @@ function bomb(s, i, p, t) {
     if (hurt > 0) { B.hp -= hurt; p.score += 10 * hurt; bossPhaseCheck(s); }
   }
   s.nbomb++; s.bombT = t; s.bombX = p.x; s.bombY = p.y; s.bombPol = p.iris; s.bombCut = cut; s.bombSeat = i;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const BOMB_RELOAD = 60 * 60;
+export function bombReload(s, p, ended) {
+  if (s.hard === 1 || ended || p.bombs >= START_BOMBS || p.inv > 0) return;
+  const B = s.boss;
+  if (B.on && B.phase === bossPhaseOf(B.kind, 1, B.max)) return;
+  p.brl = (p.brl | 0) + 1;
+  if (p.brl >= BOMB_RELOAD) { p.brl = 0; p.bombs++; }
 }
 
 
@@ -327,6 +349,7 @@ export function step(s, inputs) {
     if (p.inv > 0) p.inv--;
     if (k.bomb && !p.bombHeld && p.bombs > 0 && !ended) bomb(s, i, p, t);
     p.bombHeld = k.bomb ? 1 : 0;
+    bombReload(s, p, ended);
     if (p.energy >= BURST_COST && !ended) {
       
       p.energy -= BURST_COST; p.bursts++;
@@ -559,11 +582,12 @@ export function deserialize(o) {
     s[k] = a;
   }
   if (s.hard === undefined) s.hard = 0;
+  for (const p of s.players) if (p.brl === undefined) p.brl = 0; 
   return s;
 }
 
 const PLAYER_KEYS = ['on', 'x', 'y', 'iris', 'energy', 'lives', 'bombs', 'inv', 'cool', 'score', 'bombHeld', 'absorbed', 'hits',
-  'bursts', 'kills', 'duet', 'pod', 'rev', 'revives'];
+  'bursts', 'kills', 'duet', 'pod', 'rev', 'revives', 'brl'];
 const BOSS_KEYS = ['on', 'kind', 'hp', 'max', 'phase', 'age', 'fa', 'rest', 'x', 'y', 'kills', 'beaten'];
 
 
