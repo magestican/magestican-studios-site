@@ -30,7 +30,7 @@ export const ES = {
   'Pilots': 'Pilotos',
   'Modes': 'Modos',
   'Language': 'Idioma',
-  'Drink your colour. Flip for the other.': 'Bebe tu color. Cambia para el otro.',
+  'Reclaim your colour. Flip for the other.': 'Recupera tu color. Cambia para el otro.',
   'Start': 'Jugar',
   "Gentle: a hit costs a moment's shield": 'Tranqui: un golpe solo baja el escudo',
   'Continue': 'Continuar',
@@ -67,7 +67,7 @@ export const ES = {
   '{boss} got away': '{boss} escapó',
   'Shot down': 'Derribado',
   'Score': 'Puntos',
-  'Drunk': 'Absorbidas',
+  'Reclaimed': 'Recuperadas',
   'Bursts': 'Ráfagas',
   'Downed': 'Derribos',
   'Best chain': 'Mejor cadena',
@@ -258,8 +258,8 @@ export const ES = {
   "Then you know what we're fighting for. Stay close to your squad and don't fly angry.": 'Entonces sabes por qué peleamos. Quédate cerca de tu escuadrón y no vueles con rabia.',
   'Yes, sir. Nobody gets left behind. Not today!': 'Sí, señor. Nadie se queda atrás. ¡Hoy no!',
   
-  'Fly five stages, Dustline, Saltpan, Foundry, Twinsea and Heartfall. Your ship drinks bullets of its own colour and fills the burst meter. A full meter fires by itself. Bullets of the other colour hurt, so flip. Shoot down three of one colour in a row for a chain. Each chain pays double and makes your bursts hit harder.':
-    'Vuela cinco etapas: Polvareda, Salinas, La Fundición, Mar Gemelo y Corazón Caído. Tu nave se bebe las balas de su color y llena el medidor de ráfaga. Con el medidor lleno, dispara sola. Las balas del otro color hacen daño, así que cambia. Derriba tres del mismo color seguidos para hacer una cadena. Cada cadena paga el doble y hace más fuertes tus ráfagas.',
+  'Fly five stages, Dustline, Saltpan, Foundry, Twinsea and Heartfall. Dominion guns fire Ember and Iris light. Your hull is tuned to one, so it reclaims shots of its colour into the burst meter. A full meter fires that light back by itself. Bullets of the other colour hurt, so flip to retune. Shoot down three of one colour in a row for a chain. Each chain pays double and makes your bursts hit harder.':
+    'Vuela cinco etapas: Polvareda, Salinas, La Fundición, Mar Gemelo y Corazón Caído. Los cañones del Dominio disparan luz Brasa e Iris. Tu casco está afinado a una de las dos, así que recupera los disparos de su color en el medidor de ráfaga. Con el medidor lleno, devuelve esa luz él solo. Las balas del otro color hacen daño, así que cambia y vuelve a afinarlo. Derriba tres del mismo color seguidos para hacer una cadena. Cada cadena paga el doble y hace más fuertes tus ráfagas.',
   'Move: arrows or WASD (Shift slows), or a gamepad stick': 'Mover: flechas o WASD (Shift frena), o la palanca del mando',
   'Flip colour: Space, J or pad A': 'Cambiar de color: Espacio, J o A del mando',
   'Bomb: K or pad B (clears bullets near you)': 'Bomba: K o B del mando (borra las balas cercanas)',

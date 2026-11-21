@@ -24,7 +24,7 @@ export const JA = {
   'Pilots': 'パイロット',
   'Modes': 'モード',
   'Language': '言語',
-  'Drink your colour. Flip for the other.': '同じ色は吸収。違う色はフリップ。',
+  'Reclaim your colour. Flip for the other.': '同じ色は回収。違う色はフリップ。',
   'Start': 'スタート',
   "Gentle: a hit costs a moment's shield": 'やさしい：被弾してもシールドが一瞬減るだけ',
   'Continue': 'つづきから',
@@ -61,7 +61,7 @@ export const JA = {
   '{boss} got away': '{boss}に逃げられた',
   'Shot down': '撃墜された',
   'Score': 'スコア',
-  'Drunk': '吸収',
+  'Reclaimed': '回収',
   'Bursts': 'バースト',
   'Downed': '撃墜',
   'Best chain': '最大チェイン',
@@ -252,8 +252,8 @@ export const JA = {
   "Then you know what we're fighting for. Stay close to your squad and don't fly angry.": 'ならば、我々が何のために戦うかわかっているな。隊から離れるな。怒りにまかせて飛ぶなよ。',
   'Yes, sir. Nobody gets left behind. Not today!': 'はい、司令。誰も置いていきません。今日は絶対に！',
   
-  'Fly five stages, Dustline, Saltpan, Foundry, Twinsea and Heartfall. Your ship drinks bullets of its own colour and fills the burst meter. A full meter fires by itself. Bullets of the other colour hurt, so flip. Shoot down three of one colour in a row for a chain. Each chain pays double and makes your bursts hit harder.':
-    'ダストライン、ソルトパン、ファウンドリー、ツインシー、ハートフォールの5ステージを飛ぼう。自機は同じ色の弾を吸収して、バーストゲージをためる。ゲージが満タンになると自動で発射。違う色の弾はダメージになるので、フリップしてかわそう。同じ色の敵を3機続けて撃墜するとチェイン。チェインごとに得点が倍になり、バーストも強くなる。',
+  'Fly five stages, Dustline, Saltpan, Foundry, Twinsea and Heartfall. Dominion guns fire Ember and Iris light. Your hull is tuned to one, so it reclaims shots of its colour into the burst meter. A full meter fires that light back by itself. Bullets of the other colour hurt, so flip to retune. Shoot down three of one colour in a row for a chain. Each chain pays double and makes your bursts hit harder.':
+    'ダストライン、ソルトパン、ファウンドリー、ツインシー、ハートフォールの5ステージを飛ぼう。ドミニオンの砲はエンバーとアイリスの光を撃ってくる。自機はそのどちらかの色に調律されていて、同じ色の弾を回収してバーストゲージにためる。ゲージが満タンになると、その光を自動で撃ち返す。違う色の弾はダメージになるので、フリップして調律を変えよう。同じ色の敵を3機続けて撃墜するとチェイン。チェインごとに得点が倍になり、バーストも強くなる。',
   'Move: arrows or WASD (Shift slows), or a gamepad stick': '移動：矢印キーかWASD（Shiftで低速）、またはゲームパッドのスティック',
   'Flip colour: Space, J or pad A': '色の切り替え：Space、J、またはパッドのA',
   'Bomb: K or pad B (clears bullets near you)': 'ボム：KまたはパッドのB（周りの弾を消す）',

@@ -666,7 +666,7 @@ function showTally(s) {
   const last = !runGoesOn(s) && !s.over;
   $('tally-head').textContent = s.over ? t('Shot down') : s.boss.beaten ? (last ? t('Run complete') : t('{stage} clear', { stage: tv(st.name) })) : t('{boss} got away', { boss: tv(BOSS_NAMES[st.boss]) });
   $('t-score').textContent = p.score.toLocaleString();
-  $('t-drunk').textContent = String(p.absorbed);
+  $('t-reclaimed').textContent = String(p.absorbed);
   $('t-bursts').textContent = String(p.bursts);
   $('t-kills').textContent = String(p.kills);
   $('t-chain').textContent = String(s.sbest);
@@ -694,7 +694,7 @@ function showTally(s) {
     
     
     $('t-score').textContent = teamScore(s).toLocaleString();
-    $('t-drunk').textContent = String(s.players.reduce((n, q) => n + (q.on ? q.absorbed : 0), 0));
+    $('t-reclaimed').textContent = String(s.players.reduce((n, q) => n + (q.on ? q.absorbed : 0), 0));
     $('t-bursts').textContent = String(s.players.reduce((n, q) => n + (q.on ? q.bursts : 0), 0));
     $('t-kills').textContent = String(s.players.reduce((n, q) => n + (q.on ? q.kills : 0), 0));
     list.replaceChildren(...s.players.map((q, i) => {
