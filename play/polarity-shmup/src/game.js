@@ -15,7 +15,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { BULLET_TYPES, SIGNATURES, rasterBullet } from './bullets.js';
 import { BOSS_LOOK, chargeAhead, chargeLevel, deathPlan } from './bossLook.js';
-import { FIELD_W, FIELD_H, TILE_PX, STAGE_GROUND, groundTileAt, STAGE_FEATURES, featureAt } from './field.js';
+import { FIELD_W, FIELD_H, TILE_PX, STAGE_GROUND, groundTileAt, STAGE_FEATURES, featureAt, featureFile } from './field.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../../web-engine/brand/uiSound.js';
@@ -194,7 +194,7 @@ const FEATURE_MASK = (() => {
   return tex;
 })();
 const featMats = STAGE_FEATURES.map((f, n) => Object.fromEntries(f.tiles.map((id) => {
-  const tex = texLoader.load(`assets/${f.dir}/tiles/${id}.png`);
+  const tex = texLoader.load(`assets/${featureFile(f, id)}`);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 4;
   const m = new THREE.MeshBasicMaterial({ map: tex, alphaMap: FEATURE_MASK, transparent: true, depthWrite: false });

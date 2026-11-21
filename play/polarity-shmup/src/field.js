@@ -80,15 +80,31 @@ export const FEATURE_EVERY = 4;
 
 
 
+
+
+
+
+
+
+
+
+const R3 = 'ground-features-r3/';
 export const STAGE_FEATURES = Object.freeze([
-  Object.freeze({ dir: 'ground-features/stage1_feat', tiles: Object.freeze(['cracked_mud']) }),
+  Object.freeze({ dir: 'ground-features/stage1_feat', tiles: Object.freeze(['cracked_mud', 'dry_wash_a']),
+    src: Object.freeze({ dry_wash_a: R3 + 'stage1_feat' }) }),
   Object.freeze({ dir: 'ground-features/stage2_feat', tiles: Object.freeze(['salt_ridges']) }),
-  Object.freeze({ dir: 'ground-features/stage3_feat', tiles: Object.freeze(['slag_drift']) }),
-  Object.freeze({ dir: 'ground-features/stage4_feat', tiles: Object.freeze([]),
-    rejected: 'sandbar came back as blocky pixel steps and reef_shelf as flagstones; both poorer than shallows (versus.png 2026-11-21)' }),
+  Object.freeze({ dir: 'ground-features/stage3_feat', tiles: Object.freeze(['slag_drift', 'scorch_field_a']),
+    src: Object.freeze({ scorch_field_a: R3 + 'stage3_feat' }) }),
+  Object.freeze({ dir: R3 + 'stage4_feat', tiles: Object.freeze(['sandbar_b']) }),
   Object.freeze({ dir: 'ground-features/stage5_feat', tiles: Object.freeze(['fissure']) }),
 ]);
 export const featuresOf = (n) => STAGE_FEATURES[Math.max(0, Math.min(STAGE_FEATURES.length - 1, n | 0))];
+
+
+
+
+
+export const featureFile = (f, id) => `${(f.src && f.src[id]) || f.dir}/tiles/${id}.png`;
 
 
 

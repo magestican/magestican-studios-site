@@ -1,0 +1,39 @@
+{
+ "tile_size": 256,
+ "cols": 2,
+ "rows": 2,
+ "tiles": [
+  {
+   "name": "sandbar_a",
+   "x": 0,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/sandbar_a.png"
+  },
+  {
+   "name": "sandbar_b",
+   "x": 256,
+   "y": 0,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/sandbar_b.png"
+  },
+  {
+   "name": "reef_shelf_a",
+   "x": 0,
+   "y": 256,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/reef_shelf_a.png"
+  },
+  {
+   "name": "reef_shelf_b",
+   "x": 256,
+   "y": 256,
+   "w": 256,
+   "h": 256,
+   "file": "tiles/reef_shelf_b.png"
+  }
+ ]
+}
