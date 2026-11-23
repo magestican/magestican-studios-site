@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <style data-immersive-shell>
+  html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  canvas { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, textarea, select, [contenteditable=""], [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  </style>
+  <script data-immersive-shell>
+  (function () {
+    var stop = function (e) { e.preventDefault(); };
+    // iOS pinch: Safari ignores user-scalable=no, so cancel its gesture events.
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('gestureend', stop, { passive: false });
+    // Two fingers moving = a pinch; cancelling the default stops the zoom, the game still gets the touches.
+    document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+    // Ctrl + wheel / trackpad pinch on a desktop browser.
+    window.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    var editable = function (t) {
+      return !!(t && t.closest && t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]'));
+    };
+    document.addEventListener('selectstart', function (e) { if (!editable(e.target)) e.preventDefault(); });
+    document.addEventListener('dblclick', function (e) { if (!editable(e.target)) e.preventDefault(); }, { passive: false });
+    document.addEventListener('contextmenu', function (e) { if (e.target && e.target.tagName === 'CANVAS') e.preventDefault(); });
+  })();
+  </script>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <title>Play Titan Bash - an 8-player giant robot party brawl</title>
+  <meta name="description" content="Titan Bash is a party brawl for up to eight pilots on one screen: dash, slam and ride the Red Line in giant storm-born Titans. Free, in the browser.">
+  <meta name="build" content="03a13d7a-20261123T202229Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/titan-bash/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Titan Bash - an 8-player giant robot party brawl">
+  <meta property="og:description" content="Dash, slam and ride the Red Line in giant storm-born Titans, up to eight pilots on one screen.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/titan-bash/">
+  <meta property="og:site_name" content="Magestican Studios">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  <script src="../shared/ui/boot.js?v=03a13d7a-20261123T202229Z" data-game="titan-bash"></script>
+  <link rel="stylesheet" href="./src/style.css?v=03a13d7a-20261123T202229Z">
+</head>
+<body>
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+  </div>
+
+  <main class="tb" id="app">
+    <section class="tb-page" id="title" hidden>
+      <header class="tb-head">
+        <h1>Titan Bash</h1>
+        <p class="tb-pitch">Dash. Slam. Ride the Red Line. Ring their Bell.</p>
+      </header>
+      
+      <button class="tb-go" id="start" type="button">Start</button>
+      
+      <div class="tb-warm">
+        <canvas id="warm" aria-label="Warm-up arena: drive your Titan now and shoot the targets"></canvas>
+        <p class="tb-dim tb-warm-note" id="warm-note">Warm up: drive your Titan and shoot a target.</p>
+      </div>
+      <div class="tb-card" id="night-setup">
+        <h2>Trial Night</h2>
+        <div class="tb-opts">
+          <label>Mode <select class="tb-input" id="opt-mode"><option value="brawl">Bell Brawl - everyone for themselves</option><option value="team">Team Trial - Houses in teams</option></select></label>
+          <label>Rounds <select class="tb-input" id="opt-rounds"><option>3</option><option selected>4</option><option>5</option></select></label>
+          <label>Arena <select class="tb-input" id="opt-arena"><option value="rotate" selected>All three in turn</option><option value="bellRing">The Bell Ring</option><option value="shatterfield">Shatterfield</option><option value="tidewall">Tidewall Causeway</option></select></label>
+          <label id="opt-teams-wrap" hidden>Teams <select class="tb-input" id="opt-teams"><option selected>2</option><option>3</option><option>4</option></select></label>
+        </div>
+      </div>
+      <div class="tb-card" id="room" hidden>
+        <h2>Phones join here</h2>
+        <p class="tb-code" id="room-code">Opening a room...</p>
+        <p class="tb-dim" id="room-how">On each phone open <b id="room-link"></b> or type the code. Up to eight pilots.</p>
+        <div class="tb-row"><button class="tb-btn" id="copy-link" type="button">Invite phones</button></div>
+      </div>
+      <div class="tb-card">
+        <h2>Pilots</h2>
+        <ol class="tb-seats" id="seats"></ol>
+        <p class="tb-dim" id="join-hint">Player 2: press an arrow key. Gamepads: press A. Empty seats get CPU pilots.</p>
+      </div>
+      <form class="tb-card" id="join-form">
+        <h2>On a phone?</h2>
+        <div class="tb-row">
+          <input class="tb-input" id="join-code" name="code" autocomplete="off" autocapitalize="characters" placeholder="Code on the big screen" aria-label="Room code">
+          <button class="tb-btn" type="submit">Join</button>
+        </div>
+      </form>
+      <details class="tb-fold">
+        <summary>How to play</summary>
+        <div class="tb-card">
+          <ul class="tb-how">
+            <li><b>Fire</b> shoots the nearest rival ahead. <b>Boost</b> dashes; dash into a rival to <b>slam</b>.</li>
+            <li>Everything heats your Titan. Past the <b>Red Line</b> you hit 25 % harder. At 100 you <b>stall</b>.</li>
+            <li>Stalled? Tap <b>Boost</b> when the ring meets the mark: a <b>Perfect Vent</b> = Overdrive.</li>
+            <li>Empty a rival's Armour, or knock them off the edge, to <b>ring their Bell</b>. Most Bells wins.</li>
+          </ul>
+          <p class="tb-dim">Player 1: W A S D move, J fire, K boost, L ability. Player 2: arrows, 1 fire, 2 boost, 3 ability.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="tb-match" id="match" hidden>
+      <canvas id="stage" aria-label="Titan Bash arena"></canvas>
+      <button class="tb-mini" id="quit" type="button">Quit</button>
+    </section>
+
+    
+    <section class="tb-page" id="end" hidden>
+      <div class="tb-card">
+        <p class="tb-dim" id="end-round"></p>
+        <h2 id="end-title"></h2>
+        <ol class="tb-podium tb-card-rows" id="podium"></ol>
+      </div>
+      <button class="tb-go" id="again" type="button">Next round</button>
+      <div class="tb-card">
+        <h2>Night so far</h2>
+        <ol class="tb-standings" id="standings"></ol>
+      </div>
+      <button class="tb-btn" id="to-title" type="button">Pilots</button>
+    </section>
+
+    
+    <section class="tb-page" id="night" hidden>
+      <header class="tb-head">
+        <p class="tb-dim" id="night-mode"></p>
+        <h1 id="night-title"></h1>
+        <p class="tb-pitch" id="night-well"></p>
+        <p class="tb-stars-line" id="night-stars"></p>
+      </header>
+      <ol class="tb-steps" id="steps"></ol>
+      <button class="tb-go" id="night-again" type="button">New Night</button>
+      <button class="tb-btn" id="night-pilots" type="button">Pilots</button>
+    </section>
+    
+    <section class="tb-phone" id="phone" hidden>
+      <header class="ph-strip" id="ph-strip">
+        <div class="ph-top"><b id="ph-name">Titan Bash</b><span id="ph-bells">0 Bells</span></div>
+        <div class="ph-bar"><span>Heat</span><i><em id="ph-heat"></em></i></div>
+        <div class="ph-bar"><span>Armour</span><i><em id="ph-armour" class="armour"></em></i></div>
+      </header>
+      <p class="ph-state" id="ph-state"></p>
+      
+      <button class="tb-btn ph-toggle" id="ph-toggle" type="button" hidden>Pick House and Titan</button>
+      
+      <div class="ph-pick" id="ph-pick" hidden>
+        <p class="ph-label">House</p>
+        <div class="ph-houses" id="ph-houses"></div>
+        <p class="ph-label">Titan</p>
+        <div class="ph-titans" id="ph-titans"></div>
+        <label class="ph-rookie"><input type="checkbox" id="ph-rookie"> Rookie (wider aim, easier Vent)</label>
+        
+        <p class="ph-tip" id="ph-tip" hidden></p>
+        <div class="ph-stars" id="ph-stars">
+          <p><b id="ph-star-count"></b></p>
+          <p class="ph-new" id="ph-star-new" hidden></p>
+          <p id="ph-star-next"></p>
+          <div class="ph-wear">
+            <label><span id="ph-paint-label"></span><select id="ph-paint"></select></label>
+            <label><span id="ph-emblem-label"></span><select id="ph-emblem"></select></label>
+          </div>
+        </div>
+        <div class="ph-go">
+          <button class="ph-ready" id="ph-ready" type="button">Ready</button>
+          <button class="ph-start" id="ph-start" type="button" hidden>Start</button>
+        </div>
+      </div>
+      <div class="ph-pad">
+        <div class="ph-stick" id="ph-stick"><span class="ph-hint">Move</span><span class="ph-knob" id="ph-knob" hidden></span></div>
+        <div class="ph-buttons">
+          <button class="ph-b ph-boost" id="ph-boost" type="button">Boost</button>
+          <button class="ph-b ph-ability" id="ph-ability" type="button">Ability</button>
+          <button class="ph-b ph-fire" id="ph-fire" type="button">Fire</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=03a13d7a-20261123T202229Z"></script>
+  <script type="module" src="./src/main.js?v=03a13d7a-20261123T202229Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=03a13d7a-20261123T202229Z"></script>
+</body>
+</html>

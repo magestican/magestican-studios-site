@@ -1,0 +1,36 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "battle",
+      "side": "A",
+      "title": "Bell Ring",
+      "genre": "game-battle-boss",
+      "file": "titan-bash-battle.webm",
+      "loopSamples": 2457600,
+      "seed": 1669353710,
+      "lufs": -13.8
+    },
+    {
+      "id": "lobby",
+      "side": "A",
+      "title": "Hangar Call",
+      "genre": "anime-opening",
+      "file": "titan-bash-lobby.webm",
+      "loopSamples": 2194286,
+      "seed": 1703650901,
+      "lufs": -13.9
+    },
+    {
+      "id": "storm",
+      "side": "A",
+      "title": "Storm Hour",
+      "genre": "game-battle-boss",
+      "file": "titan-bash-storm.webm",
+      "loopSamples": 2194286,
+      "seed": 479460233,
+      "lufs": -13.1
+    }
+  ]
+}
