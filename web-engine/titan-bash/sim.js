@@ -38,27 +38,39 @@ function makeTitan(id, p, spawn) {
     fireCd: 0, abilityCd: 0, lunge: 0, lungeDx: 0, lungeDy: 0, aegis: 0, hitstop: 0, counter: 0, counterTarget: null,
     shield: 0, alive: true, respawn: 0, lastBusyTick: NEVER, wallHitAt: NEVER, lumen: 0, lumenTime: 0,
     prevFire: false, prevBoost: false, prevAbility: false,
-    bells: 0, rung: 0, ringOuts: 0, clangsWon: 0, perfectVents: 0, stalls: 0, redlineTicks: 0,
+    bells: 0, rung: 0, ringOuts: 0, streak: 0, bestStreak: 0, clangsWon: 0, perfectVents: 0, stalls: 0, redlineTicks: 0,
   };
 }
 
 
-export function createMatch({ seed = 1, arena = 'bellRing', players = [], sleeper = true } = {}) {
+
+
+function makeDummy(id, d) {
+  const t = makeTitan(id, { titan: d.titan || 'bulwark', team: -1 }, { x: d.x, y: d.y });
+  t.house = 'dummy'; t.dummy = true; t.home = { x: d.x, y: d.y };
+  if (d.armour) { t.armour = d.armour; t.maxArmour = d.armour; }
+  return t;
+}
+
+
+
+export function createMatch({ seed = 1, arena = 'bellRing', players = [], sleeper = true, mode = 'brawl', endless = false, dummies = [] } = {}) {
   const a = ARENAS[arena] ? arena : 'bellRing';
   const spawns = ARENAS[a].spawns;
   return {
-    seed, tick: 0, rng: makeRng(seed), arena: a, over: false, storm: false,
-    titans: players.slice(0, 8).map((p, i) => makeTitan(i, p, spawns[i % spawns.length])),
-    shots: [], decoys: [], lumen: [], lumenClock: 0, sleeper: createSleeper(a, sleeper),
+    seed, tick: 0, rng: makeRng(seed), arena: a, over: false, storm: false, mode: mode === 'team' ? 'team' : 'brawl',
+    titans: [...players.slice(0, 8).map((p, i) => makeTitan(i, p, spawns[i % spawns.length])),
+      ...dummies.map((d, k) => makeDummy(Math.min(8, players.length) + k, d))],
+    endless: !!endless, shots: [], decoys: [], lumen: [], lumenClock: 0, sleeper: createSleeper(a, sleeper),
   };
 }
 
-export const isStorm = (m) => m.tick >= secs(T.roundTime - T.stormTime);
+export const isStorm = (m) => !m.endless && m.tick >= secs(T.roundTime - T.stormTime);
 
 
 export function stormBounds(m) {
   const a = ARENAS[m.arena];
-  const into = m.tick - secs(T.roundTime - T.stormTime);
+  const into = m.endless ? 0 : m.tick - secs(T.roundTime - T.stormTime);
   const f = into <= 0 ? 1 : 1 - (1 - T.stormWallMin) * Math.min(1, into / secs(T.stormWallTime));
   return { hw: (a.w / 2) * f, hh: (a.h / 2) * f };
 }
@@ -160,12 +172,27 @@ function autoAim(m, t) {
   return best;
 }
 
+
+
+function teamBounty(m) {
+  const sum = new Map();
+  for (const t of m.titans) sum.set(t.team, (sum.get(t.team) || 0) + t.bells);
+  if (sum.size < 2) return null;
+  const ranked = [...sum].sort((a, b) => b[1] - a[1]);
+  if (ranked[0][1] - ranked[1][1] < T.bountyLead) return null;
+  let top = null;
+  for (const t of m.titans) if (t.team === ranked[0][0] && (!top || t.bells > top.bells)) top = t;
+  return top;
+}
+
 function bountyOf(m) {
+  if (m.mode === 'team') return teamBounty(m);
   let top = null; let topB = -1e9; let second = -1e9;
   for (const t of m.titans) {
+    if (t.dummy) continue;
     if (t.bells > topB) { second = topB; topB = t.bells; top = t; } else if (t.bells > second) second = t.bells;
   }
-  if (m.titans.length < 2) return null;
+  if (m.titans.filter((t) => !t.dummy).length < 2) return null; 
   return top && topB - second >= T.bountyLead ? top : null;
 }
 export const bounty = bountyOf;
@@ -178,11 +205,13 @@ function ringBell(m, target, ringOut, events) {
     const by = m.titans[target.lastHitBy];
     const value = storm * (bountyOf(m) === target ? T.bountyValue : 1);
     by.bells += value;
+    by.streak += 1; if (by.streak > by.bestStreak) by.bestStreak = by.streak;
     events.push({ type: EVENT.BELL, target: target.id, by: by.id, value, ringOut });
   } else {
     target.bells -= 1;
     events.push({ type: EVENT.BELL, target: target.id, by: null, value: -1, ringOut });
   }
+  target.streak = 0;
   target.rung += 1; if (ringOut) target.ringOuts += 1;
   target.alive = false; target.respawn = secs(T.respawnTime);
   target.vx = target.vy = target.kx = target.ky = 0;
@@ -214,6 +243,7 @@ function damage(m, target, amount, by, dirX, dirY, knock, kind, events) {
 }
 
 function spawnPoint(m, t) {
+  if (t.home) return t.home; 
   let best = null; let bestD = -1;
   for (const s of ARENAS[m.arena].spawns) {
     let d = 1e9;
@@ -545,7 +575,7 @@ export function step(m, inputs = []) {
   m.decoys = m.decoys.filter((d) => d.life > 0 && d.alive);
 
   m.tick += 1;
-  if (m.tick >= secs(T.roundTime)) { m.over = true; events.push({ type: EVENT.END }); }
+  if (!m.endless && m.tick >= secs(T.roundTime)) { m.over = true; events.push({ type: EVENT.END }); }
   void nextRandom;
   return events;
 }
