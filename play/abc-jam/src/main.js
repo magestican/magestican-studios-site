@@ -15,7 +15,7 @@ import {
   loadProgress, saveProgress, addSticker, PARTY_AFTER, createResetConfirm, resetProgress,
   PRIZES, prizesFor, newPrizes, nextGoal, meters, createDinoEggs, createDinoMatch, FOUND_PRIZE, hintFor,
 } from './rules.js';
-import { PUZZLES, createPuzzle, pieceShape, PIC_W, PIC_H } from './puzzle.js';
+import { PUZZLES, createPuzzle, pieceShape, PIC_W, PIC_H, dropFor, nearness } from './puzzle.js';
 import { SFX_NAMES } from './sfx.js';
 import { T, fill } from './strings.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
@@ -300,6 +300,9 @@ function flashKey(ch) {
 
 
 function press(ch) {
+  
+  
+  if (busy && mode === 'puzzle') { pzWaitCue(String(ch).toUpperCase()); return; }
   if (!mode || busy) return;
   const c = String(ch).toUpperCase();
   if (!/^[A-Z]$/.test(c)) return;
@@ -315,6 +318,8 @@ document.addEventListener('keydown', (e) => {
 });
 document.addEventListener('click', (e) => {
   const k = e.target.closest?.('.aj-key, .aj-bubble, .aj-balloon, .aj-dino-choice, .aj-pz-piece');
+  
+  if (k?.classList.contains('aj-pz-piece') && performance.now() - pzDragEndedAt < 500) return;
   if (k?.dataset.ch) press(k.dataset.ch);
 });
 
@@ -1285,7 +1290,7 @@ function pzAsk() {
   say(vid.find(next));
 }
 
-function puzzlePress(c) {
+function puzzlePress(c, { dragged = null } = {}) {
   const r = pz.place(c);
   if (!r.ok) {
     if (r.done) return;
@@ -1314,14 +1319,20 @@ function puzzlePress(c) {
     if (r.done) { pzFinish(); return; }
     later(() => { busy = false; pzAsk(); }, TIMING.letterGapMs);
   };
+  if (dragged) { navigator.vibrate?.(18); pzFly(piece, board, r.slot, land, dragged); return; }
   play('whoosh');
   pzFly(piece, board, r.slot, land);
 }
 
 
-function pzFly(piece, board, slot, done) {
-  if (!piece || !board || reduceMotion || !piece.animate) { done(); return; }
+
+
+
+
+function pzFly(piece, board, slot, done, from = null) {
+  if (!piece || !board || reduceMotion || !piece.animate) { piece?.style.removeProperty('transform'); done(); return; }
   const s = pieceShape(pz.puzzle, slot);
+  piece.style.removeProperty('transform'); 
   const pr = piece.querySelector('svg').getBoundingClientRect();
   const br = board.getBoundingClientRect();
   const vb = board.viewBox.baseVal;
@@ -1332,6 +1343,15 @@ function pzFly(piece, board, slot, done) {
   const dy = ty - (pr.top + pr.height / 2);
   const scale = (s.box.w * k) / pr.width;
   piece.classList.add('is-flying');
+  if (from) {
+    const snap = piece.animate([
+      { transform: from },
+      { transform: `translate(${dx}px, ${dy}px) scale(${scale * 1.08}) rotate(0deg)`, offset: 0.7 },
+      { transform: `translate(${dx}px, ${dy}px) scale(${scale}) rotate(0deg)` },
+    ], { duration: 240, easing: 'cubic-bezier(.2, .9, .3, 1)', fill: 'forwards' });
+    snap.onfinish = done;
+    return;
+  }
   const anim = piece.animate([
     { transform: 'translate(0, 0) scale(1) rotate(var(--tilt, 0deg))' },
     { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 60}px) scale(${(1 + scale) / 2 * 1.15}) rotate(0deg)`, offset: 0.55 },
@@ -1339,6 +1359,140 @@ function pzFly(piece, board, slot, done) {
   ], { duration: 650, easing: 'cubic-bezier(.3, .1, .3, 1)', fill: 'forwards' });
   anim.onfinish = done;
 }
+
+
+
+
+
+
+
+
+const DRAG_START = 10; 
+const DRAG_LIFT = 1.15;
+let pzDrag = null;
+let pzDragEndedAt = -Infinity;
+
+
+function pzBoardPoint(x, y) {
+  const board = document.querySelector('.aj-pz-board');
+  if (!board) return null;
+  const br = board.getBoundingClientRect();
+  const vb = board.viewBox.baseVal;
+  const k = br.width / vb.width;
+  return { x: vb.x + (x - br.left) / k, y: vb.y + (y - br.top) / k };
+}
+
+
+function pzSlotScreen(slot) {
+  const board = document.querySelector('.aj-pz-board');
+  const br = board.getBoundingClientRect();
+  const vb = board.viewBox.baseVal;
+  const k = br.width / vb.width;
+  const c = pieceShape(pz.puzzle, slot).cell;
+  return { x: br.left + (c.x + c.w / 2 - vb.x) * k, y: br.top + (c.y + c.h / 2 - vb.y) * k };
+}
+
+
+function pzWaitCue(c) {
+  const piece = document.querySelector(`.aj-pz-piece:not(.is-home)[data-ch="${c}"]`);
+  if (piece) bump(piece, 'aj-pz-wait');
+}
+
+
+function pzFloatBack(piece, then) {
+  const from = piece.style.transform;
+  piece.style.removeProperty('transform');
+  piece.classList.remove('is-dragging');
+  if (reduceMotion || !piece.animate || !from) { then?.(); return; }
+  piece.classList.add('is-returning');
+  const a = piece.animate([{ transform: from }, { transform: 'translate(0, 0) scale(1) rotate(var(--tilt, 0deg))' }],
+    { duration: 420, easing: 'cubic-bezier(.3, 1.35, .5, 1)' });
+  a.onfinish = () => { piece.classList.remove('is-returning'); then?.(); };
+}
+
+function pzDragClear() {
+  for (const g of document.querySelectorAll('.aj-pz-slot')) { g.classList.remove('is-warm', 'is-snap'); g.style.removeProperty('--near'); }
+  document.body.classList.remove('aj-pz-dragging');
+}
+
+document.addEventListener('pointerdown', (e) => {
+  if (mode !== 'puzzle' || !pz || e.button > 0 || pzDrag) return;
+  const piece = e.target.closest?.('.aj-pz-piece:not(.is-home):not(.is-flying)');
+  if (!piece) return;
+  const r = piece.getBoundingClientRect();
+  
+  
+  
+  const board = document.querySelector('.aj-pz-board');
+  const sw = piece.querySelector('svg').getBoundingClientRect().width;
+  const s = pieceShape(pz.puzzle, Number(piece.dataset.slot));
+  const fit = board && sw ? (s.box.w * board.getBoundingClientRect().width / board.viewBox.baseVal.width) / sw : DRAG_LIFT;
+  pzDrag = { piece, id: e.pointerId, x0: e.clientX, y0: e.clientY, cx: r.left + r.width / 2 - e.clientX, cy: r.top + r.height / 2 - e.clientY, on: false, snap: false, near: 0, fit };
+});
+
+document.addEventListener('pointermove', (e) => {
+  const d = pzDrag;
+  if (!d || e.pointerId !== d.id) return;
+  const dx = e.clientX - d.x0;
+  const dy = e.clientY - d.y0;
+  if (!d.on) {
+    if (Math.hypot(dx, dy) < DRAG_START) return;
+    d.on = true;
+    try { d.piece.setPointerCapture?.(e.pointerId); } catch {  }
+    d.piece.classList.add('is-dragging');
+    document.body.classList.add('aj-pz-dragging');
+    clearHints();
+    play('pop');
+  }
+  e.preventDefault();
+  const slot = Number(d.piece.dataset.slot);
+  const want = busy ? null : pz.placed().length;
+  const centre = { x: e.clientX + d.cx, y: e.clientY + d.cy };
+  const pt = pzBoardPoint(centre.x, centre.y);
+  let mx = dx;
+  let my = dy;
+  const g = document.querySelector(`.aj-pz-slot[data-slot="${slot}"]`);
+  if (slot === want && g) {
+    const near = nearness(pz.puzzle, slot, pt);
+    d.near = near;
+    const snap = dropFor(pz.puzzle, slot, want, pt) === 'home';
+    g.style.setProperty('--near', near.toFixed(2));
+    g.classList.toggle('is-warm', near > 0.3);
+    g.classList.toggle('is-snap', snap);
+    if (snap) { 
+      const s = pzSlotScreen(slot);
+      mx += (s.x - centre.x) * 0.35;
+      my += (s.y - centre.y) * 0.35;
+    }
+    if (snap && !d.snap) { play('tap'); navigator.vibrate?.(8); }
+    d.snap = snap;
+  } else d.near = 0;
+  const k = DRAG_LIFT + (d.fit * 1.04 - DRAG_LIFT) * d.near; 
+  d.piece.style.transform = `translate(${mx.toFixed(1)}px, ${my.toFixed(1)}px) scale(${k.toFixed(3)}) rotate(0deg)`;
+});
+
+function pzDragEnd(e, cancelled) {
+  const d = pzDrag;
+  if (!d || e.pointerId !== d.id) return;
+  pzDrag = null;
+  if (!d.on) return; 
+  pzDragEndedAt = performance.now();
+  pzDragClear();
+  const slot = Number(d.piece.dataset.slot);
+  const want = busy || !pz ? null : pz.placed().length;
+  const pt = cancelled ? null : pzBoardPoint(e.clientX + d.cx, e.clientY + d.cy);
+  const what = mode === 'puzzle' && pz ? dropFor(pz.puzzle, slot, want, pt) : 'back';
+  if (what === 'home') {
+    d.piece.classList.remove('is-dragging');
+    puzzlePress(d.piece.dataset.ch, { dragged: d.piece.style.transform });
+    return;
+  }
+  
+  pzFloatBack(d.piece, what === 'wrong' ? () => { if (mode === 'puzzle' && !busy) puzzlePress(d.piece.dataset.ch); } : null);
+  if (what === 'back' && busy) pzWaitCue(d.piece.dataset.ch);
+}
+document.addEventListener('pointerup', (e) => pzDragEnd(e, false));
+document.addEventListener('pointercancel', (e) => pzDragEnd(e, true));
 
 function pzFinish() {
   const p = pz.puzzle;

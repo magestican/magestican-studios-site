@@ -134,3 +134,37 @@ export function pieceShape(p, slot) {
   const pad = t * 1.08;
   return { d, cell: { x: x0, y: y0, w: cw, h: ch }, box: { x: x0 - pad, y: y0 - pad, w: cw + 2 * pad, h: ch + 2 * pad }, tab: t, pts };
 }
+
+
+
+
+
+export const SNAP = 0.75;
+const BOARD_MARGIN = 4; 
+
+function cellDistance(p, slot, pt) {
+  const c = pieceShape(p, slot).cell;
+  return Math.hypot((pt.x - (c.x + c.w / 2)) / c.w, (pt.y - (c.y + c.h / 2)) / c.h);
+}
+
+
+
+
+
+
+
+
+export function dropFor(p, slot, want, pt) {
+  if (want == null || !pt) return 'back';
+  if (slot === want && cellDistance(p, slot, pt) <= SNAP) return 'home';
+  const onBoard = pt.x >= -BOARD_MARGIN && pt.x <= PIC_W + BOARD_MARGIN && pt.y >= -BOARD_MARGIN && pt.y <= PIC_H + BOARD_MARGIN;
+  if (slot !== want && onBoard) return 'wrong';
+  return 'back';
+}
+
+
+export function nearness(p, slot, pt) {
+  if (!pt) return 0;
+  const d = cellDistance(p, slot, pt);
+  return Math.max(0, Math.min(1, 1 - Math.max(0, d - 0.15) / 1.35));
+}
