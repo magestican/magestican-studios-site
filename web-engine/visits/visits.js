@@ -264,6 +264,9 @@ const SLUG_TO_GAME_ID = Object.freeze({
   
   
   'polarity-shmup': 'flipwake',
+  
+  
+  glowtail: 'glimmercoil',
 });
 
 export function gameIdFromPath(href = '') {

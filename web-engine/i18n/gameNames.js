@@ -99,6 +99,9 @@ export const GAME_NAMES = Object.freeze({
   flipwake: { en: 'Flipwake', es: 'Flipwake: Shooter de colores', pt: 'Flipwake: Shooter de cores', tl: 'Flipwake: Shooter ng Kulay', ja: 'Flipwake 色切り替えシューティング', ko: 'Flipwake 색 전환 슈팅', id: 'Flipwake: Shooter Warna', vi: 'Flipwake: Bắn súng đổi màu' },
   
   
+  
+  
+  glimmercoil: { en: 'Glimmercoil', es: 'Glimmercoil: Juego de la serpiente', pt: 'Glimmercoil: Jogo da cobrinha', tl: 'Glimmercoil: Laro ng Ahas', ja: 'Glimmercoil スネークゲーム', ko: 'Glimmercoil 뱀 게임', id: 'Glimmercoil: Game Ular', vi: 'Glimmercoil: Trò chơi rắn săn mồi' },
   'tiny-throttle': { en: 'Tiny Throttle', es: 'Tiny Throttle: Carreras de coches RC', pt: 'Tiny Throttle: Corrida de carrinhos RC', tl: 'Tiny Throttle: Karera ng RC na Kotse', ja: 'Tiny Throttle ラジコンレース', ko: 'Tiny Throttle RC카 레이싱', id: 'Tiny Throttle: Balap Mobil RC', vi: 'Tiny Throttle: Đua xe điều khiển' },
   
   clashwell: { en: 'Clashwell', es: 'Clashwell: Duelo de gemas', pt: 'Clashwell: Duelo de gemas', tl: 'Clashwell: Labanan ng Hiyas', ja: 'Clashwell 落ち物ジェム対戦', ko: 'Clashwell 보석 낙하 대전', id: 'Clashwell: Duel Permata', vi: 'Clashwell: Đấu đá quý' },

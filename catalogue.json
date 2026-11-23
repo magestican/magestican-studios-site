@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "a80c30e2-20261123T151112Z",
+ "buildId": "856c95cd-20261123T160911Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -997,6 +997,38 @@
    "bytes": 5028430
   },
   {
+   "id": "glimmercoil",
+   "statsId": "glimmercoil",
+   "title": "Glimmercoil",
+   "tagline": "The grid snake of the old phone games, drawn in light: a glowing eel that circles whole shoals.",
+   "description": "A snake game that runs in your browser: you steer a glowing eel round a grid, grow with every bite, and close your body into a ring round a shoal to swallow it all at once. Five depths of the sea, or the endless Classic board.",
+   "dir": "play/glowtail",
+   "path": "play/glowtail/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/glimmercoil.html",
+   "orientation": "any",
+   "players": "1",
+   "online": false,
+   "offline": false,
+   "cover": "assets/covers/glimmercoil-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/glimmercoil/0.webp",
+    "assets/shots/glimmercoil/1.webp"
+   ],
+   "accent": "#5ee7ff",
+   "glyph": "glimmercoil",
+   "pack": "family",
+   "age": 6,
+   "ageNote": null,
+   "order": 33,
+   "addedAt": "2026-11-24",
+   "bytes": 11427681
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -1024,7 +1056,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 34,
+   "order": 35,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1056,7 +1088,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 35,
+   "order": 36,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1088,7 +1120,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 36,
+   "order": 37,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1120,7 +1152,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 37,
+   "order": 38,
    "addedAt": "2026-09-21",
    "bytes": 228531
   }
