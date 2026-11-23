@@ -39,7 +39,7 @@ function makeTitan(id, p, spawn) {
     fireCd: 0, abilityCd: 0, lunge: 0, lungeDx: 0, lungeDy: 0, aegis: 0, hitstop: 0, counter: 0, counterTarget: null,
     shield: 0, alive: true, respawn: 0, lastBusyTick: NEVER, wallHitAt: NEVER, lumen: 0, lumenTime: 0,
     prevFire: false, prevBoost: false, prevAbility: false,
-    bells: 0, rung: 0, ringOuts: 0, streak: 0, bestStreak: 0, clangsWon: 0, perfectVents: 0, stalls: 0, redlineTicks: 0,
+    bells: 0, rung: 0, ringOuts: 0, streak: 0, bestStreak: 0, clangsWon: 0, perfectVents: 0, stalls: 0, slamHits: 0, redlineTicks: 0,
   };
 }
 
@@ -440,6 +440,7 @@ function contacts(m, events) {
             t.dash = 0; t.vx *= -0.2; t.vy *= -0.2;
             const mul = dmgMul(t);
             damage(m, o, T.slamDamage * mul, t.id, ux * s, uy * s, T.slamKnock * mul, 'slam', events);
+            t.slamHits += 1; 
             events.push({ type: EVENT.SLAM, by: t.id, target: o.id });
           }
         }

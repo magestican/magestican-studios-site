@@ -67,6 +67,7 @@ export function roundCard(match) {
   const rows = match.titans.map((t) => ({
     id: t.id, house: t.house, frame: t.frame, team: t.team, bells: t.bells, rung: t.rung,
     clangsWon: t.clangsWon, perfectVents: t.perfectVents, bestStreak: t.bestStreak || 0,
+    stalls: t.stalls || 0, slamHits: t.slamHits || 0, rookie: !!t.rookie,
   }));
   if (match.mode !== 'team') {
     
