@@ -16,6 +16,10 @@ float aastep(float e, float x) { float w = fwidth(x) * 0.75; return smoothstep(e
 `;
 
 
+
+export const OUTSIDE_ZOOM = 3.2;
+export const OUTSIDE_LEVEL = 0.3;
+
 export const BACK_VERT = `
 varying vec2 vW;
 void main() {
@@ -71,6 +75,25 @@ void main() {
   float on = clamp(onA + onB, 0.0, 1.0);
   vec3 art = (artA * onA + artB * onB) / max(on, 0.001);
   col = mix(col, art * uArtDim * (1.0 + 0.35 * uLight), on * inField);
+  // G-20 (AAA audit 2026-11-24, GD-353): on a wide screen ~70 % of the view was this procedural pixel skyline, a
+  // different look from the act's cel-toon picture in the field. Outside the field the SAME picture now runs on,
+  // scaled up OUTSIDE_ZOOM times about the field's centre (so only its broad colour and light remain), and the frame
+  // darkening below keeps the field the brightest thing. The procedural city still shows while no picture is loaded.
+  vec2 ouv = clamp(vec2(0.5 + (p.x - 360.0) / (720.0 * ${OUTSIDE_ZOOM.toFixed(1)}),
+    0.5 + (p.y + 640.0) / (1280.0 * ${OUTSIDE_ZOOM.toFixed(1)})), 0.001, 0.999);
+  // a soft 9-tap blur (the pictures have no mipmaps): broad colour and light only, no detail to compete with play
+  vec3 oA = vec3(0.0), oB = vec3(0.0);
+  for (int i = 0; i < 9; i++) {
+    float a = float(i) * 2.399;
+    vec2 o = float(i > 0) * vec2(cos(a), sin(a) * 0.5625) * (0.006 + 0.004 * float(i));
+    oA += texture2D(uArtA, clamp(ouv + o, 0.001, 0.999)).rgb;
+    oB += texture2D(uArtB, clamp(ouv + o, 0.001, 0.999)).rgb;
+  }
+  vec3 outArt = (oA * onA + oB * onB) / (9.0 * max(on, 0.001));
+  // darker the further from the field, so the eye is pulled back to the glass
+  float away = clamp((abs(p.x - 360.0) - 360.0) / 900.0, 0.0, 1.0);
+  outArt *= 1.0 - 0.6 * away;
+  col = mix(col, outArt * ${OUTSIDE_LEVEL.toFixed(2)} * (1.0 + 0.25 * uLight), on * (1.0 - inField));
   // THE DUSK: a cold violet darkness from the top of the field down to the glass, thicker as the mass comes down
   if (uMass < 0.0) {
     float above = smoothstep(uMass - 40.0, 0.0, p.y);

@@ -185,8 +185,43 @@
     
     #title { background: linear-gradient(180deg, rgba(5, 3, 10, 0.72), rgba(5, 3, 10, 0.18) 40%, rgba(5, 3, 10, 0.2) 62%, rgba(5, 3, 10, 0.78)); }
     #title .lede { max-width: 24em; font-size: calc(15px * var(--fs)); line-height: 1.35; opacity: 0.92; text-shadow: 0 1px 3px #000; }
-    .stars { font-size: calc(40px * var(--fs)); letter-spacing: 0.15em; color: #ffd27a; }
-    .stars .off { color: rgba(255, 255, 255, 0.18); }
+    
+    .stars { display: flex; justify-content: center; gap: calc(16px * var(--fs)); }
+    .stars .star { display: flex; flex-direction: column; align-items: center; gap: calc(4px * var(--fs)); width: calc(92px * var(--fs));
+      opacity: 0; transform: scale(1.8); transition: opacity 160ms ease-out, transform 260ms cubic-bezier(.2, 1.6, .4, 1); }
+    .stars .star.in { opacity: 1; transform: none; }
+    .stars .star span { font-size: calc(40px * var(--fs)); line-height: 1; color: #ffd27a; text-shadow: 0 0 calc(14px * var(--fs)) rgba(255, 190, 90, 0.75); }
+    .stars .star small { font-size: calc(11px * var(--fs)); line-height: 1.2; color: var(--ink); opacity: 0.85; }
+    .stars .star.off span { color: rgba(255, 255, 255, 0.18); text-shadow: none; }
+    .stars .star.off small { opacity: 0.45; }
+    .tally .row-in { opacity: 0; transform: translateY(6px); transition: opacity 160ms, transform 200ms; }
+    .tally .row-in.in { opacity: 1; transform: none; }
+    .best { font: 700 calc(22px * var(--fs))/1 "Grenze Gotisch", serif; color: #ffd27a; letter-spacing: 0.04em;
+      text-shadow: 0 0 calc(16px * var(--fs)) rgba(255, 190, 90, 0.8); animation: best-in 420ms cubic-bezier(.2, 1.6, .4, 1); }
+    .best[hidden] { display: none; }
+    @keyframes best-in { from { opacity: 0; transform: scale(1.6) rotate(-4deg); } to { opacity: 1; transform: none; } }
+    
+    #pops { position: absolute; inset: 0; overflow: hidden; }
+    .pop { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none;
+      font: 700 calc(13px * var(--fs))/1 "Grenze", serif; color: var(--brass); text-shadow: 0 1px 3px #000, 0 0 8px rgba(255, 180, 80, 0.6);
+      animation: pop-rise 760ms ease-out forwards; }
+    .pop.big { font-size: calc(18px * var(--fs)); color: #ffe39a; }
+    .pop.chain { font: 700 calc(20px * var(--fs))/1 "Grenze Gotisch", serif; color: #fff1c9; letter-spacing: 0.06em;
+      text-shadow: 0 2px 4px #000, 0 0 14px rgba(255, 170, 70, 0.9); animation: chain-pop 900ms cubic-bezier(.2, 1.4, .4, 1) forwards; }
+    .pop.chain.big { font-size: calc(28px * var(--fs)); }
+    @keyframes pop-rise { from { opacity: 1; transform: translate(-50%, -50%); } to { opacity: 0; transform: translate(-50%, calc(-50% - 34px * var(--fs))); } }
+    @keyframes chain-pop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } 25% { opacity: 1; transform: translate(-50%, -110%) scale(1.15); }
+      70% { opacity: 1; transform: translate(-50%, -130%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -160%) scale(0.95); } }
+    .light.gain { animation: gain 260ms ease-out; }
+    @keyframes gain { 0% { transform: scale(1); } 35% { transform: scale(1.14); color: #fff1c9; } 100% { transform: scale(1); } }
+    #where small { display: block; font-size: calc(10px * var(--fs)); line-height: 1.15; opacity: 0.75; }
+    #where b { display: block; font-size: calc(13px * var(--fs)); line-height: 1.15; }
+    @media (prefers-reduced-motion: reduce) {
+      .pop, .pop.chain { animation: pop-fade 700ms linear forwards; }
+      .stars .star, .tally .row-in { transition: none; transform: none; }
+      .light.gain, .best { animation: none; }
+    }
+    @keyframes pop-fade { from { opacity: 1; } to { opacity: 0; } }
     .tally { display: grid; grid-template-columns: auto auto; gap: calc(6px * var(--fs)) calc(24px * var(--fs));
       font-size: calc(15px * var(--fs)); text-align: left; }
     .tally b { text-align: right; color: var(--brass); font-variant-numeric: tabular-nums; }
@@ -246,6 +281,7 @@
 <body>
   <canvas id="c" aria-label="Glassbreak play field"></canvas>
   <div id="field">
+    <div id="pops" aria-hidden="true"></div>
     <div class="hud top" id="hud" hidden>
       <div class="where">
         <div class="chip light" id="light">0</div>
@@ -339,6 +375,7 @@
       <h2 id="tallyName">Window clear</h2>
       <div class="stars" id="tallyStars"></div>
       <div class="tally" id="tallyRows"></div>
+      <div class="best" id="tallyBest" hidden>New best</div>
       <button class="big g-amber" id="next">Next window</button>
       <div class="row"><button class="btn g-cobalt" id="tallySelect">Windows</button></div>
     </section>
@@ -364,7 +401,7 @@
       <button class="big g-amber" id="endTitle">Title</button>
     </section>
   </div>
-  <script type="module" src="src/game.js?v=714c67da-20261123T223656Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=714c67da-20261123T223656Z"></script>
+  <script type="module" src="src/game.js?v=4276abd9-20261123T230838Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=4276abd9-20261123T230838Z"></script>
 </body>
 </html>

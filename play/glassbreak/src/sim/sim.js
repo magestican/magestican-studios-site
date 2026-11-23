@@ -38,6 +38,9 @@ export const MODE_GENTLE = 0, MODE_NORMAL = 1, MODE_HARD = 2;
 
 
 export const C_EMPTY = 0, C_GLASS = 1, C_CATH = 2, C_LEAD = 3, C_IRON = 4, C_MIRROR = 5, C_SUN = 6, C_BEAD = 7;
+
+export const paneValue = (t, chain) =>
+  (t === C_SUN ? 200 : t === C_LEAD ? 30 : t === C_CATH ? 20 : 10) * (1 + Math.min(chain, 12));
 const CELL_OF = { r: [C_GLASS, 0], g: [C_GLASS, 1], b: [C_GLASS, 2], R: [C_CATH, 0], G: [C_CATH, 1], B: [C_CATH, 2],
   L: [C_LEAD, 3], X: [C_IRON, 3], M: [C_MIRROR, 3], S: [C_SUN, 3], '*': [C_BEAD, 3] };
 export const CELL_HP = [0, 1, 2, 3, 99, 2, 1, 1];
@@ -247,7 +250,7 @@ function breakCell(s, i, e, seat) {
   const cx = p.x + U(CW / 2), cy = p.y + U(CH / 2);
   g.t[i] = C_EMPTY; g.hp[i] = 0;
   const chain = e ? e.chain : 0;
-  const value = (t === C_SUN ? 200 : t === C_LEAD ? 30 : t === C_CATH ? 20 : 10) * (1 + Math.min(chain, 12));
+  const value = paneValue(t, chain);
   s.light += value;
   s.massY -= t === C_SUN ? U(60) : U(4);
   if (s.massY < -U(CH * 3)) s.massY = -U(CH * 3);
@@ -842,7 +845,7 @@ export function step(s, inputs) {
   if (s.phase === PH_CLEAR) {
     const waited = s.tick - s.phT;
     const pressed = s.players.some((p) => p.on && p.next);
-    if ((pressed && waited > 45) || waited > 900) {
+    if ((pressed && waited > TALLY_MIN_TICKS) || waited > 900) {
       if (s.wi + 1 >= WINDOWS.length) { s.phase = PH_DONE; s.phT = s.tick; ev(s, 'done', 0, 0); }
       else loadWindow(s, s.wi + 1);
     }
@@ -933,6 +936,12 @@ function fail(s) {
   ev(s, 'fail', 0, 0, s.wi);
 }
 
+
+
+
+
+
+export const TALLY_MIN_TICKS = 100;
 export const PAR_TICKS = (wi) => (WINDOWS[wi].boss ? 150 : 95) * TICK_HZ;
 
 function clear(s) {

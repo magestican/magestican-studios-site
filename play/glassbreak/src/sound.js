@@ -61,7 +61,7 @@ export function createCuePlayer(play, now = () => performance.now(), gapMs = 45,
       const at = now();
       if (at - (last.get(cue) ?? -Infinity) < gapMs) continue;
       last.set(cue, at);
-      play(cue);
+      play(cue, e);
       played.push(cue);
       n++;
     }

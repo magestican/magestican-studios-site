@@ -55,13 +55,13 @@ export function createGameSfx(baseUrl, names, takes = {}, random = Math.random, 
     names: Object.freeze([...names]),
     urls,
     
-    play(name) {
+    play(name, rate = 1) {
       if (!Object.prototype.hasOwnProperty.call(urls, name)) return false;
       const list = urls[name];
       let i = Math.floor(random() * list.length) % list.length;
       if (list.length > 1 && i === last[name]) i = (i + 1) % list.length;
       last[name] = i;
-      return playFile(list[i], gainOf(name));
+      return playFile(list[i], gainOf(name), rate);
     },
     
     gainOf,

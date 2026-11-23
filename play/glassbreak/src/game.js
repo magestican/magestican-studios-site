@@ -30,6 +30,7 @@ import {
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { emptyMarks, reportFor } from './report.js';
 import { BACK, keyAction, padHeld, padPresses, pickNext } from './menuNav.js';
+import { breakRate, popsFor, tallyPlan, tallyTimes } from './juice.js';
 
 const $ = (id) => document.getElementById(id);
 const store = (() => { try { return window.localStorage; } catch { return null; } })();
@@ -39,6 +40,9 @@ const launchOpts = parseLaunch(location.search);
 let progress = readProgress(store || memStore);
 let mode = launchOpts.mode !== 'normal' ? launchOpts.mode : progress.mode;
 const cheat = launchOpts.stage !== null;
+
+
+const autoPlay = (() => { try { return new URLSearchParams(location.search).has('bot'); } catch { return false; } })();
 const reduceMotion = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } })();
 let settings = readSettings(store || memStore, reduceMotion);
 
@@ -51,7 +55,7 @@ const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), SFX_NAMES,
 const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES);
 const music = createTrackMusic({ game: 'glassbreak', manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS });
 
-const sounds = createCuePlayer((cue) => { sfx.play(cue); if (DUCK_CUES.has(cue)) music.duck(0.4, 600); });
+const sounds = createCuePlayer((cue, e) => { sfx.play(cue, breakRate(e)); if (DUCK_CUES.has(cue)) music.duck(0.4, 600); });
 function drawSound() {
   const on = uiSoundOn();
   for (const id of ['soundPause', 'setSound']) { $(id).textContent = on ? 'Sound: on' : 'Sound: off'; $(id).setAttribute('aria-pressed', String(on)); }
@@ -234,30 +238,59 @@ function banner(wi) {
   banner.t = setTimeout(() => b.classList.remove('on'), 2200);
 }
 
-function fillTally(s) {
-  const stars = s.stars[s.wi] || 0;
+
+
+
+let tallyTimers = [];
+function fillTally(s, bestBefore = 0) {
+  for (const t of tallyTimers) clearTimeout(t);
+  tallyTimers = [];
+  const plan = tallyPlan(s, bestBefore, PAR_TICKS(s.wi));
   $('tallyName').textContent = `${WINDOWS[s.wi].name} — clear`;
   $('tallyStars').innerHTML = '';
-  for (let i = 0; i < 3; i++) {
-    const sp = document.createElement('span');
-    sp.textContent = '★';
-    if (i >= stars) sp.className = 'off';
-    $('tallyStars').appendChild(sp);
-  }
   const secs = Math.round((s.phT - s.wt) / 60);
   const rows = [
     ['Time', `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`],
     ['Par', `${Math.round(PAR_TICKS(s.wi) / 60)} s`],
     ['Lanterns kept', s.mode === MODE_GENTLE ? '—' : `${s.lanterns} / ${LANTERNS[s.mode]}`],
     ['Longest chain', String(s.stats.maxChain)],
-    ['Light freed', s.light.toLocaleString()],
+    ['Light freed', s.light],
   ];
+  const at = tallyTimes(plan.stars.length, rows.length, reduceMotion);
+  plan.stars.forEach((st, i) => {
+    const cell = document.createElement('div');
+    cell.className = st.earned ? 'star' : 'star off';
+    const glyph = document.createElement('span'); glyph.textContent = '★'; glyph.setAttribute('aria-hidden', 'true');
+    const why = document.createElement('small'); why.textContent = st.why;
+    cell.append(glyph, why);
+    cell.setAttribute('aria-label', `${st.why}: ${st.earned ? 'earned' : 'missed'}`);
+    $('tallyStars').appendChild(cell);
+    tallyTimers.push(setTimeout(() => {
+      cell.classList.add('in');
+      if (st.earned) sfx.play('break', 2 ** ((i * 4) / 12));
+    }, at.stars[i]));
+  });
   $('tallyRows').innerHTML = '';
-  for (const [k, v] of rows) {
+  rows.forEach(([k, v], i) => {
     const a = document.createElement('span'); a.textContent = k;
-    const b = document.createElement('b'); b.textContent = v;
+    const b = document.createElement('b'); b.textContent = typeof v === 'number' ? '0' : v;
+    a.className = 'row-in'; b.className = 'row-in';
     $('tallyRows').append(a, b);
-  }
+    tallyTimers.push(setTimeout(() => {
+      a.classList.add('in'); b.classList.add('in');
+      if (typeof v !== 'number') return;
+      if (!at.countMs) { b.textContent = v.toLocaleString(); return; }
+      const t0 = performance.now();
+      const tick = () => {
+        const k = Math.min(1, (performance.now() - t0) / at.countMs);
+        b.textContent = Math.round(v * (1 - (1 - k) ** 3)).toLocaleString();
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, at.rows[i]));
+  });
+  $('tallyBest').hidden = true;
+  if (plan.newBest) tallyTimers.push(setTimeout(() => { $('tallyBest').hidden = false; sfx.play('sun'); }, at.best));
   $('next').textContent = s.wi + 1 >= WINDOWS.length ? 'Daylight' : 'Next window';
 }
 
@@ -574,6 +607,32 @@ canvas.addEventListener('pointerup', up);
 canvas.addEventListener('pointercancel', up);
 
 
+
+
+const popPool = [];
+function showPops(evs) {
+  for (const p of popsFor(evs)) {
+    let el = popPool.find((n) => !n.isConnected);
+    if (!el) { el = document.createElement('div'); if (popPool.length < 24) popPool.push(el); }
+    el.className = `pop ${p.kind}${p.big ? ' big' : ''}`;
+    el.textContent = p.text;
+    el.style.left = `${Math.round(p.x * fit.scale)}px`;
+    el.style.top = `${Math.round(-p.y * fit.scale)}px`;
+    el.onanimationend = () => el.remove();
+    $('pops').appendChild(el);
+    if (p.kind === 'light') pulseLight();
+  }
+}
+let pulseAt = 0;
+function pulseLight() {
+  const now = performance.now();
+  if (now - pulseAt < 120) return;
+  pulseAt = now;
+  const c = $('light');
+  c.classList.remove('gain'); void c.offsetWidth; c.classList.add('gain');
+}
+
+
 const hudCache = {};
 function setText(id, v) { if (hudCache[id] !== v) { hudCache[id] = v; $(id).textContent = v; } }
 function hud(s) {
@@ -581,7 +640,14 @@ function hud(s) {
   if (!$('hint').hidden && !launchHintShown(s, net ? net.room?.seat : 0)) $('hint').hidden = true;
   setText('light', s.light.toLocaleString());
   const l = windowLabel(s.wi);
-  setText('where', `${l.act} · ${l.name}`);
+  
+  const where = `${l.act}|${l.name}`;
+  if (hudCache.where !== where) {
+    hudCache.where = where;
+    const small = document.createElement('small'); small.textContent = l.act;
+    const name = document.createElement('b'); name.textContent = l.name;
+    $('where').replaceChildren(small, name);
+  }
   setText('lanterns', s.mode === MODE_GENTLE ? '✦ ∞' : `${'✦'.repeat(Math.max(0, s.lanterns))}${s.lanterns <= 0 ? '—' : ''}`);
   const b = s.boss;
   const on = !!(b.on && !b.beaten);
@@ -650,10 +716,11 @@ function frame(now) {
     if (sim) {
       if (paused || screen === SCR_SELECT || screen === SCR_STORY) continue;
       if (hitstop > 0) { hitstop--; continue; }
-      step(sim, [controls.frame(), IDLE, IDLE, IDLE]);
+      step(sim, [autoPlay ? botInput(sim, 0) : controls.frame(), IDLE, IDLE, IDLE]);
       const evs = feed.take(sim);
       painter.events(sim, evs);
       sounds(evs);
+      showPops(evs);
       const f = feelFor(evs);
       hitstop = Math.max(hitstop, f.stop);
       if (f.shake && settings.shake) painter.addShake(f.shake);
@@ -681,6 +748,7 @@ function coopFrame(now, dt) {
   const evs = feed.take(v);
   painter.events(v, evs);
   sounds(evs);
+  showPops(evs);
   const f = feelFor(evs);
   if (f.stop > 0) frozen = { s: frozen && now < frozen.until ? frozen.s : snapshot(v), until: Math.max(frozen?.until ?? 0, now + (f.stop * 1000) / 60) };
   if (f.shake && settings.shake) painter.addShake(f.shake);
@@ -724,9 +792,10 @@ function onPhase(s) {
   lastPhase = s.phase;
   reportEnd(s);
   if (s.phase === PH_CLEAR) {
+    const bestBefore = progress.stars[s.wi] || 0;
     progress = recordClear(progress, s.wi, s.stars[s.wi] || 0);
     writeProgress(store || memStore, progress);
-    fillTally(s);
+    fillTally(s, bestBefore);
   }
   if (s.phase === PH_DONE) { fillEnd(s); openStory(['ending'], () => show(SCR_END)); return; }
   if (s.phase === PH_PLAY && screen !== SCR_PLAY && screen !== SCR_PAUSE && screen !== SCR_STORY && screen !== SCR_SETTINGS) show(SCR_PLAY);

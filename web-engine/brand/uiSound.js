@@ -141,8 +141,10 @@ function preloadAll(c) {
 const live = new Map();
 const pending = new Map();
 
-function start(c, buf, gain = 1, key = null) {
+function start(c, buf, gain = 1, key = null, rate = 1) {
   const src = c.createBufferSource();
+  
+  if (rate !== 1 && Number.isFinite(rate) && rate > 0) src.playbackRate.value = rate;
   if (key !== null) {
     if (!live.has(key)) live.set(key, new Set());
     live.get(key).add(src);
@@ -165,7 +167,7 @@ function silenced() {
 }
 
 
-function play(key, fetchIt, gain = 1) {
+function play(key, fetchIt, gain = 1, rate = 1) {
   if (silenced()) return false;
   const c = ensureContext();
   if (!c || !bus) return false;
@@ -173,7 +175,7 @@ function play(key, fetchIt, gain = 1) {
     try { c.resume()?.catch?.(() => {}); } catch {  }
   }
   const have = buffers.get(key);
-  if (have && typeof have.then !== 'function') { start(c, have, gain, key); return true; }
+  if (have && typeof have.then !== 'function') { start(c, have, gain, key, rate); return true; }
   if (have === null || typeof globalThis.fetch !== 'function') return false;
   const asked = Date.now();
   const ask = Symbol('ask');
@@ -182,7 +184,7 @@ function play(key, fetchIt, gain = 1) {
   fetchIt(c).then((buf) => {
     try {
       const skipped = !pending.get(key)?.delete(ask);
-      if (buf && !skipped && Date.now() - asked <= LATE_MS && !silenced()) start(c, buf, gain, key);
+      if (buf && !skipped && Date.now() - asked <= LATE_MS && !silenced()) start(c, buf, gain, key, rate);
     } catch {  }
   });
   return true;
@@ -199,12 +201,15 @@ export function playUi(name) {
 }
 
 
-export function playFile(url, gain = 1) {
+
+
+
+export function playFile(url, gain = 1, rate = 1) {
   try {
     const key = String(url ?? '');
     if (!key) return false;
     fileUrls.add(key);
-    return play(key, (c) => loadKey(c, key, key), gain);
+    return play(key, (c) => loadKey(c, key, key), gain, rate);
   } catch {
     return false;
   }
