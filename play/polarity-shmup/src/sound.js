@@ -40,6 +40,11 @@ export const SFX_TAKES = Object.freeze({
   
   
   pickWing: 2, pickPrism: 2, pickHalo: 2, powerEnd: 2,
+  
+  
+  
+  
+  turnTell: 2, lanceTell: 2, podBloom: 2, afterburn: 2,
   ...Object.fromEntries(BOSS_VOICE.flatMap((v) => BOSS_ROLES.map((r) => [v + r, BOSS_TAKES]))),
 });
 

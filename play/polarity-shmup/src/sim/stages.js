@@ -12,9 +12,12 @@ import { aimAt, fan, gentleSpeed, noseAt, ring } from './patterns.js';
 import { gunsOf, muzzleR } from './mounts.js';
 import { hash32 } from './rng.js';
 import {
-  BEATS, BOSS_AT, BOSS_ENTER, BOSS_HP, BOSS_TIME, BULWARK, FIRE_FLOOR, GUNSHIP, LAUNCH_EVERY, MID_LIFE, SKIFF, WARDEN_AT,
-  bossFire, bossPhase, cueAt, enemyFire, enemyPos, expandBeats,
+  BEATS, BOSS_AT, BOSS_ENTER, BOSS_HP, BOSS_TIME, BULWARK, DART, FIRE_FLOOR, GUNSHIP, LAUNCH_EVERY, MID_LIFE, MINE, SKIFF,
+  TURRET, WARDEN_AT, bossFire, bossPhase, cueAt, dartShots, enemyFire, enemyPos, expandBeats,
 } from './stage.js';
+import {
+  LANCE, LANCE_TELL, POD_FALL, POD_FUSE, SEEDMINE, TURNCOAT, TURN_TELL, bloom, hasSkill, podDrops, turnLeft,
+} from './abilities.js';
 
 const px = (v) => Math.round(v * FP);
 
@@ -109,6 +112,8 @@ export const TALLY_TICKS = 720;
 export const STREAM_FROM = 240;     
 export const STREAM_EVERY = 80;     
 export const SWOOP = 11, COLUMN = 12, WEDGE = 13, HEAVY = 14;
+
+export const POD = 15;
 
 
 
@@ -248,6 +253,7 @@ export const stageCue = (n, lt) => cueAt(lt, STAGES[n].beats);
 
 export function pathPos(path, x0, y0, dir, age) {
   if (path <= 3) return enemyPos(path, x0, y0, dir, age);
+  if (path === POD) return [x0, y0 + age * POD_FALL]; 
   if (path === SWOOP) { 
     return [x0 + dir * age * 3 * FP, y0 + Math.trunc((age * age * FP) / 110)];
   }
@@ -297,10 +303,13 @@ function launchTrio(kids, x, y, pol) {
 }
 
 
-export function fireAll(kind, path, pol, age, x, y, players, thin, out, kids) {
-  if (kind <= 2) { enemyFire(kind, path, pol, age, x, y, players, thin, out); return; }
+export function fireAll(kind, path, pol, age, x, y, players, thin, out, kids, st = 0) {
+  if (kind <= 2) { enemyFire(kind, path, pol, age, x, y, players, thin, out, st); return; }
   if (y < 0 || y > FIRE_FLOOR) return;
   if (kind === SKIFF) return; 
+  if (kind === MINE) { if (age === POD_FUSE) bloom(out, x, y, pol, thin); return; } 
+  
+  if (kind === BULWARK && hasSkill(st, SEEDMINE) && podDrops(path === HEAVY, age)) kids.push({ k: MINE, path: POD, pol, x, y: y + 30 * FP, dir: 0 });
   if (kind === BULWARK && path === HEAVY) { 
     if (age >= 60 && age < HEAVY_HOLD && (age - 60) % HEAVY_FIRE_EVERY === 0) fan(out, x, y + muzzleR(BULWARK, path, 'fixed') * FP, 3, 0, 150, 3 * FP / 2, pol, 1, thin);
     return;
@@ -469,5 +478,23 @@ export function bossDamage(kind, phase, fa, spol, sx, bx, dmg) {
 
 
 export const bossShowsIris = (kind, phase, fa) => (kind === CROWN && phase === 3 ? crownCore(fa) === 1 : phase === 1);
+
+
+
+
+
+
+export function skillTell(kind, path, age, st) {
+  if (kind === TURRET && hasSkill(st, TURNCOAT)) {
+    const left = turnLeft(age);
+    return left > 0 ? { skill: TURNCOAT, left, len: TURN_TELL } : null;
+  }
+  if (kind === DART && hasSkill(st, LANCE)) {
+    const at = dartShots(path)[1];
+    return age >= at - LANCE_TELL && age < at ? { skill: LANCE, left: at - age, len: LANCE_TELL } : null;
+  }
+  if (kind === MINE) return age < POD_FUSE ? { skill: SEEDMINE, left: POD_FUSE - age, len: POD_FUSE } : null;
+  return null;
+}
 
 export { BOSS_ENTER };

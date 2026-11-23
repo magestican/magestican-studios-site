@@ -22,14 +22,15 @@ import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../.
 import { createRadio } from './radio.js';
 import { VOICE_MS, afterIds, briefingIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
 import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitStream, bossCue, createBossVoice } from './sound.js';
-import { BOOM_BOSS, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, PICK_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore, thinAt } from './sim/sim.js';
+import { createTellVoice, tellLook } from './skillLook.js';
+import { BOOM_BLOOM, BOOM_BOSS, BOOM_BURN, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, PICK_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore, thinAt } from './sim/sim.js';
 import { PICK_CUE, PICK_GLYPH, PICK_LOOK, POWER_END_CUE, pickPulse, powersEnded } from './pickups.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { FP } from './sim/fixed.js';
 import { MOVE_MAX, pack } from './sim/input.js';
 import { BOSS_ENTER, ENEMY_R, OTHER_ONLY, SCROLL } from './sim/stage.js';
 import {
-  BOSS_BOX, BOSS_NAMES, CROWN, CROWN_SWITCH, STAGES, TWIN, TWIN_SPLIT, bossShowsIris, stageCue, twinPol,
+  BOSS_BOX, BOSS_NAMES, CROWN, CROWN_SWITCH, STAGES, TWIN, TWIN_SPLIT, bossShowsIris, skillTell, stageCue, twinPol,
 } from './sim/stages.js';
 import { BOSS_KICK, bossImpact, createBossWatch } from './bossHit.js';
 import { createMotion, stepMotion } from './craftMotion.js';
@@ -148,7 +149,7 @@ if (coarse() && typeof DeviceOrientationEvent !== 'undefined') {
 const SHIP_LEN = 44, DART_LEN = 36, TURRET_W = 64, WARDEN_W = 96, BOSS_W = 330, PROP_SCALE = 4.6;
 
 
-const SKIFF_LEN = 32, BULWARK_W = 60, GUNSHIP_W = 92, LOOM_W = 300;
+const SKIFF_LEN = 32, MINE_LEN = 20,BULWARK_W = 60, GUNSHIP_W = 92, LOOM_W = 300;
 
 const TWIN_HALF_W = 2 * TWIN_SPLIT;
 
@@ -388,10 +389,13 @@ async function loadModels() {
   for (const [key, src, len, y, opts, rot] of [
     ['dart0', de, DART_LEN, 60, {}, -Math.PI / 2], ['dart1', di, DART_LEN, 60, {}, -Math.PI / 2],
     ['turret0', te, TURRET_W, 0, { axis: 'max' }, 0], ['turret1', ti, TURRET_W, 0, { axis: 'max' }, 0],
+    
+    ['mine0', de, MINE_LEN, 60, {}, 0], ['mine1', di, MINE_LEN, 60, {}, 0],
   ]) {
     const proto = fit(src.clone(true), len, opts);
     proto.rotation.y = rot;
-    pool(key, proto, key.startsWith('dart') ? 28 : 8, y); 
+    
+    pool(key, proto, key.startsWith('dart') ? 28 : key.startsWith('mine') ? 12 : 8, y);
   }
   warden = fit(ti.clone(true), WARDEN_W, { axis: 'max' });
   warden.visible = false;
@@ -423,6 +427,17 @@ async function loadModels() {
       color: pol ? 0xa878ff : 0xffc440, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
     r.rotation.x = -Math.PI / 2;
     pool(`halo${pol}`, r, 4, 66);
+    
+    
+    const mat = () => new THREE.MeshBasicMaterial({ color: pol ? 0xa878ff : 0xffc440, transparent: true, opacity: 0.5,
+      depthWrite: false, side: THREE.DoubleSide });
+    const tr = new THREE.Mesh(new THREE.RingGeometry(0.88, 1, 40), mat());
+    tr.rotation.x = -Math.PI / 2;
+    pool(`tell${pol}`, tr, 16, 68);
+    const ln = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat());
+    ln.rotation.x = -Math.PI / 2;
+    pool(`lance${pol}`, ln, 8, 64);
+    for (const m of [...pools[`tell${pol}`], ...pools[`lance${pol}`]]) { m.material = m.material.clone(); m.renderOrder = 30; }
   }
   await loadProps(stagePropsShown = 0);
 }
@@ -1313,8 +1328,35 @@ const hud = { score: $('score'), meter: $('meter'), lives: $('lives'), pol: $('p
   bossBar: $('bossbar'), bossHp: $('bosshp'), bossName: $('bossname') };
 const enemyMeshes = new Map(); 
 const haloMeshes = new Map();  
-const POOL_OF = ['dart', 'turret', 'warden', 'skiff', 'bulwark', 'gunship']; 
-const BOOM_SIZE = [40, 64, 120, 36, 90, 130];
+const POOL_OF = ['dart', 'turret', 'warden', 'skiff', 'bulwark', 'gunship', 'mine']; 
+const BOOM_SIZE = [40, 64, 120, 36, 90, 130, 30];
+
+
+const tellMeshes = new Map();
+const tellVoice = createTellVoice();
+function syncTell(s, e, id, k, o) {
+  const look = tellLook(skillTell(k, s.epath[e], s.eage[e] - 1, s.stage), s.ep[e], ENEMY_R[k]);
+  let m = tellMeshes.get(id);
+  const key = look && `${look.kind === 'ring' ? 'tell' : 'lance'}${look.pol}`;
+  if (m && m.userData.tellKey !== key) { m.visible = false; tellMeshes.delete(id); m = null; }
+  if (!look) return;
+  if (!m) {
+    m = pools[key]?.find((q) => !q.visible);
+    if (!m) return;
+    m.visible = true; m.userData.tellKey = key; tellMeshes.set(id, m);
+  }
+  m.material.opacity = look.opacity;
+  if (look.kind === 'ring') {
+    m.position.x = o.position.x; m.position.z = o.position.z;
+    m.scale.set(look.radius, look.radius, 1);
+  } else { 
+    const top = o.position.z + ENEMY_R[k], bottom = FIELD_H / 2, len = Math.max(1, bottom - top);
+    m.position.x = o.position.x; m.position.z = top + len / 2;
+    m.scale.set(look.width, len, 1);
+  }
+  const cue = tellVoice.offer(id, skillTell(k, s.epath[e], s.eage[e] - 1, s.stage), s.eage[e] - 1);
+  if (cue) sfxFor(s, cue);
+}
 
 
 
@@ -1342,11 +1384,20 @@ function syncEnemies(s, dt = 1 / 60) {
       was.punch = Math.max(0, (was.punch || 0) - 0.25);
     } else enemySeen.set(id, { x: ex, z: ez, pol: s.ep[e], hp: s.ehp[e], hp0: s.ehp[e], punch: 0 });
     let o = enemyMeshes.get(id);
+    if (o && k !== 2 && o.userData.pol !== s.ep[e]) { 
+      const n = pools[`${POOL_OF[k]}${s.ep[e]}`]?.find((m) => !m.visible);
+      if (n) {
+        n.rotation.y = o.rotation.y;
+        o.visible = false; enemyMeshes.delete(id); o = null;
+        n.visible = true; n.userData.pol = s.ep[e]; enemyMeshes.set(id, n); o = n;
+      }
+    }
     if (!o) {
       if (k === 2) o = warden;
       else o = pools[`${POOL_OF[k]}${s.ep[e]}`]?.find((m) => !m.visible);
       if (!o) continue;
       o.visible = true;
+      o.userData.pol = s.ep[e];
       enemyMeshes.set(id, o);
     }
     o.position.x = wx(s.ex[e]);
@@ -1361,7 +1412,8 @@ function syncEnemies(s, dt = 1 / 60) {
       }
       if (h) { h.position.x = o.position.x; h.position.z = o.position.z; }
     }
-    if (k !== 1 && k !== 2) { 
+    if (k === 6) o.rotation.y = tSec * 5 + id; 
+    else if (k !== 1 && k !== 2) { 
       
       let mo = o.userData.motion;
       if (!mo || o.userData.motionId !== id) {
@@ -1369,7 +1421,7 @@ function syncEnemies(s, dt = 1 / 60) {
         o.userData.motionId = id;
       }
       
-      stepMotion(mo, o.position.x, o.position.z, dt, gunYaw(k, s.epath[e], s.eage[e], s.ex[e], s.ey[e], s.players));
+      stepMotion(mo, o.position.x, o.position.z, dt, gunYaw(k, s.epath[e], s.eage[e], s.ex[e], s.ey[e], s.players, s.stage));
       
       
       const sw = sway(tSec, id);
@@ -1388,6 +1440,7 @@ function syncEnemies(s, dt = 1 / 60) {
       o.rotation.y = Math.atan2(wx(p.x) - o.position.x, wz(p.y) - o.position.z) - Math.PI / 2;
     }
     pulseCores(o, tSec, id);
+    syncTell(s, e, id, k, o);
     const parts = o.userData.rig?.parts;
     if (parts?.bay) { 
       const open = k === 5 ? bayOpen(s.eage[e]) : 0, b = parts.bay;
@@ -1403,6 +1456,7 @@ function syncEnemies(s, dt = 1 / 60) {
   }
   for (const [id, o] of enemyMeshes) if (!live.has(id)) { o.visible = false; enemyMeshes.delete(id); }
   for (const [id, o] of haloMeshes) if (!live.has(id)) { o.visible = false; haloMeshes.delete(id); }
+  for (const [id, o] of tellMeshes) if (!live.has(id)) { o.visible = false; tellMeshes.delete(id); tellVoice.forget(id); }
   enemyGone = [];
   for (const [id, v] of enemySeen) if (!live.has(id)) { enemyGone.push(v); enemySeen.delete(id); }
 }
@@ -1667,6 +1721,13 @@ function draw(s, dt) {
     const n = seen.boom % 16, k = s.boomK[n];
     const bx = wx(s.boomX[n]), bz = wz(s.boomY[n]);
     if (k === BOOM_DEFLECT) { flash(bx, bz, 14, 0x8a8a90); fx.hit(bx, bz, 0); continue; } 
+    if (k === BOOM_BLOOM || k === BOOM_BURN) { 
+      const pol = Math.max(0, goneColour(bx, bz)), bloom = k === BOOM_BLOOM;
+      flash(bx, bz, bloom ? 46 : 22, pol === 1 ? 0xb890ff : 0xffd27a);
+      if (bloom) fx.chain(bx, bz, 3, pol);
+      sfxFor(s, bloom ? 'podBloom' : 'afterburn');
+      continue;
+    }
     const boss = k === BOOM_BOSS;
     const size = boss ? 260 : BOOM_SIZE[k] ?? 40;
     const pol = boss ? (s.boss.phase & 1) : goneColour(bx, bz);

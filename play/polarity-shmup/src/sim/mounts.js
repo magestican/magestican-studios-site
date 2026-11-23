@@ -34,6 +34,7 @@ export const GUNS = Object.freeze([
     [P_RAMPART]: [{ r: 30, ox: 0, aim: 'player' }, { r: 20, ox: 0, aim: 'core' }],
     [P_PAIR]: [{ r: 26, ox: 0, aim: 'player' }],
   },
+   { all: [{ r: 0, ox: 0, aim: 'core' }] }, 
 ]);
 
 

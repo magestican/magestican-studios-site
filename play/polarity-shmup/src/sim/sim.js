@@ -18,7 +18,11 @@ import { FP, muldiv } from './fixed.js';
 import { MOVE_MAX, unpack } from './input.js';
 import { FIELD_H, FIELD_W } from './patterns.js';
 import { next as rngNext } from './rng.js';
-import { ARMOUR, BOSS_ENTER, BOSS_REST, ENEMY_HP, ENEMY_R, ENEMY_SCORE, OTHER_ONLY, bossPhase, bossPos, isMid, rowSpawns } from './stage.js';
+import {
+  ARMOUR, BOSS_ENTER, BOSS_REST, ENEMY_HP, ENEMY_R, ENEMY_SCORE, FIRE_FLOOR, MINE, OTHER_ONLY, SKIFF, TURRET, bossPhase, bossPos, isMid,
+  rowSpawns,
+} from './stage.js';
+import { AFTERBURN, POD_FUSE, TURNCOAT, afterburn, hasSkill, turnsNow } from './abilities.js';
 import {
   BOSS_BOX, STAGES, TALLY_TICKS, bossDamage, bossFireAll, bossPhaseOf, fireAll, liftedOff, pathPos, stageWaves,
 } from './stages.js';
@@ -101,6 +105,8 @@ export const burstDamage = (chain) => BURST_DMG + Math.min(chain, 8);
 export const bossBonus = (stage) => 20000 + 10000 * stage;
 
 export const BOOM_DEFLECT = 8, BOOM_BOSS = 9;
+
+export const BOOM_BLOOM = 10, BOOM_BURN = 11;
 
 
 
@@ -495,7 +501,11 @@ export function step(s, inputs) {
     s.ex[e] = x; s.ey[e] = y;
     const gone = y > FIELD_H + 60 * FP || x < -60 * FP || x > FIELD_W + 60 * FP || liftedOff(s.epath[e], age, y);
     if (gone) { removeEnemy(s, e); continue; }
-    if (!ended) fireAll(s.ek[e], s.epath[e], s.ep[e], age, x, y, s.players, thin, spawns, kids);
+    
+    if (s.ek[e] === MINE && age > POD_FUSE) { boom(s, x, y, BOOM_BLOOM); removeEnemy(s, e); continue; }
+    
+    if (s.ek[e] === TURRET && hasSkill(s.stage, TURNCOAT) && turnsNow(age)) s.ep[e] ^= 1;
+    if (!ended) fireAll(s.ek[e], s.epath[e], s.ep[e], age, x, y, s.players, thin, spawns, kids, s.stage);
     s.eage[e] = age + 1;
   }
 
@@ -515,6 +525,7 @@ export function step(s, inputs) {
   for (const w of kids) addEnemy(s, w);
 
   
+  const burns = []; 
   for (let i = s.ns - 1; i >= 0; i--) {
     if (s.sdmg[i] > 1) {
       const tg = burstTarget(s, s.sx[i], s.sy[i]);
@@ -562,6 +573,9 @@ export function step(s, inputs) {
         owner.score += ENEMY_SCORE[s.ek[e]]; owner.kills++;
         chainKill(s, owner, s.ep[e]);
         boom(s, s.ex[e], s.ey[e], s.ek[e]);
+        
+        if (s.ek[e] === SKIFF && hasSkill(s.stage, AFTERBURN) && !ended && s.ey[e] >= 0 && s.ey[e] <= FIRE_FLOOR &&
+          afterburn(burns, s.ex[e], s.ey[e], s.ep[e], s.players, thin)) boom(s, s.ex[e], s.ey[e], BOOM_BURN);
         killDrop(s, s.ex[e], s.ey[e], s.ek[e], lt);
         removeEnemy(s, e);
       }
@@ -569,6 +583,8 @@ export function step(s, inputs) {
       break;
     }
   }
+
+  pushSpawns(s, burns);
 
   
   for (let b = s.nb - 1; b >= 0; b--) {

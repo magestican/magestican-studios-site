@@ -10,6 +10,7 @@ import { ANG, FP, angWrap, isin, muldiv } from './fixed.js';
 import { FIELD_H, FIELD_W, aimAt, fan, gentleSpeed, noseAt, ring } from './patterns.js';
 import { muzzleR } from './mounts.js';
 import { hash32 } from './rng.js';
+import { LANCE, POD_HP, POD_R, POD_SCORE, hasSkill, lance } from './abilities.js';
 
 
 export const SCROLL = 162;
@@ -27,14 +28,15 @@ export const BOSS_HP = 1200;
 export const WARDEN_HP = 260;
 
 
-export const DART = 0, TURRET = 1, WARDEN = 2, SKIFF = 3, BULWARK = 4, GUNSHIP = 5;
-export const ENEMY_HP = [6, 30, WARDEN_HP, 4, 240, 300];
-export const ENEMY_SCORE = [100, 300, 3000, 150, 1000, 3000];
 
-export const ENEMY_R = [16, 26, 44, 14, 26, 40];
+export const DART = 0, TURRET = 1, WARDEN = 2, SKIFF = 3, BULWARK = 4, GUNSHIP = 5, MINE = 6;
+export const ENEMY_HP = [6, 30, WARDEN_HP, 4, 240, 300, POD_HP];
+export const ENEMY_SCORE = [100, 300, 3000, 150, 1000, 3000, POD_SCORE];
+
+export const ENEMY_R = [16, 26, 44, 14, 26, 40, POD_R];
 
 export const ARMOUR = 1, OTHER_ONLY = 2;
-export const KIND_FLAGS = [0, 0, 0, 0, ARMOUR, 0];
+export const KIND_FLAGS = [0, 0, 0, 0, ARMOUR, 0, 0];
 
 export const isMid = (k) => k === WARDEN || k === GUNSHIP;
 export const MID_LIFE = WARDEN_LIFE;
@@ -167,10 +169,12 @@ export const FIRE_FLOOR = FIELD_H - 160 * FP;
 export const dartShots = (path) => (path === 0 ? [100, 220] : [60, 130]);
 
 
-export function enemyFire(kind, path, pol, age, x, y, players, thin, out) {
+export function enemyFire(kind, path, pol, age, x, y, players, thin, out, st = 0) {
   if (y < 0 || y > FIRE_FLOOR) return;
   if (kind === DART) {
     const when = dartShots(path).includes(age);
+    
+    if (when && age === dartShots(path)[1] && hasSkill(st, LANCE)) { lance(out, x, y + muzzleR(DART, path, 'player') * FP, pol, thin); return; }
     if (when) { const a = aimAt(players, x, y), [mx, my] = noseAt(x, y, a, muzzleR(DART, path, 'player')); fan(out, mx, my, 1, a, 0, 2 * FP, pol, 0, false); }
     return;
   }
