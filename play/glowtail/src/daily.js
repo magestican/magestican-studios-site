@@ -23,6 +23,9 @@ export function seedFor(key) {
 }
 
 
-export function bestKey(mode, date) {
-  return mode === 'daily' ? `daily:${dateKey(date)}` : mode;
+
+
+
+export function bestKey(mode, date, hard = false) {
+  return (mode === 'daily' ? `daily:${dateKey(date)}` : mode) + (hard ? ':hard' : '');
 }

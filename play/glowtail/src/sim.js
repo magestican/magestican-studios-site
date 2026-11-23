@@ -17,6 +17,12 @@ export const QUEUE_MAX = 3;
 export const JELLY_EVERY = 3; 
 export const NEAR_MISS_GAP = 8; 
 
+
+export const FLINCH_GAP = 6; 
+export const APPROACH_CELLS = 3; 
+
+export const APPROACH_SLOW = Object.freeze([1.9, 1.5, 1.2, 1]);
+
 export const DIRS = Object.freeze({
   up: Object.freeze({ x: 0, y: -1 }), down: Object.freeze({ x: 0, y: 1 }),
   left: Object.freeze({ x: -1, y: 0 }), right: Object.freeze({ x: 1, y: 0 }),
@@ -39,10 +45,11 @@ const key = (x, y) => y * W + x;
 
 
 
-export function createState({ mode = 'dive', depth = 0, seed = 1, gentle = false, spawn = true } = {}) {
+export function createState({ mode = 'dive', depth = 0, seed = 1, gentle = false, hard = false, spawn = true } = {}) {
   const cy = Math.floor(H / 2);
   const state = {
-    mode, gentle,
+    mode, gentle, hard,
+    lastFlinch: -FLINCH_GAP,
     depthIndex: mode === 'classic' ? 0 : Math.max(0, Math.min(DEPTHS.length - 1, depth)),
     depth: null,
     snake: [{ x: 6, y: cy }, { x: 5, y: cy }, { x: 4, y: cy }, { x: 3, y: cy }],
@@ -81,7 +88,10 @@ export function enqueue(state, dir) {
 export function tickMs(state) {
   const d = state.depth;
   const ms = Math.max(d.minTickMs, d.tickMs - d.rampMs * state.eatenInDepth);
-  return Math.max(HUMAN_FLOOR_MS, ms) * (state.gentle ? GENTLE_FACTOR : 1);
+  const base = Math.max(HUMAN_FLOOR_MS, ms) * (state.gentle ? GENTLE_FACTOR : 1);
+  
+  
+  return state.hard ? base : base * APPROACH_SLOW[clearAhead(state)];
 }
 
 function wrapOrNull(state, x, y) {
@@ -104,9 +114,29 @@ export function step(state) {
   state.tick++;
   state.prevSnake = state.snake.map((c) => ({ ...c }));
   const wasDir = state.dir;
+  const head = state.snake[0];
+  
+  
+  
+  
+  if (!state.hard) {
+    const pending = state.queue.length > 0;
+    const want = pending ? state.queue[0] : state.dir;
+    const hit = hazard(state, head, want);
+    if (hit && state.tick - state.lastFlinch >= FLINCH_GAP) {
+      if (pending) state.dir = state.queue.shift();
+      state.lastFlinch = state.tick;
+      state.events.push({ type: 'flinch', x: hit.x, y: hit.y, cause: hit.cause });
+      if (state.tick % JELLY_EVERY === 0) moveJellies(state);
+      return state.events;
+    }
+    if (hit && !pending) {
+      const safe = safestTurn(state, head);
+      if (safe) { state.dir = safe; state.events.push({ type: 'saved', dir: safe }); }
+    }
+  }
   if (state.queue.length) state.dir = state.queue.shift();
   const d = DIRS[state.dir];
-  const head = state.snake[0];
   
   
   
@@ -148,6 +178,41 @@ export function step(state) {
     spawnShoal(state);
   }
   return state.events;
+}
+
+
+function hazard(state, from, dir) {
+  const d = DIRS[dir];
+  const next = wrapOrNull(state, from.x + d.x, from.y + d.y);
+  if (!next) return { cause: 'wall', x: from.x + d.x, y: from.y + d.y };
+  if (bodySet(state.snake, state.grow <= 0).has(key(next.x, next.y))) return { cause: 'body', ...next };
+  if (state.jellies.some((j) => j.x === next.x && j.y === next.y)) return { cause: 'jelly', ...next };
+  return null;
+}
+
+
+function safestTurn(state, head) {
+  const { regionOf, sizes } = regions(state);
+  let best = null, bestSize = -1;
+  for (const dir of Object.keys(DIRS)) {
+    if (dir === state.dir || dir === OPPOSITE[state.dir] || hazard(state, head, dir)) continue;
+    const c = wrapOrNull(state, head.x + DIRS[dir].x, head.y + DIRS[dir].y);
+    const r = regionOf[key(c.x, c.y)];
+    const size = r >= 0 ? sizes[r] : 1; 
+    if (size > bestSize) { best = dir; bestSize = size; }
+  }
+  return best;
+}
+
+
+export function clearAhead(state, max = APPROACH_CELLS) {
+  const dir = state.queue.length ? state.queue[0] : state.dir;
+  let at = state.snake[0];
+  for (let n = 0; n < max; n++) {
+    if (hazard(state, at, dir)) return n;
+    at = wrapOrNull(state, at.x + DIRS[dir].x, at.y + DIRS[dir].y);
+  }
+  return max;
 }
 
 function countBite(state, n) {

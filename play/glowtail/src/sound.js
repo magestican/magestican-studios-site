@@ -44,6 +44,8 @@ function cueFor(e) {
     case 'death': return 'death';
     case 'surface': return 'surface';
     case 'nearMiss': return 'nearMiss';
+    
+    case 'flinch': return 'nearMiss';
     default: return null; 
   }
 }

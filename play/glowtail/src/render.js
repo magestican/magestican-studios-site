@@ -478,6 +478,11 @@ export function createRenderer(canvas, { search = '' } = {}) {
         burst(cellX(e.x), cellZ(e.y), new THREE.Color(1, 1, 1), 18, { speed: 2.2, up: 1.6, size: 10, life: 0.6 });
         flash = Math.max(flash, 0.32); flashColor.set(0.85, 0.95, 1);
         shake = Math.max(shake, 0.18);
+      } else if (e.type === 'flinch') {
+        
+        burst(cellX(Math.max(0, Math.min(W - 1, e.x))), cellZ(Math.max(0, Math.min(H - 1, e.y))), new THREE.Color(1, 0.55, 0.25), 12, { speed: 1.2, up: 0.8, size: 9, life: 0.5 });
+        flash = Math.max(flash, 0.22); flashColor.set(1, 0.6, 0.3);
+        shake = Math.max(shake, 0.12);
       } else if (e.type === 'spawn') {
         burst(cellX(e.x), cellZ(e.y), pal.mote, 10, { speed: 1.2, up: 1, size: 9, life: 0.6 });
       } else if (e.type === 'shoal') {

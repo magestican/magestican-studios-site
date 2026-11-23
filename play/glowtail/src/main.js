@@ -6,6 +6,7 @@
 
 
 
+
 import { createState, enqueue, step, tickMs, enterNextDepth } from './sim.js';
 import { DEPTHS } from './depths.js';
 import { dateKey, seedFor, bestKey } from './daily.js';
@@ -36,21 +37,23 @@ let mode = MODES.includes(params.get('mode')) ? params.get('mode') : 'dive';
 let runDay = new Date(); 
 
 
-const GHOST_KEY = (m) => `glowtail.ghost.v1.${m}`;
+const GHOST_KEY = (m) => `glowtail.ghost.v1.${m}${hard ? '.hard' : ''}`;
 let ghost = null;
 let recorder = createRecorder();
 function loadGhost() {
   try {
     const raw = JSON.parse(localStorage.getItem(GHOST_KEY(mode)));
     const g = unpack(raw);
-    return g && raw.slot === bestKey(mode, runDay) ? g : null;
+    return g && raw.slot === bestKey(mode, runDay, hard) ? g : null;
   } catch { return null; }
 }
 function saveGhost() {
   if (!keeps(ghost, state.score)) return;
-  try { localStorage.setItem(GHOST_KEY(mode), JSON.stringify({ ...pack(recorder, state.score), slot: bestKey(mode, runDay) })); } catch {  }
+  try { localStorage.setItem(GHOST_KEY(mode), JSON.stringify({ ...pack(recorder, state.score), slot: bestKey(mode, runDay, hard) })); } catch {  }
 }
 let gentle = params.get('gentle') === '1' || best.gentle === true;
+
+let hard = params.get('hard') === '1' || best.hard === true;
 let state = newState();
 let running = false;
 let paused = false;
@@ -60,9 +63,9 @@ let descendAt = 0;
 
 function newState() {
   const depth = Math.max(0, Math.min(DEPTHS.length - 1, (parseInt(params.get('depth'), 10) || 1) - 1));
-  if (mode === 'daily') return createState({ mode: 'dive', depth: 0, seed: seedFor(dateKey(runDay)), gentle });
+  if (mode === 'daily') return createState({ mode: 'dive', depth: 0, seed: seedFor(dateKey(runDay)), gentle, hard });
   const seed = parseInt(params.get('seed'), 10) || Math.floor(Math.random() * 1e9);
-  return createState({ mode, depth, seed, gentle });
+  return createState({ mode, depth, seed, gentle, hard });
 }
 
 
@@ -192,7 +195,7 @@ function popup(text, kind) {
 
 function hud() {
   $('score').textContent = state.score.toLocaleString();
-  const key = bestKey(mode, runDay);
+  const key = bestKey(mode, runDay, hard);
   $('best').textContent = `Best ${(best[key] || 0).toLocaleString()}`;
   if (state.mode === 'classic') {
     $('depth').textContent = `Classic - length ${state.snake.length}`;
@@ -219,6 +222,7 @@ function handle(events) {
       if (timeScale >= 1) { timeScale = 0.55; slowUntil = performance.now() + 220; } 
       vibrate(8);
     }
+    if (e.type === 'flinch') vibrate(6); 
     if (e.type === 'encircle') {
       popup(e.count > 1 ? `CIRCLED x${e.count}  +${e.points.toLocaleString()}` : `CIRCLED  +${e.points}`, 'big');
       timeScale = 0.3; slowUntil = performance.now() + 450; 
@@ -242,7 +246,7 @@ function handle(events) {
 
 function finish(won) {
   running = false;
-  const key = bestKey(mode, runDay);
+  const key = bestKey(mode, runDay, hard);
   const isBest = state.score > (best[key] || 0);
   if (isBest) { best[key] = state.score; saveBest(); }
   saveGhost();
@@ -263,12 +267,19 @@ for (const b of document.querySelectorAll('[data-mode]')) {
   b.addEventListener('click', () => { mode = b.dataset.mode; start(); });
 }
 $('again').addEventListener('click', start);
-$('menu').addEventListener('click', () => { ui.play('back'); running = false; show('title'); syncGentle(); syncMusic(); });
+$('menu').addEventListener('click', () => { ui.play('back'); running = false; show('title'); syncGentle(); syncHard(); syncMusic(); });
 $('resume').addEventListener('click', togglePause);
 $('pauseBtn').addEventListener('click', togglePause);
 function syncGentle() { $('gentle').setAttribute('aria-pressed', String(gentle)); $('gentle').textContent = gentle ? 'Gentle speed: on' : 'Gentle speed: off'; }
 $('gentle').addEventListener('click', () => { ui.play('tap'); gentle = !gentle; best.gentle = gentle; saveBest(); syncGentle(); });
 syncGentle();
+function syncHard() {
+  $('hard').setAttribute('aria-pressed', String(hard));
+  $('hard').textContent = hard ? 'Hard mode: on' : 'Hard mode: off';
+  $('hard').title = hard ? 'No slow-down near danger, no second chance: any hit ends the run' : 'Off: the eel slows near danger and gets a second chance';
+}
+$('hard').addEventListener('click', () => { ui.play('tap'); hard = !hard; best.hard = hard; saveBest(); syncHard(); });
+syncHard();
 addEventListener('blur', () => { if (running && !paused) togglePause(); });
 addEventListener('resize', () => view.resize());
 
