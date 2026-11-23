@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "69f5f3c1-20261123T220003Z",
+ "buildId": "e2a01047-20261123T222958Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -1026,7 +1026,7 @@
    "ageNote": null,
    "order": 33,
    "addedAt": "2026-11-24",
-   "bytes": 11482486
+   "bytes": 11514299
   },
   {
    "id": "ringtitans",

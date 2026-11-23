@@ -16,6 +16,7 @@ export const SFX_TAKES = Object.freeze({
   encircle1: 1, encircle2: 1, encircle3: 1,
   shoal: 1, descend: 1, death: 1, surface: 1,
   nearMiss: 1, 
+  flinch: 1, 
 });
 
 
@@ -45,7 +46,8 @@ function cueFor(e) {
     case 'surface': return 'surface';
     case 'nearMiss': return 'nearMiss';
     
-    case 'flinch': return 'nearMiss';
+    
+    case 'flinch': return 'flinch';
     default: return null; 
   }
 }
