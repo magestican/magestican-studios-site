@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <style data-immersive-shell>
+  html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  canvas { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, textarea, select, [contenteditable=""], [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  </style>
+  <script data-immersive-shell>
+  (function () {
+    var stop = function (e) { e.preventDefault(); };
+    // iOS pinch: Safari ignores user-scalable=no, so cancel its gesture events.
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('gestureend', stop, { passive: false });
+    // Two fingers moving = a pinch; cancelling the default stops the zoom, the game still gets the touches.
+    document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+    // Ctrl + wheel / trackpad pinch on a desktop browser.
+    window.addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    var editable = function (t) {
+      return !!(t && t.closest && t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]'));
+    };
+    document.addEventListener('selectstart', function (e) { if (!editable(e.target)) e.preventDefault(); });
+    document.addEventListener('dblclick', function (e) { if (!editable(e.target)) e.preventDefault(); }, { passive: false });
+    document.addEventListener('contextmenu', function (e) { if (e.target && e.target.tagName === 'CANVAS') e.preventDefault(); });
+  })();
+  </script>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <title>Glassbreak</title>
+  <meta name="description" content="Glassbreak: bounce a living ember with brass deflectors, shatter the Glass Abbess's stained-glass windows and free the city's daylight. Solo or co-op for up to four.">
+  
+  <link rel="canonical" href="https://magesticanstudios.com/play/glassbreak/">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "../../web-engine/vendor/three-0.161.0/three.module.js",
+      "three/addons/": "../../web-engine/vendor/three-0.161.0/addons/"
+    }
+  }
+  </script>
+  <style>
+    :root { --fs: 1; --ink: #f6efe4; --brass: #f0c470; --panel: rgba(14, 10, 22, 0.78); --rose: #ff4f7b; --moss: #5fd36a;
+      --cobalt: #3f8cff; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { margin: 0; height: 100%; background: #05040a; color: var(--ink); overflow: hidden;
+      font: 15px/1.4 Georgia, "Iowan Old Style", "Palatino Linotype", serif; -webkit-tap-highlight-color: transparent; }
+    canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
+    
+
+    #field { position: fixed; pointer-events: none; }
+    .hud { position: absolute; left: calc(16px * var(--fs)); right: calc(16px * var(--fs)); display: flex;
+      justify-content: space-between; align-items: flex-start; gap: calc(12px * var(--fs)); }
+    .hud.top { top: calc(16px * var(--fs) - var(--hudlift, 0px)); }
+    .chip { background: var(--panel); border: 1px solid rgba(240, 196, 112, 0.25); border-radius: calc(10px * var(--fs));
+      padding: calc(6px * var(--fs)) calc(12px * var(--fs)); font-size: calc(13px * var(--fs)); white-space: nowrap; }
+    .light { font-size: calc(18px * var(--fs)); font-weight: 700; color: var(--brass); font-variant-numeric: tabular-nums; }
+    .where { display: flex; flex-direction: column; gap: calc(6px * var(--fs)); align-items: flex-start; min-width: 0; }
+    .where .chip { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .right { display: flex; gap: calc(8px * var(--fs)); align-items: flex-start; }
+    #lanterns { letter-spacing: 0.12em; color: #ffcf6e; }
+    button { font: inherit; color: var(--ink); cursor: pointer; }
+    #pauseBtn { pointer-events: auto; min-width: 44px; min-height: 44px; border-radius: calc(10px * var(--fs));
+      background: var(--panel); border: 1px solid rgba(240, 196, 112, 0.35); font-size: calc(16px * var(--fs)); }
+    #bossbar { position: absolute; top: calc(96px * var(--fs)); left: 15%; right: 15%; height: calc(10px * var(--fs));
+      border-radius: 99px; background: var(--panel); border: 1px solid rgba(255, 255, 255, 0.3); overflow: hidden; }
+    #bossbar i { display: block; height: 100%; width: 100%; transform-origin: left;
+      background: linear-gradient(90deg, var(--rose), var(--moss), var(--cobalt)); }
+    #bossbar[hidden] { display: none; }
+    
+    .tints { position: absolute; left: calc(16px * var(--fs)); bottom: calc(14px * var(--fs) - var(--tintdrop, 0px)); display: flex;
+      gap: calc(12px * var(--fs)); pointer-events: auto; }
+    .tints button { width: calc(44px * var(--fs)); height: calc(44px * var(--fs)); min-width: 44px; min-height: 44px;
+      border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.25); background: var(--c); opacity: 0.6; padding: 0; }
+    .tints button[aria-pressed="true"] { opacity: 1; border-color: #fff; box-shadow: 0 0 18px var(--c); }
+    .hint { position: absolute; right: calc(16px * var(--fs)); bottom: calc(24px * var(--fs) - var(--tintdrop, 0px)); font-size: calc(12px * var(--fs));
+      opacity: 0.75; text-align: right; }
+    #banner { position: absolute; left: 0; right: 0; top: 38%; text-align: center; pointer-events: none;
+      transition: opacity 0.6s; opacity: 0; padding: 0 calc(16px * var(--fs)); }
+    #banner.on { opacity: 1; }
+    #banner .act { font-size: calc(13px * var(--fs)); letter-spacing: 0.2em; text-transform: uppercase; color: var(--brass); }
+    #banner .name { font-size: calc(34px * var(--fs)); margin-top: calc(8px * var(--fs)); text-shadow: 0 2px 18px #000; }
+    
+    .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: calc(20px * var(--fs)); padding: calc(32px * var(--fs)) calc(16px * var(--fs)); pointer-events: auto; text-align: center;
+      background: radial-gradient(ellipse at center, rgba(8, 4, 16, 0.55), rgba(5, 3, 10, 0.88)); }
+    .screen[hidden] { display: none; }
+    .screen h1 { margin: 0; font-size: calc(54px * var(--fs)); letter-spacing: 0.04em; font-weight: 400;
+      background: linear-gradient(90deg, var(--rose), #ffd27a 50%, var(--cobalt)); -webkit-background-clip: text;
+      background-clip: text; color: transparent; filter: drop-shadow(0 4px 24px rgba(255, 140, 90, 0.35)); }
+    .screen h2 { margin: 0; font-size: calc(30px * var(--fs)); font-weight: 400; }
+    .screen p { margin: 0; max-width: 30em; font-size: calc(15px * var(--fs)); opacity: 0.9; }
+    .big { font-size: calc(30px * var(--fs)); padding: calc(20px * var(--fs)) calc(56px * var(--fs)); min-height: 64px;
+      border-radius: calc(18px * var(--fs)); border: 2px solid var(--brass); letter-spacing: 0.08em;
+      background: linear-gradient(180deg, #6a3a16, #2b160a); box-shadow: 0 0 40px rgba(255, 170, 80, 0.35); }
+    .big:hover, .big:focus-visible { box-shadow: 0 0 60px rgba(255, 190, 100, 0.6); outline: none; }
+    .row { display: flex; flex-wrap: wrap; justify-content: center; gap: calc(12px * var(--fs)); }
+    .btn { min-height: 44px; padding: calc(10px * var(--fs)) calc(20px * var(--fs)); border-radius: calc(12px * var(--fs));
+      background: var(--panel); border: 1px solid rgba(240, 196, 112, 0.45); font-size: calc(15px * var(--fs)); }
+    .btn[aria-pressed="true"] { border-color: #fff; background: rgba(120, 70, 30, 0.8); }
+    .stars { font-size: calc(40px * var(--fs)); letter-spacing: 0.15em; color: #ffd27a; }
+    .stars .off { color: rgba(255, 255, 255, 0.18); }
+    .tally { display: grid; grid-template-columns: auto auto; gap: calc(6px * var(--fs)) calc(24px * var(--fs));
+      font-size: calc(15px * var(--fs)); text-align: left; }
+    .tally b { text-align: right; color: var(--brass); font-variant-numeric: tabular-nums; }
+    #select { justify-content: flex-start; overflow-y: auto; }
+    .acts { display: flex; flex-direction: column; gap: calc(20px * var(--fs)); width: 100%; max-width: 560px; }
+    .act h3 { margin: 0 0 calc(10px * var(--fs)); font-weight: 400; color: var(--brass); font-size: calc(16px * var(--fs));
+      text-align: left; letter-spacing: 0.08em; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(12px * var(--fs)); }
+    .grid button { min-height: 56px; padding: calc(8px * var(--fs)); border-radius: calc(12px * var(--fs));
+      background: var(--panel); border: 1px solid rgba(240, 196, 112, 0.35); font-size: calc(13px * var(--fs)); line-height: 1.25; }
+    .grid button.boss { border-color: var(--rose); }
+    .grid button:disabled { opacity: 0.35; cursor: default; }
+    .grid small { display: block; color: #ffd27a; letter-spacing: 0.1em; margin-top: 4px; }
+    
+    #lobby { justify-content: flex-start; overflow-y: auto; }
+    .seats { display: grid; grid-template-columns: repeat(2, 1fr); gap: calc(12px * var(--fs)); width: 100%; max-width: 420px; }
+    .seat { padding: calc(12px * var(--fs)) calc(16px * var(--fs)); border-radius: calc(12px * var(--fs)); background: var(--panel);
+      border: 2px solid var(--c, rgba(255, 255, 255, 0.2)); font-size: calc(14px * var(--fs)); text-align: left; }
+    .seat.empty { opacity: 0.45; border-style: dashed; }
+    .seat b { color: var(--c); }
+    .links { display: flex; flex-direction: column; gap: calc(8px * var(--fs)); width: 100%; max-width: 420px; text-align: left; }
+    .opts { display: flex; flex-direction: column; gap: calc(12px * var(--fs)); width: 100%; max-width: 320px; }
+    .opts .btn { width: 100%; }
+    #setErase[data-armed="1"] { border-color: #ff4f7b; background: rgba(140, 30, 50, 0.85); }
+    .links label { font-size: calc(13px * var(--fs)); color: var(--brass); }
+    .links input { width: 100%; min-height: 44px; padding: calc(8px * var(--fs)) calc(12px * var(--fs)); border-radius: calc(10px * var(--fs));
+      background: rgba(0, 0, 0, 0.5); color: var(--ink); border: 1px solid rgba(240, 196, 112, 0.35); font: inherit;
+      font-size: calc(13px * var(--fs)); }
+    .toast { position: absolute; left: calc(16px * var(--fs)); right: calc(16px * var(--fs)); top: calc(76px * var(--fs));
+      padding: calc(10px * var(--fs)) calc(16px * var(--fs)); border-radius: calc(12px * var(--fs)); background: var(--panel);
+      border: 1px solid rgba(240, 196, 112, 0.45); text-align: center; font-size: calc(14px * var(--fs)); pointer-events: none; }
+    .kchip { border-color: var(--c); }
+    .tiny { font-size: calc(12px * var(--fs)); opacity: 0.7; }
+    
+    #story { justify-content: flex-end; padding-bottom: calc(48px * var(--fs)); cursor: pointer;
+      background: linear-gradient(180deg, rgba(5, 3, 10, 0.35), rgba(5, 3, 10, 0.92) 55%); }
+    #story .scene { font-size: calc(13px * var(--fs)); letter-spacing: 0.2em; text-transform: uppercase; color: var(--brass); }
+    #story .stage { font-style: italic; opacity: 0.75; min-height: 2.6em; }
+    #story .say { width: 100%; max-width: 30em; min-height: calc(110px * var(--fs)); padding: calc(16px * var(--fs));
+      border-radius: calc(14px * var(--fs)); background: var(--panel); border: 1px solid rgba(240, 196, 112, 0.35); text-align: left; }
+    #story .say[hidden] { display: none; }
+    
+    #story .face { width: calc(160px * var(--fs)); height: calc(160px * var(--fs)); max-height: 34vh; aspect-ratio: 1;
+      object-fit: cover; border-radius: 12px; border: 2px solid var(--brass); margin-bottom: 20px; }
+    #story .face[hidden] { display: none; }
+    #storyWho { display: block; margin-bottom: calc(8px * var(--fs)); font-size: calc(15px * var(--fs)); letter-spacing: 0.06em; }
+    #story .say p { font-size: calc(18px * var(--fs)); line-height: 1.4; opacity: 1; }
+  </style>
+</head>
+<body>
+  <canvas id="c" aria-label="Glassbreak play field"></canvas>
+  <div id="field">
+    <div class="hud top" id="hud" hidden>
+      <div class="where">
+        <div class="chip light" id="light">0</div>
+        <div class="chip" id="where"></div>
+      </div>
+      <div class="right">
+        <div class="chip" id="lanterns" title="Lanterns"></div>
+        <button id="pauseBtn" aria-label="Pause">II</button>
+      </div>
+    </div>
+    <div id="bossbar" hidden><i id="bossfill"></i></div>
+    <div class="tints" id="tints" hidden>
+      <button style="--c: var(--rose)" data-tint="0" aria-label="Rose" aria-pressed="true"></button>
+      <button style="--c: var(--moss)" data-tint="1" aria-label="Moss" aria-pressed="false"></button>
+      <button style="--c: var(--cobalt)" data-tint="2" aria-label="Cobalt" aria-pressed="false"></button>
+    </div>
+    <div class="hint" id="hint" hidden>Tap to launch · Q/E colour</div>
+    <div id="banner"><div class="act" id="bannerAct"></div><div class="name" id="bannerName"></div></div>
+
+    <section class="screen" id="title">
+      <h1 id="titleName">Glassbreak</h1>
+      <p id="blurb"></p>
+      <button class="big" id="start">Start</button>
+      <div class="row" id="modes">
+        <button class="btn" data-mode="gentle" aria-pressed="false">Gentle</button>
+        <button class="btn" data-mode="normal" aria-pressed="true">Normal</button>
+        <button class="btn" data-mode="hard" aria-pressed="false">Hard</button>
+      </div>
+      <div class="row"><button class="btn" id="friends">Play with friends</button><button class="btn" id="toSelect">Windows</button></div>
+      <div class="row"><button class="btn" id="sound" aria-pressed="true">Sound: on</button><button class="btn" id="toSettings">Settings</button></div>
+      <p class="tiny">Mouse or finger steers · Space or tap launches · Q / E or the swatches change colour</p>
+    </section>
+
+    <section class="screen" id="select" hidden>
+      <h2>The Windows</h2>
+      <div class="acts" id="acts"></div>
+      <div class="row"><button class="btn" id="selectBack">Back</button></div>
+    </section>
+
+    <section class="screen" id="lobby" hidden>
+      <h2 id="lobbyHead">Play with friends</h2>
+      <p id="lobbyStatus">Opening a room...</p>
+      <div class="seats" id="seats"></div>
+      <div class="links" id="links" hidden>
+        <label for="joinLink">Play link</label>
+        <input id="joinLink" readonly>
+        <div class="row"><button class="btn" id="shareJoin">Share Play link</button></div>
+        <label for="watchLink">Watch link</label>
+        <input id="watchLink" readonly>
+        <div class="row"><button class="btn" id="shareWatch">Share Watch link</button></div>
+      </div>
+      <button class="big" id="coopStart" hidden>Start</button>
+      <div class="row"><button class="btn" id="lobbyLeave">Back</button></div>
+    </section>
+
+    <div class="toast" id="toast" hidden></div>
+
+    <section class="screen" id="pause" hidden>
+      <h2>Paused</h2>
+      <div class="row">
+        <button class="big" id="resume">Resume</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="restart">Restart window</button>
+        <button class="btn" id="pauseSelect">Windows</button>
+        <button class="btn" id="pauseTitle">Title</button>
+      </div>
+      <div class="row"><button class="btn" id="soundPause" aria-pressed="true">Sound: on</button><button class="btn" id="pauseSettings">Settings</button></div>
+    </section>
+
+    <section class="screen" id="settings" hidden>
+      <h2>Settings</h2>
+      <div class="opts">
+        <button class="btn" id="setSound" aria-pressed="true">Sound: on</button>
+        <button class="btn" id="setShake" aria-pressed="true">Screen shake: on</button>
+        <button class="btn" id="setStory" aria-pressed="true">Story scenes: on</button>
+        <button class="btn" id="setErase">Erase progress</button>
+      </div>
+      <p class="tiny" id="settingsNote">Every Magestican game shares this one sound switch.</p>
+      <div class="row"><button class="big" id="settingsBack">Back</button></div>
+    </section>
+
+    <section class="screen" id="tally" hidden>
+      <h2 id="tallyName">Window clear</h2>
+      <div class="stars" id="tallyStars"></div>
+      <div class="tally" id="tallyRows"></div>
+      <button class="big" id="next">Next window</button>
+      <div class="row"><button class="btn" id="tallySelect">Windows</button></div>
+    </section>
+
+    <section class="screen" id="fail" hidden>
+      <h2>The Dusk took the window</h2>
+      <p>The glass reached the deflectors with no lantern left. The ember rekindles in a moment.</p>
+      <div class="row"><button class="btn" id="failSelect">Windows</button><button class="btn" id="failTitle">Title</button></div>
+    </section>
+
+    <section class="screen" id="story" hidden aria-live="polite">
+      <div class="scene" id="storyScene"></div>
+      <p class="stage" id="storyStage"></p>
+      <img class="face" id="storyFace" alt="" hidden>
+      <div class="say" id="storySay"><b id="storyWho"></b><p id="storyText"></p></div>
+      <div class="row"><button class="big" id="storyNext">Next</button></div>
+      <div class="row"><button class="btn" id="storySkip">Skip</button></div>
+    </section>
+
+    <section class="screen" id="end" hidden>
+      <h1>Daylight</h1>
+      <div class="tally" id="endRows"></div>
+      <button class="big" id="endTitle">Title</button>
+    </section>
+  </div>
+  <script type="module" src="src/game.js?v=354aeea9-20261123T165643Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=354aeea9-20261123T165643Z"></script>
+</body>
+</html>

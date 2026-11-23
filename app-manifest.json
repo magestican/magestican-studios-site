@@ -1,8 +1,8 @@
 {
   "$comment": "Read by the Magestican Studios iOS apps to update their bundled games without an App Store release. See multi-game-madness/app/lib/services/game_updater.dart.",
-  "buildId": "82b934c0-20261123T163208Z",
-  "builtAt": "2026-11-23T16:32:08Z",
-  "fileCount": 9165,
+  "buildId": "354aeea9-20261123T165643Z",
+  "builtAt": "2026-11-23T16:56:43Z",
+  "fileCount": 9278,
   "files": {
     "assets/apple-touch-icon.png": {
       "bytes": 10629,
@@ -1290,7 +1290,7 @@
     },
     "play/farmyshoot/index.html": {
       "bytes": 70268,
-      "sha256": "2a2b66ec7f8ee51ddf09a451b48188bc523fb6f61e446b91ef081e9584729cd4"
+      "sha256": "df6e5a7c5a29a565b99b6eb28d1dd51434496514f58bb680d76e4ef206b3d65f"
     },
     "play/farmyshoot/src/audio/announcerVoice.js": {
       "bytes": 8781,
@@ -1794,7 +1794,7 @@
     },
     "play/farmykart/index.html": {
       "bytes": 80256,
-      "sha256": "2ef6b27b4b7e75e521af493b76abdc7dbd74b43beb36c699fe951b1c259b1897"
+      "sha256": "1ec92c7ee42bf2d1863f07108d20225c036eaa42a2e9c83f6a92dacbfaaeae31"
     },
     "play/farmykart/src/audio/music.js": {
       "bytes": 13073,
@@ -2030,7 +2030,7 @@
     },
     "play/farmy-evil-hills/index.html": {
       "bytes": 41317,
-      "sha256": "7fd5d08dc6e58117e57a9ab8e483f4111650f90cf986a8d80567346ae4a6b704"
+      "sha256": "fafedc6d6f887b9766420ebfea933f6f85492ce989b784701e32a1db51ce0f7d"
     },
     "play/farmy-evil-hills/src/audio/mumble.js": {
       "bytes": 4922,
@@ -2262,7 +2262,7 @@
     },
     "play/farmy-uprising/index.html": {
       "bytes": 62093,
-      "sha256": "2d942e472be6295db00a91dd394defec80172ddc56007a3cddaadd28d231d886"
+      "sha256": "63a799f4d3b5b804bccfb7f0bd739fa9f206a29f58f80e075850533e847a8a3f"
     },
     "play/farmy-uprising/src/animSprites.js": {
       "bytes": 1143,
@@ -3494,7 +3494,7 @@
     },
     "play/zelakas/index.html": {
       "bytes": 13402,
-      "sha256": "b30ecd84076ddfa41ccd627007cdb9adf614904bd0a6cf85b7a05dcb046efdab"
+      "sha256": "863e46835cb242f11970d0f07f515f6b00a9a308e40b18be7344c507fdccfab3"
     },
     "play/zelakas/vendor/ruffle/172de42e6619eac8f371.wasm": {
       "bytes": 14302754,
@@ -3558,7 +3558,7 @@
     },
     "play/2d-fighter-ex/index.html": {
       "bytes": 12079,
-      "sha256": "8146d9cde885c83dd75d505753935523053fa2752fc5db8a2110f967b2a81f6b"
+      "sha256": "35a0dce523cbee3e1e30915e56bcc7aa4004a1f5213e165c32af993e2d74292f"
     },
     "play/2d-fighter-ex/src/animeRig.mjs": {
       "bytes": 60,
@@ -3642,7 +3642,7 @@
     },
     "play/farmy-crosswords/index.html": {
       "bytes": 8238,
-      "sha256": "165bd0670a5b266b17a7d7ab55143279d0af933679507cb49d8f64a7c9d68b57"
+      "sha256": "f9fc50c8f346179f2dbff4aa26fe20d8ce7f82d340402a8a203f290bd529797b"
     },
     "play/farmy-crosswords/src/a11y.js": {
       "bytes": 1510,
@@ -3718,7 +3718,7 @@
     },
     "play/farmy-tiles/index.html": {
       "bytes": 7988,
-      "sha256": "b5e42728f806ff153b0003fb4833e7d4c1c12f821ff92e3b66ec5124eb746322"
+      "sha256": "01015bf6b735f79011da7b6a9ea18ebb6dce0bd0949ac68d89bc20d59a4eeca7"
     },
     "play/farmy-tiles/src/a11y.js": {
       "bytes": 1514,
@@ -3774,7 +3774,7 @@
     },
     "play/farmy-ludo/index.html": {
       "bytes": 7786,
-      "sha256": "296c500b53505bc9c303abbbaee77e8faa5d880e7fbd94214d2e43a6f51d2797"
+      "sha256": "40d3dd953d9f07b9945dcba3b1be2a0d20ff9c425850849e394ffd8c5925df81"
     },
     "play/farmy-ludo/src/a11y.js": {
       "bytes": 1510,
@@ -3818,7 +3818,7 @@
     },
     "play/farmy-chess/index.html": {
       "bytes": 7992,
-      "sha256": "285c1d280575a2ef48e3a488c84309246fe54e6245a7b3df9c7718f91332c666"
+      "sha256": "f08bc017f32b0a357e6c02200d49df70d1e97c37245b00237a9398de9a6e0853"
     },
     "play/farmy-chess/src/a11y.js": {
       "bytes": 1563,
@@ -3870,7 +3870,7 @@
     },
     "play/farmy-checkers/index.html": {
       "bytes": 7970,
-      "sha256": "b42bafc701be255d52dba8db27b249eda1553ce1a82e8c08dc9059d7a318f4d8"
+      "sha256": "58a97d26fa4644f897fa9e30c49c7c264577d163cd26376312a359bbd43ddf07"
     },
     "play/farmy-checkers/src/a11y.js": {
       "bytes": 1531,
@@ -3994,7 +3994,7 @@
     },
     "play/minesweeper/index.html": {
       "bytes": 14106,
-      "sha256": "295760ef99b11f7b702e66ecca1ec56593ded51f35ecd8737034256b3e7bfeb2"
+      "sha256": "a296ff49644e634636a2e860f6909e54193269b79d8932e8123946b4e8efa6e5"
     },
     "play/minesweeper/src/main.js": {
       "bytes": 36847,
@@ -4074,7 +4074,7 @@
     },
     "play/lamplighters/index.html": {
       "bytes": 9274,
-      "sha256": "36cfb06aff9a64fa36c5ba91dd2381a4bbf9275fdcc384517db89265eae0c8c1"
+      "sha256": "426b1ff0c9a7b7c8457ede0a207061cb49b122c994247d6b46ad4943d956d510"
     },
     "play/lamplighters/src/blockScene.js": {
       "bytes": 32492,
@@ -4354,7 +4354,7 @@
     },
     "play/fossick/index.html": {
       "bytes": 7537,
-      "sha256": "c3d557e9c803c1ecb30136971648ecd17ec6e03597001ef9c499e703c03ee4a4"
+      "sha256": "fd2d4b5e6f77324f900efc14e5f0e9e0feca98643fbe549920ef5f2e0d056e84"
     },
     "play/fossick/src/appBridge.js": {
       "bytes": 698,
@@ -4670,7 +4670,7 @@
     },
     "play/clashwell/index.html": {
       "bytes": 8189,
-      "sha256": "88f74fc316ea606d5ab1b0ec7d69089b9d650768ee0b19125ace70dc2ce4aa97"
+      "sha256": "ec972b26f9cd96e6f013d7ebb30b809b7ef002a3d2d5f1892264e96000356a8f"
     },
     "play/clashwell/src/art.js": {
       "bytes": 1355,
@@ -8290,7 +8290,7 @@
     },
     "play/abc-jam/index.html": {
       "bytes": 11754,
-      "sha256": "a1a37f39d991b7b074b4618570b572d86e94f0bb14b11ad3bdf589bf1b95b227"
+      "sha256": "2d2eec6c7bfe0f10bb684eab5d8185c2940ca7cb15af3d21b31389d993688b6e"
     },
     "play/abc-jam/src/content.js": {
       "bytes": 4134,
@@ -9478,7 +9478,7 @@
     },
     "play/polarity-shmup/index.html": {
       "bytes": 37897,
-      "sha256": "5ee569ca86bc563fae65b9066f4e9781c62ba0dfd70fb5bf49f496ad3679821c"
+      "sha256": "cec276442588d46ee48ded360137f18d93f3bd81375e50187e0ec87d0a669968"
     },
     "play/polarity-shmup/src/attract.js": {
       "bytes": 1649,
@@ -10194,7 +10194,7 @@
     },
     "play/tiny-throttle/index.html": {
       "bytes": 9368,
-      "sha256": "4bcacdc6b6434778b1cb70289990a856b0686bd3c9ce27de707181b3c634eb26"
+      "sha256": "0bc5235e57947bc78aab93c6a82ca6d2c6bb94135760fac24db0a1cf8397dc60"
     },
     "play/tiny-throttle/src/main.js": {
       "bytes": 9346,
@@ -10235,6 +10235,374 @@
     "play/tiny-throttle/src/tracks/y2.js": {
       "bytes": 4880,
       "sha256": "ffe00dd1b2b073de56270692f1d6d7bf2de8f883bae5c6bed9b3a54698a68881"
+    },
+    "play/glassbreak/assets/backdrops/act_bell_quarter/act_bell_quarter.webp": {
+      "bytes": 120104,
+      "sha256": "37afa9fc481e8bd7fe410a584e38ad3df053b1fb6b5d4c68ae56d8b254c12a79"
+    },
+    "play/glassbreak/assets/backdrops/act_kiln_works/act_kiln_works.webp": {
+      "bytes": 102666,
+      "sha256": "ea753cfa053ee2f64099a6cdee75799388a9067a3be8dc5ec8ca7adfebea327e"
+    },
+    "play/glassbreak/assets/backdrops/act_lantern_row/act_lantern_row.webp": {
+      "bytes": 78692,
+      "sha256": "0334353ede8afb3a253b9b0493f6d841c0f26abf2d09920021d77a22c3a6b9d4"
+    },
+    "play/glassbreak/assets/backdrops/act_mirror_nave/act_mirror_nave.webp": {
+      "bytes": 116234,
+      "sha256": "b075449cfe87d66695ac70ebcdb9ee9a42b872d07e52b650675238340b0a87f3"
+    },
+    "play/glassbreak/assets/backdrops/act_sun_spire/act_sun_spire.webp": {
+      "bytes": 85538,
+      "sha256": "bdba5b52e5910482323e6c0753c6579aee6053b4f5982a9427d8ba4d8110befe"
+    },
+    "play/glassbreak/assets/music/glassbreak-sunup.webm": {
+      "bytes": 1091595,
+      "sha256": "3d76e47a3d2ed82b44c6a4d971dc1c0a0b487d51aaa586a44a507b1c8d263ee4"
+    },
+    "play/glassbreak/assets/music/music.json": {
+      "bytes": 299,
+      "sha256": "05bdaea99b866071ca293dc5d9edf943050760d14da0586a0b1542e12853e938"
+    },
+    "play/glassbreak/assets/portraits/portraits.json": {
+      "bytes": 134,
+      "sha256": "08267889c3892805f707fcac9161d0f98a6572226527e8c199b6dd93f2d0e44f"
+    },
+    "play/glassbreak/assets/sfx/bell.wav": {
+      "bytes": 211724,
+      "sha256": "a2111636c4b1ca3a68384268b9d2e4ee3e889f2db83ea236032a0c90481d9b1d"
+    },
+    "play/glassbreak/assets/sfx/bellwarn.wav": {
+      "bytes": 44144,
+      "sha256": "8e90276569671fb44bbe5892cec3af67cd05510711c0fb6e2bc32102fa2d27b2"
+    },
+    "play/glassbreak/assets/sfx/bellwarn_2.wav": {
+      "bytes": 44144,
+      "sha256": "f2c97cf882a640fead7347e59e7b33c7f383a7a77a8a93ff8df36c44869018ac"
+    },
+    "play/glassbreak/assets/sfx/bell_2.wav": {
+      "bytes": 211724,
+      "sha256": "9a6579c4dee3299cea2b45b8b15c06812a4dad7a379f4c9731d61a1c22fc80fe"
+    },
+    "play/glassbreak/assets/sfx/bossdown.wav": {
+      "bytes": 229364,
+      "sha256": "ea34cc8fd3c4081c0e64e11677ce7e74e8bc4d77daa329eaa062f2708a1922fe"
+    },
+    "play/glassbreak/assets/sfx/bosshit.wav": {
+      "bytes": 42380,
+      "sha256": "00e823214aa7b63e6ab37ac5afdec5c392fefd0258ac68220eee2468d9d89858"
+    },
+    "play/glassbreak/assets/sfx/bosshit_2.wav": {
+      "bytes": 42380,
+      "sha256": "74e40db4b41ba1044a62c6d7391b0beb2636d5640f1c1bc7bae3734d3560f3f2"
+    },
+    "play/glassbreak/assets/sfx/bosshit_3.wav": {
+      "bytes": 42380,
+      "sha256": "d80f2db0bd7ff9b819064300978788f5d5e29a6bb2063e6a8ad739a6bd77c716"
+    },
+    "play/glassbreak/assets/sfx/bosshit_4.wav": {
+      "bytes": 42380,
+      "sha256": "f26e22a596a719c53e1ede4af5ed6048d48a48578cc97c18bf3b2d4af60a836f"
+    },
+    "play/glassbreak/assets/sfx/breach.wav": {
+      "bytes": 105884,
+      "sha256": "e933690463058cf0258c360aba4072d7b32cb3f83f8c24ca5fea4c56151e6890"
+    },
+    "play/glassbreak/assets/sfx/breach_2.wav": {
+      "bytes": 105884,
+      "sha256": "69709c4b505b20df7f1be3ad31e37455662689b6f5e1d74e0fbee2a318b27c60"
+    },
+    "play/glassbreak/assets/sfx/break.wav": {
+      "bytes": 37088,
+      "sha256": "a3de2fb498a371cd3227f28507fddc98afdbcaab0b62bfd1c63bb85b3d284bc5"
+    },
+    "play/glassbreak/assets/sfx/break_2.wav": {
+      "bytes": 37088,
+      "sha256": "ff02d88ebbb96bb5bb7557447595ce0617b02ef9893fdfd1d7244ef33f089c09"
+    },
+    "play/glassbreak/assets/sfx/break_3.wav": {
+      "bytes": 37088,
+      "sha256": "488c9b5de1fdb5b80f4d48960a4d40e11a486c9d67041d0769e2a417c75a112a"
+    },
+    "play/glassbreak/assets/sfx/break_4.wav": {
+      "bytes": 37088,
+      "sha256": "e9190ba773590c6117247779aea14d3fdb46d19016a2d55505ac6957eccc99f4"
+    },
+    "play/glassbreak/assets/sfx/break_5.wav": {
+      "bytes": 37088,
+      "sha256": "c279f5d2d292b67d2b8562508b5c5040039a63b6f9bd63582a99f98c349d9ed4"
+    },
+    "play/glassbreak/assets/sfx/break_6.wav": {
+      "bytes": 37088,
+      "sha256": "74275fff8231343306b4dd90e248ea9974946ba319aed4a5f52260d20e7d0c83"
+    },
+    "play/glassbreak/assets/sfx/capsule.wav": {
+      "bytes": 39734,
+      "sha256": "439d1e587f77adee54cc98eb33b8951c73662f09eb4f4bcbbdd6151872d10915"
+    },
+    "play/glassbreak/assets/sfx/capsule_2.wav": {
+      "bytes": 39734,
+      "sha256": "2c30254e240e0f345831d7824c337e26b41000249b9aeccce42515b44cd4be11"
+    },
+    "play/glassbreak/assets/sfx/capsule_3.wav": {
+      "bytes": 39734,
+      "sha256": "c856c1e731550353e428751c45744c93a58e60adad659199d72d872dd9049b5e"
+    },
+    "play/glassbreak/assets/sfx/clank.wav": {
+      "bytes": 14156,
+      "sha256": "f18818bcaeb2acfe068a27a212ed3a427654940297e3e7f92447dad851b3f2c1"
+    },
+    "play/glassbreak/assets/sfx/clank_2.wav": {
+      "bytes": 14156,
+      "sha256": "318411ff8591161fe8a15dd6764441cf9f08d702cc72ca293a2e0b2d99a8bec9"
+    },
+    "play/glassbreak/assets/sfx/clank_3.wav": {
+      "bytes": 14156,
+      "sha256": "20c3cc327e97eaebd23c7dbb8adb9f373de441b648ce473f1953962fed6ec141"
+    },
+    "play/glassbreak/assets/sfx/clear.wav": {
+      "bytes": 158804,
+      "sha256": "e1d58ca787e5830fb53b94135facb66856ebad55dc94812565c8f2cc338d91fa"
+    },
+    "play/glassbreak/assets/sfx/crack.wav": {
+      "bytes": 17684,
+      "sha256": "44a3bc84ae9aa6737670f05780041bcd7ba4fb6b3c482dd78581545cdd2a3793"
+    },
+    "play/glassbreak/assets/sfx/crack_2.wav": {
+      "bytes": 17684,
+      "sha256": "c75a18105e3b90c21e9f4cf3ef2a2321f1c821ed01c074ced41fc84d66c1b2c6"
+    },
+    "play/glassbreak/assets/sfx/crack_3.wav": {
+      "bytes": 17684,
+      "sha256": "174bc5ec03f8591da4ccc6149d65d2e1dec5ddabfd1ea1a8bf4450276992c355"
+    },
+    "play/glassbreak/assets/sfx/crack_4.wav": {
+      "bytes": 17684,
+      "sha256": "b247daba11324fa16f63092dc6c444b9f1753c5c5a8a7ea2c5cea1e873be454e"
+    },
+    "play/glassbreak/assets/sfx/fail.wav": {
+      "bytes": 194084,
+      "sha256": "95413b9423f409c37cc23edc24d31e9bcd3fe45b4d5469379ac1482855811312"
+    },
+    "play/glassbreak/assets/sfx/kilnroar.wav": {
+      "bytes": 167624,
+      "sha256": "3aa7a311574a35ac58921fc0d7de30448d54414d205f414c7bb7b99a4514d3ba"
+    },
+    "play/glassbreak/assets/sfx/kilnroar_2.wav": {
+      "bytes": 167624,
+      "sha256": "188ac072141cec360e360008c476d10fee9aa50a65b574487f326332f8733c19"
+    },
+    "play/glassbreak/assets/sfx/launch.wav": {
+      "bytes": 28268,
+      "sha256": "2a924596f59657e462f8751845aeb6bcadd1ff25007114437ad286928fdb524e"
+    },
+    "play/glassbreak/assets/sfx/launch_2.wav": {
+      "bytes": 28268,
+      "sha256": "7cd0f70842704de4f2588e060763e1526e3ca4ae35aa99a897518926ca782c15"
+    },
+    "play/glassbreak/assets/sfx/launch_3.wav": {
+      "bytes": 28268,
+      "sha256": "12458254b0b9aedb4eea3b90fb9690471ed071924f638b40a535d6f791e24749"
+    },
+    "play/glassbreak/assets/sfx/lost.wav": {
+      "bytes": 79424,
+      "sha256": "e95deff24cf8068afb84b659293ab216ff54b775d888154f6d0e9e896f86b26f"
+    },
+    "play/glassbreak/assets/sfx/lost_2.wav": {
+      "bytes": 79424,
+      "sha256": "d2642ccbb87badaffe44d8a7d9437d35d4f152c416b24ca14ce7e2e75d856543"
+    },
+    "play/glassbreak/assets/sfx/moth.wav": {
+      "bytes": 30032,
+      "sha256": "5392c7cff2e8e28a18bb85dedf3f80a748dcdb2446d1fea7e78e9de630c11e82"
+    },
+    "play/glassbreak/assets/sfx/moth_2.wav": {
+      "bytes": 30032,
+      "sha256": "eabec2ed690458e1233444683ecbcce563dd2a7f1453fb2b2075a42671c02574"
+    },
+    "play/glassbreak/assets/sfx/moth_3.wav": {
+      "bytes": 30032,
+      "sha256": "adce0ee3a96a5bb07cc0d12eaf08e76f142435d6ba7a90b2ae5fab7ec9b80071"
+    },
+    "play/glassbreak/assets/sfx/moth_4.wav": {
+      "bytes": 30032,
+      "sha256": "19cb5236f353357527e8b01f2fc594fcf54cc09050e23294298033c1594a6c5f"
+    },
+    "play/glassbreak/assets/sfx/paddle.wav": {
+      "bytes": 19448,
+      "sha256": "e9890c67a397b5a49fd67f421f782bce94afd988cb772511a86dea37e954a5f1"
+    },
+    "play/glassbreak/assets/sfx/paddle_2.wav": {
+      "bytes": 19448,
+      "sha256": "6d83ee4a80043d9568d0ab4ee64dd57074b60554050919df986651a7f178b5f7"
+    },
+    "play/glassbreak/assets/sfx/paddle_3.wav": {
+      "bytes": 19448,
+      "sha256": "ff500cc4683f5e5705db4816bbf1961416843be844bbb450c3656617b046bf5a"
+    },
+    "play/glassbreak/assets/sfx/paddle_4.wav": {
+      "bytes": 19448,
+      "sha256": "bd2735375a38b5cea5234fd038ee6358451b9ea67236f283eeabd059f6f671c5"
+    },
+    "play/glassbreak/assets/sfx/shield.wav": {
+      "bytes": 33560,
+      "sha256": "1c2e3ade69025b022353a8acc86ae1d0a621e0a00c3061f06858697e98a4d698"
+    },
+    "play/glassbreak/assets/sfx/shield_2.wav": {
+      "bytes": 33560,
+      "sha256": "7d049d8fb31a8d1d27d3e24b0cd7c17129659eeddda4675b9cf27a9764650837"
+    },
+    "play/glassbreak/assets/sfx/shoot.wav": {
+      "bytes": 22976,
+      "sha256": "74b213cb1a2de7f92f7d045269aa2b4dd1acdf11827493cc4fe26e2c645f03c9"
+    },
+    "play/glassbreak/assets/sfx/shoot_2.wav": {
+      "bytes": 22976,
+      "sha256": "960d734ee711f8247d8ac2dc637da33ce9008e9ea3b4e598873efab6052f193d"
+    },
+    "play/glassbreak/assets/sfx/shoot_3.wav": {
+      "bytes": 22976,
+      "sha256": "86d90ac8a95db2d78689d62c577323c4e03429e31c9121490280ba82734368f0"
+    },
+    "play/glassbreak/assets/sfx/spiregroan.wav": {
+      "bytes": 238184,
+      "sha256": "d946a6f7ebdee70ae8dd8abe6aeaf10415024620ccc8db58282dac8429488af6"
+    },
+    "play/glassbreak/assets/sfx/spiregroan_2.wav": {
+      "bytes": 238184,
+      "sha256": "93a0c1429c1ba2c2f6fca458211100e33261ad82f194e33b09974412693212f0"
+    },
+    "play/glassbreak/assets/sfx/sun.wav": {
+      "bytes": 97064,
+      "sha256": "05cab9665d55f13cbdd66e21278708d0bb3be52e086ee46f0802631344cfbd6c"
+    },
+    "play/glassbreak/assets/sfx/sun_2.wav": {
+      "bytes": 97064,
+      "sha256": "d0718e7ed3c36f0044967f345d43165146e2d498b504ed907718606e6370d706"
+    },
+    "play/glassbreak/assets/sfx/sun_3.wav": {
+      "bytes": 97064,
+      "sha256": "44d5ce4de7c4d39da1e82716f0b5e32f15c73577df59930df9744666e6a6609a"
+    },
+    "play/glassbreak/assets/sfx/wall.wav": {
+      "bytes": 7982,
+      "sha256": "9bc3e60b1d7a15943dbf3f5a9b8cb29f31e5b0db897944e63bc16956b2df5b21"
+    },
+    "play/glassbreak/assets/sfx/wall_2.wav": {
+      "bytes": 7982,
+      "sha256": "19786063b0308aea48230496b2b2266892dab1e2ef377a4bdc8b80f3d78cd688"
+    },
+    "play/glassbreak/assets/sfx/wall_3.wav": {
+      "bytes": 7982,
+      "sha256": "8766bfe4bd46dbe3c2e92db4f699be9a50b10e989b6bdc528008823e07dfb58a"
+    },
+    "play/glassbreak/assets/sfx/wall_4.wav": {
+      "bytes": 7982,
+      "sha256": "72df460e16e7ca7524e29f92deb65034c197e35c22ea5db22f5245935046e661"
+    },
+    "play/glassbreak/assets/ui/back.wav": {
+      "bytes": 12392,
+      "sha256": "f6a1aa381fd4601e6d6431b3860251872a1ef87930007f433124b537dd98568e"
+    },
+    "play/glassbreak/assets/ui/open.wav": {
+      "bytes": 31796,
+      "sha256": "57ff3f02ff5287e75ff2b7441229460f2b5565da4152ec8a7e02cf15ad11856f"
+    },
+    "play/glassbreak/assets/ui/tap.wav": {
+      "bytes": 7982,
+      "sha256": "a277757944b1efcc619184a4a9e00aa882c464589bbbb16273ba2309b3e9b6cb"
+    },
+    "play/glassbreak/assets/ui/toggleOff.wav": {
+      "bytes": 12392,
+      "sha256": "d6470bf02cbb76143abfc9204bce433dcfc1548b6d8f82a075150e799e4745cb"
+    },
+    "play/glassbreak/assets/ui/toggleOn.wav": {
+      "bytes": 12392,
+      "sha256": "27a8a558123753b69ad69919c1163d260ac5116fcb18a9ca838b6f19a46c3ca5"
+    },
+    "play/glassbreak/index.html": {
+      "bytes": 17974,
+      "sha256": "01960ac8fdc904b042245f1293b2f7285f0f816d558aec5a86b39d649ff32140"
+    },
+    "play/glassbreak/src/backdrops.js": {
+      "bytes": 447,
+      "sha256": "33b2c993270768d11398dbf71fcca8eb156a26381a36bb9caedb081f68af40d6"
+    },
+    "play/glassbreak/src/coop.js": {
+      "bytes": 3615,
+      "sha256": "952445256c39d9235b5db3f61abb21eb2a5101a2d72fe0bed1f876d0f83c0bde"
+    },
+    "play/glassbreak/src/game.js": {
+      "bytes": 25738,
+      "sha256": "7efc5003bd3f3cbd07498c4792263fb63a60a080c26b8fa1ef3419db501b8d63"
+    },
+    "play/glassbreak/src/kindlers.js": {
+      "bytes": 769,
+      "sha256": "5cba4a2afc2178e983ee6c9434a05d5ea34cac7b485cf7e1d59dec886b30e602"
+    },
+    "play/glassbreak/src/net/lockstep.js": {
+      "bytes": 9448,
+      "sha256": "b7bd8edf172943bc41eca20a9053b34e005cdfd48f063de97307e4475710a6d6"
+    },
+    "play/glassbreak/src/net/room.js": {
+      "bytes": 10922,
+      "sha256": "eb7d0947d33c711ecd5aba247f51d224e46ee13926ecf1ce6a9604dc23dbaffc"
+    },
+    "play/glassbreak/src/net/seatPilots.js": {
+      "bytes": 1265,
+      "sha256": "8771618363f66da1e841566fbfd09b7413afddd34f82693cf1575f59d8171ae4"
+    },
+    "play/glassbreak/src/net/star.js": {
+      "bytes": 3203,
+      "sha256": "7a87bbd9147ed103fbeeb7d9595282ac4a4e3936725e6943db77ef4796ab5a78"
+    },
+    "play/glassbreak/src/render.js": {
+      "bytes": 19433,
+      "sha256": "177aba8e65369ffe3cce7dfa8e24731e84a34747b6c2c6fcc203503d10f172c3"
+    },
+    "play/glassbreak/src/report.js": {
+      "bytes": 1465,
+      "sha256": "d13d4faf66ddb832e10bdc7eac2a82c82159cd3693649aeec2c3abb744766766"
+    },
+    "play/glassbreak/src/shaders.js": {
+      "bytes": 17867,
+      "sha256": "a8517c5eda1ac3410d032f6a0b8b8031c49e64676991c6dad7f16fc560c3b00f"
+    },
+    "play/glassbreak/src/sim/bot.js": {
+      "bytes": 4040,
+      "sha256": "68304a3bca8408af92861e06f6920a788038a34c12110e9e835af16690e543ff"
+    },
+    "play/glassbreak/src/sim/fixed.js": {
+      "bytes": 1599,
+      "sha256": "63e0ee8acd62e3ecc06314d59b5b375e068d4db2511e900e9284dd0d0b1d533a"
+    },
+    "play/glassbreak/src/sim/input.js": {
+      "bytes": 702,
+      "sha256": "13ad0ed689e59ee2849d9d57ec3d4d1aa4b2a818c8392bd8c376647c65442a18"
+    },
+    "play/glassbreak/src/sim/rng.js": {
+      "bytes": 646,
+      "sha256": "b757e0e838fcea902ba63dde027880325d4e84ef27125d2dc5d0088e004009fe"
+    },
+    "play/glassbreak/src/sim/sim.js": {
+      "bytes": 35536,
+      "sha256": "5adff0fc0a1e243a9310851f7c1fc3b8c23f40bd746055d575b9241aace5bc97"
+    },
+    "play/glassbreak/src/sim/windows.js": {
+      "bytes": 11123,
+      "sha256": "057374fba37ce4722e7d8e16f696f2c26a8ce2475de2ff9d9ca8657ae57f636c"
+    },
+    "play/glassbreak/src/sound.js": {
+      "bytes": 2775,
+      "sha256": "faebbdb08ddfa5b138b717808983a98c4f4c4773a5a09190a2ea5e5891979465"
+    },
+    "play/glassbreak/src/story.js": {
+      "bytes": 10764,
+      "sha256": "e25a03f54371b88ac7615203d91f48d9e6a014c6985282cb140a82974136834e"
+    },
+    "play/glassbreak/src/view.js": {
+      "bytes": 8661,
+      "sha256": "af9c20a1bb83af68a34f9762d44b7cd73d7e15510a79f98584631f04acbc9613"
     },
     "play/glowtail/assets/music/glowtail-abyss.webm": {
       "bytes": 1208313,
@@ -10358,7 +10726,7 @@
     },
     "play/glowtail/index.html": {
       "bytes": 10351,
-      "sha256": "63bac121d149b61454596a7810549386b993e11c41d302b7677b97710ffb3c00"
+      "sha256": "29dbb7a95ff9b1223067ed6b0d33d1cba1b37c93880602c526eab8099047b645"
     },
     "play/glowtail/src/depths.js": {
       "bytes": 1708,
@@ -10450,7 +10818,7 @@
     },
     "play/gomoku/index.html": {
       "bytes": 12129,
-      "sha256": "2fc6f03f2f5c3051cf23bc34ca453dbf607ec7a77e12f6e39515e54086d33d17"
+      "sha256": "620e7063eedd7032d1b2320a8a8642b0033482400fc0c2eb26ca364a1246c4dc"
     },
     "play/gomoku/src/main.js": {
       "bytes": 28471,
@@ -10534,7 +10902,7 @@
     },
     "play/word-chain/index.html": {
       "bytes": 13375,
-      "sha256": "812e7b37fe06c58b13e82bef767be182513848998abb7ebd7a76cfabc11842b0"
+      "sha256": "bb6ca62bda888f2abc9df8fe317c45405f13c35a1a0f7f432818aa4b8ffe4f10"
     },
     "play/word-chain/src/main.js": {
       "bytes": 32038,
@@ -10650,7 +11018,7 @@
     },
     "play/truco/index.html": {
       "bytes": 12596,
-      "sha256": "ab1aa54823c8a92de03f0a9aee9a2ea49c2f724dc41c7e7c6650d2c80a092ff3"
+      "sha256": "48a8506c2ac3a2f9f56d72fe4db3dda63fac7837f2ddc91b56c637334de2aa46"
     },
     "play/truco/src/main.js": {
       "bytes": 40361,
@@ -10786,7 +11154,7 @@
     },
     "play/buraco/index.html": {
       "bytes": 12294,
-      "sha256": "979bc0588ca5c30f9f35fde545004739d65e60e5b696b13e68853c82b91ce264"
+      "sha256": "37bc752872fd91eea86a940ed9935c14b4993f7388afd8f94ddd41f3f029f129"
     },
     "play/buraco/src/main.js": {
       "bytes": 45393,
@@ -10902,7 +11270,7 @@
     },
     "play/conga/index.html": {
       "bytes": 12429,
-      "sha256": "95f2a04fc38055906c78b739d600db4050c7fd6c17a7ae7757fa4aa0e5611826"
+      "sha256": "b17fd6f8eb6e18106389de97d0e3e2d90f96aeaa678f2f683354736833b62137"
     },
     "play/conga/src/main.js": {
       "bytes": 44603,
@@ -10966,7 +11334,7 @@
     },
     "play/koikoi/index.html": {
       "bytes": 12156,
-      "sha256": "c95a76b8e46f7adc2c344ac6282b950e6668813c51d2cfe24396d78934551d72"
+      "sha256": "d1fb73e3552e16bfaa243b868312cbd16ec5cb6b7812865f6d849e986f5f7e02"
     },
     "play/koikoi/src/main.js": {
       "bytes": 39040,
@@ -11030,7 +11398,7 @@
     },
     "play/shogi/index.html": {
       "bytes": 12639,
-      "sha256": "92471e7f39528a702846b30ea6452eb248ca88d32b49400c3960cfcf76d769e1"
+      "sha256": "9bf448cfb843f89dfa6404d16812fab57b9f1c4c604701802fb6016e544df5d7"
     },
     "play/shogi/src/main.js": {
       "bytes": 35769,
@@ -11090,7 +11458,7 @@
     },
     "play/xiangqi/index.html": {
       "bytes": 12750,
-      "sha256": "30892371b354d221514c381b11340439a00985811ee3d94b1b090de913014835"
+      "sha256": "1d2b93ae07cd7fa08ecb38ecbb66477d7de8afb2f862c08c226f707229c41c57"
     },
     "play/xiangqi/src/guide.js": {
       "bytes": 878,
@@ -11158,7 +11526,7 @@
     },
     "play/go/index.html": {
       "bytes": 14024,
-      "sha256": "84074988a5a0f997057c0a78e83270eb7db83af9ac8891f92f6333ded3566c53"
+      "sha256": "67c9138328da3d279b05c3564abf5bb582152f1d029cf0e2ef8bcf40e63b3ed8"
     },
     "play/go/src/confirm.js": {
       "bytes": 162,
@@ -11190,7 +11558,7 @@
     },
     "play/silk-and-seam/index.html": {
       "bytes": 6394,
-      "sha256": "896fe198b29615136fb94b09933b7c7573f69a10fde59b36ce64a3700c1be720"
+      "sha256": "94c1cdd7c15a3e701e76b910a0144cc7b40dc98db0b5c4d727f45afbe3880ed3"
     },
     "play/silk-and-seam/css/scene-frames.css": {
       "bytes": 3171,
@@ -11570,7 +11938,7 @@
     },
     "play/dachis/index.html": {
       "bytes": 22785,
-      "sha256": "df43cc04e20f846362cd0b06eaa9433e14f29ceec16d78ae96f4362c941ab600"
+      "sha256": "f9de7391a97c52f2092d6bab2f5ab20a9d420a90fcff8e71271d2a5f9fd127a9"
     },
     "play/dachis/css/game.css": {
       "bytes": 65322,
@@ -13606,7 +13974,7 @@
     },
     "play/space-95/index.html": {
       "bytes": 22701,
-      "sha256": "cc1db65da9e6ea67070bc2f4bba61cf3c2ac7a3e7b371ae36482d20db9b5336b"
+      "sha256": "04ff81ba2b39fd34c79671a6eff6a7e0b509d0cfe9906198e220c00853994e8f"
     },
     "play/space-95/css/bolt.css": {
       "bytes": 842,
@@ -28398,7 +28766,7 @@
     },
     "play/magic-mirror-moves/index.html": {
       "bytes": 12010,
-      "sha256": "b4f24cb1db317808af28565d591a3bf8d5c1029801c6fb64e34b83f579f1c0e0"
+      "sha256": "08149ea826cc12e37b51b534b641a2830b105c2d9d65ffbef6ecd5621eb91541"
     },
     "play/magic-mirror-moves/css/game.css": {
       "bytes": 14570,
@@ -29758,7 +30126,7 @@
     },
     "play/rex-rampage/index.html": {
       "bytes": 3114,
-      "sha256": "7b2e447535db88dc4179322acc7f60650b97de5eb97771c3519313b2f6366f6c"
+      "sha256": "c5d1ea0ba2c7aaf31f096eb960005b318ea60eefe02f44d1b3ca6dd8806622d9"
     },
     "play/rex-rampage/css/game.css": {
       "bytes": 9979,
@@ -31557,16 +31925,16 @@
       "sha256": "a0febbac5e9ff3cd6006a2652e7cf90724cd1302aa88f12f422d305f0a08ae1c"
     },
     "web-engine/account/achievements.js": {
-      "bytes": 27603,
-      "sha256": "d4d5ece3f2a6556fc8358fd48c7efb01408ec5166943ea9e9fa19b738112f658"
+      "bytes": 29775,
+      "sha256": "db48101316ec153364d9c4c5c8a948f1d1ab512bee2291f5f7a328f3ab180591"
     },
     "web-engine/account/badgeArt.js": {
       "bytes": 6581,
       "sha256": "4384b3ef0b98e72edca574f6507d155309be1e37d12ddef8c8e982cba61aac6e"
     },
     "web-engine/account/dailyChallenge.js": {
-      "bytes": 4602,
-      "sha256": "b2e655d6c8294d2bc34c00427cadd11e43124e89a840939decbfd313388759ef"
+      "bytes": 4744,
+      "sha256": "4bb641ba61602de037dce8432f014ba9d96cb457368f2a9085d60c41fa13f3cb"
     },
     "web-engine/account/dailyTasks.js": {
       "bytes": 6273,
@@ -31832,6 +32200,10 @@
       "bytes": 314,
       "sha256": "78710fe6c6dda2149fa2f3f79b2a0ad5f37652a54257089a2f9c1504d9dd9c3e"
     },
+    "web-engine/brand/glyphs/glassbreak.svg": {
+      "bytes": 270,
+      "sha256": "34e6d9b427abfcbcc0af469c5364f07fc264570489a4b5e389264619c78029f3"
+    },
     "web-engine/brand/glyphs/glimmercoil.svg": {
       "bytes": 268,
       "sha256": "6a193562ea94bf2aae5833238b384428d306e6fe69dbdcca2acf39e15628d6e3"
@@ -31925,8 +32297,8 @@
       "sha256": "e5995bbe66c4b66368dbc5941ea0faa1dc9b5a50298baa3db65a0bd1f37a72e0"
     },
     "web-engine/brand/glyphs.js": {
-      "bytes": 6586,
-      "sha256": "33bb1371686c31a67cab28ccec63acb1bcfe9d3d38aa5a7938707d398150e7ad"
+      "bytes": 6680,
+      "sha256": "41168c0a64af9a5ac338967b2de4fc0af37f3f88cf0bf83e64f405361c83d8d9"
     },
     "web-engine/brand/sfx/back.wav": {
       "bytes": 5336,
@@ -32861,8 +33233,8 @@
       "sha256": "0e2dfda29401c27ced0603604d97d1bf65cff6f2c45a15019be45c60dce267d6"
     },
     "web-engine/progress/gameIds.js": {
-      "bytes": 1818,
-      "sha256": "80c1d68fa172c74f938a36d3eaa5c516cedc4cd2df1f1b5537a120273c9d16b1"
+      "bytes": 1858,
+      "sha256": "97fa656c51457a134c05c3bca250f8a10ed8b1f3fe59715335da8fbba656642f"
     },
     "web-engine/progress/levelChip.js": {
       "bytes": 4139,
@@ -32882,7 +33254,7 @@
     },
     "web-engine/progress/probe.html": {
       "bytes": 485,
-      "sha256": "107a4ee1de900940e588ba78d042c8a041b0b98e8f1dc2b43a7c3d945a514805"
+      "sha256": "466e8a893cd230df5fc20f465bff542652c2164fe2b6663ffe2b4339ab1ef2d6"
     },
     "web-engine/progress/ranks.js": {
       "bytes": 681,
@@ -33678,7 +34050,7 @@
     },
     "play/farmy-moon-life/index.html": {
       "bytes": 72561,
-      "sha256": "2ec2336c51b5567150ff04f44fd89e93da4554d2fc34e5a171670e7c20fbe773"
+      "sha256": "e849666efc836e8f377380d7c5fdaa5971f66dfb35d983e4b647e848819564ad"
     },
     "play/farmy-moon-life/src/install/icon-192.png": {
       "bytes": 1839,
@@ -35302,91 +35674,91 @@
     },
     "play/farmyshoot/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/farmykart/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/farmy-evil-hills/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/zelakas/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/2d-fighter-ex/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/farmy-crosswords/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/farmy-tiles/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/farmy-ludo/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/farmy-chess/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/minesweeper/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/lamplighters/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/fossick/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/gomoku/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/word-chain/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/truco/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/buraco/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/conga/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/koikoi/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/shogi/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/xiangqi/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/go/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "play/farmy-checkers/version.json": {
       "bytes": 72,
-      "sha256": "c3babfc2f931e8460e919a0a9e7d02c3924a6faadb77086e348dc7d8bec10cd8"
+      "sha256": "dc0cd68f0715c966fc6022cc4d194f8c86b907b3c2f78440ab05962906a56a95"
     },
     "assets/badges/first-steps.svg": {
       "bytes": 764,
@@ -36572,6 +36944,86 @@
       "bytes": 771,
       "sha256": "f3b19e6ebbdf955811e09ab29ed6599454123f9e2c7f35f406508600e11e3196"
     },
+    "assets/badges/gb-first-light.svg": {
+      "bytes": 769,
+      "sha256": "d890544d12fdcba195743e39b6d00dc96ad161b5cbcd5ce398852c97aa8b7f0b"
+    },
+    "assets/badges/gb-first-light-locked.svg": {
+      "bytes": 582,
+      "sha256": "c2ca97abbd8460780f60fb775d7c7d17f22f67cc719c4c550acae9368f9d191b"
+    },
+    "assets/badges/gb-boss.svg": {
+      "bytes": 769,
+      "sha256": "d890544d12fdcba195743e39b6d00dc96ad161b5cbcd5ce398852c97aa8b7f0b"
+    },
+    "assets/badges/gb-boss-locked.svg": {
+      "bytes": 582,
+      "sha256": "c2ca97abbd8460780f60fb775d7c7d17f22f67cc719c4c550acae9368f9d191b"
+    },
+    "assets/badges/gb-coop.svg": {
+      "bytes": 769,
+      "sha256": "d890544d12fdcba195743e39b6d00dc96ad161b5cbcd5ce398852c97aa8b7f0b"
+    },
+    "assets/badges/gb-coop-locked.svg": {
+      "bytes": 582,
+      "sha256": "c2ca97abbd8460780f60fb775d7c7d17f22f67cc719c4c550acae9368f9d191b"
+    },
+    "assets/badges/gb-act-one.svg": {
+      "bytes": 842,
+      "sha256": "1505685ee7b47b47d329f2a729ed1d692b2467b386f86ccd87961f2bd8c2346b"
+    },
+    "assets/badges/gb-act-one-locked.svg": {
+      "bytes": 631,
+      "sha256": "64458bbcf469e12e74628021a520ef10e5b1ac376a9578121ceff39ed71a9cac"
+    },
+    "assets/badges/gb-three-stars.svg": {
+      "bytes": 842,
+      "sha256": "1505685ee7b47b47d329f2a729ed1d692b2467b386f86ccd87961f2bd8c2346b"
+    },
+    "assets/badges/gb-three-stars-locked.svg": {
+      "bytes": 631,
+      "sha256": "64458bbcf469e12e74628021a520ef10e5b1ac376a9578121ceff39ed71a9cac"
+    },
+    "assets/badges/gb-moths.svg": {
+      "bytes": 842,
+      "sha256": "1505685ee7b47b47d329f2a729ed1d692b2467b386f86ccd87961f2bd8c2346b"
+    },
+    "assets/badges/gb-moths-locked.svg": {
+      "bytes": 631,
+      "sha256": "64458bbcf469e12e74628021a520ef10e5b1ac376a9578121ceff39ed71a9cac"
+    },
+    "assets/badges/gb-kiln.svg": {
+      "bytes": 859,
+      "sha256": "f58d5dad69e55a06bae0bdca9e9cc29c11dd501f34a3d17f6a18b20e0d75dbe4"
+    },
+    "assets/badges/gb-kiln-locked.svg": {
+      "bytes": 773,
+      "sha256": "6aa6d70dade714a1fe748401986b1ad9713081e5456869c57a2b0caef2b07a18"
+    },
+    "assets/badges/gb-stars-30.svg": {
+      "bytes": 859,
+      "sha256": "f58d5dad69e55a06bae0bdca9e9cc29c11dd501f34a3d17f6a18b20e0d75dbe4"
+    },
+    "assets/badges/gb-stars-30-locked.svg": {
+      "bytes": 773,
+      "sha256": "6aa6d70dade714a1fe748401986b1ad9713081e5456869c57a2b0caef2b07a18"
+    },
+    "assets/badges/gb-hard-boss.svg": {
+      "bytes": 859,
+      "sha256": "f58d5dad69e55a06bae0bdca9e9cc29c11dd501f34a3d17f6a18b20e0d75dbe4"
+    },
+    "assets/badges/gb-hard-boss-locked.svg": {
+      "bytes": 773,
+      "sha256": "6aa6d70dade714a1fe748401986b1ad9713081e5456869c57a2b0caef2b07a18"
+    },
+    "assets/badges/gb-daylight.svg": {
+      "bytes": 3016,
+      "sha256": "be69f853586816552c0a54b41bc57d7f68fadca24b8e23729762fac422ed91b9"
+    },
+    "assets/badges/gb-daylight-locked.svg": {
+      "bytes": 2827,
+      "sha256": "868980f906202e57e435d71d2b1c2c61982319fc558fc57c9c03cae4274f63ef"
+    },
     "assets/badges/level-5.svg": {
       "bytes": 820,
       "sha256": "d9d10a5da7b9e73173b182e9506425f700ec438eeb166da007fe3f0032fff6b1"
@@ -36662,7 +37114,7 @@
     },
     "catalogue.json": {
       "bytes": 34549,
-      "sha256": "b2820036993ad295dd8fe2fe009515a93f224ac10ffdf61399bd06fe6d3c71dd"
+      "sha256": "9ccbd4d47a7250eeb0222c28658814be46b9f88ed31e2034834422c04e85dfa0"
     }
   }
 }

@@ -217,6 +217,8 @@ export const PROFILE_GAME_NAMES = Object.freeze({
 
 
 
-export const PREVIEW_GAME_IDS = Object.freeze([]);
 
-export const PREVIEW_GAME_NAMES = Object.freeze({});
+
+export const PREVIEW_GAME_IDS = Object.freeze(['glassbreak']);
+
+export const PREVIEW_GAME_NAMES = Object.freeze({ glassbreak: 'Glassbreak' });

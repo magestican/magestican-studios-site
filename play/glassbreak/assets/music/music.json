@@ -1,0 +1,16 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "Sunup",
+      "genre": "game-battle-boss",
+      "file": "glassbreak-sunup.webm",
+      "loopSamples": 2490811,
+      "seed": 1865206380,
+      "lufs": -13.4
+    }
+  ]
+}

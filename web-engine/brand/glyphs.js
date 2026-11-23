@@ -92,6 +92,9 @@ export const GLYPHS = Object.freeze({
   
   'magic-mirror-moves': 'M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5l-5.4 3 1.2-6L3.3 9.3l6.1-.7z',
   
+  
+  glassbreak: 'M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5l-5.4 3 1.2-6L3.3 9.3l6.1-.7z',
+  
   'rex-rampage': 'M12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM12 2v6M12 16v6M2 12h6M16 12h6',
   
   lamplighters: 'M6 3h12v18H6zM12 3v18M6 12h12',

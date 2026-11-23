@@ -169,6 +169,11 @@ const STORED_ONLY = Object.freeze({
     's95MantisBeaten', 's95NoHitBoss', 's95CoopClears', 's95TrainClean', 's95AceSolo',
     's95HighFives', 's95FullResume',
   ],
+  
+  
+  glassbreak: [
+    'gbWindows', 'gbReached', 'gbBosses', 'gbThreeStars', 'gbMoths', 'gbCoopClears', 'gbHardBosses', 'gbDaylight',
+  ],
 });
 
 

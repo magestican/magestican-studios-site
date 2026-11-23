@@ -251,7 +251,18 @@ export const S95_STATS = Object.freeze([
 
 
 
-const PREVIEW_PLAYED_STAT = Object.freeze({});
+const PREVIEW_PLAYED_STAT = Object.freeze({ glassbreak: 'gbPlays' });
+
+
+
+
+
+
+
+export const GB_STATS = Object.freeze([
+  'gbPlays', 'gbWindows', 'gbReached', 'gbBosses', 'gbThreeStars', 'gbMoths', 'gbCoopClears', 'gbHardBosses',
+  'gbDaylight',
+]);
 
 export const STATS = Object.freeze([
   'accountAgeDays',   
@@ -269,6 +280,7 @@ export const STATS = Object.freeze([
   
   ...PROFILE_GAME_IDS.flatMap((id) => [`wins:${id}`, `mastery:${id}`]),
   ...S95_STATS,
+  ...GB_STATS,
 ]);
 
 
@@ -298,6 +310,7 @@ export const DEVICE_ONLY_STATS = Object.freeze([
   ...PROFILE_GAME_IDS.filter((id) => !CLOUD_GAME_IDS.includes(id))
     .flatMap((id) => [`wins:${id}`, `mastery:${id}`]),
   ...S95_STATS,
+  ...GB_STATS,
 ]);
 
 
@@ -348,6 +361,7 @@ export const STAT_FIELD = Object.freeze({
   onlineMatches: null,
   ratedMatchesBest: null,
   ...Object.fromEntries(S95_STATS.map((s) => [s, null])),
+  ...Object.fromEntries(GB_STATS.map((s) => [s, null])),
 });
 
 
@@ -780,6 +794,32 @@ export const ACHIEVEMENTS = Object.freeze([
   
   A({ id: 's95-full-resume', name: 'Full Resume', game: 'space-95', tier: 'rare', glyph: '◆',
     desc: 'Land all 19 callbacks in one run of Swarm Sovereign.', stat: 's95FullResume', atLeast: 1 }),
+
+  
+  
+  
+  
+  
+  A({ id: 'gb-first-light', name: 'First Light', game: 'glassbreak', tier: 'common', glyph: '◆',
+    desc: 'Clear your first window.', stat: 'gbWindows', atLeast: 1 }),
+  A({ id: 'gb-boss', name: 'Lead Undone', game: 'glassbreak', tier: 'common', glyph: '◆',
+    desc: 'Beat a boss.', stat: 'gbBosses', atLeast: 1 }),
+  A({ id: 'gb-coop', name: 'Four Lanterns', game: 'glassbreak', tier: 'common', glyph: '◆',
+    desc: 'Clear a window with friends.', stat: 'gbCoopClears', atLeast: 1 }),
+  A({ id: 'gb-act-one', name: 'Rose Freed', game: 'glassbreak', tier: 'uncommon', glyph: '◆',
+    desc: 'Beat the Rose Warden.', stat: 'gbReached', atLeast: 9 }),
+  A({ id: 'gb-three-stars', name: 'Clean Pane', game: 'glassbreak', tier: 'uncommon', glyph: '◆',
+    desc: 'Clear a window with three stars.', stat: 'gbThreeStars', atLeast: 1 }),
+  A({ id: 'gb-moths', name: 'Moth Burner', game: 'glassbreak', tier: 'uncommon', glyph: '◆',
+    desc: 'Burn 25 moths off your ember.', stat: 'gbMoths', atLeast: 25 }),
+  A({ id: 'gb-kiln', name: 'Kiln Cooled', game: 'glassbreak', tier: 'rare', glyph: '◆',
+    desc: 'Beat the Kiln Mother.', stat: 'gbReached', atLeast: 36 }),
+  A({ id: 'gb-stars-30', name: 'Master Glazier', game: 'glassbreak', tier: 'rare', glyph: '◆',
+    desc: 'Clear 30 windows with three stars.', stat: 'gbThreeStars', atLeast: 30 }),
+  A({ id: 'gb-hard-boss', name: 'Hard Glass', game: 'glassbreak', tier: 'rare', glyph: '◆',
+    desc: 'Beat a boss on Hard.', stat: 'gbHardBosses', atLeast: 1 }),
+  A({ id: 'gb-daylight', name: 'Daylight', game: 'glassbreak', tier: 'legendary', glyph: '◆',
+    desc: 'Beat Vesper and bring the day back.', stat: 'gbDaylight', atLeast: 1 }),
 ]);
 
 
@@ -889,6 +929,10 @@ export function statsFor(profile, { today = null, kartRecords = null } = {}) {
     s95Plays: n(g('space-95').plays),
     ...Object.fromEntries(S95_STATS.filter((s) => s !== 's95Plays')
       .map((s) => [s, n(g('space-95').totals?.[s])])),
+    
+    gbPlays: n(g('glassbreak').plays),
+    ...Object.fromEntries(GB_STATS.filter((s) => s !== 'gbPlays')
+      .map((s) => [s, n(g('glassbreak').totals?.[s])])),
     
     
     level: levelFromXp(p.xp).level,
