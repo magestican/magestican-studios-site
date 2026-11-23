@@ -53,6 +53,7 @@ export function initialTrack({ saved = null, lang = '', homeLang = null, ids = T
 export function createTrackMusic({
   game, manifestUrl, lang = globalThis.document?.documentElement?.lang ?? '', homeLang = null,
   storage = null, createPlayer = createLobbyMusic, trackIds = TRACK_IDS, level = LEVEL,
+  events = globalThis, doc = globalThis.document ?? null,
   makeContext = () => {
     const Ctor = globalThis.AudioContext || globalThis.webkitAudioContext;
     return Ctor ? new Ctor() : null;
@@ -80,6 +81,28 @@ export function createTrackMusic({
   }
 
   const unlock = createAudioUnlock({ ensureContext, currentContext: () => ctx, isMuted: () => !on });
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  function wake() {
+    if (!on || !ctx) return false;
+    if (ctx.state !== 'running' && ctx.state !== 'closed') {
+      try { Promise.resolve(ctx.resume?.()).catch(() => {}); } catch {  }
+    }
+    unlock.wake();
+    return true;
+  }
+  for (const type of ['pointerdown', 'touchend', 'keydown', 'focus', 'pageshow']) {
+    events?.addEventListener?.(type, wake, true);
+  }
+  doc?.addEventListener?.('visibilitychange', () => { if (!doc.hidden) wake(); });
 
   function player(id) {
     if (!players.has(id)) {
@@ -141,6 +164,7 @@ export function createTrackMusic({
     toggle: () => setOn(!on),
     wasOn: () => get(MUSIC_KEY) === 'on',
     duck,
+    wake,
     track: () => track,
     setTrack,
     trackIds: () => [...ids],

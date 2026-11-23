@@ -805,6 +805,8 @@ function setPaused(p) {
   paused = p && mode === 'play';
   $('paused').hidden = !paused;
   last = performance.now(); acc = 0;
+  
+  if (!paused) music.wake?.();
 }
 function togglePause() { if (mode === 'play') setPaused(!paused); }
 $('paused').addEventListener('click', () => setPaused(false));
