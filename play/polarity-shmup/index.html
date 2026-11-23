@@ -65,6 +65,12 @@
 
     #sound { pointer-events: auto; cursor: pointer; border: 0; color: var(--ink); font: inherit;
       font-size: calc(12px * var(--fs)); min-height: 44px; }
+    
+
+    #side { pointer-events: auto; cursor: pointer; border: 0; color: var(--ink); font: inherit;
+      font-size: calc(12px * var(--fs)); min-height: 44px; }
+    #field[data-screen="menu"] .stats > #side { display: block; }
+    body.turned aside { display: none; }
     #pol { font-weight: 700; }
     #pol[data-pol="ember"] { color: var(--ember); }
     #pol[data-pol="iris"] { color: #c9b2ff; }
@@ -210,6 +216,21 @@
       border: 1px solid rgba(242, 239, 232, 0.22); clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
     .title .langs button[aria-pressed="true"] { border-color: var(--ember); color: var(--ember); }
     @media (prefers-reduced-motion: reduce) { .braid path { animation: none; } .plate, .plate.go { transition: none; } }
+    
+
+
+
+    #field.sideways .overlay.title:not([hidden]) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, min(calc(340px * var(--fs)), 45%));
+      grid-template-rows: minmax(0, 1fr) auto; column-gap: 32px; row-gap: 8px; align-items: center;
+      padding: 24px 24px 16px;
+      background: linear-gradient(to right, rgba(6, 7, 14, 0.2) 0%, rgba(6, 7, 14, 0) 40%, rgba(6, 7, 14, 0.78) 62%,
+        rgba(6, 7, 14, 0.9) 100%); }
+    #field.sideways .title .brand { grid-column: 1; grid-row: 1 / 3; margin-top: 0; }
+    #field.sideways .title .plates { grid-column: 2; grid-row: 1; width: 100%; margin-top: 0; gap: 8px; align-self: end; }
+    #field.sideways .title .keys { grid-column: 2; grid-row: 2; text-align: center; }
+    #field.sideways .title .key { height: 100%; width: 55%; }
+    
+    #field.sideways .title .langs { top: auto; bottom: 16px; right: auto; left: 24px; }
     
 
     .overlay h2 { font: 700 italic calc(30px * var(--fs)) / 1.1 var(--petch); letter-spacing: 0.03em; text-transform: uppercase;
@@ -382,6 +403,7 @@
       </div>
       <div class="stats">
         <button class="chip" id="sound" type="button" aria-pressed="false">Sound off</button>
+        <button class="chip" id="side" type="button" aria-pressed="false">Fly up</button>
         <button class="chip invite" id="invite" type="button" hidden>Invite</button>
         <div class="chip"><span id="pol" data-pol="ember">EMBER</span></div>
         <div class="chip" id="lives" hidden>Lives 3</div>
@@ -532,7 +554,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=2193b53f-20261123T104907Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2193b53f-20261123T104907Z"></script>
+  <script type="module" src="src/boot.js?v=5c7748aa-20261123T123722Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=5c7748aa-20261123T123722Z"></script>
 </body>
 </html>

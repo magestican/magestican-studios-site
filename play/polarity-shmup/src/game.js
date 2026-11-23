@@ -48,6 +48,7 @@ import { HIGH_SPAN, PARALLAX, highLayout, propLayout, propSpan, runwayLights } f
 import { setData, setHidden, setText, setTransform } from './hudWrite.js';
 import { activeLanguage, t, tv } from '../../../web-engine/i18n/tr.js';
 import { mountPicker } from './lang.js';
+import { createTurnTracker, fieldToBox, fitScale, pageAngle, sidewaysOn, toField, viewAngle } from './viewTurn.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -103,6 +104,45 @@ soundBtn.addEventListener('click', () => {
   ui.play(soundToggleCue(uiSoundOn()));
   followSound(music, uiSoundOn());
 });
+
+
+
+const turner = createTurnTracker();
+const SIDE_KEY = 'flipwake.sideways';
+let sidePref = null;
+try { sidePref = localStorage.getItem(SIDE_KEY); } catch {  }
+let turnNow = 0, sideNow = false, viewA = 0;
+const coarse = () => !!window.matchMedia?.('(pointer: coarse)').matches;
+const sideBtn = $('side');
+function drawSide() {
+  setText(sideBtn, sideNow ? t('Fly sideways') : t('Fly up'));
+  sideBtn.setAttribute('aria-pressed', String(sideNow));
+}
+sideBtn.addEventListener('click', () => {
+  sidePref = sideNow ? 'off' : 'on';
+  try { localStorage.setItem(SIDE_KEY, sidePref); } catch {  }
+  ui.play(soundToggleCue(!sideNow));
+  layout();
+});
+function onTilt(e) {
+  if (e.beta === null || e.beta === undefined) return;
+  turner.feed(e.beta, e.gamma, pageAngle(window), performance.now());
+  if (turner.turn !== turnNow) layout();
+}
+function startTilt() { addEventListener('deviceorientation', onTilt); }
+
+
+const onPageTurn = () => { turner.page(pageAngle(window)); layout(); };
+screen.orientation?.addEventListener?.('change', onPageTurn);
+addEventListener('orientationchange', onPageTurn);
+if (coarse() && typeof DeviceOrientationEvent !== 'undefined') {
+  
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    addEventListener('pointerdown', () => {
+      DeviceOrientationEvent.requestPermission().then((r) => { if (r === 'granted') startTilt(); }).catch(() => {});
+    }, { once: true });
+  } else startTilt();
+}
 
 
 const SHIP_LEN = 44, DART_LEN = 36, TURRET_W = 64, WARDEN_W = 96, BOSS_W = 330, PROP_SCALE = 4.6;
@@ -624,7 +664,9 @@ host.addEventListener('pointerdown', (e) => {
 });
 host.addEventListener('pointermove', (e) => {
   if (e.pointerId !== drag.id) return;
-  dragFeed(drag, e.clientX - drag.x, e.clientY - drag.y, fieldScale); 
+  
+  const f = toField(e.clientX - drag.x, e.clientY - drag.y, viewA);
+  dragFeed(drag, f.x, f.y, fieldScale); 
   drag.x = e.clientX; drag.y = e.clientY;
 });
 for (const ev of ['pointerup', 'pointercancel']) host.addEventListener(ev, (e) => { if (e.pointerId === drag.id) dragRelease(drag); });
@@ -655,6 +697,7 @@ function readInput() {
     padFlipHeld = a; padBombHeld = b;
     if (pad.buttons[6]?.pressed || pad.buttons[7]?.pressed) focus = true;
   }
+  if (viewA && (x || y)) ({ x, y } = toField(x, y, viewA)); 
   const dm = dragTake(drag); 
   if (dm) { x = dm.x; y = dm.y; }
   const bomb = bombQueued; bombQueued = false;
@@ -1038,8 +1081,10 @@ function drawNames(s) {
     if (!show) continue;
     const label = q.pod ? t('{who} down', { who: seatName(i) }) : seatName(i);
     if (el.textContent !== label) el.textContent = label;
-    el.style.left = `${(q.x / FP) * fieldScale}px`;
-    el.style.top = `${(q.y / FP + 28) * fieldScale}px`;
+    
+    const p = fieldToBox((q.x / FP) * fieldScale, (q.y / FP + 28) * fieldScale, FIELD_W * fieldScale, FIELD_H * fieldScale, sideNow);
+    el.style.left = `${p.x}px`;
+    el.style.top = `${p.y}px`;
   }
 }
 
@@ -1693,17 +1738,37 @@ function draw(s, dt) {
 let pxScale = 0;
 function layout() {
   const vw = window.innerWidth, vh = window.innerHeight;
-  const s = Math.min(vw / FIELD_W, vh / FIELD_H);
+  
+  turnNow = turner.turn;
+  const uw = turnNow % 180 ? vh : vw, uh = turnNow % 180 ? vw : vh;
+  sideNow = sidewaysOn(sidePref, coarse(), uw > uh);
+  viewA = viewAngle(turnNow, sideNow);
+  const s = fitScale(uw, uh, FIELD_W, FIELD_H, sideNow ? 90 : 0);
   const w = Math.floor(FIELD_W * s), h = Math.floor(FIELD_H * s);
+  const bw = sideNow ? h : w, bh = sideNow ? w : h; 
   fieldScale = s;
-  host.style.width = `${w}px`; host.style.height = `${h}px`;
+  host.style.width = `${bw}px`; host.style.height = `${bh}px`;
+  if (turnNow) {
+    host.style.position = 'fixed';
+    host.style.left = `${Math.round((vw - bw) / 2)}px`; host.style.top = `${Math.round((vh - bh) / 2)}px`;
+    host.style.transform = `rotate(${turnNow}deg)`;
+  } else {
+    host.style.position = ''; host.style.left = ''; host.style.top = ''; host.style.transform = '';
+  }
+  document.body.classList.toggle('turned', !!viewA);
+  host.classList.toggle('sideways', sideNow);
   document.documentElement.style.setProperty('--fs', String(s));
   renderer.setSize(w, h, false);
-  renderer.domElement.style.width = `${w}px`; renderer.domElement.style.height = `${h}px`;
+  const cv = renderer.domElement.style;
+  cv.width = `${w}px`; cv.height = `${h}px`;
+  
+  cv.position = sideNow ? 'absolute' : ''; cv.left = sideNow ? `${(bw - w) / 2}px` : ''; cv.top = sideNow ? `${(bh - h) / 2}px` : '';
+  cv.transform = sideNow ? 'rotate(90deg)' : '';
+  drawSide();
   const next = s * renderer.getPixelRatio();
   if (Math.abs(next - pxScale) > 0.01) { pxScale = next; buildBullets(pxScale); }
   fx.setScale(next);
-  const on = wingsShown(vw, w);
+  const on = !viewA && wingsShown(vw, w); 
   wings.classList.toggle('on', on);
   const r = host.getBoundingClientRect();
   wingRect = on ? { left: r.left, top: r.top, fs: s } : null;

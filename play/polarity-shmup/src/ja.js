@@ -8,6 +8,8 @@ export const JA = {
   
   'Sound on': 'サウンド オン',
   'Sound off': 'サウンド オフ',
+  'Fly up': '縦スクロール',
+  'Fly sideways': '横スクロール',
   'Invite': '招待',
   'Lives 3': '残機 3',
   'Lives {n}': '残機 {n}',

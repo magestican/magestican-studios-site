@@ -14,6 +14,8 @@ export const ES = {
   
   'Sound on': 'Sonido sí',
   'Sound off': 'Sonido no',
+  'Fly up': 'Hacia arriba',
+  'Fly sideways': 'De lado',
   'Invite': 'Invitar',
   'Lives 3': 'Vidas 3',
   'Lives {n}': 'Vidas {n}',
