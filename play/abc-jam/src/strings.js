@@ -13,6 +13,7 @@ export const T = Object.freeze({
   bookWords: 'Words',
   bookPrizes: 'Prizes',
   bookDinos: 'Dinosaurs',
+  bookPuzzles: 'Puzzles',
 
   play: 'Play',
   home: 'Home',
@@ -35,6 +36,7 @@ export const T = Object.freeze({
   dinoEggs: 'Dino Eggs',
   dinoMatch: 'Dino Match',
   blockTower: 'Block Tower',
+  abcPuzzles: 'ABC Puzzles',
 
   kbToAbcSpoken: 'Keys in ABC order',
   kbToKeysSpoken: 'Keys like a keyboard',
@@ -52,6 +54,10 @@ export const T = Object.freeze({
   towerPoints: '{n} points',
   towerBest: 'Best {n}',
   towerBomb: 'Bomb',
+  prizePuzzles: 'Every puzzle',
+  puzzlePiece: 'Piece {letter}',
+  
+  puzzleNames: Object.freeze({ unicorn: 'Unicorn', dino: 'Dinosaur', princess: 'Princess', dino_family: 'Dinosaur family', party: 'Birthday picnic' }),
 
   find: 'Find the letter {letter}!',
   jamStart: 'Press any letter!',

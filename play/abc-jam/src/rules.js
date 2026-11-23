@@ -3,6 +3,7 @@
 
 
 import { LETTERS, WORD_STEPS, DINOS, DINO } from './content.js';
+import { PUZZLES, PUZZLE } from './puzzle.js';
 
 
 
@@ -271,7 +272,7 @@ export function createRain({ letters = LETTERS.map((l) => l.ch), rand = Math.ran
 export const SAVE_KEY = 'abcjam-v1';
 
 export function loadProgress(storage) {
-  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0 };
+  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0, puzzles: [] };
   try {
     const raw = storage?.getItem(SAVE_KEY);
     if (!raw) return blank;
@@ -285,6 +286,8 @@ export function loadProgress(storage) {
       
       dinos: Array.isArray(p.dinos) ? p.dinos.filter((x) => typeof x === 'string' && DINO[x]) : [],
       found: Math.max(0, p.found | 0),
+      
+      puzzles: Array.isArray(p.puzzles) ? p.puzzles.filter((x) => typeof x === 'string' && PUZZLE[x]) : [],
     };
   } catch { return blank; }
 }
@@ -295,7 +298,7 @@ export function saveProgress(storage, p) {
 
 
 export function resetProgress(storage) {
-  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0 };
+  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0, puzzles: [] };
   saveProgress(storage, blank);
   return blank;
 }
@@ -319,8 +322,8 @@ export function createResetConfirm({ windowMs = 4000, now = () => Date.now() } =
 
 const stepFull = (p, step) => step.words.every(([w]) => p.words.includes(w));
 const ALL_LETTERS = LETTERS.length;
-const ALL_STICKERS = LETTERS.length + WORD_STEPS.reduce((n, s) => n + s.words.length, 0) + DINOS.length;
-const stickersOf = (p) => p.letters.length + p.words.length + p.dinos.length;
+const ALL_STICKERS = LETTERS.length + WORD_STEPS.reduce((n, s) => n + s.words.length, 0) + DINOS.length + PUZZLES.length;
+const stickersOf = (p) => p.letters.length + p.words.length + p.dinos.length + (p.puzzles?.length || 0);
 
 export const FOUND_PRIZE = DINOS.length * 3;
 const BALLOON_PRIZES = [25, 50, 100];
@@ -332,6 +335,7 @@ export const PRIZES = Object.freeze([
   ...BALLOON_PRIZES.map((n, i) => ({ id: `balloons-${n}`, pic: ['balloon', 'kite', 'sparkle'][i], n, done: (p) => p.pops >= n })),
   { id: 'dinos', pic: 'dino_egg', done: (p) => p.dinos.length >= DINOS.length },
   { id: 'dinos-found', pic: 't_rex', n: FOUND_PRIZE, done: (p) => p.found >= FOUND_PRIZE },
+  { id: 'puzzles', pic: 'unicorn', done: (p) => (p.puzzles?.length || 0) >= PUZZLES.length },
   { id: 'book', pic: 'heart', done: (p) => stickersOf(p) >= ALL_STICKERS },
 ].map(Object.freeze));
 
@@ -351,6 +355,8 @@ export function nextGoal(p) {
   if (p.letters.length < ALL_LETTERS) return { go: 'parade' };
   
   if (p.dinos.length < DINOS.length) return { go: 'eggs' };
+  
+  if ((p.puzzles?.length || 0) < PUZZLES.length) return { go: 'puzzles' };
   const step = WORD_STEPS.find((s) => !stepFull(p, s));
   if (step) return { go: 'words', step: step.id };
   if (p.found < FOUND_PRIZE) return { go: 'match' };
@@ -369,13 +375,15 @@ export function meters(p) {
     rain: next ? (p.pops - prev) / (next - prev) : 1,
     eggs: Math.min(1, p.dinos.length / DINOS.length),
     match: Math.min(1, p.found / FOUND_PRIZE),
+    puzzles: Math.min(1, (p.puzzles?.length || 0) / PUZZLES.length),
     stickers: Math.min(1, stickersOf(p) / ALL_STICKERS),
   };
 }
 
 
 export function addSticker(p, kind, id) {
-  const list = kind === 'word' ? p.words : kind === 'dino' ? p.dinos : p.letters;
+  if (kind === 'puzzle' && !p.puzzles) p.puzzles = [];
+  const list = kind === 'word' ? p.words : kind === 'dino' ? p.dinos : kind === 'puzzle' ? p.puzzles : p.letters;
   if (list.includes(id)) return false;
   list.push(id);
   return true;

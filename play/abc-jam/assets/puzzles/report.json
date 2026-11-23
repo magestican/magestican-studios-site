@@ -1,0 +1,83 @@
+{
+ "project": "arbelo-games",
+ "look": "modern",
+ "style": "default",
+ "seconds": 49.5,
+ "ok": true,
+ "contact_sheet": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\puzzles\\contact-sheet.png",
+ "assets": [
+  {
+   "name": "abc-puzzles",
+   "kind": "icon",
+   "ok": true,
+   "painted": false,
+   "notes": [
+    "5 icons x 1 colourways at 192 px (@1, @2x), svg + MapLibre sprite"
+   ],
+   "files": {
+    "symbols-sticker": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\puzzles\\abc-puzzles\\symbols-sticker.svg",
+    "sprite": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\puzzles\\abc-puzzles\\sprite.png",
+    "sprite@2x": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\puzzles\\abc-puzzles\\sprite@2x.png",
+    "manifest": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\puzzles\\abc-puzzles\\icons.json",
+    "preview": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\puzzles\\abc-puzzles\\preview.png"
+   },
+   "checks": [
+    {
+     "name": "sprite complete",
+     "ok": true,
+     "detail": "5 images = 5 icons x 1 colourways"
+    },
+    {
+     "name": "sprite@2x complete",
+     "ok": true,
+     "detail": "5 images = 5 icons x 1 colourways"
+    },
+    {
+     "name": "glyph contrast >= 4.5:1",
+     "ok": true,
+     "detail": "5 icons"
+    },
+    {
+     "name": "icons distinct at 1x",
+     "ok": true,
+     "detail": "every pair differs"
+    },
+    {
+     "name": "icons distinct at 96 px",
+     "ok": true,
+     "detail": "every pair differs"
+    },
+    {
+     "name": "no empty icon",
+     "ok": true,
+     "detail": "all drawn"
+    },
+    {
+     "name": "sprite ST-01 alpha:sprite.png",
+     "ok": true,
+     "detail": "full-bleed: 5 pictures, lowest alpha 255 (puzzle_dino-sticker)"
+    },
+    {
+     "name": "sprite ST-02 palette_match",
+     "ok": true,
+     "detail": "mean deltaE 26.7 to the dossier palette (max 30)"
+    },
+    {
+     "name": "sprite@2x ST-01 alpha:sprite@2x.png",
+     "ok": true,
+     "detail": "full-bleed: 5 pictures, lowest alpha 255 (puzzle_dino-sticker)"
+    },
+    {
+     "name": "sprite@2x ST-02 palette_match",
+     "ok": true,
+     "detail": "mean deltaE 26.3 to the dossier palette (max 30)"
+    },
+    {
+     "name": "preview ST-02 palette_match",
+     "ok": true,
+     "detail": "mean deltaE 15.4 to the dossier palette (max 30)"
+    }
+   ]
+  }
+ ]
+}

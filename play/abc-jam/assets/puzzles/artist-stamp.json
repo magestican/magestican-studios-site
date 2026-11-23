@@ -1,0 +1,86 @@
+{
+ "stamp": 1,
+ "request": "2026-11-23-abc-jam-puzzles",
+ "assets": [
+  {
+   "name": "abc-puzzles",
+   "kind": {
+    "id": "icon",
+    "sha256": "5fb53e0a3beffe51275cdc9698655ae86335e1faaa65ed0551c43d3eb537105c"
+   },
+   "style": {
+    "id": "sticker",
+    "sha256": "31c7b466875b1eed81909d49c5f91ae7d22f22702e24fd2404ceab1e309a1f98"
+   }
+  }
+ ],
+ "engine": {
+  "artist_commit": "6bc9c546ea1c4cc20ba9ec746ec644bc2cea96a1",
+  "engine": "artist-engine 0.2.0-phaseB"
+ },
+ "gates": {
+  "AT": [
+   "AT-01",
+   "AT-02",
+   "AT-03",
+   "AT-04",
+   "AT-05",
+   "AT-06"
+  ],
+  "CD": [
+   "CD-00",
+   "CD-01",
+   "CD-02",
+   "CD-03",
+   "CD-04",
+   "CD-05",
+   "CD-07",
+   "CD-08",
+   "CD-09",
+   "CD-10"
+  ],
+  "RQ": [
+   "RQ-01",
+   "RQ-02",
+   "RQ-03",
+   "RQ-04",
+   "RQ-05",
+   "RQ-06",
+   "RQ-07",
+   "RQ-08",
+   "RQ-09",
+   "RQ-10",
+   "RQ-11",
+   "RQ-12"
+  ],
+  "SG": [
+   "SG-00",
+   "SG-01",
+   "SG-02",
+   "SG-03",
+   "SG-04",
+   "SG-05",
+   "SG-06",
+   "SG-07",
+   "SG-08",
+   "SG-09",
+   "SG-10",
+   "SG-11",
+   "SG-12",
+   "SG-13",
+   "SG-14"
+  ]
+ },
+ "files": {
+  "abc-puzzles/preview.png": "43ece9f51e2a9452e98e50e2dd9ec7943e585bf03289af8efb4a82ce9b8cb524",
+  "abc-puzzles/sprite.png": "4905e1cf57452ed6d258874101ba0f2ba00fc0f0a8570a5f8bd86cde0d6a2cc0",
+  "abc-puzzles/sprite@2x.png": "614dfad75b01a43faecd7c1fdf0e8e248ae80fe00b119b2a8cbec3d7a02e30d7",
+  "abc-puzzles/svg/sticker/puzzle_dino.svg": "8cc6aca1fa6e5f6d17dc6399207073442c24d3123aa6f247e1fb27629ffd1482",
+  "abc-puzzles/svg/sticker/puzzle_dino_family.svg": "ecbff7a1f4fd42b8366b6a5fac6a7a175537164f113a7abc38f50d6cc8d5648a",
+  "abc-puzzles/svg/sticker/puzzle_party.svg": "9d28f0d8010c8a1a348a9b9e2dcd81d1131f7745f0b28534aa3e9a00019c825c",
+  "abc-puzzles/svg/sticker/puzzle_princess.svg": "bea3e5c56b0309650cf59b0105a06d96cd13e28db9dde0ff01aa8fccd65df24a",
+  "abc-puzzles/svg/sticker/puzzle_unicorn.svg": "c4c10a8cec6c5899c2c36328e3fef579ec9a385c0dd3ec59656619920ae5b7b5",
+  "abc-puzzles/symbols-sticker.svg": "a1faca63443ca2826d1537a8285f3c7ac7387324fa8ce8b5bbca47b4376dca25",
+  "contact-sheet.png": "753409448fc33736aba4c3771a0de8309a53e8a49b5d2cf90d635852667e4be1"
+ }
+}

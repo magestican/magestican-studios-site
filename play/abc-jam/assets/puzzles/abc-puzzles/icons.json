@@ -1,0 +1,49 @@
+{
+ "set": "abc_puzzles",
+ "size": 192,
+ "grid": 96,
+ "colourways": [
+  "sticker"
+ ],
+ "scales": [
+  1,
+  2
+ ],
+ "icons": [
+  {
+   "id": "puzzle_unicorn",
+   "label": "Unicorn on a rainbow",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "puzzle_dino",
+   "label": "Dinosaur and the volcano",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "puzzle_princess",
+   "label": "Princess and her castle",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "puzzle_dino_family",
+   "label": "Dinosaur family",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "puzzle_party",
+   "label": "Birthday picnic",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
+  }
+ ]
+}

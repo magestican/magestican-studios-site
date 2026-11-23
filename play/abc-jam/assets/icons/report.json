@@ -2,9 +2,9 @@
  "project": "arbelo-games",
  "look": "modern",
  "style": "default",
- "seconds": 68.8,
+ "seconds": 99.1,
  "ok": true,
- "contact_sheet": "C:\\Users\\BryanArbelo\\projects\\arbelo-games-wt-abcblocks\\games\\abc-jam\\assets\\icons\\contact-sheet.png",
+ "contact_sheet": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\icons\\contact-sheet.png",
  "assets": [
   {
    "name": "abc-jam",
@@ -12,30 +12,30 @@
    "ok": true,
    "painted": false,
    "notes": [
-    "84 icons x 1 colourways at 128 px (@1, @2x), svg + MapLibre sprite"
+    "87 icons x 1 colourways at 128 px (@1, @2x), svg + MapLibre sprite"
    ],
    "files": {
-    "symbols-sticker": "C:\\Users\\BryanArbelo\\projects\\arbelo-games-wt-abcblocks\\games\\abc-jam\\assets\\icons\\abc-jam\\symbols-sticker.svg",
-    "sprite": "C:\\Users\\BryanArbelo\\projects\\arbelo-games-wt-abcblocks\\games\\abc-jam\\assets\\icons\\abc-jam\\sprite.png",
-    "sprite@2x": "C:\\Users\\BryanArbelo\\projects\\arbelo-games-wt-abcblocks\\games\\abc-jam\\assets\\icons\\abc-jam\\sprite@2x.png",
-    "manifest": "C:\\Users\\BryanArbelo\\projects\\arbelo-games-wt-abcblocks\\games\\abc-jam\\assets\\icons\\abc-jam\\icons.json",
-    "preview": "C:\\Users\\BryanArbelo\\projects\\arbelo-games-wt-abcblocks\\games\\abc-jam\\assets\\icons\\abc-jam\\preview.png"
+    "symbols-sticker": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\icons\\abc-jam\\symbols-sticker.svg",
+    "sprite": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\icons\\abc-jam\\sprite.png",
+    "sprite@2x": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\icons\\abc-jam\\sprite@2x.png",
+    "manifest": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\icons\\abc-jam\\icons.json",
+    "preview": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\icons\\abc-jam\\preview.png"
    },
    "checks": [
     {
      "name": "sprite complete",
      "ok": true,
-     "detail": "84 images = 84 icons x 1 colourways"
+     "detail": "87 images = 87 icons x 1 colourways"
     },
     {
      "name": "sprite@2x complete",
      "ok": true,
-     "detail": "84 images = 84 icons x 1 colourways"
+     "detail": "87 images = 87 icons x 1 colourways"
     },
     {
      "name": "glyph contrast >= 4.5:1",
      "ok": true,
-     "detail": "84 icons"
+     "detail": "87 icons"
     },
     {
      "name": "icons distinct at 1x",
@@ -55,22 +55,22 @@
     {
      "name": "sprite ST-01 alpha:sprite.png",
      "ok": true,
-     "detail": "opaque fraction 0.44"
+     "detail": "opaque fraction 0.45"
     },
     {
      "name": "sprite ST-02 palette_match",
      "ok": true,
-     "detail": "mean deltaE 28.2 to the dossier palette (max 30)"
+     "detail": "mean deltaE 28.1 to the dossier palette (max 30)"
     },
     {
      "name": "sprite@2x ST-01 alpha:sprite@2x.png",
      "ok": true,
-     "detail": "opaque fraction 0.44"
+     "detail": "opaque fraction 0.45"
     },
     {
      "name": "sprite@2x ST-02 palette_match",
      "ok": true,
-     "detail": "mean deltaE 28.2 to the dossier palette (max 30)"
+     "detail": "mean deltaE 28.1 to the dossier palette (max 30)"
     },
     {
      "name": "preview ST-02 palette_match",

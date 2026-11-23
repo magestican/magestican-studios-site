@@ -597,6 +597,27 @@
    "group": "ui",
    "width": 128,
    "height": 128
+  },
+  {
+   "id": "unicorn",
+   "label": "Unicorn",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "princess",
+   "label": "Princess",
+   "group": "word",
+   "width": 128,
+   "height": 128
+  },
+  {
+   "id": "castle",
+   "label": "Castle",
+   "group": "word",
+   "width": 128,
+   "height": 128
   }
  ]
 }

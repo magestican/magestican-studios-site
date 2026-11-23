@@ -13,8 +13,9 @@ import { LETTERS, LETTER, WORD_STEPS, DINOS, DINO, letterPhrase, colourFor } fro
 import {
   TIMING, createParade, jamPress, pickRound, createSpeller, createRain,
   loadProgress, saveProgress, addSticker, PARTY_AFTER, createResetConfirm, resetProgress,
-  PRIZES, prizesFor, newPrizes, nextGoal, meters, createDinoEggs, createDinoMatch, FOUND_PRIZE,
+  PRIZES, prizesFor, newPrizes, nextGoal, meters, createDinoEggs, createDinoMatch, FOUND_PRIZE, hintFor,
 } from './rules.js';
+import { PUZZLES, createPuzzle, pieceShape, PIC_W, PIC_H } from './puzzle.js';
 import { SFX_NAMES } from './sfx.js';
 import { T, fill } from './strings.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
@@ -141,10 +142,11 @@ const iconSrc = (id) => new URL(`${id}.svg`, ICONS).href;
 const iconHtml = (id) => `<img class="aj-ic" src="${iconSrc(id)}" alt="" draggable="false">`;
 function setPic(el, id) { el.innerHTML = iconHtml(id); }
 
-function stickerToast(label, id = 'balloon') {
+function stickerToast(label, id = 'balloon', src = null) {
   const t = document.createElement('div');
   t.className = 'aj-toast';
-  t.innerHTML = `<span aria-hidden="true">${iconHtml('star')}</span>${iconHtml(id)}<b></b>`;
+  t.innerHTML = `<span aria-hidden="true">${iconHtml('star')}</span>${src ? '<img class="aj-ic aj-toast-pic" alt="" draggable="false">' : iconHtml(id)}<b></b>`;
+  if (src) t.querySelector('.aj-toast-pic').src = src;
   t.querySelector('b').textContent = label;
   fx.appendChild(t);
   setTimeout(() => t.remove(), 2200);
@@ -266,7 +268,7 @@ function prompt(want) {
 }
 
 function inputKeys(ch) {
-  return document.querySelectorAll(`#kb .aj-key[data-ch="${ch}"], #bubbles .aj-bubble[data-ch="${ch}"], .aj-dino-choice[data-ch="${ch}"], .aj-tblock.is-live[data-ch="${ch}"]`);
+  return document.querySelectorAll(`#kb .aj-key[data-ch="${ch}"], #bubbles .aj-bubble[data-ch="${ch}"], .aj-dino-choice[data-ch="${ch}"], .aj-tblock.is-live[data-ch="${ch}"], .aj-pz-piece:not(.is-home)[data-ch="${ch}"]`);
 }
 function markWanted() {
   for (const k of document.querySelectorAll('.aj-key, .aj-bubble')) k.classList.toggle('is-wanted', !!wanted && k.dataset.ch === wanted);
@@ -283,10 +285,11 @@ function showHint(hint, want) {
 function layoutInput() {
   const narrow = isNarrow();
   
-  const useBubbles = narrow && mode !== 'rain' && mode !== 'match' && mode !== 'tower';
+  
+  const useBubbles = narrow && mode !== 'rain' && mode !== 'match' && mode !== 'tower' && mode !== 'puzzle';
   $('bubbles').hidden = !useBubbles || !mode;
-  $('kb').hidden = narrow || !mode;
-  $('kb-toggle').hidden = narrow || !mode;
+  $('kb').hidden = narrow || !mode || mode === 'puzzle';
+  $('kb-toggle').hidden = narrow || !mode || mode === 'puzzle';
   document.body.classList.toggle('aj-narrow', narrow);
 }
 narrowMq?.addEventListener?.('change', () => { layoutInput(); if (mode === 'jam') setChoices(jamChoices()); });
@@ -301,7 +304,7 @@ function press(ch) {
   const c = String(ch).toUpperCase();
   if (!/^[A-Z]$/.test(c)) return;
   flashKey(c);
-  ({ parade: paradePress, jam: jamPressed, words: wordPress, rain: rainPress, eggs: eggsPress, match: matchPress, tower: towerPress })[mode]?.(c);
+  ({ parade: paradePress, jam: jamPressed, words: wordPress, rain: rainPress, eggs: eggsPress, match: matchPress, tower: towerPress, puzzle: puzzlePress })[mode]?.(c);
 }
 
 document.addEventListener('keydown', (e) => {
@@ -311,7 +314,7 @@ document.addEventListener('keydown', (e) => {
   if (/^[a-z]$/i.test(e.key) && mode) { e.preventDefault(); press(e.key); }
 });
 document.addEventListener('click', (e) => {
-  const k = e.target.closest?.('.aj-key, .aj-bubble, .aj-balloon, .aj-dino-choice');
+  const k = e.target.closest?.('.aj-key, .aj-bubble, .aj-balloon, .aj-dino-choice, .aj-pz-piece');
   if (k?.dataset.ch) press(k.dataset.ch);
 });
 
@@ -1127,6 +1130,234 @@ document.addEventListener('click', (e) => {
 });
 
 
+
+
+
+
+
+
+
+const PZ_PICS = new URL('../assets/puzzles/abc-puzzles/svg/sticker/', import.meta.url);
+const pzSrc = (p) => new URL(`${p.icon}.svg`, PZ_PICS).href;
+const SVGNS = 'http://www.w3.org/2000/svg';
+let pz = null; 
+let pzSeq = 0; 
+
+const svgEl = (tag, attrs = {}) => {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
+  return n;
+};
+
+
+function pieceArt(p, slot, { letter = true, big = false } = {}) {
+  const s = pieceShape(p, slot);
+  const g = svgEl('g', { class: 'aj-pz-art' });
+  const cid = `pzc${++pzSeq}`;
+  const clip = svgEl('clipPath', { id: cid });
+  clip.appendChild(svgEl('path', { d: s.d }));
+  g.appendChild(clip);
+  const pic = svgEl('g', { 'clip-path': `url(#${cid})` });
+  pic.appendChild(svgEl('image', { href: pzSrc(p), x: 0, y: 0, width: PIC_W, height: PIC_H, preserveAspectRatio: 'none' }));
+  g.appendChild(pic);
+  g.appendChild(svgEl('path', { d: s.d, class: 'aj-pz-rim' }));
+  if (letter) {
+    const ch = p.letters[slot];
+    const size = Math.min(s.cell.w, s.cell.h) * (big ? 0.72 : 0.58); 
+    const txt = svgEl('text', {
+      x: s.cell.x + s.cell.w / 2, y: s.cell.y + s.cell.h / 2 + size * 0.36, 'font-size': size, class: 'aj-pz-letter', fill: colourFor(ch),
+    });
+    txt.textContent = ch;
+    g.appendChild(txt);
+  }
+  return { g, shape: s };
+}
+
+function showPuzzles() {
+  leaveMode();
+  show('puzzles');
+  const list = $('pz-list');
+  list.innerHTML = '';
+  const firstUndone = PUZZLES.find((p) => !progress.puzzles.includes(p.id));
+  PUZZLES.forEach((p) => {
+    const done = progress.puzzles.includes(p.id);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'aj-pz-tile' + (done ? ' is-done' : '');
+    b.style.setProperty('--c', colourFor(p.letters[0]));
+    b.innerHTML = '<span class="aj-pz-thumb" aria-hidden="true"><img alt="" draggable="false"></span>'
+      + '<span class="aj-pz-abc" aria-hidden="true"></span><span class="aj-pz-name"></span>';
+    b.querySelector('img').src = pzSrc(p);
+    const abc = b.querySelector('.aj-pz-abc');
+    for (const ch of p.letters) {
+      const l = document.createElement('b');
+      l.textContent = ch;
+      l.style.color = colourFor(ch);
+      abc.appendChild(l);
+    }
+    b.querySelector('.aj-pz-name').textContent = T.puzzleNames[p.id];
+    if (done) b.querySelector('.aj-pz-thumb').insertAdjacentHTML('beforeend', `<span class="aj-pz-star">${iconHtml('star')}</span>`);
+    if (p === firstUndone && nextGoal(progress).go === 'puzzles') b.classList.add('aj-next');
+    b.addEventListener('click', () => { unlockVoice(); play('tap'); startPuzzle(p.id); });
+    list.appendChild(b);
+  });
+}
+
+function startPuzzle(id) {
+  leaveMode();
+  mode = 'puzzle';
+  pz = createPuzzle(id);
+  trackEvent?.('game_start', { game: GAME_ID, level: `puzzle-${id}` });
+  show('play');
+  layoutInput();
+  buildKeyboard();
+  renderPuzzle();
+  later(() => pzAsk(), 500);
+}
+
+function renderPuzzle() {
+  const p = pz.puzzle;
+  const st = $('stage');
+  st.className = 'aj-stage aj-stage-puzzle';
+  st.innerHTML = '';
+  
+  
+  const board = svgEl('svg', { viewBox: `-1.5 -1.5 ${PIC_W + 3} ${PIC_H + 3}`, class: 'aj-pz-board', role: 'img', 'aria-label': T.puzzleNames[p.id] });
+  board.appendChild(svgEl('rect', { x: -1.5, y: -1.5, width: PIC_W + 3, height: PIC_H + 3, rx: 4, class: 'aj-pz-frame' }));
+  board.appendChild(svgEl('image', { href: pzSrc(p), x: 0, y: 0, width: PIC_W, height: PIC_H, preserveAspectRatio: 'none', class: 'aj-pz-ghost' }));
+  const slots = svgEl('g', { class: 'aj-pz-slots' });
+  p.letters.forEach((ch, slot) => {
+    const s = pieceShape(p, slot);
+    const g = svgEl('g', { class: 'aj-pz-slot', 'data-slot': slot });
+    g.appendChild(svgEl('path', { d: s.d, class: 'aj-pz-hole' }));
+    const size = Math.min(s.cell.w, s.cell.h) * 0.5;
+    const t = svgEl('text', { x: s.cell.x + s.cell.w / 2, y: s.cell.y + s.cell.h / 2 + size * 0.36, 'font-size': size, class: 'aj-pz-faint' });
+    t.textContent = ch;
+    g.appendChild(t);
+    slots.appendChild(g);
+  });
+  board.appendChild(slots);
+  board.appendChild(svgEl('g', { class: 'aj-pz-placed' }));
+  board.appendChild(svgEl('image', { href: pzSrc(p), x: 0, y: 0, width: PIC_W, height: PIC_H, preserveAspectRatio: 'none', class: 'aj-pz-whole' }));
+  const wrap = document.createElement('div');
+  wrap.className = 'aj-pz-boardwrap';
+  wrap.appendChild(board);
+  st.appendChild(wrap);
+  
+  
+  const tray = document.createElement('div');
+  tray.className = `aj-pz-tray aj-pz-n${p.letters.length}`;
+  const order = p.letters.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  if (order.every((v, i) => v === i)) order.reverse(); 
+  for (const slot of order) {
+    const ch = p.letters[slot];
+    const { g, shape } = pieceArt(p, slot, { big: true });
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'aj-pz-piece';
+    b.dataset.ch = ch;
+    b.dataset.slot = slot;
+    b.setAttribute('aria-label', fill(T.puzzlePiece, { letter: ch }));
+    const svg = svgEl('svg', { viewBox: `${shape.box.x} ${shape.box.y} ${shape.box.w} ${shape.box.h}`, 'aria-hidden': 'true' });
+    svg.appendChild(g);
+    b.appendChild(svg);
+    b.style.setProperty('--tilt', `${(Math.random() * 10 - 5).toFixed(1)}deg`);
+    tray.appendChild(b);
+  }
+  st.appendChild(tray);
+  pzMarkNext();
+}
+
+function pzMarkNext() {
+  const next = pz.next();
+  renderProgress(pz.puzzle.letters, pz.placed().length);
+  const at = pz.placed().length;
+  for (const g of document.querySelectorAll('.aj-pz-slot')) g.classList.toggle('is-next', Number(g.dataset.slot) === at && !!next);
+}
+
+function pzAsk() {
+  const next = pz?.next();
+  if (!next) return;
+  wanted = next;
+  clearHints();
+  markWanted();
+  say(vid.find(next));
+}
+
+function puzzlePress(c) {
+  const r = pz.place(c);
+  if (!r.ok) {
+    if (r.done) return;
+    onWrong({ hint: hintFor(r.misses), want: r.want });
+    const tried = document.querySelector(`.aj-pz-piece[data-ch="${c}"]`);
+    if (tried) bump(tried, 'aj-wobble');
+    return;
+  }
+  clearHints();
+  busy = true;
+  wanted = null; markWanted();
+  const p = pz.puzzle;
+  const piece = document.querySelector(`.aj-pz-piece[data-slot="${r.slot}"]`);
+  const board = document.querySelector('.aj-pz-board');
+  const land = () => {
+    if (mode !== 'puzzle' || !pz || pz.puzzle !== p) return; 
+    piece?.classList.add('is-home');
+    const { g } = pieceArt(p, r.slot);
+    g.classList.add('aj-pz-click');
+    board.querySelector('.aj-pz-placed').appendChild(g);
+    board.querySelector(`.aj-pz-slot[data-slot="${r.slot}"]`)?.classList.add('is-filled');
+    play(jamPress(r.ch).note);
+    say(vid.name(r.ch));
+    stars(5, board.querySelector(`.aj-pz-slot[data-slot="${r.slot}"]`));
+    pzMarkNext();
+    if (r.done) { pzFinish(); return; }
+    later(() => { busy = false; pzAsk(); }, TIMING.letterGapMs);
+  };
+  play('whoosh');
+  pzFly(piece, board, r.slot, land);
+}
+
+
+function pzFly(piece, board, slot, done) {
+  if (!piece || !board || reduceMotion || !piece.animate) { done(); return; }
+  const s = pieceShape(pz.puzzle, slot);
+  const pr = piece.querySelector('svg').getBoundingClientRect();
+  const br = board.getBoundingClientRect();
+  const vb = board.viewBox.baseVal;
+  const k = br.width / vb.width; 
+  const tx = br.left + (s.box.x + s.box.w / 2 - vb.x) * k;
+  const ty = br.top + (s.box.y + s.box.h / 2 - vb.y) * k;
+  const dx = tx - (pr.left + pr.width / 2);
+  const dy = ty - (pr.top + pr.height / 2);
+  const scale = (s.box.w * k) / pr.width;
+  piece.classList.add('is-flying');
+  const anim = piece.animate([
+    { transform: 'translate(0, 0) scale(1) rotate(var(--tilt, 0deg))' },
+    { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 60}px) scale(${(1 + scale) / 2 * 1.15}) rotate(0deg)`, offset: 0.55 },
+    { transform: `translate(${dx}px, ${dy}px) scale(${scale}) rotate(0deg)` },
+  ], { duration: 650, easing: 'cubic-bezier(.3, .1, .3, 1)', fill: 'forwards' });
+  anim.onfinish = done;
+}
+
+function pzFinish() {
+  const p = pz.puzzle;
+  const board = document.querySelector('.aj-pz-board');
+  
+  later(() => {
+    board?.classList.add('is-done');
+    document.querySelector('.aj-pz-tray')?.classList.add('is-done');
+    play('word');
+    stars(10, board);
+  }, 700);
+  later(() => party(FIXED.hooray), 1500);
+  if (addSticker(progress, 'puzzle', p.id)) {
+    save();
+    later(() => { play('star'); stickerToast(T.puzzleNames[p.id], null, pzSrc(p)); }, 1500 + TIMING.partyMs);
+  }
+  later(() => { busy = false; showPuzzles(); }, 1500 + TIMING.partyMs + TIMING.wordGapMs);
+}
+
 function showStickers() {
   leaveMode();
   show('stickers');
@@ -1181,7 +1412,24 @@ function showStickers() {
     s.addEventListener('click', () => { bump(s, 'aj-jump'); if (got) { play('word'); say(vid.dinoHello(d.id)); } else play('tap'); });
     Dn.appendChild(s);
   }
-  const total = progress.letters.length + progress.words.length + progress.dinos.length;
+  const Pz = $('book-puzzles');
+  Pz.innerHTML = '';
+  for (const p of PUZZLES) {
+    const got = progress.puzzles.includes(p.id);
+    const s = document.createElement('button');
+    s.type = 'button';
+    s.className = 'aj-sticker aj-sticker-word aj-sticker-puzzle' + (got ? ' is-got' : '');
+    s.style.setProperty('--c', colourFor(p.letters[0]));
+    s.innerHTML = '<i aria-hidden="true"></i><b></b>';
+    if (got) s.querySelector('i').innerHTML = '<img class="aj-ic aj-pz-sticker" alt="" draggable="false">';
+    else setPic(s.querySelector('i'), 'mystery');
+    if (got) s.querySelector('img').src = pzSrc(p);
+    s.querySelector('b').textContent = got ? T.puzzleNames[p.id] : `${p.letters[0]}-${p.letters[p.letters.length - 1]}`;
+    s.setAttribute('aria-label', got ? T.puzzleNames[p.id] : T.wordNotYet);
+    s.addEventListener('click', () => { bump(s, 'aj-jump'); if (got) { play('word'); say(FIXED.hooray); } else play('tap'); });
+    Pz.appendChild(s);
+  }
+  const total = progress.letters.length + progress.words.length + progress.dinos.length + progress.puzzles.length;
   $('book-count').innerHTML = `${iconHtml('star')} ${total}  ·  ${iconHtml('balloon')} ${progress.pops}`;
   say(countId(total));
 }
@@ -1193,6 +1441,7 @@ function prizeLabel(z) {
   if (z.id === 'alphabet') return T.prizeAlphabet;
   if (z.id === 'book') return T.prizeBook;
   if (z.id === 'dinos') return T.prizeDinos;
+  if (z.id === 'puzzles') return T.prizePuzzles;
   if (z.id === 'dinos-found') return fill(T.prizeFound, { n: z.n });
   if (z.size) return fill(T.stepWords, { n: z.size });
   return fill(T.prizeBalloons, { n: z.n });
@@ -1201,8 +1450,8 @@ function prizeLabel(z) {
 function renderHub() {
   const m = meters(progress);
   const goal = nextGoal(progress);
-  const total = { parade: LETTERS.length, words: WORD_STEPS.reduce((n, s) => n + s.words.length, 0), eggs: DINOS.length, match: FOUND_PRIZE };
-  const got = { parade: progress.letters.length, words: progress.words.length, eggs: progress.dinos.length, match: progress.found };
+  const total = { parade: LETTERS.length, words: WORD_STEPS.reduce((n, s) => n + s.words.length, 0), eggs: DINOS.length, match: FOUND_PRIZE, puzzles: PUZZLES.length };
+  const got = { parade: progress.letters.length, words: progress.words.length, eggs: progress.dinos.length, match: progress.found, puzzles: progress.puzzles.length };
   const targets = {
     parade: $('start'),
     jam: document.querySelector('.aj-tile[data-go="jam"]'),
@@ -1211,6 +1460,7 @@ function renderHub() {
     stickers: document.querySelector('.aj-tile[data-go="stickers"]'),
     eggs: document.querySelector('.aj-tile[data-go="eggs"]'),
     match: document.querySelector('.aj-tile[data-go="match"]'),
+    puzzles: document.querySelector('.aj-tile[data-go="puzzles"]'),
   };
   for (const [k, el] of Object.entries(targets)) {
     if (!el) continue;
@@ -1287,6 +1537,7 @@ for (const t of document.querySelectorAll('.aj-tile')) {
     else if (go === 'eggs') startEggs();
     else if (go === 'match') startMatch();
     else if (go === 'tower') startTower();
+    else if (go === 'puzzles') showPuzzles();
   });
 }
 

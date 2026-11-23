@@ -1,0 +1,37 @@
+{
+ "puzzle_dino-sticker": {
+  "x": 0,
+  "y": 0,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "puzzle_dino_family-sticker": {
+  "x": 386,
+  "y": 0,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "puzzle_party-sticker": {
+  "x": 0,
+  "y": 258,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "puzzle_princess-sticker": {
+  "x": 386,
+  "y": 258,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "puzzle_unicorn-sticker": {
+  "x": 0,
+  "y": 516,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ }
+}

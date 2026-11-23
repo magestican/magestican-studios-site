@@ -15,7 +15,7 @@
   }
  ],
  "engine": {
-  "artist_commit": "68047185a755a42fb8200bcf7a48bdef85826dc9",
+  "artist_commit": "a87203c2035d7ae0025d4ddee16c111f87c090a0",
   "engine": "artist-engine 0.2.0-phaseB"
  },
  "gates": {
@@ -72,9 +72,9 @@
   ]
  },
  "files": {
-  "abc-jam/preview.png": "1c16e79c3b019d52bde53b8e899fae6d9dfcfadc0194fc5bc801177042cc2d12",
-  "abc-jam/sprite.png": "a0f5028186cc653b8fbbb5fc6b9eb6b45172abee88127f1e2cf8274ffe5ed5d9",
-  "abc-jam/sprite@2x.png": "51fdb503c9c579a80ae1d2392d605ffce9d516a790685a0e5a9f601f77f81905",
+  "abc-jam/preview.png": "bcab488d4476e2c22fa821f50566c2599bf67b4e1df369824b8aa29144288943",
+  "abc-jam/sprite.png": "7ca386661dfbcc3363c40c24a21c90c203905541a708473bbedf95cc907eedd3",
+  "abc-jam/sprite@2x.png": "cfeabf684ee483872b04dda186909683ef6853bf53d06434a3a9c7da6573f81d",
   "abc-jam/svg/sticker/ankylosaurus.svg": "a372397a44a791d748e8034ae3786b172ce3f9b1c0ad9ddf4a7972c566f86eb5",
   "abc-jam/svg/sticker/ant.svg": "4c5a235098b50def636c1add257783c479af84a22ccbad0aadcd06269f7d4a88",
   "abc-jam/svg/sticker/apple.svg": "3ff657d30f007998d356163147691fe2da7ca631aba85e223b452374434f6191",
@@ -92,6 +92,7 @@
   "abc-jam/svg/sticker/bus.svg": "439975c0355b8444644eaa63230b8ca40e17a5d3dcb6a3097017bd3d4312d875",
   "abc-jam/svg/sticker/cake.svg": "c7060848d6af461c7551d0556488a91b2453af0ae0fb94c223fb46e21131dffb",
   "abc-jam/svg/sticker/car.svg": "e069cf99a3978c7ae49ff550dc45aedc4c582039525b04e022c4b877a93b2ea1",
+  "abc-jam/svg/sticker/castle.svg": "7a93da0adfa46692b39f7d994643e2380958c2f255b5d21f0c324522de71bd8d",
   "abc-jam/svg/sticker/cat.svg": "db5e39f519555234fee25702bb105d98b0ea3d3727861407a867efbb8dc9065c",
   "abc-jam/svg/sticker/clock.svg": "9f5cc8f9c16e704354059d9076ba3a0cf73e246cf19e76e8da0f24c6713f8510",
   "abc-jam/svg/sticker/corn.svg": "60994f54a02e79d1d3d38315daa7f956063139f0e0618334687c0e68e7e44ceb",
@@ -132,6 +133,7 @@
   "abc-jam/svg/sticker/pig.svg": "d14dd6af434fd5e12453bbb8f5bf95babe981cb96aac11a64d12f5d727e81371",
   "abc-jam/svg/sticker/pizza.svg": "5c147698e922d0794759cec1842907baae0ba5775da5287be1bff72650513ed0",
   "abc-jam/svg/sticker/play.svg": "bd9c8148660c5031cc5b3fcc8e97051959f1980085fd0e6081825f6f25a753f0",
+  "abc-jam/svg/sticker/princess.svg": "4b7c1121e9ad03775f989e5041b22c34ef57833578406636c88af00d08c816a9",
   "abc-jam/svg/sticker/puzzle.svg": "4a8e7b21801fbcc07827489048f245858d5accc7d7558a8b31985f80685f454e",
   "abc-jam/svg/sticker/queen.svg": "e5f59f440a174a27a4f26ef7a30541c8d82faf198bd56c9ec0198bdc8beb2a29",
   "abc-jam/svg/sticker/rainbow.svg": "5e2f11ce0ad728225a41918e2d133f332d5a76fab240d91dff35b32585b6abd3",
@@ -153,13 +155,14 @@
   "abc-jam/svg/sticker/triceratops.svg": "c7ef794317e0f282c964faa02a13fa97b0940c95696da812316c5e7f9e44d58f",
   "abc-jam/svg/sticker/trophy.svg": "a189158ec4cfd9a8f33391ba2abf58d6a5f088c9a7b3204e671061bb8c4b4817",
   "abc-jam/svg/sticker/umbrella.svg": "b3d77b98202c1c04c785946b60bee6050508d685fb7a0b758f98c106ce729c4a",
+  "abc-jam/svg/sticker/unicorn.svg": "e92ec68b7a621005e83e09517a0c400078b0a31072ca00992afb85b4d8be951d",
   "abc-jam/svg/sticker/velociraptor.svg": "2a2f6e70c257bb70a129dbf2d561104b9f44889f8371eff1488bd9602fdefd21",
   "abc-jam/svg/sticker/violin.svg": "3873ca83f704152bdcad2d6486c1cdc6f76d80dd62b15f0be665e463d36419a3",
   "abc-jam/svg/sticker/whale.svg": "388346ce7f58c87ec8fe2fd5fa296da014aa361ee7f52a47c4daabd30e92a99a",
   "abc-jam/svg/sticker/wood_block.svg": "a8d42d6a1072fb82d767809fe02925ee99cab451e0e57805cb27a5f2667a8db2",
   "abc-jam/svg/sticker/yarn.svg": "8f6af914c3a37a587d0a221df8602180245e4eef9f72770ba9fce3cd80bf8eb5",
   "abc-jam/svg/sticker/zebra.svg": "bb7b5485ba7a3552ec86ba831da5772ae3edc1f9e3737efe8128e106ae4ada39",
-  "abc-jam/symbols-sticker.svg": "bb58f4c43c7c24d554701d2e2f81091a08e2d632e3aa5e03c8ddc4a2458467e8",
-  "contact-sheet.png": "e5b6378de2b08aa90bb564d6a377ca97865d524ad61460fa8d24d7e9dccab936"
+  "abc-jam/symbols-sticker.svg": "b93266b67753ce96f09ea75d7ac4a3e933c50331da739649e0d2d29dc828273a",
+  "contact-sheet.png": "3f8ff8c5ed1e83884086be8db9797c9ff5db4d843f6d3df2d0fa47c83250352a"
  }
 }
