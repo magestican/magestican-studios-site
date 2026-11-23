@@ -1,0 +1,66 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "menu",
+      "side": "A",
+      "title": "Night Sea",
+      "genre": "underwater-game-ambient",
+      "file": "glowtail-menu.webm",
+      "loopSamples": 2560000,
+      "seed": 1886662610,
+      "lufs": -16.2
+    },
+    {
+      "id": "shallows",
+      "side": "A",
+      "title": "Moon Sand",
+      "genre": "underwater-game-ambient",
+      "file": "glowtail-shallows.webm",
+      "loopSamples": 4189091,
+      "seed": 1146899942,
+      "lufs": -16.7
+    },
+    {
+      "id": "kelp",
+      "side": "A",
+      "title": "Sway",
+      "genre": "underwater-game-ambient",
+      "file": "glowtail-kelp.webm",
+      "loopSamples": 4006957,
+      "seed": 1276632253,
+      "lufs": -15.4
+    },
+    {
+      "id": "reef",
+      "side": "A",
+      "title": "Glass Reef",
+      "genre": "underwater-game-ambient",
+      "file": "glowtail-reef.webm",
+      "loopSamples": 3840000,
+      "seed": 445480590,
+      "lufs": -17.2
+    },
+    {
+      "id": "abyss",
+      "side": "A",
+      "title": "Lantern Dark",
+      "genre": "underwater-game-ambient",
+      "file": "glowtail-abyss.webm",
+      "loopSamples": 2633143,
+      "seed": 1821136739,
+      "lufs": -15.7
+    },
+    {
+      "id": "trench",
+      "side": "A",
+      "title": "Undertow",
+      "genre": "underwater-game-ambient",
+      "file": "glowtail-trench.webm",
+      "loopSamples": 3840000,
+      "seed": 1166445129,
+      "lufs": -14.6
+    }
+  ]
+}
