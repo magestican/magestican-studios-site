@@ -1,50 +1,50 @@
 {
- "name": "f20-sora",
+ "name": "f37-sora",
  "voice": "af_bella",
  "lang": "en-us",
  "speed": 1,
- "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 af_bella, exaggeration 0.5, cfg_weight 0.3, seed 1234, tempo 1.0, ref sora-s42.wav, acted Sora)",
- "source": "Magestican DJ F20 + G30 radio layer (branch claude/f20-mina-r2 40ad3a1), D:/magestican-dj/voice-design/f20-radio",
+ "engine": "chatterbox-0.1.4 (ref Parler-TTS large design sora-s2.wav, acted Sora; per-line seeds: s2 1234, heartfall r77, brief-boats/after-saltpan p777 cfg 0.5 gap 120, readme p7 cfg 0.5 gap 120)",
+ "source": "Magestican DJ F37 (branch claude/f37-sora), Parler-large design s2, D:/magestican-dj/voice-design/f37-radio",
  "lines": {
   "intro-1-2": {
    "file": "intro-1-2.m4a",
-   "ms": 5735,
+   "ms": 6439,
    "text": "Wake copies. Weapons hot. Everybody stay on me!",
    "dj": "hot"
   },
   "intro-5-2": {
    "file": "intro-5-2.m4a",
-   "ms": 4611,
+   "ms": 4693,
    "text": "All Wake, this is it. Everything we've got!",
    "dj": "heartfall-everything"
   },
   "after-2-2": {
    "file": "after-2-2.m4a",
-   "ms": 3393,
+   "ms": 3848,
    "text": "You came back for it, Mina. That counts.",
    "dj": "after-saltpan-counts"
   },
   "after-4-1": {
    "file": "after-4-1.m4a",
-   "ms": 4512,
+   "ms": 5342,
    "text": "Harrow, Harrow, this is Wake Lead. Commander, do you read me?",
    "dj": "readme"
   },
   "ending-sora": {
    "file": "ending-sora.m4a",
-   "ms": 4527,
+   "ms": 4966,
    "text": "The Crown is down! Wake Squadron, check in!",
    "dj": "down"
   },
   "brief-sora-2": {
    "file": "brief-sora-2.m4a",
-   "ms": 3859,
+   "ms": 4350,
    "text": "Forty boats came home that night, sir. I counted.",
    "dj": "brief-boats"
   },
   "brief-sora-4": {
    "file": "brief-sora-4.m4a",
-   "ms": 3662,
+   "ms": 3991,
    "text": "Understood, Commander. Wake Lead is ready.",
    "dj": "brief-ready"
   }
