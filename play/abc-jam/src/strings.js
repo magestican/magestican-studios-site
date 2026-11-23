@@ -58,6 +58,11 @@ export const T = Object.freeze({
   puzzlePiece: 'Piece {letter}',
   
   puzzleNames: Object.freeze({ unicorn: 'Unicorn', dino: 'Dinosaur', princess: 'Princess', dino_family: 'Dinosaur family', party: 'Birthday picnic' }),
+  
+  puzzleMade: Object.freeze({
+    unicorn: 'You made the unicorn!', dino: 'You made the dinosaur!', princess: 'You made the princess!',
+    dino_family: 'You made the dinosaur family!', party: 'You made the birthday picnic!',
+  }),
 
   find: 'Find the letter {letter}!',
   jamStart: 'Press any letter!',

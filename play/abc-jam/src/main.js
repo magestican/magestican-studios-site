@@ -1504,7 +1504,8 @@ function pzFinish() {
     play('word');
     stars(10, board);
   }, 700);
-  later(() => party(FIXED.hooray), 1500);
+  
+  later(() => party(vid.puzzleMade(p.id)), 1500);
   if (addSticker(progress, 'puzzle', p.id)) {
     save();
     later(() => { play('star'); stickerToast(T.puzzleNames[p.id], null, pzSrc(p)); }, 1500 + TIMING.partyMs);

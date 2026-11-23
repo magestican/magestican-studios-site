@@ -2,7 +2,7 @@
  "name": "abc-jam-voice",
  "voice": "bf_emma",
  "lang": "en-gb",
- "speed": 1.0,
+ "speed": 1,
  "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.6, cfg_weight 0.15, seed 1234, tempo 1.0, post warm-air, ref_speed 0.8)",
  "lines": {
   "name-a": {
@@ -1879,6 +1879,31 @@
    "file": "count-82.m4a",
    "ms": 2397,
    "text": "You have 82 stickers!"
+  },
+  "puzzle-made-unicorn": {
+   "file": "puzzle-made-unicorn.m4a",
+   "ms": 2030,
+   "text": "You made the unicorn!"
+  },
+  "puzzle-made-dino": {
+   "file": "puzzle-made-dino.m4a",
+   "ms": 1528,
+   "text": "You made the dinosaur!"
+  },
+  "puzzle-made-princess": {
+   "file": "puzzle-made-princess.m4a",
+   "ms": 1895,
+   "text": "You made the princess!"
+  },
+  "puzzle-made-dino-family": {
+   "file": "puzzle-made-dino-family.m4a",
+   "ms": 2306,
+   "text": "You made the dinosaur family!"
+  },
+  "puzzle-made-party": {
+   "file": "puzzle-made-party.m4a",
+   "ms": 2066,
+   "text": "You made the birthday picnic!"
   }
  },
  "takes": [
@@ -1901,6 +1926,10 @@
   {
    "dir": "take5",
    "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.6, cfg_weight 0.15, seed 5, tempo 1.0, post warm-air, ref_speed 0.8)"
+  },
+  {
+   "dir": "puzzle-made-s1234",
+   "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bf_emma, exaggeration 0.6, cfg_weight 0.15, seed 1234, tempo 1.0, post warm-air, ref_speed 0.8)"
   }
  ]
 }

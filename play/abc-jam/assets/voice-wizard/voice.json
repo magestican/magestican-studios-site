@@ -1879,6 +1879,31 @@
    "file": "count-82.m4a",
    "ms": 2710,
    "text": "You have 82 stickers!"
+  },
+  "puzzle-made-unicorn": {
+   "file": "puzzle-made-unicorn.m4a",
+   "ms": 2017,
+   "text": "You made the unicorn!"
+  },
+  "puzzle-made-dino": {
+   "file": "puzzle-made-dino.m4a",
+   "ms": 1814,
+   "text": "You made the dinosaur!"
+  },
+  "puzzle-made-princess": {
+   "file": "puzzle-made-princess.m4a",
+   "ms": 1731,
+   "text": "You made the princess!"
+  },
+  "puzzle-made-dino-family": {
+   "file": "puzzle-made-dino-family.m4a",
+   "ms": 2569,
+   "text": "You made the dinosaur family!"
+  },
+  "puzzle-made-party": {
+   "file": "puzzle-made-party.m4a",
+   "ms": 2380,
+   "text": "You made the birthday picnic!"
   }
  },
  "takes": [
@@ -1921,6 +1946,10 @@
   {
    "dir": "r10",
    "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bm_george, exaggeration 0.65, cfg_weight 0.3, seed 10, tempo 1.0, post warm-air, ref wizard-ref.wav)"
+  },
+  {
+   "dir": "puzzle-made-s1234",
+   "engine": "chatterbox-0.1.4 (ref kokoro-v1.0 bm_george, exaggeration 0.65, cfg_weight 0.3, seed 1234, tempo 1.0, post warm-air, ref wizard-ref.wav)"
   }
  ]
 }

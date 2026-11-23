@@ -34,6 +34,8 @@ export const id = Object.freeze({
   dinoHello: (d) => `dino-hello-${d.replace(/_/g, '-')}`,
   dinoWhere: (d) => `dino-where-${d.replace(/_/g, '-')}`,
   dinoYes: (d) => `dino-yes-${d.replace(/_/g, '-')}`,
+  
+  puzzleMade: (p) => `puzzle-made-${p.replace(/_/g, '-')}`,
 });
 
 
@@ -75,6 +77,7 @@ function build() {
     out.push({ id: id.dinoWhere(d.id), text: fill(T.dinoWhere, { dino }) });
     out.push({ id: id.dinoYes(d.id), text: fill(T.dinoYes, { dino }) });
   }
+  for (const [p, text] of Object.entries(T.puzzleMade)) out.push({ id: id.puzzleMade(p), text });
   for (const [k, v] of Object.entries(FIXED)) out.push({ id: v, text: T[k] });
   for (let n = 1; n <= MAX_STICKERS; n++) out.push({ id: id.count(n), text: count(T.bookCount, n) });
   return Object.freeze(out.map(Object.freeze));
