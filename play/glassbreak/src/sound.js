@@ -71,7 +71,7 @@ export function createCuePlayer(play, now = () => performance.now(), gapMs = 45,
 
 
 
-export const MENU_CUES = Object.freeze(['tap', 'back', 'toggleOn', 'toggleOff', 'open']);
+export const MENU_CUES = Object.freeze(['tap', 'back', 'toggleOn', 'toggleOff', 'open', 'focus']);
 const BACK_IDS = new Set(['selectBack', 'lobbyLeave', 'pauseTitle', 'failTitle', 'endTitle', 'storySkip']);
 const OPEN_IDS = new Set(['start', 'coopStart', 'next', 'resume']);
 

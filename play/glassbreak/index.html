@@ -48,8 +48,16 @@
       --cobalt: #3f8cff; }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
+    
+
+    @font-face { font-family: "Grenze Gotisch"; src: url("assets/fonts/grenze-gotisch-latin-700-normal.woff2") format("woff2");
+      font-weight: 700; font-display: swap; }
+    @font-face { font-family: "Grenze"; src: url("assets/fonts/grenze-latin-600-normal.woff2") format("woff2");
+      font-weight: 600; font-display: swap; }
+    @font-face { font-family: "Grenze"; src: url("assets/fonts/grenze-latin-700-normal.woff2") format("woff2");
+      font-weight: 700; font-display: swap; }
     html, body { margin: 0; height: 100%; background: #05040a; color: var(--ink); overflow: hidden;
-      font: 15px/1.4 Georgia, "Iowan Old Style", "Palatino Linotype", serif; -webkit-tap-highlight-color: transparent; }
+      font: 600 16px/1.35 "Grenze", Georgia, serif; -webkit-tap-highlight-color: transparent; }
     canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
     
 
@@ -65,8 +73,7 @@
     .right { display: flex; gap: calc(8px * var(--fs)); align-items: flex-start; }
     #lanterns { letter-spacing: 0.12em; color: #ffcf6e; }
     button { font: inherit; color: var(--ink); cursor: pointer; }
-    #pauseBtn { pointer-events: auto; min-width: 44px; min-height: 44px; border-radius: calc(10px * var(--fs));
-      background: var(--panel); border: 1px solid rgba(240, 196, 112, 0.35); font-size: calc(16px * var(--fs)); }
+    #pauseBtn { pointer-events: auto; width: 44px; height: 44px; font: 700 18px/1 "Grenze", serif; }
     #bossbar { position: absolute; top: calc(96px * var(--fs)); left: 15%; right: 15%; height: calc(10px * var(--fs));
       border-radius: 99px; background: var(--panel); border: 1px solid rgba(255, 255, 255, 0.3); overflow: hidden; }
     #bossbar i { display: block; height: 100%; width: 100%; transform-origin: left;
@@ -90,19 +97,94 @@
       gap: calc(20px * var(--fs)); padding: calc(32px * var(--fs)) calc(16px * var(--fs)); pointer-events: auto; text-align: center;
       background: radial-gradient(ellipse at center, rgba(8, 4, 16, 0.55), rgba(5, 3, 10, 0.88)); }
     .screen[hidden] { display: none; }
-    .screen h1 { margin: 0; font-size: calc(54px * var(--fs)); letter-spacing: 0.04em; font-weight: 400;
-      background: linear-gradient(90deg, var(--rose), #ffd27a 50%, var(--cobalt)); -webkit-background-clip: text;
-      background-clip: text; color: transparent; filter: drop-shadow(0 4px 24px rgba(255, 140, 90, 0.35)); }
-    .screen h2 { margin: 0; font-size: calc(30px * var(--fs)); font-weight: 400; }
+    
+    .screen h1 { margin: 0; font: 700 calc(68px * var(--fs))/1 "Grenze Gotisch", "Grenze", serif; letter-spacing: 0.01em;
+      background: linear-gradient(100deg, #ff6f93 0 22%, #ffc35a 22% 41%, #8fd36a 41% 60%, #5aa2ff 60% 80%, #ff8f5a 80%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      -webkit-text-stroke: calc(1.6px * var(--fs)) #140d08; paint-order: stroke fill;
+      filter: drop-shadow(0 0 calc(18px * var(--fs)) rgba(255, 170, 90, 0.45)) drop-shadow(0 4px 2px rgba(0, 0, 0, 0.8)); }
+    .screen h2 { margin: 0; font: 700 calc(34px * var(--fs))/1.1 "Grenze Gotisch", "Grenze", serif; color: #ffe2a8;
+      text-shadow: 0 0 calc(16px * var(--fs)) rgba(255, 170, 90, 0.45), 0 2px 2px #000; }
     .screen p { margin: 0; max-width: 30em; font-size: calc(15px * var(--fs)); opacity: 0.9; }
-    .big { font-size: calc(30px * var(--fs)); padding: calc(20px * var(--fs)) calc(56px * var(--fs)); min-height: 64px;
-      border-radius: calc(18px * var(--fs)); border: 2px solid var(--brass); letter-spacing: 0.08em;
-      background: linear-gradient(180deg, #6a3a16, #2b160a); box-shadow: 0 0 40px rgba(255, 170, 80, 0.35); }
-    .big:hover, .big:focus-visible { box-shadow: 0 0 60px rgba(255, 190, 100, 0.6); outline: none; }
+    
+
+
+
+    .btn, .big, .grid button, .icon { --g: #e0a040; --cut: calc(9px * var(--fs)); position: relative; isolation: isolate;
+      background: none; border: 0; color: #fff6e6; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85); letter-spacing: 0.03em;
+      transition: transform 0.12s ease-out, filter 0.18s ease-out; outline: none; }
+    .btn::before, .big::before, .grid button::before, .icon::before { content: ""; position: absolute; inset: 0; z-index: -2;
+      background: #1a110b; transition: background 0.18s;
+      clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+        calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)); }
+    .btn::after, .big::after, .grid button::after, .icon::after { content: ""; position: absolute; inset: 3px; z-index: -1;
+      clip-path: polygon(calc(var(--cut) - 1px) 0, calc(100% - var(--cut) + 1px) 0, 100% calc(var(--cut) - 1px),
+        100% calc(100% - var(--cut) + 1px), calc(100% - var(--cut) + 1px) 100%, calc(var(--cut) - 1px) 100%,
+        0 calc(100% - var(--cut) + 1px), 0 calc(var(--cut) - 1px));
+      background:
+        linear-gradient(105deg, transparent 42%, rgba(255, 250, 230, 0.42) 50%, transparent 58%) 160% 0 / 260% 100% no-repeat,
+        radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--g) 70%, #fff 8%), color-mix(in srgb, var(--g) 30%, #080408) 70%);
+      box-shadow: inset 0 0 0 1px rgba(240, 196, 112, 0.55), inset 0 -10px 18px rgba(0, 0, 0, 0.45);
+      filter: brightness(0.62) saturate(0.85); transition: filter 0.18s, background-position 0.5s ease-out; }
+    .btn:hover, .big:hover, .grid button:hover:not(:disabled), .icon:hover,
+    .btn:focus-visible, .big:focus-visible, .grid button:focus-visible, .icon:focus-visible, .lit {
+      transform: translateY(-2px) scale(1.03); filter: drop-shadow(0 0 calc(12px * var(--fs)) var(--g)); }
+    .btn:hover::before, .big:hover::before, .grid button:hover:not(:disabled)::before, .icon:hover::before,
+    .btn:focus-visible::before, .big:focus-visible::before, .grid button:focus-visible::before, .icon:focus-visible::before,
+    .lit::before { background: #f0c470; }
+    .btn:hover::after, .big:hover::after, .grid button:hover:not(:disabled)::after, .icon:hover::after,
+    .btn:focus-visible::after, .big:focus-visible::after, .grid button:focus-visible::after, .icon:focus-visible::after,
+    .lit::after { filter: brightness(1.15) saturate(1.1); background-position: -60% 0, 0 0; }
+    
+    .btn:active::after, .big:active::after, .grid button:active:not(:disabled)::after, .icon:active::after {
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40' preserveAspectRatio='none'%3E%3Cpath d='M48 0 L52 14 L40 22 L46 40 M52 14 L70 18 L84 40 M40 22 L18 26 L4 40 M70 18 L100 12' fill='none' stroke='%23fff8e0' stroke-width='1.2' stroke-opacity='0.85' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat,
+        radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--g) 80%, #fff 15%), color-mix(in srgb, var(--g) 40%, #080408) 70%);
+      filter: brightness(1.3); }
+    .btn:active, .big:active, .grid button:active:not(:disabled), .icon:active { transform: scale(0.97); }
+    .grid button:disabled { cursor: default; }
+    .grid button:disabled::after { filter: brightness(0.32) saturate(0.2); }
+    .big { --g: #ffae3c; font: 700 calc(30px * var(--fs))/1.05 "Grenze", serif; padding: calc(18px * var(--fs)) calc(48px * var(--fs));
+      min-height: 64px; --cut: calc(14px * var(--fs)); letter-spacing: 0.06em; }
+    .big::after { filter: brightness(0.85) saturate(1); }
+    .big small { display: block; font-size: calc(14px * var(--fs)); font-weight: 600; letter-spacing: 0.04em; margin-top: 4px;
+      color: #ffe9c0; }
+    .big small:empty { display: none; }
     .row { display: flex; flex-wrap: wrap; justify-content: center; gap: calc(12px * var(--fs)); }
-    .btn { min-height: 44px; padding: calc(10px * var(--fs)) calc(20px * var(--fs)); border-radius: calc(12px * var(--fs));
-      background: var(--panel); border: 1px solid rgba(240, 196, 112, 0.45); font-size: calc(15px * var(--fs)); }
-    .btn[aria-pressed="true"] { border-color: #fff; background: rgba(120, 70, 30, 0.8); }
+    .btn { min-height: 44px; padding: calc(10px * var(--fs)) calc(22px * var(--fs)); font-size: calc(17px * var(--fs)); }
+    .btn[aria-pressed="true"]::after { filter: brightness(1) saturate(1.05); }
+    .g-rose { --g: #ff4f7b; } .g-amber { --g: #ffae3c; } .g-cobalt { --g: #3f8cff; } .g-moss { --g: #4fc25e; }
+    .g-violet { --g: #a46bff; }
+    
+    .strip { display: flex; gap: 0; padding: 0; }
+    .strip .btn { --cut: 0px; min-width: calc(92px * var(--fs)); }
+    .strip .btn[aria-pressed="false"]::after { filter: brightness(0.42) saturate(0.6); }
+    .strip .btn[aria-pressed="true"]::after { filter: brightness(1.05) saturate(1.1); }
+    
+    .corner { position: absolute; top: calc(16px * var(--fs)); right: calc(16px * var(--fs)); display: flex; gap: calc(12px * var(--fs)); }
+    .icon { --g: #7d6bd6; width: 48px; height: 48px; padding: 0; display: grid; place-items: center; --cut: 8px; }
+    .icon svg { width: 24px; height: 24px; fill: none; stroke: #fff6e6; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      filter: drop-shadow(0 1px 1px #000); }
+    .icon[aria-pressed="false"] .on, .icon[aria-pressed="true"] .off { display: none; }
+    
+
+    @keyframes gb-enter { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+    
+    @keyframes gb-veil { from { opacity: 0; } to { opacity: 1; } }
+    .screen:not([hidden]) { animation: gb-veil 0.18s ease-out both; }
+    .screen:not([hidden]) > * { animation: gb-enter 0.18s ease-out both; }
+    .screen:not([hidden]) > :nth-child(2) { animation-delay: 30ms; } .screen:not([hidden]) > :nth-child(3) { animation-delay: 60ms; }
+    .screen:not([hidden]) > :nth-child(4) { animation-delay: 90ms; } .screen:not([hidden]) > :nth-child(5) { animation-delay: 120ms; }
+    .screen:not([hidden]) > :nth-child(n+6) { animation-delay: 150ms; }
+    @media (prefers-reduced-motion: reduce) {
+      .screen:not([hidden]), .screen:not([hidden]) > * { animation: none; }
+      .btn, .big, .grid button, .icon, .btn::after, .big::after, .grid button::after, .icon::after { transition: none; }
+      .btn:hover, .big:hover, .grid button:hover, .icon:hover, .btn:focus-visible, .big:focus-visible,
+      .grid button:focus-visible, .icon:focus-visible, .lit, .btn:active, .big:active, .icon:active { transform: none; }
+    }
+    
+    #title { background: linear-gradient(180deg, rgba(5, 3, 10, 0.72), rgba(5, 3, 10, 0.18) 40%, rgba(5, 3, 10, 0.2) 62%, rgba(5, 3, 10, 0.78)); }
+    #title .lede { max-width: 24em; font-size: calc(15px * var(--fs)); line-height: 1.35; opacity: 0.92; text-shadow: 0 1px 3px #000; }
     .stars { font-size: calc(40px * var(--fs)); letter-spacing: 0.15em; color: #ffd27a; }
     .stars .off { color: rgba(255, 255, 255, 0.18); }
     .tally { display: grid; grid-template-columns: auto auto; gap: calc(6px * var(--fs)) calc(24px * var(--fs));
@@ -113,10 +195,15 @@
     .act h3 { margin: 0 0 calc(10px * var(--fs)); font-weight: 400; color: var(--brass); font-size: calc(16px * var(--fs));
       text-align: left; letter-spacing: 0.08em; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(12px * var(--fs)); }
-    .grid button { min-height: 56px; padding: calc(8px * var(--fs)); border-radius: calc(12px * var(--fs));
-      background: var(--panel); border: 1px solid rgba(240, 196, 112, 0.35); font-size: calc(13px * var(--fs)); line-height: 1.25; }
-    .grid button.boss { border-color: var(--rose); }
-    .grid button:disabled { opacity: 0.35; cursor: default; }
+    .grid button { min-height: 60px; padding: calc(8px * var(--fs)) calc(6px * var(--fs)); font-size: calc(15px * var(--fs));
+      line-height: 1.15; --cut: calc(7px * var(--fs)); }
+    .act:nth-child(5n+1) .grid button { --g: #ffae3c; } .act:nth-child(5n+2) .grid button { --g: #3f8cff; }
+    .act:nth-child(5n+3) .grid button { --g: #a46bff; } .act:nth-child(5n+4) .grid button { --g: #ff7a3c; }
+    .act:nth-child(5n+5) .grid button { --g: #4fc25e; }
+    .grid button.boss { --g: #ff4f7b; }
+    .grid button:disabled { color: rgba(255, 246, 230, 0.5); }
+    .grid button:disabled small { color: rgba(255, 226, 168, 0.75); letter-spacing: 0.02em; font-size: calc(12px * var(--fs)); }
+    .grid small:empty { display: none; }
     .grid small { display: block; color: #ffd27a; letter-spacing: 0.1em; margin-top: 4px; }
     
     #lobby { justify-content: flex-start; overflow-y: auto; }
@@ -128,7 +215,9 @@
     .links { display: flex; flex-direction: column; gap: calc(8px * var(--fs)); width: 100%; max-width: 420px; text-align: left; }
     .opts { display: flex; flex-direction: column; gap: calc(12px * var(--fs)); width: 100%; max-width: 320px; }
     .opts .btn { width: 100%; }
-    #setErase[data-armed="1"] { border-color: #ff4f7b; background: rgba(140, 30, 50, 0.85); }
+    #setErase { --g: #b8304e; }
+    #setErase[data-armed="1"]::after { filter: brightness(1.3) saturate(1.3); }
+    #setErase[data-armed="1"]::before { background: #ff4f7b; }
     .links label { font-size: calc(13px * var(--fs)); color: var(--brass); }
     .links input { width: 100%; min-height: 44px; padding: calc(8px * var(--fs)) calc(12px * var(--fs)); border-radius: calc(10px * var(--fs));
       background: rgba(0, 0, 0, 0.5); color: var(--ink); border: 1px solid rgba(240, 196, 112, 0.35); font: inherit;
@@ -164,7 +253,7 @@
       </div>
       <div class="right">
         <div class="chip" id="lanterns" title="Lanterns"></div>
-        <button id="pauseBtn" aria-label="Pause">II</button>
+        <button class="icon" id="pauseBtn" aria-label="Pause">II</button>
       </div>
     </div>
     <div id="bossbar" hidden><i id="bossfill"></i></div>
@@ -178,22 +267,29 @@
 
     <section class="screen" id="title">
       <h1 id="titleName">Glassbreak</h1>
-      <p id="blurb"></p>
-      <button class="big" id="start">Start</button>
-      <div class="row" id="modes">
-        <button class="btn" data-mode="gentle" aria-pressed="false">Gentle</button>
-        <button class="btn" data-mode="normal" aria-pressed="true">Normal</button>
-        <button class="btn" data-mode="hard" aria-pressed="false">Hard</button>
+      <p id="blurb" class="lede"></p>
+      <button class="big g-amber" id="start"><span id="startLabel">Start</span><small id="startWhere"></small></button>
+      <div class="row strip" id="modes" role="group" aria-label="Difficulty">
+        <button class="btn g-moss" data-mode="gentle" aria-pressed="false">Gentle</button>
+        <button class="btn g-amber" data-mode="normal" aria-pressed="true">Normal</button>
+        <button class="btn g-rose" data-mode="hard" aria-pressed="false">Hard</button>
       </div>
-      <div class="row"><button class="btn" id="friends">Play with friends</button><button class="btn" id="toSelect">Windows</button></div>
-      <div class="row"><button class="btn" id="sound" aria-pressed="true">Sound: on</button><button class="btn" id="toSettings">Settings</button></div>
-      <p class="tiny">Mouse or finger steers · Space or tap launches · Q / E or the swatches change colour</p>
+      <div class="row"><button class="btn g-rose" id="friends">Play with friends</button><button class="btn g-cobalt" id="toSelect">Windows</button></div>
+      <p class="tiny">Mouse, finger or stick steers · Space, tap or A launches · Q / E or bumpers change colour</p>
+      <div class="corner">
+        <button class="icon" id="sound" aria-pressed="true" aria-label="Sound on">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="on" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="off" d="M16 9l6 6M22 9l-6 6"/></svg>
+        </button>
+        <button class="icon" id="toSettings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>
+        </button>
+      </div>
     </section>
 
     <section class="screen" id="select" hidden>
       <h2>The Windows</h2>
       <div class="acts" id="acts"></div>
-      <div class="row"><button class="btn" id="selectBack">Back</button></div>
+      <div class="row"><button class="btn g-violet" id="selectBack">Back</button></div>
     </section>
 
     <section class="screen" id="lobby" hidden>
@@ -203,13 +299,13 @@
       <div class="links" id="links" hidden>
         <label for="joinLink">Play link</label>
         <input id="joinLink" readonly>
-        <div class="row"><button class="btn" id="shareJoin">Share Play link</button></div>
+        <div class="row"><button class="btn g-rose" id="shareJoin">Share Play link</button></div>
         <label for="watchLink">Watch link</label>
         <input id="watchLink" readonly>
-        <div class="row"><button class="btn" id="shareWatch">Share Watch link</button></div>
+        <div class="row"><button class="btn g-cobalt" id="shareWatch">Share Watch link</button></div>
       </div>
-      <button class="big" id="coopStart" hidden>Start</button>
-      <div class="row"><button class="btn" id="lobbyLeave">Back</button></div>
+      <button class="big g-amber" id="coopStart" hidden>Start</button>
+      <div class="row"><button class="btn g-violet" id="lobbyLeave">Back</button></div>
     </section>
 
     <div class="toast" id="toast" hidden></div>
@@ -217,40 +313,40 @@
     <section class="screen" id="pause" hidden>
       <h2>Paused</h2>
       <div class="row">
-        <button class="big" id="resume">Resume</button>
+        <button class="big g-amber" id="resume">Resume</button>
       </div>
       <div class="row">
-        <button class="btn" id="restart">Restart window</button>
-        <button class="btn" id="pauseSelect">Windows</button>
-        <button class="btn" id="pauseTitle">Title</button>
+        <button class="btn g-rose" id="restart">Restart window</button>
+        <button class="btn g-cobalt" id="pauseSelect">Windows</button>
+        <button class="btn g-violet" id="pauseTitle">Title</button>
       </div>
-      <div class="row"><button class="btn" id="soundPause" aria-pressed="true">Sound: on</button><button class="btn" id="pauseSettings">Settings</button></div>
+      <div class="row"><button class="btn g-moss" id="soundPause" aria-pressed="true">Sound: on</button><button class="btn g-violet" id="pauseSettings">Settings</button></div>
     </section>
 
     <section class="screen" id="settings" hidden>
       <h2>Settings</h2>
       <div class="opts">
-        <button class="btn" id="setSound" aria-pressed="true">Sound: on</button>
-        <button class="btn" id="setShake" aria-pressed="true">Screen shake: on</button>
-        <button class="btn" id="setStory" aria-pressed="true">Story scenes: on</button>
+        <button class="btn g-moss" id="setSound" aria-pressed="true">Sound: on</button>
+        <button class="btn g-amber" id="setShake" aria-pressed="true">Screen shake: on</button>
+        <button class="btn g-cobalt" id="setStory" aria-pressed="true">Story scenes: on</button>
         <button class="btn" id="setErase">Erase progress</button>
       </div>
       <p class="tiny" id="settingsNote">Every Magestican game shares this one sound switch.</p>
-      <div class="row"><button class="big" id="settingsBack">Back</button></div>
+      <div class="row"><button class="big g-violet" id="settingsBack">Back</button></div>
     </section>
 
     <section class="screen" id="tally" hidden>
       <h2 id="tallyName">Window clear</h2>
       <div class="stars" id="tallyStars"></div>
       <div class="tally" id="tallyRows"></div>
-      <button class="big" id="next">Next window</button>
-      <div class="row"><button class="btn" id="tallySelect">Windows</button></div>
+      <button class="big g-amber" id="next">Next window</button>
+      <div class="row"><button class="btn g-cobalt" id="tallySelect">Windows</button></div>
     </section>
 
     <section class="screen" id="fail" hidden>
       <h2>The Dusk took the window</h2>
       <p>The glass reached the deflectors with no lantern left. The ember rekindles in a moment.</p>
-      <div class="row"><button class="btn" id="failSelect">Windows</button><button class="btn" id="failTitle">Title</button></div>
+      <div class="row"><button class="btn g-cobalt" id="failSelect">Windows</button><button class="btn g-violet" id="failTitle">Title</button></div>
     </section>
 
     <section class="screen" id="story" hidden aria-live="polite">
@@ -258,17 +354,17 @@
       <p class="stage" id="storyStage"></p>
       <img class="face" id="storyFace" alt="" hidden>
       <div class="say" id="storySay"><b id="storyWho"></b><p id="storyText"></p></div>
-      <div class="row"><button class="big" id="storyNext">Next</button></div>
-      <div class="row"><button class="btn" id="storySkip">Skip</button></div>
+      <div class="row"><button class="big g-amber" id="storyNext">Next</button></div>
+      <div class="row"><button class="btn g-violet" id="storySkip">Skip</button></div>
     </section>
 
     <section class="screen" id="end" hidden>
       <h1>Daylight</h1>
       <div class="tally" id="endRows"></div>
-      <button class="big" id="endTitle">Title</button>
+      <button class="big g-amber" id="endTitle">Title</button>
     </section>
   </div>
-  <script type="module" src="src/game.js?v=e2a01047-20261123T222958Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=e2a01047-20261123T222958Z"></script>
+  <script type="module" src="src/game.js?v=714c67da-20261123T223656Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=714c67da-20261123T223656Z"></script>
 </body>
 </html>

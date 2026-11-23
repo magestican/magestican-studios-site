@@ -29,6 +29,7 @@ import {
 
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { emptyMarks, reportFor } from './report.js';
+import { BACK, keyAction, padHeld, padPresses, pickNext } from './menuNav.js';
 
 const $ = (id) => document.getElementById(id);
 const store = (() => { try { return window.localStorage; } catch { return null; } })();
@@ -53,7 +54,10 @@ const music = createTrackMusic({ game: 'glassbreak', manifestUrl: new URL('../as
 const sounds = createCuePlayer((cue) => { sfx.play(cue); if (DUCK_CUES.has(cue)) music.duck(0.4, 600); });
 function drawSound() {
   const on = uiSoundOn();
-  for (const id of ['sound', 'soundPause', 'setSound']) { $(id).textContent = on ? 'Sound: on' : 'Sound: off'; $(id).setAttribute('aria-pressed', String(on)); }
+  for (const id of ['soundPause', 'setSound']) { $(id).textContent = on ? 'Sound: on' : 'Sound: off'; $(id).setAttribute('aria-pressed', String(on)); }
+  
+  $('sound').setAttribute('aria-pressed', String(on));
+  $('sound').setAttribute('aria-label', on ? 'Sound on' : 'Sound off');
 }
 
 let sim = null;        
@@ -91,9 +95,69 @@ function show(scr) {
   $('hud').hidden = !inRun;
   $('tints').hidden = !(r && scr === SCR_PLAY && flying);
   $('hint').hidden = !(scr === SCR_PLAY && flying && launchHintShown(r, net ? net.room?.seat : 0));
-  const focus = { [SCR_TITLE]: 'start', [SCR_PAUSE]: 'resume', [SCR_TALLY]: 'next', [SCR_END]: 'endTitle', [SCR_STORY]: 'storyNext', [SCR_SETTINGS]: 'settingsBack' }[scr];
-  if (focus) $(focus).focus({ preventScroll: true });
+  if (scr === SCR_TITLE) drawStart();
+  
+  
+  const focus = { [SCR_TITLE]: 'start', [SCR_PAUSE]: 'resume', [SCR_TALLY]: 'next', [SCR_END]: 'endTitle', [SCR_STORY]: 'storyNext',
+    [SCR_SETTINGS]: 'settingsBack', [SCR_FAIL]: 'failSelect' }[scr];
+  const el = focus ? $(focus) : scr === SCR_SELECT ? selectPrimary() : focusables()[0];
+  if (el) el.focus({ preventScroll: scr !== SCR_SELECT });
+  else if (scr === SCR_PLAY) document.activeElement?.blur?.();
 }
+
+
+
+function drawStart() {
+  const wi = cheat ? launchOpts.stage : Math.min(progress.reached, WINDOWS.length - 1);
+  const back = !cheat && progress.reached > 0;
+  $('startLabel').textContent = back ? 'Continue' : 'Start';
+  const l = windowLabel(wi);
+  $('startWhere').textContent = back ? `${l.act} · ${l.name}` : '';
+}
+
+
+
+
+
+let navMode = false;
+function focusables() {
+  const id = SCREENS[screen];
+  if (!id) return [];
+  return [...$(id).querySelectorAll('button')].filter((b) => !b.disabled && b.offsetParent !== null);
+}
+function selectPrimary() {
+  const list = [...$('acts').querySelectorAll('button')];
+  const wi = Math.min(progress.reached, list.length - 1);
+  return list[wi] && !list[wi].disabled ? list[wi] : list.find((b) => !b.disabled);
+}
+function navMove(dir) {
+  const list = focusables();
+  if (!list.length) return;
+  const from = list.indexOf(document.activeElement);
+  const rects = list.map((b) => { const q = b.getBoundingClientRect(); return { x: q.left, y: q.top, w: q.width, h: q.height }; });
+  const i = pickNext(rects, from, dir);
+  if (i < 0) return;
+  if (i !== from) {
+    list[i].focus({ preventScroll: true });
+    list[i].scrollIntoView?.({ block: 'nearest' });
+    if (uiSoundOn()) ui.play('focus');
+  } else markLit(list[i]);
+}
+function navConfirm() {
+  const list = focusables();
+  const a = document.activeElement;
+  (list.includes(a) ? a : list[0])?.click();
+}
+function navBack() {
+  const id = BACK[SCREENS[screen]];
+  if (id && $(id) && !$(id).hidden) $(id).click();
+}
+function markLit(el) {
+  for (const x of document.querySelectorAll('.lit')) if (x !== el) x.classList.remove('lit');
+  if (el && navMode) el.classList.add('lit');
+}
+document.addEventListener('focusin', (e) => markLit(e.target.closest?.('button') || null));
+addEventListener('pointerdown', () => { navMode = false; markLit(null); }, true);
 
 function startRun(wi) {
   sim = createSim({ seed: (Date.now() & 0xffff) | 1, gentle: mode === 'gentle', hard: mode === 'hard', stage: wi });
@@ -144,7 +208,11 @@ function buildSelect() {
       b.textContent = open ? w.name : 'Locked';
       const st = document.createElement('small');
       const n = progress.stars[wi] || 0;
-      st.textContent = '★'.repeat(n) + '☆'.repeat(3 - n);
+      
+      
+      const nextLocked = !open && (wi === 0 || cheat || unlocked(progress, wi - 1));
+      st.textContent = open ? '★'.repeat(n) + '☆'.repeat(3 - n) : nextLocked ? `Clear ${WINDOWS[wi - 1]?.name ?? ''}` : '';
+      if (!open) b.setAttribute('aria-label', `Locked: clear ${WINDOWS[wi - 1]?.name ?? 'the window before'} first`);
       b.appendChild(st);
       b.addEventListener('click', () => startRun(wi));
       grid.appendChild(b);
@@ -299,6 +367,8 @@ async function openCoop() {
       $('watchLink').value = room.links.watch;
       $('links').hidden = false;
       $('coopStart').hidden = false;
+      
+      if (screen === SCR_LOBBY) $('coopStart').focus({ preventScroll: true });
       newCode.show(true);
       lobbyStatus('Share the Play link with up to three friends. Friends can join a window already under way.');
     } else {
@@ -460,12 +530,22 @@ function setPaused(p) {
 }
 
 addEventListener('keydown', (e) => {
-  if (e.code === 'Escape' || e.code === 'KeyP') { if (run() && screen === SCR_PLAY) setPaused(true); else if (screen === SCR_PAUSE) setPaused(false); else if (screen === SCR_SETTINGS) $('settingsBack').click(); return; }
-  if (screen === SCR_TITLE && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); $('start').click(); return; }
-  if (screen === SCR_TALLY && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); controls.next(); return; }
-  if (screen === SCR_STORY && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); storyNext(); return; }
-  if (['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
-  controls.key(e.code, true);
+  if (screen === SCR_PLAY) {
+    if (e.code === 'Escape' || e.code === 'KeyP') { setPaused(true); return; }
+    if (['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
+    controls.key(e.code, true);
+    return;
+  }
+  
+  if (screen === SCR_PAUSE && e.code === 'KeyP') { setPaused(false); return; }
+  const act = keyAction(e.code);
+  if (!act) return;
+  if (e.target?.tagName === 'INPUT' && (act === 'left' || act === 'right' || act === 'back')) return;
+  e.preventDefault();
+  navMode = true;
+  if (act === 'back') { if (!e.repeat) navBack(); return; }
+  if (act === 'confirm') { if (!e.repeat) navConfirm(); return; }
+  navMove(act);
 });
 addEventListener('keyup', (e) => controls.key(e.code, false));
 addEventListener('blur', () => { controls.keys.clear(); setPaused(true); });
@@ -518,10 +598,49 @@ function hud(s) {
 
 const DT = 1 / 60;
 let acc = 0, last = performance.now();
+
+
+let padState = null;
+const padKeys = new Set();
+function padKey(code, down) {
+  if (down === padKeys.has(code)) return;
+  if (down) padKeys.add(code); else padKeys.delete(code);
+  controls.key(code, down);
+}
+function pollPad(now) {
+  const pads = navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean) : [];
+  if (!pads.length && !padState) return;
+  const held = new Set();
+  for (const p of pads) for (const w of padHeld(p)) held.add(w);
+  const r = padPresses(padState, held, now);
+  padState = pads.length ? r.state : null;
+  if (screen === SCR_PLAY) {
+    padKey('ArrowLeft', held.has('left'));
+    padKey('ArrowRight', held.has('right'));
+    padKey('Space', held.has('confirm'));
+    for (const w of r.presses) {
+      if (w === 'tintPrev') controls.cycle(-1);
+      else if (w === 'tintNext') controls.cycle(1);
+      else if (w === 'start' || w === 'back') setPaused(true);
+    }
+    return;
+  }
+  for (const code of [...padKeys]) padKey(code, false);
+  if (r.presses.length) navMode = true;
+  for (const w of r.presses) {
+    if (w === 'back') navBack();
+    else if (w === 'confirm') navConfirm();
+    else if (w === 'start') { if (screen === SCR_PAUSE) setPaused(false); else navConfirm(); }
+    else navMove(w);
+    if (screen === SCR_PLAY) break;
+  }
+}
+
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
+  pollPad(now);
   if (net) { coopFrame(now, dt); return; }
   acc += dt;
   let steps = 0;
