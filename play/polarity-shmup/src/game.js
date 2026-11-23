@@ -21,7 +21,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound, playFile, preloadFiles, stopFile } from '../../../web-engine/brand/uiSound.js';
 import { createRadio } from './radio.js';
 import { VOICE_MS, afterIds, briefingIds, endingIds, introIds, voiceClip, voicePlan, voiced } from './voice.js';
-import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, followSound, killCue, hitTickCue, createHitStream, bossCue, createBossVoice } from './sound.js';
+import { SFX_TAKES, SFX_GAIN, MENU_CUES, MUSIC_TRACKS, createFlipWatch, soundToggleCue, viewTurnCue, followSound, killCue, hitTickCue, createHitStream, bossCue, createBossVoice } from './sound.js';
 import { createTellVoice, tellLook } from './skillLook.js';
 import { BOOM_BLOOM, BOOM_BOSS, BOOM_BURN, BOOM_DEFLECT, BURST_COST, ENEMY_CAP, PICK_CAP, REVIVE_TICKS, TICK_HZ, createSim, serialize, step, teamScore, thinAt } from './sim/sim.js';
 import { PICK_CUE, PICK_GLYPH, PICK_LOOK, POWER_END_CUE, pickPulse, powersEnded } from './pickups.js';
@@ -122,7 +122,7 @@ function drawSide() {
 sideBtn.addEventListener('click', () => {
   sidePref = sideNow ? 'off' : 'on';
   try { localStorage.setItem(SIDE_KEY, sidePref); } catch {  }
-  ui.play(soundToggleCue(!sideNow));
+  ui.play(viewTurnCue(!sideNow));
   layout();
 });
 function onTilt(e) {

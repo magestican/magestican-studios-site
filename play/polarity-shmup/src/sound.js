@@ -164,7 +164,7 @@ export function createHitStream(random = Math.random) {
 }
 
 
-export const MENU_CUES = Object.freeze(['tap', 'back', 'toggleOn', 'toggleOff', 'open']);
+export const MENU_CUES = Object.freeze(['tap', 'back', 'toggleOn', 'toggleOff', 'open', 'viewSide', 'viewUp']);
 
 
 export const MUSIC_TRACKS = Object.freeze(['main']);
@@ -179,6 +179,15 @@ export function flipCue(pol) {
 
 export function soundToggleCue(soundOn) {
   return soundOn ? 'toggleOn' : 'toggleOff';
+}
+
+
+
+
+
+
+export function viewTurnCue(sideways) {
+  return sideways ? 'viewSide' : 'viewUp';
 }
 
 
