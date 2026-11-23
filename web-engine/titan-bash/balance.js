@@ -9,11 +9,11 @@ import { TUNING as T } from './tuning.js';
 
 export const FRAMES = Object.freeze(['lancer', 'bulwark', 'wisp', 'mortar']);
 
-export function playTrial(seed, level = 'ace', frames = FRAMES, sleeper = true) {
+export function playTrial(seed, level = 'ace', frames = FRAMES, sleeper = true, arena = 'bellRing') {
   const players = HOUSES.map((h, i) => ({ house: h.id, titan: frames[i % frames.length] }));
-  const m = createMatch({ seed, arena: 'bellRing', players, sleeper });
+  const m = createMatch({ seed, arena, players, sleeper });
   const bots = players.map((_, i) => createBot(i, level, seed));
-  const tally = { bells: 0, selfBells: 0, ringOuts: 0, stalls: 0, perfect: 0, clangs: 0, slams: 0, abilities: 0, damage: {} };
+  const tally = { bells: 0, selfBells: 0, ringOuts: 0, stalls: 0, perfect: 0, clangs: 0, slams: 0, abilities: 0, shatters: 0, damage: {} };
   while (!m.over) {
     for (const e of step(m, bots.map((b) => botInput(b, m)))) {
       if (e.type === EVENT.BELL) {
@@ -26,6 +26,7 @@ export function playTrial(seed, level = 'ace', frames = FRAMES, sleeper = true) 
       if (e.type === EVENT.CLANG) tally.clangs += 1;
       if (e.type === EVENT.SLAM) tally.slams += 1;
       if (e.type === EVENT.ABILITY) tally.abilities += 1;
+      if (e.type === EVENT.SHATTER) tally.shatters += 1;
     }
   }
   
@@ -34,13 +35,13 @@ export function playTrial(seed, level = 'ace', frames = FRAMES, sleeper = true) 
   return { m, tally, winners };
 }
 
-export function runBalance({ trials = 30, level = 'ace', seed0 = 1, sleeper = true } = {}) {
+export function runBalance({ trials = 30, level = 'ace', seed0 = 1, sleeper = true, arena = 'bellRing' } = {}) {
   const wins = Object.fromEntries(FRAMES.map((f) => [f, 0]));
-  const sum = { bells: 0, selfBells: 0, ringOuts: 0, stalls: 0, perfect: 0, clangs: 0, slams: 0, abilities: 0 };
+  const sum = { bells: 0, selfBells: 0, ringOuts: 0, stalls: 0, perfect: 0, clangs: 0, slams: 0, abilities: 0, shatters: 0 };
   let seats = 0; const damage = {};
   const per = Object.fromEntries(FRAMES.map((f) => [f, { scored: 0, rung: 0, ringOuts: 0 }]));
   for (let i = 0; i < trials; i++) {
-    const { m, tally, winners } = playTrial(seed0 + i * 31, level, FRAMES, sleeper);
+    const { m, tally, winners } = playTrial(seed0 + i * 31, level, FRAMES, sleeper, arena);
     for (const w of winners) wins[w.frame] += 1 / winners.length;
     for (const k of Object.keys(sum)) sum[k] += tally[k];
     for (const [k, v] of Object.entries(tally.damage)) damage[k] = (damage[k] || 0) + v / trials;
@@ -50,7 +51,7 @@ export function runBalance({ trials = 30, level = 'ace', seed0 = 1, sleeper = tr
   const minutes = T.roundTime / 60;
   const share = Object.fromEntries(FRAMES.map((f) => [f, wins[f] / trials]));
   return {
-    trials, level, share,
+    trials, level, arena, share,
     bellsPerPilotRound: sum.bells / seats,
     bellsPerPilotMinute: sum.bells / seats / minutes,
     selfBellsPerTrial: sum.selfBells / trials,
@@ -60,6 +61,7 @@ export function runBalance({ trials = 30, level = 'ace', seed0 = 1, sleeper = tr
     clangsPerTrial: sum.clangs / trials,
     slamsPerTrial: sum.slams / trials,
     abilitiesPerTrial: sum.abilities / trials,
+    shattersPerTrial: sum.shatters / trials,
     damagePerTrial: damage,
     perFrameSeat: per,
   };

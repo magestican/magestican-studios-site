@@ -7,9 +7,9 @@ export const WEAPONS = Object.freeze({
   
   
   lance:  { kind: 'bolt', speed: 46, damage: 5.5, heat: 18, cooldown: 0.45, count: 1, spread: 0, range: 34 },
-  twin:   { kind: 'bolt', speed: 30, damage: 3.8, heat: 14, cooldown: 0.7,  count: 2, spread: 6, range: 30 },
+  twin:   { kind: 'bolt', speed: 30, damage: 3.5, heat: 14, cooldown: 0.7,  count: 2, spread: 6, range: 30 },
   needle: { kind: 'bolt', speed: 52, damage: 2.2, heat: 11, cooldown: 0.5,  count: 3, spread: 14, range: 24 },
-  lob:    { kind: 'lob',  flight: 0.6, damage: 7, heat: 25, cooldown: 0.9, count: 1, spread: 0, range: 26, splash: 3 },
+  lob:    { kind: 'lob',  flight: 0.6, damage: 7.3, heat: 25, cooldown: 0.9, count: 1, spread: 0, range: 26, splash: 3 },
 });
 
 export const TITANS = Object.freeze({

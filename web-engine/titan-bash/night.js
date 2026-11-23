@@ -8,6 +8,8 @@
 
 
 
+import { ARENAS, ARENA_ORDER } from './arenas.js';
+
 export const ROUND_CHOICES = Object.freeze([3, 4, 5]);
 export const DEFAULT_ROUNDS = 4;
 export const TEAM_CHOICES = Object.freeze([2, 3, 4]);
@@ -33,18 +35,22 @@ export function assignTeams(n, teams) {
 
 
 
-export function createNight({ rounds = DEFAULT_ROUNDS, mode = 'brawl', teams = 2, players = [], allNew = false } = {}) {
+export function createNight({ rounds = DEFAULT_ROUNDS, mode = 'brawl', teams = 2, players = [], allNew = false, arena = 'rotate' } = {}) {
   const m = MODES.includes(mode) ? mode : 'brawl';
   const k = TEAM_CHOICES.includes(teams) ? teams : 2;
   const seats = players.slice(0, 8).map((p, i) => ({ ...p, team: m === 'team' ? assignTeams(players.length, k)[i] : i }));
   return {
     rounds: ROUND_CHOICES.includes(rounds) ? rounds : DEFAULT_ROUNDS, mode: m, teams: m === 'team' ? k : seats.length,
+    arena: arena === 'rotate' || ARENAS[arena] ? arena : 'rotate',
     allNew: !!allNew, round: 0, seats, scores: seats.map(() => 0), bells: seats.map(() => 0), cards: [],
   };
 }
 
 
-export function matchOptions(night, { seed = 1, arena = 'bellRing' } = {}) {
+export const arenaFor = (night, round = night.round) => (night.arena && night.arena !== 'rotate' ? night.arena : ARENA_ORDER[round % ARENA_ORDER.length]);
+
+
+export function matchOptions(night, { seed = 1, arena = arenaFor(night) } = {}) {
   return { seed, arena, mode: night.mode, players: night.seats, sleeper: !(night.round === 0 && night.allNew) };
 }
 

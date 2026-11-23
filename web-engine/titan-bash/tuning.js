@@ -66,6 +66,12 @@ export const TUNING = Object.freeze({
   stormWallKnock: 12,       
   stormWallEvery: 0.5,      
 
+  crystalRegrow: 20,        
+  tideEvery: 30,            
+  tideWarn: 3,              
+  tideKnock: 26,            
+  tideDamage: 4,
+
   
   lumenEvery: 12,           
   lumenCap: 1,

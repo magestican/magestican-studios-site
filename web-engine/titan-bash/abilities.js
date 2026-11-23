@@ -7,11 +7,11 @@
 
 
 import { HZ, secs, TUNING as T } from './tuning.js';
-import { ARENAS } from './arenas.js';
+import { ARENAS, onFloor } from './arenas.js';
 
 export const ABILITIES = Object.freeze({
   bladeLunge:  { name: 'Blade Lunge', distance: 14, time: 0.3, damage: 10, knock: 26, reach: 3.6, arc: 120, heat: 12 },
-  aegis:       { name: 'Aegis', time: 2.0, arc: 140, walkMul: 0.6, lobMul: 0.5, heat: 8 },
+  aegis:       { name: 'Aegis', time: 1.6, arc: 140, walkMul: 0.6, lobMul: 0.5, heat: 8 },
   afterimage:  { name: 'Afterimage', distance: 8, decoyTime: 1.5, heat: 10 },
   seedBarrage: { name: 'Seed Barrage', count: 5, ring: 3, delay: 1.0, damage: 7, splash: 2.5, range: 26, aimDefault: 14, heat: 16 },
 });
@@ -66,8 +66,10 @@ function blink(m, t, dx, dy, dist, ctx) {
   const stepLen = 0.25; const edge = T.radius + 0.5;
   for (let s = stepLen; s <= dist + 1e-9; s += stepLen) {
     const nx = t.x + dx * stepLen; const ny = t.y + dy * stepLen;
-    if (ctx.blockedByCover(arena, nx, ny, T.radius)) break;
+    if (ctx.blockedByCover(m.cover || arena, nx, ny, T.radius)) break;
     if (Math.abs(nx) > arena.w / 2 - edge || Math.abs(ny) > arena.h / 2 - edge) break;
+    
+    if (arena.floor && !onFloor(arena, nx, ny, T.radius * 0.5)) break;
     t.x = nx; t.y = ny;
   }
   t.vx = 0; t.vy = 0;

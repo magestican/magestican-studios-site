@@ -8,7 +8,7 @@
 
 import { TUNING as T, HZ, DT, secs } from './tuning.js';
 import { TITANS, WEAPONS, HOUSES } from './titans.js';
-import { ARENAS } from './arenas.js';
+import { ARENAS, onFloor, coverOf } from './arenas.js';
 import { makeRng, nextRandom } from './rng.js';
 import * as Abilities from './abilities.js';
 import { SLEEPER_EVENT, createSleeper, tickSleeper, reachesCore, hitCore } from './sleeper.js';
@@ -18,6 +18,7 @@ export const EVENT = Object.freeze({
   ROUGH_VENT: 'roughVent', REDLINE: 'redline', RATTLED: 'rattled', BELL: 'bell', DROP: 'drop', FIRE: 'fire',
   DASH: 'dash', BLOCKED: 'blocked', STORM: 'storm', END: 'end', ABILITY: 'ability', REFLECT: 'reflect',
   LUMEN_FALL: 'lumenFall', LUMEN: 'lumen', LUMEN_OVERDRIVE: 'lumenOverdrive',
+  SHATTER: 'shatter', REGROW: 'regrow', TIDE_WARN: 'tideWarn', TIDE: 'tide',
   ...SLEEPER_EVENT,
 });
 
@@ -57,7 +58,9 @@ function makeDummy(id, d) {
 export function createMatch({ seed = 1, arena = 'bellRing', players = [], sleeper = true, mode = 'brawl', endless = false, dummies = [] } = {}) {
   const a = ARENAS[arena] ? arena : 'bellRing';
   const spawns = ARENAS[a].spawns;
+  const crystals = (ARENAS[a].crystals || []).map((c) => ({ ...c, down: 0 }));
   return {
+    crystals, cover: coverOf(ARENAS[a], crystals), tide: { bridge: -1, warn: 0 },
     seed, tick: 0, rng: makeRng(seed), arena: a, over: false, storm: false, mode: mode === 'team' ? 'team' : 'brawl',
     titans: [...players.slice(0, 8).map((p, i) => makeTitan(i, p, spawns[i % spawns.length])),
       ...dummies.map((d, k) => makeDummy(Math.min(8, players.length) + k, d))],
@@ -71,7 +74,8 @@ export const isStorm = (m) => !m.endless && m.tick >= secs(T.roundTime - T.storm
 export function stormBounds(m) {
   const a = ARENAS[m.arena];
   const into = m.endless ? 0 : m.tick - secs(T.roundTime - T.stormTime);
-  const f = into <= 0 ? 1 : 1 - (1 - T.stormWallMin) * Math.min(1, into / secs(T.stormWallTime));
+  const min = a.stormWallMin ?? T.stormWallMin;
+  const f = into <= 0 ? 1 : 1 - (1 - min) * Math.min(1, into / secs(T.stormWallTime));
   return { hw: (a.w / 2) * f, hh: (a.h / 2) * f };
 }
 
@@ -98,7 +102,8 @@ const heatFree = (t) => t.overdrive > 0 || t.lumenTime > 0;
 function lumenSafe(m, x, y) {
   const a = ARENAS[m.arena]; const { hw, hh } = stormBounds(m);
   if (Math.abs(x) > hw - 1.2 || Math.abs(y) > hh - 1.2) return false;
-  return !blockedByCover(a, x, y, 1.2);
+  if (a.floor && !onFloor(a, x, y, 1.2)) return false; 
+  return !blockedByCover(m.cover, x, y, 1.2);
 }
 
 function nearestSafe(m, x, y) {
@@ -467,7 +472,7 @@ function moveShots(m, events) {
       continue;
     }
     s.x += s.vx * DT; s.y += s.vy * DT;
-    if (s.life <= 0 || blockedByCover(arena, s.x, s.y, 0)) continue;
+    if (s.life <= 0 || blockedByCover(m.cover, s.x, s.y, 0)) continue;
     if (reachesCore(m, s.x, s.y, 0.3)) { hitCore(m, s.owner, events); continue; }
     let hit = false;
     for (const d of m.decoys) {
@@ -497,6 +502,62 @@ function moveShots(m, events) {
 
 const CTX = Object.freeze({ damage, norm, rivals, autoAim, blockedByCover, dmgMul,
   abilityOf: (t) => TITANS[t.frame].ability });
+
+
+
+
+function shatterCrystals(m, t, events) {
+  for (const c of m.crystals) {
+    if (c.down > 0 || Math.hypot(t.x - c.x, t.y - c.y) >= c.r + T.radius + 0.2) continue;
+    c.down = secs(T.crystalRegrow);
+    t.dash = 0; t.vx *= -0.2; t.vy *= -0.2;
+    m.cover = coverOf(ARENAS[m.arena], m.crystals);
+    events.push({ type: EVENT.SHATTER, by: t.id, x: c.x, y: c.y });
+    return;
+  }
+}
+function regrowCrystals(m, events) {
+  let changed = false;
+  for (const c of m.crystals) {
+    if (c.down <= 0) continue;
+    if (c.down > 1) { c.down -= 1; continue; }
+    if (m.titans.some((t) => t.alive && Math.hypot(t.x - c.x, t.y - c.y) < c.r + T.radius)) continue;
+    c.down = 0; changed = true;
+    events.push({ type: EVENT.REGROW, x: c.x, y: c.y });
+  }
+  if (changed) m.cover = coverOf(ARENAS[m.arena], m.crystals);
+}
+
+
+
+
+
+export function tideBridgeAt(arena, tick) {
+  const n = Math.floor((tick + secs(T.tideWarn)) / secs(T.tideEvery));
+  return n >= 1 ? arena.tide.bridges[(n - 1) % arena.tide.bridges.length] : -1;
+}
+function tickTide(m, arena, events) {
+  const every = secs(T.tideEvery); const warn = secs(T.tideWarn);
+  const phase = (m.tick + warn) % every;
+  if (m.tick + warn < every) return;
+  if (phase === 0) {
+    m.tide = { bridge: tideBridgeAt(arena, m.tick), warn };
+    events.push({ type: EVENT.TIDE_WARN, bridge: m.tide.bridge });
+  }
+  if (m.tide.warn > 0) {
+    m.tide.warn -= 1;
+    if (m.tide.warn > 0) return;
+    const f = arena.floor[m.tide.bridge];
+    const dir = arena.tide.knockY;
+    for (const t of m.titans) {
+      if (!t.alive || Math.abs(t.x - f.x) > f.w / 2 || Math.abs(t.y - f.y) > f.h / 2) continue;
+      t.ky += dir * T.tideKnock;
+      damage(m, t, T.tideDamage, null, 0, dir, 0, 'tide', events);
+    }
+    events.push({ type: EVENT.TIDE, bridge: m.tide.bridge });
+    m.tide = { bridge: -1, warn: 0 };
+  }
+}
 
 const SLEEPER_CTX = Object.freeze({ damage, norm, bounty: bountyOf });
 
@@ -554,18 +615,22 @@ export function step(m, inputs = []) {
     t.x += (t.vx + t.kx) * DT; t.y += (t.vy + t.ky) * DT;
     const decay = Math.max(0, 1 - T.knockDrag * DT);
     t.kx *= decay; t.ky *= decay;
-    pushOutOfCover(arena, t);
+    if (t.dash > 0 && m.crystals.length) shatterCrystals(m, t, events);
+    pushOutOfCover(m.cover, t);
     stormWall(m, t, events);
     if (!t.alive) continue;
     const hw = arena.w / 2; const hh = arena.h / 2;
     if (arena.openEdges) {
-      if (Math.abs(t.x) > hw || Math.abs(t.y) > hh) ringBell(m, t, true, events);
+      
+      if (!onFloor(arena, t.x, t.y)) ringBell(m, t, true, events);
     } else {
       t.x = Math.max(-hw + T.radius, Math.min(hw - T.radius, t.x));
       t.y = Math.max(-hh + T.radius, Math.min(hh - T.radius, t.y));
     }
   }
 
+  if (m.crystals.length) regrowCrystals(m, events);
+  if (arena.tide) tickTide(m, arena, events);
   tickSleeper(m, events, SLEEPER_CTX);
   for (const t of m.titans) if (t.alive) lumenPickup(m, t, events);
   lumenFall(m, events);

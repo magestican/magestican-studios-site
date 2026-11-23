@@ -7,8 +7,9 @@ import { TUNING as T, HZ } from './tuning.js';
 import { TITANS, WEAPONS } from './titans.js';
 import { makeRng, nextRandom } from './rng.js';
 import { bounty } from './sim.js';
-import { ARENAS } from './arenas.js';
+import { ARENAS, onFloor } from './arenas.js';
 import { inSweep, sleeperAwake } from './sleeper.js';
+import { ABILITIES } from './abilities.js';
 
 
 export const LUMEN_SEEK_RIVAL = 12;
@@ -26,6 +27,7 @@ export const BOT_LEVELS = Object.freeze({
   ace:   { dashGap: 70, think: 10, heatCap: 97, ventPerfect: 0.6,  dashChance: 0.45, aimJitter: 0.08, abilityChance: 0.9 },
 });
 
+const LUNGE_M = ABILITIES.bladeLunge.distance;
 const KEEP_AT = { lancer: 11, bulwark: 8, wisp: 11, mortar: 13 };
 
 export function createBot(id, level = 'pilot', seed = 1) {
@@ -33,7 +35,60 @@ export function createBot(id, level = 'pilot', seed = 1) {
     next: 0, plan: { mx: 0, my: 0, fire: false, boost: false, ability: false }, ventAt: -1, lastDash: -1e9, side: id % 2 ? 1 : -1 };
 }
 
+
 export function botInput(bot, m) {
+  const p = thinkInput(bot, m);
+  const A = ARENAS[m.arena];
+  const me = m.titans[bot.id];
+  return A.floor && me && me.alive ? keepOnStone(A, m, me, p) : p;
+}
+
+
+function seaAlong(A, x, y, ux, uy, max) {
+  for (let s = 0.5; s <= max; s += 0.5) if (!onFloor(A, x + ux * s, y + uy * s)) return s;
+  return max;
+}
+
+
+
+
+function keepOnStone(A, m, me, plan) {
+  const p = { ...plan };
+  const near = 5;
+  for (const [ux, uy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    const e = seaAlong(A, me.x, me.y, ux, uy, near);
+    if (e < near) { p.mx -= ux * (near - e) / 1.5; p.my -= uy * (near - e) / 1.5; }
+  }
+  const tide = m.tide;
+  if (tide && tide.warn > 0) {
+    const f = A.floor[tide.bridge];
+    if (Math.abs(me.x - f.x) <= f.w / 2 && Math.abs(me.y - f.y) <= f.h / 2) {
+      const safeY = f.y - A.tide.knockY * (f.h / 2 - 0.6); 
+      p.my = Math.max(-1, Math.min(1, (safeY - me.y) * 1.5));
+    }
+  }
+  const l = Math.hypot(p.mx, p.my);
+  if (l > 1e-6) {
+    
+    const ux = p.mx / l; const uy = p.my / l;
+    if (!onFloor(A, me.x + ux * 2.5, me.y + uy * 2.5)) {
+      if (onFloor(A, me.x + Math.sign(ux) * 2.5, me.y)) p.my = 0;
+      else if (onFloor(A, me.x, me.y + Math.sign(uy) * 2.5)) p.mx = 0;
+      else { p.mx = 0; p.my = 0; }
+    }
+  }
+  
+  if (me.stall === 0) {
+    const ml = Math.hypot(p.mx, p.my);
+    const [dx, dy] = ml > 0.2 ? [p.mx / ml, p.my / ml] : [Math.cos(me.facing), Math.sin(me.facing)];
+    const lunge = p.ability && TITANS[me.frame].ability === 'bladeLunge';
+    if (p.boost && seaAlong(A, me.x, me.y, dx, dy, T.dashDistance + 2) <= T.dashDistance + 1.5) p.boost = false;
+    if (lunge && seaAlong(A, me.x, me.y, dx, dy, LUNGE_M + 2) <= LUNGE_M + 1.5) p.ability = false;
+  }
+  return p;
+}
+
+function thinkInput(bot, m) {
   const me = m.titans[bot.id];
   const L = BOT_LEVELS[bot.level];
   const r = () => nextRandom(bot.rng);
@@ -75,7 +130,7 @@ export function botInput(bot, m) {
     const dirFor = (sd) => [sd * (-ry / rl) * 0.9 + (rx / rl) * 0.3, sd * (rx / rl) * 0.9 + (ry / rl) * 0.3];
     let side = da >= 0 ? 1 : -1;
     const Ar = ARENAS[m.arena];
-    const clear = (sd) => { const [ux, uy] = dirFor(sd); return !coverNear(Ar, me.x + ux * 4, me.y + uy * 4); };
+    const clear = (sd) => { const [ux, uy] = dirFor(sd); return !coverNear(m.cover || Ar, me.x + ux * 4, me.y + uy * 4); };
     if (Math.abs(da) < 0.25 && !clear(side) && clear(-side)) side = -side;
     const [mx, my] = dirFor(side);
     const ok = m.tick - bot.lastDash >= L.dashGap / 2 && me.heat + T.heatDash < L.heatCap;
