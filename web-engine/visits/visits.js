@@ -267,6 +267,9 @@ const SLUG_TO_GAME_ID = Object.freeze({
   
   
   glowtail: 'glimmercoil',
+  
+  
+  'titan-bash': 'ringtitans',
 });
 
 export function gameIdFromPath(href = '') {

@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "03a13d7a-20261123T202229Z",
+ "buildId": "31250529-20261123T205908Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -1029,6 +1029,38 @@
    "bytes": 11479211
   },
   {
+   "id": "ringtitans",
+   "statsId": "ringtitans",
+   "title": "Ringtitans",
+   "tagline": "Up to eight friends on one screen, phones as controllers: pilot a giant Titan and ring every rival's Bell.",
+   "description": "A giant robot party game that runs in your browser: up to eight friends in one room each pilot a Titan on one shared screen, with their phones as controllers. Dash, slam and run hot on the Red Line across three arenas; CPU pilots fill every empty seat.",
+   "dir": "play/titan-bash",
+   "path": "play/titan-bash/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/ringtitans.html",
+   "orientation": "any",
+   "players": "1-8",
+   "online": false,
+   "offline": false,
+   "cover": "assets/covers/ringtitans-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/ringtitans/0.webp",
+    "assets/shots/ringtitans/1.webp"
+   ],
+   "accent": "#ff8a1f",
+   "glyph": "ringtitans",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 34,
+   "addedAt": "2026-11-24",
+   "bytes": 5318531
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -1056,7 +1088,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 35,
+   "order": 36,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1088,7 +1120,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 36,
+   "order": 37,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1120,7 +1152,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 37,
+   "order": 38,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1152,7 +1184,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 38,
+   "order": 39,
    "addedAt": "2026-09-21",
    "bytes": 228531
   }

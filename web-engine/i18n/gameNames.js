@@ -101,6 +101,9 @@ export const GAME_NAMES = Object.freeze({
   
   
   
+  
+  
+  ringtitans: { en: 'Ringtitans', es: 'Ringtitans: Batalla de robots gigantes', pt: 'Ringtitans: Batalha de robôs gigantes', tl: 'Ringtitans: Labanan ng Higanteng Robot', ja: 'Ringtitans 巨大ロボット対戦', ko: 'Ringtitans 거대 로봇 대전', id: 'Ringtitans: Pertarungan Robot Raksasa', vi: 'Ringtitans: Đại chiến robot khổng lồ' },
   glimmercoil: { en: 'Glimmercoil', es: 'Glimmercoil: Juego de la serpiente', pt: 'Glimmercoil: Jogo da cobrinha', tl: 'Glimmercoil: Laro ng Ahas', ja: 'Glimmercoil スネークゲーム', ko: 'Glimmercoil 뱀 게임', id: 'Glimmercoil: Game Ular', vi: 'Glimmercoil: Trò chơi rắn săn mồi' },
   'tiny-throttle': { en: 'Tiny Throttle', es: 'Tiny Throttle: Carreras de coches RC', pt: 'Tiny Throttle: Corrida de carrinhos RC', tl: 'Tiny Throttle: Karera ng RC na Kotse', ja: 'Tiny Throttle ラジコンレース', ko: 'Tiny Throttle RC카 레이싱', id: 'Tiny Throttle: Balap Mobil RC', vi: 'Tiny Throttle: Đua xe điều khiển' },
   

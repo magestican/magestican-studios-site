@@ -106,6 +106,8 @@ export const GLYPHS = Object.freeze({
   flipwake: 'M12 2l5 9h-10zM12 13a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zM12 13v9',
   
   
+  ringtitans: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM9 15v-4a3 3 0 0 1 6 0v4zM8 15h8M12 17v.01',
+  
   glimmercoil: 'M3 13a4.5 4.5 0 0 1 9 0a4.5 4.5 0 0 0 9 0M5 6h.01M12 5h.01M19 19h.01',
   'tiny-throttle': 'M3 16v-4l3-4h9l4 4h2v4M9 12h6M5 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0M15 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0',
   

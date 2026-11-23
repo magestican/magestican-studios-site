@@ -455,7 +455,7 @@ function onCode(code, state) {
   $('room-code').textContent = code.slice(PREFIX.length).toUpperCase();
   $('room-link').textContent = url.replace(/^https?:\/\//, '');
   
-  $('copy-link').onclick = () => shareLink({ link: url, gameName: 'Titan Bash', code: code.slice(PREFIX.length).toUpperCase(), button: $('copy-link') });
+  $('copy-link').onclick = () => shareLink({ link: url, gameName: 'Ringtitans', code: code.slice(PREFIX.length).toUpperCase(), button: $('copy-link') });
   if (qrFor !== code) {
     qrFor = code;
     document.querySelectorAll('.device-qr-card, .device-qr-chip').forEach((el) => el.remove());
@@ -499,7 +499,7 @@ if (joinCode) {
     e.preventDefault();
     const code = normaliseCode($('join-code').value, PREFIX);
     if (code) location.search = `?join=${encodeURIComponent(code)}`;
-    else { $('join-code').setCustomValidity('That is not a Titan Bash code'); $('join-code').reportValidity(); }
+    else { $('join-code').setCustomValidity('That is not a Ringtitans code'); $('join-code').reportValidity(); }
   });
   $('join-code').addEventListener('input', () => $('join-code').setCustomValidity(''));
   bootScreen();
