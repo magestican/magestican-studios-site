@@ -15,6 +15,7 @@ export const SFX_TAKES = Object.freeze({
   shoalBite: 3,
   encircle1: 1, encircle2: 1, encircle3: 1,
   shoal: 1, descend: 1, death: 1, surface: 1,
+  nearMiss: 1, 
 });
 
 
@@ -42,6 +43,7 @@ function cueFor(e) {
     case 'descend': return 'descend';
     case 'death': return 'death';
     case 'surface': return 'surface';
+    case 'nearMiss': return 'nearMiss';
     default: return null; 
   }
 }
