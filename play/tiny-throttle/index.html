@@ -88,7 +88,17 @@
     #banner[hidden] { display: none; }
     
     #pads { position: fixed; left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); display: none;
-      justify-content: space-between; align-items: flex-end; pointer-events: none; gap: 12px; }
+      justify-content: flex-end; align-items: flex-end; pointer-events: none; gap: 12px; }
+    
+    #steer { position: fixed; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.7); background: rgba(0, 0, 0, 0.12); pointer-events: none; }
+    #steer[hidden] { display: none; }
+    #steer span { position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px;
+      border-radius: 50%; background: var(--panel); border: 4px solid var(--ink);
+      transform: translateX(clamp(-44px, var(--knob, 0px), 44px)); }
+    .keys .tap { display: none; }
+    body.touch .keys .tap { display: inline; }
+    body.touch .keys .kb { display: none; }
     body.touch #pads.on { display: flex; }
     .pad-group { display: flex; gap: 12px; }
     .pad { pointer-events: auto; width: 76px; height: 76px; border-radius: 50%; border: 4px solid var(--ink);
@@ -111,16 +121,15 @@
     <p class="sub" id="blurb">Race a toy RC car round a giant kitchen, up the cutting board and over the sink.</p>
     <button id="start" class="big" disabled>Loading</button>
     <nav id="tracks" aria-label="Pick a track"><span class="pick">Pick a track</span><div id="trackList"></div></nav>
-    <p class="keys" id="keys">Arrows or WASD to drive &middot; Space to hop &middot; Shift to drift</p>
+    <p class="keys" id="keys"><span class="kb">Arrows or WASD to drive &middot; Space to hop &middot; Shift to drift</span><span class="tap">Drag anywhere to steer &middot; HOP to jump &middot; BRK to brake</span></p>
   </section>
   <div id="hud" hidden>
     <div class="chip" id="pos">12<small>/12</small></div>
     <div class="right"><div class="chip" id="lap">Lap 1/4</div><div class="chip" id="time">0:00.00</div></div>
   </div>
   <div id="banner" hidden></div>
+  <div id="steer" hidden aria-hidden="true"><span></span></div>
   <div id="pads">
-    <div class="pad-group"><button class="pad" data-k="left" aria-label="Steer left">&#9664;</button>
-      <button class="pad" data-k="right" aria-label="Steer right">&#9654;</button></div>
     <div class="pad-group"><button class="pad" data-k="brake" aria-label="Brake">BRK</button>
       <button class="pad hop" data-k="hop" aria-label="Hop">HOP</button></div>
   </div>
@@ -129,7 +138,7 @@
     <table id="table"></table>
     <button id="again" class="big">Race again</button>
   </section>
-  <script type="module" src="./src/main.js?v=288abd68-20261123T103534Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=288abd68-20261123T103534Z"></script>
+  <script type="module" src="./src/main.js?v=2193b53f-20261123T104907Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=2193b53f-20261123T104907Z"></script>
 </body>
 </html>

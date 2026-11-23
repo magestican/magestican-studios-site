@@ -10,6 +10,7 @@ import { createRace, stepRace, standings, PHASE } from './race.js';
 import { loadModels, createView } from './render.js';
 import { formatTime, ordinal } from '../../../web-engine/kart/raceProgress.js';
 import { countdownText } from '../../../web-engine/kart/raceFlow.js';
+import { createTouchSteer } from './touchSteer.js';
 
 const q = new URLSearchParams(location.search);
 const def = TRACKS[q.get('track') ?? 'H1'] ?? TRACKS.H1;
@@ -87,12 +88,40 @@ addEventListener('pointerdown', (e) => {
 }, { capture: true });
 if (matchMedia('(pointer: coarse)').matches) { isTouch = true; document.body.classList.add('touch'); }
 
+
+
+const steerTouch = createTouchSteer();
+const steerRing = $('steer');
+const fitSteerRange = () => steerTouch.setRange(Math.min(90, Math.max(48, innerWidth * 0.16)));
+fitSteerRange();
+addEventListener('resize', fitSteerRange);
+function showSteer() {
+  if (!steerTouch.active) { steerRing.hidden = true; return; }
+  steerRing.hidden = false;
+  steerRing.style.left = `${steerTouch.centre}px`;
+  steerRing.style.setProperty('--knob', `${(steerTouch.x - steerTouch.centre).toFixed(1)}px`);
+}
+const gameEl = $('game');
+gameEl.addEventListener('pointerdown', (e) => {
+  if (!running) return;
+  if (!steerTouch.down(e.pointerId, e.clientX)) return;
+  e.preventDefault();
+  try { gameEl.setPointerCapture(e.pointerId); } catch {  }
+  steerRing.style.top = `${e.clientY}px`;
+  showSteer();
+});
+gameEl.addEventListener('pointermove', (e) => { steerTouch.move(e.pointerId, e.clientX); showSteer(); });
+for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) {
+  gameEl.addEventListener(ev, (e) => { steerTouch.up(e.pointerId); showSteer(); });
+}
+
 function readInput() {
   const has = (k) => keys.has(k) || touch.has(k);
   
   const throttle = has('down') || has('brake') ? -1 : (has('up') || isTouch ? 1 : 0);
   
-  const steer = (has('right') ? 1 : 0) - (has('left') ? 1 : 0);
+  const keySteer = (has('right') ? 1 : 0) - (has('left') ? 1 : 0);
+  const steer = keySteer || steerTouch.value();
   return { throttle, steer, drift: has('drift'), jump: has('hop') };
 }
 
@@ -237,6 +266,8 @@ function results() {
   $('banner').hidden = true;
   bannerUntil = 0;
   $('pads').classList.remove('on');
+  steerTouch.reset();
+  showSteer();
   const table = standings(race.progress);
   const me = table.find((t) => t.id === 'you');
   $('place').textContent = me ? `${ordinal(me.position)}${me.position === 1 ? '!' : ''}` : 'Finished';
