@@ -91,6 +91,7 @@
     #pops { position: fixed; left: 0; right: 0; top: 22%; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
     .pop { font: 900 22px/1 system-ui, sans-serif; color: var(--gold); text-shadow: 0 0 12px rgba(255, 211, 90, 0.8); animation: rise 1.4s ease-out forwards; }
     .pop.big { font-size: clamp(26px, 7vw, 40px); color: #b8fff0; text-shadow: 0 0 18px #5affe0; }
+    .pop.near { font-size: 20px; color: #f2fbff; text-shadow: 0 0 14px #bfe9ff; }
     @keyframes rise { from { opacity: 0; transform: translateY(16px) scale(0.8); } 15% { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-30px); } }
     #over, #pause { background: rgba(1, 12, 20, 0.62); backdrop-filter: blur(3px); }
     #overTitle { margin: 0; font: 900 clamp(36px, 10vw, 64px)/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 18px var(--glow); }
@@ -107,6 +108,7 @@
     <p class="sub">The grid snake, reborn in light. Dive from the shallows to the trench, and circle whole shoals with your body.</p>
     <button class="big" data-mode="dive" autofocus>Dive</button>
     <div class="row">
+      <button class="ghost" data-mode="daily">Today's dive</button>
       <button class="ghost" data-mode="classic">Classic board</button>
       <button class="ghost" id="gentle" aria-pressed="false">Gentle speed: off</button>
       <button class="ghost soundToggle" aria-pressed="true">Sound on</button>
@@ -141,7 +143,7 @@
     <button class="ghost" id="menu">Menu</button>
   </section>
 
-  <script type="module" src="./src/main.js?v=354aeea9-20261123T165643Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=354aeea9-20261123T165643Z"></script>
+  <script type="module" src="./src/main.js?v=b1755739-20261123T171818Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=b1755739-20261123T171818Z"></script>
 </body>
 </html>

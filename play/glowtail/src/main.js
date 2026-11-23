@@ -5,8 +5,11 @@
 
 
 
+
 import { createState, enqueue, step, tickMs, enterNextDepth } from './sim.js';
 import { DEPTHS } from './depths.js';
+import { dateKey, seedFor, bestKey } from './daily.js';
+import { createRecorder, record, pack, unpack, keeps, ghostAt } from './ghost.js';
 import { createRenderer } from './render.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
@@ -28,7 +31,25 @@ const BEST_KEY = 'glowtail.best.v1';
 const best = (() => { try { return JSON.parse(localStorage.getItem(BEST_KEY)) || {}; } catch { return {}; } })();
 const saveBest = () => { try { localStorage.setItem(BEST_KEY, JSON.stringify(best)); } catch {  } };
 
-let mode = params.get('mode') === 'classic' ? 'classic' : 'dive';
+const MODES = ['dive', 'classic', 'daily'];
+let mode = MODES.includes(params.get('mode')) ? params.get('mode') : 'dive';
+let runDay = new Date(); 
+
+
+const GHOST_KEY = (m) => `glowtail.ghost.v1.${m}`;
+let ghost = null;
+let recorder = createRecorder();
+function loadGhost() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(GHOST_KEY(mode)));
+    const g = unpack(raw);
+    return g && raw.slot === bestKey(mode, runDay) ? g : null;
+  } catch { return null; }
+}
+function saveGhost() {
+  if (!keeps(ghost, state.score)) return;
+  try { localStorage.setItem(GHOST_KEY(mode), JSON.stringify({ ...pack(recorder, state.score), slot: bestKey(mode, runDay) })); } catch {  }
+}
 let gentle = params.get('gentle') === '1' || best.gentle === true;
 let state = newState();
 let running = false;
@@ -39,6 +60,7 @@ let descendAt = 0;
 
 function newState() {
   const depth = Math.max(0, Math.min(DEPTHS.length - 1, (parseInt(params.get('depth'), 10) || 1) - 1));
+  if (mode === 'daily') return createState({ mode: 'dive', depth: 0, seed: seedFor(dateKey(runDay)), gentle });
   const seed = parseInt(params.get('seed'), 10) || Math.floor(Math.random() * 1e9);
   return createState({ mode, depth, seed, gentle });
 }
@@ -127,13 +149,17 @@ for (const ev of ['pointerdown', 'keydown']) addEventListener(ev, () => syncMusi
 
 function start() {
   ui.play('start');
+  runDay = new Date();
   state = newState();
+  ghost = loadGhost();
+  recorder = createRecorder();
   view.reset();
   view.setDepth(state.depth, true);
   acc = 0; timeScale = 1; descendAt = 0;
   running = true; paused = false;
   show(null);
-  banner(state.mode === 'classic' ? 'Classic' : state.depth.name, state.mode === 'classic' ? 'Wrap board - eat, grow, circle' : `Depth ${state.depthIndex + 1} of ${DEPTHS.length}`);
+  if (mode === 'daily') banner("Today's dive", ghost ? `${dateKey(runDay)} - race your ghost` : dateKey(runDay));
+  else banner(state.mode === 'classic' ? 'Classic' : state.depth.name, state.mode === 'classic' ? 'Wrap board - eat, grow, circle' : `Depth ${state.depthIndex + 1} of ${DEPTHS.length}`);
   hud();
   syncMusic();
 }
@@ -166,7 +192,7 @@ function popup(text, kind) {
 
 function hud() {
   $('score').textContent = state.score.toLocaleString();
-  const key = mode;
+  const key = bestKey(mode, runDay);
   $('best').textContent = `Best ${(best[key] || 0).toLocaleString()}`;
   if (state.mode === 'classic') {
     $('depth').textContent = `Classic - length ${state.snake.length}`;
@@ -188,6 +214,11 @@ function handle(events) {
   for (const cue of cuesFor(events)) sfx.play(cue);
   for (const e of events) {
     if (e.type === 'bite') { popup(`+${e.points}`); vibrate(12); }
+    if (e.type === 'nearMiss') {
+      popup('Close!', 'near');
+      if (timeScale >= 1) { timeScale = 0.55; slowUntil = performance.now() + 220; } 
+      vibrate(8);
+    }
     if (e.type === 'encircle') {
       popup(e.count > 1 ? `CIRCLED x${e.count}  +${e.points.toLocaleString()}` : `CIRCLED  +${e.points}`, 'big');
       timeScale = 0.3; slowUntil = performance.now() + 450; 
@@ -211,12 +242,14 @@ function handle(events) {
 
 function finish(won) {
   running = false;
-  const key = mode;
+  const key = bestKey(mode, runDay);
   const isBest = state.score > (best[key] || 0);
   if (isBest) { best[key] = state.score; saveBest(); }
+  saveGhost();
   $('overTitle').textContent = won ? 'You reached the surface!' : 'Lights out';
   $('overScore').textContent = state.score.toLocaleString();
-  $('overBest').textContent = isBest ? 'New best!' : `Best ${(best[key] || 0).toLocaleString()}`;
+  $('overBest').textContent = (isBest ? 'New best!' : `Best ${(best[key] || 0).toLocaleString()}`)
+    + (mode === 'daily' ? ` - today's dive ${dateKey(runDay)}` : '');
   $('overDepth').textContent = state.mode === 'classic'
     ? `Length ${state.snake.length}`
     : `Reached ${state.depth.name} (depth ${state.depthIndex + 1} of ${DEPTHS.length})`;
@@ -256,6 +289,7 @@ function loop(now) {
       while (acc >= tickMs(state) && state.phase === 'play' && guard++ < 4) {
         acc -= tickMs(state);
         handle(step(state));
+        record(recorder, state);
       }
     } else if (state.phase === 'descend' && descendAt && now >= descendAt) {
       enterNextDepth(state);
@@ -266,7 +300,7 @@ function loop(now) {
     }
   }
   const alpha = state.phase === 'play' ? Math.min(1, acc / tickMs(state)) : 1;
-  view.frame(state, alpha, paused ? 0 : dt, { idle: !running });
+  view.frame(state, alpha, paused ? 0 : dt, { idle: !running, pace: running ? ghostAt(ghost, state.tick, state.depthIndex) : null });
   view.measure(dtReal);
 }
 requestAnimationFrame(loop);

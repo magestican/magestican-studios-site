@@ -15,6 +15,7 @@ export const W = 17;
 export const H = 17;
 export const QUEUE_MAX = 3;
 export const JELLY_EVERY = 3; 
+export const NEAR_MISS_GAP = 8; 
 
 export const DIRS = Object.freeze({
   up: Object.freeze({ x: 0, y: -1 }), down: Object.freeze({ x: 0, y: 1 }),
@@ -51,6 +52,11 @@ export function createState({ mode = 'dive', depth = 0, seed = 1, gentle = false
     score: 0, eatenInDepth: 0, eatenTotal: 0, bitesSinceShoal: 0, bestChain: 0,
     phase: 'play', tick: 0, events: [], shoalsSeen: 0,
     rand: rng(seed),
+    
+    
+    
+    moteRand: rng((seed ^ 0x9e3779b9) >>> 0),
+    lastNearMiss: -NEAR_MISS_GAP,
   };
   state.depth = mode === 'classic' ? CLASSIC : DEPTHS[state.depthIndex];
   state.prevSnake = state.snake.map((c) => ({ ...c }));
@@ -97,9 +103,17 @@ export function step(state) {
   if (state.phase !== 'play') return state.events;
   state.tick++;
   state.prevSnake = state.snake.map((c) => ({ ...c }));
+  const wasDir = state.dir;
   if (state.queue.length) state.dir = state.queue.shift();
   const d = DIRS[state.dir];
   const head = state.snake[0];
+  
+  
+  
+  const straight = state.dir !== wasDir
+    ? wrapOrNull(state, head.x + DIRS[wasDir].x, head.y + DIRS[wasDir].y) : null;
+  const dodged = straight && (bodySet(state.snake, state.grow <= 0).has(key(straight.x, straight.y)) ? 'body'
+    : state.jellies.some((j) => j.x === straight.x && j.y === straight.y) ? 'jelly' : null);
   const next = wrapOrNull(state, head.x + d.x, head.y + d.y);
   if (!next) return die(state, 'wall', { x: head.x + d.x, y: head.y + d.y });
   const growing = state.grow > 0;
@@ -109,6 +123,10 @@ export function step(state) {
   state.snake.unshift(next);
   if (growing) state.grow--;
   else state.snake.pop();
+  if (dodged && state.tick - state.lastNearMiss >= NEAR_MISS_GAP) {
+    state.lastNearMiss = state.tick;
+    state.events.push({ type: 'nearMiss', x: straight.x, y: straight.y, cause: dodged });
+  }
 
   const mi = state.motes.findIndex((m) => m.x === next.x && m.y === next.y);
   if (mi >= 0) {
@@ -248,7 +266,13 @@ function spawnCells(state, minHeadDist) {
 function spawnMote(state) {
   const cells = spawnCells(state, 2);
   if (!cells.length) return null;
-  const c = cells[Math.floor(state.rand() * cells.length)];
+  const fair = new Set(cells.map((c) => key(c.x, c.y)));
+  let c = null;
+  for (let tries = 0; tries < 256 && !c; tries++) {
+    const k = Math.floor(state.moteRand() * W * H);
+    if (fair.has(k)) c = { x: k % W, y: (k / W) | 0 };
+  }
+  if (!c) c = cells[Math.floor(state.rand() * cells.length)]; 
   const m = { id: state.nextId++, x: c.x, y: c.y, kind: 'mote' };
   state.motes.push(m);
   state.events.push({ type: 'spawn', x: m.x, y: m.y, kind: m.kind });

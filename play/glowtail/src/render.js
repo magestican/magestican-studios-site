@@ -223,6 +223,27 @@ export function createRenderer(canvas, { search = '' } = {}) {
   let headYaw = 0;
 
   
+  
+  const GHOST_CELLS = 8;
+  const paceMat = new THREE.MeshBasicMaterial({ color: 0xdff6ff, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false });
+  const pace = new THREE.InstancedMesh(new THREE.SphereGeometry(0.34, 12, 8), paceMat, GHOST_CELLS);
+  pace.count = 0;
+  pace.frustumCulled = false;
+  scene.add(pace);
+  const paceM = new THREE.Matrix4();
+  function drawPace(cells, t) {
+    if (!cells) { pace.count = 0; return; }
+    pace.count = Math.min(GHOST_CELLS, cells.length);
+    for (let i = 0; i < pace.count; i++) {
+      const s = 1 - i / (pace.count + 1);
+      paceM.makeScale(s, s * 0.7, s).setPosition(cellX(cells[i].x), 0.32, cellZ(cells[i].y));
+      pace.setMatrixAt(i, paceM);
+    }
+    pace.instanceMatrix.needsUpdate = true;
+    paceMat.opacity = 0.18 + 0.06 * Math.sin(t * 3);
+  }
+
+  
   const glowTex = glowTexture();
   const moteGeo = new THREE.IcosahedronGeometry(0.2, 1);
   const moteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
@@ -452,6 +473,11 @@ export function createRenderer(canvas, { search = '' } = {}) {
         palTarget.water.set(0x3aa6d8); palTarget.deep.set(0x10405a); palTarget.glow.set(0xfff1c4);
         darkTarget = 0;
         surfacing = 0;
+      } else if (e.type === 'nearMiss') {
+        
+        burst(cellX(e.x), cellZ(e.y), new THREE.Color(1, 1, 1), 18, { speed: 2.2, up: 1.6, size: 10, life: 0.6 });
+        flash = Math.max(flash, 0.32); flashColor.set(0.85, 0.95, 1);
+        shake = Math.max(shake, 0.18);
       } else if (e.type === 'spawn') {
         burst(cellX(e.x), cellZ(e.y), pal.mote, 10, { speed: 1.2, up: 1, size: 9, life: 0.6 });
       } else if (e.type === 'shoal') {
@@ -499,8 +525,10 @@ export function createRenderer(canvas, { search = '' } = {}) {
 
 
 
-  function frame(state, alpha, dt, { idle = false } = {}) {
+  function frame(state, alpha, dt, { idle = false, pace: paceCells = null } = {}) {
     const t = (floorMat.uniforms.uTime.value += dt);
+    
+    drawPace(idle ? null : paceCells, t);
     
     const k = 1 - Math.exp(-dt * 1.6);
     for (const key of Object.keys(pal)) pal[key].lerp(palTarget[key], k);
