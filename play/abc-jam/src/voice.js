@@ -22,6 +22,7 @@
 export function createVoice({ baseUrl, version = '', muted = () => false, onLine = () => {}, makeAudio, fetchJson,
   setTimer = (fn, ms) => setTimeout(fn, ms) } = {}) {
   const base = String(baseUrl);
+  const LOAD_GRACE_MS = 6000;
   
   
   
@@ -39,16 +40,25 @@ export function createVoice({ baseUrl, version = '', muted = () => false, onLine
   let unlocked = false;
   
   
+  
+  
+  
+  const QUEUE_MAX = 2;
   let busy = false;
-  let pending = null;
+  let queue = [];
   let turn = 0;
 
   function done(t) {
     if (t !== turn || !busy) return;
     busy = false;
-    const next = pending;
-    pending = null;
+    const next = queue.shift();
     if (next && !muted()) start(next);
+    else queue = [];
+  }
+
+  function enqueue(lineId) {
+    queue.push(lineId);
+    while (queue.length > QUEUE_MAX) queue.shift();
   }
 
   const ready = Promise.resolve()
@@ -76,7 +86,14 @@ export function createVoice({ baseUrl, version = '', muted = () => false, onLine
       busy = true;
       a.onended = () => done(t);
       
-      setTimer(() => done(t), (ln.ms || 1000) + 400);
+      
+      
+      
+      const ms = (ln.ms || 1000) + 400;
+      let clocked = false;
+      a.onplaying = () => { if (clocked || t !== turn) return; clocked = true; setTimer(() => done(t), ms); };
+      a.onerror = () => done(t);
+      setTimer(() => { if (!clocked) done(t); }, ms + LOAD_GRACE_MS);
       const p = a.play();
       p?.catch?.(() => {  });
       onLine(ln.ms);
@@ -93,9 +110,13 @@ export function createVoice({ baseUrl, version = '', muted = () => false, onLine
       if (!lineId) return false;
       last = lineId;
       if (muted()) return false;
-      if (lines) return start(lineId);
-      ready.then(() => { if (last === lineId && !muted()) start(lineId); });
-      return true;
+      if (!lines) {
+        ready.then(() => { if (last === lineId && !muted()) this.say(lineId); });
+        return true;
+      }
+      if (!lines[lineId]) return false;
+      if (busy) { enqueue(lineId); return true; }
+      return start(lineId);
     },
     
     sayNext(lineId) {
@@ -103,7 +124,7 @@ export function createVoice({ baseUrl, version = '', muted = () => false, onLine
       if (!busy) return this.say(lineId);
       last = lineId;
       if (muted()) return false;
-      pending = lineId;
+      queue = [lineId];
       return true;
     },
     
@@ -111,7 +132,7 @@ export function createVoice({ baseUrl, version = '', muted = () => false, onLine
     
     ms(lineId) { return lines?.[lineId]?.ms || 0; },
     stop() {
-      pending = null;
+      queue = [];
       busy = false;
       turn += 1;
       try { el?.pause(); } catch {  }
