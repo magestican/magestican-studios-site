@@ -9,7 +9,7 @@ import { HOUSES, TITANS } from '../../../web-engine/titan-bash/titans.js';
 import { TUNING as T, secs, HZ } from '../../../web-engine/titan-bash/tuning.js';
 import { initAnalytics } from '../../../web-engine/visits/visits.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
-import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats, setupFromCheats, defaultCpuLevel, isTouchDevice, firstPilot } from './input.js';
+import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats, setupFromCheats, defaultCpuLevel, defaultRookie, seatRookie, isTouchDevice, firstPilot } from './input.js';
 import { wirePad } from './touchPad.js';
 import { layout, draw, LIP } from './render.js';
 import { createScreenLink, joinCodeFrom, linkFor, canLink, PREFIX } from './net.js';
@@ -141,13 +141,13 @@ function controlLabel(c) {
 function renderSeats() {
   if (!$('title').hidden) startWarm();
   const list = $('seats'); list.textContent = '';
-  for (const s of buildSeats(humans, cheats)) {
+  for (const s of buildSeats(humans, { ...cheats, rookie: $('opt-rookie').checked })) {
     const li = document.createElement('li'); li.style.setProperty('--house', HOUSE[s.house].colour); 
     const sw = document.createElement('span'); sw.className = 'swatch'; sw.style.background = HOUSE[s.house].colour;
     const txt = document.createElement('span');
     const name = document.createElement('div'); name.className = 'name'; name.textContent = `${HOUSE[s.house].name} - ${s.titan[0].toUpperCase()}${s.titan.slice(1)}`;
     const who = document.createElement('div'); who.className = 'who'; who.textContent = controlLabel(s.control)
-      + (humans.find((h) => h.control === s.control)?.ready ? ' - Ready' : '') + (hostPhone(humans) === s.control ? ' (host)' : '');
+      + (s.rookie ? ' - Rookie' : '') + (humans.find((h) => h.control === s.control)?.ready ? ' - Ready' : '') + (hostPhone(humans) === s.control ? ' (host)' : '');
     txt.append(name, who); li.append(sw, txt); list.append(li);
   }
 }
@@ -171,12 +171,15 @@ function nightSettings() {
 {
   
   $('opt-cpu').value = defaultCpuLevel(nightsPlayed());
+  
+  $('opt-rookie').checked = defaultRookie(nightsPlayed());
   const s = setupFromCheats(cheats);
   for (const [id, v] of Object.entries(s.values)) $(id).value = v;
+  for (const [id, v] of Object.entries(s.checks)) $(id).checked = v;
   $('opt-teams-wrap').hidden = !s.teamsShown;
 }
 
-const allNewRoom = () => nightsPlayed() === 0 || (humans.length > 0 && humans.every((h) => h.rookie));
+const allNewRoom = () => nightsPlayed() === 0 || (humans.length > 0 && humans.every((h) => seatRookie(h, $('opt-rookie').checked)));
 function nightLine() {
   const el = $('night-line');
   if (!el) return;
@@ -187,7 +190,7 @@ function nightLine() {
 
 function start() {
   newRound(humans); sendSeats();
-  const fresh = buildSeats(humans, { ...cheats, cpu: $('opt-cpu').value });
+  const fresh = buildSeats(humans, { ...cheats, cpu: $('opt-cpu').value, rookie: $('opt-rookie').checked });
   
   if (!night || nightOver(night) || night.seats.length !== fresh.length) {
     night = createNight({ ...nightSettings(), players: fresh, allNew: allNewRoom() });
@@ -535,22 +538,24 @@ $('to-title').addEventListener('click', () => { ui.play('back'); show('title'); 
 $('night-again').addEventListener('click', () => { night = null; start(); });
 $('night-pilots').addEventListener('click', () => { ui.play('back'); night = null; show('title'); renderSeats(); nightLine(); });
 
-for (const id of ['opt-mode', 'opt-rounds', 'opt-teams', 'opt-arena', 'opt-cpu']) {
+for (const id of ['opt-mode', 'opt-rounds', 'opt-teams', 'opt-arena', 'opt-cpu', 'opt-rookie']) {
   $(id).addEventListener('change', () => { $('opt-teams-wrap').hidden = $('opt-mode').value !== 'team'; night = null; nightLine(); ui.play('pick'); });
 }
+
+$('opt-rookie').addEventListener('change', () => renderSeats());
 { const p = el('p', 'tb-dim'); p.id = 'night-line'; $('night-setup').append(p); nightLine(); }
 
 
 
 
 let warm = null; let warmSeats = []; let warmKey = ''; let warmRaf = 0; let warmLast = 0; let warmAcc = 0; let LW = null;
-const warmFingerprint = () => humans.map((h) => `${h.control}:${h.house || ''}:${h.titan || ''}:${h.rookie ? 1 : 0}`).join('|');
+const warmFingerprint = () => humans.map((h) => `${h.control}:${h.house || ''}:${h.titan || ''}:${seatRookie(h, $('opt-rookie').checked) ? 1 : 0}`).join('|');
 function startWarm() {
   if (joinCode) return;
   const key = warmFingerprint();
   if (!warm || key !== warmKey) {
     warmKey = key;
-    warmSeats = buildSeats(humans, { ...cheats, bots: 0 });
+    warmSeats = buildSeats(humans, { ...cheats, bots: 0, rookie: $('opt-rookie').checked });
     warm = createWarmup({ players: warmSeats, seed: 11 });
     
     $('warm-note').textContent = warmNote(warmSeats.map((s) => ({ name: HOUSE[s.house].name, control: s.control })));

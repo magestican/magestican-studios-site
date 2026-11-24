@@ -138,6 +138,9 @@ body.tb-phone-mode .studio-bar { display: none; }
 
 
 .tb-opts label { display: grid; gap: 8px; min-width: 0; color: var(--dim); font-weight: 600; }
+
+.tb-opts label.tb-check { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 4px 0; }
+.tb-opts label.tb-check input { width: 24px; height: 24px; flex: none; margin: 0; accent-color: var(--bell); }
 .tb-opts .tb-input { width: 100%; min-width: 0; text-transform: none; letter-spacing: 0; font-size: 1rem; }
 .tb-card-rows li { flex-wrap: wrap; }
 .tb-card-rows .stats { flex-basis: 100%; color: var(--dim); font-size: 0.9rem; padding-left: calc(2.2em + 30px); }

@@ -60,6 +60,7 @@ export function cheatsFrom(search) {
     rounds: [3, 4, 5].includes(int('rounds')) ? int('rounds') : null,
     arena: ['rotate', 'bellRing', 'shatterfield', 'tidewall'].includes(q.get('arena')) ? q.get('arena') : null,
     cpu: ['cadet', 'pilot', 'ace'].includes(q.get('cpu')) ? q.get('cpu') : null,
+    rookie: q.get('rookie') === '1' ? true : q.get('rookie') === '0' ? false : null,
   };
 }
 
@@ -74,8 +75,19 @@ export function setupFromCheats(cheats = {}) {
   if (cheats.teams) values['opt-teams'] = String(cheats.teams);
   if (cheats.arena) values['opt-arena'] = cheats.arena;
   if (cheats.cpu) values['opt-cpu'] = cpuLevelOf(cheats.cpu);
-  return { values, teamsShown: cheats.mode === 'team' };
+  const checks = {};
+  if (typeof cheats.rookie === 'boolean') checks['opt-rookie'] = cheats.rookie;
+  return { values, checks, teamsShown: cheats.mode === 'team' };
 }
+
+
+
+
+
+
+
+export const defaultRookie = (nightsPlayed) => !(nightsPlayed > 0);
+export const seatRookie = (h, localRookie) => (h.control.startsWith('phone') ? !!h.rookie : !!h.rookie || !!localRookie);
 
 
 
@@ -105,7 +117,7 @@ export function buildSeats(humans, cheats = {}) {
     used.add(house.id);
     const h = humans[i];
     const titan = h ? (h.titan || (i === 0 && cheats.titan) || house.titan) : house.titan;
-    seats.push({ house: house.id, titan, cpu: h ? null : cpuLevelOf(cheats.cpu), control: h ? h.control : 'bot', rookie: !!(h && h.rookie),
+    seats.push({ house: house.id, titan, cpu: h ? null : cpuLevelOf(cheats.cpu), control: h ? h.control : 'bot', rookie: !!h && seatRookie(h, cheats.rookie),
       paint: (h && h.paint) || null, emblem: (h && h.emblem) || null });
   }
   return seats;
