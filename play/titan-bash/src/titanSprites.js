@@ -80,3 +80,19 @@ export function spriteFor(frame, colour) {
   }
   return tinted.get(key);
 }
+
+
+
+
+const faces = new Map();
+export function faceUrl(frame, colour) {
+  const key = `${frame}|${colour}`;
+  if (faces.has(key)) return faces.get(key);
+  const spr = spriteFor(frame, colour); const fr = spr && spr.byName.idle;
+  if (!fr) return null;
+  const c = document.createElement('canvas'); c.width = fr.w; c.height = fr.h;
+  c.getContext('2d').drawImage(spr.canvas, fr.x, fr.y, fr.w, fr.h, 0, 0, fr.w, fr.h);
+  const url = c.toDataURL('image/png');
+  faces.set(key, url);
+  return url;
+}

@@ -23,7 +23,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { cleanPick, applyPick, takenHouses, hostPhone, mayStart, newRound } from './lobby.js';
 import { createNight, matchOptions, arenaFor, recordRound, nightOver, standings, podium, MODE_NAME } from '../../../web-engine/titan-bash/night.js';
 import { createWarmup, warmupStep, lessonFor } from '../../../web-engine/titan-bash/warmup.js';
-import { loadTitanSprites } from './titanSprites.js';
+import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt } from './transitions.js';
@@ -42,7 +42,7 @@ let sounds = createSoundTracker();
 
 
 
-loadTitanSprites(new URL('../assets/titans/', import.meta.url));
+const titansReady = loadTitanSprites(new URL('../assets/titans/', import.meta.url));
 loadFloors(new URL('../assets/floors/', import.meta.url));
 const music = createTrackMusic({ game: 'titan-bash', manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS });
 const musicSaved = (() => { try { return localStorage.getItem('magestican:v1:music'); } catch { return null; } })();
@@ -338,6 +338,7 @@ function results(m) {
     const b = el('span', 'bells', `${r.bells} Bells`);
     const stats = statsLine(r);
     const face = el('span', 'tb-face'); face.setAttribute('aria-hidden', 'true'); face.style.borderColor = HOUSE[r.house].colour;
+    tintFace(face, r.frame, r.house);
     li.append(el('span', 'place', `${r.place + 1}.`), face, nm, b, el('span', 'pts', `+${r.points}`), stats);
     const got = earned.get(r.id);
     if (got) li.append(el('span', 'stars', got.line));
@@ -377,6 +378,14 @@ function paintStandings() {
 }
 
 
+
+function tintFace(face, frame, house, retry = true) {
+  const url = faceUrl(frame, HOUSE[house].colour);
+  if (url) { face.classList.add('tinted'); face.style.setProperty('--face', `url("${url}")`); }
+  else if (retry) titansReady.then(() => tintFace(face, frame, house, false));
+}
+
+
 function showPodium() {
   const p = podium(night);
   const champ = p.champion;
@@ -394,7 +403,15 @@ function showPodium() {
     const step = Math.min(3, e.place + 1);
     li.className = `p${step}`;
     const who = el('div', 'who');
-    for (const h of e.houses) { const f = el('span', 'face'); f.style.background = HOUSE[h].colour; f.title = HOUSE[h].name; who.append(f); }
+    
+    
+    
+    if (e.houses.length > 1) who.classList.add('team');
+    for (const id of e.members) {
+      const seat = night.seats[id];
+      const f = el('span', 'tb-face'); f.dataset.titan = seat.titan; f.title = HOUSE[seat.house].name;
+      f.style.setProperty('--house', HOUSE[seat.house].colour); tintFace(f, seat.titan, seat.house); who.append(f);
+    }
     li.append(who, el('span', 'name', e.houses.map((h) => HOUSE[h].name).join(', ')), el('span', 'score', `${e.score} pts - ${e.bells} Bells`), el('div', 'block', String(e.place + 1)));
     ol.append(li);
   }

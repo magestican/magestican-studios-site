@@ -475,3 +475,32 @@ select.tb-input {
   .tb-card-rows .frame { display: none; }
   #end-title { font-size: 1.4rem; }
 }
+
+
+
+
+.tb-steps .tb-face { position: relative; width: 112px; height: 112px; }
+.tb-steps .p1 .tb-face { width: 148px; height: 148px; }
+.tb-steps .team .tb-face { width: 88px; height: 88px; }
+.tb-steps .tb-face::before {
+  content: ''; position: absolute; left: 18%; right: 18%; bottom: 2%; height: 16%; border-radius: 50%;
+  border: 4px solid var(--house, var(--line)); background: rgba(0, 0, 0, 0.45); box-sizing: border-box;
+}
+.tb-steps .tb-face::after { position: relative; }
+.tb-steps [data-titan="lancer"]::after { background-image: url('../assets/titans/lancer_sprites/sheet.png'); }
+.tb-steps [data-titan="bulwark"]::after { background-image: url('../assets/titans/bulwark_sprites/sheet.png'); }
+.tb-steps [data-titan="mortar"]::after { background-image: url('../assets/titans/mortar_sprites/sheet.png'); }
+.tb-steps [data-titan="wisp"]::after { background-image: url('../assets/titans/wisp_sprites/sheet.png'); }
+.tb-steps .name { font: 700 1.9rem/1 var(--display); letter-spacing: 0.02em; }
+.tb-steps .p1 .name { font-size: 2.4rem; color: var(--bell); }
+.tb-steps .score { font-size: 1.05rem; }
+@media (max-width: 600px) {
+  .tb-steps .tb-face { width: 84px; height: 84px; }
+  .tb-steps .p1 .tb-face { width: 108px; height: 108px; }
+  .tb-steps .team .tb-face { width: 52px; height: 52px; }
+  .tb-steps .name { font-size: 1.35rem; }
+  .tb-steps .p1 .name { font-size: 1.6rem; }
+  .tb-steps .score { font-size: 0.85rem; }
+}
+
+.tb-face.tinted::after { background-image: var(--face) !important; background-size: 100% 100% !important; }

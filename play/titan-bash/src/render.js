@@ -69,7 +69,12 @@ function drawSleeper(ctx, m, X, Y, s) {
   }
   
   const bx = cx - Math.cos(S.dir) * s * 2.6; const by = cy - Math.sin(S.dir) * s * 2.6;
-  ctx.fillStyle = '#3b2a3a'; ctx.strokeStyle = '#a36a78'; ctx.lineWidth = Math.max(2, s * 0.2);
+  
+  ctx.fillStyle = 'rgba(0,0,0,0.38)';
+  ctx.beginPath(); ctx.ellipse(bx + s * 0.4, by + s * 0.6, s * 5.5, s * 2.6, S.dir + Math.PI / 2, 0, TAU); ctx.fill();
+  const sg = ctx.createRadialGradient(bx - s * 1.2, by - s * 1.6, s * 0.4, bx, by, s * 5.5);
+  sg.addColorStop(0, '#8a6a7e'); sg.addColorStop(0.5, '#4a3448'); sg.addColorStop(1, '#22161f');
+  ctx.fillStyle = sg; ctx.strokeStyle = '#140c12'; ctx.lineWidth = Math.max(2, s * 0.2);
   ctx.beginPath(); ctx.ellipse(bx, by, s * 5.5, s * 2.6, S.dir + Math.PI / 2, 0, TAU); ctx.fill(); ctx.stroke();
   const glow = 0.6 + 0.4 * Math.sin(m.tick * 0.2);
   ctx.fillStyle = `rgba(255,150,60,${0.25 * glow})`;
@@ -111,8 +116,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
     }
     ctx.stroke();
     const lip = Math.max(3, s * 0.25);
-    ctx.fillStyle = '#ff8a1f';
-    for (const f of A.floor) ctx.fillRect(X(f.x - f.w / 2) - lip, Y(f.y - f.h / 2) - lip, f.w * s + lip * 2, f.h * s + lip * 2);
+    hazardLip(ctx, A.floor.map((f) => [X(f.x - f.w / 2) - lip, Y(f.y - f.h / 2) - lip, f.w * s + lip * 2, f.h * s + lip * 2]), lip);
     const stone = floorPattern(ctx, m.arena, s, fx0, fy0);
     ctx.fillStyle = stone || (storm ? '#2a2140' : '#1d2536');
     for (const f of A.floor) ctx.fillRect(X(f.x - f.w / 2), Y(f.y - f.h / 2), f.w * s, f.h * s);
@@ -130,9 +134,8 @@ export function draw(ctx, m, fx, L, opts = {}) {
       ctx.fillText('TIDE', X(f.x), Y(f.y) + s * 0.55);
     }
   } else if (A.openEdges) {
-    ctx.fillStyle = '#ff8a1f';
     const lip = LIP * L.dpr;
-    ctx.fillRect(fx0 - lip, fy0 - lip, L.aw + lip * 2, L.ah + lip * 2);
+    hazardLip(ctx, [[fx0 - lip, fy0 - lip, L.aw + lip * 2, L.ah + lip * 2]], lip);
   }
   if (!A.floor) {
     const deck = floorPattern(ctx, m.arena, s, fx0, fy0);
@@ -155,25 +158,13 @@ export function draw(ctx, m, fx, L, opts = {}) {
     ctx.beginPath(); ctx.rect(fx0, fy0, L.aw, L.ah); ctx.rect(X(-hw), Y(-hh), hw * 2 * s, hh * 2 * s); ctx.fill('evenodd');
     ctx.strokeStyle = `rgba(225,200,255,${pulse})`; ctx.lineWidth = Math.max(3, s * 0.3);
     ctx.strokeRect(X(-hw), Y(-hh), hw * 2 * s, hh * 2 * s);
+    drawStormCrackle(ctx, stormCrackle(m.tick, hw, hh), X, Y, s);
   }
 
   
   drawCover(ctx, A, X, Y, s);
   
-  
-  for (const c of m.crystals || []) {
-    const cx = X(c.x); const cy = Y(c.y); const r = c.r * s;
-    const hex = (rr) => { ctx.beginPath(); for (let k = 0; k < 6; k++) { const a = (k / 6) * TAU + Math.PI / 6; ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } ctx.closePath(); };
-    if (c.down <= 0) {
-      ctx.fillStyle = '#2f8f8a'; ctx.strokeStyle = '#9ff3e6'; ctx.lineWidth = Math.max(2, s * 0.15);
-      hex(r * 1.1); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'rgba(200,255,245,0.35)'; hex(r * 0.45); ctx.fill();
-    } else {
-      ctx.fillStyle = 'rgba(159,243,230,0.55)';
-      for (let k = 0; k < 6; k++) { const a = (k / 6) * TAU; ctx.fillRect(cx + Math.cos(a) * r - s * 0.15, cy + Math.sin(a) * r - s * 0.15, s * 0.3, s * 0.3); }
-      if (c.down < secs(3)) { ctx.strokeStyle = `rgba(159,243,230,${0.6 * (1 - c.down / secs(3))})`; ctx.lineWidth = Math.max(1.5, s * 0.1); hex(r * 1.1); ctx.stroke(); }
-    }
-  }
+  drawCrystals(ctx, m, X, Y, s);
 
   
   for (const c of m.lumen || []) {
@@ -232,8 +223,13 @@ export function draw(ctx, m, fx, L, opts = {}) {
       
       const px = bannerPx(ctx, f.text, s, A.w * s);
       ctx.font = `800 ${px}px ${DISPLAY}`;
+      
+      
+      const by = Y(-A.h / 2) + s * 3;
+      const pl = bannerPlate(ctx.measureText(f.text).width, px, L.ox, by);
+      ctx.fillStyle = 'rgba(6,8,13,0.72)'; roundRect(ctx, pl.x, pl.y, pl.w, pl.h, pl.h * 0.2); ctx.fill();
       ctx.lineWidth = Math.max(3, px * 0.16); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
-      ctx.strokeText(f.text, L.ox, Y(-A.h / 2) + s * 3); ctx.fillText(f.text, L.ox, Y(-A.h / 2) + s * 3);
+      ctx.strokeText(f.text, L.ox, by); ctx.fillText(f.text, L.ox, by);
     } else {
       ctx.font = `800 ${Math.round(s * (f.big ? 1.8 : 1.2))}px ${DISPLAY}`;
       ctx.lineWidth = Math.max(3, s * 0.25); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
@@ -494,3 +490,97 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
 
+
+
+
+
+
+
+
+
+
+
+export const CRYSTAL_FACETS = Object.freeze(['#5fc7bd', '#3fa39c', '#2a7f7c', '#1c5d5f', '#23696a', '#3a948f']);
+export function drawCrystals(ctx, m, X, Y, s) {
+  for (const c of m.crystals || []) {
+    const cx = X(c.x); const cy = Y(c.y); const r = c.r * s * 1.1;
+    const pt = (k, rr = r) => { const a = (k / 6) * TAU + Math.PI / 6; return [cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]; };
+    const hex = (rr, ox = 0, oy = 0) => { ctx.beginPath(); for (let k = 0; k < 6; k++) { const [x, y] = pt(k, rr); ctx.lineTo(x + ox, y + oy); } ctx.closePath(); };
+    if (c.down <= 0) {
+      ctx.fillStyle = 'rgba(0,0,0,0.38)'; hex(r, s * 0.3, s * 0.45); ctx.fill();
+      
+      for (let k = 0; k < 6; k++) {
+        const [x1, y1] = pt(k); const [x2, y2] = pt(k + 1);
+        ctx.fillStyle = CRYSTAL_FACETS[(k + 3) % 6];
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.closePath(); ctx.fill();
+      }
+      ctx.strokeStyle = 'rgba(190,255,245,0.5)'; ctx.lineWidth = Math.max(1.5, s * 0.1); hex(r); ctx.stroke();
+      ctx.fillStyle = 'rgba(230,255,250,0.75)';
+      ctx.beginPath(); ctx.ellipse(cx - r * 0.3, cy - r * 0.35, r * 0.18, r * 0.09, -0.6, 0, TAU); ctx.fill();
+    } else {
+      ctx.fillStyle = 'rgba(159,243,230,0.55)';
+      for (let k = 0; k < 6; k++) { const a = (k / 6) * TAU; ctx.fillRect(cx + Math.cos(a) * c.r * s - s * 0.15, cy + Math.sin(a) * c.r * s - s * 0.15, s * 0.3, s * 0.3); }
+      if (c.down < secs(3)) { ctx.strokeStyle = `rgba(159,243,230,${0.6 * (1 - c.down / secs(3))})`; ctx.lineWidth = Math.max(1.5, s * 0.1); hex(r); ctx.stroke(); }
+    }
+  }
+}
+
+
+
+
+
+
+export function hazardLip(ctx, rects, lip) {
+  ctx.save();
+  ctx.fillStyle = '#ff8a1f';
+  ctx.beginPath(); for (const [x, y, w, h] of rects) ctx.rect(x, y, w, h); ctx.fill();
+  ctx.clip();
+  const band = Math.max(4, lip * 1.6);
+  ctx.fillStyle = 'rgba(20,14,8,0.55)';
+  let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
+  for (const [x, y, w, h] of rects) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x + w); y1 = Math.max(y1, y + h); }
+  ctx.beginPath();
+  for (let x = x0 - (y1 - y0); x < x1; x += band * 2) {
+    ctx.moveTo(x, y1); ctx.lineTo(x + band, y1); ctx.lineTo(x + band + (y1 - y0), y0); ctx.lineTo(x + (y1 - y0), y0); ctx.closePath();
+  }
+  ctx.fill();
+  ctx.restore();
+}
+
+
+
+
+
+
+export function stormCrackle(tick, hw, hh) {
+  let seed = (Math.floor(tick / 4) * 2654435761) >>> 0;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const corners = [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh], [-hw, -hh]];
+  const pts = [];
+  for (let i = 0; i < 4; i++) {
+    const [ax, ay] = corners[i]; const [bx, by] = corners[i + 1];
+    const len = Math.hypot(bx - ax, by - ay); const n = Math.max(2, Math.round(len / 1.5));
+    const nx = (by - ay) / (len || 1); const ny = -(bx - ax) / (len || 1);
+    for (let j = 0; j < n; j++) {
+      const t = j / n; const off = (rnd() - 0.5) * 1.2;
+      pts.push([ax + (bx - ax) * t + nx * off, ay + (by - ay) * t + ny * off]);
+    }
+  }
+  pts.push(pts[0]);
+  return pts;
+}
+function drawStormCrackle(ctx, pts, X, Y, s) {
+  ctx.save();
+  ctx.lineJoin = 'round';
+  for (const [w, col] of [[Math.max(4, s * 0.45), 'rgba(170,110,255,0.35)'], [Math.max(1.5, s * 0.12), 'rgba(245,235,255,0.9)']]) {
+    ctx.strokeStyle = col; ctx.lineWidth = w;
+    ctx.beginPath(); for (const [x, y] of pts) ctx.lineTo(X(x), Y(y)); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+
+export function bannerPlate(textW, px, cx, cy) {
+  const w = textW + px * 1.2; const h = px * 1.5;
+  return { x: cx - w / 2, y: cy - h / 2, w, h };
+}
