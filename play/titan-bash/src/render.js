@@ -234,7 +234,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
     ctx.globalAlpha = 1;
   }
 
-  ctx.translate(-shx, -shy);
+
   if (!m.endless) scoreboard(ctx, m, L, W, big); 
   if (opts.countdown) drawCountdown(ctx, L, opts.countdown);
   ctx.restore();
