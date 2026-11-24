@@ -26,6 +26,7 @@ import { createWarmup, warmupStep, lessonFor } from '../../../web-engine/titan-b
 import { loadTitanSprites } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
+import { enterClass, ENTER_CLASSES, countdownAt } from './transitions.js';
 import { primaryFor, createLeave, createPadNav } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
@@ -75,10 +76,13 @@ let match = null; let bots = []; let seats = []; let fx = []; let raf = 0; let a
 const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 let juice = createJuice(Math.random, { reducedMotion });
 
+let countMs = Infinity;
+
 function show(id) {
   for (const s of ['title', 'match', 'end', 'night']) $(s).hidden = s !== id;
   
-  $(id).classList.remove('tb-enter'); void $(id).offsetWidth; $(id).classList.add('tb-enter');
+  $(id).classList.remove(...ENTER_CLASSES); void $(id).offsetWidth;
+  const enter = enterClass(id, reducedMotion); if (enter) $(id).classList.add(enter);
   if (id !== 'match') { leave.reset(); $('leave-ask').hidden = true; }
   music.setTrack(musicFor(id));
   if (id === 'title') startWarm(); else stopWarm();
@@ -173,7 +177,7 @@ function start() {
   if (cheats.heat !== null) for (const t of match.titans) if (!t.cpu) t.heat = cheats.heat;
   if (cheats.storm) match.tick = secs(T.roundTime - T.stormTime);
   if (cheats.sleeper) match.tick = secs(T.roundTime - T.stormTime + T.sleeperWakeAfter - 1);
-  fx = []; juice = createJuice(Math.random, { reducedMotion }); acc = 0; last = performance.now(); sounds = createSoundTracker(); ui.play('start');
+  fx = []; juice = createJuice(Math.random, { reducedMotion }); acc = 0; last = performance.now(); sounds = createSoundTracker(); ui.play('start'); countMs = 0;
   globalThis.__titanBash = { get match() { return match; }, get phones() { return link?.phones.list() ?? []; } }; 
   show('match'); resize();
   cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
@@ -227,7 +231,10 @@ function addFx(m, events) {
 
 function frame(now) {
   if (!match) return;
-  acc += Math.min(0.25, (now - last) / 1000); last = now;
+  const dt = Math.min(0.25, (now - last) / 1000); last = now;
+  countMs += dt * 1000;
+  if (countdownAt(countMs, reducedMotion)?.frozen) { paint(); raf = requestAnimationFrame(frame); return; }
+  acc += dt;
   let steps = 0;
   while (acc >= 1 / HZ && steps < 5 && !match.over) {
     
@@ -257,7 +264,7 @@ function paint() {
   const hs = new Set(seats.map((s, i) => (s.control !== 'bot' ? i : -1)).filter((i) => i >= 0));
   const tag = (c) => (c === 'p1' ? 'P1' : c === 'p2' ? 'P2' : c.startsWith('phone') ? `Phone ${Number(c.slice(5)) + 1}` : `Pad ${Number(c.slice(3)) + 1}`);
   const labels = seats.map((s) => (s.control === 'bot' ? null : `${emblemGlyph(wear(s).emblem)} ${HOUSE[s.house].name} (${tag(s.control)})`.trim()));
-  draw(ctx, match, fx, L, { humans: hs, labels, paints: seats.map((s) => paintColor(wear(s).paint)), juice });
+  draw(ctx, match, fx, L, { humans: hs, labels, paints: seats.map((s) => paintColor(wear(s).paint)), juice, countdown: countdownAt(countMs, reducedMotion) });
 }
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };

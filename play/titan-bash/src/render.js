@@ -186,6 +186,9 @@ export function draw(ctx, m, fx, L, opts = {}) {
     ctx.closePath(); ctx.fill(); ctx.stroke();
   }
 
+  
+  drawLighting(ctx, L);
+
   drawSleeper(ctx, m, X, Y, s);
 
   
@@ -217,6 +220,8 @@ export function draw(ctx, m, fx, L, opts = {}) {
 
   const big = bounty(m);
   
+  drawShadows(ctx, shadowSpots(m, X, Y, s));
+  
   for (const t of m.titans.filter((o) => o.alive).sort((a, b) => a.y - b.y)) titan(ctx, m, t, X, Y, s, t === big, opts);
   if (opts.juice) opts.juice.draw(ctx, X, Y, s);
 
@@ -242,6 +247,45 @@ export function draw(ctx, m, fx, L, opts = {}) {
 
   ctx.translate(-shx, -shy);
   if (!m.endless) scoreboard(ctx, m, L, W, big); 
+  if (opts.countdown) drawCountdown(ctx, L, opts.countdown);
+  ctx.restore();
+}
+
+
+export function shadowSpots(m, X, Y, s) {
+  const r = T.radius * s;
+  return m.titans.filter((t) => t.alive).map((t) => ({ id: t.id, x: X(t.x), y: Y(t.y) + r * 0.7, rx: r * 1.35, ry: r * 0.55 }));
+}
+
+
+export function drawShadows(ctx, spots) {
+  for (const p of spots) {
+    ctx.save(); ctx.translate(p.x, p.y); ctx.scale(1, p.ry / p.rx);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, p.rx);
+    g.addColorStop(0, 'rgba(0,0,0,0.5)'); g.addColorStop(0.55, 'rgba(0,0,0,0.28)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 0, p.rx, p.rx, 0, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+}
+
+
+export function drawLighting(ctx, L) {
+  const x0 = L.ox - L.aw / 2; const y0 = L.oy - L.ah / 2;
+  const cy = L.oy - L.ah * 0.18;
+  const g = ctx.createRadialGradient(L.ox, cy, Math.min(L.aw, L.ah) * 0.12, L.ox, cy, Math.hypot(L.aw, L.ah) * 0.62);
+  g.addColorStop(0, 'rgba(255,236,200,0.06)'); g.addColorStop(0.5, 'rgba(4,6,12,0.08)'); g.addColorStop(1, 'rgba(4,6,12,0.38)');
+  ctx.fillStyle = g; ctx.fillRect(x0, y0, L.aw, L.ah);
+}
+
+
+function drawCountdown(ctx, L, cd) {
+  const px = Math.round(Math.min(L.aw, L.ah) * 0.22 * cd.scale);
+  ctx.save();
+  ctx.globalAlpha = cd.alpha; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `800 ${px}px ${DISPLAY}`;
+  ctx.lineWidth = Math.max(4, px * 0.08); ctx.strokeStyle = '#000';
+  ctx.fillStyle = cd.label === 'BASH!' ? '#ff8a1f' : '#ffd040';
+  ctx.strokeText(cd.label, L.ox, L.oy); ctx.fillText(cd.label, L.ox, L.oy);
   ctx.restore();
 }
 
@@ -302,8 +346,8 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
   if (fr) {
     
     
+    
     const hgt = r * 3.4; const wid = hgt * (fr.w / fr.h); const feet = cy + r * 0.7;
-    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(cx, feet, r * 1.1, r * 0.42, 0, 0, TAU); ctx.fill();
     ctx.strokeStyle = h.colour; ctx.lineWidth = Math.max(2, s * 0.22);
     ctx.beginPath(); ctx.ellipse(cx, feet, r * 1.1, r * 0.42, 0, 0, TAU); ctx.stroke();
     ctx.save(); ctx.translate(cx, feet);
