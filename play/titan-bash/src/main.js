@@ -28,7 +28,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, warmNote, legendSide, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -249,7 +249,7 @@ function addFx(m, events) {
     }
     if (e.type === EVENT.BELL) {
       const t = m.titans[e.target];
-      const text = e.by === null ? `${nameOf(m, e.target)} fell out!` : `${nameOf(m, e.by)} rings ${nameOf(m, e.target)}!`;
+      const text = e.by === null ? fallText(nameOf(m, e.target), e.value) :`${nameOf(m, e.by)} rings ${nameOf(m, e.target)}!`;
       fx.push({ kind: 'banner', text, ttl: 90, colour: e.by === null ? '#fff' : HOUSE[m.titans[e.by].house].colour });
       fx.push({ kind: 'pop', text: 'BELL!', x: t.x, y: t.y, ttl: 60, big: true, colour: '#ffd040' });
     } else if (e.type === EVENT.CLANG) fx.push({ kind: 'pop', text: 'CLANG!', x: e.x, y: e.y, ttl: 50, big: true, colour: '#9fe3ff' });

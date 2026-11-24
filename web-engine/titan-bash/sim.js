@@ -39,7 +39,7 @@ function makeTitan(id, p, spawn) {
     fireCd: 0, abilityCd: 0, lunge: 0, lungeDx: 0, lungeDy: 0, aegis: 0, hitstop: 0, counter: 0, counterTarget: null,
     shield: 0, alive: true, respawn: 0, lastBusyTick: NEVER, wallHitAt: NEVER, lumen: 0, lumenTime: 0,
     prevFire: false, prevBoost: false, prevAbility: false,
-    bells: 0, rung: 0, ringOuts: 0, streak: 0, bestStreak: 0, clangsWon: 0, perfectVents: 0, stalls: 0, slamHits: 0, redlineTicks: 0,
+    bells: 0, rung: 0, ringOuts: 0, falls: 0, streak: 0, bestStreak: 0, clangsWon: 0, perfectVents: 0, stalls: 0, slamHits: 0, redlineTicks: 0,
   };
 }
 
@@ -213,8 +213,11 @@ function ringBell(m, target, ringOut, events) {
     by.streak += 1; if (by.streak > by.bestStreak) by.bestStreak = by.streak;
     events.push({ type: EVENT.BELL, target: target.id, by: by.id, value, ringOut });
   } else {
-    target.bells -= 1;
-    events.push({ type: EVENT.BELL, target: target.id, by: null, value: -1, ringOut });
+    
+    
+    const value = target.rookie ? 0 : -1;
+    target.bells += value; target.falls += 1;
+    events.push({ type: EVENT.BELL, target: target.id, by: null, value, ringOut });
   }
   target.streak = 0;
   target.rung += 1; if (ringOut) target.ringOuts += 1;

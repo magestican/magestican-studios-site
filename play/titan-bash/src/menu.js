@@ -68,7 +68,14 @@ export function statParts(r, rows = [r]) {
   const parts = [];
   if (rows.some((x) => x.clangsWon > 0)) parts.push(['Clangs', ' won', '', r.clangsWon]);
   parts.push(['', 'Perfect ', 'Vents', r.perfectVents], ['', 'Best ', 'streak', r.bestStreak]);
+  
+  if (r.falls > 0) parts.push(['Fell out', '', '', r.falls]);
   return parts;
+}
+
+
+export function fallText(name, value) {
+  return value < 0 ? `${name} fell out! ${value} Bell` : `${name} fell out!`;
 }
 
 
