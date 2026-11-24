@@ -9,7 +9,7 @@ import { HOUSES, TITANS } from '../../../web-engine/titan-bash/titans.js';
 import { TUNING as T, secs, HZ } from '../../../web-engine/titan-bash/tuning.js';
 import { initAnalytics } from '../../../web-engine/visits/visits.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
-import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats } from './input.js';
+import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats, setupFromCheats } from './input.js';
 import { layout, draw } from './render.js';
 import { createScreenLink, joinCodeFrom, linkFor, canLink, PREFIX } from './net.js';
 import { MSG, STATUS_HZ, encodeStatus } from './wire.js';
@@ -18,16 +18,16 @@ import { normaliseCode } from '../../../web-engine/words/coop.js';
 import { mountDeviceQr } from '../../../web-engine/ui/deviceQr.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
-import { SFX, SFX_TAKES, SFX_GAINS, UI, createSoundTracker, MUSIC_TRACKS, musicFor } from './sound.js';
-import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { SFX, SFX_TAKES, SFX_GAINS, UI, createSoundTracker, MUSIC_TRACKS, musicFor, VOLUME, gainsAt } from './sound.js';
+import { createTrackMusic, LEVEL as MUSIC_LEVEL } from '../../shared/audio/trackMusic.js';
 import { cleanPick, applyPick, takenHouses, hostPhone, mayStart, newRound } from './lobby.js';
 import { createNight, matchOptions, arenaFor, recordRound, nightOver, standings, podium, MODE_NAME } from '../../../web-engine/titan-bash/night.js';
 import { createWarmup, warmupStep, lessonFor } from '../../../web-engine/titan-bash/warmup.js';
 import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
-import { enterClass, ENTER_CLASSES, countdownAt } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams } from './menu.js';
+import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams, controlsFor, controlsLine, lessonPrompt, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -36,15 +36,16 @@ const cheats = cheatsFrom(location.search);
 const joinCode = joinCodeFrom(location.search);
 
 
-const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), [...SFX], SFX_TAKES, Math.random, SFX_GAINS);
-const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), [...UI]);
+
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), [...SFX], SFX_TAKES, Math.random, gainsAt(SFX, SFX_GAINS));
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), [...UI], {}, Math.random, gainsAt(UI));
 let sounds = createSoundTracker();
 
 
 
 const titansReady = loadTitanSprites(new URL('../assets/titans/', import.meta.url));
 loadFloors(new URL('../assets/floors/', import.meta.url));
-const music = createTrackMusic({ game: 'titan-bash', manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS });
+const music = createTrackMusic({ game: 'titan-bash', manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS, level: MUSIC_LEVEL * VOLUME });
 const musicSaved = (() => { try { return localStorage.getItem('magestican:v1:music'); } catch { return null; } })();
 for (const type of ['pointerdown', 'keydown']) {
   addEventListener(type, () => { if (musicSaved !== 'off' && !music.isOn()) music.setOn(true); }, { once: true });
@@ -144,9 +145,15 @@ const NIGHTS_KEY = 'magestican:v1:titan-bash:nights';
 const nightsPlayed = () => { try { return Number(localStorage.getItem(NIGHTS_KEY)) || 0; } catch { return 0; } };
 function nightSettings() {
   return {
-    mode: cheats.mode || $('opt-mode').value, rounds: cheats.rounds || Number($('opt-rounds').value),
-    teams: cheats.teams || Number($('opt-teams').value), arena: cheats.arena || $('opt-arena').value,
+    mode: $('opt-mode').value, rounds: Number($('opt-rounds').value),
+    teams: Number($('opt-teams').value), arena: $('opt-arena').value,
   };
+}
+
+{
+  const s = setupFromCheats(cheats);
+  for (const [id, v] of Object.entries(s.values)) $(id).value = v;
+  $('opt-teams-wrap').hidden = !s.teamsShown;
 }
 
 const allNewRoom = () => nightsPlayed() === 0 || (humans.length > 0 && humans.every((h) => h.rookie));
@@ -179,8 +186,19 @@ function start() {
   if (cheats.sleeper) match.tick = secs(T.roundTime - T.stormTime + T.sleeperWakeAfter - 1);
   fx = []; juice = createJuice(Math.random, { reducedMotion }); acc = 0; last = performance.now(); sounds = createSoundTracker(); ui.play('start'); countMs = 0;
   globalThis.__titanBash = { get match() { return match; }, get phones() { return link?.phones.list() ?? []; } }; 
+  paintLegend();
   show('match'); resize();
   cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
+}
+
+function paintLegend() {
+  const ul = $('legend'); ul.textContent = '';
+  for (const s of seats) {
+    if (!controlsFor(s.control) || s.control.startsWith('phone')) continue;
+    const li = el('li'); li.append(swatch(s.house), el('b', '', HOUSE[s.house].name), ` ${controlsLine(s.control)}`); ul.append(li);
+  }
+  if (seats.some((s) => s.control.startsWith('phone'))) ul.append(el('li', '', 'Phones: drag the left side to move - tap FIRE, BOOST, ABILITY'));
+  ul.hidden = !ul.children.length;
 }
 
 const IDLE = Object.freeze({ mx: 0, my: 0, fire: false, boost: false, ability: false });
@@ -233,6 +251,8 @@ function frame(now) {
   if (!match) return;
   const dt = Math.min(0.25, (now - last) / 1000); last = now;
   countMs += dt * 1000;
+  
+  $('legend').classList.toggle('gone', countMs > COUNTDOWN_MS.step * 3 + COUNTDOWN_MS.go + LEGEND_MS);
   if (countdownAt(countMs, reducedMotion)?.frozen) { paint(); raf = requestAnimationFrame(frame); return; }
   acc += dt;
   let steps = 0;
@@ -497,6 +517,9 @@ function startWarm() {
     warmKey = key;
     warmSeats = buildSeats(humans, { ...cheats, bots: 0 });
     warm = createWarmup({ players: warmSeats, seed: 11 });
+    
+    const lines = warmSeats.map((s) => (controlsFor(s.control) ? `${HOUSE[s.house].name}: ${controlsLine(s.control)}` : '')).filter(Boolean);
+    $('warm-note').textContent = `Warm up: drive your Titan and shoot a target.${lines.length ? ` ${lines.join('. ')}.` : ''}`;
   }
   resizeWarm();
   cancelAnimationFrame(warmRaf); warmLast = performance.now(); warmAcc = 0; warmRaf = requestAnimationFrame(warmFrame);
@@ -520,7 +543,8 @@ function warmFrame(now) {
   const fxw = [];
   warmSeats.forEach((s, i) => {
     const t = warm.match.titans[i]; const l = lessonFor(warm, i);
-    const text = l && (l.praise || l.prompt);
+    
+    const text = l && (l.praise || (l.prompt && lessonPrompt(s.control, l.shown, l.prompt)));
     if (t && t.alive && text) fxw.push({ kind: 'pop', text, x: t.x, y: t.y - 7, ttl: 60, colour: l.praise ? '#ffd040' : '#fff' });
   });
   const labels = warmSeats.map((s) => `${HOUSE[s.house].name}`);

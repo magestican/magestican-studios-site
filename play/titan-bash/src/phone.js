@@ -71,7 +71,8 @@ export function startPhone(code) {
       tip = typeof msg.tip === 'string' && RT.tip[msg.tip] ? RT.tip[msg.tip] : null;
       paintStars();
     },
-    onEvent(kind) { if (kind === 'hit' || kind === 'bell') try { navigator.vibrate?.(kind === 'bell' ? 120 : 30); } catch {  } },
+    
+    onEvent() {},
     onState(state) {
       if (state === 'joining') say(`Joining ${code.toUpperCase()}...`);
       else if (state === 'full') say('That room has eight pilots already.');
@@ -152,7 +153,9 @@ export function startPhone(code) {
   $('ph-start').addEventListener('click', () => link.send({ t: MSG.START }));
 
   function paintHouse(h, titan, team = 0) {
-    $('ph-strip').style.background = h.colour;
+    
+    
+    $('ph-strip').style.backgroundColor = h.colour;
     $('ph-name').textContent = phoneNameLine(h.name, titan, team);
   }
 

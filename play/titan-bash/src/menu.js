@@ -109,3 +109,38 @@ export function firstTeams(card) {
 export function stepsOrder(entries) {
   return [entries[1], entries[0], entries[2]].filter(Boolean);
 }
+
+
+
+
+
+
+export const CONTROLS = Object.freeze({
+  p1: Object.freeze({ move: 'W A S D', fire: 'J', boost: 'K', ability: 'L', verb: 'Press' }),
+  p2: Object.freeze({ move: 'Arrow keys', fire: '1', boost: '2', ability: '3', verb: 'Press' }),
+  pad: Object.freeze({ move: 'Left stick', fire: 'A', boost: 'B', ability: 'X', verb: 'Press' }),
+  phone: Object.freeze({ move: 'Drag the left side', fire: 'FIRE', boost: 'BOOST', ability: 'ABILITY', verb: 'Tap' }),
+});
+
+export const LEGEND_MS = 20000;
+
+
+export function controlsFor(control = '') {
+  if (control === 'p1' || control === 'p2') return CONTROLS[control];
+  if (control.startsWith('pad')) return CONTROLS.pad;
+  if (control.startsWith('phone')) return CONTROLS.phone;
+  return null;
+}
+
+
+export function controlsLine(control) {
+  const c = controlsFor(control);
+  return c ? `${c.move} move - ${c.fire} fire - ${c.boost} boost - ${c.ability} ability` : '';
+}
+
+const LESSON = { fire: (k) => `${k} to FIRE at a target!`, boost: (k) => `${k} to BOOST and dash!`, ability: (k) => `${k} for your ABILITY!` };
+
+export function lessonPrompt(control, stage, fallback = '') {
+  const c = controlsFor(control);
+  return c && LESSON[stage] ? `${c.verb} ${LESSON[stage](c[stage])}` : fallback;
+}

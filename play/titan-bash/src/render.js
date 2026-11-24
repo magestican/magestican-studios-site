@@ -97,8 +97,6 @@ export function draw(ctx, m, fx, L, opts = {}) {
   ctx.save();
   ctx.fillStyle = '#06080d'; ctx.fillRect(0, 0, W, H);
   
-  const [shx, shy] = opts.juice ? opts.juice.shake(s * 0.9) : [0, 0];
-  ctx.translate(shx, shy);
 
   
   const fx0 = X(-A.w / 2); const fy0 = Y(-A.h / 2);

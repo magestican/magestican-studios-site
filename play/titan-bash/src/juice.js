@@ -4,8 +4,8 @@
 
 
 
+
 const MAX = 600;
-const KICK = { hit: 0.12, slam: 0.3, clang: 0.35, bell: 0.6, counter: 0.25, shatter: 0.2, tide: 0.4, drop: 0.25, stall: 0.1 };
 
 
 
@@ -20,7 +20,7 @@ export const HOLD_GAP = 20;
 const IMPACT = { slam: 2, counter: 2, bell: 4 };
 
 export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
-  const j = { trauma: 0, particles: [], rings: [], hold: 0, sinceHold: HOLD_GAP, impact: null, flash: new Map() };
+  const j = { particles: [], rings: [], hold: 0, sinceHold: HOLD_GAP, impact: null, flash: new Map() };
   const freeze = (type) => {
     const n = HOLD[type];
     if (!n) return;
@@ -50,7 +50,6 @@ export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
   const ring = (x, y, r, life, colour) => { if (j.rings.length < 40) j.rings.push({ x, y, r, life, max: life, colour }); };
   j.onEvents = (m, events, colourOf) => {
     for (const e of events) {
-      if (KICK[e.type]) j.trauma = Math.min(1, j.trauma + KICK[e.type]);
       const tg = e.target != null ? m.titans[e.target] : e.id != null ? m.titans[e.id] : null;
       freeze(e.type);
       if (tg) impact(e.type, tg.x, tg.y - 1, e.type === 'bell' ? '#fff2b0' : '#ffffff', tg.id ?? (e.target ?? e.id));
@@ -71,18 +70,11 @@ export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
     }
   };
   j.step = () => {
-    j.trauma = Math.max(0, j.trauma - 1 / 45);
     j.sinceHold += 1; fade();
     for (const p of j.particles) { p.x += p.vx; p.y += p.vy; p.vx *= p.drag; p.vy *= p.drag; p.life -= 1; }
     j.particles = j.particles.filter((p) => p.life > 0);
     for (const r of j.rings) r.life -= 1;
     j.rings = j.rings.filter((r) => r.life > 0);
-  };
-  
-  j.shake = (maxPx) => {
-    if (reducedMotion || j.trauma <= 0) return [0, 0];
-    const k = j.trauma * j.trauma * maxPx;
-    return [(rng() * 2 - 1) * k, (rng() * 2 - 1) * k];
   };
   j.draw = (ctx, X, Y, s) => {
     ctx.save();

@@ -63,6 +63,19 @@ export function cheatsFrom(search) {
 }
 
 
+
+
+
+export function setupFromCheats(cheats = {}) {
+  const values = {};
+  if (cheats.mode) values['opt-mode'] = cheats.mode;
+  if (cheats.rounds) values['opt-rounds'] = String(cheats.rounds);
+  if (cheats.teams) values['opt-teams'] = String(cheats.teams);
+  if (cheats.arena) values['opt-arena'] = cheats.arena;
+  return { values, teamsShown: cheats.mode === 'team' };
+}
+
+
 export function buildSeats(humans, cheats = {}) {
   const seats = [];
   const total = Math.min(8, humans.length + (cheats.bots ?? Math.max(0, 8 - humans.length)));

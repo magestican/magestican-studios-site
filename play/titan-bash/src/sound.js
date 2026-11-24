@@ -14,6 +14,13 @@ export const UI = Object.freeze(['tap', 'join', 'ready', 'pick', 'back', 'count'
 
 
 
+export const VOLUME = 0.5;
+
+export const gainsAt = (names, gains = {}, volume = VOLUME) =>
+  Object.freeze(Object.fromEntries(names.map((n) => [n, (Object.hasOwn(gains, n) ? gains[n] : 1) * volume])));
+
+
+
 
 
 export const MUSIC_TRACKS = Object.freeze(['lobby', 'battle', 'storm']);
