@@ -1,6 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta property="og:title" content="Emberpane - a stained-glass brick breaker">
+  <meta property="og:description" content="Free brick breaker in your browser: bounce a living ember, shatter stained-glass windows across five acts, alone or with up to three friends over a link.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/glassbreak/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/emberpane.jpg">
+  <meta property="og:image:alt" content="Emberpane gameplay screenshot">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Emberpane - a stained-glass brick breaker">
+  <meta name="twitter:description" content="Free brick breaker in your browser: bounce a living ember, shatter stained-glass windows across five acts, alone or with up to three friends over a link.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/emberpane.jpg">
   <style data-immersive-shell>
   html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
     -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
@@ -58,7 +69,8 @@
       font-weight: 700; font-display: swap; }
     html, body { margin: 0; height: 100%; background: #05040a; color: var(--ink); overflow: hidden;
       font: 600 16px/1.35 "Grenze", Georgia, serif; -webkit-tap-highlight-color: transparent; }
-    canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
+    
+    canvas#c { position: fixed; left: 0; top: 0; width: 100%; height: 100%; display: block; touch-action: none; }
     
 
     #field { position: fixed; pointer-events: none; }
@@ -80,13 +92,31 @@
       background: linear-gradient(90deg, var(--rose), var(--moss), var(--cobalt)); }
     #bossbar[hidden] { display: none; }
     
-    .tints { position: absolute; left: calc(16px * var(--fs)); bottom: calc(14px * var(--fs) - var(--tintdrop, 0px)); display: flex;
-      gap: calc(12px * var(--fs)); pointer-events: auto; }
-    .tints button { width: calc(44px * var(--fs)); height: calc(44px * var(--fs)); min-width: 44px; min-height: 44px;
-      border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.25); background: var(--c); opacity: 0.6; padding: 0; }
-    .tints button[aria-pressed="true"] { opacity: 1; border-color: #fff; box-shadow: 0 0 18px var(--c); }
-    .hint { position: absolute; right: calc(16px * var(--fs)); bottom: calc(24px * var(--fs) - var(--tintdrop, 0px)); font-size: calc(12px * var(--fs));
-      opacity: 0.75; text-align: right; }
+
+
+    .ctlbar { position: absolute; left: calc(16px * var(--fs)); right: calc(16px * var(--fs));
+      top: calc(100% + var(--tintgap, 12px)); display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; pointer-events: none; }
+    .tints { flex: none; display: flex;
+      align-items: center; gap: calc(10px * var(--fs)); padding: var(--tintpad, 6px) calc(10px * var(--fs));
+      border-radius: 999px; background: var(--panel); border: 1px solid rgba(240, 196, 112, 0.35); pointer-events: auto; }
+    .tints[hidden] { display: none; }
+    .tints button { position: relative; width: var(--tintsize, 44px); height: var(--tintsize, 44px); padding: 0;
+      border-radius: 50%; border: 2px solid rgba(20, 14, 10, 0.9);
+      background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.55), transparent 38%), var(--c);
+      box-shadow: inset 0 0 0 2px rgba(240, 196, 112, 0.35); opacity: 0.45; filter: saturate(0.7);
+      transition: opacity 0.12s, transform 0.12s, box-shadow 0.12s; }
+    .tints button[aria-pressed="true"] { opacity: 1; filter: none; transform: scale(1.06);
+      box-shadow: inset 0 0 0 2px var(--brass), 0 0 0 3px var(--ink), 0 0 16px var(--c); }
+    .tints button::after { content: attr(aria-label); position: absolute; left: 50%; bottom: 2px; translate: -50% 0;
+      font-size: calc(9px * var(--fs)); font-weight: 700; letter-spacing: 0.06em; color: #fff;
+      text-shadow: 0 1px 2px #000; pointer-events: none; }
+    @media (prefers-reduced-motion: reduce) { .tints button { transition: none; } }
+    .hint { margin-left: auto; min-width: 0; font-size: calc(12px * var(--fs)); line-height: 1.25; opacity: 0.8;
+      text-align: right; }
+    .hint[hidden] { display: none; }
+    .hint .touch { display: none; }
+    @media (pointer: coarse) { .hint .touch { display: inline; } .hint .keys { display: none; } }
     #banner { position: absolute; left: 0; right: 0; top: 38%; text-align: center; pointer-events: none;
       transition: opacity 0.6s; opacity: 0; padding: 0 calc(16px * var(--fs)); }
     #banner.on { opacity: 1; }
@@ -312,12 +342,14 @@
       </div>
     </div>
     <div id="bossbar" hidden><i id="bossfill"></i></div>
+    <div class="ctlbar">
     <div class="tints" id="tints" hidden>
       <button style="--c: var(--rose)" data-tint="0" aria-label="Rose" aria-pressed="true"></button>
       <button style="--c: var(--moss)" data-tint="1" aria-label="Moss" aria-pressed="false"></button>
       <button style="--c: var(--cobalt)" data-tint="2" aria-label="Cobalt" aria-pressed="false"></button>
     </div>
-    <div class="hint" id="hint" hidden>Tap to launch · Q/E colour</div>
+    <div class="hint" id="hint" hidden><span class="keys">Tap to launch · Q/E colour</span><span class="touch">Drag anywhere to steer · tap to launch</span></div>
+    </div>
     <div id="banner"><div class="act" id="bannerAct"></div><div class="name" id="bannerName"></div></div>
 
     <section class="screen" id="title">
@@ -430,7 +462,7 @@
       <button class="big g-amber" id="endTitle">Title</button>
     </section>
   </div>
-  <script type="module" src="src/game.js?v=c2e6b702-20261124T064300Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=c2e6b702-20261124T064300Z"></script>
+  <script type="module" src="src/game.js?v=4791660b-20261124T065345Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=4791660b-20261124T065345Z"></script>
 </body>
 </html>

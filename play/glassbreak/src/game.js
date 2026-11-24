@@ -24,7 +24,7 @@ import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
 import { DUCK_CUES, MENU_CUES, MUSIC_TRACKS, SFX_GAINS, SFX_NAMES, SFX_TAKES, createCuePlayer, followSound, followTrack, menuCue, musicFor, musicVolume, scaledGains } from './sound.js';
 import {
   Controls, EventFeed, SCR_END, SCR_FAIL, SCR_PAUSE, SCR_PLAY, SCR_SELECT, SCR_SETTINGS, SCR_STORY, SCR_TALLY, SCR_TITLE, StoryReader, portraitFor,
-  TINT_CSS, feelFor, fitWithHud, parseLaunch, readProgress, recordClear, scenesBefore, screenFor, unlocked, windowLabel,
+  TINT_CSS, feelFor, fitWithHud, tintBar, parseLaunch, readProgress, recordClear, scenesBefore, screenFor, unlocked, windowLabel,
   writeProgress, readSettings, writeSettings, stepVolume, volumeGain, storyScenes, eraseTap, emptyProgress, launchHintShown,
   fieldShown,
 } from './view.js';
@@ -79,17 +79,28 @@ let fit = fitWithHud(innerWidth, innerHeight);
 
 
 function layout() {
-  fit = fitWithHud(innerWidth, innerHeight);
-  painter.resize(innerWidth, innerHeight, fit);
+  const W = innerWidth, H = innerHeight;
+  fit = fitWithHud(W, H);
+  
+  
+  const cv = $('c');
+  cv.style.width = `${W}px`;
+  cv.style.height = `${H}px`;
+  painter.resize(W, H, fit);
   const f = $('field');
   Object.assign(f.style, { left: `${fit.x}px`, top: `${fit.y}px`, width: `${fit.w}px`, height: `${fit.h}px` });
   document.documentElement.style.setProperty('--fs', String(fit.fs));
   
   document.documentElement.style.setProperty('--hudlift', `${fit.top}px`);
   
-  document.documentElement.style.setProperty('--tintdrop', `${fit.bottom}px`);
+  const bar = tintBar(fit.fs);
+  for (const [k, v] of Object.entries({ tintdrop: fit.bottom, tintgap: bar.gap, tintsize: bar.size, tintpad: bar.pad })) {
+    document.documentElement.style.setProperty(`--${k}`, `${v}px`);
+  }
 }
 addEventListener('resize', layout);
+
+window.visualViewport?.addEventListener('resize', layout);
 layout();
 
 
@@ -630,24 +641,25 @@ document.addEventListener('visibilitychange', () => { net?.room?.setHidden(docum
 window.addEventListener('pagehide', () => { net?.room?.leave(); });
 
 
+
+
+
 const canvas = $('c');
-let hold = null;
 const fieldX = (clientX) => ((clientX - fit.x) / fit.w) * FIELD_W;
+const relative = (e) => e.pointerType === 'touch' || e.pointerType === 'pen';
 canvas.addEventListener('pointermove', (e) => {
   if (screen !== SCR_PLAY) return;
-  controls.pointer(fieldX(e.clientX));
-  if (hold && Math.abs(e.clientX - hold.x) > 14) { clearTimeout(hold.t); hold = null; }
+  if (relative(e)) controls.dragTo(fieldX(e.clientX));
+  else controls.pointer(fieldX(e.clientX));
 });
 canvas.addEventListener('pointerdown', (e) => {
   if (screen !== SCR_PLAY) return;
-  controls.pointer(fieldX(e.clientX));
+  if (relative(e)) controls.dragStart(fieldX(e.clientX));
+  else controls.pointer(fieldX(e.clientX));
   controls.pointerDown = true;
   controls.tap();
-  if (e.pointerType === 'touch') {
-    hold = { x: e.clientX, t: setTimeout(() => { controls.cycle(1); hold = null; }, 450) };
-  }
 });
-const up = () => { controls.pointerDown = false; if (hold) { clearTimeout(hold.t); hold = null; } };
+const up = () => { controls.pointerDown = false; controls.dragEnd(); };
 canvas.addEventListener('pointerup', up);
 canvas.addEventListener('pointercancel', up);
 

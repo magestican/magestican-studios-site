@@ -102,17 +102,38 @@ export function fitField(w, h, top = 0, bottom = 0) {
 
 export const HUD_BAND = 100;
 
-export const TINT_BAND = 70;
+
+
+
+
+
+
+export function tintBar(fs) {
+  const gap = Math.max(12, Math.round(12 * fs));
+  const size = Math.max(44, Math.round(44 * fs));
+  const pad = Math.max(6, Math.round(6 * fs));
+  const below = Math.max(12, Math.round(12 * fs));
+  const border = 1; 
+  return { gap, size, pad, border, below, band: gap + size + 2 * pad + 2 * border + below };
+}
+
+export const TINT_BAND = tintBar(1).band;
 export function fitWithHud(w, h) {
   const fsOf = (f) => Math.max(0.8, Math.min(1.6, f.w / 390));
   let f = fitField(w, h, HUD_BAND, TINT_BAND);
-  const fs = fsOf(f);
-  f = fitField(w, h, Math.round(HUD_BAND * fs), Math.round(TINT_BAND * fs));
-  return { ...f, fs: fsOf(f) };
+  let fs = fsOf(f);
+  f = fitField(w, h, Math.round(HUD_BAND * fs), tintBar(fs).band);
+  
+  fs = fsOf(f);
+  f = fitField(w, h, Math.round(HUD_BAND * fs), tintBar(fs).band);
+  return { ...f, fs };
 }
 
 
 export const KEY_SPEED = 14; 
+
+
+export const DRAG_GAIN = 1.4;
 
 
 
@@ -127,6 +148,7 @@ export class Controls {
     this.launchT = 0;   
     this.nextT = 0;
     this.pointerDown = false;
+    this.drag = null;   
   }
   key(code, down) {
     if (down) {
@@ -142,6 +164,20 @@ export class Controls {
   setTint(i) { this.tint = ((i % 3) + 3) % 3; }
   
   pointer(fx) { this.x = Math.max(0, Math.min(FIELD_W, fx)); }
+  
+
+
+
+
+  dragStart(fx) { this.drag = { fx, x: this.x }; }
+  dragTo(fx) {
+    if (!this.drag) return;
+    const want = this.drag.x + (fx - this.drag.fx) * DRAG_GAIN;
+    this.pointer(want);
+    
+    if (want !== this.x) this.drag = { fx, x: this.x };
+  }
+  dragEnd() { this.drag = null; }
   tap() { this.launchT = 6; }
   next() { this.nextT = 8; }
   
