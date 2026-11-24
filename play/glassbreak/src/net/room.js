@@ -237,6 +237,9 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
     }
     
     if (from !== hostId) return;
+    
+    
+    if (room.ended) return;
     if (msg.t === ROOM_MSG.SEAT) {
       if (room.started && msg.seat === null && room.seat !== null) { becomeWatcher(msg.why ?? 'host'); return; }
       if (room.started && msg.seat !== null && msg.seat !== undefined && room.seat === null && room.session) {
@@ -365,6 +368,7 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
 
   function leave() {
     if (role !== 'host') return;
+    room.ended = true; 
     try { mesh.broadcast({ t: ROOM_MSG.BYE }); } catch {  }
   }
 
