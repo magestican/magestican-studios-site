@@ -11,6 +11,16 @@
       "loopSamples": 2490811,
       "seed": 1865206380,
       "lufs": -13.4
+    },
+    {
+      "id": "boss",
+      "side": "A",
+      "title": "High Window",
+      "genre": "orchestral-epic",
+      "file": "glassbreak-high-window.webm",
+      "loopSamples": 2925714,
+      "seed": 958131021,
+      "lufs": -12.9
     }
   ]
 }

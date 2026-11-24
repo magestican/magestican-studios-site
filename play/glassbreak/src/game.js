@@ -20,7 +20,7 @@ import { Painter } from './render.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
-import { DUCK_CUES, MENU_CUES, MUSIC_TRACKS, SFX_GAINS, SFX_NAMES, SFX_TAKES, createCuePlayer, followSound, menuCue } from './sound.js';
+import { DUCK_CUES, MENU_CUES, MUSIC_TRACKS, SFX_GAINS, SFX_NAMES, SFX_TAKES, createCuePlayer, followSound, followTrack, menuCue, musicFor } from './sound.js';
 import {
   Controls, EventFeed, SCR_END, SCR_FAIL, SCR_PAUSE, SCR_PLAY, SCR_SELECT, SCR_SETTINGS, SCR_STORY, SCR_TALLY, SCR_TITLE, StoryReader, portraitFor,
   TINT_CSS, feelFor, fitWithHud, parseLaunch, readProgress, recordClear, scenesBefore, screenFor, unlocked, windowLabel,
@@ -715,12 +715,19 @@ function pollPad(now) {
   }
 }
 
+
+const MUSIC_RUN_SCREENS = new Set([SCR_PLAY, SCR_PAUSE, SCR_TALLY, SCR_FAIL]);
+function syncMusic(s) {
+  followTrack(music, musicFor({ inRun: !!s && MUSIC_RUN_SCREENS.has(screen), boss: !!(s && WINDOWS[s.wi]?.boss) }));
+}
+
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
   pollPad(now);
   if (net) { coopFrame(now, dt); return; }
+  syncMusic(sim);
   acc += dt;
   let steps = 0;
   const s = sim || attract;
@@ -754,7 +761,7 @@ function frame(now) {
 
 function coopFrame(now, dt) {
   const room = net.room, se = room?.session;
-  if (!se) { if (attract) { step(attract, [botInput(attract, 0), IDLE, IDLE, IDLE]); painter.draw(attract, dt); } return; }
+  if (!se) { syncMusic(null); if (attract) { step(attract, [botInput(attract, 0), IDLE, IDLE, IDLE]); painter.draw(attract, dt); } return; }
   room.poll(now);
   if (!room.ended && !room.hostPaused) se.update(now, () => controls.frame());
   const v = se.view();
@@ -767,6 +774,7 @@ function coopFrame(now, dt) {
   if (f.shake && settings.shake) painter.addShake(f.shake);
   if (frozen && now >= frozen.until) frozen = null;
   onPhase(v);
+  syncMusic(v);
   painter.draw(frozen ? frozen.s : v, dt, SEAT_COLOURS, room.seat ?? -1);
   hud(v);
 }

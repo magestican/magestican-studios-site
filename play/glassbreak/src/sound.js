@@ -85,7 +85,23 @@ export function menuCue(id, soundOn, isTint = false) {
 }
 
 
-export const MUSIC_TRACKS = Object.freeze(['main']);
+export const MUSIC_TRACKS = Object.freeze(['main', 'boss']);
+
+
+
+
+
+
+export function musicFor({ inRun = false, boss = false } = {}) {
+  return inRun && boss ? 'boss' : 'main';
+}
+
+
+export function followTrack(music, id) {
+  if (!music || music.track() === id) return false;
+  music.setTrack(id);
+  return true;
+}
 
 
 export function followSound(music, soundOn) {
