@@ -156,6 +156,9 @@ export const COUNTED_GAME_IDS = Object.freeze([
   
   
   'space-95',
+  
+  
+  'glassbreak',
 ]);
 
 

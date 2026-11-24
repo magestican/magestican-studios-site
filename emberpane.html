@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Emberpane - free stained-glass brick breaker</title>
+  <meta name="description" content="Free brick breaker in your browser: bounce a living ember, shatter stained-glass windows across five acts, alone or with up to three friends over a link.">
+  <link rel="icon" href="./favicon.svg">
+  <meta name="robots" content="max-image-preview:large">
+  <link rel="canonical" href="https://magesticanstudios.com/emberpane.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <meta name="keywords" content="emberpane, brick breaker, brick breaker online, free brick breaker, breakout game, co-op brick breaker">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Emberpane - a stained-glass brick breaker">
+  <meta property="og:description" content="Free brick breaker in your browser: bounce a living ember, shatter stained-glass windows across five acts, alone or with up to three friends over a link.">
+  <meta property="og:url" content="https://magesticanstudios.com/emberpane.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/emberpane.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Emberpane gameplay screenshot">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Emberpane - a stained-glass brick breaker">
+  <meta name="twitter:description" content="Bounce a living ember off a brass deflector and shatter stained-glass windows to set their light free. Free in your browser, alone or with friends.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/emberpane.jpg">
+  <meta name="twitter:image:alt" content="Emberpane gameplay screenshot">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Emberpane",
+    "url": "https://magesticanstudios.com/play/glassbreak/",
+    "description": "A brick breaker that runs in the browser. You bounce a living ember off a brass deflector and shatter stained-glass windows to set their light free: 45 windows in five acts, each act ending with a boss window. Play alone or with up to three friends over a link.",
+    "image": "https://magesticanstudios.com/assets/covers/emberpane-16x9.webp",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Arcade", "Action"],
+    "gamePlatform": ["Web browser", "Mobile browser"],
+    "playMode": ["SinglePlayer", "MultiPlayer"],
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 4 },
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": "en",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Is Emberpane free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is free, with nothing to download and no account, on a phone, a tablet or a computer." } },
+      { "@type": "Question", "name": "Can I play with friends?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Press Play with friends and share the link: up to four players break the same window together, and everyone has their own deflector and their own ember." } },
+      { "@type": "Question", "name": "What is tint?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The deflector is always one of three colours, rose, moss or cobalt. The ember takes that colour when it bounces, and for a short while it passes straight through glass of its own colour and breaks what lies behind." } }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="./styles.css?v=7d65bece-20261124T002119Z">
+  
+
+
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    try {
+      initAnalytics({ page: 'emberpane-landing' });
+      trackPlayClicks();
+    } catch {  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="./#games">Games</a>
+      <a href="./you.html">Your games</a>
+      <a href="./for-remote-teams.html">For teams</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./about.html">About</a>
+      <a href="./reviews.html">Reviews</a>
+    </nav>
+  </header>
+
+  <main>
+    <figure class="cover-hero">
+      <img class="cover-master" src="./assets/covers/emberpane-16x9.webp" width="1920" height="1080" srcset="./assets/covers/emberpane-960.webp 960w, ./assets/covers/emberpane-16x9.webp 1920w" sizes="(max-width: 800px) 92vw, (max-width: 1120px) calc(100vw - 64px), 1056px" fetchpriority="high" decoding="async" style="object-position: 50% 50%"
+           alt="Emberpane: the Rose Warden, a round rose window, spins above a lantern-lit lane of Lantern Row while the ember flies up at it">
+    </figure>
+    <h1>Emberpane &mdash; a stained-glass brick breaker</h1>
+    <p class="lede">Emberpane is a brick breaker that runs in your browser: you bounce a living ember off a brass deflector and shatter stained-glass windows to set their light free. Since a great fire, the city of Candlemere has waited under an evening that never ends, because Vesper, the Glass Abbess, shut all of its daylight away inside her windows. Maud has kept one spark of the old sun alive in her lamp, and she gives it to four children she calls Kindlers. Each pane they break lets a little daylight back into the streets. It is free, with nothing to download and no account, on a phone, a tablet or a computer.</p>
+    <p class="your-line" data-page="emberpane" hidden></p>
+    <p><a class="cta" href="/play/glassbreak/">Play Emberpane &rarr;</a></p>
+
+    <ul class="cover-shots" tabindex="0" aria-label="Screenshots of Emberpane">
+      <li class="shot-land"><img src="./assets/shots/emberpane/0.webp" width="1920" height="1080" srcset="./assets/shots/emberpane/0-960.webp 960w, ./assets/shots/emberpane/0.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
+           alt="Emberpane in the Mirror Nave: rows of rose, cobalt and moss panes hang under the cathedral arches as the ember climbs from the deflector"></li>
+      <li class="shot-land"><img src="./assets/shots/emberpane/1.webp" width="1920" height="1080" srcset="./assets/shots/emberpane/1-960.webp 960w, ./assets/shots/emberpane/1.webp 1920w" sizes="(max-width: 683px) 82vw, 560px" loading="lazy" decoding="async"
+           alt="Emberpane in the Kiln Works: stained-glass rows hang over the furnaces and the ember bounces near the deflector"></li>
+    </ul>
+
+    <h2>The ember and the Dusk</h2>
+    <p>Your deflector sits on the bottom line and the ember bounces off it. Glass that the ember hits cracks, then shatters. The whole mass of glass creeps down towards you, carried by the Dusk, and every pane you break pushes it back up a little. Miss the ember, or let the glass reach your line, and one of your lanterns goes out. When none are left, the window is lost.</p>
+    <p>The glass fights back. Small creatures solder broken panes back into place, cling to the ember, drop bolts, raise shields and ring bells that drag the Dusk down faster.</p>
+
+    <h2>Tint and heat</h2>
+    <p>The deflector is always one of three colours, rose, moss or cobalt. The ember takes that colour when it bounces, and for a short while it passes straight through glass of its own colour and breaks what lies behind. Change colour with Q and E, or tap one of the three swatches on the screen.</p>
+    <p>Break three or more panes before the ember comes back to you and it runs hot: faster, and harder on the glass.</p>
+
+    <h2>Five acts</h2>
+    <p>The game has 45 windows in five acts: Lantern Row, Bell Quarter, Mirror Nave, Kiln Works and Sun Spire. Each act has eight windows and ends with a boss window: the Rose Warden, the Bellwright, the Abbess's Echo, the Kiln Mother and, last, Vesper herself. Each act opens with a short scene of the story, and you can skip any scene straight to play. Every window keeps up to three stars, and a locked window tells you which window opens it.</p>
+
+    <h2>Gentle, Normal and Hard</h2>
+    <p>On Gentle your lanterns never go out and the Dusk moves slowly. Normal gives you five lanterns. Hard gives you three, a faster Dusk and a faster ember.</p>
+
+    <h2>Playing with friends</h2>
+    <p>Press Play with friends and share the link: up to four players break the same window together, and everyone has their own deflector and their own ember. Open the link late and you watch for a moment, then drop into the window that is already under way. The four seats are the four Kindlers: Juno, Pell, Tam and Ivy. Your room code stays the same when you reload, so a link you shared keeps working until you press New code.</p>
+
+    <h2>Keys, mouse, touch and gamepad</h2>
+    <p>Move the deflector with the mouse, a finger, A and D, or the arrow keys. Space or a tap launches the ember. Q and E change colour. To pause, press Escape or P. You can also plug in a gamepad: it steers in a window and moves through the menus too.</p>
+
+    <h2>What is not done yet</h2>
+    <p>For now, Emberpane is in English only: the menus, the story and this page are not translated yet.</p>
+
+    <p><a class="cta" href="/play/glassbreak/">Play Emberpane &rarr;</a></p>
+    
+    <p class="more-like-this">More like this: <a href="./2-player-games-online.html">2-player games online</a> &middot; <a href="./multiplayer-browser-games.html">Multiplayer browser games</a></p>
+    
+    
+    <div class="play-bar" data-page="emberpane">
+      <a class="cta cta-primary" href="/play/glassbreak/">Play now</a>
+      <ul class="play-facts"><li>Free</li><li>No download</li></ul>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </div>
+    <div id="landing-strings" hidden><span data-k="last">Last played</span><span data-k="matches">matches</span><span data-k="wins">wins</span></div>
+    
+  </main>
+  <footer class="site-footer">
+    <nav class="footer-nav" aria-label="Site"><ul><li><a href="./#games">Games</a></li><li><a href="./you.html">Your games</a></li><li><a href="./for-remote-teams.html">For teams</a></li><li><a href="./magazine/">Magazine</a></li><li><a href="./about.html">About</a></li><li><a href="./reviews.html">Reviews</a></li></ul></nav>
+    <nav class="footer-games" aria-label="Every game"><ul><li><a href="./farmyshoot.html">Splatbarn</a></li><li><a href="./farmy-uprising.html">Hoofrise</a></li><li><a href="./farmy-evil-hills.html">Evil Hills</a></li><li><a href="./farmykart.html">Kartzoom</a></li><li><a href="./farmy-tiles.html">Letterloft</a></li><li><a href="./farmy-crosswords.html">Wordburrow</a></li><li><a href="./farmy-chess.html">Rookwise</a></li><li><a href="./farmy-checkers.html">Jumpwise</a></li><li><a href="./farmy-ludo.html">Pawnrush</a></li><li><a href="./minesweeper.html">Sweepwise</a></li><li><a href="./gomoku.html">Gomowise</a></li><li><a href="./word-chain.html">Relaywise</a></li><li><a href="./truco.html">Trucowise</a></li><li><a href="./buraco.html">Buracowise</a></li><li><a href="./conga.html">Congawise</a></li><li><a href="./koikoi.html">Hanawise</a></li><li><a href="./shogi.html">Shogiwise</a></li><li><a href="./xiangqi.html">Xiangqiwise</a></li><li><a href="./go.html">Weiqiwise</a></li><li><a href="./zelakas-in-space.html">Zelakas In Space</a></li><li><a href="./2d-fighter-ex.html">2D Fighter EX</a></li><li><a href="./farmy-moon-life.html">Moon Life</a></li><li><a href="./silk-and-seam.html">Silk & Seam</a></li><li><a href="./dachis.html">Dachis</a></li><li><a href="./space-95.html">Space 95</a></li><li><a href="./magic-mirror-moves.html">Magic Mirror Moves</a></li><li><a href="./rex-rampage.html">Rex Rampage</a></li><li><a href="./lamplighters.html">Lamplighters</a></li><li><a href="./fossick.html">Fossick</a></li><li><a href="./clashwell.html">Clashwell</a></li><li><a href="./abc-jam.html">ABC Jam</a></li><li><a href="./flipwake.html">Flipwake</a></li><li><a href="./tiny-throttle.html">Tiny Throttle</a></li><li><a href="./glimmercoil.html">Glimmercoil</a></li><li><a href="./ringtitans.html">Ringtitans</a></li><li><a href="./emberpane.html">Emberpane</a></li><li><a href="./farmy-five.html">Guesswise</a></li><li><a href="./farmy-hive.html">Combword</a></li><li><a href="./farmy-herds.html">Groupseek</a></li><li><a href="./farmy-furrows.html">Gridseek</a></li></ul></nav>
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; <a href="https://www.youtube.com/@ameliagurl">Amelia on YouTube</a>
+      &middot; Site is static &middot; no cookies, anonymous counts only
+    </p>
+    
+    <p class="footer-browse">Browse: <a href="/2-player-games-online.html">2-player games online</a> &middot; <a href="/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/board-games-with-friends.html">Board games with friends</a> &middot; <a href="/word-games.html">Free word games</a></p>
+    <nav class="mg-network" aria-label="Magestican Studios sites"><a href="/sites.html">All our sites</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://workchillout.com/">Work Chill Out</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://music.workchillout.com/">Magestican Music</a><span class="mg-network__dot" aria-hidden="true"> &middot; </span><a href="https://bryanarbelo.com/">Bryan Arbelo</a></nav>
+    
+  </footer>
+  <script type="module" src="./assets/site.js?v=7d65bece-20261124T002119Z"></script>
+  <script type="module" src="./assets/landing.js?v=7d65bece-20261124T002119Z"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=7d65bece-20261124T002119Z"></script>
+</body>
+</html>

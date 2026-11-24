@@ -394,7 +394,7 @@ export const STORY = {
 };
 export const CAST = {
  "heading": {
-  "title": "Glassbreak"
+  "title": "Emberpane"
  },
  "message": {
   "blurb": "Vesper, the Glass Abbess, has locked the daylight of Candlemere inside stained glass. Keep the last ember of the old sun in the air and break the windows to let the light out.",

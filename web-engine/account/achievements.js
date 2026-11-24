@@ -251,7 +251,7 @@ export const S95_STATS = Object.freeze([
 
 
 
-const PREVIEW_PLAYED_STAT = Object.freeze({ glassbreak: 'gbPlays' });
+const PREVIEW_PLAYED_STAT = Object.freeze({});
 
 
 

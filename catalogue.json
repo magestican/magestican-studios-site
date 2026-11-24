@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "c0322127-20261124T000058Z",
+ "buildId": "7d65bece-20261124T002119Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -1061,6 +1061,38 @@
    "bytes": 5318531
   },
   {
+   "id": "emberpane",
+   "statsId": "glassbreak",
+   "title": "Emberpane",
+   "tagline": "Keep the last ember of the old sun in the air and break the stained-glass windows to let the daylight out.",
+   "description": "A brick breaker that runs in your browser: bounce a living ember off a brass deflector, tint it to pass through glass of its own colour, and shatter 45 stained-glass windows across five acts and five bosses. Play alone or with up to three friends over a link.",
+   "dir": "play/glassbreak",
+   "path": "play/glassbreak/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/emberpane.html",
+   "orientation": "any",
+   "players": "1-4",
+   "online": true,
+   "offline": false,
+   "cover": "assets/covers/emberpane-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/emberpane/0.webp",
+    "assets/shots/emberpane/1.webp"
+   ],
+   "accent": "#f2a93b",
+   "glyph": "glassbreak",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 35,
+   "addedAt": "2026-11-24",
+   "bytes": 5584888
+  },
+  {
    "id": "farmy-five",
    "statsId": "farmy-five",
    "title": "Guesswise",
@@ -1088,7 +1120,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 36,
+   "order": 37,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1120,7 +1152,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 37,
+   "order": 38,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1152,7 +1184,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 38,
+   "order": 39,
    "addedAt": "2026-09-21",
    "bytes": 228531
   },
@@ -1184,7 +1216,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 39,
+   "order": 40,
    "addedAt": "2026-09-21",
    "bytes": 228531
   }

@@ -105,6 +105,9 @@ export const GAME_NAMES = Object.freeze({
   
   ringtitans: { en: 'Ringtitans', es: 'Ringtitans: Batalla de robots gigantes', pt: 'Ringtitans: Batalha de robôs gigantes', tl: 'Ringtitans: Labanan ng Higanteng Robot', ja: 'Ringtitans 巨大ロボット対戦', ko: 'Ringtitans 거대 로봇 대전', id: 'Ringtitans: Pertarungan Robot Raksasa', vi: 'Ringtitans: Đại chiến robot khổng lồ' },
   glimmercoil: { en: 'Glimmercoil', es: 'Glimmercoil: Juego de la serpiente', pt: 'Glimmercoil: Jogo da cobrinha', tl: 'Glimmercoil: Laro ng Ahas', ja: 'Glimmercoil スネークゲーム', ko: 'Glimmercoil 뱀 게임', id: 'Glimmercoil: Game Ular', vi: 'Glimmercoil: Trò chơi rắn săn mồi' },
+  
+  
+  glassbreak: { en: 'Emberpane', es: 'Emberpane: Rompe ladrillos', pt: 'Emberpane: Quebra-tijolos', tl: 'Emberpane: Laro ng Pagbasag ng Laryo', ja: 'Emberpane ブロック崩し', ko: 'Emberpane 벽돌깨기', id: 'Emberpane: Game Pemecah Bata', vi: 'Emberpane: Trò chơi phá gạch' },
   'tiny-throttle': { en: 'Tiny Throttle', es: 'Tiny Throttle: Carreras de coches RC', pt: 'Tiny Throttle: Corrida de carrinhos RC', tl: 'Tiny Throttle: Karera ng RC na Kotse', ja: 'Tiny Throttle ラジコンレース', ko: 'Tiny Throttle RC카 레이싱', id: 'Tiny Throttle: Balap Mobil RC', vi: 'Tiny Throttle: Đua xe điều khiển' },
   
   clashwell: { en: 'Clashwell', es: 'Clashwell: Duelo de gemas', pt: 'Clashwell: Duelo de gemas', tl: 'Clashwell: Labanan ng Hiyas', ja: 'Clashwell 落ち物ジェム対戦', ko: 'Clashwell 보석 낙하 대전', id: 'Clashwell: Duel Permata', vi: 'Clashwell: Đấu đá quý' },

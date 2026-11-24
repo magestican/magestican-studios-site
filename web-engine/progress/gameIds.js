@@ -163,6 +163,10 @@ export const PROFILE_GAME_IDS = Object.freeze([
   'farmy-hive',
   'farmy-herds',
   'farmy-furrows',
+  
+  
+  
+  'glassbreak',
 ]);
 
 
@@ -195,6 +199,7 @@ export const PROFILE_GAME_NAMES = Object.freeze({
   'farmy-hive': 'Combword',
   'farmy-herds': 'Groupseek',
   'farmy-furrows': 'Gridseek',
+  glassbreak: 'Emberpane',
 });
 
 
@@ -219,6 +224,7 @@ export const PROFILE_GAME_NAMES = Object.freeze({
 
 
 
-export const PREVIEW_GAME_IDS = Object.freeze(['glassbreak']);
 
-export const PREVIEW_GAME_NAMES = Object.freeze({ glassbreak: 'Glassbreak' });
+export const PREVIEW_GAME_IDS = Object.freeze([]);
+
+export const PREVIEW_GAME_NAMES = Object.freeze({});

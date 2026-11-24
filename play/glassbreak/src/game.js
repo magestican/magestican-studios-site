@@ -493,7 +493,7 @@ for (const id of ['Join', 'Watch']) {
     const field = $(`${id.toLowerCase()}Link`);
     if (!field.value) return;
     const { shareLink } = await import('../../../web-engine/share/shareInvite.js');
-    shareLink({ link: field.value, gameName: 'Glassbreak', code: net?.room?.mesh.myId ?? null, button: $(`share${id}`), field });
+    shareLink({ link: field.value, gameName: 'Emberpane', code: net?.room?.mesh.myId ?? null, button: $(`share${id}`), field });
   });
 }
 $('friends').addEventListener('click', () => openCoop());

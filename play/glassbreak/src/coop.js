@@ -52,7 +52,7 @@ export const forgetRoomCode = () => sticky.forget();
 
 export const GUEST_RETRIES = 5;
 export const GUEST_RETRY_MS = 2000;
-export const HOST_NOT_OPEN = "The host's room is not open. Ask them to open Glassbreak and share the link again.";
+export const HOST_NOT_OPEN = "The host's room is not open. Ask them to open Emberpane and share the link again.";
 
 
 function hostMesh(attempt = 0) {
