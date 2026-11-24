@@ -127,6 +127,19 @@ export const CONTROLS = Object.freeze({
 export const LEGEND_MS = 20000;
 
 
+
+
+
+
+
+
+export const LEGEND_SIDE_MIN = 220;
+export function legendSide(arenaLeft) {
+  const w = Math.floor(arenaLeft - 32);
+  return w >= LEGEND_SIDE_MIN ? w : 0;
+}
+
+
 export function controlsFor(control = '') {
   if (control === 'p1' || control === 'p2') return CONTROLS[control];
   if (control.startsWith('pad')) return CONTROLS.pad;
@@ -165,6 +178,23 @@ export function controlsLine(control) {
   const c = controlsFor(control);
   if (c && c.verb === 'Tap') return `${c.move} (stick) to move - tap ${c.fire}, ${c.boost}, ${c.ability}`;
   return c ? `${c.move} move - ${c.fire} fire - ${c.boost} boost - ${c.ability} ability` : '';
+}
+
+
+
+
+
+
+
+
+
+export const WARM_GOAL = 'Warm up: drive your Titan and shoot a target.';
+export const WARM_GOAL_SHORT = 'Warm up: drive and shoot a target!';
+export function warmNote(seats = []) {
+  const shown = seats.filter((s) => controlsFor(s.control));
+  const lines = shown.filter((s) => s.control !== 'touch').map((s) => `${s.name}: ${controlsLine(s.control)}`);
+  if (!lines.length && shown.length) return WARM_GOAL_SHORT;
+  return `${WARM_GOAL}${lines.length ? ` ${lines.join('. ')}.` : ''}`;
 }
 
 const LESSON = { fire: (k) => `${k} to FIRE at a target!`, boost: (k) => `${k} to BOOST and dash!`, ability: (k) => `${k} for your ABILITY!` };

@@ -9,9 +9,9 @@ import { HOUSES, TITANS } from '../../../web-engine/titan-bash/titans.js';
 import { TUNING as T, secs, HZ } from '../../../web-engine/titan-bash/tuning.js';
 import { initAnalytics } from '../../../web-engine/visits/visits.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
-import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats, setupFromCheats, isTouchDevice, firstPilot } from './input.js';
+import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats, setupFromCheats, defaultCpuLevel, isTouchDevice, firstPilot } from './input.js';
 import { wirePad } from './touchPad.js';
-import { layout, draw } from './render.js';
+import { layout, draw, LIP } from './render.js';
 import { createScreenLink, joinCodeFrom, linkFor, canLink, PREFIX } from './net.js';
 import { MSG, STATUS_HZ, encodeStatus } from './wire.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
@@ -28,7 +28,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -169,6 +169,8 @@ function nightSettings() {
 }
 
 {
+  
+  $('opt-cpu').value = defaultCpuLevel(nightsPlayed());
   const s = setupFromCheats(cheats);
   for (const [id, v] of Object.entries(s.values)) $(id).value = v;
   $('opt-teams-wrap').hidden = !s.teamsShown;
@@ -185,7 +187,7 @@ function nightLine() {
 
 function start() {
   newRound(humans); sendSeats();
-  const fresh = buildSeats(humans, cheats);
+  const fresh = buildSeats(humans, { ...cheats, cpu: $('opt-cpu').value });
   
   if (!night || nightOver(night) || night.seats.length !== fresh.length) {
     night = createNight({ ...nightSettings(), players: fresh, allNew: allNewRoom() });
@@ -303,6 +305,9 @@ function resize() {
   const c = $('stage'); const dpr = Math.min(2, window.devicePixelRatio || 1);
   c.width = Math.round(c.clientWidth * dpr); c.height = Math.round(c.clientHeight * dpr);
   L = layout(c.width, c.height, dpr, { arena: match ? match.arena : 'bellRing' });
+  
+  const side = document.body.classList.contains('tb-touch-on') ? 0 : legendSide((L.ox - L.aw / 2) / dpr - LIP);
+  $('legend').classList.toggle('side', side > 0); $('legend').style.width = side ? `${side}px` : '';
   if (match) paint();
 }
 function paint() {
@@ -530,7 +535,7 @@ $('to-title').addEventListener('click', () => { ui.play('back'); show('title'); 
 $('night-again').addEventListener('click', () => { night = null; start(); });
 $('night-pilots').addEventListener('click', () => { ui.play('back'); night = null; show('title'); renderSeats(); nightLine(); });
 
-for (const id of ['opt-mode', 'opt-rounds', 'opt-teams', 'opt-arena']) {
+for (const id of ['opt-mode', 'opt-rounds', 'opt-teams', 'opt-arena', 'opt-cpu']) {
   $(id).addEventListener('change', () => { $('opt-teams-wrap').hidden = $('opt-mode').value !== 'team'; night = null; nightLine(); ui.play('pick'); });
 }
 { const p = el('p', 'tb-dim'); p.id = 'night-line'; $('night-setup').append(p); nightLine(); }
@@ -548,8 +553,7 @@ function startWarm() {
     warmSeats = buildSeats(humans, { ...cheats, bots: 0 });
     warm = createWarmup({ players: warmSeats, seed: 11 });
     
-    const lines = warmSeats.map((s) => (controlsFor(s.control) ? `${HOUSE[s.house].name}: ${controlsLine(s.control)}` : '')).filter(Boolean);
-    $('warm-note').textContent = `Warm up: drive your Titan and shoot a target.${lines.length ? ` ${lines.join('. ')}.` : ''}`;
+    $('warm-note').textContent = warmNote(warmSeats.map((s) => ({ name: HOUSE[s.house].name, control: s.control })));
   }
   resizeWarm();
   cancelAnimationFrame(warmRaf); warmLast = performance.now(); warmAcc = 0; warmRaf = requestAnimationFrame(warmFrame);

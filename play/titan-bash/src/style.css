@@ -295,6 +295,10 @@ select.tb-input {
 
 .ph-b, .ph-ready, .ph-start { font-family: var(--display); font-weight: 700; font-size: 1.6rem; letter-spacing: 0.08em; padding-top: 4px; }
 .ph-fire { font-size: 2rem; }
+
+
+
+.ph-ability { font-size: 0.95rem; letter-spacing: 0.04em; }
 .ph-label { font: 600 1.15rem/1 var(--display); letter-spacing: 0.1em; }
 
 
@@ -551,6 +555,9 @@ select.tb-input {
 .tb-legend b { color: var(--bell); font-weight: 700; }
 .tb-legend .swatch { width: 14px; height: 14px; border-radius: 50%; flex: none; }
 .tb-legend.gone { opacity: 0; }
+
+
+.tb-legend.side { max-width: none; font-size: 1.3rem; line-height: 1.2; gap: 12px; }
 @media (prefers-reduced-motion: reduce) { .tb-legend { transition: none; } }
 
 
@@ -643,6 +650,8 @@ body.tb-touch-on { overscroll-behavior: none; }
   body.tb-touch-on .tb-head::after { display: none; }
   body.tb-touch-on #start { order: 1; min-height: 64px; font-size: 2.2rem; }
   body.tb-touch-on .tb-warm { order: 2; }
+  
+  body.tb-touch-on .tb-warm-note { font-size: 1rem; }
   body.tb-touch-on .tb-lineup { order: 3; }
   body.tb-touch-on .tb-settings { order: 4; }
 }
