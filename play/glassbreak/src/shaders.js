@@ -61,7 +61,10 @@ void main() {
   float cell = floor(cx);
   float roof = -1280.0 + 30.0 + 70.0 * hash(vec2(cell, 1.0)) + 30.0 * step(0.85, hash(vec2(cell, 2.0)));
   float spire = step(0.9, hash(vec2(cell, 5.0))) * max(0.0, 1.0 - abs(fract(cx) - 0.5) * 4.0) * 70.0;
-  float city = step(p.y, roof + spire);
+  // G-17 D8 (by-hand review 2026-11-24): this city was drawn across the whole screen, so on a wide screen it showed as a
+  // skyline band along the bottom outside the stained-glass frame whenever the act picture was not on yet (first
+  // frames, a slow load). It belongs to the field only; past the frame the act picture or the plain dusk shows.
+  float city = step(p.y, roof + spire) * inField;
   vec3 cityCol = vec3(0.025, 0.02, 0.04);
   vec2 wp = floor(vec2(p.x / 7.0, p.y / 11.0));
   float lit = step(0.82, hash(wp)) * step(p.y, roof - 14.0) * step(0.5, fract(p.x / 7.0)) * step(0.45, fract(p.y / 11.0));

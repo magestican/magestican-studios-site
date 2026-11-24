@@ -226,6 +226,11 @@ export class Painter {
       } else if (e.k === 'bosshit') {
         this.burst(x, y, [1, 0.95, 0.8], 10, 360, 6);
         this.bossFlash = 1;
+      } else if (e.k === 'bossland') {
+        
+        this.ring(x, y, [1, 0.55, 0.6], 640, 1.0);
+        this.burst(x, y, [1, 0.7, 0.6], 30, 520, 9);
+        this.shaft(x, y, [1, 0.75, 0.6], 200, 1.4, 0.7);
       } else if (e.k === 'guardbreak') {
         this.burst(x, y, [0.9, 0.6, 1], 18, 340, 7);
       } else if (e.k === 'bossdown') {

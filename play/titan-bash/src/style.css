@@ -316,7 +316,12 @@ select.tb-input {
     radial-gradient(circle at 6px 6px, #4a5676 0 1.5px, transparent 2px) bottom right / 12px 12px no-repeat,
     linear-gradient(180deg, #33405e, #222b40);
 }
-.ph-titans button span:last-child { padding-top: 3px; font-size: 1.5rem; }
+
+.ph-titans button span:last-child { padding-top: 3px; font-size: 1.25rem; letter-spacing: 0.03em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 480px) {
+  .ph-titans button { grid-template-columns: 52px minmax(0, 1fr); gap: 8px; padding-right: 10px; }
+  .ph-face { width: 52px; height: 52px; }
+}
 .ph-face {
   width: 64px; height: 64px; background: radial-gradient(circle at 50% 70%, rgba(255, 201, 74, 0.22), transparent 70%);
   background-repeat: no-repeat;

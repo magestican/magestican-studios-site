@@ -19,12 +19,13 @@ import { WINDOWS, ACTS } from './sim/windows.js';
 import { Painter } from './render.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { createLobbyMusic } from '../../../web-engine/audio/lobbyMusic.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
-import { DUCK_CUES, MENU_CUES, MUSIC_TRACKS, SFX_GAINS, SFX_NAMES, SFX_TAKES, createCuePlayer, followSound, followTrack, menuCue, musicFor } from './sound.js';
+import { DUCK_CUES, MENU_CUES, MUSIC_TRACKS, SFX_GAINS, SFX_NAMES, SFX_TAKES, createCuePlayer, followSound, followTrack, menuCue, musicFor, musicVolume, scaledGains } from './sound.js';
 import {
   Controls, EventFeed, SCR_END, SCR_FAIL, SCR_PAUSE, SCR_PLAY, SCR_SELECT, SCR_SETTINGS, SCR_STORY, SCR_TALLY, SCR_TITLE, StoryReader, portraitFor,
   TINT_CSS, feelFor, fitWithHud, parseLaunch, readProgress, recordClear, scenesBefore, screenFor, unlocked, windowLabel,
-  writeProgress, readSettings, writeSettings, storyScenes, eraseTap, emptyProgress, launchHintShown,
+  writeProgress, readSettings, writeSettings, stepVolume, volumeGain, storyScenes, eraseTap, emptyProgress, launchHintShown,
 } from './view.js';
 
 import { reportMatch } from '../../../web-engine/progress/report.js';
@@ -51,9 +52,12 @@ const feed = new EventFeed();
 const controls = new Controls();
 
 
-const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), SFX_NAMES, SFX_TAKES, Math.random, SFX_GAINS);
-const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES);
-const music = createTrackMusic({ game: 'glassbreak', manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS });
+
+const fxLevel = () => volumeGain(settings.sfx);
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), SFX_NAMES, SFX_TAKES, Math.random, scaledGains(SFX_NAMES, SFX_GAINS, fxLevel));
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, scaledGains(MENU_CUES, {}, fxLevel));
+const musicVol = musicVolume(createLobbyMusic, volumeGain(settings.music));
+const music = createTrackMusic({ game: 'glassbreak', manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS, createPlayer: musicVol.createPlayer });
 
 const sounds = createCuePlayer((cue, e) => { sfx.play(cue, breakRate(e)); if (DUCK_CUES.has(cue)) music.duck(0.4, 600); });
 function drawSound() {
@@ -246,9 +250,12 @@ function banner(wi) {
   $('bannerAct').textContent = l.act;
   $('bannerName').textContent = l.name;
   const b = $('banner');
+  
+  const boss = !!(WINDOWS[wi] && WINDOWS[wi].boss);
+  b.classList.toggle('boss', boss);
   b.classList.add('on');
   clearTimeout(banner.t);
-  banner.t = setTimeout(() => b.classList.remove('on'), 2200);
+  banner.t = setTimeout(() => b.classList.remove('on'), boss ? 3200 : 2200);
 }
 
 
@@ -542,6 +549,14 @@ function drawSettings() {
   const flag = (id, label, on) => { $(id).textContent = `${label}: ${on ? 'on' : 'off'}`; $(id).setAttribute('aria-pressed', String(on)); };
   flag('setShake', 'Screen shake', settings.shake);
   flag('setStory', 'Story scenes', settings.story);
+  for (const k of ['music', 'sfx']) {
+    const v = settings[k];
+    $(k + 'Val').textContent = v ? v + '%' : 'Off';
+    $(k + 'Bar').style.setProperty('--v', v + '%');
+    $(k + 'Meter').dataset.off = v ? '0' : '1';
+    $(k + 'Down').disabled = v <= 0;
+    $(k + 'Up').disabled = v >= 100;
+  }
   const armed = eraseArmed !== null;
   $('setErase').textContent = armed ? 'Tap again to erase' : 'Erase progress';
   $('setErase').dataset.armed = armed ? '1' : '0';
@@ -554,6 +569,18 @@ $('pauseSettings').addEventListener('click', () => openSettings(SCR_PAUSE));
 $('settingsBack').addEventListener('click', () => show(settingsFrom === SCR_PAUSE && run() ? SCR_PAUSE : SCR_TITLE));
 $('setShake').addEventListener('click', () => saveSettings({ ...settings, shake: !settings.shake }));
 $('setStory').addEventListener('click', () => saveSettings({ ...settings, story: !settings.story }));
+
+for (const k of ['music', 'sfx']) {
+  for (const [id, dir] of [[k + 'Down', -1], [k + 'Up', 1]]) {
+    $(id).addEventListener('click', () => {
+      const was = document.activeElement;
+      saveSettings({ ...settings, [k]: stepVolume(settings[k], dir) });
+      if (k === 'music') musicVol.set(volumeGain(settings.music));
+      
+      if (was === $(id) && $(id).disabled) $(k + (dir < 0 ? 'Up' : 'Down')).focus();
+    });
+  }
+}
 $('setErase').addEventListener('click', () => {
   const t = eraseTap(eraseArmed, performance.now());
   eraseArmed = t.armedAt;

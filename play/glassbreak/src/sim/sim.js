@@ -31,7 +31,10 @@ export const HOLD_BAND = 200, HOLD_PCT = 40;
 export const SHIELD_Y = 1215;
 export const ECHO_Y = 104, ECHO_HW = 70;
 export const EMBER_R = 11;
-export const BOSS_Y = 420, BOSS_CORE_R = 46;
+
+export const BOSS_Y = 420, BOSS_CORE_R = 64;
+
+export const BOSS_ENTER = 150, BOSS_ENTER_FROM = -260;
 
 export const PH_PLAY = 0, PH_CLEAR = 1, PH_FAIL = 2, PH_DONE = 3;
 export const MODE_GENTLE = 0, MODE_NORMAL = 1, MODE_HARD = 2;
@@ -62,11 +65,11 @@ export const CAP_TICKS = 720;
 
 
 export const BOSSES = Object.freeze({
-  rose:   { hp: 32, guards: 10, orbit: 112, rot: 9,   bolt: 210, fan: 3, ring: 0,   spawn: 0,  regrow: 0,   echo: false },
-  bell:   { hp: 40, guards: 8,  orbit: 104, rot: -11, bolt: 240, fan: 5, ring: 320, spawn: 0,  regrow: 0,   echo: false },
-  echo:   { hp: 44, guards: 12, orbit: 122, rot: 13,  bolt: 190, fan: 3, ring: 0,   spawn: 0,  regrow: 0,   echo: true },
-  kiln:   { hp: 38, guards: 8,  orbit: 108, rot: -15, bolt: 170, fan: 5, ring: 0,   spawn: 260, regrow: 520, echo: false },
-  vesper: { hp: 50, guards: 12, orbit: 120, rot: 12,  bolt: 160, fan: 5, ring: 420, spawn: 300, regrow: 600, echo: true },
+  rose:   { hp: 32, guards: 8,  orbit: 132, rot: 9,   bolt: 210, fan: 3, ring: 0,   spawn: 0,  regrow: 0,   echo: false },
+  bell:   { hp: 40, guards: 8,  orbit: 124, rot: -11, bolt: 240, fan: 5, ring: 320, spawn: 0,  regrow: 0,   echo: false },
+  echo:   { hp: 44, guards: 12, orbit: 142, rot: 13,  bolt: 190, fan: 3, ring: 0,   spawn: 0,  regrow: 0,   echo: true },
+  kiln:   { hp: 38, guards: 8,  orbit: 128, rot: -15, bolt: 170, fan: 5, ring: 0,   spawn: 260, regrow: 520, echo: false },
+  vesper: { hp: 50, guards: 12, orbit: 140, rot: 12,  bolt: 160, fan: 5, ring: 420, spawn: 300, regrow: 600, echo: true },
 });
 export const BOSS_GUARD_R = 21, BOSS_GUARD_HP = 2;
 
@@ -163,7 +166,7 @@ export function loadWindow(s, wi) {
   if (w.boss) {
     const B = BOSSES[w.boss];
     const max = muldiv(B.hp, 2 + n1, 3) * (s.mode === MODE_HARD ? 5 : 4) / 4 | 0;
-    s.boss = { ...s.boss, on: 1, kind: w.boss, hp: max, max, guards: new Array(B.guards).fill(BOSS_GUARD_HP) };
+    s.boss = { ...s.boss, on: 1, kind: w.boss, y: U(BOSS_ENTER_FROM), hp: max, max, guards: new Array(B.guards).fill(BOSS_GUARD_HP) };
   }
   s.refire = { at: 0, cells: [] }; s.surge = { at: 0, dy: 0 };
   s.echo = { on: w.echo ? 1 : 0, x: U(FIELD_W / 2), hp: w.echo ? 8 : 0, max: w.echo ? 8 : 0 };
@@ -374,6 +377,9 @@ function killEnemy(s, en, seat) {
   if (hash32(s.seed, en.id, 7) % 3 === 0) dropCapsule(s, en.x, en.y, hash32(s.seed, en.id, 9) % CAPSULE_KINDS);
 }
 
+
+export const bossEntering = (s) => !!(s.boss && s.boss.on && !s.boss.beaten && s.boss.t < BOSS_ENTER);
+
 export function bossGuardPos(s, i) {
   const b = s.boss, B = BOSSES[b.kind];
   const a = b.rot + (i * ANG) / b.guards.length;
@@ -382,7 +388,7 @@ export function bossGuardPos(s, i) {
 
 function hitBoss(s, e) {
   const b = s.boss;
-  if (!b.on || b.beaten) return false;
+  if (!b.on || b.beaten || bossEntering(s)) return false;
   for (let i = 0; i < b.guards.length; i++) {
     if (b.guards[i] <= 0) continue;
     const g = bossGuardPos(s, i);
@@ -390,7 +396,12 @@ function hitBoss(s, e) {
     bounceRound(s, e, g.x, g.y, BOSS_GUARD_R);
     b.guards[i] -= e.heat >= 3 ? 2 : 1;
     ev(s, b.guards[i] <= 0 ? 'guardbreak' : 'crack', g.x, g.y, i);
-    if (b.guards[i] <= 0) { s.light += 50; s.massY -= U(6); }
+    if (b.guards[i] <= 0) {
+      s.light += 50; s.massY -= U(6);
+      
+      
+      hurtBoss(s, 1, e.last);
+    }
     return true;
   }
   if (touches(e.x, e.y, b.x, b.y, BOSS_CORE_R + EMBER_R)) {
@@ -585,7 +596,7 @@ function stepBolts(s) {
         b.y = -U(100); break;
       }
       if (b.y < 0) continue;
-      if (s.boss.on && !s.boss.beaten && touches(b.x, b.y, s.boss.x, s.boss.y, BOSS_CORE_R + 4)) {
+      if (s.boss.on && !s.boss.beaten && !bossEntering(s) && touches(b.x, b.y, s.boss.x, s.boss.y, BOSS_CORE_R + 4)) {
         hurtBoss(s, 1, b.own); b.y = -U(100);
       }
     } else if (b.y >= U(PADDLE_Y) && b.y <= U(PADDLE_Y + PADDLE_H + 8)) {
@@ -778,9 +789,19 @@ function stepBoss(s) {
   if (!b.on || b.beaten) return;
   const B = BOSSES[b.kind];
   b.t++;
+  if (b.t <= BOSS_ENTER) {
+    
+    if (b.t === 1) ev(s, 'bossenter', U(FIELD_W / 2), U(BOSS_Y), BOSS_ENTER);
+    const k = BOSS_ENTER - b.t;
+    b.y = U(BOSS_Y) - muldiv(U(BOSS_Y - BOSS_ENTER_FROM), k * k, BOSS_ENTER * BOSS_ENTER);
+    b.rot = (b.rot + B.rot + ANG) % ANG;
+    if (b.t === BOSS_ENTER) ev(s, 'bossland', b.x, b.y, 0);
+    return;
+  }
   const rage = 1 + b.phase;
   b.rot = (b.rot + B.rot * (b.phase === 2 ? 2 : 1) + ANG) % ANG;
-  const swing = b.kind === 'bell' || b.kind === 'vesper' ? 230 : 150;
+  
+  const swing = b.kind === 'bell' || b.kind === 'vesper' ? 210 : 150;
   b.x = U(FIELD_W / 2) + muldiv(isin(b.t * (4 + b.phase * 2)), U(swing), ONE);
   b.y = U(BOSS_Y) + muldiv(isin(b.t * 3 + 1000), U(40), ONE);
   

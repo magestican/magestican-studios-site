@@ -29,6 +29,8 @@ const EVENT_CUE = Object.freeze({
   
   
   refirewarn: 'kilnroar', refire: 'clank', surgewarn: 'spiregroan', surge: 'breach', surgestop: 'sun',
+  
+  bossenter: 'bellwarn', bossland: 'breach',
   bosshit: 'bosshit', guardbreak: 'bosshit', bossdown: 'bossdown',
   clear: 'clear', done: 'clear', fail: 'fail',
 });
@@ -108,4 +110,42 @@ export function followSound(music, soundOn) {
   if (!music) return false;
   if (music.isOn() !== !!soundOn) music.setOn(!!soundOn);
   return music.isOn();
+}
+
+
+
+
+
+
+
+export function scaledGains(names, base = {}, level = () => 1) {
+  const o = {};
+  for (const n of names) {
+    Object.defineProperty(o, n, { enumerable: true, get: () => (Object.prototype.hasOwnProperty.call(base, n) ? base[n] : 1) * level() });
+  }
+  return o;
+}
+
+
+
+
+
+export function musicVolume(createPlayer, level = 1) {
+  const nodes = new Set();
+  let g = level;
+  return {
+    createPlayer(o) {
+      const node = o.ctx.createGain();
+      node.gain.value = g;
+      node.connect(o.destination);
+      nodes.add(node);
+      return createPlayer({ ...o, destination: node });
+    },
+    set(v) {
+      g = v;
+      for (const n of nodes) n.gain.value = g;
+      return g;
+    },
+    level: () => g,
+  };
 }

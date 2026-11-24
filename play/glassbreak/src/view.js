@@ -68,6 +68,7 @@ export const FEEL = {
   bossdown:  { stop: 18, shake: 26 },
   guardbreak:{ stop: 3, shake: 6 },
   bosshit:   { stop: 2, shake: 5 },
+  bossland:  { stop: 6, shake: 20 }, 
   echobreak: { stop: 8, shake: 14 },
   breach:    { stop: 10, shake: 22 },
   ring:      { stop: 0, shake: 9 },
@@ -263,13 +264,22 @@ export const unlocked = (p, wi) => wi <= p.reached;
 
 
 export const SETTINGS_KEY = 'gbk-settings';
-export const defaultSettings = (reduceMotion = false) => ({ shake: !reduceMotion, story: true });
+
+
+export const VOL_STEP = 10;
+export const defaultSettings = (reduceMotion = false) => ({ shake: !reduceMotion, story: true, music: 100, sfx: 100 });
+const volOf = (v, d) => (Number.isInteger(v) && v >= 0 && v <= 100 && v % VOL_STEP === 0 ? v : d);
+
+export const stepVolume = (v, dir) => Math.max(0, Math.min(100, volOf(v, 100) + Math.sign(dir) * VOL_STEP));
+
+export const volumeGain = (v) => (volOf(v, 100) / 100) ** 2;
 export function readSettings(storage, reduceMotion = false) {
   const d = defaultSettings(reduceMotion);
   try {
     const o = JSON.parse(storage.getItem(SETTINGS_KEY) || 'null');
     if (!o || typeof o !== 'object') return d;
-    return { shake: typeof o.shake === 'boolean' ? o.shake : d.shake, story: typeof o.story === 'boolean' ? o.story : d.story };
+    return { shake: typeof o.shake === 'boolean' ? o.shake : d.shake, story: typeof o.story === 'boolean' ? o.story : d.story,
+      music: volOf(o.music, d.music), sfx: volOf(o.sfx, d.sfx) };
   } catch { return d; }
 }
 export function writeSettings(storage, st) {
