@@ -48,6 +48,9 @@ export const ROOM_MSG = Object.freeze({
   JOIN: 'fw-join', NEED: 'fw-need', DELAY: 'fw-delay',
   
   PICK: 'fw-pick', PILOTS: 'fw-pilots',
+  
+  
+  BYE: 'fw-bye',
 });
 const SIM_TYPES = new Set(['in', 'h', 'drop', 'join']);
 
@@ -267,6 +270,7 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
     }
     if (msg.t === ROOM_MSG.DELAY) { room.session?.setInputDelay(msg.d | 0); return; }
     if (msg.t === ROOM_MSG.PAUSE) { room.hostPaused = !!msg.on; emit('pause', { on: room.hostPaused }); return; }
+    if (msg.t === ROOM_MSG.BYE) { hostGone(); return; }
     if (room.session && SIM_TYPES.has(msg.t)) room.session.receive(msg);
   }
 
@@ -343,11 +347,27 @@ export function createRoom({ mesh, role, hostId = null, onEvent = () => {}, seed
       room.guests.delete(id);
       lobby();
     } else if (id === hostId) {
-      room.ended = true;
-      emit('ended', { reason: 'the host left' });
+      hostGone();
     }
   });
 
-  Object.assign(room, { start, setHidden, poll, pick });
+  
+  function hostGone() {
+    if (room.ended) return;
+    room.ended = true;
+    room.hostPaused = false;
+    emit('ended', { reason: 'the host left' });
+  }
+
+  
+
+
+
+  function leave() {
+    if (role !== 'host') return;
+    try { mesh.broadcast({ t: ROOM_MSG.BYE }); } catch {  }
+  }
+
+  Object.assign(room, { start, setHidden, poll, pick, leave });
   return room;
 }

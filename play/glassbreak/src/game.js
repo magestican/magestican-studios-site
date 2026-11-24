@@ -491,7 +491,8 @@ function onRoomEvent(e) {
     console.warn('[glassbreak] desync', e);
     toast('Screens fell out of step. Start a new room.', 0);
   } else if (e.type === 'ended') {
-    toast('The host left, so the room has closed.', 0);
+    
+    toast(room.role === 'watch' ? 'The host left. Reload this page to watch again when they are back.' : 'The host left. Reload this page to join again when they are back.', 0);
   } else if (e.type === 'error') {
     if (room.started) toast(e.message, 5000); else lobbyStatus(e.message);
   }
@@ -625,6 +626,8 @@ addEventListener('keydown', (e) => {
 addEventListener('keyup', (e) => controls.key(e.code, false));
 addEventListener('blur', () => { controls.keys.clear(); setPaused(true); });
 document.addEventListener('visibilitychange', () => { net?.room?.setHidden(document.hidden); if (document.hidden) setPaused(true); });
+
+window.addEventListener('pagehide', () => { net?.room?.leave(); });
 
 
 const canvas = $('c');
