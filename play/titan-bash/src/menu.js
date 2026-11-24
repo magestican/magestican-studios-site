@@ -133,6 +133,31 @@ export function controlsFor(control = '') {
 }
 
 
+
+
+
+
+
+export const GOAL = Object.freeze({
+  brawl: 'Empty a rival\'s Armour or knock them off the edge to ring their Bell. Most Bells wins.',
+  team: 'Empty a rival\'s Armour or knock them off the edge to ring their Bell. Your team\'s Bells add up.',
+});
+export function goalLine(mode) { return GOAL[mode] || GOAL.brawl; }
+
+
+
+
+
+
+export function stallPrompt(control) {
+  const c = controlsFor(control);
+  return c ? `STALL - ${c.verb} ${c.boost} to vent!` : 'STALL';
+}
+
+
+export function bellsText(n) { return `${n} Bell${n === 1 ? '' : 's'}`; }
+
+
 export function controlsLine(control) {
   const c = controlsFor(control);
   return c ? `${c.move} move - ${c.fire} fire - ${c.boost} boost - ${c.ability} ability` : '';

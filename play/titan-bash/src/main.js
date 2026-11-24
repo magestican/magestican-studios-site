@@ -27,7 +27,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams, controlsFor, controlsLine, lessonPrompt, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -193,6 +193,8 @@ function start() {
 
 function paintLegend() {
   const ul = $('legend'); ul.textContent = '';
+  
+  const goal = el('li', 'goal'); goal.append(el('b', '', 'Goal'), ` ${goalLine(match?.mode)}`); ul.append(goal);
   for (const s of seats) {
     if (!controlsFor(s.control) || s.control.startsWith('phone')) continue;
     const li = el('li'); li.append(swatch(s.house), el('b', '', HOUSE[s.house].name), ` ${controlsLine(s.control)}`); ul.append(li);
@@ -228,7 +230,12 @@ function addFx(m, events) {
       fx.push({ kind: 'pop', text: 'BELL!', x: t.x, y: t.y, ttl: 60, big: true, colour: '#ffd040' });
     } else if (e.type === EVENT.CLANG) fx.push({ kind: 'pop', text: 'CLANG!', x: e.x, y: e.y, ttl: 50, big: true, colour: '#9fe3ff' });
     else if (e.type === EVENT.PERFECT_VENT) { const t = m.titans[e.id]; fx.push({ kind: 'pop', text: 'PERFECT VENT', x: t.x, y: t.y - 3, ttl: 60, colour: '#6ff3ff' }); }
-    else if (e.type === EVENT.STALL) { const t = m.titans[e.id]; fx.push({ kind: 'pop', text: 'STALL', x: t.x, y: t.y - 3, ttl: 40, colour: '#ff5a3c' }); }
+    else if (e.type === EVENT.STALL) {
+      
+      const t = m.titans[e.id]; const ctl = seats[e.id]?.control || 'bot';
+      const pilot = !!controlsFor(ctl); const ttl = pilot ? secs(T.stallTime) : 40;
+      fx.push({ kind: 'pop', text: stallPrompt(ctl), x: t.x, y: t.y - (pilot ? 5.5 : 3), ttl, ttl0: ttl, plate: pilot, colour: '#ff7a5c' });
+    }
     
     else if (e.type === EVENT.LUMEN_OVERDRIVE) { const t = m.titans[e.id]; fx.push({ kind: 'banner', text: `${HOUSE[t.house].name} - LUMEN OVERDRIVE!`, ttl: 48, colour: '#8ff6ff' }); }
     else if (e.type === EVENT.LUMEN) { const t = m.titans[e.id]; fx.push({ kind: 'pop', text: `LUMEN ${e.count}/3`, x: t.x, y: t.y - 3, ttl: 40, colour: '#8ff6ff' }); }
@@ -358,7 +365,7 @@ function results(m) {
     const nm = el('span', 'who', HOUSE[r.house].name);
     nm.append(el('span', 'frame', ` - ${TITANS[r.frame]?.name || r.frame}`));
     if (card.mode === 'team') nm.append(` - ${teamName(r.team)}`);
-    const b = el('span', 'bells', `${r.bells} Bells`);
+    const b = el('span', 'bells', bellsText(r.bells));
     const stats = statsLine(r, card.rows);
     const face = el('span', 'tb-face'); face.setAttribute('aria-hidden', 'true'); face.style.borderColor = HOUSE[r.house].colour;
     tintFace(face, r.frame, r.house);
@@ -431,7 +438,7 @@ function showPodium() {
       const f = el('span', 'tb-face'); f.dataset.titan = seat.titan; f.title = HOUSE[seat.house].name;
       f.style.setProperty('--house', HOUSE[seat.house].colour); tintFace(f, seat.titan, seat.house); who.append(f);
     }
-    li.append(who, el('span', 'name', e.houses.map((h) => HOUSE[h].name).join(', ')), el('span', 'score', `${e.score} pts - ${e.bells} Bells`), el('div', 'block', String(e.place + 1)));
+    li.append(who, el('span', 'name', e.houses.map((h) => HOUSE[h].name).join(', ')), el('span', 'score', `${e.score} pts - ${bellsText(e.bells)}`), el('div', 'block', String(e.place + 1)));
     ol.append(li);
   }
   try { localStorage.setItem(NIGHTS_KEY, String(nightsPlayed() + 1)); } catch {  }

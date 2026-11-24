@@ -228,8 +228,18 @@ export function draw(ctx, m, fx, L, opts = {}) {
     } else {
       ctx.font = `800 ${Math.round(s * (f.big ? 1.8 : 1.2))}px ${DISPLAY}`;
       ctx.lineWidth = Math.max(3, s * 0.25); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
-      const yy = Y(f.y) - (60 - f.ttl) * 0.02 * s;
-      ctx.strokeText(f.text, X(f.x), yy); ctx.fillText(f.text, X(f.x), yy);
+      const yy = Y(f.y) - ((f.ttl0 ?? 60) - f.ttl) * 0.02 * s; 
+      let xx = X(f.x);
+      if (f.plate) {
+        
+        
+        const tw = ctx.measureText(f.text).width; const px = s * 1.2;
+        const half = tw / 2 + px * 0.5; const lo = X(-A.w / 2) + half + 8; const hi = X(A.w / 2) - half - 8;
+        xx = lo <= hi ? Math.min(Math.max(xx, lo), hi) : L.ox;
+        ctx.fillStyle = 'rgba(6,8,13,0.8)'; roundRect(ctx, xx - half, yy - px * 0.75, half * 2, px * 1.5, px * 0.3); ctx.fill();
+        ctx.fillStyle = f.colour || '#fff';
+      }
+      ctx.strokeText(f.text, xx, yy); ctx.fillText(f.text, xx, yy);
     }
     ctx.globalAlpha = 1;
   }

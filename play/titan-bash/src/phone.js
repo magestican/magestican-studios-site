@@ -7,6 +7,7 @@ import { HOUSES, TITANS } from '../../../web-engine/titan-bash/titans.js';
 import { stickFrom } from './input.js';
 import { INPUT_HZ, MSG, encodeInput, decodeStatus, createLatencyLog, phoneEndLine, phoneNameLine } from './wire.js';
 import { createPhoneLink } from './net.js';
+import { bellsText } from './menu.js';
 import { T as RT, PAINTS, EMBLEMS, addStars, equip, loadStars, saveStars, nextUnlock } from '../../../web-engine/titan-bash/rewards.js';
 
 const PROFILE_KEY = 'magestican:v1:titan-bash:profile'; 
@@ -55,7 +56,7 @@ export function startPhone(code) {
       $('ph-heat').classList.toggle('hot', s.heat >= 75);
       $('ph-armour').style.width = `${Math.round(s.armour * 100)}%`;
       $('ph-armour').classList.toggle('low', s.armour <= 0.35); 
-      $('ph-bells').textContent = `${s.bells} Bells`;
+      $('ph-bells').textContent = bellsText(s.bells);
       $('ph-ability').style.setProperty('--cd', `${Math.round(s.cooldown * 360)}deg`);
       $('ph-boost').textContent = s.stalled ? 'Vent' : 'Boost';
       
