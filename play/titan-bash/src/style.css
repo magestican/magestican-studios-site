@@ -435,7 +435,7 @@ select.tb-input {
   #end-round { margin: 0 0 4px; font-size: 0.85rem; }
   #end-title { font-size: 1.6rem; margin-bottom: 12px; }
   .tb-card-rows li {
-    display: grid; grid-template-columns: 1.6em 14px minmax(0, 1fr) auto auto; column-gap: 10px; row-gap: 2px;
+    display: grid; grid-template-columns: 1.3em 32px minmax(0, 1fr) auto auto; column-gap: 8px; row-gap: 2px;
     padding: 6px 12px; font-size: 0.95rem; line-height: 1.25;
   }
   .tb-card-rows .place { width: auto; font-size: 1.15rem; }
@@ -447,4 +447,31 @@ select.tb-input {
   .tb-card-rows .lg { display: none; }
   .tb-card-rows .k { text-transform: capitalize; }
   #end .tb-go { font-size: 2.6rem; min-height: 72px; }
+}
+
+
+
+
+.tb-card-rows .tb-face {
+  flex: none; width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--line); overflow: hidden;
+  background: radial-gradient(circle at 50% 70%, rgba(255, 201, 74, 0.18), transparent 70%), #0d1220;
+}
+.tb-card-rows [data-titan="lancer"] .tb-face::after { background-image: url('../assets/titans/lancer_sprites/sheet.png'); }
+.tb-card-rows [data-titan="bulwark"] .tb-face::after { background-image: url('../assets/titans/bulwark_sprites/sheet.png'); }
+.tb-card-rows [data-titan="mortar"] .tb-face::after { background-image: url('../assets/titans/mortar_sprites/sheet.png'); }
+.tb-card-rows [data-titan="wisp"] .tb-face::after { background-image: url('../assets/titans/wisp_sprites/sheet.png'); }
+.tb-card-rows .stars { padding-left: calc(2.2em + 68px); }
+.tb-card-rows li.win {
+  background: linear-gradient(90deg, rgba(255, 201, 74, 0.22), rgba(255, 201, 74, 0.04) 60%), var(--slate-hi);
+  box-shadow: inset 4px 0 0 var(--bell), inset 0 0 0 1px rgba(255, 208, 64, 0.45);
+}
+.tb-card-rows .bells { min-width: 5.2em; text-align: right; }
+.tb-card-rows .pts { min-width: 2.4em; text-align: right; }
+@media (max-width: 899px) {
+  .tb-card-rows .stars { padding-left: 0; }
+  .tb-card-rows .tb-face { width: 32px; height: 32px; border-width: 2px; grid-row: 1 / span 2; grid-column: 2; }
+}
+@media (max-width: 480px) {
+  .tb-card-rows .frame { display: none; }
+  #end-title { font-size: 1.4rem; }
 }

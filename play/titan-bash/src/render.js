@@ -158,9 +158,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
   }
 
   
-  ctx.fillStyle = '#4a5570'; ctx.strokeStyle = '#8693b3'; ctx.lineWidth = Math.max(2, s * 0.15);
-  for (const c of A.circles) { ctx.beginPath(); ctx.arc(X(c.x), Y(c.y), c.r * s, 0, TAU); ctx.fill(); ctx.stroke(); }
-  for (const b of A.boxes) { ctx.fillRect(X(b.x - b.w / 2), Y(b.y - b.h / 2), b.w * s, b.h * s); ctx.strokeRect(X(b.x - b.w / 2), Y(b.y - b.h / 2), b.w * s, b.h * s); }
+  drawCover(ctx, A, X, Y, s);
   
   
   for (const c of m.crystals || []) {
@@ -249,6 +247,65 @@ export function draw(ctx, m, fx, L, opts = {}) {
   if (!m.endless) scoreboard(ctx, m, L, W, big); 
   if (opts.countdown) drawCountdown(ctx, L, opts.countdown);
   ctx.restore();
+}
+
+
+
+
+
+
+export function drawCover(ctx, A, X, Y, s) {
+  const off = Math.max(2, s * 0.35);
+  const edge = Math.max(2, s * 0.15);
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.38)';
+  for (const c of A.circles) { ctx.beginPath(); ctx.arc(X(c.x) + off, Y(c.y) + off * 1.4, c.r * s, 0, TAU); ctx.fill(); }
+  for (const b of A.boxes) ctx.fillRect(X(b.x - b.w / 2) + off, Y(b.y - b.h / 2) + off * 1.4, b.w * s, b.h * s);
+  for (const c of A.circles) {
+    const cx = X(c.x); const cy = Y(c.y); const r = c.r * s;
+    const g = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.45, r * 0.1, cx, cy, r);
+    g.addColorStop(0, '#9aa7c6'); g.addColorStop(0.55, '#55617f'); g.addColorStop(1, '#2c3449');
+    ctx.fillStyle = g; ctx.strokeStyle = '#1a2030'; ctx.lineWidth = edge;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = 'rgba(220,232,255,0.55)'; ctx.lineWidth = Math.max(1.5, s * 0.1);
+    ctx.beginPath(); ctx.arc(cx, cy, r - edge, Math.PI * 1.05, Math.PI * 1.7); ctx.stroke();
+  }
+  for (const b of A.boxes) {
+    const x = X(b.x - b.w / 2); const y = Y(b.y - b.h / 2); const w = b.w * s; const h = b.h * s;
+    const g = ctx.createLinearGradient(0, y, 0, y + h);
+    g.addColorStop(0, '#7d8aa8'); g.addColorStop(0.45, '#505c7a'); g.addColorStop(1, '#2e3650');
+    ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = '#1a2030'; ctx.lineWidth = edge; ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = 'rgba(225,236,255,0.6)'; ctx.fillRect(x + edge, y + edge * 0.5, w - edge * 2, Math.max(1.5, s * 0.12));
+  }
+  ctx.restore();
+}
+
+
+
+
+
+
+export function heatRing(painted, cx, cy, r, s) {
+  if (!painted) { const R = r + s * 0.55; return { x: cx, y: cy, rx: R, ry: R }; }
+  return { x: cx, y: cy + r * 0.7, rx: r * 1.45, ry: r * 0.55 };
+}
+
+
+function drawHeatRing(ctx, m, t, g, s) {
+  const k0 = g.ry / g.rx;
+  const ell = (grow, a0, a1) => { ctx.beginPath(); ctx.ellipse(g.x, g.y, g.rx + grow, g.ry + grow * k0, 0, a0, a1); ctx.stroke(); };
+  ctx.lineWidth = Math.max(3, s * 0.32); ctx.lineCap = 'butt';
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ell(0, 0, TAU);
+  if (t.stall > 0) {
+    const flash = (m.tick >> 3) % 2 === 0;
+    ctx.strokeStyle = flash ? '#ff3b3b' : '#a01818'; ell(0, 0, TAU);
+    const k = Math.max(0, 1 - t.stallAge / secs(T.ventMarkAt));
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(2, s * 0.18); ell(k * s * 3, 0, TAU);
+  } else if (t.heat > 0) {
+    ctx.strokeStyle = t.heat >= T.redLine ? '#ff3b3b' : t.heat >= T.redLine * 0.7 ? '#ffb02e' : '#e9f0ff';
+    ell(0, -Math.PI / 2, -Math.PI / 2 + TAU * (t.heat / 100));
+  }
 }
 
 
@@ -350,6 +407,8 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
     const hgt = r * 3.4; const wid = hgt * (fr.w / fr.h); const feet = cy + r * 0.7;
     ctx.strokeStyle = h.colour; ctx.lineWidth = Math.max(2, s * 0.22);
     ctx.beginPath(); ctx.ellipse(cx, feet, r * 1.1, r * 0.42, 0, 0, TAU); ctx.stroke();
+    
+    drawHeatRing(ctx, m, t, heatRing(true, cx, cy, r, s), s);
     ctx.save(); ctx.translate(cx, feet);
     if (Math.cos(t.facing) < 0) ctx.scale(-1, 1);
     if (t.hitstop > 0 || opts.juice?.flashing?.(t.id)) ctx.filter = 'brightness(2.2)';
@@ -357,7 +416,7 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
     ctx.restore();
     
     top = Math.min(top, feet - hgt * 0.94);
-  } else body(ctx, cx, cy, s, h.colour, t.facing);
+  } else { body(ctx, cx, cy, s, h.colour, t.facing); drawHeatRing(ctx, m, t, heatRing(false, cx, cy, r, s), s); }
   
   
   const paint = opts.paints && opts.paints[t.id];
@@ -366,22 +425,6 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
     ctx.beginPath(); ctx.arc(cx, cy, r * 0.62, 0, TAU); ctx.stroke();
   }
 
-  
-  const ringR = r + s * 0.55;
-  ctx.lineWidth = Math.max(3, s * 0.32); ctx.lineCap = 'butt';
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, TAU); ctx.stroke();
-  if (t.stall > 0) {
-    const flash = (m.tick >> 3) % 2 === 0;
-    ctx.strokeStyle = flash ? '#ff3b3b' : '#a01818';
-    ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, TAU); ctx.stroke();
-    const k = Math.max(0, 1 - t.stallAge / secs(T.ventMarkAt));
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(2, s * 0.18);
-    ctx.beginPath(); ctx.arc(cx, cy, ringR + k * s * 3, 0, TAU); ctx.stroke();
-  } else if (t.heat > 0) {
-    ctx.strokeStyle = t.heat >= T.redLine ? '#ff3b3b' : t.heat >= T.redLine * 0.7 ? '#ffb02e' : '#e9f0ff';
-    ctx.beginPath(); ctx.arc(cx, cy, ringR, -Math.PI / 2, -Math.PI / 2 + TAU * (t.heat / 100)); ctx.stroke();
-  }
   if (t.shield > 0) { ctx.strokeStyle = '#6ff3ff'; ctx.lineWidth = Math.max(2, s * 0.15); ctx.beginPath(); ctx.arc(cx, cy, r + s * 1.2, 0, TAU); ctx.stroke(); }
   if (t.aegis > 0) {
     const half = (ABILITIES.aegis.arc / 2) * (Math.PI / 180);

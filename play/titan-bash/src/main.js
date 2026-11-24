@@ -27,7 +27,7 @@ import { loadTitanSprites } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt } from './transitions.js';
-import { primaryFor, createLeave, createPadNav } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -317,15 +317,28 @@ function results(m) {
   const earned = award(card);
   const w = card.winner;
   $('end-round').textContent = `${MODE_NAME[night.mode]} - round ${night.round} of ${night.rounds} - ${ARENAS[m.arena].name}`;
+  
+  
+  const firsts = card.rows.filter((r) => r.place === 0).map((r) => HOUSE[r.house].name);
   $('end-title').textContent = card.mode === 'team'
-    ? `${teamName(w.team)} wins the round!` : `${HOUSE[w.house].name} wins the round!`;
+    ? `${teamName(w.team)} wins the round!`
+    : firsts.length > 1 ? `${joinNames(firsts)} share the round!` : `${HOUSE[w.house].name} wins the round!`;
   const ol = $('podium'); ol.textContent = '';
   for (const r of card.rows) {
+    
+    
     const li = el('li');
-    const nm = el('span', '', `${HOUSE[r.house].name} (${r.frame})${card.mode === 'team' ? ` - ${teamName(r.team)}` : ''}`);
+    li.dataset.titan = r.frame;
+    if (r.place === 0) li.classList.add('win');
+    
+    
+    const nm = el('span', 'who', HOUSE[r.house].name);
+    nm.append(el('span', 'frame', ` - ${TITANS[r.frame]?.name || r.frame}`));
+    if (card.mode === 'team') nm.append(` - ${teamName(r.team)}`);
     const b = el('span', 'bells', `${r.bells} Bells`);
     const stats = statsLine(r);
-    li.append(el('span', 'place', `${r.place + 1}.`), swatch(r.house), nm, b, el('span', 'pts', `+${r.points}`), stats);
+    const face = el('span', 'tb-face'); face.setAttribute('aria-hidden', 'true'); face.style.borderColor = HOUSE[r.house].colour;
+    li.append(el('span', 'place', `${r.place + 1}.`), face, nm, b, el('span', 'pts', `+${r.points}`), stats);
     const got = earned.get(r.id);
     if (got) li.append(el('span', 'stars', got.line));
     ol.append(li);
