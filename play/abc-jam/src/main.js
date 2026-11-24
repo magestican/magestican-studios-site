@@ -31,6 +31,7 @@ import { createTower, createRun, CORE_SPAN, FLOOR_H } from './tower.js';
 import { loose, step } from './fall.js';
 import { id as vid, FIXED, countId } from './voiceLines.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
+import { escapeGoesHome, pickFocus } from './menus.js';
 
 const GAME_ID = 'abc-jam';
 
@@ -178,7 +179,21 @@ function show(id) {
   for (const s of document.querySelectorAll('.aj-screen')) s.hidden = s.id !== id;
   document.body.dataset.screen = id;
   globalThis.scrollTo?.(0, 0);
+  
+  
+  
+  
+  if (id !== 'play' && lastInputWasKey) {
+    requestAnimationFrame(() => {
+      const screen = $(id);
+      if (!screen || screen.hidden) return;
+      pickFocus(screen.querySelectorAll('button'))?.focus({ preventScroll: true });
+    });
+  }
 }
+let lastInputWasKey = false;
+document.addEventListener('keydown', () => { lastInputWasKey = true; }, true);
+document.addEventListener('pointerdown', () => { lastInputWasKey = false; }, true);
 
 function leaveMode() {
   clearTimers();
@@ -312,7 +327,8 @@ function press(ch) {
 
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
-  if (e.key === 'Escape' && mode) { e.preventDefault(); goHome(); return; }
+  
+  if (e.key === 'Escape' && escapeGoesHome({ mode, screen: document.body.dataset.screen })) { e.preventDefault(); goHome(); return; }
   if (e.repeat) return;
   if (/^[a-z]$/i.test(e.key) && mode) { e.preventDefault(); press(e.key); }
 });
