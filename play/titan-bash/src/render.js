@@ -18,6 +18,9 @@ const HOUSE = { ...Object.fromEntries(HOUSES.map((h) => [h.id, h])), dummy: { id
 const TAU = Math.PI * 2;
 
 
+const DISPLAY = "'Ringtitans Teko', system-ui, sans-serif";
+
+
 export const LIP = 6;
 
 
@@ -225,11 +228,11 @@ export function draw(ctx, m, fx, L, opts = {}) {
       
       
       const px = bannerPx(ctx, f.text, s, A.w * s);
-      ctx.font = `800 ${px}px system-ui, sans-serif`;
+      ctx.font = `800 ${px}px ${DISPLAY}`;
       ctx.lineWidth = Math.max(3, px * 0.16); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
       ctx.strokeText(f.text, L.ox, Y(-A.h / 2) + s * 3); ctx.fillText(f.text, L.ox, Y(-A.h / 2) + s * 3);
     } else {
-      ctx.font = `800 ${Math.round(s * (f.big ? 1.8 : 1.2))}px system-ui, sans-serif`;
+      ctx.font = `800 ${Math.round(s * (f.big ? 1.8 : 1.2))}px ${DISPLAY}`;
       ctx.lineWidth = Math.max(3, s * 0.25); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
       const yy = Y(f.y) - (60 - f.ttl) * 0.02 * s;
       ctx.strokeText(f.text, X(f.x), yy); ctx.fillText(f.text, X(f.x), yy);
@@ -245,7 +248,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
 
 export function bannerPx(ctx, text, s, arenaPx) {
   const want = Math.round(s * 2.2);
-  ctx.font = `800 ${want}px system-ui, sans-serif`;
+  ctx.font = `800 ${want}px ${DISPLAY}`;
   const w = ctx.measureText(text).width;
   const room = arenaPx * 0.92;
   return w <= room ? want : Math.max(12, Math.floor(want * room / w));
@@ -380,7 +383,7 @@ function scoreboard(ctx, m, L, W, big) {
   ctx.fillStyle = storm ? '#5a2ca8' : '#1b2233';
   roundRect(ctx, left, top, timerW, tH, 10 * L.dpr); ctx.fill();
   ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.font = `800 ${Math.round(Math.min(ch * 0.5, timerW * 0.3))}px system-ui, sans-serif`;
+  ctx.font = `700 ${Math.round(Math.min(ch * 0.62, timerW * 0.36))}px ${DISPLAY}`;
   ctx.fillText(`${Math.floor(secsLeft / 60)}:${String(secsLeft % 60).padStart(2, '0')}`, left + timerW / 2, top + tH / 2);
   for (let i = 0; i < n; i++) {
     const t = m.titans[i]; const h = HOUSE[t.house];
@@ -392,9 +395,9 @@ function scoreboard(ctx, m, L, W, big) {
     const tx = x + Math.max(12 * L.dpr, w * 0.12);
     const fs = Math.min(ch * 0.3, (w - (tx - x) - 6 * L.dpr) / 4);
     ctx.fillStyle = t.alive ? '#fff' : '#8893ad'; ctx.textAlign = 'left';
-    ctx.font = `700 ${Math.round(fs)}px system-ui, sans-serif`;
+    ctx.font = `600 ${Math.round(fs * 1.25)}px ${DISPLAY}`;
     ctx.fillText(m.mode === 'team' ? `${h.name} T${t.team + 1}` : h.name, tx, y + ch * 0.32);
-    ctx.font = `800 ${Math.round(fs * 1.3)}px system-ui, sans-serif`;
+    ctx.font = `700 ${Math.round(fs * 1.6)}px ${DISPLAY}`;
     ctx.fillText(t.alive ? String(t.bells) : `${t.bells}  ${Math.ceil(t.respawn / 60)}s`, tx, y + ch * 0.7);
   }
 }

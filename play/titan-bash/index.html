@@ -31,7 +31,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <title>Play Ringtitans - an 8-player giant robot party brawl</title>
   <meta name="description" content="Ringtitans is a party brawl for up to eight pilots on one screen: dash, slam and ride the Red Line in giant storm-born Titans. Free, in the browser.">
-  <meta name="build" content="01bd1c02-20261124T014507Z">
+  <meta name="build" content="f7803c31-20261124T015852Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/titan-bash/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Ringtitans - an 8-player giant robot party brawl">
@@ -41,8 +41,8 @@
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
   
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
-  <script src="../shared/ui/boot.js?v=01bd1c02-20261124T014507Z" data-game="titan-bash"></script>
-  <link rel="stylesheet" href="./src/style.css?v=01bd1c02-20261124T014507Z">
+  <script src="../shared/ui/boot.js?v=f7803c31-20261124T015852Z" data-game="titan-bash"></script>
+  <link rel="stylesheet" href="./src/style.css?v=f7803c31-20261124T015852Z">
 </head>
 <body>
   <div class="studio-bar">
@@ -53,8 +53,12 @@
   </div>
 
   <main class="tb" id="app">
-    <section class="tb-page" id="title" hidden>
+    
+
+    <section class="tb-page tb-title" id="title" hidden>
+      <div class="tb-col tb-col-play">
       <header class="tb-head">
+        <p class="tb-kicker">Trial Night &middot; up to 8 pilots</p>
         <h1>Ringtitans</h1>
         <p class="tb-pitch">Dash. Slam. Ride the Red Line. Ring their Bell.</p>
       </header>
@@ -65,10 +69,14 @@
         <canvas id="warm" aria-label="Warm-up arena: drive your Titan now and shoot the targets"></canvas>
         <p class="tb-dim tb-warm-note" id="warm-note">Warm up: drive your Titan and shoot a target.</p>
       </div>
+      
+      <div class="tb-row tb-settings"><button class="tb-btn tb-small" id="music-btn" type="button" aria-pressed="true">Music: on</button></div>
+      </div>
+      <div class="tb-col tb-col-crew">
       <div class="tb-card" id="night-setup">
         <h2>Trial Night</h2>
         <div class="tb-opts">
-          <label>Mode <select class="tb-input" id="opt-mode"><option value="brawl">Bell Brawl - everyone for themselves</option><option value="team">Team Trial - Houses in teams</option></select></label>
+          <label>Mode <select class="tb-input" id="opt-mode"><option value="brawl">Bell Brawl - all vs all</option><option value="team">Team Trial - Houses in teams</option></select></label>
           <label>Rounds <select class="tb-input" id="opt-rounds"><option>3</option><option selected>4</option><option>5</option></select></label>
           <label>Arena <select class="tb-input" id="opt-arena"><option value="rotate" selected>All three in turn</option><option value="bellRing">The Bell Ring</option><option value="shatterfield">Shatterfield</option><option value="tidewall">Tidewall Causeway</option></select></label>
           <label id="opt-teams-wrap" hidden>Teams <select class="tb-input" id="opt-teams"><option selected>2</option><option>3</option><option>4</option></select></label>
@@ -76,9 +84,16 @@
       </div>
       <div class="tb-card" id="room" hidden>
         <h2>Phones join here</h2>
-        <p class="tb-code" id="room-code">Opening a room...</p>
-        <p class="tb-dim" id="room-how">On each phone open <b id="room-link"></b> or type the code. Up to eight pilots.</p>
-        <div class="tb-row"><button class="tb-btn" id="copy-link" type="button">Invite phones</button></div>
+        
+
+        <div class="tb-room">
+          <div class="tb-room-text">
+            <p class="tb-code" id="room-code">Opening a room...</p>
+            <p class="tb-dim" id="room-how">On each phone open <b id="room-link"></b> or type the code. Up to eight pilots.</p>
+            <div class="tb-row"><button class="tb-btn" id="copy-link" type="button">Invite phones</button></div>
+          </div>
+          <div class="tb-room-qr" id="room-qr"></div>
+        </div>
       </div>
       <div class="tb-card">
         <h2>Pilots</h2>
@@ -104,11 +119,23 @@
           <p class="tb-dim">Player 1: W A S D move, J fire, K boost, L ability. Player 2: arrows, 1 fire, 2 boost, 3 ability.</p>
         </div>
       </details>
+      </div>
     </section>
 
     <section class="tb-match" id="match" hidden>
       <canvas id="stage" aria-label="Ringtitans arena"></canvas>
       <button class="tb-mini" id="quit" type="button">Quit</button>
+      
+      <div class="tb-ask" id="leave-ask" role="dialog" aria-modal="true" aria-labelledby="leave-title" hidden>
+        <div class="tb-card tb-ask-card">
+          <h2 id="leave-title">Leave this round?</h2>
+          <p class="tb-dim">The fight is paused. Leaving ends the round for every pilot.</p>
+          <div class="tb-row">
+            <button class="tb-go tb-go-mid" id="leave-stay" type="button">Keep fighting</button>
+            <button class="tb-btn" id="leave-go" type="button">Leave</button>
+          </div>
+        </div>
+      </div>
     </section>
 
     
@@ -183,8 +210,8 @@
   </main>
 
   
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=01bd1c02-20261124T014507Z"></script>
-  <script type="module" src="./src/main.js?v=01bd1c02-20261124T014507Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=01bd1c02-20261124T014507Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=f7803c31-20261124T015852Z"></script>
+  <script type="module" src="./src/main.js?v=f7803c31-20261124T015852Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=f7803c31-20261124T015852Z"></script>
 </body>
 </html>

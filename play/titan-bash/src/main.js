@@ -26,6 +26,7 @@ import { createWarmup, warmupStep, lessonFor } from '../../../web-engine/titan-b
 import { loadTitanSprites } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
+import { primaryFor, createLeave, createPadNav } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -47,7 +48,25 @@ const musicSaved = (() => { try { return localStorage.getItem('magestican:v1:mus
 for (const type of ['pointerdown', 'keydown']) {
   addEventListener(type, () => { if (musicSaved !== 'off' && !music.isOn()) music.setOn(true); }, { once: true });
 }
-addEventListener('keydown', (e) => { if (e.code === 'KeyM') music.toggle(); });
+addEventListener('keydown', (e) => { if (e.code === 'KeyM') { music.toggle(); musicButton(); } });
+
+function musicButton(on = music.isOn()) {
+  $('music-btn').textContent = `Music: ${on ? 'on' : 'off'}`; $('music-btn').setAttribute('aria-pressed', String(on));
+}
+$('music-btn').addEventListener('click', (e) => {
+  
+  const want = $('music-btn').getAttribute('aria-pressed') !== 'true';
+  music.setOn(want); $('music-btn').textContent = `Music: ${want ? 'on' : 'off'}`; $('music-btn').setAttribute('aria-pressed', String(want));
+  ui.play(want ? 'pick' : 'back'); e.stopPropagation();
+});
+musicButton(musicSaved !== 'off'); 
+
+let quietFocus = false; 
+function focusQuietly(id) { quietFocus = true; $(id).focus({ preventScroll: true }); quietFocus = false; }
+addEventListener('focusin', (e) => {
+  const t = e.target;
+  if (!quietFocus && t && t.matches && t.matches(':focus-visible') && /^(BUTTON|SELECT|INPUT|SUMMARY)$/.test(t.tagName)) ui.play('tap');
+});
 
 const down = new Set();
 let humans = [{ control: 'p1' }];
@@ -58,9 +77,27 @@ let juice = createJuice(Math.random, { reducedMotion });
 
 function show(id) {
   for (const s of ['title', 'match', 'end', 'night']) $(s).hidden = s !== id;
+  
+  $(id).classList.remove('tb-enter'); void $(id).offsetWidth; $(id).classList.add('tb-enter');
+  if (id !== 'match') { leave.reset(); $('leave-ask').hidden = true; }
   music.setTrack(musicFor(id));
   if (id === 'title') startWarm(); else stopWarm();
   qrFollow();
+  
+  const primary = primaryFor(id);
+  if (primary && !joinCode) focusQuietly(primary);
+}
+const leave = createLeave();
+function leaveAsk(kind) {
+  const r = leave.press(kind);
+  if (r === 'ask') {
+    cancelAnimationFrame(raf); $('leave-ask').hidden = false; ui.play('back'); focusQuietly('leave-stay');
+  } else if (r === 'resume') {
+    $('leave-ask').hidden = true; ui.play('pick'); last = performance.now(); acc = 0;
+    if (match && !match.over) raf = requestAnimationFrame(frame);
+  } else if (r === 'leave') {
+    $('leave-ask').hidden = true; ui.play('back'); cancelAnimationFrame(raf); match = null; show('title');
+  }
 }
 
 
@@ -82,7 +119,7 @@ function renderSeats() {
   if (!$('title').hidden) startWarm();
   const list = $('seats'); list.textContent = '';
   for (const s of buildSeats(humans, cheats)) {
-    const li = document.createElement('li');
+    const li = document.createElement('li'); li.style.setProperty('--house', HOUSE[s.house].colour); 
     const sw = document.createElement('span'); sw.className = 'swatch'; sw.style.background = HOUSE[s.house].colour;
     const txt = document.createElement('span');
     const name = document.createElement('div'); name.className = 'name'; name.textContent = `${HOUSE[s.house].name} - ${s.titan[0].toUpperCase()}${s.titan.slice(1)}`;
@@ -286,8 +323,7 @@ function results(m) {
   }
   paintStandings();
   $('again').textContent = nightOver(night) ? 'Crown the Champion' : 'Next round';
-  show('end');
-  $('again').focus();
+  show('end'); 
 }
 
 function paintStandings() {
@@ -336,8 +372,7 @@ function showPodium() {
   if (!night.starred) $('night-stars').textContent = lines.join('  -  ');
   night.starred = true;
   ui.play('start');
-  show('night');
-  $('night-again').focus();
+  show('night'); 
 }
 
 
@@ -346,18 +381,45 @@ window.addEventListener('keydown', (e) => {
   if (GAME_KEYS.has(e.code) && (!$('match').hidden || (!$('title').hidden && !typing && e.code !== 'Enter' && e.code !== 'Space'))) e.preventDefault();
   down.add(e.code);
   if (!$('title').hidden && Object.values(KEYMAPS.p2).flat().includes(e.code)) join('p2');
-  if (e.code === 'Escape' && match && !$('match').hidden) { cancelAnimationFrame(raf); match = null; show('title'); }
+  if (e.code === 'Escape' && match && !$('match').hidden) leaveAsk('escape');
 });
 window.addEventListener('keyup', (e) => down.delete(e.code));
 window.addEventListener('blur', () => down.clear());
 window.addEventListener('resize', () => { if (!$('match').hidden) resize(); if (!$('title').hidden && warm) resizeWarm(); });
 
 
+
+
+const padNav = createPadNav();
+const BACK = { end: 'to-title', night: 'night-pilots' };
 function pollPads() {
-  if (!$('title').hidden && navigator.getGamepads) {
-    for (const p of navigator.getGamepads()) if (p && padWantsJoin(p)) join(`pad${p.index}`);
+  if (navigator.getGamepads) {
+    for (const p of navigator.getGamepads()) {
+      if (!p) continue;
+      const act = padNav.read(p);
+      const onTitle = !$('title').hidden;
+      if (onTitle && !humans.some((h) => h.control === `pad${p.index}`)) { if (padWantsJoin(p)) join(`pad${p.index}`); continue; }
+      if (act) padMenu(act);
+    }
   }
   requestAnimationFrame(pollPads);
+}
+function padMenu(act) {
+  const asking = !$('leave-ask').hidden;
+  const screen = asking ? $('leave-ask') : ['title', 'end', 'night'].map($).find((s) => !s.hidden);
+  if (!screen) return; 
+  if (act === 'back') { if (asking) leaveAsk('escape'); else { const id = BACK[screen.id]; if (id) $(id).click(); } return; }
+  const items = [...screen.querySelectorAll('button, select, summary, input')].filter((e) => e.offsetParent !== null && !e.disabled);
+  const at = items.indexOf(document.activeElement);
+  if (act === 'confirm') {
+    const t = at >= 0 ? items[at] : null;
+    if (t && t.tagName === 'SELECT') { t.selectedIndex = (t.selectedIndex + 1) % t.options.length; t.dispatchEvent(new Event('change')); }
+    else if (t) t.click();
+    return;
+  }
+  if (!items.length) return;
+  const next = items[(at + (act === 'next' ? 1 : -1) + items.length) % items.length];
+  next.focus({ preventScroll: false });
 }
 
 $('start').addEventListener('click', start);
@@ -413,7 +475,9 @@ function warmFrame(now) {
   if (LW) draw($('warm').getContext('2d'), warm.match, fxw, LW, { humans: new Set(warmSeats.map((_, i) => i)), labels });
   warmRaf = requestAnimationFrame(warmFrame);
 }
-$('quit').addEventListener('click', () => { ui.play('back'); cancelAnimationFrame(raf); match = null; show('title'); });
+$('quit').addEventListener('click', () => leaveAsk('quit'));
+$('leave-stay').addEventListener('click', () => leaveAsk('stay'));
+$('leave-go').addEventListener('click', () => leaveAsk('leave'));
 
 
 let link = null;
@@ -460,7 +524,8 @@ function onPhones(list) {
 let qrFor = null;
 function onCode(code, state) {
   $('room').hidden = false;
-  if (!code) { $('room-code').textContent = state === 'opening' ? 'Opening a room...' : 'Phones cannot join right now.'; return; }
+  $('room-code').classList.toggle('tb-wait', !code); 
+  if (!code) { $('room-code').textContent =state === 'opening' ? 'Opening a room...' : 'Phones cannot join right now.'; return; }
   const url = linkFor(code);
   $('room-code').textContent = code.slice(PREFIX.length).toUpperCase();
   $('room-link').textContent = url.replace(/^https?:\/\//, '');
@@ -469,7 +534,12 @@ function onCode(code, state) {
   if (qrFor !== code) {
     qrFor = code;
     document.querySelectorAll('.device-qr-card, .device-qr-chip').forEach((el) => el.remove());
-    mountDeviceQr({ url, label: 'Join on your phone', sublabel: 'Point your camera here to fly a Titan from your phone.' }).then(qrFollow, () => {});
+    mountDeviceQr({ url, label: 'Scan to join', sublabel: 'Fly a Titan from your phone.' }).then(() => {
+      
+      const card = document.querySelector('.device-qr-card');
+      if (card) { $('room-qr').append(card); $('room').classList.add('tb-has-qr'); }
+      qrFollow();
+    }, () => {});
   }
 }
 
@@ -538,3 +608,6 @@ requestAnimationFrame(pollPads);
 }
 initAnalytics({ page: 'titan-bash' });
 bootDone();
+
+
+for (const s of ['title', 'end', 'night']) if (!$(s).hidden && !joinCode) focusQuietly(primaryFor(s));
