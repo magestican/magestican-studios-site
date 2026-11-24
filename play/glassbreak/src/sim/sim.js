@@ -121,7 +121,7 @@ export function cellXY(s, c, r) {
 
 function newPlayer(i) {
   return { on: 0, x: U(FIELD_W / 2), tint: i % 3, stun: 0, wide: 0, lance: 0, cat: 0, lcd: 0, need: 0, spent: 0,
-    score: 0, breaks: 0, lost: 0, launch: 0, fire: 0, next: 0, spark: 0, flare: 0 };
+    score: 0, breaks: 0, lost: 0, launch: 0, fire: 0, next: 0, spark: 0, flare: 0, dx: 0 };
 }
 
 export function createSim({ seed = 1, gentle = false, hard = false, stage = 0 } = {}) {
@@ -529,6 +529,23 @@ function loseEmber(s, e) {
   p.need = 70; p.spent = 1;
 }
 
+
+
+
+
+
+
+
+export const DRAFT_DIV = 96, DRAFT_EV = 6;
+function draft(s, e, p) {
+  if (!p || !p.on || !p.dx || e.vy >= 0) return;
+  const mb = massBottom(s);
+  if (mb != null && e.y < mb + U(EMBER_R * 2)) return;
+  e.vx += (p.dx / DRAFT_DIV) | 0;
+  respeed(s, e);
+  if (abs(p.dx) >= U(4) && e.age % DRAFT_EV === 0) ev(s, 'draft', e.x, e.y, p.dx > 0 ? 1 : 0);
+}
+
 function stepEmber(s, e) {
   e.age++;
   const p = s.players[e.own];
@@ -539,6 +556,7 @@ function stepEmber(s, e) {
     if (p.launch && e.age > 20) { e.hx = 0; e.chg = 3 + e.heat; launch(s, e, e.own); }
     return;
   }
+  draft(s, e, p);
   const n = Math.max(1, Math.ceil(Math.max(abs(e.vx), abs(e.vy)) / U(4)));
   for (let k = 0; k < n; k++) {
     const sx = (e.vx / n) | 0, sy = (e.vy / n) | 0;
@@ -902,9 +920,11 @@ export function step(s, inputs) {
     p.tint = u.tint;
     const hw = U(p.wide > 0 ? WIDE_HW : PADDLE_HW);
     const tx = clamp(muldiv(u.x, U(FIELD_W), 4095), hw, U(FIELD_W) - hw);
+    const x0 = p.x;
     if (p.stun > 0) p.stun--;
     else p.x += clamp(tx - p.x, -U(24), U(24));
     p.x = clamp(p.x, hw, U(FIELD_W) - hw);
+    p.dx = p.x - x0; 
     for (const k of ['wide', 'lance', 'cat']) if (p[k] > 0) p[k]--;
   }
 

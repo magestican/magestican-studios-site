@@ -40,7 +40,9 @@ const EVENT_CUE = Object.freeze({
 
 export const EVENT_CUES = EVENT_CUE;
 
-export const SILENT_EVENTS = Object.freeze(['enter', 'join', 'leave', 'window', 'latch', 'seek', 'regrow']);
+
+
+export const SILENT_EVENTS = Object.freeze(['enter', 'join', 'leave', 'window', 'latch', 'seek', 'regrow', 'draft']);
 
 
 export function cueFor(e) {

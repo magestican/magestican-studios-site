@@ -6,7 +6,7 @@
 
 import { FP } from './fixed.js';
 import { pack, X_MAX } from './input.js';
-import { C_CATH, C_EMPTY, C_GLASS, C_IRON, CH, CW, FIELD_W, MAX_PLAYERS, PADDLE_H, PADDLE_HW, PADDLE_Y, PH_CLEAR, PH_PLAY, SPARK_V, WIDE_HW, cellXY } from './sim.js';
+import { C_CATH, C_EMPTY, C_GLASS, C_IRON, CH, CW, EMBER_R, FIELD_W, MAX_PLAYERS, PADDLE_H, PADDLE_HW, PADDLE_Y, PH_CLEAR, PH_PLAY, SPARK_V, WIDE_HW, cellXY, massBottom } from './sim.js';
 import { COLS } from './windows.js';
 
 
@@ -64,6 +64,8 @@ export function botInput(s, seat, { skill = 1, level = 'beginner', dodgeBolts = 
         x = Math.round(lx - off * (PADDLE_HW + 11) * FP);
       }
     }
+  } else if (lowAim && (x = draftAim(s, p, seat)) != null) {
+    
   } else {
     
     const n = s.players.filter((q) => q.on).length || 1;
@@ -77,6 +79,24 @@ export function botInput(s, seat, { skill = 1, level = 'beginner', dodgeBolts = 
   return pack({ x: tx, tint, launch: held && (s.tick + seat * 7) % 40 > 20, fire: p.lance > 0 });
 }
 
+
+
+
+
+
+export function draftAim(s, p, seat) {
+  const e = s.embers.find((q) => q.own === seat && !q.held && q.vy < 0);
+  if (!e) return null;
+  const mb = massBottom(s);
+  if (mb != null && e.y < mb + 2 * EMBER_R * FP) return null;
+  const goal = threatPoint(s);
+  if (!goal) return null;
+  
+  const ahead = e.x + (e.vx * (goal.y - e.y)) / e.vy;
+  const miss = goal.x - ahead;
+  if (Math.abs(miss) < 24 * FP) return null;
+  return p.x + Math.sign(miss) * 200 * FP;
+}
 
 export function threatPoint(s) {
   const g = s.grid;

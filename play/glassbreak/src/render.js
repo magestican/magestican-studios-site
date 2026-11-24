@@ -213,6 +213,14 @@ export class Painter {
       } else if (e.k === 'wall') {
         this.spawn({ shape: 0, add: true, x, y, vx: 0, vy: 0, rot: 0, vr: 0, life: 0, max: 0.18, size: 24,
           rgb: [1, 0.85, 0.6], grav: 0 });
+      } else if (e.k === 'draft') {
+        
+        
+        const dir = e.a ? -1 : 1;
+        for (let i = 0; i < 3; i++) {
+          this.spawn({ shape: 0, add: true, x: x + dir * (8 + i * 6), y: y - i * 5, vx: dir * (90 + i * 40), vy: -30,
+            rot: 0, vr: 0, life: 0, max: 0.32, size: 14 - i * 3, rgb: [1, 0.78, 0.42], grav: 0 });
+        }
       } else if (e.k === 'lost') {
         this.burst(x, -FIELD_H + 20, [1, 0.5, 0.2], 18, 420, 5);
       } else if (e.k === 'breach') {
