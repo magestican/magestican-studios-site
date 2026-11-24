@@ -7,6 +7,8 @@
 
 
 
+import './lang.js'; 
+import { t, tv } from '../../../web-engine/i18n/tr.js';
 import { createState, enqueue, step, tickMs, enterNextDepth } from './sim.js';
 import { DEPTHS } from './depths.js';
 import { dateKey, seedFor, bestKey } from './daily.js';
@@ -249,14 +251,14 @@ function countUp(el, to) {
 
 
 function syncMusic() {
-  const t = trackFor({ running, mode: state.mode, depthIndex: state.depthIndex });
-  if (music.track() !== t) music.setTrack(t);
+  const track = trackFor({ running, mode: state.mode, depthIndex: state.depthIndex });
+  if (music.track() !== track) music.setTrack(track);
   followSound(music, uiSoundOn());
 }
 function drawSound() {
   const on = uiSoundOn();
   for (const b of document.querySelectorAll('.soundToggle')) {
-    b.textContent = on ? 'Sound on' : 'Sound off';
+    b.textContent = on ? t('Sound on') : t('Sound off');
     b.setAttribute('aria-pressed', String(on));
   }
 }
@@ -289,8 +291,8 @@ function start() {
   acc = 0; timeScale = 1; descendAt = 0;
   running = true; paused = false;
   show(null);
-  if (mode === 'daily') banner("Today's dive", ghost ? `${dateKey(runDay)} - race your ghost` : dateKey(runDay));
-  else banner(state.mode === 'classic' ? 'Classic' : state.depth.name, state.mode === 'classic' ? 'Wrap board - eat, grow, circle' : `Depth ${state.depthIndex + 1} of ${DEPTHS.length}`);
+  if (mode === 'daily') banner(t('Today\'s dive'), ghost ? t('{date} - race your ghost', { date: dateKey(runDay) }) : dateKey(runDay));
+  else banner(state.mode === 'classic' ? t('Classic') : tv(state.depth.name), state.mode === 'classic' ? t('Wrap board - eat, grow, circle') : t('Depth {n} of {total}', { n: state.depthIndex + 1, total: DEPTHS.length }));
   hud();
   syncMusic();
 }
@@ -324,14 +326,14 @@ function popup(text, kind) {
 function hud() {
   $('score').textContent = state.score.toLocaleString();
   const key = bestKey(mode, runDay, hard);
-  $('best').textContent = `Best ${(best[key] || 0).toLocaleString()}`;
+  $('best').textContent = t('Best {n}', { n: (best[key] || 0).toLocaleString() });
   if (state.mode === 'classic') {
-    $('depth').textContent = `Classic - length ${state.snake.length}`;
+    $('depth').textContent = t('Classic - length {n}', { n: state.snake.length });
     $('quota').style.setProperty('--fill', '0');
     $('quotaWrap').hidden = true;
   } else {
     $('quotaWrap').hidden = false;
-    $('depth').textContent = `${state.depthIndex + 1}. ${state.depth.name}`;
+    $('depth').textContent = `${state.depthIndex + 1}. ${tv(state.depth.name)}`;
     $('quota').style.setProperty('--fill', String(Math.min(1, state.eatenInDepth / state.depth.quota)));
     $('quotaText').textContent = `${Math.min(state.eatenInDepth, state.depth.quota)} / ${state.depth.quota}`;
   }
@@ -346,25 +348,25 @@ function handle(events) {
   for (const e of events) {
     if (e.type === 'bite') { popup(`+${e.points}`); vibrate(12); }
     if (e.type === 'nearMiss') {
-      popup('Close!', 'near');
+      popup(t('Close!'), 'near');
       if (timeScale >= 1) { timeScale = 0.55; slowUntil = performance.now() + 220; } 
       vibrate(8);
     }
     if (e.type === 'flinch') vibrate(6); 
     if (e.type === 'encircle') {
-      popup(e.count > 1 ? `CIRCLED x${e.count}  +${e.points.toLocaleString()}` : `CIRCLED  +${e.points}`, 'big');
+      popup(e.count > 1 ? t('CIRCLED x{n}  +{points}', { n: e.count, points: e.points.toLocaleString() }) : t('CIRCLED  +{points}', { points: e.points }), 'big');
       timeScale = 0.3; slowUntil = performance.now() + 450; 
       vibrate([20, 40, 30]);
     }
     if (e.type === 'shoal' && e.first) {
       view.showGhostLoop(e.centre, state);
-      banner('A shoal!', 'Circle it with your body to catch them all');
+      banner(t('A shoal!'), t('Circle it with your body to catch them all'));
     }
     if (e.type === 'descend') {
       descendAt = performance.now() + 2400;
       const next = DEPTHS[e.to];
       setTimeout(() => view.setDepth(next), 600);
-      banner('Diving deeper', next.name);
+      banner(t('Diving deeper'), tv(next.name));
     }
     if (e.type === 'surface') finish(true);
     if (e.type === 'death') { vibrate([40, 60, 80]); const run = state; setTimeout(() => { if (running && state === run) finish(false); }, 1300); } 
@@ -380,14 +382,14 @@ function finish(won) {
   if (state.mode !== 'classic') best.deepest = deeperOf(best.deepest, state.depthIndex); 
   saveBest();
   saveGhost();
-  $('overTitle').textContent = won ? 'You reached the surface!' : 'Lights out';
+  $('overTitle').textContent = won ? t('You reached the surface!') : t('Lights out');
   $('overScore').textContent = state.score.toLocaleString();
-  $('overBest').textContent = (isBest ? 'New best!' : `Best ${(best[key] || 0).toLocaleString()}`)
-    + (mode === 'daily' ? ` - today's dive ${dateKey(runDay)}` : '');
+  const bestLine = isBest ? t('New best!') : t('Best {n}', { n: (best[key] || 0).toLocaleString() });
+  $('overBest').textContent = mode === 'daily' ? t('{line} - today\'s dive {date}', { line: bestLine, date: dateKey(runDay) }) : bestLine;
   $('overDepth').textContent = state.mode === 'classic'
-    ? `Length ${state.snake.length}`
-    : `Reached ${state.depth.name} (depth ${state.depthIndex + 1} of ${DEPTHS.length})`;
-  $('overChain').textContent = state.bestChain > 1 ? `Biggest circle: ${state.bestChain} at once` : 'Tip: circle a shoal with your body to catch it all at once';
+    ? t('Length {n}', { n: state.snake.length })
+    : t('Reached {name} (depth {n} of {total})', { name: tv(state.depth.name), n: state.depthIndex + 1, total: DEPTHS.length });
+  $('overChain').textContent = state.bestChain > 1 ? t('Biggest circle: {n} at once', { n: state.bestChain }) : t('Tip: circle a shoal with your body to catch it all at once');
   setTimeout(() => { show('over'); countUp($('overScore'), state.score); syncMusic(); }, won ? 2600 : 0);
   hud();
 }
@@ -403,13 +405,13 @@ $('menu').addEventListener('click', toTitle);
 $('quit').addEventListener('click', toTitle);
 $('resume').addEventListener('click', togglePause);
 $('pauseBtn').addEventListener('click', togglePause);
-function syncGentle() { $('gentle').setAttribute('aria-pressed', String(gentle)); $('gentle').textContent = gentle ? 'Gentle speed: on' : 'Gentle speed: off'; }
+function syncGentle() { $('gentle').setAttribute('aria-pressed', String(gentle)); $('gentle').textContent = gentle ? t('Gentle speed: on') : t('Gentle speed: off'); }
 $('gentle').addEventListener('click', () => { ui.play('tap'); gentle = !gentle; best.gentle = gentle; saveBest(); syncGentle(); });
 syncGentle();
 function syncHard() {
   $('hard').setAttribute('aria-pressed', String(hard));
-  $('hard').textContent = hard ? 'Hard mode: on' : 'Hard mode: off';
-  $('hard').title = hard ? 'No slow-down near danger, no second chance: any hit ends the run' : 'Off: the eel slows near danger and gets a second chance';
+  $('hard').textContent = hard ? t('Hard mode: on') : t('Hard mode: off');
+  $('hard').title = hard ? t('No slow-down near danger, no second chance: any hit ends the run') : t('Off: the eel slows near danger and gets a second chance');
 }
 $('hard').addEventListener('click', () => { ui.play('tap'); hard = !hard; best.hard = hard; saveBest(); syncHard(); });
 syncHard();
@@ -438,7 +440,7 @@ function loop(now) {
     } else if (state.phase === 'descend' && descendAt && now >= descendAt) {
       enterNextDepth(state);
       descendAt = 0; acc = 0;
-      banner(state.depth.name, `Depth ${state.depthIndex + 1} of ${DEPTHS.length}`);
+      banner(tv(state.depth.name), t('Depth {n} of {total}', { n: state.depthIndex + 1, total: DEPTHS.length }));
       hud();
       syncMusic();
     }
