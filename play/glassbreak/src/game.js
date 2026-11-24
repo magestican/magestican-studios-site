@@ -26,6 +26,7 @@ import {
   Controls, EventFeed, SCR_END, SCR_FAIL, SCR_PAUSE, SCR_PLAY, SCR_SELECT, SCR_SETTINGS, SCR_STORY, SCR_TALLY, SCR_TITLE, StoryReader, portraitFor,
   TINT_CSS, feelFor, fitWithHud, parseLaunch, readProgress, recordClear, scenesBefore, screenFor, unlocked, windowLabel,
   writeProgress, readSettings, writeSettings, stepVolume, volumeGain, storyScenes, eraseTap, emptyProgress, launchHintShown,
+  fieldShown,
 } from './view.js';
 
 import { reportMatch } from '../../../web-engine/progress/report.js';
@@ -112,6 +113,7 @@ function show(scr) {
   $('tints').hidden = !(r && scr === SCR_PLAY && flying);
   $('hint').hidden = !(scr === SCR_PLAY && flying && launchHintShown(r, net ? net.room?.seat : 0));
   if (scr === SCR_TITLE) drawStart();
+  painter.showField(fieldShown(scr)); 
   
   
   const focus = { [SCR_TITLE]: 'start', [SCR_PAUSE]: 'resume', [SCR_TALLY]: 'next', [SCR_END]: 'endTitle', [SCR_STORY]: 'storyNext',

@@ -182,6 +182,9 @@ export function windowLabel(wi) {
 export const SCR_STORY = 'story';
 
 
+export const fieldShown = (scr) => scr !== SCR_STORY;
+
+
 export function scenesBefore(wi) {
   const w = WINDOWS[wi];
   if (!w) return [];

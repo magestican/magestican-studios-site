@@ -285,6 +285,11 @@ export class Painter {
   }
 
   
+  showField(on) {
+    this.glass.visible = on; this.solid.mesh.visible = on; this.glow.mesh.visible = on;
+  }
+
+  
   draw(s, dt, seatColours = null, mySeat = -1) {
     this.time += dt;
     const t = this.time;
