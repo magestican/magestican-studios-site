@@ -10,6 +10,7 @@
 import { createState, enqueue, step, tickMs, enterNextDepth } from './sim.js';
 import { DEPTHS } from './depths.js';
 import { dateKey, seedFor, bestKey } from './daily.js';
+import { titleRecord, deeperOf } from './titleRecord.js';
 import { createRecorder, record, pack, unpack, keeps, ghostAt } from './ghost.js';
 import { createRenderer } from './render.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
@@ -51,7 +52,8 @@ function saveGhost() {
   if (!keeps(ghost, state.score)) return;
   try { localStorage.setItem(GHOST_KEY(mode), JSON.stringify({ ...pack(recorder, state.score), slot: bestKey(mode, runDay, hard) })); } catch {  }
 }
-let gentle = params.get('gentle') === '1' || best.gentle === true;
+
+let gentle = params.get('gentle') === '0' ? false : params.get('gentle') === '1' || best.gentle !== false;
 
 let hard = params.get('hard') === '1' || best.hard === true;
 let state = newState();
@@ -74,10 +76,13 @@ addEventListener('keydown', (e) => {
   if (KEYS[e.code]) {
     e.preventDefault();
     if (running && !paused) enqueue(state, KEYS[e.code]);
-    else if (!running && !$('title').hidden && e.code.startsWith('Arrow')) {  }
+    else if (e.code.startsWith('Arrow')) moveFocus(e.code === 'ArrowUp' || e.code === 'ArrowLeft' ? -1 : 1); 
     return;
   }
-  if (e.code === 'Space' || e.code === 'Enter') {
+  
+  
+  
+  if ((e.code === 'Space' || e.code === 'Enter') && !e.target.closest?.('button, a')) {
     if (!$('title').hidden) { e.preventDefault(); start(); } else if (!$('over').hidden) { e.preventDefault(); start(); }
   }
   if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
@@ -111,12 +116,44 @@ function pollPad() {
     else if (b(13) || p.axes[1] > 0.6) dir = 'down';
     else if (b(14) || p.axes[0] < -0.6) dir = 'left';
     else if (b(15) || p.axes[0] > 0.6) dir = 'right';
-    if (dir && dir !== padLast && running && !paused) enqueue(state, dir);
+    const fresh = dir && dir !== padLast;
     padLast = dir;
-    if (b(0) && (!$('title').hidden || !$('over').hidden)) start();
-    if (b(9)) togglePause();
+    const down = [0, 1, 9].filter((i) => b(i));
+    const pressed = (i) => down.includes(i) && !padHeld.includes(i);
+    padHeld = down;
+    if (running && !paused) {
+      if (fresh) enqueue(state, dir);
+      if (pressed(9)) togglePause();
+      return;
+    }
+    
+    
+    if (fresh) moveFocus(dir === 'up' || dir === 'left' ? -1 : 1);
+    if (pressed(0)) {
+      const scr = visibleScreen();
+      const f = document.activeElement;
+      if (scr && f && scr.contains(f) && f.matches('button, a')) f.click();
+      else if (scr) scr.querySelector('.big')?.click();
+    }
+    if (pressed(1)) padBack();
+    if (pressed(9) && paused) togglePause();
     return;
   }
+}
+let padHeld = [];
+const visibleScreen = () => SCREENS.map($).find((el) => !el.hidden) || null;
+function moveFocus(delta) {
+  const scr = visibleScreen();
+  if (!scr) return;
+  const items = [...scr.querySelectorAll('button, a')].filter((n) => !n.hidden && n.offsetParent !== null);
+  if (!items.length) return;
+  const at = items.indexOf(document.activeElement);
+  const next = at < 0 ? 0 : (at + delta + items.length) % items.length;
+  items[next].focus();
+}
+function padBack() {
+  if (paused) togglePause();
+  else if (!$('over').hidden) $('menu').click();
 }
 
 
@@ -157,7 +194,13 @@ function show(id) {
     else el.hidden = !want;
   }
   $('hud').hidden = id === 'title';
+  if (id === 'title') syncRecord();
+  
+  if (id) $(id).querySelector('.big')?.focus({ preventScroll: true });
 }
+
+function syncRecord() { $('record').textContent = titleRecord(best, dateKey(new Date()), DEPTHS.map((d) => d.name)); }
+syncRecord();
 const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 
@@ -307,7 +350,7 @@ function handle(events) {
       banner('Diving deeper', next.name);
     }
     if (e.type === 'surface') finish(true);
-    if (e.type === 'death') { vibrate([40, 60, 80]); setTimeout(() => finish(false), 1300); }
+    if (e.type === 'death') { vibrate([40, 60, 80]); const run = state; setTimeout(() => { if (running && state === run) finish(false); }, 1300); } 
   }
   hud();
 }
@@ -316,7 +359,9 @@ function finish(won) {
   running = false;
   const key = bestKey(mode, runDay, hard);
   const isBest = state.score > (best[key] || 0);
-  if (isBest) { best[key] = state.score; saveBest(); }
+  if (isBest) best[key] = state.score;
+  if (state.mode !== 'classic') best.deepest = deeperOf(best.deepest, state.depthIndex); 
+  saveBest();
   saveGhost();
   $('overTitle').textContent = won ? 'You reached the surface!' : 'Lights out';
   $('overScore').textContent = state.score.toLocaleString();
@@ -335,7 +380,10 @@ for (const b of document.querySelectorAll('[data-mode]')) {
   b.addEventListener('click', () => { mode = b.dataset.mode; start(); });
 }
 $('again').addEventListener('click', start);
-$('menu').addEventListener('click', () => { ui.play('back'); running = false; show('title'); syncGentle(); syncHard(); syncMusic(); });
+function toTitle() { ui.play('back'); running = false; paused = false; show('title'); syncGentle(); syncHard(); syncMusic(); hud(); }
+$('menu').addEventListener('click', toTitle);
+
+$('quit').addEventListener('click', toTitle);
 $('resume').addEventListener('click', togglePause);
 $('pauseBtn').addEventListener('click', togglePause);
 function syncGentle() { $('gentle').setAttribute('aria-pressed', String(gentle)); $('gentle').textContent = gentle ? 'Gentle speed: on' : 'Gentle speed: off'; }

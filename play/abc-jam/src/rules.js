@@ -3,7 +3,7 @@
 
 
 import { LETTERS, WORD_STEPS, DINOS, DINO } from './content.js';
-import { PUZZLES, PUZZLE } from './puzzle.js';
+import { PUZZLES, PUZZLE, FIRST_PUZZLES } from './puzzle.js';
 
 
 
@@ -335,7 +335,9 @@ export const PRIZES = Object.freeze([
   ...BALLOON_PRIZES.map((n, i) => ({ id: `balloons-${n}`, pic: ['balloon', 'kite', 'sparkle'][i], n, done: (p) => p.pops >= n })),
   { id: 'dinos', pic: 'dino_egg', done: (p) => p.dinos.length >= DINOS.length },
   { id: 'dinos-found', pic: 't_rex', n: FOUND_PRIZE, done: (p) => p.found >= FOUND_PRIZE },
-  { id: 'puzzles', pic: 'unicorn', done: (p) => (p.puzzles?.length || 0) >= PUZZLES.length },
+  
+  { id: 'puzzles', pic: 'unicorn', done: (p) => FIRST_PUZZLES.every((z) => p.puzzles?.includes(z.id)) },
+  { id: 'puzzles-all', pic: 'castle', done: (p) => PUZZLES.every((z) => p.puzzles?.includes(z.id)) },
   { id: 'book', pic: 'heart', done: (p) => stickersOf(p) >= ALL_STICKERS },
 ].map(Object.freeze));
 
@@ -356,10 +358,12 @@ export function nextGoal(p) {
   
   if (p.dinos.length < DINOS.length) return { go: 'eggs' };
   
-  if ((p.puzzles?.length || 0) < PUZZLES.length) return { go: 'puzzles' };
+  if (!FIRST_PUZZLES.every((z) => p.puzzles?.includes(z.id))) return { go: 'puzzles' };
   const step = WORD_STEPS.find((s) => !stepFull(p, s));
   if (step) return { go: 'words', step: step.id };
   if (p.found < FOUND_PRIZE) return { go: 'match' };
+  
+  if (!PUZZLES.every((z) => p.puzzles?.includes(z.id))) return { go: 'puzzles' };
   if (p.pops < BALLOON_PRIZES[BALLOON_PRIZES.length - 1]) return { go: 'rain' };
   return { go: 'jam' };
 }

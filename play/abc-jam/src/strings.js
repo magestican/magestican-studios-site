@@ -54,14 +54,18 @@ export const T = Object.freeze({
   towerPoints: '{n} points',
   towerBest: 'Best {n}',
   towerBomb: 'Bomb',
-  prizePuzzles: 'Every puzzle',
+  prizePuzzles: 'Five puzzles',
+  prizePuzzlesAll: 'Every puzzle',
   puzzlePiece: 'Piece {letter}',
   
-  puzzleNames: Object.freeze({ unicorn: 'Unicorn', dino: 'Dinosaur', princess: 'Princess', dino_family: 'Dinosaur family', party: 'Birthday picnic' }),
+  puzzleNames: Object.freeze({ unicorn: 'Unicorn', dino: 'Dinosaur', princess: 'Princess', dino_family: 'Dinosaur family', party: 'Birthday picnic',
+    night: 'Unicorn and moon', pond: 'Dinosaur pond', sea: 'Princess boat', parade: 'Dinosaur parade', kite: 'Kite' }),
   
   puzzleMade: Object.freeze({
     unicorn: 'You made the unicorn!', dino: 'You made the dinosaur!', princess: 'You made the princess!',
     dino_family: 'You made the dinosaur family!', party: 'You made the birthday picnic!',
+    night: 'You made the unicorn and the moon!', pond: 'You made the dinosaur pond!', sea: 'You made the princess boat!',
+    parade: 'You made the dinosaur parade!', kite: 'You made the kite!',
   }),
 
   find: 'Find the letter {letter}!',

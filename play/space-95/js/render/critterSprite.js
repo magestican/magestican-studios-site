@@ -3,7 +3,9 @@
 
 
 import * as THREE from 'three';
+import { createLife, stepLife } from '../anim/life.js';
 import { v } from '../site/assetUrl.js';
+import { spriteTint } from './unify.js';
 
 const sheets = new Map();
 
@@ -197,7 +199,7 @@ export function attachCritterSprite(g, e) {
       c.needsUpdate = true;
       return c;
     });
-    const mat = new THREE.MeshBasicMaterial({ map: own[0], transparent: true, alphaTest: 0.05, depthWrite: false });
+    const mat = new THREE.MeshBasicMaterial({ color: spriteTint(), map: own[0], transparent: true, alphaTest: 0.05, depthWrite: false });
     const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
     quad.position.z = 0.05;
     g.add(quad);
@@ -272,4 +274,13 @@ export function updateCritterSprite(g, e, dt) {
   const qy = v.quad.position.y - e.h / 2;
   v.quad.rotation.z = a;
   if (a) v.quad.position.set(qx * Math.cos(a) - qy * Math.sin(a), e.h / 2 + qx * Math.sin(a) + qy * Math.cos(a), 0.05);
+  
+  
+  v.life ??= createLife(e.id);
+  const life = stepLife(v.life, e, dt);
+  const h = v.quad.scale.y;
+  v.quad.scale.x *= life.sx;
+  v.quad.scale.y *= life.sy;
+  v.quad.position.y -= (h * (1 - life.sy)) / 2;
+  if (!a) v.quad.rotation.z = life.lean;
 }

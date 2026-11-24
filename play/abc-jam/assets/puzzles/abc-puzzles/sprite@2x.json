@@ -13,23 +13,58 @@
   "height": 256,
   "pixelRatio": 2
  },
- "puzzle_party-sticker": {
+ "puzzle_kite-sticker": {
   "x": 0,
   "y": 258,
   "width": 384,
   "height": 256,
   "pixelRatio": 2
  },
- "puzzle_princess-sticker": {
+ "puzzle_night-sticker": {
   "x": 386,
   "y": 258,
   "width": 384,
   "height": 256,
   "pixelRatio": 2
  },
- "puzzle_unicorn-sticker": {
+ "puzzle_parade-sticker": {
   "x": 0,
   "y": 516,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "puzzle_party-sticker": {
+  "x": 386,
+  "y": 516,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "puzzle_pond-sticker": {
+  "x": 0,
+  "y": 774,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "puzzle_princess-sticker": {
+  "x": 386,
+  "y": 774,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "puzzle_sea-sticker": {
+  "x": 0,
+  "y": 1032,
+  "width": 384,
+  "height": 256,
+  "pixelRatio": 2
+ },
+ "puzzle_unicorn-sticker": {
+  "x": 386,
+  "y": 1032,
   "width": 384,
   "height": 256,
   "pixelRatio": 2

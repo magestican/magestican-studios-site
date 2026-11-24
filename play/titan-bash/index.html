@@ -37,7 +37,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <title>Play Ringtitans - an 8-player giant robot party brawl</title>
   <meta name="description" content="Ringtitans is a party brawl for up to eight pilots on one screen: dash, slam and ride the Red Line in giant storm-born Titans. Free, in the browser.">
-  <meta name="build" content="2e528ab0-20261124T073353Z">
+  <meta name="build" content="b3f49bcb-20261124T175438Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/titan-bash/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Ringtitans - an 8-player giant robot party brawl">
@@ -47,8 +47,8 @@
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
   
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
-  <script src="../shared/ui/boot.js?v=2e528ab0-20261124T073353Z" data-game="titan-bash"></script>
-  <link rel="stylesheet" href="./src/style.css?v=2e528ab0-20261124T073353Z">
+  <script src="../shared/ui/boot.js?v=b3f49bcb-20261124T175438Z" data-game="titan-bash"></script>
+  <link rel="stylesheet" href="./src/style.css?v=b3f49bcb-20261124T175438Z">
 </head>
 <body>
   <div class="studio-bar">
@@ -154,6 +154,18 @@
     </section>
 
     
+
+
+    <div class="tb-touch ph-pad" id="touch" aria-label="Touch controls" hidden>
+      <div class="ph-stick" id="tp-stick" role="button" aria-label="Move: drag here"><span class="ph-hint">Move</span><span class="ph-knob" id="tp-knob" hidden></span></div>
+      <div class="ph-buttons">
+        <button class="ph-b ph-boost" id="tp-boost" type="button">Boost</button>
+        <button class="ph-b ph-ability" id="tp-ability" type="button">Ability</button>
+        <button class="ph-b ph-fire" id="tp-fire" type="button">Fire</button>
+      </div>
+    </div>
+
+    
     <section class="tb-page" id="end" hidden>
       <div class="tb-card">
         <p class="tb-dim" id="end-round"></p>
@@ -226,8 +238,8 @@
   </main>
 
   
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=2e528ab0-20261124T073353Z"></script>
-  <script type="module" src="./src/main.js?v=2e528ab0-20261124T073353Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=2e528ab0-20261124T073353Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=b3f49bcb-20261124T175438Z"></script>
+  <script type="module" src="./src/main.js?v=b3f49bcb-20261124T175438Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=b3f49bcb-20261124T175438Z"></script>
 </body>
 </html>

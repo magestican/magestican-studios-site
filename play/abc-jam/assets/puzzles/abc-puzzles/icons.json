@@ -44,6 +44,41 @@
    "group": "puzzle",
    "width": 192,
    "height": 128
+  },
+  {
+   "id": "puzzle_night",
+   "label": "Unicorn under the moon",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "puzzle_pond",
+   "label": "Dinosaur at the pond",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "puzzle_sea",
+   "label": "Princess sails the sea",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "puzzle_parade",
+   "label": "Dinosaur parade",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "puzzle_kite",
+   "label": "Kite day",
+   "group": "puzzle",
+   "width": 192,
+   "height": 128
   }
  ]
 }

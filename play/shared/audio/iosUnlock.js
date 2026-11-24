@@ -76,6 +76,32 @@ export function silentWavDataUrl(samples = 1024, rate = 22050) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+export const KEEPALIVE_SECONDS = 4;
+export const KEEPALIVE_RATE = 8000;
+
+
+export function needsKeepAliveElement(nav = globalThis.navigator) {
+  if (!nav) return false;
+  if (nav.audioSession) return false;
+  const ua = String(nav.userAgent || '');
+  const iosDevice = /iPhone|iPad|iPod/.test(ua);
+  
+  const iPadAsMac = /Macintosh/.test(ua) && Number(nav.maxTouchPoints) > 1;
+  return iosDevice || iPadAsMac;
+}
+
+
 export const UNLOCK_EVENTS = ['pointerdown', 'touchend', 'keydown', 'click'];
 
 
@@ -128,6 +154,9 @@ export function createAudioUnlock({
       if (globalThis.navigator?.audioSession) globalThis.navigator.audioSession.type = 'playback';
     } catch {  }
 
+    
+    if (!needsKeepAliveElement()) return;
+    if (globalThis.document?.hidden) return;
     if (keepAlive && !keepAlive.paused) return;
     try {
       if (!keepAlive) {
@@ -138,7 +167,7 @@ export function createAudioUnlock({
         el.setAttribute('playsinline', '');
         el.setAttribute('webkit-playsinline', '');
         el.volume = 0;
-        el.src = silentWavDataUrl();
+        el.src = silentWavDataUrl(KEEPALIVE_SECONDS * KEEPALIVE_RATE, KEEPALIVE_RATE);
         keepAlive = el;
       }
       keepAlive.play().catch(() => {  });
@@ -193,7 +222,9 @@ export function createAudioUnlock({
         globalThis.addEventListener?.(type, unlock, true);
       }
       globalThis.document?.addEventListener('visibilitychange', () => {
-        if (!globalThis.document.hidden) wake();
+        
+        if (globalThis.document.hidden) stopKeepAlive();
+        else wake();
       });
       globalThis.addEventListener?.('focus', wake);
       globalThis.addEventListener?.('pageshow', wake);

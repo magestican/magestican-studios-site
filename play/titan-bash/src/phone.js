@@ -4,7 +4,7 @@
 
 
 import { HOUSES, TITANS } from '../../../web-engine/titan-bash/titans.js';
-import { stickFrom } from './input.js';
+import { wirePad } from './touchPad.js';
 import { INPUT_HZ, MSG, encodeInput, decodeStatus, createLatencyLog, phoneEndLine, phoneNameLine } from './wire.js';
 import { createPhoneLink } from './net.js';
 import { bellsText } from './menu.js';
@@ -16,9 +16,6 @@ const writeProfile = (p) => { try { localStorage.setItem(PROFILE_KEY, JSON.strin
 const store = (() => { try { return localStorage; } catch { return null; } })();
 
 const $ = (id) => document.getElementById(id);
-
-
-const capture = (el, e) => { try { el.setPointerCapture(e.pointerId); } catch {  } };
 const HOUSE = Object.fromEntries(HOUSES.map((h) => [h.id, h]));
 
 export function startPhone(code) {
@@ -28,8 +25,7 @@ export function startPhone(code) {
   const say = (text) => { $('ph-state').textContent = text; $('ph-state').hidden = !text; };
   say(`Joining ${code.toUpperCase()}...`);
 
-  const held = { fire: false, boost: false, ability: false };
-  let stick = { mx: 0, my: 0 }; let aim = null; let seq = 0; let lastStatus = 0;
+  let seq = 0; let lastStatus = 0;
   const latency = createLatencyLog();
 
   const link = createPhoneLink(code, {
@@ -161,46 +157,14 @@ export function startPhone(code) {
   }
 
   
-  const zone = $('ph-stick'); const knob = $('ph-knob'); let sid = null; let ox = 0; let oy = 0;
-  const R = () => Math.max(40, Math.min(80, zone.clientWidth * 0.22));
-  zone.addEventListener('pointerdown', (e) => {
-    if (sid !== null) return; sid = e.pointerId;
-    const r = zone.getBoundingClientRect(); ox = e.clientX - r.left; oy = e.clientY - r.top;
-    capture(zone, e);
-    knob.hidden = false; knob.style.left = `${ox}px`; knob.style.top = `${oy}px`; e.preventDefault();
-  });
-  zone.addEventListener('pointermove', (e) => {
-    if (e.pointerId !== sid) return;
-    const r = zone.getBoundingClientRect();
-    stick = stickFrom(ox, oy, e.clientX - r.left, e.clientY - r.top, R());
-    knob.style.transform = `translate(calc(-50% + ${stick.mx * R()}px), calc(-50% + ${stick.my * R()}px))`;
-  });
-  const endStick = (e) => { if (e.pointerId !== sid) return; sid = null; stick = { mx: 0, my: 0 }; knob.hidden = true; knob.style.transform = ''; };
-  zone.addEventListener('pointerup', endStick); zone.addEventListener('pointercancel', endStick);
-
-  
-  for (const [id, key] of [['ph-fire', 'fire'], ['ph-boost', 'boost'], ['ph-ability', 'ability']]) {
-    const b = $(id); let fx = 0; let fy = 0;
-    b.addEventListener('pointerdown', (e) => {
-      held[key] = true; b.classList.add('down'); fx = e.clientX; fy = e.clientY; capture(b, e); e.preventDefault();
-    });
-    if (key === 'fire') {
-      b.addEventListener('pointermove', (e) => {
-        if (!held.fire) return;
-        const a = stickFrom(fx, fy, e.clientX, e.clientY, 60);
-        aim = Math.hypot(a.mx, a.my) > 0.4 ? { ax: a.mx, ay: a.my } : null;
-      });
-    }
-    const up = () => { held[key] = false; b.classList.remove('down'); if (key === 'fire') aim = null; };
-    b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
-  }
+  const pad = wirePad({ zone: $('ph-stick'), knob: $('ph-knob'), fire: $('ph-fire'), boost: $('ph-boost'), ability: $('ph-ability') });
   document.addEventListener('contextmenu', (e) => e.preventDefault());
 
   
   setInterval(() => {
     seq += 1;
     latency.sent(seq);
-    link.send(encodeInput({ ...stick, ...held, ...(aim || {}) }, seq));
+    link.send(encodeInput(pad.read(), seq));
     if (lastStatus && performance.now() - lastStatus > 2500) say('Reconnecting... a CPU pilot is flying your Titan.');
   }, 1000 / INPUT_HZ);
   addEventListener('pagehide', () => link.leave());

@@ -107,3 +107,14 @@ export function stickFrom(ox, oy, px, py, radius) {
   const k = Math.min(1, d / radius) / d;
   return { mx: dx * k, my: dy * k };
 }
+
+
+
+
+
+
+export function isTouchDevice({ maxTouchPoints = 0, coarse = false } = {}) { return maxTouchPoints > 0 && !!coarse; }
+export function firstPilot({ touch = false, joinCode = null } = {}) {
+  if (joinCode) return null;
+  return touch ? 'touch' : 'p1';
+}

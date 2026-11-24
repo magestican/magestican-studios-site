@@ -64,6 +64,13 @@ export const CAPSULE_KINDS = 7;
 export const CAP_TICKS = 720;
 
 
+
+
+
+
+export const SPARK_V = 4 * 256, FLARE_AT = 6, FLARE_PANES = 8, SPARK_LIGHT = 30;
+
+
 export const BOSSES = Object.freeze({
   rose:   { hp: 32, guards: 8,  orbit: 132, rot: 9,   bolt: 210, fan: 3, ring: 0,   spawn: 0,  regrow: 0,   echo: false },
   bell:   { hp: 40, guards: 8,  orbit: 124, rot: -11, bolt: 240, fan: 5, ring: 320, spawn: 0,  regrow: 0,   echo: false },
@@ -79,7 +86,7 @@ export const BOLT_FLOOR = 110, BOLT_SPREAD = 6;
 
 export const REFIRE_WARN = 105, SURGE_WARN = 150, REFIRE_MAX = 3;
 
-const CAP = { embers: 16, enemies: 24, caps: 12, bolts: 48, ev: 96 };
+const CAP = { embers: 16, enemies: 24, caps: 12, bolts: 48, ev: 96, sparks: 24 };
 const U = (v) => v * FP;
 const abs = (v) => (v < 0 ? -v : v);
 const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
@@ -114,7 +121,7 @@ export function cellXY(s, c, r) {
 
 function newPlayer(i) {
   return { on: 0, x: U(FIELD_W / 2), tint: i % 3, stun: 0, wide: 0, lance: 0, cat: 0, lcd: 0, need: 0, spent: 0,
-    score: 0, breaks: 0, lost: 0, launch: 0, fire: 0, next: 0 };
+    score: 0, breaks: 0, lost: 0, launch: 0, fire: 0, next: 0, spark: 0, flare: 0 };
 }
 
 export function createSim({ seed = 1, gentle = false, hard = false, stage = 0 } = {}) {
@@ -124,11 +131,11 @@ export function createSim({ seed = 1, gentle = false, hard = false, stage = 0 } 
     grid: { t: [], hp: [], tn: [], ot: [], oh: [], on: [], sd: [] },
     massY: 0, lanterns: 0, light: 0, lastBreak: 0, combo: 0, shield: 0, slowT: 0, rings: 0,
     players: Array.from({ length: MAX_PLAYERS }, (_, i) => newPlayer(i)),
-    embers: [], enemies: [], caps: [], bolts: [],
+    embers: [], enemies: [], caps: [], bolts: [], sparks: [],
     boss: { on: 0, kind: '', x: 0, y: 0, hp: 0, max: 0, phase: 0, t: 0, rot: 0, guards: [], beaten: 0 },
     echo: { on: 0, x: U(FIELD_W / 2), hp: 0, max: 0 },
     refire: { at: 0, cells: [] }, surge: { at: 0, dy: 0 },
-    stats: { breaks: 0, bosses: 0, maxChain: 0, moths: 0, enemies: 0, caps: 0, pierce: 0, perfect: 0, windows: 0, breaches: 0 },
+    stats: { breaks: 0, bosses: 0, maxChain: 0, moths: 0, enemies: 0, caps: 0, pierce: 0, perfect: 0, windows: 0, breaches: 0, caught: 0, flares: 0 },
     stars: new Array(WINDOWS.length).fill(0),
     ev: [],
   };
@@ -138,7 +145,9 @@ export function createSim({ seed = 1, gentle = false, hard = false, stage = 0 } 
 
 export const LANTERNS = [99, 5, 3];
 const DUSK_MUL = [60, 100, 140];      
-const SPEED_BASE = [U(6), U(7), U(8)]; 
+
+
+const SPEED_BASE = [U(6), U(8), U(9)];
 
 export function loadWindow(s, wi) {
   const w = WINDOWS[wi];
@@ -158,7 +167,7 @@ export function loadWindow(s, wi) {
   
   
   g.sd = new Array(n).fill(0);
-  s.massY = 0; s.embers = []; s.enemies = []; s.caps = []; s.bolts = []; s.shield = 0; s.slowT = 0; s.combo = 0;
+  s.massY = 0; s.embers = []; s.enemies = []; s.caps = []; s.bolts = []; s.sparks = []; s.shield = 0; s.slowT = 0; s.combo = 0;
   s.lanterns = LANTERNS[s.mode];
   for (const p of s.players) { p.wide = 0; p.lance = 0; p.cat = 0; p.stun = 0; p.need = p.on ? 1 : 0; p.spent = 0; }
   const n1 = Math.max(1, onCount(s));
@@ -209,7 +218,7 @@ function respeed(s, e) { setDir(s, e, iatan2(e.vx, e.vy)); }
 function newEmber(s, own, x, y) {
   if (s.embers.length >= CAP.embers) return null;
   const e = { id: s.serial++, own, x, y, vx: 0, vy: 0, held: 1, hx: 0, tint: s.players[own]?.tint ?? 0, chg: 0, heat: 0,
-    moth: 0, chain: 0, age: 0, last: own };
+    moth: 0, chain: 0, age: 0, last: own, flare: 0 };
   s.embers.push(e);
   return e;
 }
@@ -266,6 +275,7 @@ function breakCell(s, i, e, seat) {
   ev(s, t === C_SUN ? 'sun' : 'break', cx, cy, (g.tn[i] & 3) | (t << 2) | (Math.min(chain, 15) << 6));
   const roll = hash32(s.seed, i, s.tick, s.stats.breaks);
   if (t === C_BEAD || roll % 13 === 0) dropCapsule(s, cx, cy, (roll >>> 8) % CAPSULE_KINDS);
+  else if (((roll >>> 20) & 1) === 0 && s.sparks.length < CAP.sparks) s.sparks.push({ x: cx, y: cy });
 }
 
 function damageCell(s, i, dmg, e, seat) {
@@ -285,6 +295,12 @@ function hitGrid(s, e) {
   for (const i of cells) {
     const t = g.t[i];
     if (t === C_EMPTY) continue;
+    if (t !== C_IRON && tintable(t) && e.flare > 0) {
+      
+      e.flare--; s.stats.pierce++;
+      breakCell(s, i, e, e.last);
+      continue;
+    }
     if (t !== C_IRON && tintable(t) && e.chg > 0 && g.tn[i] === e.tint) {
       
       e.chg--; s.stats.pierce++;
@@ -339,6 +355,11 @@ function hitPaddles(s, e) {
   if (e.moth) { e.moth = 0; s.stats.moths++; s.light += 25; ev(s, 'mothburn', e.x, e.y); }
   e.tint = p.tint;
   e.chg = 3 + e.heat;
+  e.flare = 0;
+  if (p.flare) {
+    p.flare = 0; e.heat = 4; e.flare = FLARE_PANES; s.stats.flares++;
+    ev(s, 'flare', e.x, U(PADDLE_Y), best);
+  }
   e.last = best; 
   e.y = U(PADDLE_Y - EMBER_R);
   setDir(s, e, ANG / 2 - muldiv(off, ANG / 6, 1024));
@@ -581,6 +602,30 @@ function stepCaps(s) {
     }
   }
   s.caps = s.caps.filter((c) => c.y < U(FIELD_H + 20));
+}
+
+
+function stepSparks(s) {
+  const extra = s.mode === MODE_GENTLE ? 24 : 12;
+  for (const k of s.sparks) {
+    k.y += SPARK_V;
+    if (k.y < U(PADDLE_Y - 8) || k.y > U(PADDLE_Y + PADDLE_H + 10)) continue;
+    for (let i = 0; i < MAX_PLAYERS; i++) {
+      const p = s.players[i];
+      if (!p.on) continue;
+      if (abs(k.x - p.x) > U((p.wide > 0 ? WIDE_HW : PADDLE_HW) + extra)) continue;
+      s.stats.caught++;
+      s.light += SPARK_LIGHT; p.score += SPARK_LIGHT;
+      s.massY -= U(3);
+      if (s.massY < -U(CH * 3)) s.massY = -U(CH * 3);
+      if (!p.flare) p.spark++;
+      ev(s, 'catch', k.x, U(PADDLE_Y), i | (p.spark << 4));
+      if (p.spark >= FLARE_AT) { p.spark = 0; p.flare = 1; ev(s, 'kindle', p.x, U(PADDLE_Y), i); }
+      k.y = U(FIELD_H * 2);
+      break;
+    }
+  }
+  s.sparks = s.sparks.filter((k) => k.y < U(FIELD_H + 20));
 }
 
 function stepBolts(s) {
@@ -924,6 +969,7 @@ export function step(s, inputs) {
     }
   }
   stepCaps(s);
+  stepSparks(s);
   stepBolts(s);
   stepEnemies(s);
   stepBoss(s);
@@ -963,7 +1009,9 @@ function fail(s) {
 
 
 export const TALLY_MIN_TICKS = 100;
-export const PAR_TICKS = (wi) => (WINDOWS[wi].boss ? 150 : 95) * TICK_HZ;
+
+
+export const PAR_TICKS = (wi) => (WINDOWS[wi].boss ? 130 : 80) * TICK_HZ;
 
 function clear(s) {
   s.phase = PH_CLEAR; s.phT = s.tick;
@@ -973,7 +1021,7 @@ function clear(s) {
   if (s.wLost === 0) s.stats.perfect++;
   s.stars[s.wi] = Math.max(s.stars[s.wi] || 0, star);
   s.light += 1000 + (s.mode === MODE_GENTLE ? 0 : s.lanterns * 250);
-  s.embers = []; s.bolts = []; s.caps = [];
+  s.embers = []; s.bolts = []; s.caps = []; s.sparks = [];
   ev(s, 'clear', 0, 0, star);
 }
 
@@ -989,6 +1037,7 @@ export function snapshot(s) {
     enemies: s.enemies.map((e) => ({ ...e })),
     caps: s.caps.map((c) => ({ ...c })),
     bolts: s.bolts.map((b) => ({ ...b })),
+    sparks: (s.sparks || []).map((k) => ({ ...k })),
     boss: { ...s.boss, guards: s.boss.guards.slice() },
     echo: { ...s.echo },
     refire: { at: s.refire.at, cells: s.refire.cells.slice() },

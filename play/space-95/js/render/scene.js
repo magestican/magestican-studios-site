@@ -19,6 +19,7 @@ import { createCameraRig, frameLift, framePull, frameShift, hintDyCap, rideLead,
 import { coopFigures } from './coopFigures.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
+import { juiceFor, shakeOffset } from './juice.js';
 import { createKitchen, kitchenEntityView } from './kitchenView.js';
 import { clampLabelToView } from './labelClamp.js';
 import { createNight, nightEntityView } from './nightView.js';
@@ -30,6 +31,7 @@ import { createSilk, silkEntityView } from './silkView.js';
 import { createSky, skyEntityView } from './skyView.js';
 import { sovereignEntityView } from './sovereignView.js';
 import { createTrainView } from './trainView.js';
+import { setShiftGrade } from './unify.js';
 
 const CAM_DIST = 20;
 const PORTRAIT_RIDE_PULL = 1.25;
@@ -48,6 +50,7 @@ const FLIGHT_CARRY = 10;
 
 export function createView(canvas, level, labels) {
   
+  setShiftGrade(level.id); 
   if (level.mode === 'train') return createTrainView(canvas, level, labels);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
@@ -154,6 +157,8 @@ export function createView(canvas, level, labels) {
   
   let lastFrame = null; 
   let shake = 0; 
+  
+  const reduceMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const kick = (a) => {
     shake = Math.min(0.15, Math.max(shake, a));
   };
@@ -275,8 +280,7 @@ export function createView(canvas, level, labels) {
         ((hint?.lock ? hint.lock.y - rig.y : hintDyCap(hint?.dy ?? 0, viewW / viewAspect) + frameDy) - hintDy) * (1 - Math.exp(-dt * 4));
       
       shake *= Math.exp(-dt * 18);
-      const sx0 = Math.sin(session.time * 91) * shake;
-      const sy0 = Math.cos(session.time * 73) * shake;
+      const { x: sx0, y: sy0 } = shakeOffset(shake, session.time);
       
       
       planePull += ((session.plane && !level.camDist ? PLANE_PULL : 1) - planePull) * Math.min(1, dt * 2);
@@ -417,6 +421,10 @@ export function createView(canvas, level, labels) {
     
     onEvent(e) {
       pendingEvents.push(e);
+      
+      const juice = juiceFor(e, { reduceMotion });
+      if (juice.shake) kick(juice.shake);
+      for (const sp of juice.sparks) spark(sp.x, sp.y, sp.color, sp.life, sp.size);
       night?.onEvent(e);
       silk?.onEvent(e);
       burrow?.onEvent(e);
@@ -453,8 +461,6 @@ export function createView(canvas, level, labels) {
       }
       
       if (e.type === 'signal' && e.signals?.some((s) => s.startsWith('visual:'))) spark(e.x, e.y + 0.4, 0xffd34d, 0.9, 0.12);
-      if (e.type === 'defeat') spark(e.x, e.y + 0.6, 0xffffff, 0.5, 0.18);
-      if (e.type === 'hurt') kick(0.12);
       if (e.type === 'shoeLand') {
         shoe.land(e);
         if (e.lane !== 'back') kick(0.12);
@@ -485,7 +491,6 @@ export function createView(canvas, level, labels) {
         for (let i = 0; i < 3; i++) spark(e.x - 0.3 + i * 0.3, e.y + 0.1, 0xe8a317, 0.5, 0.1);
       if (e.type === 'glitterSplat')
         for (let i = 0; i < 6; i++) spark(e.x + Math.cos(i) * 0.6, e.y + 0.3 + Math.sin(i) * 0.3, 0xc9a7ff, 0.6, 0.1);
-      if (e.type === 'guardStunned' || e.type === 'helmetBonk') kick(0.06);
       
       
       if (e.type === 'cursorLaser' && e.to) {
@@ -519,16 +524,10 @@ export function createView(canvas, level, labels) {
       }
       if (e.type === 'surgeHit' || e.type === 'pinZap')
         for (let i = 0; i < 4; i++) spark(e.x + Math.cos(i * 1.6) * 0.4, (e.y ?? 0) + 0.5, 0xfff6a0, 0.5, 0.12);
-      if (e.type === 'plugYank' || e.type === 'lightsOut') kick(0.08);
       if (e.type === 'sourBite')
         for (let i = 0; i < 5; i++) spark(e.x + Math.cos(i * 1.3) * 0.8, e.y + 2.4 + Math.sin(i * 1.3) * 0.5, 0xffd34d, 0.8, 0.14);
-      if (e.type === 'prune' || e.type === 'pruneCut') kick(0.1);
       if (e.type === 'dunk') for (let i = 0; i < 6; i++) spark(e.x - 0.6 + i * 0.24, e.y + 0.2, 0x7fd3ff, 0.6, 0.12);
       if (e.type === 'capsize') for (let i = 0; i < 4 + (e.n ?? 1); i++) spark(e.x - 1 + i * 0.4, e.y + 0.4, 0xdff6ff, 0.6, 0.12);
-      if (e.type === 'ripple' && e.big) kick(0.06);
-      if (e.type === 'bossHit') kick(0.15);
-      if (e.type === 'pound' || e.type === 'clodLand') kick(0.08);
-      if (e.type === 'land' && (e.fall ?? 0) > 4) kick(0.05);
       if (e.type === 'dewBounce') for (let i = 0; i < 5; i++) spark(e.x - 0.6 + i * 0.3, e.y + 0.3, 0x5ad1ff, 0.6, 0.1);
       if (e.type === 'lurch') for (let i = 0; i < 4; i++) spark(e.x - 1 + i * 0.6, e.y + 0.1, 0xc9a37a, 0.5, 0.1);
       if (e.type === 'dash')

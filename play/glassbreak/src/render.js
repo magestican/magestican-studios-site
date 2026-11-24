@@ -9,7 +9,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 import {
-  BOSS_CORE_R, BOSS_GUARD_R, CH, CW, C_EMPTY, DANGER_Y, ECHO_HW, ECHO_Y, EMBER_R, ENEMY_R, FIELD_H, FIELD_W, GAP,
+  BOSS_CORE_R, BOSS_GUARD_R, CH, CW, C_EMPTY, DANGER_Y, ECHO_HW, ECHO_Y, EMBER_R, ENEMY_R, FIELD_H, FIELD_W, FLARE_AT, GAP,
   PADDLE_H, PADDLE_HW, PADDLE_Y, SHIELD_Y, WIDE_HW, bossGuardPos, cellXY, massBottom,
 } from './sim/sim.js';
 import { COLS, MAX_ROWS, WINDOWS, ACTS } from './sim/windows.js';
@@ -242,6 +242,15 @@ export class Painter {
         this.burst(x, y, [0.8, 0.85, 1], e.k === 'echobreak' ? 50 : 10, 380, 8);
       } else if (e.k === 'capsule') {
         this.ring(x, y, CAP_RGB[e.a & 15] || [1, 1, 1], 80, 0.5);
+      } else if (e.k === 'catch') {
+        this.ring(x, y, [1, 0.86, 0.45], 70, 0.35);
+        this.burst(x, y, [1, 0.85, 0.5], 6, 160, 3);
+      } else if (e.k === 'kindle') {
+        this.ring(x, y, [1, 0.85, 0.4], 220, 0.7);
+        this.shaft(x, y, [1, 0.85, 0.5], 120, 0.9, 0.6);
+      } else if (e.k === 'flare') {
+        this.burst(x, y, [1, 0.92, 0.65], 22, 420, 6);
+        this.ring(x, y, [1, 0.9, 0.6], 160, 0.5);
       } else if (e.k === 'shieldsave') {
         this.ring(x, y, [0.6, 0.85, 1], 60, 0.4);
       } else if (e.k === 'clear') {
@@ -362,6 +371,19 @@ export class Painter {
     for (const c of s.caps) S.add(18, wx(c.x), wy(c.y), 44, 26, CAP_RGB[c.k] || [1, 1, 1], 1, 0, c.k);
 
     
+    
+    for (const k of s.sparks || []) {
+      const x = wx(k.x), y = wy(k.y);
+      const tw = 0.75 + 0.25 * Math.sin(t * 14 + k.x * 0.01);
+      
+      
+      G.add(0, x, y + 18, 12, 44, [1, 0.75, 0.3], 0.45);
+      G.add(0, x, y, 56 * tw, 56 * tw, [1, 0.8, 0.35], 0.75);
+      S.add(1, x, y, 40, 40, [1, 0.82, 0.3], 1, t * 5 + k.x * 0.003);
+      G.add(4, x, y, 12, 12, [1, 0.98, 0.85], 1);
+    }
+
+    
     for (const bo of s.bolts) {
       const mine = bo.own >= 0;
       G.add(0, wx(bo.x), wy(bo.y), mine ? 12 : 16, mine ? 34 : 22, mine ? [1, 0.9, 0.45] : [1, 0.25, 0.6], 1);
@@ -377,6 +399,18 @@ export class Painter {
       G.add(0, wx(p.x), -PADDLE_Y - PADDLE_H / 2 + 14, hw * 2.4, 46, rgb, 0.1);
       S.add(10, wx(p.x), -PADDLE_Y - PADDLE_H / 2, hw * 2, PADDLE_H + 4, rgb, 1, 0, p.stun > 0 ? 1 : 0);
       if (p.cat > 0) G.add(21, wx(p.x), -PADDLE_Y + 4, hw * 2, 8, [0.7, 1, 0.6], 0.6);
+      
+      
+      if (p.flare) {
+        G.add(0, wx(p.x), -PADDLE_Y - PADDLE_H / 2, hw * 3.2, 70, [1, 0.82, 0.4], 0.45 + 0.25 * Math.sin(t * 9));
+        G.add(21, wx(p.x), -PADDLE_Y - PADDLE_H / 2, hw * 2, PADDLE_H, [1, 0.9, 0.55], 0.75);
+      } else {
+        for (let k = 0; k < FLARE_AT; k++) {
+          const nx = wx(p.x) + (k - (FLARE_AT - 1) / 2) * hw * 0.27;
+          const lit = k < p.spark;
+          G.add(4, nx, -PADDLE_Y - PADDLE_H / 2, lit ? 8 : 5, lit ? 8 : 5, lit ? [1, 0.86, 0.45] : [0.35, 0.3, 0.25], lit ? 1 : 0.7);
+        }
+      }
       if (seatColours && s.players.filter((q) => q.on).length > 1) {
         
         
@@ -406,6 +440,7 @@ export class Painter {
       G.add(0, x, y, EMBER_R * 7 * big, EMBER_R * 7 * big, rgb, 0.55);
       G.add(4, x, y, EMBER_R * 2.3 * big, EMBER_R * 2.3 * big, rgb, 1);
       if (e.chg > 0 && !e.held) G.add(3, x, y, EMBER_R * 4, EMBER_R * 4, rgb, 0.35 + 0.1 * e.chg);
+      if (e.flare > 0) G.add(0, x, y, EMBER_R * 11, EMBER_R * 11, [1, 0.92, 0.7], 0.5 + 0.2 * Math.sin(t * 20));
       if (e.moth) S.add(12, x, y + 10, 26, 22, [1, 1, 1], 1, 0, 0, e.id);
     }
     for (const id of this.trails.keys()) if (!alive.has(id)) this.trails.delete(id);

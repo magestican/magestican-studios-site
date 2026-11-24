@@ -23,7 +23,18 @@ export const PUZZLES = Object.freeze([
   { id: 'princess', icon: 'puzzle_princess', letters: ['I', 'J', 'K', 'L', 'M', 'N'], cols: 3, rows: 2, friends: ['princess'] },
   { id: 'dino_family', icon: 'puzzle_dino_family', letters: ['O', 'P', 'Q', 'R', 'S', 'T'], cols: 3, rows: 2, friends: ['dino'] },
   { id: 'party', icon: 'puzzle_party', letters: ['U', 'V', 'W', 'X', 'Y', 'Z'], cols: 3, rows: 2, friends: ['princess', 'unicorn', 'dino'] },
+  
+  
+  { id: 'night', icon: 'puzzle_night', letters: ['A', 'B', 'C', 'D'], cols: 2, rows: 2, friends: ['unicorn'] },
+  { id: 'pond', icon: 'puzzle_pond', letters: ['E', 'F', 'G', 'H'], cols: 2, rows: 2, friends: ['dino'] },
+  { id: 'sea', icon: 'puzzle_sea', letters: ['I', 'J', 'K', 'L', 'M', 'N'], cols: 3, rows: 2, friends: ['princess'] },
+  { id: 'parade', icon: 'puzzle_parade', letters: ['O', 'P', 'Q', 'R', 'S', 'T'], cols: 3, rows: 2, friends: ['dino'] },
+  { id: 'kite', icon: 'puzzle_kite', letters: ['U', 'V', 'W', 'X', 'Y', 'Z'], cols: 3, rows: 2, friends: ['princess', 'unicorn'] },
 ].map((p) => Object.freeze({ ...p, letters: Object.freeze(p.letters), friends: Object.freeze(p.friends) })));
+
+
+
+export const FIRST_PUZZLES = Object.freeze(PUZZLES.slice(0, 5));
 
 export const PUZZLE = Object.freeze(Object.fromEntries(PUZZLES.map((p) => [p.id, p])));
 

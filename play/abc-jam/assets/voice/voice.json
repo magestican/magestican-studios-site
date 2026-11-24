@@ -1904,6 +1904,31 @@
    "file": "puzzle-made-party.m4a",
    "ms": 2066,
    "text": "You made the birthday picnic!"
+  },
+  "puzzle-made-night": {
+   "file": "puzzle-made-night.m4a",
+   "ms": 2295,
+   "text": "You made the unicorn and the moon!"
+  },
+  "puzzle-made-pond": {
+   "file": "puzzle-made-pond.m4a",
+   "ms": 1850,
+   "text": "You made the dinosaur pond!"
+  },
+  "puzzle-made-sea": {
+   "file": "puzzle-made-sea.m4a",
+   "ms": 2040,
+   "text": "You made the princess boat!"
+  },
+  "puzzle-made-parade": {
+   "file": "puzzle-made-parade.m4a",
+   "ms": 2083,
+   "text": "You made the dinosaur parade!"
+  },
+  "puzzle-made-kite": {
+   "file": "puzzle-made-kite.m4a",
+   "ms": 1650,
+   "text": "You made the kite!"
   }
  },
  "takes": [

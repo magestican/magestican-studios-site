@@ -6,7 +6,7 @@
 
 import { FP } from './fixed.js';
 import { pack, X_MAX } from './input.js';
-import { C_CATH, C_EMPTY, C_GLASS, C_IRON, CH, CW, FIELD_W, MAX_PLAYERS, PADDLE_H, PADDLE_HW, PADDLE_Y, PH_CLEAR, PH_PLAY, WIDE_HW, cellXY } from './sim.js';
+import { C_CATH, C_EMPTY, C_GLASS, C_IRON, CH, CW, FIELD_W, MAX_PLAYERS, PADDLE_H, PADDLE_HW, PADDLE_Y, PH_CLEAR, PH_PLAY, SPARK_V, WIDE_HW, cellXY } from './sim.js';
 import { COLS } from './windows.js';
 
 
@@ -20,7 +20,7 @@ export function landingX(e, lineY = PADDLE_Y * FP) {
   return x > W ? period - x : x;
 }
 
-export function botInput(s, seat, { skill = 1, level = 'beginner', dodgeBolts = level === 'skilled', lowAim = level === 'skilled' } = {}) {
+export function botInput(s, seat, { skill = 1, level = 'beginner', dodgeBolts = level === 'skilled', lowAim = level === 'skilled', catchSparks = true } = {}) {
   const p = s.players[seat];
   if (s.phase === PH_CLEAR) return pack({ x: 2048, next: (s.tick - s.phT) > 60 });
   if (s.phase !== PH_PLAY || !p) return pack({ x: 2048 });
@@ -70,6 +70,7 @@ export function botInput(s, seat, { skill = 1, level = 'beginner', dodgeBolts = 
     const k = s.players.slice(0, seat).filter((q) => q.on).length;
     x = ((k + 0.5) / n) * FIELD_W * FP;
   }
+  if (catchSparks) x = sparkDetour(s, p, x, target);
   if (dodgeBolts) x = dodge(s, p, x, target);
   const tx = Math.max(0, Math.min(X_MAX, Math.round((x / (FIELD_W * FP)) * X_MAX)));
   const held = s.embers.some((e) => e.own === seat && e.held);
@@ -87,6 +88,28 @@ export function threatPoint(s) {
   }
   if (s.boss && s.boss.on && !s.boss.beaten) return { x: s.boss.x, y: s.boss.y };
   return null;
+}
+
+
+
+
+
+export function sparkDetour(s, p, want, target) {
+  if (!s.sparks || !s.sparks.length) return want;
+  const V = 18 * FP;
+  const line = PADDLE_Y * FP;
+  const emberT = target ? (line - target.y) / target.vy : Infinity;
+  let best = null, bt = Infinity;
+  for (const k of s.sparks) {
+    if (k.y > line) continue;
+    const t = (line - k.y) / SPARK_V;
+    if (t >= bt) continue;
+    const reach = Math.abs(k.x - p.x) / V;
+    if (reach > t) continue;
+    if (target && t + Math.abs(want - k.x) / V + 6 > emberT) continue;
+    best = k; bt = t;
+  }
+  return best ? best.x : want;
 }
 
 

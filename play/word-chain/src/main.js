@@ -617,7 +617,12 @@ function stopBot() {
 function maybeBot() {
   if (settings.mode !== 'bot' || state.game.over || botTimer) return;
   if (state.seats[state.game.turn] !== BOT) return;
-  const delay = 650 + Math.floor(rng() * 700);
+  
+  
+  
+  
+  
+  const delay = 900 + Math.floor(rng() * 1100) + Math.min(1200, state.game.chain.length * 60);
   botTimer = setTimeout(() => {
     botTimer = null;
     if (settings.mode !== 'bot' || state.game.over) return;

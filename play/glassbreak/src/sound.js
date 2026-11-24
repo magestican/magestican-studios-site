@@ -33,6 +33,9 @@ const EVENT_CUE = Object.freeze({
   bossenter: 'bellwarn', bossland: 'breach',
   bosshit: 'bosshit', guardbreak: 'bosshit', bossdown: 'bossdown',
   clear: 'clear', done: 'clear', fail: 'fail',
+  
+  
+  catch: 'capsule', kindle: 'sun', flare: 'launch',
 });
 
 export const EVENT_CUES = EVENT_CUE;

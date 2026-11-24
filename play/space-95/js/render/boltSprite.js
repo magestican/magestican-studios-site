@@ -5,6 +5,7 @@
 
 import * as THREE from 'three';
 import { v } from '../site/assetUrl.js';
+import { spriteTint } from './unify.js';
 
 
 const BOLT_DIR = null;
@@ -51,7 +52,7 @@ export function createBoltSprite(placeholder) {
         api.ready = true;
       });
       tex.colorSpace = THREE.SRGBColorSpace;
-      const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.05, depthWrite: false });
+      const mat = new THREE.MeshBasicMaterial({ color: spriteTint(), map: tex, transparent: true, alphaTest: 0.05, depthWrite: false });
       const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
       const cellH = BOLT_HEIGHT / FILL;
       quad.scale.set((cellH * cw) / ch, cellH, 1);

@@ -120,6 +120,8 @@ export const CONTROLS = Object.freeze({
   p2: Object.freeze({ move: 'Arrow keys', fire: '1', boost: '2', ability: '3', verb: 'Press' }),
   pad: Object.freeze({ move: 'Left stick', fire: 'A', boost: 'B', ability: 'X', verb: 'Press' }),
   phone: Object.freeze({ move: 'Drag the left side', fire: 'FIRE', boost: 'BOOST', ability: 'ABILITY', verb: 'Tap' }),
+  
+  touch: Object.freeze({ move: 'Drag the Move pad', fire: 'FIRE', boost: 'BOOST', ability: 'ABILITY', verb: 'Tap' }),
 });
 
 export const LEGEND_MS = 20000;
@@ -129,6 +131,7 @@ export function controlsFor(control = '') {
   if (control === 'p1' || control === 'p2') return CONTROLS[control];
   if (control.startsWith('pad')) return CONTROLS.pad;
   if (control.startsWith('phone')) return CONTROLS.phone;
+  if (control === 'touch') return CONTROLS.touch;
   return null;
 }
 
@@ -160,6 +163,7 @@ export function bellsText(n) { return `${n} Bell${n === 1 ? '' : 's'}`; }
 
 export function controlsLine(control) {
   const c = controlsFor(control);
+  if (c && c.verb === 'Tap') return `${c.move} (stick) to move - tap ${c.fire}, ${c.boost}, ${c.ability}`;
   return c ? `${c.move} move - ${c.fire} fire - ${c.boost} boost - ${c.ability} ability` : '';
 }
 
@@ -168,4 +172,19 @@ const LESSON = { fire: (k) => `${k} to FIRE at a target!`, boost: (k) => `${k} t
 export function lessonPrompt(control, stage, fallback = '') {
   const c = controlsFor(control);
   return c && LESSON[stage] ? `${c.verb} ${LESSON[stage](c[stage])}` : fallback;
+}
+
+
+
+
+
+
+export function rowTag(control = 'bot', humans = 1) {
+  if (!control || control === 'bot') return null;
+  if (humans <= 1 || control === 'touch') return 'You';
+  if (control === 'p1') return 'P1';
+  if (control === 'p2') return 'P2';
+  if (control.startsWith('phone')) return `Phone ${Number(control.slice(5)) + 1}`;
+  if (control.startsWith('pad')) return `Pad ${Number(control.slice(3)) + 1}`;
+  return null;
 }

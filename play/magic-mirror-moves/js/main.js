@@ -31,6 +31,7 @@ import {
   TV_FRAME_MS,
   tvSettings,
 } from './pose/quality.js';
+import { readStuck } from './pose/watchdog.js';
 import { COSTUMES, drawCostume, drawFigure, drawMannequin, placeCostume } from './render.js';
 import { createSound, cuesForGame, cuesForWorld, namesFor } from './sound.js';
 import { COSTUMES_3D } from './three/costumes3d.js';
@@ -713,6 +714,19 @@ async function startCamera() {
     if (S.screen !== 'frame') show('frame');
   };
   let oops = 0; 
+  
+  
+  const read = { since: null, runs: 0 };
+  const dog = setInterval(() => {
+    if (!current()) return clearInterval(dog);
+    if (!readStuck(read, performance.now() / 1000)) return;
+    clearInterval(dog);
+    console.warn('Magic Mirror Moves: the body reading is stuck; stopping the camera.', { runs: read.runs });
+    
+    estimator = null;
+    estimatorLoad = null;
+    sleepy();
+  }, 1000);
   const loop = async () => {
     while (current() && stream) {
       try {
@@ -728,8 +742,13 @@ async function startCamera() {
   const cameraStep = async () => {
     
     const skip = ++camFrames % QUALITY[quality.level].detectEvery !== 0;
+    if (!skip) read.since = performance.now() / 1000;
     const found = skip ? [] : await estimator.estimate(video, performance.now() / 1000, opts.players);
     if (!current()) return;
+    if (!skip) {
+      read.since = null;
+      read.runs++;
+    }
     const f = found[0] ?? null;
     const f2 = opts.players === 2 ? (found[1] ?? null) : null;
     if (estimator.failed()) return sleepy();
@@ -1306,7 +1325,9 @@ function draw() {
   
   
   
-  const mirror = S.source === 'camera' && !!stream;
+  
+  
+  const mirror = !!stream;
   if (video.hidden === mirror) video.hidden = !mirror;
   const second = opts.players === 2 ? S.p2.frame : null;
   if (!mirror && frame) drawMannequin(ctx, frame.pose);

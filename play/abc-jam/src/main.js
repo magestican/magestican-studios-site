@@ -1613,6 +1613,7 @@ function prizeLabel(z) {
   if (z.id === 'book') return T.prizeBook;
   if (z.id === 'dinos') return T.prizeDinos;
   if (z.id === 'puzzles') return T.prizePuzzles;
+  if (z.id === 'puzzles-all') return T.prizePuzzlesAll;
   if (z.id === 'dinos-found') return fill(T.prizeFound, { n: z.n });
   if (z.size) return fill(T.stepWords, { n: z.size });
   return fill(T.prizeBalloons, { n: z.n });

@@ -2,7 +2,7 @@
  "project": "arbelo-games",
  "look": "modern",
  "style": "default",
- "seconds": 49.5,
+ "seconds": 92.8,
  "ok": true,
  "contact_sheet": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\puzzles\\contact-sheet.png",
  "assets": [
@@ -12,7 +12,7 @@
    "ok": true,
    "painted": false,
    "notes": [
-    "5 icons x 1 colourways at 192 px (@1, @2x), svg + MapLibre sprite"
+    "10 icons x 1 colourways at 192 px (@1, @2x), svg + MapLibre sprite"
    ],
    "files": {
     "symbols-sticker": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\abc-puzzles\\games\\abc-jam\\assets\\puzzles\\abc-puzzles\\symbols-sticker.svg",
@@ -25,17 +25,17 @@
     {
      "name": "sprite complete",
      "ok": true,
-     "detail": "5 images = 5 icons x 1 colourways"
+     "detail": "10 images = 10 icons x 1 colourways"
     },
     {
      "name": "sprite@2x complete",
      "ok": true,
-     "detail": "5 images = 5 icons x 1 colourways"
+     "detail": "10 images = 10 icons x 1 colourways"
     },
     {
      "name": "glyph contrast >= 4.5:1",
      "ok": true,
-     "detail": "5 icons"
+     "detail": "10 icons"
     },
     {
      "name": "icons distinct at 1x",
@@ -55,27 +55,27 @@
     {
      "name": "sprite ST-01 alpha:sprite.png",
      "ok": true,
-     "detail": "full-bleed: 5 pictures, lowest alpha 255 (puzzle_dino-sticker)"
+     "detail": "full-bleed: 10 pictures, lowest alpha 255 (puzzle_dino-sticker)"
     },
     {
      "name": "sprite ST-02 palette_match",
      "ok": true,
-     "detail": "mean deltaE 26.7 to the dossier palette (max 30)"
+     "detail": "mean deltaE 24.7 to the dossier palette (max 30)"
     },
     {
      "name": "sprite@2x ST-01 alpha:sprite@2x.png",
      "ok": true,
-     "detail": "full-bleed: 5 pictures, lowest alpha 255 (puzzle_dino-sticker)"
+     "detail": "full-bleed: 10 pictures, lowest alpha 255 (puzzle_dino-sticker)"
     },
     {
      "name": "sprite@2x ST-02 palette_match",
      "ok": true,
-     "detail": "mean deltaE 26.3 to the dossier palette (max 30)"
+     "detail": "mean deltaE 24.4 to the dossier palette (max 30)"
     },
     {
      "name": "preview ST-02 palette_match",
      "ok": true,
-     "detail": "mean deltaE 15.4 to the dossier palette (max 30)"
+     "detail": "mean deltaE 13.4 to the dossier palette (max 30)"
     }
    ]
   }

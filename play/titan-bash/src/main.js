@@ -9,7 +9,8 @@ import { HOUSES, TITANS } from '../../../web-engine/titan-bash/titans.js';
 import { TUNING as T, secs, HZ } from '../../../web-engine/titan-bash/tuning.js';
 import { initAnalytics } from '../../../web-engine/visits/visits.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
-import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats, setupFromCheats } from './input.js';
+import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats, setupFromCheats, isTouchDevice, firstPilot } from './input.js';
+import { wirePad } from './touchPad.js';
 import { layout, draw } from './render.js';
 import { createScreenLink, joinCodeFrom, linkFor, canLink, PREFIX } from './net.js';
 import { MSG, STATUS_HZ, encodeStatus } from './wire.js';
@@ -27,7 +28,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -71,7 +72,19 @@ addEventListener('focusin', (e) => {
 });
 
 const down = new Set();
-let humans = [{ control: 'p1' }];
+
+
+const touchFirst = !joinCode && isTouchDevice({
+  maxTouchPoints: navigator.maxTouchPoints || 0,
+  coarse: typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches,
+});
+const FIRST = firstPilot({ touch: touchFirst, joinCode }) || 'p1';
+const touchPad = touchFirst
+  ? wirePad({ zone: $('tp-stick'), knob: $('tp-knob'), fire: $('tp-fire'), boost: $('tp-boost'), ability: $('tp-ability') })
+  : null;
+if (touchFirst) document.body.classList.add('tb-touch-mode');
+const hasTouchSeat = () => !!touchPad && humans.some((h) => h.control === 'touch');
+let humans = [{ control: FIRST }];
 let match = null; let bots = []; let seats = []; let fx = []; let raf = 0; let acc = 0; let last = 0;
 
 const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -87,6 +100,10 @@ function show(id) {
   if (id !== 'match') { leave.reset(); $('leave-ask').hidden = true; }
   music.setTrack(musicFor(id));
   if (id === 'title') startWarm(); else stopWarm();
+  
+  const pad = hasTouchSeat() && (id === 'title' || id === 'match');
+  $('touch').hidden = !pad; document.body.classList.toggle('tb-touch-on', pad);
+  if (!pad && touchPad) touchPad.release();
   qrFollow();
   
   const primary = primaryFor(id);
@@ -113,6 +130,7 @@ function qrFollow() {
 }
 
 function controlLabel(c) {
+  if (c === 'touch') return 'Touch pad (this phone)';
   if (c === 'p1') return 'Keys W A S D';
   if (c === 'p2') return 'Keys arrows';
   if (c.startsWith('pad')) return `Gamepad ${Number(c.slice(3)) + 1}`;
@@ -210,6 +228,7 @@ function inputsFor(m, list = seats, brains = bots) {
   return list.map((s, i) => {
     const cpu = () => (brains ? botInput(brains[i], m) : { ...IDLE });
     if (s.control === 'bot') return cpu();
+    if (s.control === 'touch') return touchPad ? touchPad.read() : { ...IDLE };
     if (s.control === 'p1' || s.control === 'p2') return keyboardInput(KEYMAPS[s.control], down);
     if (s.control.startsWith('phone')) return link?.phones.inputFor(s.control, performance.now()) ?? cpu();
     const pad = pads[Number(s.control.slice(3))];
@@ -289,7 +308,7 @@ function resize() {
 function paint() {
   const ctx = $('stage').getContext('2d');
   const hs = new Set(seats.map((s, i) => (s.control !== 'bot' ? i : -1)).filter((i) => i >= 0));
-  const tag = (c) => (c === 'p1' ? 'P1' : c === 'p2' ? 'P2' : c.startsWith('phone') ? `Phone ${Number(c.slice(5)) + 1}` : `Pad ${Number(c.slice(3)) + 1}`);
+  const tag = (c) => (c === 'touch' ? 'You' : c === 'p1' ? 'P1' : c === 'p2' ? 'P2' : c.startsWith('phone') ? `Phone ${Number(c.slice(5)) + 1}` : `Pad ${Number(c.slice(3)) + 1}`);
   const labels = seats.map((s) => (s.control === 'bot' ? null : `${emblemGlyph(wear(s).emblem)} ${HOUSE[s.house].name} (${tag(s.control)})`.trim()));
   draw(ctx, match, fx, L, { humans: hs, labels, paints: seats.map((s) => paintColor(wear(s).paint)), juice, countdown: countdownAt(countMs, reducedMotion) });
 }
@@ -302,7 +321,7 @@ const teamName = (n) => `Team ${n + 1}`;
 
 
 
-const screenSlot = (c) => c === 'p1' || c === 'p2' || c.startsWith('pad');
+const screenSlot = (c) => c === 'p1' || c === 'p2' || c === 'touch' || c.startsWith('pad');
 const store = (() => { try { return localStorage; } catch { return null; } })();
 const humanOf = (s) => humans.find((h) => h.control === s.control);
 
@@ -354,6 +373,7 @@ function results(m) {
   const note = card.mode === 'team' ? teamTotalsNote(card) : tieBreakNote(card, (r) => HOUSE[r.house].name);
   $('end-note').textContent = note; $('end-note').hidden = !note;
   const ol = $('podium'); ol.textContent = '';
+  const humanCount = seats.filter((s) => s.control !== 'bot').length;
   for (const r of card.rows) {
     
     
@@ -365,6 +385,9 @@ function results(m) {
     const nm = el('span', 'who', HOUSE[r.house].name);
     nm.append(el('span', 'frame', ` - ${TITANS[r.frame]?.name || r.frame}`));
     if (card.mode === 'team') nm.append(` - ${teamName(r.team)}`);
+    
+    const you = rowTag(seats[r.id]?.control, humanCount);
+    if (you) { nm.append(' ', el('span', 'you', you)); li.classList.add('mine'); }
     const b = el('span', 'bells', bellsText(r.bells));
     const stats = statsLine(r, card.rows);
     const face = el('span', 'tb-face'); face.setAttribute('aria-hidden', 'true'); face.style.borderColor = HOUSE[r.house].colour;
@@ -686,7 +709,7 @@ if (cheats.state === 'results' || cheats.state === 'podium') {
   }
   results(match);
   if (cheats.state === 'podium') showPodium();
-  humans = [{ control: 'p1' }];
+  humans = [{ control: FIRST }];
 } else show('title');
 requestAnimationFrame(pollPads);
 }

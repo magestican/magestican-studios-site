@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { createAnimator, wantedState } from '../anim/animState.js';
 import { v } from '../site/assetUrl.js';
 import { currentVariant, loadJoSheet } from './joSheets.js';
+import { spriteTint } from './unify.js';
 
 const GRAPH = 'assets/anim/jo/jo.graph.json';
 
@@ -63,7 +64,13 @@ export function createJoSprite(parent) {
         };
       }
       const anim = createAnimator(graph, clips, 'idle');
-      const mat = new THREE.MeshBasicMaterial({ map: looks.get(first)?.tex[0], transparent: true, alphaTest: 0.05, depthWrite: false });
+      const mat = new THREE.MeshBasicMaterial({
+        color: spriteTint(),
+        map: looks.get(first)?.tex[0],
+        transparent: true,
+        alphaTest: 0.05,
+        depthWrite: false,
+      });
       const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
       quad.position.z = 0.05;
       parent.add(quad);

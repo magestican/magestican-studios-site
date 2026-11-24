@@ -15,7 +15,7 @@
   }
  ],
  "engine": {
-  "artist_commit": "6bc9c546ea1c4cc20ba9ec746ec644bc2cea96a1",
+  "artist_commit": "3eb7ba8cd2471d22610999ad9e79840af2d0589c",
   "engine": "artist-engine 0.2.0-phaseB"
  },
  "gates": {
@@ -72,15 +72,20 @@
   ]
  },
  "files": {
-  "abc-puzzles/preview.png": "43ece9f51e2a9452e98e50e2dd9ec7943e585bf03289af8efb4a82ce9b8cb524",
-  "abc-puzzles/sprite.png": "4905e1cf57452ed6d258874101ba0f2ba00fc0f0a8570a5f8bd86cde0d6a2cc0",
-  "abc-puzzles/sprite@2x.png": "614dfad75b01a43faecd7c1fdf0e8e248ae80fe00b119b2a8cbec3d7a02e30d7",
+  "abc-puzzles/preview.png": "94d6cbcfb9ee54da5ccdaaf97dad4de2fd7795bb28f996d84f631e55308185aa",
+  "abc-puzzles/sprite.png": "9369a8083f86ee1da412f8b09b26626836abb87e7558c93d1088b201852789c3",
+  "abc-puzzles/sprite@2x.png": "727005c4bb354c4065a29bc165910826cd8af4cb70f70c65c4333d42d37272f8",
   "abc-puzzles/svg/sticker/puzzle_dino.svg": "8cc6aca1fa6e5f6d17dc6399207073442c24d3123aa6f247e1fb27629ffd1482",
   "abc-puzzles/svg/sticker/puzzle_dino_family.svg": "ecbff7a1f4fd42b8366b6a5fac6a7a175537164f113a7abc38f50d6cc8d5648a",
+  "abc-puzzles/svg/sticker/puzzle_kite.svg": "efdd9bd5a51e94c9103390acd15d781d410d3f973b60f3bcb07fdc7bad8ced04",
+  "abc-puzzles/svg/sticker/puzzle_night.svg": "412dcf5ca30d807cec3e879beb998643e25de9a43aed1a2be5f536ffa76b92bb",
+  "abc-puzzles/svg/sticker/puzzle_parade.svg": "195bab020af255cb25a512eee91ca6dc87e233b7e326a84ba768774a60fb02e0",
   "abc-puzzles/svg/sticker/puzzle_party.svg": "9d28f0d8010c8a1a348a9b9e2dcd81d1131f7745f0b28534aa3e9a00019c825c",
+  "abc-puzzles/svg/sticker/puzzle_pond.svg": "e6419370be96b353f019b8076ced8feb1533d9d784fc31597b08a9a3ed8f2350",
   "abc-puzzles/svg/sticker/puzzle_princess.svg": "bea3e5c56b0309650cf59b0105a06d96cd13e28db9dde0ff01aa8fccd65df24a",
+  "abc-puzzles/svg/sticker/puzzle_sea.svg": "c5d654afdf39541e615c17e207bf1de6bf3f5e1196df0be046c38f270b9b6e8d",
   "abc-puzzles/svg/sticker/puzzle_unicorn.svg": "c4c10a8cec6c5899c2c36328e3fef579ec9a385c0dd3ec59656619920ae5b7b5",
-  "abc-puzzles/symbols-sticker.svg": "a1faca63443ca2826d1537a8285f3c7ac7387324fa8ce8b5bbca47b4376dca25",
-  "contact-sheet.png": "753409448fc33736aba4c3771a0de8309a53e8a49b5d2cf90d635852667e4be1"
+  "abc-puzzles/symbols-sticker.svg": "d5b21cceac929b70f5468630205847229fd86b71915327ead9211e9caafe39fa",
+  "contact-sheet.png": "cb23fb84dba486cb7d0dedd72e0b41f26ba32e37c7f8a55f7578b36eb90f22a5"
  }
 }

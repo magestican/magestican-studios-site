@@ -13,6 +13,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { W, H, DIRS } from './sim.js';
+import { unwrapEel, wrapCoord, edgeFade } from './eelPath.js';
 
 const MAX_LIGHTS = 48;
 const MAX_RIPPLES = 8;
@@ -498,16 +499,12 @@ export function createRenderer(canvas, { search = '' } = {}) {
   const pathX = new Float32Array(1024), pathZ = new Float32Array(1024);
 
   
+
+
+
+
   function eelPath(state, alpha) {
-    const cur = state.snake, prev = state.prevSnake || cur;
-    const n = cur.length;
-    for (let i = 0; i < n; i++) {
-      const a = prev[Math.min(i, prev.length - 1)], b = cur[i];
-      let x = b.x, y = b.y;
-      if (Math.abs(a.x - b.x) + Math.abs(a.y - b.y) === 1) { x = a.x + (b.x - a.x) * alpha; y = a.y + (b.y - a.y) * alpha; }
-      pathX[i] = cellX(x); pathZ[i] = cellZ(y);
-    }
-    return n;
+    return unwrapEel(state.snake, state.prevSnake || state.snake, alpha, W, H, pathX, pathZ);
   }
 
   let ghost = null;
@@ -561,11 +558,14 @@ export function createRenderer(canvas, { search = '' } = {}) {
         for (let s = 0; s < SUB && count < MAX_BODY; s++) {
           const f = s / SUB;
           const u = (i + f) / Math.max(1, n - 1); 
-          const x = ax + (bx - ax) * f, z = az + (bz - az) * f;
+          const gx = wrapCoord(ax + (bx - ax) * f, W), gy = wrapCoord(az + (bz - az) * f, H);
+          const edge = edgeFade(gx, gy, W, H);
+          if (edge <= 0.001) continue;
+          const x = cellX(gx), z = cellZ(gy);
           const wave = Math.sin(t * 6 - (i + f) * 0.9) * 0.05;
           const r = (0.78 - u * 0.42) * (1 + pulse * 0.25 * Math.exp(-u * 4));
           tmpP.set(x + wave * (bz - az), 0.38 + Math.sin(t * 3 + i) * 0.03, z - wave * (bx - ax));
-          tmpS.setScalar(r * (alive ? 1 : deathFade));
+          tmpS.setScalar(r * edge * (alive ? 1 : deathFade));
           tmpM.compose(tmpP, tmpQ.identity(), tmpS);
           body.setMatrixAt(count, tmpM);
           const glow = (1.05 - u * 0.55) * (1 + pulse * 0.6) * (0.85 + 0.15 * Math.sin(t * 4 - i * 0.6));
@@ -574,7 +574,8 @@ export function createRenderer(canvas, { search = '' } = {}) {
           count++;
         }
         if (i % Math.max(1, Math.ceil(n / MAX_LIGHTS)) === 0 && lightCount < MAX_LIGHTS - 12) {
-          lights[lightCount++].set(ax, az, (1.1 - (i / n) * 0.5) * deathFade);
+          const lx = wrapCoord(ax, W), lz = wrapCoord(az, H);
+          lights[lightCount++].set(cellX(lx), cellZ(lz), (1.1 - (i / n) * 0.5) * deathFade * edgeFade(lx, lz, W, H));
         }
       }
     }
@@ -584,7 +585,9 @@ export function createRenderer(canvas, { search = '' } = {}) {
 
     
     head.visible = alive || deathFade > 0.05;
-    const hx = pathX[0], hz = pathZ[0];
+    const hgx = wrapCoord(pathX[0], W), hgz = wrapCoord(pathZ[0], H);
+    const headEdge = edgeFade(hgx, hgz, W, H);
+    const hx = cellX(hgx), hz = cellZ(hgz);
     head.position.set(hx, 0.45 + Math.sin(t * 3) * 0.04, hz);
     const d = DIRS[state.dir];
     const targetYaw = Math.atan2(d.x, d.y);
@@ -593,10 +596,10 @@ export function createRenderer(canvas, { search = '' } = {}) {
     while (dy < -Math.PI) dy += Math.PI * 2;
     headYaw += dy * (1 - Math.exp(-dt * 18));
     head.rotation.y = headYaw;
-    head.scale.setScalar(1.3 * (1 + pulse * 0.15) * (alive ? 1 : deathFade));
+    head.scale.setScalar(1.3 * (1 + pulse * 0.15) * headEdge * (alive ? 1 : deathFade));
     headMesh.material.emissive.copy(EEL_HEAD);
     headMesh.material.emissiveIntensity = 1.4 + pulse * 1.5;
-    if (lightCount < MAX_LIGHTS) lights[lightCount++].set(hx, hz, 0.9 * deathFade);
+    if (lightCount < MAX_LIGHTS) lights[lightCount++].set(hx, hz, 0.9 * deathFade * headEdge);
 
     
     motes.count = state.motes.length;

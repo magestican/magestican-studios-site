@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "2e528ab0-20261124T073353Z",
+ "buildId": "b3f49bcb-20261124T175438Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -387,7 +387,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 6538568
+   "bytes": 6538631
   },
   {
    "id": "truco",
@@ -738,7 +738,7 @@
    "ageNote": null,
    "order": 24,
    "addedAt": "2026-10-23",
-   "bytes": 336669267
+   "bytes": 336676919
   },
   {
    "id": "magic-mirror-moves",
@@ -770,7 +770,7 @@
    "ageNote": null,
    "order": 25,
    "addedAt": "2026-10-28",
-   "bytes": 95783697
+   "bytes": 95784483
   },
   {
    "id": "rex-rampage",
@@ -930,7 +930,7 @@
    "ageNote": null,
    "order": 30,
    "addedAt": "2026-11-10",
-   "bytes": 21478325
+   "bytes": 22558795
   },
   {
    "id": "flipwake",
@@ -1026,7 +1026,7 @@
    "ageNote": null,
    "order": 33,
    "addedAt": "2026-11-24",
-   "bytes": 11521663
+   "bytes": 11562541
   },
   {
    "id": "ringtitans",
@@ -1058,7 +1058,7 @@
    "ageNote": null,
    "order": 34,
    "addedAt": "2026-11-24",
-   "bytes": 6465719
+   "bytes": 6471730
   },
   {
    "id": "emberpane",
@@ -1090,7 +1090,7 @@
    "ageNote": null,
    "order": 35,
    "addedAt": "2026-11-24",
-   "bytes": 7077375
+   "bytes": 7081136
   },
   {
    "id": "farmy-five",
