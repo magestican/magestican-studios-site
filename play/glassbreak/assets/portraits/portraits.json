@@ -1,4 +1,8 @@
 {
-  "_note": "Story portraits, filled from the picked Artist busts. Empty = the story screen shows no portrait.",
-  "portraits": {}
+  "_note": "Story portraits, from Artist's stamped cel-toon busts (G-13). Each path starts with its delivery folder, whose artist-stamp.json must list the file. A speaker with no entry shows no portrait.",
+  "portraits": {
+    "tam": "busts/bust_tam/bust_tam.webp",
+    "ivy": "busts/bust_ivy/bust_ivy.webp",
+    "vesper": "busts/bust_vesper/bust_vesper.webp"
+  }
 }

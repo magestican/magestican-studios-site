@@ -213,9 +213,11 @@ export class StoryReader {
 
 
 
+
+
 export function portraitFor(who, manifest) {
   const f = manifest?.portraits?.[who];
-  return typeof f === 'string' && /^[a-z0-9_-]+\.(?:webp|png)$/.test(f) ? f : null;
+  return typeof f === 'string' && /^(?:[a-z0-9_-]+\/){0,3}[a-z0-9_-]+\.(?:webp|png)$/.test(f) ? f : null;
 }
 
 
