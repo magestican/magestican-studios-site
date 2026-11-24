@@ -280,7 +280,7 @@ export class Painter {
   }
 
   
-  draw(s, dt, seatColours = null) {
+  draw(s, dt, seatColours = null, mySeat = -1) {
     this.time += dt;
     const t = this.time;
     this.light = Math.max(0, this.light - dt * 0.9);
@@ -370,7 +370,12 @@ export class Painter {
       if (seatColours && s.players.filter((q) => q.on).length > 1) {
         
         
-        G.add(21, wx(p.x), -PADDLE_Y - PADDLE_H / 2 - 18, hw * 1.6, 10, seatColours[i], 1);
+        
+        
+        
+        const mine = i === mySeat;
+        if (mine) G.add(0, wx(p.x), -PADDLE_Y - PADDLE_H / 2 - 22, hw * 2.6, 40, seatColours[i], 0.35);
+        G.add(21, wx(p.x), -PADDLE_Y - PADDLE_H / 2 - (mine ? 22 : 18), mine ? hw * 2 : hw * 1.6, mine ? 20 : 10, seatColours[i], 1);
       }
     }
 

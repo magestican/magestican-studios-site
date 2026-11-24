@@ -90,7 +90,15 @@ layout();
 
 const SCREENS = { [SCR_TITLE]: 'title', [SCR_SELECT]: 'select', [SCR_PAUSE]: 'pause', [SCR_TALLY]: 'tally',
   [SCR_FAIL]: 'fail', [SCR_END]: 'end', [SCR_STORY]: 'story', [SCR_SETTINGS]: 'settings' };
+
+
+
+const SUBMENUS = new Set([SCR_SELECT, SCR_SETTINGS]);
+let opener = null; 
 function show(scr) {
+  const prev = screen;
+  const a = document.activeElement;
+  if (SUBMENUS.has(scr) && !SUBMENUS.has(prev)) opener = SCREENS[prev] && a && $(SCREENS[prev]).contains(a) ? { scr: prev, el: a } : null;
   screen = scr;
   for (const [k, id] of Object.entries(SCREENS)) $(id).hidden = k !== scr;
   const r = run();
@@ -104,7 +112,12 @@ function show(scr) {
   
   const focus = { [SCR_TITLE]: 'start', [SCR_PAUSE]: 'resume', [SCR_TALLY]: 'next', [SCR_END]: 'endTitle', [SCR_STORY]: 'storyNext',
     [SCR_SETTINGS]: 'settingsBack', [SCR_FAIL]: 'failSelect' }[scr];
-  const el = focus ? $(focus) : scr === SCR_SELECT ? selectPrimary() : focusables()[0];
+  
+  
+  $('pauseBtn').style.visibility = scr === SCR_PLAY ? '' : 'hidden';
+  const back = SUBMENUS.has(prev) && opener?.scr === scr ? opener.el : null;
+  const backOk = back && back.isConnected && !back.disabled && back.offsetParent !== null;
+  const el = backOk ? back : focus ? $(focus) : scr === SCR_SELECT ? selectPrimary() : focusables()[0];
   if (el) el.focus({ preventScroll: scr !== SCR_SELECT });
   else if (scr === SCR_PLAY) document.activeElement?.blur?.();
 }
@@ -754,7 +767,7 @@ function coopFrame(now, dt) {
   if (f.shake && settings.shake) painter.addShake(f.shake);
   if (frozen && now >= frozen.until) frozen = null;
   onPhase(v);
-  painter.draw(frozen ? frozen.s : v, dt, SEAT_COLOURS);
+  painter.draw(frozen ? frozen.s : v, dt, SEAT_COLOURS, room.seat ?? -1);
   hud(v);
 }
 
