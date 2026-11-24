@@ -9,7 +9,13 @@
 
 
 
+
+
+
+
+
 import { DEPTHS, CLASSIC, GENTLE_FACTOR, HUMAN_FLOOR_MS } from './depths.js';
+import * as Cube from './cube.js';
 
 export const W = 17;
 export const H = 17;
@@ -22,6 +28,7 @@ export const FLINCH_GAP = 6;
 export const APPROACH_CELLS = 3; 
 
 export const APPROACH_SLOW = Object.freeze([1.9, 1.5, 1.2, 1]);
+export const JELLY_BAND = 2; 
 
 export const DIRS = Object.freeze({
   up: Object.freeze({ x: 0, y: -1 }), down: Object.freeze({ x: 0, y: 1 }),
@@ -40,7 +47,86 @@ export function rng(seed) {
   };
 }
 
-const key = (x, y) => y * W + x;
+
+export const sameCell = (a, b) => a.x === b.x && a.y === b.y && (a.z ?? 0) === (b.z ?? 0);
+
+const pos = (c) => (c.z === undefined ? { x: c.x, y: c.y } : { x: c.x, y: c.y, z: c.z });
+
+
+function adjacency(size, neighborsOf) {
+  const adj = new Int32Array(size * 4).fill(-1);
+  for (let k = 0; k < size; k++) neighborsOf(k).forEach((n, i) => { adj[k * 4 + i] = n; });
+  return adj;
+}
+
+function flatBoard(wrap) {
+  const key = (c) => c.y * W + c.x;
+  const cell = (k) => ({ x: k % W, y: (k / W) | 0 });
+  const inside = (x, y) => x >= 0 && x < W && y >= 0 && y < H;
+  return {
+    cube: false, size: W * H, key, cell,
+    next(c, frame, dir) {
+      const d = DIRS[dir];
+      let x = c.x + d.x, y = c.y + d.y;
+      if (!inside(x, y)) {
+        if (!wrap) return null;
+        x = (x + W) % W; y = (y + H) % H;
+      }
+      return { cell: { x, y }, frame, crossed: false };
+    },
+    
+    raw: (c, frame, dir) => ({ x: c.x + DIRS[dir].x, y: c.y + DIRS[dir].y }),
+    adj: adjacency(W * H, (k) => {
+      const { x, y } = cell(k);
+      const out = [];
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        let nx = x + dx, ny = y + dy;
+        if (!inside(nx, ny)) {
+          if (!wrap) continue;
+          nx = (nx + W) % W; ny = (ny + H) % H;
+        }
+        out.push(key({ x: nx, y: ny }));
+      }
+      return out;
+    }),
+    distFrom: (h) => (c) => Math.abs(c.x - h.x) + Math.abs(c.y - h.y),
+    inset: (c) => Math.min(c.x, c.y, W - 1 - c.x, H - 1 - c.y),
+    jellyDirs: () => [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => ({ dx, dy })),
+    jellyNext: (j) => (inside(j.x + j.dx, j.y + j.dy) ? { x: j.x + j.dx, y: j.y + j.dy } : null),
+    keepOut: () => () => false,
+  };
+}
+
+const CUBE_BOARD = {
+  cube: true, size: Cube.CELLS, key: Cube.cellKey, cell: Cube.cellAt,
+  next: (c, frame, dir) => Cube.move(c, frame, dir),
+  raw: (c, frame, dir) => Cube.move(c, frame, dir).cell,
+  adj: adjacency(Cube.CELLS, Cube.neighbors),
+  distFrom(h) { const d = Cube.distances(h); return (c) => d[Cube.cellKey(c)]; },
+  inset: Cube.inset,
+  jellyDirs: (c) => Cube.faceDirs(c).map((d) => ({ dx: d.x, dy: d.y, dz: d.z })),
+  
+  jellyNext(j) { const p = Cube.vec(j.x + j.dx, j.y + j.dy, j.z + j.dz); return Cube.isCell(p) ? p : null; },
+  keepOut: (head, band) => Cube.keepOut(head, band),
+};
+
+const BOARDS = { wall: flatBoard(false), wrap: flatBoard(true), cube: CUBE_BOARD };
+
+export const boardOf = (state) => BOARDS[state.depth.edges];
+
+export const cellKey = (state, c) => boardOf(state).key(c);
+
+export const nextCell = (state, c, dir, frame = state.frame) => boardOf(state).next(c, frame, dir);
+
+
+function placeEel(state, length) {
+  if (boardOf(state).cube) {
+    state.snake = Cube.startBody(length);
+    state.frame = Cube.START_FRAME;
+    state.dir = 'up';
+  }
+  state.prevSnake = state.snake.map((c) => ({ ...c }));
+}
 
 
 
@@ -54,6 +140,7 @@ export function createState({ mode = 'dive', depth = 0, seed = 1, gentle = false
     depth: null,
     snake: [{ x: 6, y: cy }, { x: 5, y: cy }, { x: 4, y: cy }, { x: 3, y: cy }],
     prevSnake: null,
+    frame: null, 
     dir: 'right', queue: [], grow: 0,
     motes: [], jellies: [], nextId: 1,
     score: 0, eatenInDepth: 0, eatenTotal: 0, bitesSinceShoal: 0, bestChain: 0,
@@ -66,10 +153,10 @@ export function createState({ mode = 'dive', depth = 0, seed = 1, gentle = false
     lastNearMiss: -NEAR_MISS_GAP,
   };
   state.depth = mode === 'classic' ? CLASSIC : DEPTHS[state.depthIndex];
-  state.prevSnake = state.snake.map((c) => ({ ...c }));
+  placeEel(state, state.snake.length);
   if (spawn) {
     spawnJellies(state);
-    spawnMote(state);
+    spawnMote(state, boardOf(state).cube ? Cube.FIRST_MOTE : null);
   }
   return state;
 }
@@ -94,16 +181,11 @@ export function tickMs(state) {
   return state.hard ? base : base * APPROACH_SLOW[clearAhead(state)];
 }
 
-function wrapOrNull(state, x, y) {
-  if (x >= 0 && x < W && y >= 0 && y < H) return { x, y };
-  if (state.depth.edges !== 'wrap') return null;
-  return { x: (x + W) % W, y: (y + H) % H };
-}
-
-function bodySet(snake, skipTail) {
+function bodySet(state, skipTail) {
+  const B = boardOf(state);
   const s = new Set();
-  const n = skipTail ? snake.length - 1 : snake.length;
-  for (let i = 0; i < n; i++) s.add(key(snake[i].x, snake[i].y));
+  const n = skipTail ? state.snake.length - 1 : state.snake.length;
+  for (let i = 0; i < n; i++) s.add(B.key(state.snake[i]));
   return s;
 }
 
@@ -111,6 +193,7 @@ function bodySet(snake, skipTail) {
 export function step(state) {
   state.events = [];
   if (state.phase !== 'play') return state.events;
+  const B = boardOf(state);
   state.tick++;
   state.prevSnake = state.snake.map((c) => ({ ...c }));
   const wasDir = state.dir;
@@ -126,7 +209,7 @@ export function step(state) {
     if (hit && state.tick - state.lastFlinch >= FLINCH_GAP) {
       if (pending) state.dir = state.queue.shift();
       state.lastFlinch = state.tick;
-      state.events.push({ type: 'flinch', x: hit.x, y: hit.y, cause: hit.cause });
+      state.events.push({ type: 'flinch', ...pos(hit), cause: hit.cause });
       if (state.tick % JELLY_EVERY === 0) moveJellies(state);
       return state.events;
     }
@@ -136,36 +219,40 @@ export function step(state) {
     }
   }
   if (state.queue.length) state.dir = state.queue.shift();
-  const d = DIRS[state.dir];
   
   
   
-  const straight = state.dir !== wasDir
-    ? wrapOrNull(state, head.x + DIRS[wasDir].x, head.y + DIRS[wasDir].y) : null;
-  const dodged = straight && (bodySet(state.snake, state.grow <= 0).has(key(straight.x, straight.y)) ? 'body'
-    : state.jellies.some((j) => j.x === straight.x && j.y === straight.y) ? 'jelly' : null);
-  const next = wrapOrNull(state, head.x + d.x, head.y + d.y);
-  if (!next) return die(state, 'wall', { x: head.x + d.x, y: head.y + d.y });
+  const straight = state.dir !== wasDir ? B.next(head, state.frame, wasDir)?.cell ?? null : null;
+  const dodged = straight && (bodySet(state, state.grow <= 0).has(B.key(straight)) ? 'body'
+    : state.jellies.some((j) => sameCell(j, straight)) ? 'jelly' : null);
+  const mv = B.next(head, state.frame, state.dir);
+  if (!mv) return die(state, 'wall', B.raw(head, state.frame, state.dir));
+  const next = mv.cell;
   const growing = state.grow > 0;
-  if (bodySet(state.snake, !growing).has(key(next.x, next.y))) return die(state, 'body', next);
-  if (state.jellies.some((j) => j.x === next.x && j.y === next.y)) return die(state, 'jelly', next);
+  if (bodySet(state, !growing).has(B.key(next))) return die(state, 'body', next);
+  if (state.jellies.some((j) => sameCell(j, next))) return die(state, 'jelly', next);
 
   state.snake.unshift(next);
   if (growing) state.grow--;
   else state.snake.pop();
+  if (mv.crossed) {
+    
+    state.frame = mv.frame;
+    state.events.push({ type: 'roll', from: mv.from, to: mv.to });
+  }
   if (dodged && state.tick - state.lastNearMiss >= NEAR_MISS_GAP) {
     state.lastNearMiss = state.tick;
-    state.events.push({ type: 'nearMiss', x: straight.x, y: straight.y, cause: dodged });
+    state.events.push({ type: 'nearMiss', ...pos(straight), cause: dodged });
   }
 
-  const mi = state.motes.findIndex((m) => m.x === next.x && m.y === next.y);
+  const mi = state.motes.findIndex((m) => sameCell(m, next));
   if (mi >= 0) {
     const m = state.motes.splice(mi, 1)[0];
     state.grow += 1;
     const pts = 10 * (state.depthIndex + 1);
     state.score += pts;
     countBite(state, 1);
-    state.events.push({ type: 'bite', x: m.x, y: m.y, kind: m.kind, points: pts, streak: state.eatenInDepth });
+    state.events.push({ type: 'bite', ...pos(m), kind: m.kind, points: pts, streak: state.eatenInDepth });
   }
 
   encircle(state);
@@ -181,23 +268,25 @@ export function step(state) {
 }
 
 
-function hazard(state, from, dir) {
-  const d = DIRS[dir];
-  const next = wrapOrNull(state, from.x + d.x, from.y + d.y);
-  if (!next) return { cause: 'wall', x: from.x + d.x, y: from.y + d.y };
-  if (bodySet(state.snake, state.grow <= 0).has(key(next.x, next.y))) return { cause: 'body', ...next };
-  if (state.jellies.some((j) => j.x === next.x && j.y === next.y)) return { cause: 'jelly', ...next };
+function hazard(state, from, dir, frame = state.frame) {
+  const B = boardOf(state);
+  const mv = B.next(from, frame, dir);
+  if (!mv) return { cause: 'wall', ...B.raw(from, frame, dir) };
+  const next = mv.cell;
+  if (bodySet(state, state.grow <= 0).has(B.key(next))) return { cause: 'body', ...next };
+  if (state.jellies.some((j) => sameCell(j, next))) return { cause: 'jelly', ...next };
   return null;
 }
 
 
 function safestTurn(state, head) {
+  const B = boardOf(state);
   const { regionOf, sizes } = regions(state);
   let best = null, bestSize = -1;
   for (const dir of Object.keys(DIRS)) {
     if (dir === state.dir || dir === OPPOSITE[state.dir] || hazard(state, head, dir)) continue;
-    const c = wrapOrNull(state, head.x + DIRS[dir].x, head.y + DIRS[dir].y);
-    const r = regionOf[key(c.x, c.y)];
+    const c = B.next(head, state.frame, dir).cell;
+    const r = regionOf[B.key(c)];
     const size = r >= 0 ? sizes[r] : 1; 
     if (size > bestSize) { best = dir; bestSize = size; }
   }
@@ -206,11 +295,13 @@ function safestTurn(state, head) {
 
 
 export function clearAhead(state, max = APPROACH_CELLS) {
+  const B = boardOf(state);
   const dir = state.queue.length ? state.queue[0] : state.dir;
-  let at = state.snake[0];
+  let at = state.snake[0], frame = state.frame;
   for (let n = 0; n < max; n++) {
-    if (hazard(state, at, dir)) return n;
-    at = wrapOrNull(state, at.x + DIRS[dir].x, at.y + DIRS[dir].y);
+    if (hazard(state, at, dir, frame)) return n;
+    const mv = B.next(at, frame, dir);
+    at = mv.cell; frame = mv.frame;
   }
   return max;
 }
@@ -223,7 +314,7 @@ function countBite(state, n) {
 
 function die(state, cause, at) {
   state.phase = 'dead';
-  state.events.push({ type: 'death', cause, x: at.x, y: at.y });
+  state.events.push({ type: 'death', cause, ...pos(at) });
   return state.events;
 }
 
@@ -250,18 +341,19 @@ export function enterNextDepth(state) {
   state.motes = [];
   state.queue = [];
   state.phase = 'play';
+  placeEel(state, state.snake.length);
   spawnJellies(state);
-  spawnMote(state);
+  spawnMote(state, boardOf(state).cube ? Cube.FIRST_MOTE : null);
 }
 
 
 export function regions(state) {
-  const regionOf = new Int16Array(W * H).fill(-2);
-  for (const c of state.snake) regionOf[key(c.x, c.y)] = -1;
-  const wrap = state.depth.edges === 'wrap';
+  const B = boardOf(state);
+  const regionOf = new Int16Array(B.size).fill(-2);
+  for (const c of state.snake) regionOf[B.key(c)] = -1;
   const sizes = [];
   const stack = [];
-  for (let start = 0; start < W * H; start++) {
+  for (let start = 0; start < B.size; start++) {
     if (regionOf[start] !== -2) continue;
     const id = sizes.length;
     let size = 0;
@@ -270,15 +362,9 @@ export function regions(state) {
     while (stack.length) {
       const k = stack.pop();
       size++;
-      const x = k % W, y = (k / W) | 0;
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        let nx = x + dx, ny = y + dy;
-        if (nx < 0 || nx >= W || ny < 0 || ny >= H) {
-          if (!wrap) continue;
-          nx = (nx + W) % W; ny = (ny + H) % H;
-        }
-        const nk = key(nx, ny);
-        if (regionOf[nk] === -2) { regionOf[nk] = id; stack.push(nk); }
+      for (let i = 0; i < 4; i++) {
+        const nk = B.adj[k * 4 + i];
+        if (nk >= 0 && regionOf[nk] === -2) { regionOf[nk] = id; stack.push(nk); }
       }
     }
     sizes.push(size);
@@ -294,65 +380,76 @@ function openRegion(sizes) {
 
 function encircle(state) {
   if (!state.motes.length) return;
+  const B = boardOf(state);
   const { regionOf, sizes } = regions(state);
   if (sizes.length < 2) return;
   const open = openRegion(sizes);
-  const caught = state.motes.filter((m) => regionOf[key(m.x, m.y)] !== open);
+  const caught = state.motes.filter((m) => regionOf[B.key(m)] !== open);
   if (!caught.length) return;
-  state.motes = state.motes.filter((m) => regionOf[key(m.x, m.y)] === open);
+  state.motes = state.motes.filter((m) => regionOf[B.key(m)] === open);
   const n = caught.length;
   const pts = 25 * n * n * (state.depthIndex + 1);
   state.score += pts;
   state.grow += Math.ceil(n / 2);
   state.bestChain = Math.max(state.bestChain, n);
   countBite(state, n);
-  const regionIds = new Set(caught.map((m) => regionOf[key(m.x, m.y)]));
+  const regionIds = new Set(caught.map((m) => regionOf[B.key(m)]));
   const cells = [];
-  for (let k = 0; k < W * H; k++) if (regionIds.has(regionOf[k])) cells.push({ x: k % W, y: (k / W) | 0 });
-  state.events.push({ type: 'encircle', count: n, points: pts, motes: caught.map(({ x, y, kind }) => ({ x, y, kind })), cells });
+  for (let k = 0; k < B.size; k++) if (regionIds.has(regionOf[k])) cells.push(B.cell(k));
+  state.events.push({ type: 'encircle', count: n, points: pts, motes: caught.map((m) => ({ ...pos(m), kind: m.kind })), cells });
 }
 
 
-function spawnCells(state, minHeadDist) {
+
+
+
+function spawnCells(state, minHeadDist, band = 0) {
+  const B = boardOf(state);
   const { regionOf, sizes } = regions(state);
   const open = openRegion(sizes);
   const head = state.snake[0];
-  const taken = new Set([...state.motes, ...state.jellies].map((o) => key(o.x, o.y)));
+  const dist = B.distFrom(head);
+  const hidden = B.keepOut(head, band);
+  const taken = new Set([...state.motes, ...state.jellies].map((o) => B.key(o)));
   const out = [];
-  for (let k = 0; k < W * H; k++) {
+  for (let k = 0; k < B.size; k++) {
     if (regionOf[k] !== open || taken.has(k)) continue;
-    const x = k % W, y = (k / W) | 0;
-    if (Math.abs(x - head.x) + Math.abs(y - head.y) < minHeadDist) continue;
-    out.push({ x, y });
+    const c = B.cell(k);
+    if (dist(c) < minHeadDist || hidden(c)) continue;
+    out.push(c);
   }
   return out;
 }
 
-function spawnMote(state) {
+function spawnMote(state, prefer = null) {
+  const B = boardOf(state);
   const cells = spawnCells(state, 2);
   if (!cells.length) return null;
-  const fair = new Set(cells.map((c) => key(c.x, c.y)));
-  let c = null;
+  const fair = new Set(cells.map((c) => B.key(c)));
+  let c = prefer && fair.has(B.key(prefer)) ? pos(prefer) : null;
   for (let tries = 0; tries < 256 && !c; tries++) {
-    const k = Math.floor(state.moteRand() * W * H);
-    if (fair.has(k)) c = { x: k % W, y: (k / W) | 0 };
+    const k = Math.floor(state.moteRand() * B.size);
+    if (fair.has(k)) c = B.cell(k);
   }
   if (!c) c = cells[Math.floor(state.rand() * cells.length)]; 
-  const m = { id: state.nextId++, x: c.x, y: c.y, kind: 'mote' };
+  const m = { id: state.nextId++, ...pos(c), kind: 'mote' };
   state.motes.push(m);
-  state.events.push({ type: 'spawn', x: m.x, y: m.y, kind: m.kind });
+  state.events.push({ type: 'spawn', ...pos(m), kind: m.kind });
   return m;
 }
 
 function spawnShoal(state) {
-  const cells = spawnCells(state, 4).filter((c) => c.x >= 2 && c.x < W - 2 && c.y >= 2 && c.y < H - 2);
+  const B = boardOf(state);
+  const cells = spawnCells(state, 4).filter((c) => B.inset(c) >= 2);
   if (!cells.length) return [];
   const centre = cells[Math.floor(state.rand() * cells.length)];
-  const near = cells.filter((c) => Math.abs(c.x - centre.x) <= 1 && Math.abs(c.y - centre.y) <= 1);
+  
+  const near = cells.filter((c) => Math.abs(c.x - centre.x) <= 1 && Math.abs(c.y - centre.y) <= 1
+    && Math.abs((c.z ?? 0) - (centre.z ?? 0)) <= 1);
   const want = 4 + Math.floor(state.rand() * 3); 
   const picked = [];
   while (near.length && picked.length < want) picked.push(near.splice(Math.floor(state.rand() * near.length), 1)[0]);
-  const shoal = picked.map((c) => ({ id: state.nextId++, x: c.x, y: c.y, kind: 'shoal' }));
+  const shoal = picked.map((c) => ({ id: state.nextId++, ...pos(c), kind: 'shoal' }));
   state.motes.push(...shoal);
   state.shoalsSeen++;
   state.events.push({ type: 'shoal', centre, count: shoal.length, first: state.shoalsSeen === 1 });
@@ -360,28 +457,35 @@ function spawnShoal(state) {
 }
 
 function spawnJellies(state) {
+  const B = boardOf(state);
   state.jellies = [];
-  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
   for (let i = 0; i < state.depth.jellies; i++) {
-    const cells = spawnCells(state, 5);
+    const cells = spawnCells(state, 5, JELLY_BAND);
     if (!cells.length) break;
     const c = cells[Math.floor(state.rand() * cells.length)];
-    const [dx, dy] = dirs[Math.floor(state.rand() * 4)];
-    state.jellies.push({ id: state.nextId++, x: c.x, y: c.y, dx, dy });
+    const dirs = B.jellyDirs(c);
+    const d = dirs[Math.floor(state.rand() * 4)];
+    state.jellies.push({ id: state.nextId++, ...pos(c), ...d });
   }
 }
 
 function moveJellies(state) {
   if (!state.jellies.length) return;
+  const B = boardOf(state);
   const head = state.snake[0];
-  const d = DIRS[state.queue[0] || state.dir];
-  const ahead = { x: head.x + d.x, y: head.y + d.y };
-  const body = bodySet(state.snake, false);
-  const blocked = (x, y, self) => x < 0 || x >= W || y < 0 || y >= H || body.has(key(x, y))
-    || (x === ahead.x && y === ahead.y) || state.motes.some((m) => m.x === x && m.y === y)
-    || state.jellies.some((j) => j !== self && j.x === x && j.y === y);
+  const ahead = B.raw(head, state.frame, state.queue[0] || state.dir);
+  const body = bodySet(state, false);
+  const band = B.keepOut(head, JELLY_BAND);
+  const blocked = (j) => {
+    const c = B.jellyNext(j);
+    if (!c) return true;
+    
+    if (band(c) && !band(j)) return true;
+    return body.has(B.key(c)) || sameCell(c, ahead) || state.motes.some((m) => sameCell(m, c))
+      || state.jellies.some((o) => o !== j && sameCell(o, c));
+  };
   for (const j of state.jellies) {
-    if (blocked(j.x + j.dx, j.y + j.dy, j)) { j.dx = -j.dx; j.dy = -j.dy; }
-    if (!blocked(j.x + j.dx, j.y + j.dy, j)) { j.x += j.dx; j.y += j.dy; }
+    if (blocked(j)) { j.dx = -j.dx || 0; j.dy = -j.dy || 0; if (j.dz !== undefined) j.dz = -j.dz || 0; }
+    if (!blocked(j)) { const c = B.jellyNext(j); j.x = c.x; j.y = c.y; if (c.z !== undefined) j.z = c.z; }
   }
 }

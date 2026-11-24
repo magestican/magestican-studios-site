@@ -7,6 +7,8 @@
 
 
 
+
+
 export const DEPTHS = Object.freeze([
   Object.freeze({ id: 'shallows', name: 'Shallows', quota: 8, tickMs: 200, rampMs: 5, minTickMs: 160,
     edges: 'wall', jellies: 0, dark: 0, shoalEvery: 3,
@@ -21,7 +23,7 @@ export const DEPTHS = Object.freeze([
     edges: 'wrap', jellies: 2, dark: 1, shoalEvery: 3,
     palette: { water: 0x0a0a2a, deep: 0x000004, glow: 0x6ab8ff, mote: 0xffe3a0, shoal: 0xb08cff } }),
   Object.freeze({ id: 'trench', name: 'The Trench', quota: 14, tickMs: 165, rampMs: 1, minTickMs: 150,
-    edges: 'wall', jellies: 4, dark: 0.7, shoalEvery: 2,
+    edges: 'cube', jellies: 4, dark: 0.35, shoalEvery: 2,
     palette: { water: 0x4a0a1e, deep: 0x080003, glow: 0xff6a4a, mote: 0xfff2b0, shoal: 0xff9a3a } }),
 ]);
 

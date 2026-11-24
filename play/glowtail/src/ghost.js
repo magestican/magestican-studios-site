@@ -18,6 +18,9 @@ export function createRecorder() {
 
 export function record(rec, state) {
   if (state.phase === 'dead' || rec.path.length >= GHOST_MAX_TICKS) return;
+  
+  
+  if (state.depth?.edges === 'cube') return;
   const h = state.snake[0];
   rec.path[state.tick - 1] = state.depthIndex * CELLS + h.y * W + h.x;
 }

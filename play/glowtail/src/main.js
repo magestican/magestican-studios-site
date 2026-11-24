@@ -357,7 +357,7 @@ function handle(events) {
       vibrate([20, 40, 30]);
     }
     if (e.type === 'shoal' && e.first) {
-      view.showGhostLoop(e.centre);
+      view.showGhostLoop(e.centre, state);
       banner('A shoal!', 'Circle it with your body to catch them all');
     }
     if (e.type === 'descend') {
@@ -444,7 +444,7 @@ function loop(now) {
     }
   }
   const alpha = state.phase === 'play' ? Math.min(1, acc / tickMs(state)) : 1;
-  view.frame(state, alpha, paused ? 0 : dt, { idle: !running, pace: running ? ghostAt(ghost, state.tick, state.depthIndex) : null });
+  view.frame(state, alpha, paused ? 0 : dt, { idle: !running, pace: running ? ghostAt(ghost, state.tick, state.depthIndex) : null, tickMs: tickMs(state) });
   view.measure(dtReal);
 }
 requestAnimationFrame(loop);

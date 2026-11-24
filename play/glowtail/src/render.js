@@ -14,6 +14,8 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { W, H, DIRS } from './sim.js';
 import { unwrapEel, wrapCoord, edgeFade } from './eelPath.js';
+import * as Cube from './cube.js';
+import { cubeChain, chainAt, sampleCubeEel } from './cubePath.js';
 
 const MAX_LIGHTS = 48;
 const MAX_RIPPLES = 8;
@@ -99,6 +101,88 @@ const floorFrag = `
   }`;
 
 
+
+
+
+
+const cubeVert = `
+  varying vec3 vP;
+  varying vec3 vN;
+  void main() {
+    vP = position; vN = normal;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }`;
+const cubeFrag = `
+  uniform float uTime, uDark, uAmbient, uHalf;
+  uniform vec3 uWater, uDeep, uGlow;
+  uniform vec3 uTint[6];
+  uniform vec4 uLights[${MAX_LIGHTS}];
+  uniform int uLightCount;
+  uniform vec4 uRipples[${MAX_RIPPLES}];
+  uniform float uRippleS[${MAX_RIPPLES}];
+  varying vec3 vP;
+  varying vec3 vN;
+  float caustic(vec2 p, float t) {
+    float c = 0.0;
+    vec2 q = p * 0.55;
+    for (int i = 0; i < 3; i++) {
+      float fi = float(i);
+      q += vec2(sin(q.y * 1.7 + t * 0.6 + fi), cos(q.x * 1.3 - t * 0.5 + fi * 1.7)) * 0.45;
+      c += abs(sin(q.x + q.y + t * 0.3));
+    }
+    return pow(1.0 - c / 3.0, 3.0);
+  }
+  void main() {
+    vec3 an = abs(vN);
+    vec2 p; int f;
+    if (an.x > 0.5) { p = vP.yz; f = vN.x > 0.0 ? 0 : 1; }
+    else if (an.y > 0.5) { p = vP.xz; f = vN.y > 0.0 ? 2 : 3; }
+    else { p = vP.xy; f = vN.z > 0.0 ? 4 : 5; }
+    vec3 tint = uTint[0];
+    for (int i = 1; i < 6; i++) if (i == f) tint = uTint[i];
+    float ring = 0.0;
+    for (int i = 0; i < ${MAX_RIPPLES}; i++) {
+      vec4 r = uRipples[i];
+      float s = uRippleS[i];
+      if (s <= 0.0) continue;
+      float age = uTime - r.w;
+      if (age < 0.0 || age > 2.0) continue;
+      float d = distance(vP, r.xyz);
+      ring += s * exp(-pow((d - age * 7.0) * 1.6, 2.0)) * (1.0 - age / 2.0);
+    }
+    vec2 g = abs(fract(p + 0.5) - 0.5);
+    float gridLine = 1.0 - smoothstep(0.0, 0.035, min(g.x, g.y));
+    float tileShade = 0.88 + 0.12 * smoothstep(0.5, 0.15, max(g.x, g.y));
+    float c = caustic(p + float(f) * 7.3, uTime);
+    vec3 base = mix(uDeep, uWater * tint, 0.35 + 0.65 * c) * tileShade;
+    base += uGlow * gridLine * (0.07 + ring * 0.9);
+    float lit = 0.0;
+    for (int i = 0; i < ${MAX_LIGHTS}; i++) {
+      if (i >= uLightCount) break;
+      vec4 L = uLights[i];
+      vec3 dv = vP - L.xyz;
+      lit += L.w * exp(-dot(dv, dv) / mix(5.5, 2.6, uDark));
+    }
+    lit = min(lit, 1.2);
+    float ambient = mix(1.0, uAmbient, uDark);
+    vec3 colr = base * (ambient + lit * mix(0.35, 1.25, uDark)) + uGlow * lit * 0.08;
+    float edge = uHalf - max(abs(p.x), abs(p.y));
+    colr += uGlow * tint * exp(-edge * 9.0) * 0.32;
+    gl_FragColor = vec4(colr, 1.0);
+  }`;
+
+const CUBE_TINTS = [[1.15, 0.8, 0.7], [0.75, 0.85, 1.25], [1.2, 1.05, 0.65], [0.8, 1.15, 0.9], [1.15, 0.75, 1.15], [1, 1, 1]];
+const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const smooth01 = (x) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
+export const CUBE_LEAN_DEG = 15; 
+export const CUBE_LEAN_CELLS = 2;
+export const CUBE_ROLL_TICKS = 3; 
+export const CUBE_WINDOW = 1.5; 
+export const CUBE_VIEW_CELLS = 13; 
+export const CUBE_AHEAD = 0.75; 
+export const CUBE_FADE_S = 0.15; 
+
+
 const partVert = `
   attribute float aSize;
   attribute vec3 aColor;
@@ -123,13 +207,14 @@ const partFrag = `
   }`;
 
 const GradeShader = {
-  uniforms: { tDiffuse: { value: null }, toneMappingExposure: { value: 1 }, uFlash: { value: 0 }, uFlashColor: { value: new THREE.Color(1, 1, 1) } },
+  uniforms: { tDiffuse: { value: null }, toneMappingExposure: { value: 1 }, uFlash: { value: 0 }, uFade: { value: 0 }, uFlashColor: { value: new THREE.Color(1, 1, 1) } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
   fragmentShader: `
-    uniform sampler2D tDiffuse; uniform float uFlash; uniform vec3 uFlashColor; varying vec2 vUv;
+    uniform sampler2D tDiffuse; uniform float uFlash; uniform float uFade; uniform vec3 uFlashColor; varying vec2 vUv;
     void main() {
       vec4 c = texture2D(tDiffuse, vUv);
       c.rgb += uFlashColor * uFlash;
+      c.rgb *= 1.0 - uFade; // G10: reduced-motion cube roll = a 150 ms fade through dark
       c.rgb = ACESFilmicToneMapping(c.rgb);
       float d = distance(vUv, vec2(0.5)) * 1.41421;
       c.rgb *= 1.0 - 0.38 * smoothstep(0.45, 1.05, d);
@@ -165,6 +250,10 @@ export function createRenderer(canvas, { search = '' } = {}) {
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x000000, 0.035);
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
+  
+  
+  const world = new THREE.Group();
+  scene.add(world);
 
   scene.add(new THREE.HemisphereLight(0x9fdfff, 0x05101a, 0.6));
   const sun = new THREE.DirectionalLight(0xffffff, 1.4);
@@ -204,7 +293,7 @@ export function createRenderer(canvas, { search = '' } = {}) {
   body.setColorAt(0, new THREE.Color());
   body.count = 0;
   body.frustumCulled = false;
-  scene.add(body);
+  world.add(body);
 
   
   const head = new THREE.Group();
@@ -220,7 +309,7 @@ export function createRenderer(canvas, { search = '' } = {}) {
     pupil.position.set(0.24 * s, 0.24, 0.33);
     head.add(eye, pupil);
   }
-  scene.add(head);
+  world.add(head);
   let headYaw = 0;
 
   
@@ -230,7 +319,7 @@ export function createRenderer(canvas, { search = '' } = {}) {
   const pace = new THREE.InstancedMesh(new THREE.SphereGeometry(0.34, 12, 8), paceMat, GHOST_CELLS);
   pace.count = 0;
   pace.frustumCulled = false;
-  scene.add(pace);
+  world.add(pace);
   const paceM = new THREE.Matrix4();
   function drawPace(cells, t) {
     if (!cells) { pace.count = 0; return; }
@@ -252,12 +341,12 @@ export function createRenderer(canvas, { search = '' } = {}) {
   motes.setColorAt(0, new THREE.Color());
   motes.count = 0;
   motes.frustumCulled = false;
-  scene.add(motes);
+  world.add(motes);
   const halos = [];
   for (let i = 0; i < 64; i++) {
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xffffff, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
     s.visible = false;
-    scene.add(s);
+    world.add(s);
     halos.push(s);
   }
 
@@ -283,17 +372,79 @@ export function createRenderer(canvas, { search = '' } = {}) {
     halo.position.y = 0.4;
     g.add(halo);
     g.visible = false;
-    scene.add(g);
+    world.add(g);
     jellies.push({ g, dome, tents, pos: new THREE.Vector3(), seen: false });
   }
 
   
   const tileMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
-  const tiles = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.94, 0.94).rotateX(-Math.PI / 2), tileMat, W * H);
+  const tiles = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.94, 0.94).rotateX(-Math.PI / 2), tileMat, Math.max(W * H, Cube.CELLS));
   tiles.count = 0;
   tiles.frustumCulled = false;
-  scene.add(tiles);
+  world.add(tiles);
   let tileT = 0;
+
+  
+  const cubeLights = Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector4());
+  const cubeRipples = Array.from({ length: MAX_RIPPLES }, () => new THREE.Vector4(0, 0, 0, -99));
+  const cubeRippleS = new Array(MAX_RIPPLES).fill(0);
+  let cubeRippleNext = 0;
+  const cubeMat = new THREE.ShaderMaterial({
+    vertexShader: cubeVert, fragmentShader: cubeFrag,
+    uniforms: {
+      
+      uTime: floorMat.uniforms.uTime, uDark: floorMat.uniforms.uDark, uAmbient: floorMat.uniforms.uAmbient,
+      uWater: floorMat.uniforms.uWater, uDeep: floorMat.uniforms.uDeep, uGlow: floorMat.uniforms.uGlow,
+      uHalf: { value: Cube.N / 2 },
+      uTint: { value: CUBE_TINTS.map(([r, g, b]) => new THREE.Vector3(r, g, b)) },
+      uLights: { value: cubeLights }, uLightCount: { value: 0 },
+      uRipples: { value: cubeRipples }, uRippleS: { value: cubeRippleS },
+    },
+  });
+  const cubeMesh = new THREE.Mesh(new THREE.BoxGeometry(Cube.N, Cube.N, Cube.N), cubeMat);
+  cubeMesh.visible = false;
+  world.add(cubeMesh);
+  
+  const cues = [];
+  for (let i = 0; i < 8; i++) {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xffffff, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
+    s.visible = false;
+    world.add(s);
+    cues.push(s);
+  }
+  const cubePos = new Float32Array(MAX_BODY * 3), cubeNor = new Float32Array(MAX_BODY * 3);
+  const UP = new THREE.Vector3(0, 1, 0);
+  const tmpN = new THREE.Vector3(), tmpV = new THREE.Vector3(), tmpW = new THREE.Vector3();
+  const v3 = (v, out = new THREE.Vector3()) => out.set(v.x, v.y, v.z);
+  
+  function cubeLocal(c, lift, out = new THREE.Vector3()) {
+    const p = Cube.surfacePoint(c), n = Cube.normalOf(c);
+    return out.set(p.x + n.x * lift, p.y + n.y * lift, p.z + n.z * lift);
+  }
+  const faceQuat = (c, out) => out.setFromUnitVectors(UP, v3(Cube.normalOf(c), tmpN));
+  
+  const VIEW_BASIS = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(
+    new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 1, 0)));
+  const SCREEN_WORLD = { up: new THREE.Vector3(0, 0, -1), down: new THREE.Vector3(0, 0, 1), left: new THREE.Vector3(-1, 0, 0), right: new THREE.Vector3(1, 0, 0) };
+  const tmpMat = new THREE.Matrix4(), tmpQa = new THREE.Quaternion(), tmpQl = new THREE.Quaternion();
+  
+  function frameQuat(frame, out) {
+    tmpMat.makeBasis(v3(frame.R), v3(frame.U), v3(frame.F));
+    tmpQa.setFromRotationMatrix(tmpMat).invert();
+    return out.copy(VIEW_BASIS).multiply(tmpQa);
+  }
+  const cubeCam = {
+    on: false, key: '', target: new THREE.Quaternion(), display: new THREE.Quaternion(), from: new THREE.Quaternion(),
+    rollT: 1, rollDur: 0.5, fadeT: -1, swap: false, follow: new THREE.Vector3(), look: new THREE.Vector3(),
+    headQ: new THREE.Quaternion(), headSet: false,
+  };
+  const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cubeState = { active: false };
+  function cubeRipple(local, strength) {
+    cubeRipples[cubeRippleNext].set(local.x, local.y, local.z, floorMat.uniforms.uTime.value);
+    cubeRippleS[cubeRippleNext] = strength;
+    cubeRippleNext = (cubeRippleNext + 1) % MAX_RIPPLES;
+  }
 
   
   const pPos = new Float32Array(MAX_PARTICLES * 3);
@@ -400,7 +551,7 @@ export function createRenderer(canvas, { search = '' } = {}) {
   const camTarget = new THREE.Vector3();
   const camLook = new THREE.Vector3();
   let shake = 0, flash = 0, flashColor = new THREE.Color(1, 1, 1);
-  let baseDist = 24;
+  let baseDist = 24, cubeDist = 40;
   let descendT = -1;
 
   function resize() {
@@ -414,6 +565,10 @@ export function createRenderer(canvas, { search = '' } = {}) {
     const distH = (needH / 2) / Math.tan(vfov / 2);
     const distW = (needW / 2) / (Math.tan(vfov / 2) * camera.aspect);
     baseDist = Math.max(distH, distW) * 1.02;
+    
+    const cubeH = ((CUBE_VIEW_CELLS + 5) / 2) / Math.tan(vfov / 2); 
+    const cubeW = (CUBE_VIEW_CELLS / 2) / (Math.tan(vfov / 2) * camera.aspect);
+    cubeDist = Math.max(cubeH, cubeW);
     pMat.uniforms.uScale.value = h * renderer.getPixelRatio() * 0.045;
     if (composer) {
       composer.setPixelRatio(renderer.getPixelRatio());
@@ -437,33 +592,54 @@ export function createRenderer(canvas, { search = '' } = {}) {
   }
 
   
+  
+  
+  const onCube = (state) => state.depth.edges === 'cube';
+  function boom(state, c, color, n, opts = {}) {
+    if (!onCube(state)) { burst(cellX(c.x), cellZ(c.y), color, n, opts); return; }
+    world.updateMatrixWorld();
+    const p = world.localToWorld(cubeLocal(c, opts.y ?? 0.4, tmpW));
+    burst(p.x, p.z, color, n, { ...opts, y: p.y });
+  }
+  function ring(state, c, strength) {
+    if (!onCube(state)) addRipple(cellX(c.x), cellZ(c.y), strength);
+    else cubeRipple(cubeLocal(c, 0, tmpW), strength);
+  }
+
   function onEvents(events, state) {
     for (const e of events) {
       if (e.type === 'bite') {
         const c = e.kind === 'shoal' ? pal.shoal : pal.mote;
-        burst(cellX(e.x), cellZ(e.y), c, 26, { speed: 2.6, size: 12 });
-        addRipple(cellX(e.x), cellZ(e.y), 0.8);
+        boom(state, e, c, 26, { speed: 2.6, size: 12 });
+        ring(state, e, 0.8);
         shake = Math.max(shake, 0.12);
         pulse = 1;
       } else if (e.type === 'encircle') {
         tiles.count = e.cells.length;
         const m = new THREE.Matrix4();
-        e.cells.forEach((c, i) => { m.makeTranslation(cellX(c.x), 0.03, cellZ(c.y)); tiles.setMatrixAt(i, m); });
+        if (onCube(state)) {
+          e.cells.forEach((c, i) => { m.compose(cubeLocal(c, 0.03, tmpP), faceQuat(c, tmpQ), tmpS.setScalar(1)); tiles.setMatrixAt(i, m); });
+        } else {
+          e.cells.forEach((c, i) => { m.makeTranslation(cellX(c.x), 0.03, cellZ(c.y)); tiles.setMatrixAt(i, m); });
+        }
         tiles.instanceMatrix.needsUpdate = true;
         tileMat.color.copy(pal.shoal).multiplyScalar(1.4);
         tileT = 1;
-        for (const mo of e.motes) burst(cellX(mo.x), cellZ(mo.y), pal.shoal, 46, { speed: 4.5, up: 4, size: 18, life: 1.3 });
-        const cx = e.cells.reduce((a, c) => a + c.x, 0) / e.cells.length, cz = e.cells.reduce((a, c) => a + c.y, 0) / e.cells.length;
-        addRipple(cellX(cx), cellZ(cz), 2.2);
+        for (const mo of e.motes) boom(state, mo, pal.shoal, 46, { speed: 4.5, up: 4, size: 18, life: 1.3 });
+        if (onCube(state)) {
+          ring(state, e.cells[Math.floor(e.cells.length / 2)], 2.2);
+        } else {
+          const cx = e.cells.reduce((a, c) => a + c.x, 0) / e.cells.length, cz = e.cells.reduce((a, c) => a + c.y, 0) / e.cells.length;
+          addRipple(cellX(cx), cellZ(cz), 2.2);
+        }
         shake = Math.max(shake, 0.45);
         flash = 0.5; flashColor.copy(pal.shoal);
         pulse = 1.6;
       } else if (e.type === 'death') {
         for (let i = 0; i < state.snake.length; i += 1) {
-          const c = state.snake[i];
-          burst(cellX(c.x), cellZ(c.y), pal.glow, 10, { speed: 3, up: 3, size: 14, life: 1.6 });
+          boom(state, state.snake[i], pal.glow, 10, { speed: 3, up: 3, size: 14, life: 1.6 });
         }
-        addRipple(cellX(state.snake[0].x), cellZ(state.snake[0].y), 2.5);
+        ring(state, state.snake[0], 2.5);
         shake = 0.9; flash = 0.6; flashColor.set(1, 0.25, 0.2);
         dying = 1;
       } else if (e.type === 'descend') {
@@ -476,20 +652,21 @@ export function createRenderer(canvas, { search = '' } = {}) {
         surfacing = 0;
       } else if (e.type === 'nearMiss') {
         
-        burst(cellX(e.x), cellZ(e.y), new THREE.Color(1, 1, 1), 18, { speed: 2.2, up: 1.6, size: 10, life: 0.6 });
+        boom(state, e, new THREE.Color(1, 1, 1), 18, { speed: 2.2, up: 1.6, size: 10, life: 0.6 });
         flash = Math.max(flash, 0.32); flashColor.set(0.85, 0.95, 1);
         shake = Math.max(shake, 0.18);
       } else if (e.type === 'flinch') {
         
-        burst(cellX(Math.max(0, Math.min(W - 1, e.x))), cellZ(Math.max(0, Math.min(H - 1, e.y))), new THREE.Color(1, 0.55, 0.25), 12, { speed: 1.2, up: 0.8, size: 9, life: 0.5 });
+        const at = onCube(state) ? e : { x: Math.max(0, Math.min(W - 1, e.x)), y: Math.max(0, Math.min(H - 1, e.y)) };
+        boom(state, at, new THREE.Color(1, 0.55, 0.25), 12, { speed: 1.2, up: 0.8, size: 9, life: 0.5 });
         flash = Math.max(flash, 0.22); flashColor.set(1, 0.6, 0.3);
         shake = Math.max(shake, 0.12);
       } else if (e.type === 'spawn') {
-        burst(cellX(e.x), cellZ(e.y), pal.mote, 10, { speed: 1.2, up: 1, size: 9, life: 0.6 });
+        boom(state, e, pal.mote, 10, { speed: 1.2, up: 1, size: 9, life: 0.6 });
       } else if (e.type === 'shoal') {
         const c = e.centre;
-        burst(cellX(c.x), cellZ(c.y), pal.shoal, 30, { speed: 2, up: 1.5, size: 10, life: 0.9 });
-        addRipple(cellX(c.x), cellZ(c.y), 1.2);
+        boom(state, c, pal.shoal, 30, { speed: 2, up: 1.5, size: 10, life: 0.9 });
+        ring(state, c, 1.2);
       }
     }
   }
@@ -508,16 +685,244 @@ export function createRenderer(canvas, { search = '' } = {}) {
   }
 
   let ghost = null;
-  function showGhostLoop(centre) {
+  function showGhostLoop(centre, state = null) {
     
-    if (ghost) scene.remove(ghost);
+    if (ghost) world.remove(ghost);
     const pts = [];
     const r = 1.9;
-    for (let i = 0; i <= 64; i++) { const a = (i / 64) * Math.PI * 2; pts.push(new THREE.Vector3(cellX(centre.x) + Math.cos(a) * r, 0.12, cellZ(centre.y) + Math.sin(a) * r)); }
+    for (let i = 0; i <= 64; i++) { const a = (i / 64) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r)); }
     ghost = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.25, gapSize: 0.18, transparent: true, opacity: 0.9 }));
     ghost.computeLineDistances();
     ghost.userData.t = 0;
-    scene.add(ghost);
+    if (state && onCube(state)) { cubeLocal(centre, 0.12, ghost.position); faceQuat(centre, ghost.quaternion); }
+    else ghost.position.set(cellX(centre.x), 0.12, cellZ(centre.y));
+    world.add(ghost);
+  }
+
+  
+  const cP = new THREE.Vector3(), cN = new THREE.Vector3(), cQ = new THREE.Vector3(), cSide = new THREE.Vector3();
+  const headUp = new THREE.Vector3(), headFwd = new THREE.Vector3(), headX = new THREE.Vector3();
+  const leanQ = new THREE.Quaternion(), leanAxis = new THREE.Vector3();
+  const AX = ['x', 'y', 'z'];
+  const faceKey = (f) => (f ? `${f.F.x},${f.F.y},${f.F.z}|${f.U.x},${f.U.y},${f.U.z}` : '');
+
+  
+  function cellsToEdge(state) {
+    const h = state.snake[0];
+    const d = Cube.screenVec(state.frame, state.dir);
+    for (const a of AX) if (d[a]) return d[a] > 0 ? Cube.N - 1 - h[a] : h[a];
+    return Cube.N;
+  }
+
+  
+
+
+
+
+  function cuePoint(m, headCell, out) {
+    if (Cube.faceOf(m) === Cube.faceOf(headCell)) return false;
+    const n = Cube.normalOf(headCell);
+    const p = Cube.surfacePoint(m);
+    const lim = Cube.N / 2 - 0.3;
+    let best = null, bestAbs = -1, atBorder = false;
+    for (const a of AX) {
+      if (n[a]) continue;
+      const v = Math.max(-lim, Math.min(lim, p[a]));
+      if (Math.abs(v) >= lim) atBorder = true;
+      if (Math.abs(p[a]) > bestAbs) { bestAbs = Math.abs(p[a]); best = a; }
+      out[a] = v;
+    }
+    if (!atBorder) out[best] = (p[best] >= 0 ? 1 : -1) * lim;
+    for (const a of AX) if (n[a]) out[a] = n[a] * (Cube.N / 2 + 0.35);
+    return true;
+  }
+
+  function drawCube(state, alpha, dt, t, tickSec) {
+    const deathFade = Math.max(0, 1 - dying);
+    const alive = state.phase !== 'dead';
+    let count = 0, lightCount = 0;
+    
+    const n = sampleCubeEel(state.snake, state.prevSnake || state.snake, alpha, SUB, cubePos, cubeNor);
+    if (alive || deathFade > 0) {
+      for (let i = 0; i < n && count < MAX_BODY; i++) {
+        const u = i / Math.max(1, n - 1);
+        cP.fromArray(cubePos, i * 3); cN.fromArray(cubeNor, i * 3);
+        const j = Math.min(n - 1, i + 1), k = Math.max(0, i - 1);
+        cQ.fromArray(cubePos, k * 3).sub(tmpV.fromArray(cubePos, j * 3)); 
+        cSide.crossVectors(cN, cQ);
+        if (cSide.lengthSq() > 1e-6) cSide.normalize();
+        const cell = i / SUB;
+        const wave = Math.sin(t * 6 - cell * 0.9) * 0.05;
+        const r = (0.78 - u * 0.42) * (1 + pulse * 0.25 * Math.exp(-u * 4));
+        tmpP.copy(cP).addScaledVector(cN, 0.38 + Math.sin(t * 3 + cell) * 0.03).addScaledVector(cSide, wave);
+        tmpS.setScalar(r * (alive ? 1 : deathFade));
+        tmpM.compose(tmpP, tmpQ.identity(), tmpS);
+        body.setMatrixAt(count, tmpM);
+        const glow = (1.05 - u * 0.55) * (1 + pulse * 0.6) * (0.85 + 0.15 * Math.sin(t * 4 - cell * 0.6));
+        tmpC.copy(EEL_HEAD).lerp(EEL_TAIL, u).multiplyScalar(glow * 1.5);
+        body.setColorAt(count, tmpC);
+        count++;
+        if (i % (SUB * Math.max(1, Math.ceil(state.snake.length / MAX_LIGHTS))) === 0 && lightCount < MAX_LIGHTS - 12) {
+          cubeLights[lightCount++].set(cP.x, cP.y, cP.z, (1.1 - u * 0.5) * deathFade);
+        }
+      }
+    }
+    body.count = count;
+    body.instanceMatrix.needsUpdate = true;
+    if (body.instanceColor) body.instanceColor.needsUpdate = true;
+
+    
+    head.visible = alive || deathFade > 0.05;
+    headUp.fromArray(cubeNor, 0);
+    cP.fromArray(cubePos, 0);
+    if (n > 1) headFwd.copy(cP).sub(tmpV.fromArray(cubePos, 3));
+    else headFwd.copy(v3(Cube.screenVec(state.frame, state.dir), tmpV));
+    headFwd.addScaledVector(headUp, -headFwd.dot(headUp));
+    if (headFwd.lengthSq() < 1e-8) headFwd.copy(v3(Cube.screenVec(state.frame, state.dir), tmpV));
+    headFwd.normalize();
+    headX.crossVectors(headUp, headFwd);
+    tmpQ.setFromRotationMatrix(tmpMat.makeBasis(headX, headUp, headFwd));
+    if (!cubeCam.headSet) { cubeCam.headQ.copy(tmpQ); cubeCam.headSet = true; }
+    else cubeCam.headQ.slerp(tmpQ, 1 - Math.exp(-dt * 18));
+    head.quaternion.copy(cubeCam.headQ);
+    head.position.copy(cP).addScaledVector(headUp, 0.45 + Math.sin(t * 3) * 0.04);
+    head.scale.setScalar(1.3 * (1 + pulse * 0.15) * (alive ? 1 : deathFade));
+    headMesh.material.emissive.copy(EEL_HEAD);
+    headMesh.material.emissiveIntensity = 1.4 + pulse * 1.5;
+    if (lightCount < MAX_LIGHTS) cubeLights[lightCount++].set(cP.x, cP.y, cP.z, 0.9 * deathFade);
+
+    
+    const headCell = state.snake[0];
+    let cueN = 0;
+    motes.count = state.motes.length;
+    state.motes.forEach((m, i) => {
+      const shoal = m.kind === 'shoal';
+      const bob = Math.sin(t * 3 + m.id) * 0.08;
+      cubeLocal(m, 0.42 + bob, tmpP);
+      tmpQ.setFromEuler(new THREE.Euler(t * 1.3 + m.id, t * 1.7, 0));
+      tmpS.setScalar(shoal ? 0.85 : 1.25);
+      tmpM.compose(tmpP, tmpQ, tmpS);
+      motes.setMatrixAt(i, tmpM);
+      const beacon = 1 + dark * 2.5 * Math.pow(Math.max(0, Math.sin(t * Math.PI - m.id)), 8);
+      const colr = shoal ? pal.shoal : pal.mote;
+      tmpC.copy(colr).multiplyScalar((shoal ? 2.4 : 3.2) * beacon);
+      motes.setColorAt(i, tmpC);
+      const h = halos[i];
+      h.visible = true;
+      h.position.copy(tmpP);
+      const hs = (shoal ? 1.3 : 1.9) * (1 + 0.1 * Math.sin(t * 5 + m.id)) * (0.8 + 0.4 * beacon);
+      h.scale.set(hs, hs, 1);
+      h.material.color.copy(colr);
+      h.material.opacity = 0.55;
+      if (lightCount < MAX_LIGHTS) { const s = Cube.surfacePoint(m); cubeLights[lightCount++].set(s.x, s.y, s.z, 0.35 * beacon); }
+      if (cueN < cues.length && alive && cuePoint(m, headCell, tmpW)) {
+        const c = cues[cueN++];
+        c.visible = true;
+        c.position.copy(tmpW);
+        const cs = 1.1 + 0.25 * Math.sin(t * 5 + m.id);
+        c.scale.set(cs, cs, 1);
+        c.material.color.copy(colr);
+        c.material.opacity = 0.75;
+      }
+    });
+    for (let i = state.motes.length; i < halos.length; i++) halos[i].visible = false;
+    for (let i = cueN; i < cues.length; i++) cues[i].visible = false;
+    motes.instanceMatrix.needsUpdate = true;
+    if (motes.instanceColor) motes.instanceColor.needsUpdate = true;
+
+    
+    jellies.forEach((J, i) => {
+      const j = state.jellies[i];
+      J.g.visible = !!j;
+      if (!j) { J.seen = false; return; }
+      cubeLocal(j, 0, tmpV);
+      if (!J.seen) { J.pos.copy(tmpV); J.seen = true; }
+      J.pos.lerp(tmpV, 1 - Math.exp(-dt * 5));
+      const nn = v3(Cube.normalOf(j), tmpN);
+      J.g.position.copy(J.pos).addScaledVector(nn, 0.1 + Math.sin(t * 2 + i) * 0.08);
+      faceQuat(j, J.g.quaternion);
+      const beat = 1 + 0.12 * Math.sin(t * 4 + i);
+      J.dome.scale.set(beat, 2 - beat, beat);
+      J.dome.material.emissiveIntensity = 1.2 + 0.8 * Math.max(0, Math.sin(t * 4 + i));
+      for (const tn of J.tents) {
+        const p = tn.line.geometry.attributes.position;
+        for (let s = 0; s < 8; s++) {
+          const f = s / 7;
+          p.setXYZ(s, Math.cos(tn.a) * 0.28 + Math.sin(t * 3 + s * 0.8 + tn.a) * 0.08 * f, 0.35 - f * 0.32, Math.sin(tn.a) * 0.28 + Math.cos(t * 2.6 + s) * 0.08 * f);
+        }
+        p.needsUpdate = true;
+      }
+      if (lightCount < MAX_LIGHTS) cubeLights[lightCount++].set(J.pos.x, J.pos.y, J.pos.z, 0.45);
+    });
+    cubeMat.uniforms.uLightCount.value = lightCount;
+
+    
+    const still = reducedMotion();
+    frameQuat(state.frame, cubeCam.target);
+    if (!still && alive) {
+      const moving = state.prevSnake && state.prevSnake.length && !Cube.same(state.prevSnake[0], state.snake[0]);
+      const dist = cellsToEdge(state) + (moving ? 1 - alpha : 0);
+      const ang = THREE.MathUtils.degToRad(CUBE_LEAN_DEG) * smooth01(1 - dist / CUBE_LEAN_CELLS);
+      if (ang > 1e-4) {
+        leanAxis.crossVectors(SCREEN_WORLD[state.dir], UP).normalize();
+        leanQ.setFromAxisAngle(leanAxis, ang);
+        cubeCam.target.premultiply(leanQ);
+      }
+    }
+    const key = faceKey(state.frame);
+    if (!cubeCam.key) {
+      cubeCam.display.copy(cubeCam.target); cubeCam.rollT = 1; cubeCam.fadeT = -1;
+      cubeLocal(state.snake[0], 0, cubeCam.follow);
+    } else if (key !== cubeCam.key) {
+      
+      
+      cubeCam.from.copy(cubeCam.display);
+      cubeCam.rollT = 0;
+      cubeCam.rollDur = Math.max(0.12, CUBE_ROLL_TICKS * tickSec);
+      if (still) cubeCam.fadeT = 0;
+    }
+    cubeCam.key = key;
+    let fade = 0;
+    if (still) {
+      if (cubeCam.fadeT >= 0) {
+        cubeCam.fadeT += dt;
+        const half = CUBE_FADE_S / 2;
+        if (cubeCam.fadeT >= half) cubeCam.display.copy(cubeCam.target);
+        fade = Math.max(0, 1 - Math.abs(cubeCam.fadeT - half) / half);
+        if (cubeCam.fadeT >= CUBE_FADE_S) { cubeCam.fadeT = -1; fade = 0; }
+      } else cubeCam.display.copy(cubeCam.target);
+      cubeCam.rollT = 1;
+    } else if (cubeCam.rollT < 1) {
+      cubeCam.rollT = Math.min(1, cubeCam.rollT + dt / cubeCam.rollDur);
+      cubeCam.display.slerpQuaternions(cubeCam.from, cubeCam.target, easeInOut(cubeCam.rollT));
+    } else {
+      cubeCam.display.slerp(cubeCam.target, 1 - Math.exp(-dt * 10));
+    }
+    if (grade) grade.uniforms.uFade.value = fade;
+    
+    cQ.fromArray(cubePos, 0); 
+    
+    if (alive) cQ.addScaledVector(v3(Cube.screenVec(state.frame, state.dir), tmpV), CUBE_AHEAD);
+    for (const a of AX) {
+      const dlt = cQ[a] - cubeCam.follow[a];
+      if (dlt > CUBE_WINDOW) cubeCam.look[a] = cQ[a] - CUBE_WINDOW;
+      else if (dlt < -CUBE_WINDOW) cubeCam.look[a] = cQ[a] + CUBE_WINDOW;
+      else cubeCam.look[a] = cubeCam.follow[a];
+    }
+    cubeCam.follow.lerp(cubeCam.look, 1 - Math.exp(-dt * 6));
+    world.quaternion.copy(cubeCam.display);
+    world.position.copy(cubeCam.follow).applyQuaternion(cubeCam.display).negate();
+
+    
+    
+    
+    
+    camera.up.set(0, 0, -1);
+    camera.position.set(0, cubeDist, 0);
+    shake = Math.max(0, shake - dt * 2.4);
+    if (still) shake = 0;
+    if (shake > 0) camera.position.add(tmpP.set((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake));
+    camera.lookAt(0, 0, 0);
   }
 
   
@@ -527,10 +932,21 @@ export function createRenderer(canvas, { search = '' } = {}) {
 
 
 
-  function frame(state, alpha, dt, { idle = false, pace: paceCells = null } = {}) {
+  function frame(state, alpha, dt, { idle = false, pace: paceCells = null, tickMs: tickLen = 150 } = {}) {
     const t = (floorMat.uniforms.uTime.value += dt);
+    const cube = onCube(state);
+    floor.visible = !cube;
+    cubeMesh.visible = cube;
+    if (!cube && cubeCam.key) {
+      world.position.set(0, 0, 0); world.quaternion.identity(); head.quaternion.identity();
+      cubeCam.key = ''; cubeCam.headSet = false;
+      for (const c of cues) c.visible = false;
+      for (const J of jellies) J.g.quaternion.identity();
+      if (grade) grade.uniforms.uFade.value = 0;
+    }
     
-    drawPace(idle ? null : paceCells, t);
+    
+    drawPace(idle || cube ? null : paceCells, t);
     
     const k = 1 - Math.exp(-dt * 1.6);
     for (const key of Object.keys(pal)) pal[key].lerp(palTarget[key], k);
@@ -546,10 +962,34 @@ export function createRenderer(canvas, { search = '' } = {}) {
     }
 
     
+    if (tileT > 0) { tileT = Math.max(0, tileT - dt * 1.4); tileMat.opacity = tileT * 0.7; if (!tileT) tiles.count = 0; }
+    if (ghost) {
+      ghost.userData.t += dt;
+      ghost.material.opacity = 0.9 * Math.max(0, 1 - ghost.userData.t / 6) * (0.6 + 0.4 * Math.sin(t * 6));
+      if (ghost.userData.t > 6) { world.remove(ghost); ghost = null; }
+    }
+    if (dying > 0 && state.phase === 'dead') dying = Math.min(1, dying + dt * 0.8);
+    updateParticles(dt, 1 - dark * 0.6);
+    pulse = Math.max(0, pulse - dt * 2.2);
+
+    if (cube) drawCube(state, alpha, dt, t, tickLen / 1000);
+    else drawFlat(state, alpha, dt, t, idle);
+
+    flash = Math.max(0, flash - dt * 2.5);
+    if (composer) {
+      grade.uniforms.uFlash.value = flash;
+      grade.uniforms.uFlashColor.value.copy(flashColor);
+      composer.render();
+    } else {
+      renderer.render(scene, camera);
+    }
+  }
+
+  function drawFlat(state, alpha, dt, t, idle) {
+    
     const n = eelPath(state, alpha);
     let count = 0, lightCount = 0;
     const deathFade = Math.max(0, 1 - dying);
-    pulse = Math.max(0, pulse - dt * 2.2);
     const alive = state.phase !== 'dead';
     if (alive || deathFade > 0) {
       for (let i = 0; i < n - 1 && count < MAX_BODY; i++) {
@@ -654,18 +1094,6 @@ export function createRenderer(canvas, { search = '' } = {}) {
     floorMat.uniforms.uLightCount.value = lightCount;
 
     
-    if (tileT > 0) { tileT = Math.max(0, tileT - dt * 1.4); tileMat.opacity = tileT * 0.7; if (!tileT) tiles.count = 0; }
-    if (ghost) {
-      ghost.userData.t += dt;
-      ghost.material.opacity = 0.9 * Math.max(0, 1 - ghost.userData.t / 6) * (0.6 + 0.4 * Math.sin(t * 6));
-      ghost.rotation.y = 0;
-      if (ghost.userData.t > 6) { scene.remove(ghost); ghost = null; }
-    }
-
-    if (dying > 0 && state.phase === 'dead') dying = Math.min(1, dying + dt * 0.8);
-    updateParticles(dt, 1 - dark * 0.6);
-
-    
     camTarget.set(hx * 0.12, 0, hz * 0.1);
     camLook.lerp(camTarget, 1 - Math.exp(-dt * 2));
     let lift = 0;
@@ -682,16 +1110,8 @@ export function createRenderer(canvas, { search = '' } = {}) {
     camera.position.set(camLook.x + Math.sin(idleSway) * 3, Math.sin(tilt) * dist, camLook.z + Math.cos(tilt) * dist);
     shake = Math.max(0, shake - dt * 2.4);
     if (shake > 0) camera.position.add(tmpP.set((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake));
+    camera.up.set(0, 1, 0); 
     camera.lookAt(camLook.x, 0, camLook.z + 0.6);
-
-    flash = Math.max(0, flash - dt * 2.5);
-    if (composer) {
-      grade.uniforms.uFlash.value = flash;
-      grade.uniforms.uFlashColor.value.copy(flashColor);
-      composer.render();
-    } else {
-      renderer.render(scene, camera);
-    }
   }
 
   
@@ -707,7 +1127,7 @@ export function createRenderer(canvas, { search = '' } = {}) {
 
   function reset() {
     dying = 0; surfacing = -1; descendT = -1; pulse = 0; tileT = 0; tiles.count = 0;
-    if (ghost) { scene.remove(ghost); ghost = null; }
+    if (ghost) { world.remove(ghost); ghost = null; }
     for (const J of jellies) J.seen = false;
   }
 
