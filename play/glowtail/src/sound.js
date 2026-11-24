@@ -20,7 +20,23 @@ export const SFX_TAKES = Object.freeze({
 });
 
 
-export const MENU_CUES = Object.freeze(['tap', 'start', 'pause', 'resume', 'back']);
+export const MENU_CUES = Object.freeze(['tap', 'start', 'pause', 'resume', 'back', 'focus']);
+
+
+export const FOCUS_GAP_MS = 70;
+
+
+
+
+
+
+
+export function focusMoveCue({ from = null, to = null, via = null, since = Infinity } = {}) {
+  if (!to || to === from) return null;
+  if (via !== 'key' && via !== 'pad') return null;
+  if (since < FOCUS_GAP_MS) return null;
+  return 'focus';
+}
 
 
 export const MUSIC_TRACKS = Object.freeze(['menu', 'shallows', 'kelp', 'reef', 'abyss', 'trench']);

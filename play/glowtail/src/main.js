@@ -16,7 +16,7 @@ import { createRenderer } from './render.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { uiSoundOn, setUiSound } from '../../../web-engine/brand/uiSound.js';
-import { SFX_TAKES, MENU_CUES, MUSIC_TRACKS, cuesFor, trackFor, followSound } from './sound.js';
+import { SFX_TAKES, MENU_CUES, MUSIC_TRACKS, cuesFor, trackFor, followSound, focusMoveCue } from './sound.js';
 
 
 
@@ -73,6 +73,7 @@ function newState() {
 
 const KEYS = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' };
 addEventListener('keydown', (e) => {
+  focusVia = 'key'; 
   if (KEYS[e.code]) {
     e.preventDefault();
     if (running && !paused) enqueue(state, KEYS[e.code]);
@@ -128,6 +129,7 @@ function pollPad() {
     }
     
     
+    if (fresh) focusVia = 'pad';
     if (fresh) moveFocus(dir === 'up' || dir === 'left' ? -1 : 1);
     if (pressed(0)) {
       const scr = visibleScreen();
@@ -151,6 +153,20 @@ function moveFocus(delta) {
   const next = at < 0 ? 0 : (at + delta + items.length) % items.length;
   items[next].focus();
 }
+
+
+let focusVia = null;
+let lastFocusCue = -Infinity;
+addEventListener('pointerdown', () => { focusVia = 'pointer'; }, { capture: true });
+addEventListener('focusin', (e) => {
+  const to = e.target;
+  if (!to?.matches?.('button, a') || !SCREENS.some((s) => $(s).contains(to))) return;
+  const now = performance.now();
+  const cue = focusMoveCue({ from: e.relatedTarget, to, via: focusVia, since: now - lastFocusCue });
+  if (!cue) return;
+  lastFocusCue = now;
+  ui.play(cue);
+});
 function padBack() {
   if (paused) togglePause();
   else if (!$('over').hidden) $('menu').click();
@@ -196,6 +212,7 @@ function show(id) {
   $('hud').hidden = id === 'title';
   if (id === 'title') syncRecord();
   
+  focusVia = 'screen'; 
   if (id) $(id).querySelector('.big')?.focus({ preventScroll: true });
 }
 
