@@ -31,7 +31,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <title>Play Ringtitans - an 8-player giant robot party brawl</title>
   <meta name="description" content="Ringtitans is a party brawl for up to eight pilots on one screen: dash, slam and ride the Red Line in giant storm-born Titans. Free, in the browser.">
-  <meta name="build" content="19e9cd8f-20261124T031412Z">
+  <meta name="build" content="29e988ec-20261124T032817Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/titan-bash/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Ringtitans - an 8-player giant robot party brawl">
@@ -41,8 +41,8 @@
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
   
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
-  <script src="../shared/ui/boot.js?v=19e9cd8f-20261124T031412Z" data-game="titan-bash"></script>
-  <link rel="stylesheet" href="./src/style.css?v=19e9cd8f-20261124T031412Z">
+  <script src="../shared/ui/boot.js?v=29e988ec-20261124T032817Z" data-game="titan-bash"></script>
+  <link rel="stylesheet" href="./src/style.css?v=29e988ec-20261124T032817Z">
 </head>
 <body>
   <div class="studio-bar">
@@ -64,6 +64,13 @@
       </header>
       
       <button class="tb-go" id="start" type="button">Start</button>
+      
+      <ul class="tb-lineup" aria-label="The four Titans">
+        <li data-titan="lancer"><span class="tb-face" aria-hidden="true"></span><span>Lancer</span></li>
+        <li data-titan="bulwark"><span class="tb-face" aria-hidden="true"></span><span>Bulwark</span></li>
+        <li data-titan="wisp"><span class="tb-face" aria-hidden="true"></span><span>Wisp</span></li>
+        <li data-titan="mortar"><span class="tb-face" aria-hidden="true"></span><span>Mortar</span></li>
+      </ul>
       
       <div class="tb-warm">
         <canvas id="warm" aria-label="Warm-up arena: drive your Titan now and shoot the targets"></canvas>
@@ -210,8 +217,8 @@
   </main>
 
   
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=19e9cd8f-20261124T031412Z"></script>
-  <script type="module" src="./src/main.js?v=19e9cd8f-20261124T031412Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=19e9cd8f-20261124T031412Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=29e988ec-20261124T032817Z"></script>
+  <script type="module" src="./src/main.js?v=29e988ec-20261124T032817Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=29e988ec-20261124T032817Z"></script>
 </body>
 </html>

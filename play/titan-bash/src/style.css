@@ -331,6 +331,25 @@ select.tb-input {
 .ph-titans [data-titan="bulwark"] .ph-face::after { background-image: url('../assets/titans/bulwark_sprites/sheet.png'); }
 .ph-titans [data-titan="mortar"] .ph-face::after { background-image: url('../assets/titans/mortar_sprites/sheet.png'); }
 .ph-titans [data-titan="wisp"] .ph-face::after { background-image: url('../assets/titans/wisp_sprites/sheet.png'); }
+
+.tb-lineup { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tb-lineup li {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 6px 8px;
+  background: radial-gradient(circle at 50% 62%, rgba(255, 201, 74, 0.2), transparent 68%), linear-gradient(180deg, var(--steel-a), var(--steel-b));
+  box-shadow: inset 0 0 0 1px rgba(120, 140, 190, 0.22);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.tb-lineup li span:last-child { font: 600 1.15rem/1 var(--display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+.tb-face { display: block; width: 96px; height: 96px; max-width: 100%; }
+.tb-face::after { content: ''; display: block; width: 100%; height: 100%; background-repeat: no-repeat; background-size: 700% 100%; background-position: 0 0; }
+.tb-lineup [data-titan="lancer"] .tb-face::after { background-image: url('../assets/titans/lancer_sprites/sheet.png'); }
+.tb-lineup [data-titan="bulwark"] .tb-face::after { background-image: url('../assets/titans/bulwark_sprites/sheet.png'); }
+.tb-lineup [data-titan="mortar"] .tb-face::after { background-image: url('../assets/titans/mortar_sprites/sheet.png'); }
+.tb-lineup [data-titan="wisp"] .tb-face::after { background-image: url('../assets/titans/wisp_sprites/sheet.png'); }
+@media (max-width: 480px) {
+  .tb-face { width: 64px; height: 64px; }
+  .tb-lineup li span:last-child { font-size: 0.95rem; letter-spacing: 0.04em; }
+}
 .ph-titans button[aria-pressed="true"] { background: radial-gradient(circle at 6px 6px, #6a5a2a 0 1.5px, transparent 2px) bottom right / 12px 12px no-repeat, linear-gradient(180deg, #3d4566, #2a3048); }
 .ph-rookie, .ph-stars, .ph-state {
   border-radius: 0; background: linear-gradient(180deg, var(--steel-a), var(--steel-b));
