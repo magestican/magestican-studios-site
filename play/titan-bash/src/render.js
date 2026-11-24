@@ -308,7 +308,7 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
     ctx.beginPath(); ctx.ellipse(cx, feet, r * 1.1, r * 0.42, 0, 0, TAU); ctx.stroke();
     ctx.save(); ctx.translate(cx, feet);
     if (Math.cos(t.facing) < 0) ctx.scale(-1, 1);
-    if (t.hitstop > 0) ctx.filter = 'brightness(2.2)';
+    if (t.hitstop > 0 || opts.juice?.flashing?.(t.id)) ctx.filter = 'brightness(2.2)';
     ctx.drawImage(spr.canvas, fr.x, fr.y, fr.w, fr.h, -wid / 2, -hgt, wid, hgt);
     ctx.restore();
     

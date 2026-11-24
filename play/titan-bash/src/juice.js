@@ -7,8 +7,40 @@
 const MAX = 600;
 const KICK = { hit: 0.12, slam: 0.3, clang: 0.35, bell: 0.6, counter: 0.25, shatter: 0.2, tide: 0.4, drop: 0.25, stall: 0.1 };
 
+
+
+
+
+
+export const HOLD = { slam: 3, counter: 3, drop: 4, bell: 7 };
+export const HOLD_CAP = 8;
+export const HOLD_GAP = 20;
+
+
+const IMPACT = { slam: 2, counter: 2, bell: 4 };
+
 export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
-  const j = { trauma: 0, particles: [], rings: [] };
+  const j = { trauma: 0, particles: [], rings: [], hold: 0, sinceHold: HOLD_GAP, impact: null, flash: new Map() };
+  const freeze = (type) => {
+    const n = HOLD[type];
+    if (!n) return;
+    if (type !== 'bell' && (j.hold > 0 || j.sinceHold < HOLD_GAP)) return;
+    j.hold = Math.min(HOLD_CAP, Math.max(j.hold, n)); j.sinceHold = 0;
+  };
+  const impact = (type, x, y, colour, id) => {
+    const n = IMPACT[type];
+    if (!n || reducedMotion) return;
+    if (!j.impact || n >= j.impact.life) j.impact = { x, y, colour, life: n, max: n };
+    if (id != null) j.flash.set(id, Math.max(j.flash.get(id) || 0, n + 2));
+  };
+  
+  j.holding = () => j.hold > 0;
+  j.holdTick = () => { j.hold = Math.max(0, j.hold - 1); fade(); };
+  j.flashing = (id) => (j.flash.get(id) || 0) > 0;
+  const fade = () => {
+    if (j.impact && --j.impact.life <= 0) j.impact = null;
+    for (const [id, n] of j.flash) if (n <= 1) j.flash.delete(id); else j.flash.set(id, n - 1);
+  };
   const burst = (x, y, n, { speed = 12, life = 30, colour = '#fff', size = 0.25, drag = 0.9, kind = 'spark', up = 0 } = {}) => {
     for (let i = 0; i < n && j.particles.length < MAX; i++) {
       const a = rng() * Math.PI * 2; const v = speed * (0.35 + rng() * 0.65) / 60;
@@ -20,6 +52,8 @@ export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
     for (const e of events) {
       if (KICK[e.type]) j.trauma = Math.min(1, j.trauma + KICK[e.type]);
       const tg = e.target != null ? m.titans[e.target] : e.id != null ? m.titans[e.id] : null;
+      freeze(e.type);
+      if (tg) impact(e.type, tg.x, tg.y - 1, e.type === 'bell' ? '#fff2b0' : '#ffffff', tg.id ?? (e.target ?? e.id));
       if (e.type === 'hit' && tg) burst(tg.x, tg.y - 1, 6, { speed: 10, life: 18, colour: '#ffe2a8', size: 0.18 });
       else if (e.type === 'slam' && tg) { burst(tg.x, tg.y, 14, { speed: 16, life: 24, colour: '#fff3c4' }); ring(tg.x, tg.y, 3, 18, '#ffffff'); }
       else if (e.type === 'clang') { burst(e.x, e.y, 18, { speed: 20, life: 26, colour: '#9fe3ff', size: 0.22 }); ring(e.x, e.y, 4, 20, '#9fe3ff'); }
@@ -38,6 +72,7 @@ export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
   };
   j.step = () => {
     j.trauma = Math.max(0, j.trauma - 1 / 45);
+    j.sinceHold += 1; fade();
     for (const p of j.particles) { p.x += p.vx; p.y += p.vy; p.vx *= p.drag; p.vy *= p.drag; p.life -= 1; }
     j.particles = j.particles.filter((p) => p.life > 0);
     for (const r of j.rings) r.life -= 1;
@@ -61,6 +96,14 @@ export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
         ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a * 0.6; ctx.fillStyle = p.colour;
         ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), p.size * s * (1.6 - a), 0, Math.PI * 2); ctx.fill();
       }
+    }
+    
+    if (j.impact) {
+      const k = j.impact.life / j.impact.max; const R = s * (j.impact.max >= 4 ? 16 : 8);
+      const g = ctx.createRadialGradient(X(j.impact.x), Y(j.impact.y), 0, X(j.impact.x), Y(j.impact.y), R);
+      g.addColorStop(0, j.impact.colour); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.55 * k; ctx.fillStyle = g;
+      ctx.fillRect(X(j.impact.x) - R, Y(j.impact.y) - R, R * 2, R * 2);
     }
     ctx.globalCompositeOperation = 'lighter';
     for (const r of j.rings) {

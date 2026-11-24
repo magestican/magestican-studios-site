@@ -230,6 +230,8 @@ function frame(now) {
   acc += Math.min(0.25, (now - last) / 1000); last = now;
   let steps = 0;
   while (acc >= 1 / HZ && steps < 5 && !match.over) {
+    
+    if (juice.holding()) { juice.holdTick(); acc -= 1 / HZ; steps += 1; continue; }
     const events = step(match, inputsFor(match));
     addFx(match, events);
     juice.onEvents(match, events, (t) => HOUSE[t.house]?.colour || '#ffd040'); juice.step();
@@ -315,7 +317,7 @@ function results(m) {
     const li = el('li');
     const nm = el('span', '', `${HOUSE[r.house].name} (${r.frame})${card.mode === 'team' ? ` - ${teamName(r.team)}` : ''}`);
     const b = el('span', 'bells', `${r.bells} Bells`);
-    const stats = el('span', 'stats', `Clangs won ${r.clangsWon} - Perfect Vents ${r.perfectVents} - Best streak ${r.bestStreak}`);
+    const stats = statsLine(r);
     li.append(el('span', 'place', `${r.place + 1}.`), swatch(r.house), nm, b, el('span', 'pts', `+${r.points}`), stats);
     const got = earned.get(r.id);
     if (got) li.append(el('span', 'stars', got.line));
@@ -324,6 +326,20 @@ function results(m) {
   paintStandings();
   $('again').textContent = nightOver(night) ? 'Crown the Champion' : 'Next round';
   show('end'); 
+}
+
+
+
+
+function statsLine(r) {
+  const s = el('span', 'stats');
+  const part = (lead, long, tail, n) => {
+    s.append(lead); if (long) s.append(el('span', 'lg', long)); s.append(el('span', 'k', tail), ` ${n}`);
+  };
+  part('Clangs', ' won', '', r.clangsWon); s.append(' - ');
+  part('', 'Perfect ', 'Vents', r.perfectVents); s.append(' - ');
+  part('', 'Best ', 'streak', r.bestStreak);
+  return s;
 }
 
 function paintStandings() {

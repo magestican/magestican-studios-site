@@ -331,3 +331,26 @@ select.tb-input {
 #room .tb-code { margin-top: 0; }
 #room .tb-code.tb-wait, #room .tb-title .tb-code.tb-wait { font-size: 1.6rem; letter-spacing: 0.08em; color: var(--dim); }
 #room .device-qr-close { display: none; }
+
+
+
+
+
+@media (max-width: 899px) {
+  #end.tb-page { padding-top: 16px; gap: 16px; }
+  #end-round { margin: 0 0 4px; font-size: 0.85rem; }
+  #end-title { font-size: 1.6rem; margin-bottom: 12px; }
+  .tb-card-rows li {
+    display: grid; grid-template-columns: 1.6em 14px minmax(0, 1fr) auto auto; column-gap: 10px; row-gap: 2px;
+    padding: 6px 12px; font-size: 0.95rem; line-height: 1.25;
+  }
+  .tb-card-rows .place { width: auto; font-size: 1.15rem; }
+  .tb-card-rows .swatch { width: 14px; height: 14px; }
+  .tb-card-rows li > span:nth-child(3) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tb-card-rows .bells { margin-left: 0; }
+  .tb-card-rows .stats, .tb-card-rows .stars { grid-column: 3 / -1; padding-left: 0; font-size: 0.8rem; white-space: nowrap; }
+  .tb-card-rows .stars { white-space: normal; }
+  .tb-card-rows .lg { display: none; }
+  .tb-card-rows .k { text-transform: capitalize; }
+  #end .tb-go { font-size: 2.6rem; min-height: 72px; }
+}
