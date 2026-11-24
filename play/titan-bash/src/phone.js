@@ -90,7 +90,10 @@ export function startPhone(code) {
     b.addEventListener('click', () => pick({ house: h.id })); $('ph-houses').append(b); houseBtn.set(h.id, b);
   }
   for (const id of Object.keys(TITANS)) {
-    const b = document.createElement('button'); b.type = 'button'; b.textContent = cap(id);
+    
+    const b = document.createElement('button'); b.type = 'button'; b.dataset.titan = id;
+    const face = document.createElement('span'); face.className = 'ph-face'; face.setAttribute('aria-hidden', 'true');
+    const word = document.createElement('span'); word.textContent = cap(id); b.append(face, word);
     b.addEventListener('click', () => pick({ titan: id })); $('ph-titans').append(b); titanBtn.set(id, b);
   }
   function paintPick() {
