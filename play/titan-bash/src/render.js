@@ -131,7 +131,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
       ctx.fillStyle = `rgba(120,200,255,${0.18 + 0.35 * k + 0.12 * Math.sin(m.tick * 0.4)})`;
       ctx.fillRect(X(f.x - f.w / 2), Y(f.y - f.h / 2), f.w * s, f.h * s);
       ctx.fillStyle = '#e6f6ff'; ctx.font = `700 ${Math.round(s * 1.6)}px system-ui, sans-serif`; ctx.textAlign = 'center';
-      ctx.fillText('TIDE', X(f.x), Y(f.y) + s * 0.55);
+      for (const lx of tideLabelXs(f, m.sleeper)) ctx.fillText('TIDE', X(lx), Y(f.y) + s * 0.55);
     }
   } else if (A.openEdges) {
     const lip = LIP * L.dpr;
@@ -246,6 +246,17 @@ export function draw(ctx, m, fx, L, opts = {}) {
 
 
 
+
+
+
+
+export const TIDE_LABEL_SPLIT = 11;
+export function tideLabelXs(f, sleeper) {
+  const up = sleeper && sleeper.phase !== 'asleep' && sleeper.phase !== 'down';
+  const reach = T.sleeperCoreR * 1.7;
+  const near = up && Math.abs(sleeper.x - f.x) < reach + 2.5 && Math.abs(sleeper.y - f.y) < f.h / 2 + reach;
+  return near ? [f.x - TIDE_LABEL_SPLIT, f.x + TIDE_LABEL_SPLIT] : [f.x];
+}
 
 export function drawCover(ctx, A, X, Y, s) {
   const off = Math.max(2, s * 0.35);

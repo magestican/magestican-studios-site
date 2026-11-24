@@ -27,7 +27,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -323,6 +323,8 @@ function results(m) {
   $('end-title').textContent = card.mode === 'team'
     ? `${teamName(w.team)} wins the round!`
     : firsts.length > 1 ? `${joinNames(firsts)} share the round!` : `${HOUSE[w.house].name} wins the round!`;
+  const note = tieBreakNote(card, (r) => HOUSE[r.house].name);
+  $('end-note').textContent = note; $('end-note').hidden = !note;
   const ol = $('podium'); ol.textContent = '';
   for (const r of card.rows) {
     
@@ -336,7 +338,7 @@ function results(m) {
     nm.append(el('span', 'frame', ` - ${TITANS[r.frame]?.name || r.frame}`));
     if (card.mode === 'team') nm.append(` - ${teamName(r.team)}`);
     const b = el('span', 'bells', `${r.bells} Bells`);
-    const stats = statsLine(r);
+    const stats = statsLine(r, card.rows);
     const face = el('span', 'tb-face'); face.setAttribute('aria-hidden', 'true'); face.style.borderColor = HOUSE[r.house].colour;
     tintFace(face, r.frame, r.house);
     li.append(el('span', 'place', `${r.place + 1}.`), face, nm, b, el('span', 'pts', `+${r.points}`), stats);
@@ -352,14 +354,12 @@ function results(m) {
 
 
 
-function statsLine(r) {
+function statsLine(r, rows) {
   const s = el('span', 'stats');
-  const part = (lead, long, tail, n) => {
+  statParts(r, rows).forEach(([lead, long, tail, n], i) => {
+    if (i) s.append(' - ');
     s.append(lead); if (long) s.append(el('span', 'lg', long)); s.append(el('span', 'k', tail), ` ${n}`);
-  };
-  part('Clangs', ' won', '', r.clangsWon); s.append(' - ');
-  part('', 'Perfect ', 'Vents', r.perfectVents); s.append(' - ');
-  part('', 'Best ', 'streak', r.bestStreak);
+  });
   return s;
 }
 
@@ -576,7 +576,7 @@ let qrFor = null;
 function onCode(code, state) {
   $('room').hidden = false;
   $('room-code').classList.toggle('tb-wait', !code); 
-  if (!code) { $('room-code').textContent =state === 'opening' ? 'Opening a room...' : 'Phones cannot join right now.'; return; }
+  if (!code) { $('room-code').textContent = state === 'opening' ? 'Opening a room...' : state === 'reopening' ? 'Reopening the room...' : 'Phones cannot join right now.'; return; }
   const url = linkFor(code);
   $('room-code').textContent = code.slice(PREFIX.length).toUpperCase();
   $('room-link').textContent = url.replace(/^https?:\/\//, '');
@@ -609,7 +609,7 @@ function sendStatus() {
       heat: t ? t.heat : 0, armour: t ? t.armour / t.maxArmour : 1,
       cooldown: t && t.abilityCd > 0 ? Math.min(1, t.abilityCd / secs(TITANS[t.frame]?.abilityCooldown || 6)) : 0,
       bells: t ? t.bells : 0, house: info.house, titan: info.titan,
-      state: warming && t ? 'warm' : t ? 'play' : !$('end').hidden || !$('night').hidden ? 'end' : 'title', stalled: !!(t && t.stall > 0),
+      state: warming && t ? 'warm' : t ? 'play' : !$('night').hidden ? 'night' : !$('end').hidden ? 'end' : 'title', stalled: !!(t && t.stall > 0),
       lit: lesson ? lesson.lit : null, hint: lesson ? lesson.praise || lesson.prompt : '',
       ack: p.seq, ackAge: performance.now() - p.heard, 
     }));

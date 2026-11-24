@@ -5,7 +5,7 @@
 
 import { HOUSES, TITANS } from '../../../web-engine/titan-bash/titans.js';
 import { stickFrom } from './input.js';
-import { INPUT_HZ, MSG, encodeInput, decodeStatus, createLatencyLog } from './wire.js';
+import { INPUT_HZ, MSG, encodeInput, decodeStatus, createLatencyLog, phoneEndLine } from './wire.js';
 import { createPhoneLink } from './net.js';
 import { T as RT, PAINTS, EMBLEMS, addStars, equip, loadStars, saveStars, nextUnlock } from '../../../web-engine/titan-bash/rewards.js';
 
@@ -119,8 +119,8 @@ export function startPhone(code) {
     $('ph-ready').setAttribute('aria-pressed', String(!!seat.ready));
     $('ph-ready').textContent = seat.ready ? 'Ready!' : 'Ready';
     $('ph-start').hidden = !seat.host;
-    say(state === 'end' ? 'Trial over. Pick again, then Ready.'
-      : seat.host ? 'You are the host: press Start when everyone is in.' : 'Pick, press Ready, then the host starts.');
+    say(phoneEndLine(state)
+      || (seat.host ? 'You are the host: press Start when everyone is in.' : 'Pick, press Ready, then the host starts.'));
   }
   $('ph-toggle').addEventListener('click', () => { pickOpen = !pickOpen; paintPick(); });
   $('ph-rookie').addEventListener('change', (e) => { writeProfile({ ...readProfile(), rookie: e.target.checked }); pick({ rookie: e.target.checked }); });

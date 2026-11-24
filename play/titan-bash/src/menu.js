@@ -63,6 +63,33 @@ export function joinNames(names) {
 
 
 
+
+export function statParts(r, rows = [r]) {
+  const parts = [];
+  if (rows.some((x) => x.clangsWon > 0)) parts.push(['Clangs', ' won', '', r.clangsWon]);
+  parts.push(['', 'Perfect ', 'Vents', r.perfectVents], ['', 'Best ', 'streak', r.bestStreak]);
+  return parts;
+}
+
+
+
+
+
+
+
+export function tieBreakNote(card, nameOf) {
+  if (!card || card.mode === 'team' || card.rows.length < 2) return '';
+  const [first] = card.rows;
+  const tied = card.rows.filter((r) => r.bells === first.bells);
+  if (tied.length < 2 || card.rows.filter((r) => r.place === first.place).length > 1) return '';
+  return `Tied on ${first.bells} Bell${first.bells === 1 ? '' : 's'} - ${nameOf(first)} was rung out ${tied.length > 2 ? 'the fewest' : 'fewer'} times.`;
+}
+
+
+
+
+
+
 export function stepsOrder(entries) {
   return [entries[1], entries[0], entries[2]].filter(Boolean);
 }

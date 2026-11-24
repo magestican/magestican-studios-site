@@ -57,7 +57,14 @@ export function decodeInput(msg) {
 }
 
 
-const STATES = ['title', 'play', 'end', 'warm'];
+
+const STATES = ['title', 'play', 'end', 'warm', 'night'];
+
+export function phoneEndLine(state) {
+  if (state === 'end') return 'Round over. Change your pick if you like, then Ready.';
+  if (state === 'night') return 'The Night is over! Pick again, then Ready for a new Night.';
+  return '';
+}
 
 const bellsOf = (v) => clamp(Math.trunc(num(v)), -999, 999);
 

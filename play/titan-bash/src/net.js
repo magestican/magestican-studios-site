@@ -24,15 +24,40 @@ export const linkFor = (code) => shareLinkFor(location.href.split('?')[0], code)
 
 
 
-export function createScreenLink({ onSeats, onCode, seatInfo, onPick = () => {}, onStart = () => {} }) {
+
+
+
+
+
+
+
+export const ROOM_CHECK_MS = 5000;
+
+export function createScreenLink({ onSeats, onCode, seatInfo, onPick = () => {}, onStart = () => {}, Mesh = PeerMesh, linkable = canLink }) {
   const phones = createPhoneSeats();
   let mesh = null;
   let sweepTimer = null;
+  let checkTimer = null;
   const now = () => performance.now();
+
+  
+  function reopen(self) {
+    try { mesh?.destroy(); } catch {  }
+    mesh = null;
+    onCode(null, 'reopening');
+    self.host(0, true);
+  }
+  function check(self) {
+    const p = mesh?.peer;
+    if (!p) return;
+    if (p.destroyed) reopen(self);
+    else if (p.disconnected && typeof p.reconnect === 'function') { try { p.reconnect(); } catch {  } }
+  }
 
   function wire(mine) {
     mine.addEventListener('open', (e) => {
       if (mesh !== mine) return;
+      mine.opened = true;
       mine.host();
       stickyCode.keep(e.detail.id);
       onCode(e.detail.id, 'open');
@@ -59,36 +84,43 @@ export function createScreenLink({ onSeats, onCode, seatInfo, onPick = () => {},
     });
     mine.addEventListener('peer-left', (e) => { if (mesh === mine) { phones.gone(e.detail.id, now()); onSeats(phones.list()); } });
     mine.addEventListener('error', (e) => {
+      if (mesh !== mine) return;
       const m = e.detail?.message ?? 'unknown';
       if (/unavailable-id/.test(m)) return; 
-      onCode(null, `trouble: ${m}`);
+      
+      
+      if (mine.opened) return;
+      onCode(null, `trouble: ${m}`); 
     });
   }
 
   return {
     phones,
     get active() { return !!mesh; },
-    host(attempt = 0) {
-      if (mesh || !canLink()) return;
+    host(attempt = 0, reopening = false) {
+      if (mesh || !linkable()) return;
       const hint = stickyCode.hint(attempt, () => roomCode(Math.random, PREFIX), CODE_TRIES);
-      const mine = new PeerMesh({ hostIdHint: hint ?? undefined, star: true });
+      const mine = new Mesh({ hostIdHint: hint ?? undefined, star: true });
       mesh = mine;
       wire(mine);
       mine.addEventListener('error', (e) => {
-        if (!/unavailable-id/.test(e.detail?.message ?? '') || mesh !== mine) return;
+        if (!/unavailable-id/.test(e.detail?.message ?? '') || mesh !== mine || mine.opened) return;
         try { mine.destroy(); } catch {  }
         mesh = null;
-        stickyCode.retry(attempt, () => this.host(attempt + 1));
+        stickyCode.retry(attempt, () => this.host(attempt + 1, reopening));
       });
-      if (attempt === 0) onCode(null, 'opening');
+      if (attempt === 0 && !reopening) onCode(null, 'opening');
       clearInterval(sweepTimer);
       sweepTimer = setInterval(() => { if (phones.sweep(now()).length) onSeats(phones.list()); }, 1000);
+      clearInterval(checkTimer);
+      checkTimer = setInterval(() => check(this), ROOM_CHECK_MS);
     },
     
     newCode() { stickyCode.forget(); this.leave(); this.host(0); },
     leave() {
       stickyCode.cancel();
       clearInterval(sweepTimer);
+      clearInterval(checkTimer);
       try { mesh?.destroy(); } catch {  }
       mesh = null;
     },

@@ -282,6 +282,7 @@ select.tb-input {
 .tb-steps .p1 .block { background: linear-gradient(180deg, #ffd25a, #a77a12); color: #1a1205; }
 #end-title, #night-title { font-family: var(--display); letter-spacing: 0.04em; text-transform: uppercase; }
 #end-title { font-size: 2.2rem; }
+#end-note { margin: 0 0 12px; } 
 
 
 .tb-mini { border: 0; border-radius: 0; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); font: 600 1.25rem/1 var(--display); letter-spacing: 0.08em; text-transform: uppercase; padding-top: 3px; }
