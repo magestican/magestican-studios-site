@@ -87,7 +87,11 @@ body.tb-phone-mode .studio-bar { display: none; }
 .ph-bar i { display: block; height: 14px; border-radius: 7px; background: rgba(10, 13, 21, 0.35); overflow: hidden; }
 .ph-bar em { display: block; height: 100%; width: 0; background: #fff; transition: width 0.1s linear; }
 .ph-bar em.hot { background: #ff2d1a; }
-.ph-bar em.armour { background: #0a0d15; width: 100%; }
+
+
+.ph-bar i { background: rgba(10, 13, 21, 0.55); box-shadow: inset 0 0 0 1px rgba(10, 13, 21, 0.4); }
+.ph-bar em.armour { width: 100%; background: repeating-linear-gradient(90deg, #f2fff4 0 18px, #9fdcac 18px 20px); }
+.ph-bar em.armour.low { background: #ff5a3c; }
 .ph-state { margin: 0; padding: 12px 16px; border-radius: 12px; background: var(--slate); color: var(--dim); text-align: center; }
 .ph-pad { flex: 1; display: grid; grid-template-columns: 1fr 1.25fr; gap: 12px; min-height: 0; }
 .ph-stick { position: relative; border-radius: 18px; background: var(--slate); border: 1px dashed var(--line); touch-action: none; }
@@ -504,3 +508,10 @@ select.tb-input {
 }
 
 .tb-face.tinted::after { background-image: var(--face) !important; background-size: 100% 100% !important; }
+
+
+
+.tb-steps:has(> li:nth-child(2):last-child) { grid-template-columns: 1fr 1.2fr; }
+.tb-steps:has(> li:only-child) { grid-template-columns: 1fr; }
+
+.tb-steps .who.team { display: grid; grid-template-columns: repeat(2, auto); justify-content: center; }

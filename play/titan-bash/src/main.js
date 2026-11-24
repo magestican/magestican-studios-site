@@ -27,7 +27,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -396,10 +396,8 @@ function showPodium() {
   $('night-well').textContent = `The well goes to ${p.well}.`;
   const ol = $('steps'); ol.textContent = '';
   
-  const order = [p.entries[1], p.entries[0], p.entries[2]];
-  for (const e of order) {
+  for (const e of stepsOrder(p.entries)) {
     const li = el('li');
-    if (!e) { ol.append(li); continue; }
     const step = Math.min(3, e.place + 1);
     li.className = `p${step}`;
     const who = el('div', 'who');

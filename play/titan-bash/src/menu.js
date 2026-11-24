@@ -57,3 +57,12 @@ export function createLeave() {
 export function joinNames(names) {
   return names.length <= 1 ? (names[0] || '') : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
+
+
+
+
+
+
+export function stepsOrder(entries) {
+  return [entries[1], entries[0], entries[2]].filter(Boolean);
+}

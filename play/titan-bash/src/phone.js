@@ -54,6 +54,7 @@ export function startPhone(code) {
       $('ph-heat').style.width = `${s.heat}%`;
       $('ph-heat').classList.toggle('hot', s.heat >= 75);
       $('ph-armour').style.width = `${Math.round(s.armour * 100)}%`;
+      $('ph-armour').classList.toggle('low', s.armour <= 0.35); 
       $('ph-bells').textContent = `${s.bells} Bells`;
       $('ph-ability').style.setProperty('--cd', `${Math.round(s.cooldown * 360)}deg`);
       $('ph-boost').textContent = s.stalled ? 'Vent' : 'Boost';

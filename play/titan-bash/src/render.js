@@ -186,10 +186,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
     const col = HOUSE[m.titans[sh.owner]?.house]?.colour || '#fff';
     if (sh.kind === 'lob') {
       const k = sh.maxLife ? sh.life / sh.maxLife : 0.5;
-      ctx.strokeStyle = sh.seed ? '#ff3b3b' : col; ctx.lineWidth = Math.max(2, s * 0.18);
-      ctx.beginPath(); ctx.arc(X(sh.x), Y(sh.y), sh.splash * s, 0, TAU); ctx.stroke();
-      ctx.fillStyle = sh.seed ? 'rgba(255,59,59,0.25)' : 'rgba(255,255,255,0.15)';
-      ctx.beginPath(); ctx.arc(X(sh.x), Y(sh.y), sh.splash * s * (1 - k), 0, TAU); ctx.fill();
+      drawLobMark(ctx, X(sh.x), Y(sh.y), sh.splash * s, sh.seed ? '#ff3b3b' : col, lobMark(k, sh.splash * s, m.tick), s);
     } else {
       const [nx, ny] = norm(sh.vx, sh.vy);
       ctx.strokeStyle = col; ctx.lineWidth = Math.max(3, s * 0.35); ctx.lineCap = 'round';
@@ -305,6 +302,94 @@ function drawHeatRing(ctx, m, t, g, s) {
 }
 
 
+
+
+
+
+
+export function lungeTrail(painted, cx, cy, dx, dy, r, s) {
+  const y = painted ? cy + r * 0.7 : cy;
+  const [nx, ny] = norm(dx, dy);
+  const len = Math.max(r * 2.5, Math.hypot(dx, dy) * s * 5);
+  return { x0: cx, y0: y, x1: cx - nx * len, y1: y - ny * len, nx, ny, head: r * 1.05, tail: 0, flat: painted ? 0.42 : 1 };
+}
+
+function drawLungeTrail(ctx, g, colour) {
+  
+  const px = -g.ny * g.head; const py = g.nx * g.head * g.flat;
+  const grad = ctx.createLinearGradient(g.x0, g.y0, g.x1, g.y1);
+  grad.addColorStop(0, colour); grad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.55; ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.moveTo(g.x0 + px, g.y0 + py); ctx.lineTo(g.x1, g.y1); ctx.lineTo(g.x0 - px, g.y0 - py); ctx.closePath(); ctx.fill();
+  
+  ctx.strokeStyle = '#fff'; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, g.head * 0.08); ctx.globalAlpha = 0.45;
+  for (const f of [-0.45, 0.45]) {
+    ctx.beginPath(); ctx.moveTo(g.x0 + px * f, g.y0 + py * f);
+    ctx.lineTo(g.x0 + (g.x1 - g.x0) * 0.7 + px * f * 0.3, g.y0 + (g.y1 - g.y0) * 0.7 + py * f * 0.3); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+
+
+
+
+
+
+export function lobMark(k, R, tick) {
+  const near = 1 - Math.max(0, Math.min(1, k));
+  return { glow: 0.08 + 0.22 * near, rim: 0.3 + 0.55 * near, dash: [R * 0.3, R * 0.2], offset: -tick * 0.6, closing: R * (1 - near) };
+}
+
+function drawLobMark(ctx, x, y, R, colour, mk, s) {
+  ctx.save();
+  const g = ctx.createRadialGradient(x, y, R * 0.35, x, y, R);
+  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, colour);
+  ctx.globalAlpha = mk.glow; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.fill();
+  ctx.globalAlpha = mk.rim; ctx.strokeStyle = colour; ctx.lineWidth = Math.max(1.5, s * 0.12);
+  ctx.setLineDash(mk.dash); ctx.lineDashOffset = mk.offset; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
+  ctx.setLineDash([]); ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(1.5, s * 0.1);
+  ctx.beginPath(); ctx.arc(x, y, Math.max(1, mk.closing), 0, TAU); ctx.stroke();
+  ctx.restore();
+}
+
+
+
+
+
+
+export function bodyBubble(painted, cx, cy, r, s) {
+  if (!painted) { const R = r + s * 1.2; return { x: cx, y: cy, rx: R, ry: R }; }
+  return { x: cx, y: cy - r, rx: r * 1.6, ry: r * 2.05 };
+}
+
+function drawBubble(ctx, b, colour, width) {
+  ctx.save(); ctx.translate(b.x, b.y); ctx.scale(1, b.ry / b.rx);
+  const g = ctx.createRadialGradient(0, 0, b.rx * 0.55, 0, 0, b.rx);
+  g.addColorStop(0, 'rgba(111,243,255,0)'); g.addColorStop(1, 'rgba(111,243,255,0.32)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, b.rx, 0, TAU); ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = colour; ctx.lineWidth = width; ctx.globalAlpha = 0.85;
+  ctx.beginPath(); ctx.ellipse(b.x, b.y, b.rx, b.ry, 0, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
+}
+
+
+
+
+
+export const TARGET_RINGS = [
+  { k: 1, c: '#2a3142' }, { k: 0.86, c: '#eef1f7' }, { k: 0.66, c: '#e0402e' }, { k: 0.46, c: '#eef1f7' }, { k: 0.26, c: '#e0402e' },
+];
+
+export function drawTarget(ctx, cx, cy, r, s) {
+  const R = r * 1.15;
+  ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.arc(cx + s * 0.25, cy + s * 0.4, R, 0, TAU); ctx.fill();
+  for (const ring of TARGET_RINGS) { ctx.fillStyle = ring.c; ctx.beginPath(); ctx.arc(cx, cy, R * ring.k, 0, TAU); ctx.fill(); }
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = Math.max(1.5, s * 0.12);
+  ctx.beginPath(); ctx.arc(cx, cy, R * 0.93, Math.PI * 1.05, Math.PI * 1.6); ctx.stroke();
+}
+
+
 export function shadowSpots(m, X, Y, s) {
   const r = T.radius * s;
   return m.titans.filter((t) => t.alive).map((t) => ({ id: t.id, x: X(t.x), y: Y(t.y) + r * 0.7, rx: r * 1.35, ry: r * 0.55 }));
@@ -371,10 +456,13 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
   let cx = X(t.x); let cy = Y(t.y);
   if (t.rattled > 0) { cx += Math.sin(m.tick * 2.1) * s * 0.25; cy += Math.cos(m.tick * 2.7) * s * 0.25; }
   const r = T.radius * s;
+  const spr = t.house !== 'dummy' && spriteFor(t.frame, h.colour);
+  const fr = spr && spr.byName[poseFor(t, m.tick, secs(WEAPONS[TITANS[t.frame]?.weapon]?.cooldown || 0))];
+  const bub = bodyBubble(!!fr, cx, cy, r, s);
 
   if (t.overdrive > 0 || t.lumenTime > 0 || isBounty) {
     ctx.fillStyle = t.overdrive > 0 || t.lumenTime > 0 ? 'rgba(120,230,255,0.30)' : 'rgba(255,208,64,0.30)';
-    ctx.beginPath(); ctx.arc(cx, cy, r * 1.9, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(bub.x, bub.y, bub.rx * 1.15, bub.ry * 1.1, 0, 0, TAU); ctx.fill();
   }
   
   for (let i = 0; i < (t.lumen || 0); i++) {
@@ -389,12 +477,7 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
     ctx.beginPath(); ctx.moveTo(cx + Math.cos(t.facing) * r * 1.4, cy + Math.sin(t.facing) * r * 1.4);
     ctx.lineTo(cx + Math.cos(t.facing) * r * 5, cy + Math.sin(t.facing) * r * 5); ctx.stroke(); ctx.setLineDash([]);
   }
-  if (t.lunge > 0) {
-    ctx.strokeStyle = h.colour; ctx.globalAlpha = 0.5; ctx.lineWidth = r * 1.4; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - t.lungeDx * s * 4, cy - t.lungeDy * s * 4); ctx.stroke(); ctx.globalAlpha = 1;
-  }
-  const spr = t.house !== 'dummy' && spriteFor(t.frame, h.colour);
-  const fr = spr && spr.byName[poseFor(t, m.tick, secs(WEAPONS[TITANS[t.frame]?.weapon]?.cooldown || 0))];
+  if (t.lunge > 0) drawLungeTrail(ctx, lungeTrail(!!fr, cx, cy, t.lungeDx, t.lungeDy, r, s), h.colour);
   let top = cy - r; 
   if (fr) {
     
@@ -412,6 +495,10 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
     ctx.restore();
     
     top = Math.min(top, feet - hgt * 0.94);
+  } else if (t.dummy) {
+    
+    if (t.hitstop > 0 || opts.juice?.flashing?.(t.id)) ctx.filter = 'brightness(1.8)';
+    drawTarget(ctx, cx, cy, r, s); ctx.filter = 'none';
   } else { body(ctx, cx, cy, s, h.colour, t.facing); drawHeatRing(ctx, m, t, heatRing(false, cx, cy, r, s), s); }
   
   
@@ -421,11 +508,12 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
     ctx.beginPath(); ctx.arc(cx, cy, r * 0.62, 0, TAU); ctx.stroke();
   }
 
-  if (t.shield > 0) { ctx.strokeStyle = '#6ff3ff'; ctx.lineWidth = Math.max(2, s * 0.15); ctx.beginPath(); ctx.arc(cx, cy, r + s * 1.2, 0, TAU); ctx.stroke(); }
+  
+  if (t.shield > 0) drawBubble(ctx, bub, '#6ff3ff', Math.max(2, s * 0.15));
   if (t.aegis > 0) {
     const half = (ABILITIES.aegis.arc / 2) * (Math.PI / 180);
     ctx.strokeStyle = '#9fe3ff'; ctx.lineWidth = Math.max(4, s * 0.5);
-    ctx.beginPath(); ctx.arc(cx, cy, r + s * 1.3, t.facing - half, t.facing + half); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(bub.x, bub.y, bub.rx + s * 0.3, bub.ry + s * 0.3, 0, t.facing - half, t.facing + half); ctx.stroke();
   }
 
   
