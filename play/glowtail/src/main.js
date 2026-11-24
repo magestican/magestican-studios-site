@@ -120,9 +120,71 @@ function pollPad() {
 }
 
 
+
+
+
+
+
+
+const SCREENS = ['title', 'over', 'pause'];
+function leave(el) {
+  const ghost = el.cloneNode(true);
+  for (const n of [ghost, ...ghost.querySelectorAll('[id],[autofocus]')]) { n.removeAttribute('id'); n.removeAttribute('autofocus'); }
+  ghost.classList.remove('enter');
+  ghost.classList.add('leaving');
+  ghost.setAttribute('aria-hidden', 'true');
+  ghost.inert = true;
+  el.after(ghost);
+  const done = () => ghost.remove();
+  ghost.addEventListener('animationend', (e) => { if (e.target === ghost) done(); });
+  setTimeout(done, 600);
+}
+function enter(el) {
+  let i = 0;
+  for (const c of el.querySelectorAll(':scope > :not(.bubbles), :scope > .row > *')) {
+    if (!c.classList.contains('row')) c.style.setProperty('--i', String(i++));
+  }
+  el.classList.remove('enter');
+  void el.offsetWidth; 
+  el.classList.add('enter');
+}
 function show(id) {
-  for (const s of ['title', 'over', 'pause']) $(s).hidden = s !== id;
+  for (const s of SCREENS) {
+    const el = $(s);
+    const want = s === id;
+    if (!want && !el.hidden) leave(el);
+    if (want && el.hidden) { el.hidden = false; enter(el); }
+    else el.hidden = !want;
+  }
   $('hud').hidden = id === 'title';
+}
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+{
+  const box = document.createElement('div');
+  box.className = 'bubbles';
+  box.setAttribute('aria-hidden', 'true');
+  for (let k = 0; k < 14; k++) {
+    const b = document.createElement('span');
+    b.style.cssText = `--x:${(k * 37 + 11) % 100}%;--s:${6 + (k * 5) % 14}px;--d:${7 + (k * 3) % 8}s;--w:${-((k * 1.7) % 9).toFixed(1)}s`;
+    box.append(b);
+  }
+  $('title').prepend(box);
+}
+
+
+function countUp(el, to) {
+  if (reduceMotion() || to <= 0) { el.textContent = to.toLocaleString(); return; }
+  const t0 = performance.now();
+  const ms = Math.min(1100, 400 + to * 2);
+  const tick = (now) => {
+    const k = Math.min(1, (now - t0) / ms);
+    el.textContent = Math.round(to * (1 - (1 - k) ** 3)).toLocaleString();
+    if (k < 1) requestAnimationFrame(tick);
+  };
+  el.textContent = '0';
+  requestAnimationFrame(tick);
 }
 
 
@@ -148,7 +210,13 @@ for (const b of document.querySelectorAll('.soundToggle')) {
 }
 drawSound();
 
-for (const ev of ['pointerdown', 'keydown']) addEventListener(ev, () => syncMusic(), { once: true });
+
+
+
+
+
+syncMusic();
+for (const ev of ['pointerdown', 'touchend', 'click', 'keydown']) addEventListener(ev, () => syncMusic(), { once: true, capture: true });
 
 function start() {
   ui.play('start');
@@ -258,7 +326,7 @@ function finish(won) {
     ? `Length ${state.snake.length}`
     : `Reached ${state.depth.name} (depth ${state.depthIndex + 1} of ${DEPTHS.length})`;
   $('overChain').textContent = state.bestChain > 1 ? `Biggest circle: ${state.bestChain} at once` : 'Tip: circle a shoal with your body to catch it all at once';
-  setTimeout(() => { show('over'); syncMusic(); }, won ? 2600 : 0);
+  setTimeout(() => { show('over'); countUp($('overScore'), state.score); syncMusic(); }, won ? 2600 : 0);
   hud();
 }
 
@@ -317,6 +385,7 @@ function loop(now) {
 requestAnimationFrame(loop);
 
 show('title');
+enter($('title')); 
 if (params.get('autostart') === '1') start();
 
 window.__glowtail = { get state() { return state; }, start };

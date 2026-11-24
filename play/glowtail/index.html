@@ -97,6 +97,63 @@
     #overTitle { margin: 0; font: 900 clamp(36px, 10vw, 64px)/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 18px var(--glow); }
     #overScore { font: 900 clamp(48px, 15vw, 96px)/1 system-ui, sans-serif; color: var(--gold); text-shadow: 0 0 22px rgba(255, 211, 90, 0.7); }
     .stat { margin: 0; font-weight: 800; font-size: 17px; }
+    
+
+
+
+    :root { --ease: cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .screen.enter { animation: screenIn 420ms var(--ease) backwards; }
+    .screen.enter > :not(.bubbles):not(.row), .screen.enter > .row > * {
+      animation: itemIn 420ms var(--ease) backwards; animation-delay: calc(var(--i, 0) * 60ms + 80ms); }
+    .screen.enter > .big, .screen.enter > .row > .big {
+      animation: itemIn 420ms var(--ease) backwards, breathe 2.4s ease-in-out infinite;
+      animation-delay: calc(var(--i, 0) * 60ms + 80ms), 0s; }
+    .screen.leaving { animation: screenOut 260ms ease-in forwards; pointer-events: none; z-index: 5; }
+    .screen.leaving > :not(.bubbles) { animation: itemOut 260ms ease-in forwards; }
+    @keyframes screenIn { from { opacity: 0; } }
+    @keyframes itemIn { from { opacity: 0; transform: translateY(28px) scale(0.96); filter: blur(4px); } }
+    @keyframes screenOut { to { opacity: 0; } }
+    @keyframes itemOut { to { opacity: 0; transform: translateY(18px) scale(0.97); filter: blur(3px); } }
+    
+    #title h1 { background: linear-gradient(100deg, #fff 0%, #fff 38%, #b8fbff 46%, #ffffff 50%, #b8fbff 54%, #fff 62%, #fff 100%);
+      background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none;
+      filter: drop-shadow(0 0 18px rgba(127, 246, 255, 0.85)) drop-shadow(0 4px 0 #04324a);
+      animation: shimmer 4.5s linear infinite, glowBreath 3.2s ease-in-out infinite; }
+    #title.enter h1 { animation: itemIn 420ms var(--ease) backwards, shimmer 4.5s linear infinite, glowBreath 3.2s ease-in-out infinite;
+      animation-delay: calc(var(--i, 0) * 60ms + 80ms), 0s, 0s; }
+    @keyframes shimmer { from { background-position: 130% 0; } to { background-position: -130% 0; } }
+    @keyframes glowBreath { 50% { filter: drop-shadow(0 0 30px rgba(127, 246, 255, 1)) drop-shadow(0 4px 0 #04324a); } }
+    
+    .bubbles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: -1; }
+    #title { isolation: isolate; }
+    .bubbles span { position: absolute; bottom: -24px; left: var(--x); width: var(--s); height: var(--s); border-radius: 50%;
+      border: 1.5px solid rgba(184, 251, 255, 0.55); background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.55), rgba(127, 246, 255, 0.08) 60%);
+      animation: bubble var(--d) linear var(--w) infinite; }
+    @keyframes bubble { from { transform: translate(0, 0); opacity: 0; } 10% { opacity: 0.9; }
+      50% { transform: translate(14px, -55vh); } 90% { opacity: 0.6; } to { transform: translate(-8px, -112vh); opacity: 0; } }
+    
+    .big, .ghost { position: relative; overflow: hidden; transition: transform 160ms var(--ease), box-shadow 160ms, border-color 160ms, color 160ms; }
+    .ghost::after, .big::after { content: ""; position: absolute; inset: 0; pointer-events: none; transform: translateX(-120%);
+      background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%); }
+    .ghost:hover, .ghost:focus-visible, .big:hover, .big:focus-visible { transform: translateY(-3px) scale(1.03); }
+    .ghost:hover, .ghost:focus-visible { border-color: var(--glow); box-shadow: 0 0 18px rgba(127, 246, 255, 0.45); }
+    .ghost:hover::after, .ghost:focus-visible::after, .big:hover::after, .big:focus-visible::after { animation: sweep 700ms var(--ease); }
+    .ghost:active, .big:active { transform: translateY(3px) scale(0.97); }
+    :focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+    @keyframes sweep { to { transform: translateX(120%); } }
+    #overScore { font-variant-numeric: tabular-nums; }
+    
+    @media (prefers-reduced-motion: reduce) {
+      .screen.enter, .screen.enter > :not(.bubbles):not(.row), .screen.enter > .row > *, .screen.enter > .big, #title.enter h1 {
+        animation: fadeIn 150ms linear backwards; }
+      .screen.leaving, .screen.leaving > :not(.bubbles) { animation: screenOut 150ms linear forwards; }
+      .bubbles { display: none; }
+      #title h1, .big { animation: none; }
+      .ghost::after, .big::after { display: none; }
+      .big, .ghost { transition: none; }
+      .ghost:hover, .ghost:focus-visible, .big:hover, .big:focus-visible, .ghost:active, .big:active { transform: none; }
+    }
+    @keyframes fadeIn { from { opacity: 0; } }
     .back { position: fixed; left: 16px; bottom: max(16px, env(safe-area-inset-bottom)); color: var(--ink); opacity: 0.75; font-weight: 800; font-size: 14px; }
   </style>
 </head>
@@ -144,7 +201,7 @@
     <button class="ghost" id="menu">Menu</button>
   </section>
 
-  <script type="module" src="./src/main.js?v=3dc125ba-20261124T061355Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=3dc125ba-20261124T061355Z"></script>
+  <script type="module" src="./src/main.js?v=463ad08c-20261124T062548Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=463ad08c-20261124T062548Z"></script>
 </body>
 </html>

@@ -91,15 +91,25 @@ export function createTrackMusic({
   
   
   
-  function wake() {
+  
+  
+  
+  
+  
+  
+  
+  
+  const GESTURES = new Set(['pointerdown', 'touchend', 'click', 'keydown']);
+  function wake(event) {
     if (!on || !ctx) return false;
     if (ctx.state !== 'running' && ctx.state !== 'closed') {
       try { Promise.resolve(ctx.resume?.()).catch(() => {}); } catch {  }
     }
-    unlock.wake();
+    if (event && GESTURES.has(event.type)) unlock.unlock();
+    else unlock.wake();
     return true;
   }
-  for (const type of ['pointerdown', 'touchend', 'keydown', 'focus', 'pageshow']) {
+  for (const type of ['pointerdown', 'touchend', 'click', 'keydown', 'focus', 'pageshow']) {
     events?.addEventListener?.(type, wake, true);
   }
   doc?.addEventListener?.('visibilitychange', () => { if (!doc.hidden) wake(); });
