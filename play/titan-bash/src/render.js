@@ -6,7 +6,9 @@
 
 
 import { TUNING as T, secs } from '../../../web-engine/titan-bash/tuning.js';
-import { HOUSES } from '../../../web-engine/titan-bash/titans.js';
+import { HOUSES, TITANS, WEAPONS } from '../../../web-engine/titan-bash/titans.js';
+import { poseFor, spriteFor } from './titanSprites.js';
+import { floorPattern, DIM } from './floors.js';
 import { ARENAS } from '../../../web-engine/titan-bash/arenas.js';
 import { ABILITIES } from '../../../web-engine/titan-bash/abilities.js';
 import { bounty, isStorm, stormBounds } from '../../../web-engine/titan-bash/sim.js';
@@ -86,6 +88,9 @@ export function draw(ctx, m, fx, L, opts = {}) {
   const storm = isStorm(m);
   ctx.save();
   ctx.fillStyle = '#06080d'; ctx.fillRect(0, 0, W, H);
+  
+  const [shx, shy] = opts.juice ? opts.juice.shake(s * 0.9) : [0, 0];
+  ctx.translate(shx, shy);
 
   
   const fx0 = X(-A.w / 2); const fy0 = Y(-A.h / 2);
@@ -105,8 +110,13 @@ export function draw(ctx, m, fx, L, opts = {}) {
     const lip = Math.max(3, s * 0.25);
     ctx.fillStyle = '#ff8a1f';
     for (const f of A.floor) ctx.fillRect(X(f.x - f.w / 2) - lip, Y(f.y - f.h / 2) - lip, f.w * s + lip * 2, f.h * s + lip * 2);
-    ctx.fillStyle = storm ? '#2a2140' : '#1d2536';
+    const stone = floorPattern(ctx, m.arena, s, fx0, fy0);
+    ctx.fillStyle = stone || (storm ? '#2a2140' : '#1d2536');
     for (const f of A.floor) ctx.fillRect(X(f.x - f.w / 2), Y(f.y - f.h / 2), f.w * s, f.h * s);
+    if (stone) {
+      ctx.fillStyle = storm ? `rgba(40,20,80,${DIM + 0.15})` : `rgba(8,12,22,${DIM})`;
+      for (const f of A.floor) ctx.fillRect(X(f.x - f.w / 2), Y(f.y - f.h / 2), f.w * s, f.h * s);
+    }
     
     if (m.tide && m.tide.warn > 0) {
       const f = A.floor[m.tide.bridge];
@@ -122,8 +132,10 @@ export function draw(ctx, m, fx, L, opts = {}) {
     ctx.fillRect(fx0 - lip, fy0 - lip, L.aw + lip * 2, L.ah + lip * 2);
   }
   if (!A.floor) {
-    ctx.fillStyle = storm ? '#2a2140' : '#1d2536';
+    const deck = floorPattern(ctx, m.arena, s, fx0, fy0);
+    ctx.fillStyle = deck || (storm ? '#2a2140' : '#1d2536');
     ctx.fillRect(fx0, fy0, L.aw, L.ah);
+    if (deck) { ctx.fillStyle = storm ? `rgba(40,20,80,${DIM + 0.15})` : `rgba(8,12,22,${DIM})`; ctx.fillRect(fx0, fy0, L.aw, L.ah); }
     ctx.strokeStyle = storm ? 'rgba(190,150,255,0.10)' : 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
     ctx.beginPath();
     for (let x = -A.w / 2; x <= A.w / 2; x += 4) { ctx.moveTo(X(x), fy0); ctx.lineTo(X(x), fy0 + L.ah); }
@@ -201,7 +213,9 @@ export function draw(ctx, m, fx, L, opts = {}) {
   }
 
   const big = bounty(m);
-  for (const t of m.titans) if (t.alive) titan(ctx, m, t, X, Y, s, t === big, opts);
+  
+  for (const t of m.titans.filter((o) => o.alive).sort((a, b) => a.y - b.y)) titan(ctx, m, t, X, Y, s, t === big, opts);
+  if (opts.juice) opts.juice.draw(ctx, X, Y, s);
 
   
   for (const f of fx) {
@@ -223,6 +237,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
     ctx.globalAlpha = 1;
   }
 
+  ctx.translate(-shx, -shy);
   if (!m.endless) scoreboard(ctx, m, L, W, big); 
   ctx.restore();
 }
@@ -278,7 +293,24 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
     ctx.strokeStyle = h.colour; ctx.globalAlpha = 0.5; ctx.lineWidth = r * 1.4; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - t.lungeDx * s * 4, cy - t.lungeDy * s * 4); ctx.stroke(); ctx.globalAlpha = 1;
   }
-  body(ctx, cx, cy, s, h.colour, t.facing);
+  const spr = t.house !== 'dummy' && spriteFor(t.frame, h.colour);
+  const fr = spr && spr.byName[poseFor(t, m.tick, secs(WEAPONS[TITANS[t.frame]?.weapon]?.cooldown || 0))];
+  let top = cy - r; 
+  if (fr) {
+    
+    
+    const hgt = r * 3.4; const wid = hgt * (fr.w / fr.h); const feet = cy + r * 0.7;
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(cx, feet, r * 1.1, r * 0.42, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = h.colour; ctx.lineWidth = Math.max(2, s * 0.22);
+    ctx.beginPath(); ctx.ellipse(cx, feet, r * 1.1, r * 0.42, 0, 0, TAU); ctx.stroke();
+    ctx.save(); ctx.translate(cx, feet);
+    if (Math.cos(t.facing) < 0) ctx.scale(-1, 1);
+    if (t.hitstop > 0) ctx.filter = 'brightness(2.2)';
+    ctx.drawImage(spr.canvas, fr.x, fr.y, fr.w, fr.h, -wid / 2, -hgt, wid, hgt);
+    ctx.restore();
+    
+    top = Math.min(top, feet - hgt * 0.94);
+  } else body(ctx, cx, cy, s, h.colour, t.facing);
   
   
   const paint = opts.paints && opts.paints[t.id];
@@ -311,7 +343,8 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
   }
 
   
-  const bw = s * 4; const by = cy - r - s * 1.6;
+  
+  const bw = s * 4; const by = fr ? top - s * 0.6 : cy - r - s * 1.6;
   ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(cx - bw / 2, by, bw, Math.max(4, s * 0.4));
   ctx.fillStyle = t.armour / t.maxArmour > 0.35 ? '#7dff8a' : '#ff5a3c';
   ctx.fillRect(cx - bw / 2, by, bw * Math.max(0, t.armour / t.maxArmour), Math.max(4, s * 0.4));

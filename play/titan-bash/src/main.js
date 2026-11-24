@@ -23,6 +23,9 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { cleanPick, applyPick, takenHouses, hostPhone, mayStart, newRound } from './lobby.js';
 import { createNight, matchOptions, arenaFor, recordRound, nightOver, standings, podium, MODE_NAME } from '../../../web-engine/titan-bash/night.js';
 import { createWarmup, warmupStep, lessonFor } from '../../../web-engine/titan-bash/warmup.js';
+import { loadTitanSprites } from './titanSprites.js';
+import { loadFloors } from './floors.js';
+import { createJuice } from './juice.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -36,6 +39,9 @@ const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), [...UI]);
 let sounds = createSoundTracker();
 
 
+
+loadTitanSprites(new URL('../assets/titans/', import.meta.url));
+loadFloors(new URL('../assets/floors/', import.meta.url));
 const music = createTrackMusic({ game: 'titan-bash', manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS });
 const musicSaved = (() => { try { return localStorage.getItem('magestican:v1:music'); } catch { return null; } })();
 for (const type of ['pointerdown', 'keydown']) {
@@ -46,6 +52,9 @@ addEventListener('keydown', (e) => { if (e.code === 'KeyM') music.toggle(); });
 const down = new Set();
 let humans = [{ control: 'p1' }];
 let match = null; let bots = []; let seats = []; let fx = []; let raf = 0; let acc = 0; let last = 0;
+
+const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+let juice = createJuice(Math.random, { reducedMotion });
 
 function show(id) {
   for (const s of ['title', 'match', 'end', 'night']) $(s).hidden = s !== id;
@@ -127,7 +136,7 @@ function start() {
   if (cheats.heat !== null) for (const t of match.titans) if (!t.cpu) t.heat = cheats.heat;
   if (cheats.storm) match.tick = secs(T.roundTime - T.stormTime);
   if (cheats.sleeper) match.tick = secs(T.roundTime - T.stormTime + T.sleeperWakeAfter - 1);
-  fx = []; acc = 0; last = performance.now(); sounds = createSoundTracker(); ui.play('start');
+  fx = []; juice = createJuice(Math.random, { reducedMotion }); acc = 0; last = performance.now(); sounds = createSoundTracker(); ui.play('start');
   globalThis.__titanBash = { get match() { return match; }, get phones() { return link?.phones.list() ?? []; } }; 
   show('match'); resize();
   cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
@@ -186,6 +195,7 @@ function frame(now) {
   while (acc >= 1 / HZ && steps < 5 && !match.over) {
     const events = step(match, inputsFor(match));
     addFx(match, events);
+    juice.onEvents(match, events, (t) => HOUSE[t.house]?.colour || '#ffd040'); juice.step();
     for (const name of sounds.tick(match, events)) sfx.play(name);
     acc -= 1 / HZ; steps += 1;
     for (const f of fx) f.ttl -= 1;
@@ -208,7 +218,7 @@ function paint() {
   const hs = new Set(seats.map((s, i) => (s.control !== 'bot' ? i : -1)).filter((i) => i >= 0));
   const tag = (c) => (c === 'p1' ? 'P1' : c === 'p2' ? 'P2' : c.startsWith('phone') ? `Phone ${Number(c.slice(5)) + 1}` : `Pad ${Number(c.slice(3)) + 1}`);
   const labels = seats.map((s) => (s.control === 'bot' ? null : `${emblemGlyph(wear(s).emblem)} ${HOUSE[s.house].name} (${tag(s.control)})`.trim()));
-  draw(ctx, match, fx, L, { humans: hs, labels, paints: seats.map((s) => paintColor(wear(s).paint)) });
+  draw(ctx, match, fx, L, { humans: hs, labels, paints: seats.map((s) => paintColor(wear(s).paint)), juice });
 }
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
@@ -397,7 +407,7 @@ function warmFrame(now) {
   warmSeats.forEach((s, i) => {
     const t = warm.match.titans[i]; const l = lessonFor(warm, i);
     const text = l && (l.praise || l.prompt);
-    if (t && t.alive && text) fxw.push({ kind: 'pop', text, x: t.x, y: t.y - 5.6, ttl: 60, colour: l.praise ? '#ffd040' : '#fff' });
+    if (t && t.alive && text) fxw.push({ kind: 'pop', text, x: t.x, y: t.y - 7, ttl: 60, colour: l.praise ? '#ffd040' : '#fff' });
   });
   const labels = warmSeats.map((s) => `${HOUSE[s.house].name}`);
   if (LW) draw($('warm').getContext('2d'), warm.match, fxw, LW, { humans: new Set(warmSeats.map((_, i) => i)), labels });
