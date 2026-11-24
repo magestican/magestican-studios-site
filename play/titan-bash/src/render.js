@@ -541,6 +541,32 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
   ctx.strokeText(label, cx, by - 2); ctx.fillText(label, cx, by - 2);
   
   if (t.rookie) leaf(ctx, cx - ctx.measureText(label).width / 2 - s * 0.7, by - 2 - s * 0.5, s * 0.6);
+  
+  
+  const tag = teamTag(m, t);
+  if (tag) teamBadge(ctx, cx + ctx.measureText(label).width / 2 + s * 0.35, by - 2, s, tag);
+}
+
+
+
+export const TEAM_BADGE = Object.freeze([
+  Object.freeze({ fill: '#f4f6fb', ink: '#0a0d15' }), Object.freeze({ fill: '#1d2438', ink: '#ffffff' }),
+  Object.freeze({ fill: '#ffd040', ink: '#1a1205' }), Object.freeze({ fill: '#5fe0ff', ink: '#05202a' }),
+]);
+
+export function teamTag(m, t) {
+  return m && m.mode === 'team' && t && Number.isInteger(t.team) && t.team >= 0 && t.team < TEAM_BADGE.length ? `T${t.team + 1}` : '';
+}
+function teamBadge(ctx, x, baseline, s, tag) {
+  const team = Number(tag.slice(1)) - 1; const look = TEAM_BADGE[team];
+  const h = Math.max(14, s * 1.1); const w = Math.max(22, s * 1.7); const y = baseline - h;
+  ctx.save();
+  ctx.fillStyle = look.fill; ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = look.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `800 ${Math.max(10, Math.round(h * 0.7))}px system-ui, sans-serif`;
+  ctx.fillText(tag, x + w / 2, y + h / 2 + 1);
+  ctx.restore();
 }
 
 function leaf(ctx, x, y, k) {

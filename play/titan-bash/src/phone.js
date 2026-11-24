@@ -5,7 +5,7 @@
 
 import { HOUSES, TITANS } from '../../../web-engine/titan-bash/titans.js';
 import { stickFrom } from './input.js';
-import { INPUT_HZ, MSG, encodeInput, decodeStatus, createLatencyLog, phoneEndLine } from './wire.js';
+import { INPUT_HZ, MSG, encodeInput, decodeStatus, createLatencyLog, phoneEndLine, phoneNameLine } from './wire.js';
 import { createPhoneLink } from './net.js';
 import { T as RT, PAINTS, EMBLEMS, addStars, equip, loadStars, saveStars, nextUnlock } from '../../../web-engine/titan-bash/rewards.js';
 
@@ -50,7 +50,7 @@ export function startPhone(code) {
       const s = decodeStatus(raw); if (!s) return;
       lastStatus = performance.now();
       latency.ack(s.ack, s.ackAge);
-      const h = HOUSE[s.house]; if (h) paintHouse(h, s.titan);
+      const h = HOUSE[s.house]; if (h) paintHouse(h, s.titan, s.team);
       $('ph-heat').style.width = `${s.heat}%`;
       $('ph-heat').classList.toggle('hot', s.heat >= 75);
       $('ph-armour').style.width = `${Math.round(s.armour * 100)}%`;
@@ -151,9 +151,9 @@ export function startPhone(code) {
   $('ph-ready').addEventListener('click', () => pick({ ready: !seat?.ready }));
   $('ph-start').addEventListener('click', () => link.send({ t: MSG.START }));
 
-  function paintHouse(h, titan) {
+  function paintHouse(h, titan, team = 0) {
     $('ph-strip').style.background = h.colour;
-    $('ph-name').textContent = `${h.name} - ${titan ? titan[0].toUpperCase() + titan.slice(1) : ''}`;
+    $('ph-name').textContent = phoneNameLine(h.name, titan, team);
   }
 
   

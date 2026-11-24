@@ -90,6 +90,22 @@ export function tieBreakNote(card, nameOf) {
 
 
 
+
+export function teamTotalsNote(card) {
+  if (!card || card.mode !== 'team' || !card.teams || !card.teams.length) return '';
+  return card.teams.map((g) => `Team ${g.team + 1}: ${g.bells} Bell${g.bells === 1 ? '' : 's'}`).join(' - ');
+}
+
+
+export function firstTeams(card) {
+  return card && card.mode === 'team' && card.teams ? card.teams.filter((g) => g.place === 0).map((g) => g.team) : [];
+}
+
+
+
+
+
+
 export function stepsOrder(entries) {
   return [entries[1], entries[0], entries[2]].filter(Boolean);
 }

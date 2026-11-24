@@ -27,7 +27,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, teamTotalsNote, firstTeams } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -320,10 +320,11 @@ function results(m) {
   
   
   const firsts = card.rows.filter((r) => r.place === 0).map((r) => HOUSE[r.house].name);
+  const topTeams = firstTeams(card); 
   $('end-title').textContent = card.mode === 'team'
-    ? `${teamName(w.team)} wins the round!`
+    ? topTeams.length > 1 ? `${joinNames(topTeams.map(teamName))} share the round!` : `${teamName(w.team)} wins the round!`
     : firsts.length > 1 ? `${joinNames(firsts)} share the round!` : `${HOUSE[w.house].name} wins the round!`;
-  const note = tieBreakNote(card, (r) => HOUSE[r.house].name);
+  const note = card.mode === 'team' ? teamTotalsNote(card) : tieBreakNote(card, (r) => HOUSE[r.house].name);
   $('end-note').textContent = note; $('end-note').hidden = !note;
   const ol = $('podium'); ol.textContent = '';
   for (const r of card.rows) {
@@ -611,6 +612,7 @@ function sendStatus() {
       bells: t ? t.bells : 0, house: info.house, titan: info.titan,
       state: warming && t ? 'warm' : t ? 'play' : !$('night').hidden ? 'night' : !$('end').hidden ? 'end' : 'title', stalled: !!(t && t.stall > 0),
       lit: lesson ? lesson.lit : null, hint: lesson ? lesson.praise || lesson.prompt : '',
+      team: t && m.mode === 'team' ? t.team : -1, 
       ack: p.seq, ackAge: performance.now() - p.heard, 
     }));
   }

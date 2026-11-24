@@ -66,6 +66,11 @@ export function phoneEndLine(state) {
   return '';
 }
 
+export function phoneNameLine(houseName, titan, team = 0) {
+  const t = titan ? titan[0].toUpperCase() + titan.slice(1) : '';
+  return `${houseName} - ${t}${team > 0 ? ` - Team ${team}` : ''}`;
+}
+
 const bellsOf = (v) => clamp(Math.trunc(num(v)), -999, 999);
 
 
@@ -76,7 +81,9 @@ export function encodeStatus(s) {
     
     Math.max(0, Math.trunc(num(s.ack))), Math.round(clamp(num(s.ackAge), 0, 60000)),
     
-    (s.lit ? (s.lit.fire ? 1 : 0) | (s.lit.boost ? 2 : 0) | (s.lit.ability ? 4 : 0) : 7), String(s.hint || '').slice(0, 40)];
+    (s.lit ? (s.lit.fire ? 1 : 0) | (s.lit.boost ? 2 : 0) | (s.lit.ability ? 4 : 0) : 7), String(s.hint || '').slice(0, 40),
+    
+    Number.isInteger(s.team) && s.team >= 0 && s.team < 4 ? s.team + 1 : 0];
 }
 
 const litOf = (b) => ({ fire: !!(b & 1), boost: !!(b & 2), ability: !!(b & 4) });
@@ -90,6 +97,7 @@ export function decodeStatus(msg) {
     ack: msg.length >= 11 && num(msg[9]) > 0 ? Math.trunc(num(msg[9])) : null,
     ackAge: msg.length >= 11 ? clamp(num(msg[10]), 0, 60000) : 0,
     lit: litOf(msg.length >= 13 ? Math.trunc(num(msg[11])) : 7), hint: msg.length >= 13 ? String(msg[12]).slice(0, 40) : '',
+    team: msg.length >= 14 ? clamp(Math.trunc(num(msg[13])), 0, 4) : 0,
   };
 }
 
