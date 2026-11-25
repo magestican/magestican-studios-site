@@ -258,6 +258,11 @@ import('./studioBanner.js').catch(() => {
 
 
 
+import('./news.js').catch(() => {});
+
+
+
+
 
 
 
