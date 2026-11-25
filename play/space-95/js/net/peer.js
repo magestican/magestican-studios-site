@@ -16,6 +16,27 @@ export function roomCode(random = Math.random) {
 }
 
 
+export const ROOM_CODE_KEY = 'magestican.roomCode.s95';
+
+
+export function hostCode(storage, random = Math.random, fresh = false) {
+  let old = null;
+  try {
+    old = storage?.getItem(ROOM_CODE_KEY) ?? null;
+  } catch {}
+  if (!fresh && old && parseCode(old) === old) return old;
+  let code = roomCode(random);
+  while (code === old) code = roomCode(random);
+  try {
+    storage?.setItem(ROOM_CODE_KEY, code);
+  } catch {}
+  return code;
+}
+
+
+export const newHostCode = (storage, random = Math.random) => hostCode(storage, random, true);
+
+
 export function parseCode(text) {
   const m = String(text ?? '')
     .toLowerCase()

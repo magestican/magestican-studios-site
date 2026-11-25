@@ -23,7 +23,9 @@ import { createAttitude, stepAttitude, createSparks, emitSparks, stepSparks, SPA
 
 const m = (units) => units / SIM_SCALE;
 
-export const BODIES = Object.freeze(['buggy', 'monster', 'openwheel', 'rally', 'pickup', 'street']);
+
+import { BODIES } from './carClass.js';
+export { BODIES };
 
 export const LIVERIES = Object.freeze([
   0xff3b30, 0x2f7bff, 0x30c95a, 0xffc61a, 0xa64dff, 0xff7ac8,

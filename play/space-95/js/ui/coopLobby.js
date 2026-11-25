@@ -20,7 +20,7 @@ export function lobbyWords(role, state) {
 
 
 
-export function showLobby(root, { role, code, link, onGo }) {
+export function showLobby(root, { role, code, link, onGo, onNewCode }) {
   root.innerHTML = `
     <div class="title-card coop-card" role="dialog" aria-label="Co-op room">
       <p class="title-k">Space 95 Survey Co. - two-person shift</p>
@@ -30,7 +30,8 @@ export function showLobby(root, { role, code, link, onGo }) {
         role === 'host'
           ? `<p class="coop-tip">Send your friend this link, or read them the code.</p>
       <span class="title-coop-row"><input class="coop-link" readonly value="${link}" aria-label="Share link" />
-      <button type="button" data-act="copy">Copy</button></span>`
+      <button type="button" data-act="copy">Copy</button></span>
+      <button type="button" class="coop-new" data-act="newcode">New code</button>`
           : ''
       }
       <p class="coop-status" role="status"></p>
@@ -44,6 +45,7 @@ export function showLobby(root, { role, code, link, onGo }) {
     navigator.clipboard?.writeText(link).catch(() => {});
      (e.currentTarget).textContent = 'Copied';
   });
+  root.querySelector('[data-act="newcode"]')?.addEventListener('click', () => onNewCode?.());
   const set = (state) => {
     const w = lobbyWords(role, state);
     status.textContent = w.status;

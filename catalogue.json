@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "03f17ac7-20261125T182759Z",
+ "buildId": "425208fd-20261125T193440Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -738,7 +738,7 @@
    "ageNote": null,
    "order": 24,
    "addedAt": "2026-10-23",
-   "bytes": 338052605
+   "bytes": 338053581
   },
   {
    "id": "magic-mirror-moves",
@@ -994,7 +994,7 @@
    "ageNote": null,
    "order": 32,
    "addedAt": "2026-11-19",
-   "bytes": 5112478
+   "bytes": 5114694
   },
   {
    "id": "glimmercoil",

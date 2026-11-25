@@ -3,15 +3,24 @@
 
 
 import { createCoopSession } from '../net/coopSession.js';
-import { channelTransport, netUrls, openTransport, parseCode, roomCode, shareLink } from '../net/peer.js';
+import { channelTransport, hostCode, netUrls, newHostCode, openTransport, parseCode, shareLink } from '../net/peer.js';
 import { showLobby } from '../ui/coopLobby.js';
 import { coopStep } from './coop.js';
+
+
+function storage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
 
 
 export function coopTitle(levelId) {
   return {
     onHost: () => {
-      location.search = `?level=${levelId}&host=${roomCode()}`;
+      location.search = `?level=${levelId}&host=${hostCode(storage())}`;
     },
     onJoin: ( code) => {
       location.search = `?level=${levelId}&join=${code}`;
@@ -34,6 +43,9 @@ export function startCoop({ seat, level, variant, view, titleRoot, onStart, onSe
     role,
     code,
     link,
+    onNewCode: () => {
+      location.search = `?level=${level.id}&host=${newHostCode(storage())}`;
+    },
     onGo: () => {
       if (role === 'guest') {
         location.search = `?level=${level.id}`;
