@@ -420,7 +420,7 @@ function relief(g, shape, x, y, r) {
 
 
 export function token(g, spot, {
-  lift = 0, legal = false, chosen = false, dim = false, moving = false,
+  lift = 0, legal = false, chosen = false, dim = false, moving = false, number = true,
 } = {}) {
   const team = TEAMS[spot.team];
   const r = spot.r;
@@ -448,7 +448,7 @@ export function token(g, spot, {
   
   
   
-  if (r >= 15 && !dim) {
+  if (number && r >= 15 && !dim) {
     text(g, String(spot.token + 1), { x: spot.x - r, y: spot.y - r + (team.shape === 'triangle' ? r * 0.35 : 0), w: r * 2, h: r * 2 }, {
       size: SIZES.min, colour: COLORS.card,
     });

@@ -78,6 +78,14 @@ import { announce, keysAre, mirror } from './a11y.js';
 import { canPlayTogether, createNet } from './net.js';
 import { forgetRoomCode } from './net.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
+
+
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
+import { addUiMuteSource, uiSoundOn } from '../../../web-engine/brand/uiSound.js';
+import {
+  TITLE_BUTTONS, TITLE_TEAMS, titleMove, titleKey, padHeld, padPresses, PAD_KEY, MENU_CUES, MENU_GAINS, menuCue,
+  CUE_GAP_MS, panelLook, pieceHop,
+} from './menuNav.js';
 import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { createCelebration } from '../../shared/ui/celebrate.js';
@@ -231,6 +239,10 @@ const app = {
   keys: KEY_HELP,
   now: () => performance.now(),
   invalidate,
+  
+  cue: (id) => { const c = menuCue(id); if (c) uiCue(c); },
+  
+  focusMoved: () => uiCue('focus'),
 };
 
 
@@ -905,6 +917,7 @@ function newMatch() {
   progressStartedAt = Date.now();
   anim = null;
   overlay = null;
+  shownId = null;
   cursor = 0;
   message = '';
   spots = tokenSpots(match.tokens, boardBox);
@@ -1108,7 +1121,10 @@ function roomLine() {
 
 function frame() {
   const now = performance.now();
-  const step = tick({ dirty, moving: animating(now) || party.running(), wasMoving });
+  
+  const opening = !!overlay && !panelLook(now, overlayAt, false, app.motion).done;
+  if (leaving && panelLook(now, leaving.at, true, app.motion).done) leaving = null;
+  const step = tick({ dirty, moving: animating(now) || party.running() || opening || !!leaving, wasMoving });
   dirty = false;
   wasMoving = step.wasMoving;
   if (step.draw) {
@@ -1117,7 +1133,8 @@ function frame() {
     drawChoices(now);
     drawPanel(now);
     drawBar(now);
-    if (overlay) overlay.draw(g, now);
+    if (leaving && !overlay) drawOverlay(leaving.panel, panelLook(now, leaving.at, true, app.motion), now);
+    if (overlay) drawOverlay(overlay, panelLook(now, overlayAt, false, app.motion), now);
     
     
     
@@ -1143,8 +1160,59 @@ function frame() {
 
 
 
+
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+addUiMuteSource(() => sfx.isMuted());
+let lastCueAt = -Infinity;
+
+function uiCue(name) {
+  const now = performance.now();
+  if (now - lastCueAt < CUE_GAP_MS) return;
+  lastCueAt = now;
+  if (!sfx.isMuted() && uiSoundOn()) ui.play(name);
+}
+
+
+
+let overlayAt = -Infinity;
+let leaving = null;
+function drawOverlay(panel, look, now) {
+  if (look.alpha <= 0) return;
+  g.save();
+  g.globalAlpha = look.alpha;
+  if (look.scale !== 1) {
+    g.translate(app.width / 2, app.height / 2);
+    g.scale(look.scale, look.scale);
+    g.translate(-app.width / 2, -app.height / 2);
+  }
+  panel.draw(g, now);
+  g.restore();
+}
+
+
+
+
+
+
+
+let shownId = null;
+function shown({ focus = null } = {}) {
+  if (shownId === null) uiCue('open');
+  if (shownId !== overlay.id) overlayAt = performance.now();
+  shownId = overlay.id;
+  leaving = null;
+  overlay.layout();
+  if (app.keyboardMode) overlay.focusOn?.(focus);
+  invalidate();
+}
+
 function closeOverlay() {
+  if (overlay) { leaving = { panel: overlay, at: performance.now() }; uiCue('back'); }
   overlay = null;
+  shownId = null;
   keysAre(KEY_HELP);
   relayout();
   invalidate();
@@ -1152,8 +1220,7 @@ function closeOverlay() {
 
 function openHelp() {
   overlay = overlays.help(app, { onClose: closeOverlay });
-  overlay.layout();
-  invalidate();
+  shown();
 }
 
 function openSay() {
@@ -1165,11 +1232,11 @@ function openSay() {
     },
     onClose: closeOverlay,
   });
-  overlay.layout();
-  invalidate();
+  shown();
 }
 
-function openMenu() {
+
+function openMenu({ focus = null } = {}) {
   const items = [
     { id: 'together', label: togetherLabel(), run: openRoom },
     ...(room.active && room.peers.length > 1
@@ -1197,7 +1264,8 @@ function openMenu() {
         const got = await shaker.setOn(want);
         if (want && !got) say('This device would not allow motion access.');
         else say(got ? 'Shake the phone to roll.' : 'Shake to roll is off.');
-        openMenu();
+        uiCue(got ? 'toggleOn' : 'toggleOff');
+        openMenu({ focus: 'shake' });
       },
     },
     
@@ -1209,18 +1277,23 @@ function openMenu() {
       id: 'sound',
       label: sfx.isMuted() ? 'Sound: off' : 'Sound: on',
       run: () => {
+        
+        
+        
+        if (!sfx.isMuted()) uiCue('toggleOff');
         sfx.setMuted(!sfx.isMuted());
-        sfx.play('yours');
-        closeOverlay();
-        openMenu();
+        if (!sfx.isMuted()) { lastCueAt = -Infinity; uiCue('toggleOn'); }
+        openMenu({ focus: 'sound' });
       },
     },
     { id: 'prizes', label: 'See prizes', run: openPrizes },
     { id: 'help', label: 'How to play', run: openHelp },
+    
+    
+    { id: 'title', label: 'Title screen', run: () => { closeOverlay(); showTitle(); } },
   ];
   overlay = overlays.menu(app, { items, onClose: closeOverlay });
-  overlay.layout();
-  invalidate();
+  shown({ focus });
 }
 
 function openPrizes() {
@@ -1230,8 +1303,7 @@ function openPrizes() {
     lines: [...prog.prizeLines(r), '', `${prog.GOAL_HEADING}: ${prog.nextGoal(r)}`],
     onClose: closeOverlay,
   });
-  overlay.layout();
-  invalidate();
+  shown();
 }
 
 function openRoom() {
@@ -1314,8 +1386,7 @@ function openRoom() {
     },
     onClose: closeOverlay,
   });
-  overlay.layout();
-  invalidate();
+  shown();
 }
 
 function showResults() {
@@ -1341,8 +1412,7 @@ function showResults() {
     onAgain: () => { closeOverlay(); if (iAmHost()) newMatch(); else say('The host starts the next game.'); },
     onClose: closeOverlay,
   });
-  overlay.layout();
-  invalidate();
+  shown();
 }
 
 
@@ -1518,6 +1588,8 @@ const inDie = (pt) => pt.x >= dieRect.x && pt.x <= dieRect.x + dieRect.w
 canvas.addEventListener('pointerdown', (e) => {
   const pt = pointAt(e);
   canvas.setPointerCapture?.(e.pointerId);
+  
+  if (e.pointerType === 'touch' || e.pointerType === 'pen') app.keyboardMode = false;
   if (overlay) { overlay.pointerDown(pt); return; }
 });
 
@@ -1584,35 +1656,87 @@ canvas.addEventListener('pointerleave', () => {
 
 canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
-document.addEventListener('keydown', (e) => {
-  if (atTitle) return;
+
+
+
+
+function pressKey(key, mods = {}) {
+  if (atTitle) return titlePress(key);
   sfx.wake();
   const action = routeKey(
-    { key: e.key, ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey },
+    { key, ctrl: !!mods.ctrl, meta: !!mods.meta, alt: !!mods.alt },
     { overlay: !!overlay, typing: !!overlay?.typing?.() },
   );
-  if (!action) return;
-  e.preventDefault();
-  if (action.type === 'move') { app.keyboardMode = true; invalidate(); }
+  if (!action) return false;
+  if (action.type === 'move' || action.type === 'back') { app.keyboardMode = true; invalidate(); }
 
-  if (overlay) { overlay.key(action); return; }
-  if (action.type === 'help') { openHelp(); return; }
-  if (action.type === 'back') { openMenu(); return; }
+  if (overlay) { overlay.key(action); return true; }
+  if (action.type === 'help') { openHelp(); return true; }
+  
+  if (action.type === 'back') { openMenu({ focus: 'close' }); return true; }
 
   const moves = myMoves();
   if (action.type === 'move' && moves.length) {
     cursor = (cursor + action.value + moves.length) % moves.length;
     invalidate();
-    return;
+    return true;
   }
   if (action.type === 'token' && moves.some((m) => m.token === action.value)) {
     playToken(action.value);
-    return;
+    return true;
   }
   if (action.type === 'enter') {
-    if (myRoll()) { rollNow(); return; }
+    if (myRoll()) { rollNow(); return true; }
     if (moves.length) playToken(moves[cursor % moves.length].token);
   }
+  return true;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (atTitle) {
+    
+    if (titleKey(e.key) && titlePress(e.key)) e.preventDefault();
+    return;
+  }
+  if (pressKey(e.key, { ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey })) e.preventDefault();
+});
+
+
+const titleButtons = () => TITLE_BUTTONS.map((id) => document.getElementById(id));
+function titlePress(key) {
+  const buttons = titleButtons();
+  const at = buttons.indexOf(document.activeElement);
+  if (key === 'Enter') { (buttons[at] ?? buttons[0]).click(); return true; }
+  const dir = titleKey(key);
+  if (!dir) return false;
+  const next = titleMove(at, dir);
+  if (next !== at) { buttons[next].focus(); uiCue('focus'); }
+  return true;
+}
+
+
+
+let padState = null;
+let padLoop = false;
+function pollPad() {
+  const pads = [...(navigator.getGamepads?.() ?? [])].filter(Boolean);
+  if (!pads.length) { padLoop = false; padState = null; return; }
+  const held = new Set();
+  for (const p of pads) for (const w of padHeld(p)) held.add(w);
+  const r = padPresses(padState, held, performance.now());
+  padState = r.state;
+  for (const w of r.presses) {
+    const key = PAD_KEY[w];
+    if (!key) continue;
+    if (atTitle) { if (w !== 'back' && w !== 'start') titlePress(key); }
+    else pressKey(key);
+  }
+  requestAnimationFrame(pollPad);
+}
+globalThis.addEventListener('gamepadconnected', () => {
+  if (padLoop) return;
+  padLoop = true;
+  requestAnimationFrame(pollPad);
 });
 
 reduceMotion?.addEventListener?.('change', (ev) => { app.motion = !ev.matches; invalidate(); });
@@ -1781,14 +1905,82 @@ trackEvent('game_start', { game: 'farmy-ludo' });
 
 
 
+
+
+
+
+
+const TITLE_OUT_MS = 220;
+const isTouch = () => !!globalThis.matchMedia?.('(pointer: coarse)').matches;
 function leaveTitle() {
   if (!atTitle) return;
   atTitle = false;
-  document.body.classList.remove('at-title');
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    invalidate();
+  };
+  if (app.motion) {
+    document.body.classList.add('title-leaving');
+    setTimeout(done, TITLE_OUT_MS);
+  } else done();
   canvas.focus({ preventScroll: true });
   invalidate();
 }
+
+function showTitle() {
+  if (atTitle) return;
+  atTitle = true;
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  showGoal();
+  startTitleMotion();
+  if (!isTouch() || app.keyboardMode) $start.focus({ preventScroll: true });
+}
 const $start = document.getElementById('start');
 const $seeOptions = document.getElementById('see-options');
-$start.addEventListener('click', () => { leaveTitle(); });
+$start.addEventListener('click', () => { uiCue('tap'); leaveTitle(); });
 $seeOptions.addEventListener('click', () => { leaveTitle(); openMenu(); });
+
+
+
+const $mark = document.getElementById('title-pieces');
+const markG = $mark?.getContext?.('2d') ?? null;
+let titleMoving = false;
+function drawTitlePieces(now) {
+  if (!markG) return;
+  const dpr = globalThis.devicePixelRatio || 1;
+  const cssW = $mark.clientWidth || 280;
+  const cssH = $mark.clientHeight || 80;
+  
+  
+  const bw = Math.round(cssW * dpr);
+  const bh = Math.round(cssH * dpr);
+  if ($mark.width !== bw || $mark.height !== bh) { $mark.width = bw; $mark.height = bh; }
+  markG.setTransform(dpr, 0, 0, dpr, 0, 0);
+  markG.clearRect(0, 0, cssW, cssH);
+  const n = TITLE_TEAMS.length;
+  const r = Math.min((cssH - 28) / 2, cssW / n / 2 - 8);
+  const gap = (cssW - r * 2 * n) / (n + 1);
+  TITLE_TEAMS.forEach((team, i) => {
+    const y = cssH - r - 10 + pieceHop(now, i, n, app.motion);
+    paint.token(markG, { team, token: i, x: gap + r + i * (2 * r + gap), y, r }, { number: false });
+  });
+}
+function titleFrame(now) {
+  if (!atTitle) { titleMoving = false; return; }
+  drawTitlePieces(now);
+  if (app.motion) requestAnimationFrame(titleFrame);
+  else titleMoving = false;
+}
+function startTitleMotion() {
+  if (titleMoving || !markG) return;
+  titleMoving = true;
+  requestAnimationFrame(titleFrame);
+}
+const $name = document.getElementById('title-name');
+if ($name) $name.textContent = GAME_NAME;
+if (atTitle) {
+  startTitleMotion();
+  
+  if (!isTouch()) $start.focus({ preventScroll: true });
+}

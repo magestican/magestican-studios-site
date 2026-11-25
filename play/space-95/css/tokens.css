@@ -17,6 +17,9 @@
   --plum: #4d2157; 
   --focus-ring: #2fe0d0;
   --stamp-red: #e5484d;
+  --sky: #5ec8ff; 
+  --sky-hi: #8fdcff;
+  --sky-lo: #3a9fe0;
 
   
   --gutter: 16px;
@@ -25,6 +28,8 @@
   --gap-section: 24px;
   --gap-hero: 32px;
   --touch-min: 44px;
+  --loading-w: 320px; 
+  --loading-bar: 12px;
   --lift: 4px; 
 
   

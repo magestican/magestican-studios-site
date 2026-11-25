@@ -23,6 +23,7 @@ import { CODE_LENGTH, spokenCode } from '../../../web-engine/words/coop.js';
 import { SAYINGS } from '../../../web-engine/board/ludoRoom.js';
 import { newCodeWords } from '../../../web-engine/net/stickyRoomCode.js';
 import * as paint from './paint.js';
+import { stepFocus } from './menuNav.js';
 
 const PAD = 20;
 const ROW = 56;          
@@ -127,7 +128,16 @@ function makePanel(app, {
         hover: i === hover ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
         press: i === pressed ? 2 : 0,
       });
+      
+      
+      if (i === hover && app.keyboardMode && !b.disabled) paint.focusRing(g, b, COLORS.blue, 4);
     });
+  }
+
+  
+  function press(row) {
+    app.cue?.(row.id);
+    row.run();
   }
 
   return {
@@ -149,7 +159,7 @@ function makePanel(app, {
     pointerUp(pt) {
       const at = rectAt(rows, pt.x, pt.y);
       pressed = -1;
-      if (at >= 0 && !rows[at].disabled) rows[at].run();
+      if (at >= 0 && !rows[at].disabled) press(rows[at]);
       else if (at < 0 && !inside(card, pt) && onClose) onClose();
       app.invalidate();
     },
@@ -158,16 +168,31 @@ function makePanel(app, {
       if (onKey && onKey(action)) return;
       if (action.type === 'back') { if (onClose) onClose(); return; }
       if (action.type === 'move') {
+        
+        
+        
         const usable = rows.filter((b) => !b.disabled);
         if (!usable.length) return;
         const here = hover < 0 ? -1 : usable.indexOf(rows[hover]);
-        const next = (here + action.value + usable.length + 1) % usable.length;
+        const next = stepFocus(here, action.value, usable.length);
         hover = rows.indexOf(usable[next]);
         hoverAt = app.now();
+        app.focusMoved?.();
         app.invalidate();
         return;
       }
-      if (action.type === 'enter' && hover >= 0 && !rows[hover].disabled) rows[hover].run();
+      if (action.type === 'enter' && hover >= 0 && !rows[hover].disabled) press(rows[hover]);
+    },
+    
+
+
+
+    focusOn(id) {
+      let at = id ? rows.findIndex((b) => b.id === `panel:${id}` && !b.disabled) : -1;
+      if (at < 0) at = rows.findIndex((b) => !b.disabled);
+      hover = at;
+      hoverAt = app.now();
+      app.invalidate();
     },
     
     relayout: layout,

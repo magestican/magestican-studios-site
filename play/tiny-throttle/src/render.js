@@ -18,6 +18,8 @@ import { propDir } from './propDirs.js';
 import { supportY } from './support.js';
 import { KINDS } from '../../../web-engine/rc/props.js';
 import { buildItems } from './renderItems.js';
+import { createSuspension, stepSuspension, bodyScale, createShake, addShake, stepShake } from './carFeel.js';
+import { createAttitude, stepAttitude, createSparks, emitSparks, stepSparks, SPARKS } from './carAttitude.js';
 
 const m = (units) => units / SIM_SCALE;
 
@@ -103,8 +105,13 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
   const cars = buildCars(scene, race, models);
   const loose = buildLoose(scene, race, models);
   const items = buildItems(scene, race, models);
+  const sparks = buildSparks(scene);
 
   const cam = { pos: new THREE.Vector3(), look: new THREE.Vector3(), ready: false, fov: METRICS.fov.base };
+  
+  const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shake = createShake({ reduced });
+  let lastFocus = null;
 
   function resize(w, h) {
     renderer.setSize(w, h, false);
@@ -121,8 +128,24 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
       c.obj.rotation.y = k.heading - Math.PI / 2;
       
       c.obj.rotation.x = -(k.steerVisual ?? 0) * 0.1;
+      
+      
+      if (k.respawning) c.att = createAttitude();
+      stepAttitude(c.att, { y: m(k.y), h: Math.hypot(k.vx, k.vz) / SIM_SCALE }, dt);
+      c.obj.rotation.z = c.att.pitch + c.att.wheelie;
+      
+      c.obj.position.y += Math.sin(c.att.wheelie) * 0.05;
       c.obj.visible = !(k.respawning && Math.floor(race.clock * 10) % 2 === 0);
+      
+      
+      if (k.respawning) c.susp = createSuspension();
+      stepSuspension(c.susp, m(k.y), dt);
+      const sc = bodyScale(c.susp);
+      c.obj.scale.set(sc.xz, sc.y, sc.xz);
+      
+      if (c.susp.landed) emitSparks(sparks.pool, { x: m(k.x), y: m(k.y), z: m(k.z), heading: k.heading, impact: c.susp.landed });
     }
+    sparks.draw(dt);
     drawLoose(loose, race);
     items.draw(race.clock);
     const f = race.racers.find((x) => x.id === focusId) ?? race.racers[race.racers.length - 1];
@@ -143,8 +166,14 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
     cam.pos.lerp(wantPos, a);
     cam.look.lerp(wantLook, a);
     cam.ready = true;
-    camera.position.copy(cam.pos);
-    camera.lookAt(cam.look);
+    
+    
+    if (f.id !== lastFocus) { shake.trauma = 0; lastFocus = f.id; }
+    const fc = cars.find((c) => c.id === f.id);
+    if (fc?.susp.landed) addShake(shake, Math.min(0.8, (fc.susp.landed - 0.8) / 3.5));
+    const sh = stepShake(shake, dt);
+    camera.position.set(cam.pos.x + sh.x, cam.pos.y + sh.y, cam.pos.z);
+    camera.lookAt(cam.look.x + sh.x, cam.look.y + sh.y, cam.look.z);
     
     const t = Math.min(1, speed / METRICS.topSpeed);
     const base = METRICS.fov.base + (METRICS.fov.fast - METRICS.fov.base) * t;
@@ -157,7 +186,7 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
     renderer.render(scene, camera);
   }
 
-  return { renderer, scene, camera, resize, draw, cars };
+  return { renderer, scene, camera, resize, draw, cars, shake: (amount) => addShake(shake, amount) };
 }
 
 
@@ -422,6 +451,32 @@ function buildStart(scene, track, models) {
   scene.add(o);
 }
 
+
+function buildSparks(scene) {
+  const pool = createSparks();
+  const pos = new Float32Array(pool.n * 3);
+  const geo = new THREE.BufferGeometry();
+  const attr = new THREE.BufferAttribute(pos, 3);
+  attr.setUsage(THREE.DynamicDrawUsage);
+  geo.setAttribute('position', attr);
+  const mat = new THREE.PointsMaterial({ color: 0xffb347, size: 0.012, sizeAttenuation: true, transparent: true,
+    blending: THREE.AdditiveBlending, depthWrite: false });
+  const pts = new THREE.Points(geo, mat);
+  pts.frustumCulled = false;
+  scene.add(pts);
+  return {
+    pool,
+    draw(dt) {
+      stepSparks(pool, dt);
+      for (let j = 0; j < pool.n; j += 1) {
+        const live = pool.age[j] < SPARKS.life;
+        pos[j * 3] = pool.x[j]; pos[j * 3 + 1] = live ? pool.y[j] : -1000; pos[j * 3 + 2] = pool.z[j];
+      }
+      attr.needsUpdate = true;
+    },
+  };
+}
+
 function buildCars(scene, race, models) {
   
   
@@ -442,6 +497,7 @@ function buildCars(scene, race, models) {
       n.material = Array.isArray(n.material) ? tinted : tinted[0];
     });
     scene.add(o);
-    return { id: r.id, obj: o, body, colour };
+    o.rotation.order = 'YXZ';
+    return { id: r.id, obj: o, body, colour, susp: createSuspension(), att: createAttitude() };
   });
 }

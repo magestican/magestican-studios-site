@@ -18,6 +18,7 @@ import { loadLevelRecovering } from './level/loadRetry.js';
 import { SHIFT_IDS, SHIFT_NAMES } from './level/shiftList.js';
 import { loadLevel } from './level/shiftLoader.js';
 import { coopFromUrl } from './net/peer.js';
+import { biomeTexturesSettled } from './render/biomeArt.js';
 import { preloadCritterSprites } from './render/critterSprite.js';
 import { joSpriteLoaded } from './render/joSprite.js';
 import { createView } from './render/scene.js';
@@ -36,6 +37,7 @@ import { createEnding } from './ui/ending.js';
 import { createHud } from './ui/hud.js';
 import { KEY_ICON, LEVER_ICON } from './ui/icons.js';
 import { drawPortrait } from './ui/joPortrait.js';
+import { createLoadingCard } from './ui/loadingCard.js';
 import { createMenuShell } from './ui/menu/dom.js';
 import { createMenu, SLIDERS } from './ui/menu/machine.js';
 import { readSettings, saveSettings } from './ui/menu/settingsStore.js';
@@ -126,6 +128,13 @@ if (abilities.has('tether')) for (const el of document.querySelectorAll('.touch-
 const input = createInput();
 mountTouchControls(document.body, input.touch);
 const view = createView(document.getElementById('stage'), level, labels);
+const critters = preloadCritterSprites(level.entities ?? []);
+
+
+const loading = createLoadingCard(document.getElementById('loading'), {
+  assets: [joSpriteLoaded, critters, biomeTexturesSettled()],
+});
+loading.shift(title); 
 const hud = createHud(document.getElementById('hud'), labels, cheats.hud, title);
 const rescuePrompt = createRescuePrompt(document.body); 
 
@@ -133,7 +142,7 @@ if (train) hud.update(session, 1 / 60);
 
 const audio = createAudio(undefined, {
   sounds: shiftSounds(level),
-  after: Promise.all([joSpriteLoaded, preloadCritterSprites(level.entities ?? [])]),
+  after: Promise.all([joSpriteLoaded, critters]),
   room: roomFor(level.id), 
 });
 const footsteps = createFootsteps(SURFACE[level.id] ?? 'dirt');
@@ -403,6 +412,7 @@ function frame(now) {
     view.boltMood('happy');
   }
   view.render(session, acc / STEP, dt);
+  loading.rendered();
   
   const mate = coop?.active && !paused && !session.cleared ? session.world.partner : null;
   if (mate?.alive && seat) {
@@ -422,4 +432,5 @@ window.s95 = {
     return session;
   },
   level,
+  loading,
 };

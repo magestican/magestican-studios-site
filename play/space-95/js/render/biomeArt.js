@@ -187,8 +187,10 @@ const BIOMES = {
     plate: plate('batch4', 'nightgarden-far'),
     plateAspect: 16 / 9,
     sky: 0x4a3f7a,
-    top: null,
-    solid: null,
+    
+    
+    top: { ...GORGE.top, tint: 0x7ed957 },
+    solid: { ...GORGE.solid, tint: 0x9a7bd8, unit: 6 },
     ...nightSway(0x3a3266, 14),
   },
   
@@ -219,18 +221,30 @@ export function biomeArt(level) {
 
 const loader = new THREE.TextureLoader();
 
+const pending = [];
+
+
+export function biomeTexturesSettled() {
+  return Promise.all(pending.slice());
+}
+
 
 function load(url, color, done) {
-  loader.load(
-    v(url),
-    (t) => {
-      if (color) t.colorSpace = THREE.SRGBColorSpace;
-      t.wrapS = t.wrapT = THREE.RepeatWrapping;
-      t.anisotropy = 4;
-      done(t);
-    },
-    undefined,
-    () => {}, 
+  pending.push(
+    new Promise((settle) => {
+      loader.load(
+        v(url),
+        (t) => {
+          if (color) t.colorSpace = THREE.SRGBColorSpace;
+          t.wrapS = t.wrapT = THREE.RepeatWrapping;
+          t.anisotropy = 4;
+          done(t);
+          settle();
+        },
+        undefined,
+        () => settle(), 
+      );
+    }),
   );
 }
 
@@ -242,7 +256,10 @@ export function skinMaterial(mat, spec) {
   load(spec.map, true, (t) => {
     mat.map = t;
     mat.color.set(spec.tint);
-    if (spec.lift) mat.emissive.set(spec.lift); 
+    if (spec.lift)
+      mat.emissive.set(spec.lift); 
+    
+    else if (mat.emissive.getHex() !== 0) mat.emissiveMap = t;
     mat.needsUpdate = true;
   });
   load(spec.normal, false, (t) => {

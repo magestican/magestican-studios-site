@@ -522,8 +522,9 @@ function onEvents(events) {
     const mine = !!me && e.id === me;
     if (e.type === 'hop' && mine) sfx('hop');
     else if (e.type === 'respawn' && mine) sfx('fall');
-    else if (e.type === 'bump' && me && (e.a === me || e.b === me)) sfx('bump', 0.4);
-    else if (e.type === 'prop') propSound(e, mine);
+    
+    else if (e.type === 'bump' && me && (e.a === me || e.b === me)) { sfx('bump', 0.4); view?.shake(0.25); }
+    else if (e.type === 'prop') { propSound(e, mine); if (mine) view?.shake(Math.min(0.5, (e.speed ?? 0) / 40)); }
     else if (e.type === 'pickup' && mine) sfx(e.pickup === 'battery' ? 'pickup_2' : 'pickup', 0.7);
     else if (e.type === 'use' && mine) sfx(USE_SFX[e.pickup], 0.75);
     else if (e.type === 'splash' && me && e.owner === me) sfx('splash', 0.6);
