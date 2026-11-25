@@ -131,6 +131,9 @@ function card(app, {
           hover: i === hover ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
           press: i === press ? sink(progress(now, pressAt, DURATION.press, app.motion), app.motion) : 0,
         });
+        
+        
+        if (i === hover && app.keyboardMode && !r.disabled) paint.focusRing(g, r);
       });
     },
     pointerMove(pt) {
@@ -147,14 +150,41 @@ function card(app, {
       const was = press;
       press = -1;
       app.invalidate();
-      if (i >= 0 && i === was && !rects[i].disabled) rects[i].run?.();
+      if (i >= 0 && i === was && !rects[i].disabled) { app.cue?.(rects[i].id); rects[i].run?.(); }
+    },
+    
+
+
+
+
+    focusOn(id) {
+      let i = rects.findIndex((r) => r.id === id && !r.disabled);
+      if (i < 0) i = rects.findIndex((r) => !r.disabled);
+      hover = i;
+      hoverAt = app.now();
+      app.invalidate();
     },
     pointerLeave() { hover = -1; press = -1; app.invalidate(); },
     key(action) {
       if (onKey(action)) { layout(); app.invalidate(); return true; }
+      
+      
+      if (action.type === 'move') {
+        const usable = rects.filter((r) => !r.disabled);
+        if (!usable.length) return true;
+        const at = usable.indexOf(rects[hover]);
+        const next = Math.max(0, Math.min(usable.length - 1, (at < 0 ? 0 : at) + (action.dy || action.dx || 0)));
+        const was = hover;
+        hover = rects.indexOf(usable[next]);
+        if (hover !== was) app.focusMoved?.();
+        hoverAt = app.now();
+        app.invalidate();
+        return true;
+      }
       if (action.type === 'submit') {
-        const first = rects.find((r) => !r.disabled);
-        first?.run?.();
+        const chosen = hover >= 0 && !rects[hover]?.disabled ? rects[hover] : rects.find((r) => !r.disabled);
+        if (chosen) app.cue?.(chosen.id);
+        chosen?.run?.();
         return true;
       }
       return false;

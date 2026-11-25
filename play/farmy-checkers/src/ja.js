@@ -177,4 +177,10 @@ export const JA = Object.freeze({
   '{left} points to {rank}': '{rank}まであと{left}ポイント',
   'Look for the jump the bot could make next.': 'ボットが次に取れるコマがないか見てみましょう。',
   'Take back a move to try another.': '手を戻して、別の手を試せます。',
+  
+  'Sound: on': '効果音:オン',
+  'Sound: off': '効果音:オフ',
+  'Sound on.': '効果音をオンにしました。',
+  'Sound off.': '効果音をオフにしました。',
+  'Title screen': 'タイトル画面',
 });

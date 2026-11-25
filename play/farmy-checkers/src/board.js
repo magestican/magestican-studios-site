@@ -463,6 +463,8 @@ export function create(app) {
     ],
     layout,
     draw,
+    
+    hasSelection: () => chain.length > 0,
     reload() {
       
       

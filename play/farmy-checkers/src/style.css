@@ -254,8 +254,13 @@ body.at-title .title {
   background-image: radial-gradient(circle at 50% 50%, rgba(23, 21, 15, 0.05) 0 30%, transparent 31%);
   background-size: 64px 64px;
 }
+
+
+
+
 #start {
-  width: calc(100% - 32px);
+  width: calc(100% - 44px);
+  margin-right: 12px;
   max-width: 620px;
   min-height: 120px;
   height: clamp(120px, 22vh, 160px);
@@ -267,8 +272,10 @@ body.at-title .title {
     radial-gradient(circle at 12px 12px, var(--fc-card) 0 8px, var(--fc-ink) 8px 10px, transparent 10px),
     radial-gradient(circle at 36px 12px, var(--fc-ink) 0 10px, transparent 10px);
   background-size: 48px 24px;
-  background-repeat: repeat-x;
-  background-position: 4px 2px;
+  
+
+  background-repeat: space no-repeat;
+  background-position: 0 2px;
   background-clip: padding-box;
   box-shadow: 10px 10px 0 var(--fc-green);
   color: var(--fc-ink);
@@ -304,6 +311,48 @@ body.at-title .title {
 }
 @media (max-width: 560px) {
   body.at-title .title { padding-top: 64px; }
+}
+
+
+
+
+
+.title-mark { order: -1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+#title-pieces { display: block; width: min(360px, calc(100vw - 64px)); height: 64px; }
+.title-name {
+  margin: 0;
+  color: var(--fc-ink);
+  font-family: var(--fc-font);
+  font-size: clamp(1.6rem, 8vw, 2.4rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+body.at-title .title { animation: fc-title-in 260ms ease-out both; }
+body.at-title .title > * { animation: fc-rise 320ms ease-out backwards; }
+body.at-title .title > .title-mark { animation-delay: 0ms; }
+body.at-title .title > #start { animation-delay: 60ms; }
+body.at-title .title > #see-options { animation-delay: 120ms; }
+body.at-title .title > .goal { animation-delay: 170ms; }
+body.at-title .title > .rank { animation-delay: 210ms; }
+body.title-leaving .title { animation: fc-title-out 220ms ease-in both; pointer-events: none; }
+#start { transition: transform 120ms ease-out, box-shadow 120ms ease-out; }
+body.at-title:not(.title-leaving) #start:not(:active) { animation: fc-rise 320ms 60ms ease-out backwards, fc-breathe 3s 400ms ease-in-out infinite; }
+#start:focus-visible { transform: translate(-2px, -2px); }
+#see-options { transition: transform 120ms ease-out; }
+#see-options:focus-visible, #see-options:hover { transform: translateY(-2px); }
+#see-options:active { transform: translateY(1px); }
+@keyframes fc-title-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fc-title-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes fc-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fc-breathe {
+  0%, 100% { box-shadow: 10px 10px 0 var(--fc-green); }
+  50% { box-shadow: 12px 12px 0 var(--fc-green); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.at-title .title, body.at-title .title > *, body.title-leaving .title,
+  body.at-title:not(.title-leaving) #start:not(:active) { animation: none; }
+  #start, #see-options { transition: none; }
 }
 
 
