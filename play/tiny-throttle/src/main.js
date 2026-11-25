@@ -15,11 +15,14 @@ import { formatTime, ordinal } from '../../../web-engine/kart/raceProgress.js';
 import { countdownText } from '../../../web-engine/kart/raceFlow.js';
 import { createTouchSteer } from './touchSteer.js';
 import { SIM_SCALE } from '../../../web-engine/rc/rcTuning.js';
+import { MOTION, screenTimes, BACK, focusStep, loadSettings, saveSettings, recordBest } from './menus.js';
 
 const q = new URLSearchParams(location.search);
-const def = TRACKS[q.get('track') ?? 'H1'] ?? TRACKS.H1;
+
+let def = TRACKS[q.get('track') ?? 'H1'] ?? TRACKS.H1;
+const lapsFor = (d) => clampInt(q.get('laps'), 1, 9, d.laps);
 const opts = {
-  laps: clampInt(q.get('laps'), 1, 9, def.laps),
+  laps: lapsFor(def),
   bots: clampInt(q.get('bots'), 0, 11, 11),
   cam: q.get('cam') === 'top' ? 'top' : 'chase',
   auto: q.get('auto') === '1',
@@ -33,14 +36,56 @@ const $ = (id) => document.getElementById(id);
 
 
 
-$('blurb').textContent = def.blurb;
-for (const id of TRACK_ORDER) {
-  const a = document.createElement('a');
-  a.href = `?track=${id}`;
-  a.textContent = TRACKS[id].name;
-  if (id === def.id) a.setAttribute('aria-current', 'true');
-  $('trackList').appendChild(a);
+function safeStorage() { try { return window.localStorage; } catch { return null; } }
+const settings = loadSettings(safeStorage());
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+let screen = 'title';
+let paused = false;
+
+
+function showScreen(el) {
+  clearTimeout(el._tt);
+  el.hidden = false;
+  el.classList.remove('leave', 'enter');
+  [...el.children].forEach((c, i) => c.style.setProperty('--i', i));
+  void el.offsetWidth; 
+  el.classList.add('enter');
+  const t = screenTimes(reduced());
+  el._tt = setTimeout(() => el.classList.remove('enter'), t.enter + MOTION.staggerMs * el.children.length + 40);
 }
+function hideScreen(el) {
+  clearTimeout(el._tt);
+  if (el.hidden) return;
+  el.classList.remove('enter');
+  el.classList.add('leave');
+  el._tt = setTimeout(() => { el.hidden = true; el.classList.remove('leave'); }, screenTimes(reduced()).leave);
+}
+
+
+
+function renderTracks() {
+  $('blurb').textContent = def.blurb;
+  const list = $('trackList');
+  list.textContent = '';
+  for (const id of TRACK_ORDER) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.track = id;
+    b.append(TRACKS[id].name);
+    const best = settings.best[id];
+    if (Number.isInteger(best)) {
+      const s = document.createElement('small');
+      s.textContent = `Best ${ordinal(best)}`;
+      b.append(s);
+    }
+    if (id === def.id) b.setAttribute('aria-current', 'true');
+    b.addEventListener('click', () => pickTrack(id));
+    list.appendChild(b);
+  }
+}
+renderTracks();
 
 const host = $('game');
 const canvas = document.createElement('canvas');
@@ -50,7 +95,7 @@ host.appendChild(canvas);
 
 
 const SFX = {};
-let muted = false;
+let muted = settings.muted;
 function sfx(name, volume = 0.7, dir = 'sfx') {
   if (muted) return;
   try {
@@ -66,13 +111,40 @@ const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left',
   ArrowRight: 'right', KeyD: 'right', Space: 'hop', ShiftLeft: 'drift', ShiftRight: 'drift', KeyE: 'use',
 };
+const ARROWS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']);
 addEventListener('keydown', (e) => {
+  if (e.code === 'KeyM') { toggleSound(); return; }
+  
+  if (e.code === 'Escape' || (e.code === 'KeyP' && (screen === 'race' || screen === 'pause'))) {
+    const to = BACK[screen];
+    if (to === 'pause') pause(); else if (to === 'race') resume(); else if (to === 'title') toTitle();
+    e.preventDefault();
+    return;
+  }
+  if (screen !== 'race') {
+    
+    
+    if (ARROWS.has(e.code)) { moveFocus(e.code); e.preventDefault(); return; }
+    const onControl = document.activeElement?.tagName === 'BUTTON';
+    if ((e.code === 'Enter' || e.code === 'Space') && !onControl) {
+      if (screen === 'title' && !$('start').disabled) start();
+      else if (screen === 'results') start();
+      e.preventDefault();
+    }
+    return;
+  }
   const k = KEYMAP[e.code];
   if (k) { keys.add(k); e.preventDefault(); }
-  if (e.code === 'KeyM') { if (!muted) sfx('toggleOff', 0.6, 'ui'); muted = !muted; sfx('toggleOn', 0.6, 'ui'); setMusic(); }
-  if ((e.code === 'Enter' || e.code === 'Space') && !$('title').hidden && !$('start').disabled) start();
-  if (e.code === 'Enter' && !$('results').hidden) start();
 });
+function visibleControls() {
+  const el = $(screen);
+  return el ? [...el.querySelectorAll('button:not(:disabled)')] : [];
+}
+function moveFocus(code) {
+  const list = visibleControls();
+  const i = focusStep(list.indexOf(document.activeElement), list.length, code);
+  if (i >= 0) { list[i].focus(); sfx('tap', 0.5, 'ui'); }
+}
 addEventListener('keyup', (e) => { const k = KEYMAP[e.code]; if (k) keys.delete(k); });
 addEventListener('blur', () => keys.clear());
 
@@ -107,7 +179,7 @@ function showSteer() {
 }
 const gameEl = $('game');
 gameEl.addEventListener('pointerdown', (e) => {
-  if (!running) return;
+  if (!running || paused) return;
   if (!steerTouch.down(e.pointerId, e.clientX)) return;
   e.preventDefault();
   try { gameEl.setPointerCapture(e.pointerId); } catch {  }
@@ -176,8 +248,40 @@ async function boot() {
   newRace({ attract: true });
   $('start').textContent = 'Start';
   $('start').disabled = false;
+  updateSoundButtons();
+  showScreen($('title'));
   $('start').focus();
   requestAnimationFrame(frame);
+}
+
+
+let loadingTrack = false;
+async function pickTrack(id) {
+  if (loadingTrack || !TRACKS[id] || screen !== 'title') return;
+  sfx('tap', 0.6, 'ui');
+  if (id === def.id) { $('start').focus(); return; }
+  loadingTrack = true;
+  def = TRACKS[id];
+  opts.laps = lapsFor(def);
+  const u = new URL(location.href);
+  u.searchParams.set('track', id);
+  history.replaceState(null, '', `${u.pathname}${u.search}`);
+  renderTracks();
+  document.querySelector(`#trackList button[data-track="${id}"]`)?.focus();
+  const st = $('start');
+  st.disabled = true;
+  try {
+    models = await loadModels(def, './assets', (f) => { st.textContent = `Loading ${Math.round(f * 100)}%`; });
+  } catch (err) {
+    st.textContent = 'Could not load';
+    console.error(err);
+    loadingTrack = false;
+    return;
+  }
+  newRace({ attract: true });
+  st.textContent = 'Start';
+  st.disabled = false;
+  loadingTrack = false;
 }
 
 function newRace({ attract = false } = {}) {
@@ -194,13 +298,96 @@ function newRace({ attract = false } = {}) {
 }
 
 function start() {
+  
+  if (screen === 'race' || screen === 'pause' || loadingTrack || !models) return;
   sfx('open', 0.7, 'ui');
-  $('title').hidden = true;
-  $('results').hidden = true;
+  document.activeElement?.blur?.();
+  hideScreen($('title'));
+  hideScreen($('results'));
+  goRace();
+}
+function goRace() {
+  screen = 'race';
+  paused = false;
   $('hud').hidden = false;
   $('pads').classList.add('on');
   newRace();
   running = true;
+  setMusic();
+}
+
+
+function releaseInputs() {
+  keys.clear();
+  touch.clear();
+  for (const b of document.querySelectorAll('.pad.on')) b.classList.remove('on');
+  steerTouch.reset();
+  showSteer();
+}
+function pause() {
+  if (screen !== 'race' || !running) return;
+  screen = 'pause';
+  paused = true;
+  sfx('back', 0.6, 'ui');
+  releaseInputs();
+  $('pads').classList.remove('on');
+  setMusic();
+  showScreen($('pause'));
+  $('resume').focus();
+}
+function resume() {
+  if (screen !== 'pause') return;
+  sfx('open', 0.6, 'ui');
+  screen = 'race';
+  paused = false;
+  acc = 0;
+  last = 0;
+  document.activeElement?.blur?.();
+  hideScreen($('pause'));
+  $('pads').classList.add('on');
+  setMusic();
+}
+function restart() {
+  if (screen !== 'pause') return;
+  sfx('open', 0.7, 'ui');
+  document.activeElement?.blur?.();
+  hideScreen($('pause'));
+  goRace();
+}
+function toTitle() {
+  if (screen === 'title') return;
+  sfx('back', 0.6, 'ui');
+  running = false;
+  paused = false;
+  screen = 'title';
+  releaseInputs();
+  $('hud').hidden = true;
+  $('pads').classList.remove('on');
+  $('banner').hidden = true;
+  $('toast').hidden = true;
+  hideScreen($('pause'));
+  hideScreen($('results'));
+  setMusic();
+  newRace({ attract: true });
+  renderTracks();
+  showScreen($('title'));
+  $('start').focus();
+}
+
+
+function updateSoundButtons() {
+  for (const b of document.querySelectorAll('.sound')) {
+    b.textContent = muted ? 'Sound off' : 'Sound on';
+    b.setAttribute('aria-pressed', String(!muted));
+  }
+}
+function toggleSound() {
+  if (!muted) sfx('toggleOff', 0.6, 'ui');
+  muted = !muted;
+  sfx('toggleOn', 0.6, 'ui');
+  settings.muted = muted;
+  saveSettings(safeStorage(), settings);
+  updateSoundButtons();
   setMusic();
 }
 
@@ -211,7 +398,7 @@ let music = null;
 function setMusic() {
   try {
     music ??= Object.assign(new Audio('./assets/music/counter-rush.m4a'), { loop: true, volume: 0.45 });
-    if (running && !muted) music.play().catch(() => {}); else music.pause();
+    if (running && !paused && !muted) music.play().catch(() => {}); else music.pause();
   } catch {  }
 }
 
@@ -220,6 +407,7 @@ function frame(now) {
   last = now;
   acc += dt;
   const player = race.racers.find((r) => r.isPlayer);
+  if (paused) acc = 0; 
   while (acc >= STEP) {
     acc -= STEP;
     const input = running && player && !opts.auto ? readInput() : null;
@@ -336,6 +524,7 @@ function hud() {
 
 function results() {
   running = false;
+  screen = 'results';
   setMusic();
   $('hud').hidden = true;
   
@@ -354,12 +543,22 @@ function results() {
     return `<tr class="${t.id === 'you' ? 'you' : ''}"><td>${ordinal(t.position)}</td><td>${name}</td><td>${time}</td></tr>`;
   });
   $('table').innerHTML = rows.join('');
-  $('results').hidden = false;
+  
+  if (me && !opts.auto && recordBest(settings, def.id, me.position)) saveSettings(safeStorage(), settings);
+  showScreen($('results'));
   $('again').focus();
 }
 
 $('start').addEventListener('click', start);
 $('again').addEventListener('click', start);
+$('resultsTitle').addEventListener('click', toTitle);
+$('pauseBtn').addEventListener('click', pause);
+$('resume').addEventListener('click', resume);
+$('restart').addEventListener('click', restart);
+$('toTitle').addEventListener('click', toTitle);
+for (const b of document.querySelectorAll('.sound')) b.addEventListener('click', toggleSound);
+
+document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 
 
 window.__tinyThrottle = { get race() { return race; }, opts };

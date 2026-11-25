@@ -48,7 +48,7 @@ export function createTimesheet(root) {
           <div class="sheet-actions">
             <button type="button" data-act="replay">Clock in again</button>
             ${onNext ? '<button type="button" data-act="next" class="is-primary">Next shift</button>' : ''}
-            ${onTitle ? '<button type="button" data-act="title" class="is-primary">Back to title</button>' : ''}
+            ${onTitle ? '<button type="button" data-act="title" class="is-primary">Survey map</button>' : ''}
           </div>
         </div>`;
       root.hidden = false;

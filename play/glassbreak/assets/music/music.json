@@ -5,22 +5,22 @@
     {
       "id": "main",
       "side": "A",
-      "title": "Sunup",
-      "genre": "game-battle-boss",
-      "file": "glassbreak-sunup.webm",
-      "loopSamples": 2490811,
-      "seed": 1865206380,
-      "lufs": -13.4
+      "title": "Kindle Run",
+      "genre": "action-game-rock",
+      "file": "glassbreak-kindle-run.webm",
+      "loopSamples": 4915200,
+      "seed": 1197748655,
+      "lufs": -15.8
     },
     {
       "id": "boss",
       "side": "A",
-      "title": "High Window",
-      "genre": "orchestral-epic",
-      "file": "glassbreak-high-window.webm",
-      "loopSamples": 2925714,
-      "seed": 958131021,
-      "lufs": -12.9
+      "title": "Pane Breaker",
+      "genre": "action-game-boss-metal",
+      "file": "glassbreak-pane-breaker.webm",
+      "loopSamples": 3840000,
+      "seed": 823012108,
+      "lufs": -14.3
     }
   ]
 }

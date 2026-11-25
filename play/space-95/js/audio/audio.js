@@ -13,6 +13,16 @@ const LOAD_POOL = 6;
 const AFTER_CAP_MS = 4000; 
 
 
+export const BUS_GAIN = Object.freeze({ music: 0.7, sfx: 0.9, ambience: 0.6, ui: 0.8 });
+const DEFAULT_LEVEL = 8;
+
+export function busGain( name,  level) {
+  const base =  (BUS_GAIN)[name];
+  if (!base || !Number.isInteger(level) || level < 0 || level > 10) return null;
+  return (base * level) / DEFAULT_LEVEL;
+}
+
+
 
 
 
@@ -29,12 +39,7 @@ export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX),
   limiter.release.value = 0.12;
   master.connect(limiter).connect(ctx.destination);
   const bus = {};
-  for (const [name, gain] of [
-    ['music', 0.7],
-    ['sfx', 0.9],
-    ['ambience', 0.6],
-    ['ui', 0.8],
-  ]) {
+  for (const [name, gain] of Object.entries(BUS_GAIN)) {
     bus[name] = ctx.createGain();
     bus[name].gain.value = gain;
     bus[name].connect(master);
@@ -185,6 +190,11 @@ export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX),
       playing.set(name, voices);
       src.start();
     },
+    
+    setLevel( name,  level) {
+      const g = busGain(name, level);
+      if (g !== null) bus[name].gain.setTargetAtTime(g, ctx.currentTime, 0.02);
+    },
     toggleMute() {
       muted = !muted;
       master.gain.setTargetAtTime(muted ? 0 : 1, ctx.currentTime, 0.02);
@@ -215,6 +225,7 @@ function nullAudio() {
     play() {},
     music() {},
     musicFirst() {},
+    setLevel() {},
     toggleMute: () => true,
     muted: true,
   };

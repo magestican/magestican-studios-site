@@ -143,8 +143,9 @@ import { createAudio, resumeAudio, startEngine, updateEngine, updateRivals, upda
 
 
 
+
 import { setMusicIntensity, duckMusic } from './audio/music.js';
-import { startRaceBed, stopRaceBed } from './audio/raceBed.js';
+import { startRaceBed, stopRaceBed, liftRaceBed, duckRaceBed } from './audio/raceBed.js';
 import { PALETTE } from './palette.js';
 
 
@@ -1000,7 +1001,7 @@ export function createRace(options) {
       if (hazard === 'respawn') {
         if (r.isPlayer) { SFX.hit(audio); chase.shake = 0.6; }
       } else if (hazard === 'spin') {
-        if (r.isPlayer && hazardHit) { SFX.hit(audio); chase.shake = 0.5; duckMusic(audio); }
+        if (r.isPlayer && hazardHit) { SFX.hit(audio); chase.shake = 0.5; duckMusic(audio); duckRaceBed(audio); }
       }
 
       
@@ -1169,6 +1170,7 @@ export function createRace(options) {
         
         
         setMusicIntensity(audio, 1);
+        liftRaceBed(audio);
       }
     }
   }

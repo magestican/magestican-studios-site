@@ -9,6 +9,7 @@ import { createBoltVoice } from './game/bolt.js';
 import { createCoach, TIP_SECONDS } from './game/coach.js';
 import { coopTitle, startCoop } from './game/coopBoot.js';
 import { nextGoal, prizes, sheetNews } from './game/goals.js';
+import { PARS } from './game/pars.js';
 import { mergeIntoProgress, readProgress, recordShift, saveVariant } from './game/progress.js';
 import { createInput, mountTouchControls } from './input.js';
 import { loadLevelRecovering } from './level/loadRetry.js';
@@ -32,10 +33,12 @@ import { createEnding } from './ui/ending.js';
 import { createHud } from './ui/hud.js';
 import { KEY_ICON, LEVER_ICON } from './ui/icons.js';
 import { drawPortrait } from './ui/joPortrait.js';
-import { createPause } from './ui/pause.js';
+import { createMenuShell } from './ui/menu/dom.js';
+import { createMenu, SLIDERS } from './ui/menu/machine.js';
+import { readSettings, saveSettings } from './ui/menu/settingsStore.js';
+import { clearedIds, pageFor, startFromUrl } from './ui/menu/view.js';
 import { createRescuePrompt } from './ui/rescue.js';
 import { createTimesheet } from './ui/timesheet.js';
-import { showTitle } from './ui/title.js';
 
 const cheats = readCheats(location.search);
 
@@ -173,29 +176,17 @@ const restart = () => {
   session = createSession(level, 0, abilities);
 };
 
-const pause = createPause(document.getElementById('pause'), {
-  onResume: () => {},
-  onRestartBeacon: () => {
-    session = createSession(level, session.checkpoint, abilities);
-  },
-  onRestartShift: () => {
-    session = createSession(level, 0, abilities);
-  },
-  onVariant: (v) => {
-    saveVariant(v);
-    document.documentElement.dataset.variant = v;
-  },
-  onSound: () => audio.toggleMute(),
-  getState: () => ({ variant: document.documentElement.dataset.variant, muted: audio.muted, dark: !!level.dark }),
-});
 
-document.getElementById('pause-btn')?.addEventListener('click', () => {
-  if (!paused) pause.toggle();
-});
+const openPause = () => {
+  if (paused || menu.state.screen !== 'play') return;
+  paused = true;
+  menu.dispatch({ type: 'pause' });
+};
+document.getElementById('pause-btn')?.addEventListener('click', openPause);
 
 window.addEventListener('keydown', (e) => {
-  if ((e.code === 'Escape' || e.code === 'KeyP') && !paused) pause.toggle();
-  if (pause.open) return;
+  if (e.code === 'Escape' || e.code === 'KeyP') openPause();
+  if (paused) return;
   if (e.code === 'KeyR') session = createSession(level, session.checkpoint, abilities);
   if (e.code === 'Backquote') hud.toggle();
   if (e.code === 'KeyM') audio.toggleMute();
@@ -210,42 +201,75 @@ let paused =
   !!level.id && cheats.checkpoint === 0 && cheats.x === null && cheats.rail === null && !new URLSearchParams(location.search).has('skip');
 
 const seat = level.id && SHIFT_IDS.includes(level.id) ? coopFromUrl(location.search) : null;
-if (paused && !seat) {
-  document.body.classList.add('is-title');
-  const save = readProgress();
-  
-  const shifts = SHIFT_IDS.map((id) => ({
-    id,
-    name: SHIFT_NAMES[id],
-    unlocked: id === 1 || save.cleared[id - 2],
-    current: id === level.id,
-  }));
-  const goShift = (id) => {
-    location.search = `?level=${id}`;
-  };
-  
-  
-  const goal = nextGoal(save, SHIFT_NAMES);
-  const plainVisit = !new URLSearchParams(location.search).has('level');
-  showTitle(
-    document.getElementById('title'),
-     (document.documentElement.dataset.variant),
-    (v) => {
-      saveVariant(v);
-      document.documentElement.dataset.variant = v;
-      if (plainVisit && goal.shift && goal.shift !== level.id && SHIFT_IDS.includes(goal.shift)) {
-        location.search = `?level=${goal.shift}&skip=1`;
-        return;
-      }
-      paused = false;
-      document.body.classList.remove('is-title');
-      boltSay(boltVoice.start());
-    },
-    shifts,
-    goShift,
-    { goal, prizes: prizes(save), coop: coopTitle(level.id) },
-  );
-}
+
+
+
+
+const settings = readSettings();
+for (const k of SLIDERS) if (k in settings) audio.setLevel(k, settings[k]);
+const prefersCalm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const calm = typeof settings.reduceMotion === 'boolean' ? settings.reduceMotion : prefersCalm;
+document.documentElement.dataset.reduceMotion = String(calm);
+const coopHooks = coopTitle(level.id);
+const menuOn = paused && !seat;
+let greeted = false;
+let quit = false; 
+const startPlay = () => {
+  paused = false;
+  document.body.classList.remove('is-title');
+  if (!greeted) {
+    greeted = true;
+    boltSay(boltVoice.start());
+  }
+};
+const save0 = readProgress();
+const menu = createMenuShell( (document.getElementById('menu')), {
+  menu: createMenu({
+    save: { cleared: clearedIds(save0) },
+    variant: document.documentElement.dataset.variant ?? 'woman',
+    settings,
+    reduceMotion: calm,
+    dark: !!level.dark,
+    start: menuOn ? startFromUrl(location.search, level.id) : { screen: 'play' },
+  }),
+  data: () => {
+    const save = readProgress();
+    return { names: SHIFT_NAMES, levelId: level.id, save, pars: PARS, goal: nextGoal(save, SHIFT_NAMES), prizes: prizes(save), coop: true };
+  },
+  join: (text) => {
+    const code = coopHooks.parse(text);
+    if (code) coopHooks.onJoin(code);
+    return !!code;
+  },
+  onOut: (o, st) => {
+    
+    if (o.cue && o.cue in SFX) audio.play(o.cue, { bus: 'ui' });
+    if (o.setting === 'variant') {
+      saveVariant(o.value);
+      document.documentElement.dataset.variant = o.value;
+    } else if (o.setting) {
+      if (SLIDERS.includes(o.setting)) audio.setLevel(o.setting, o.value);
+      if (o.setting === 'reduceMotion') document.documentElement.dataset.reduceMotion = String(o.value);
+      saveSettings({ ...st.ctx.settings, reduceMotion: st.ctx.reduceMotion });
+    }
+    if (o.restart === 'beacon') session = createSession(level, session.checkpoint, abilities);
+    if (o.restart === 'shift') session = createSession(level, 0, abilities);
+    if (o.go === 'quit') {
+      paused = true;
+      quit = true;
+    }
+    if (o.go === 'play' || o.go === 'resume') {
+      if (o.go === 'play' && quit) session = createSession(level, 0, abilities);
+      quit = false;
+      startPlay();
+    }
+    if (o.coop === 'host') coopHooks.onHost();
+    const hop = pageFor(st, level.id);
+    if (hop) location.search = hop;
+  },
+});
+if (menuOn) document.body.classList.add('is-title');
+menu.dispatch({ type: 'loaded' });
 
 
 const coop = seat
@@ -285,7 +309,7 @@ function frame(now) {
   last = now;
   acc += dt * cheats.slow;
   let steps = 0;
-  if (paused || pause.open) acc = 0;
+  if (paused) acc = 0;
   if (paused) coop?.lobbyFrame(now);
   while (acc >= STEP && steps < MAX_STEPS) {
     stepSession(session, input.sample());
@@ -331,7 +355,7 @@ function frame(now) {
         const news = sheetNews(before, save, level.id, SHIFT_NAMES);
         if (fullResume(level, session)) site.count('fullResume'); 
         
-        const keep = seat ? `&${seat.role === 'host' ? 'host' : 'join'}=${seat.code}` : '&skip=1';
+        const keep = seat ? `&${seat.role === 'host' ? 'host' : 'join'}=${seat.code}` : '&menu=clockin';
         const next = SHIFT_IDS.includes(level.id + 1) ? () => (location.search = `?level=${level.id + 1}${keep}`) : null;
         site.shiftEnd({
           save,
@@ -342,7 +366,7 @@ function frame(now) {
           coop: !!coop?.active,
         });
         
-        const onTitle = next ? undefined : () => (location.search = '?level=1');
+        const onTitle = next ? undefined : () => (location.search = `?level=${level.id}&menu=map`);
         const sheet = () =>
           timesheet.show(level, session, save, secretsTotal, {
             onReplay: restart,

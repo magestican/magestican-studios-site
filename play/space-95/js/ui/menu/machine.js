@@ -7,6 +7,7 @@
 
 
 
+
 export const MOTION = {
   slide: { kind: 'slide', enterMs: 220, leaveMs: 160 },
   fade: { kind: 'fade', enterMs: 120, leaveMs: 120 },
@@ -32,7 +33,31 @@ const nextShift = ( cleared) => {
   return SHIFTS;
 };
 
-const OPTIONS = ['music', 'sfx', 'voice', 'reduceMotion', 'palette', 'brightness', 'language', 'controls'];
+const OPTIONS = ['music', 'sfx', 'ambience', 'brightness', 'reduceMotion', 'controls'];
+
+
+export const SLIDERS = ['music', 'sfx', 'ambience'];
+const LEVEL_MAX = 10;
+
+export const CYCLES =  ({
+  brightness: [100, 130, 160],
+});
+export const DEFAULT_SETTINGS = Object.freeze({ music: 8, sfx: 8, ambience: 8, brightness: 100 });
+
+
+function cleanSettings( raw = {}) {
+  
+  const out = { ...DEFAULT_SETTINGS };
+  for (const k of SLIDERS) {
+    const v = raw[k];
+    if (Number.isInteger(v) && v >= 0 && v <= LEVEL_MAX) out[k] = v;
+  }
+  for (const [k, vals] of Object.entries(CYCLES)) if (vals.includes(raw[k])) out[k] = raw[k];
+  return out;
+}
+
+
+const STARTS = new Set(['title', 'map', 'clockin', 'play']);
 
 
 
@@ -46,6 +71,7 @@ export const SCREENS = {
       { id: 'clockIn' },
       { id: 'explorer', to: 'profile' },
       { id: 'coop', to: 'lobby' },
+      { id: 'prizes', to: 'prizes' },
       { id: 'options', to: 'options' },
       { id: 'credits', to: 'credits' },
     ],
@@ -86,15 +112,22 @@ export const SCREENS = {
     back: 'play',
   },
   confirmRestart: { items: () => [{ id: 'no' }, { id: 'yes' }], back: 'pause' },
-  options: { items: () => [...OPTIONS.map((id) => ({ id })), { id: 'done' }], back: 'prev' },
+  
+  options: {
+    items: (ctx) => [...OPTIONS.filter((id) => id !== 'brightness' || ctx.dark).map((id) => ({ id })), { id: 'done' }],
+    back: 'prev',
+  },
   timesheet: { items: (ctx) => [...(ctx.shift < SHIFTS ? [{ id: 'next' }] : []), { id: 'retry' }, { id: 'map' }], back: 'map' },
   lobby: { items: () => [{ id: 'host' }, { id: 'join' }], back: 'title' },
   credits: { items: () => [{ id: 'done' }], back: 'prev' },
+  prizes: { items: () => [{ id: 'done' }], back: 'prev' },
   ending: { items: () => [{ id: 'credits', to: 'credits' }, { id: 'map' }], back: 'map' },
 };
 
 
-const OVERLAYS = new Set(['profile', 'options', 'credits']);
+const OVERLAYS = new Set(['profile', 'options', 'credits', 'prizes']);
+
+
 
 
 
@@ -102,11 +135,23 @@ const OVERLAYS = new Set(['profile', 'options', 'credits']);
 
 export function createMenu(opts = {}) {
   const cleared = [...(opts.save?.cleared ?? [])];
+  const start = opts.start && STARTS.has(opts.start.screen) ? opts.start.screen : ROOT;
+  const pick = opts.start?.shift;
+  const shift = Number.isInteger(pick) && pick >= 1 && pick <= SHIFTS ? pick : nextShift(cleared);
   return {
     screen: 'boot',
     focus: -1,
     stack: [],
-    ctx: { save: { cleared }, shift: nextShift(cleared), reduceMotion: !!opts.reduceMotion, variant: opts.variant ?? 'woman', clockMs: 0 },
+    ctx: {
+      save: { cleared },
+      shift,
+      reduceMotion: !!opts.reduceMotion,
+      variant: opts.variant ?? 'woman',
+      clockMs: 0,
+      settings: cleanSettings(opts.settings),
+      start,
+      dark: !!opts.dark,
+    },
   };
 }
 
@@ -193,9 +238,16 @@ function choose(s, item, out) {
       return finishOverlay(s, { variant: item.value ?? ctx.variant }, out);
     case 'options':
       if (item.id === 'done') return finishOverlay(s, {}, out, 'ui.back');
-      out.push({ cue: 'ui.confirm' }, { setting: item.id });
-      return item.id === 'reduceMotion' ? { ...s, ctx: { ...ctx, reduceMotion: !ctx.reduceMotion } } : s;
+      if (item.id === 'reduceMotion') {
+        out.push({ cue: 'ui.confirm' }, { setting: 'reduceMotion', value: !ctx.reduceMotion });
+        return { ...s, ctx: { ...ctx, reduceMotion: !ctx.reduceMotion } };
+      }
+      if (CYCLES[item.id]) return adjust(s, item.id, 1, out);
+      
+      out.push({ cue: 'ui.move' });
+      return s;
     case 'credits':
+    case 'prizes':
       return finishOverlay(s, {}, out, 'ui.back');
     case 'timesheet':
       if (item.id === 'next') {
@@ -227,6 +279,21 @@ function choose(s, item, out) {
 }
 
 
+function adjust( s,  id,  d,  out) {
+  const cur = s.ctx.settings[id];
+  let value;
+  if (SLIDERS.includes(id)) value = Math.max(0, Math.min(LEVEL_MAX, cur + d));
+  else {
+    const vals = CYCLES[id];
+    value = vals[(vals.indexOf(cur) + d + vals.length) % vals.length];
+  }
+  out.push({ cue: value === cur ? 'ui.error' : 'ui.move' });
+  if (value === cur) return s;
+  out.push({ setting: id, value });
+  return { ...s, ctx: { ...s.ctx, settings: { ...s.ctx.settings, [id]: value } } };
+}
+
+
 function finishOverlay( s,  ctx,  out, cue = 'ui.confirm') {
   if (cue !== 'ui.confirm') out.push({ cue });
   const to = s.stack[s.stack.length - 1] ?? ROOT;
@@ -247,10 +314,13 @@ export function step(s, a) {
   const it = itemsOf(s);
   switch (a.type) {
     case 'loaded':
-      return { state: s.screen === 'boot' ? enter(s, ROOT, out) : s, out };
+      return { state: s.screen === 'boot' ? enter(s, s.ctx.start ?? ROOT, out) : s, out };
     case 'move': {
       if (it.length === 0) return { state: s, out };
       const d = a.dir === 'up' || a.dir === 'left' ? -1 : 1;
+      const id = it[s.focus]?.id;
+      const sideways = a.dir === 'left' || a.dir === 'right';
+      if (s.screen === 'options' && sideways && id && (SLIDERS.includes(id) || CYCLES[id])) return { state: adjust(s, id, d, out), out };
       out.push({ cue: 'ui.move' });
       return { state: { ...s, focus: (s.focus + d + it.length) % it.length }, out };
     }
