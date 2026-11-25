@@ -10,7 +10,8 @@
 
 
 import { buildPath, trackSurface, startGrid, sampleAt, wrapS } from '../../../web-engine/kart/trackPath.js';
-import { buildRacingLine } from '../../../web-engine/kart/racingLine.js';
+import { buildRacingLine, lineAt } from '../../../web-engine/kart/racingLine.js';
+import { bodyFor, classOf, classTuning } from './carClass.js';
 import { createKart, stepKart, respawnKart, resolveKartContact, GRAVITY } from '../../../web-engine/kart/kartPhysics.js';
 import { createDriver, driveBot } from '../../../web-engine/kart/kartAi.js';
 import { assistInput, createCoDriver } from './driveAssist.js';
@@ -30,6 +31,30 @@ export const SHOULDER = toSim(0.25);
 const LIFTED = toSim(0.05); 
 const FELL = toSim(0.12); 
 const HOP_COOLDOWN = 0.45; 
+
+
+
+
+
+
+
+
+
+
+
+
+const CORNER_SAG = toSim(0.06);
+const MIN_LOOK = 7; 
+export function cornerAim(line, s, speed) {
+  const look = 7 + Math.max(0, speed) * 0.55; 
+  let k = 0;
+  for (const f of [0.25, 0.5, 0.75, 1]) k = Math.max(k, Math.abs(line.lineCurvature[lineAt(line, s + look * f).index]));
+  if (k < 1e-4) return null;
+  const short = Math.max(MIN_LOOK, Math.sqrt((8 * CORNER_SAG) / k));
+  if (short >= look) return null;
+  const p = lineAt(line, s + short);
+  return { x: p.x, z: p.z };
+}
 
 
 export function buildTrack(def) {
@@ -95,6 +120,7 @@ export function surfaceFor(track, kart) {
 
 export function createRace(def, {
   bots = 11, difficulty = 'market', laps = def.laps, player = true, countdown, seed, padAim: aimPads = true, cars = null,
+  classes = true,
 } = {}) {
   const track = buildTrack(def);
   
@@ -107,9 +133,11 @@ export function createRace(def, {
     const isPlayer = cars ? !!cars[i].human : player && i === count - 1;
     const g = grid[i];
     const id = cars ? cars[i].carId : isPlayer ? 'you' : `bot${i + 1}`;
+    
+    const body = classes ? bodyFor(i, !cars && isPlayer) : 'buggy';
     racers.push({
-      id, isPlayer, slot: i,
-      kart: createKart({ x: g.x, y: g.y, z: g.z, heading: g.heading, id, tuning: rcTuning() }),
+      id, isPlayer, slot: i, body, carClass: classOf(body),
+      kart: createKart({ x: g.x, y: g.y, z: g.z, heading: g.heading, id, tuning: classTuning(classOf(body)) }),
       driver: isPlayer ? null : createDriver(i, difficulty),
       s: g.s, safeS: g.s, falls: 0, offDeck: 0,
     });
@@ -277,9 +305,10 @@ export function stepRace(race, playerInput, dt) {
       let pad = race.aimPads && !onSpan(surf.s) ? padAim(race.pickups, { id: r.id, s: r.sM, side: r.sideM }, lapLen) : null;
       if (pad && onSpan(wrapS(track.path, toSim(pad.s)))) pad = null;
       const at = pad && trackPoint(track, pad.s, pad.side);
+      const aim = at ? { x: at.x * SIM_SCALE, z: at.z * SIM_SCALE } : cornerAim(track.line, surf.s, r.kart.speed);
       input = driveBot(r.driver, r.kart, track.line, {
         surface: surf, time: race.clock, dt, position: posById.get(r.id) ?? 1, fieldSize: racers.length,
-        ...(at ? { aim: { x: at.x * SIM_SCALE, z: at.z * SIM_SCALE } } : {}),
+        ...(aim ? { aim } : {}),
       });
     }
     

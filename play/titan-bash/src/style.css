@@ -131,7 +131,7 @@ body.tb-phone-mode .studio-bar { display: none; }
 
 
 .tb-warm { display: grid; gap: 12px; }
-#warm { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; background: #06080d; border: 1px solid var(--line); }
+#warm { display: block; width: 100%; aspect-ratio: 5 / 3; border-radius: 14px; background: #06080d; border: 1px solid var(--line); }
 .tb-warm-note { margin: 0; text-align: center; }
 .tb-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 

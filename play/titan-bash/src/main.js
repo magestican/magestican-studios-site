@@ -19,14 +19,14 @@ import { normaliseCode } from '../../../web-engine/words/coop.js';
 import { mountDeviceQr } from '../../../web-engine/ui/deviceQr.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
-import { SFX, SFX_TAKES, SFX_GAINS, UI, createSoundTracker, MUSIC_TRACKS, musicFor, VOLUME, gainsAt } from './sound.js';
+import { SFX, SFX_TAKES, SFX_GAINS, UI, createSoundTracker, MUSIC_TRACKS, musicFor, VOLUME, gainsAt, STING_MS } from './sound.js';
 import { createTrackMusic, LEVEL as MUSIC_LEVEL } from '../../shared/audio/trackMusic.js';
 import { cleanPick, applyPick, takenHouses, hostPhone, mayStart, newRound } from './lobby.js';
 import { createNight, matchOptions, arenaFor, recordRound, nightOver, standings, podium, MODE_NAME } from '../../../web-engine/titan-bash/night.js';
 import { createWarmup, warmupStep, lessonFor } from '../../../web-engine/titan-bash/warmup.js';
 import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
-import { createJuice } from './juice.js';
+import { createJuice, loadFxArt } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
 import { primaryFor, createLeave, createPadNav, joinNames, nightTitle, wellLine, stepsOrder, tieBreakNote, statParts, ptsText, standingScore, rewardParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
@@ -88,7 +88,9 @@ let humans = [{ control: FIRST }];
 let match = null; let bots = []; let seats = []; let fx = []; let raf = 0; let acc = 0; let last = 0;
 
 const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-let juice = createJuice(Math.random, { reducedMotion });
+
+const fxArt = loadFxArt();
+let juice = createJuice(Math.random, { reducedMotion, art: fxArt });
 
 let countMs = Infinity;
 
@@ -207,7 +209,7 @@ function start() {
   if (cheats.heat !== null) for (const t of match.titans) if (!t.cpu) t.heat = cheats.heat;
   if (cheats.storm) match.tick = secs(T.roundTime - T.stormTime);
   if (cheats.sleeper) match.tick = secs(T.roundTime - T.stormTime + T.sleeperWakeAfter - 1);
-  fx = []; juice = createJuice(Math.random, { reducedMotion }); acc = 0; last = performance.now(); sounds = createSoundTracker(); ui.play('start'); countMs = 0;
+  fx = []; juice = createJuice(Math.random, { reducedMotion, art: fxArt }); acc = 0; last = performance.now(); sounds = createSoundTracker(); ui.play('start'); countMs = 0;
   globalThis.__titanBash = { get match() { return match; }, get phones() { return link?.phones.list() ?? []; } }; 
   paintLegend();
   show('match'); resize();
@@ -506,7 +508,12 @@ function showPodium() {
   night.starred = true;
   ui.play('start');
   show('night'); 
+  
+  music.setTrack('sting');
+  clearTimeout(stingTimer);
+  stingTimer = setTimeout(() => { if (!$('night').hidden) music.setTrack(musicFor('night')); }, STING_MS);
 }
+let stingTimer = 0;
 
 
 window.addEventListener('keydown', (e) => {
@@ -587,10 +594,12 @@ function startWarm() {
   cancelAnimationFrame(warmRaf); warmLast = performance.now(); warmAcc = 0; warmRaf = requestAnimationFrame(warmFrame);
 }
 function stopWarm() { cancelAnimationFrame(warmRaf); warmRaf = 0; }
+
+const WARM_GUTTER = 8; 
 function resizeWarm() {
   const c = $('warm'); const dpr = Math.min(2, window.devicePixelRatio || 1);
   c.width = Math.round(c.clientWidth * dpr); c.height = Math.round(c.clientHeight * dpr);
-  LW = layout(c.width, c.height, dpr, { hud: false });
+  LW = layout(c.width, c.height, dpr, { hud: false, gutter: WARM_GUTTER });
 }
 function warmFrame(now) {
   if ($('title').hidden || !warm) return;

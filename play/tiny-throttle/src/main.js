@@ -17,6 +17,7 @@ import { createTouchSteer, steerRangeFor, steerZone } from './touchSteer.js';
 import { assistFor } from './driveAssist.js';
 import { SIM_SCALE } from '../../../web-engine/rc/rcTuning.js';
 import { MOTION, screenTimes, BACK, focusStep, loadSettings, saveSettings, recordBest } from './menus.js';
+import { statsCard, classOf, bodyFor } from './carClass.js';
 import { createHostLink, createGuestLink, linkFrom, joinLinkFor, watchLinkOf, canLink } from './netRoom.js';
 import { makeSnap, createSnapBuffer, receiveSnap, applySnaps, resumeRace, packInput, SNAP_MS, INPUT_HZ } from './netSync.js';
 import { successorOf, takeOverRoom, RECLAIM_MS } from './hostMigration.js';
@@ -71,6 +72,28 @@ function hideScreen(el) {
   el.classList.add('leave');
   el._tt = setTimeout(() => { el.hidden = true; el.classList.remove('leave'); }, screenTimes(reduced()).leave);
 }
+
+
+function renderCarCard() {
+  const card = statsCard(classOf(bodyFor(0, true)));
+  const el = $('carCard');
+  el.replaceChildren();
+  const who = document.createElement('p');
+  who.className = 'who';
+  who.textContent = `Your car: ${card.name}`;
+  const blurb = document.createElement('small');
+  blurb.textContent = card.blurb;
+  who.append(blurb);
+  const stats = document.createElement('div');
+  stats.className = 'stats';
+  for (const s of card.stats) {
+    const cell = document.createElement('span');
+    cell.innerHTML = `${s.label} <span class="pips" aria-label="${s.pips} of 5">${'●'.repeat(s.pips)}${'○'.repeat(5 - s.pips)}</span>`;
+    stats.append(cell);
+  }
+  el.append(who, stats);
+}
+renderCarCard();
 
 
 

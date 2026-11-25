@@ -19,6 +19,8 @@ export const EVENT = Object.freeze({
   DASH: 'dash', BLOCKED: 'blocked', STORM: 'storm', END: 'end', ABILITY: 'ability', REFLECT: 'reflect',
   LUMEN_FALL: 'lumenFall', LUMEN: 'lumen', LUMEN_OVERDRIVE: 'lumenOverdrive',
   SHATTER: 'shatter', REGROW: 'regrow', TIDE_WARN: 'tideWarn', TIDE: 'tide',
+  
+  BLAST: 'blast',
   ...SLEEPER_EVENT,
 });
 
@@ -465,6 +467,7 @@ function moveShots(m, events) {
     s.life -= 1;
     if (s.kind === 'lob') {
       if (s.life <= 0) {
+        if (!s.seed) events.push({ type: EVENT.BLAST, x: s.x, y: s.y, by: s.owner, r: s.splash });
         if (reachesCore(m, s.x, s.y, s.splash)) hitCore(m, s.owner, events);
         for (const o of m.titans) {
           if (!o.alive || o.team === s.team) continue;

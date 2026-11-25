@@ -186,6 +186,16 @@
     #trackList button:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); }
     #trackList button[aria-current] { background: var(--tape); color: #fff; }
     .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+    #carCard { display: grid; gap: 6px; padding: 10px 16px; border-radius: 12px; background: rgba(0,0,0,0.28); max-width: 340px; }
+    #carCard .who { margin: 0; font-size: 14px; font-weight: 700; }
+    #carCard .who small { display: block; font-weight: 600; opacity: 0.8; font-size: 12px; }
+    #carCard .stats { display: grid; grid-template-columns: repeat(4, auto); gap: 4px 12px; justify-content: center; font-size: 12px; }
+    #carCard .pips { letter-spacing: 1px; }
+    
+
+
+    #title { justify-content: safe center; overflow-y: auto; }
+    @media (max-height: 740px) { #title { gap: 18px; } #title h1 { font-size: clamp(36px, 10vw, 80px); } #carCard .who small { display: none; } }
     #pause { background: rgba(243, 230, 207, 0.82); }
     #pause h2 { margin: 0; font-size: clamp(32px, 9vw, 56px); font-weight: 900; text-transform: uppercase; }
     #pauseCard { display: flex; flex-direction: column; align-items: center; gap: 16px; }
@@ -211,6 +221,8 @@
     <p class="sub" id="blurb">Race a toy RC car round a giant kitchen, up the cutting board and over the sink.</p>
     <button id="start" class="big pulse" disabled>Loading</button>
     <nav id="tracks" aria-label="Pick a track"><span class="pick">Pick a track</span><div id="trackList"></div></nav>
+    
+    <div id="carCard" aria-label="Your car"></div>
     <div class="row"><button id="online" class="mini" type="button">Race friends online</button>
       <button class="mini sound" type="button" aria-pressed="true">Sound on</button>
         <button class="mini assist" type="button" aria-pressed="false">Assist off</button></div>
@@ -268,8 +280,8 @@
     <button id="resultsTitle" class="mini" type="button">Pick a track</button>
   </section>
   
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=1f43ea50-20261125T202120Z"></script>
-  <script type="module" src="./src/main.js?v=1f43ea50-20261125T202120Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=1f43ea50-20261125T202120Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=73f1e442-20261125T204325Z"></script>
+  <script type="module" src="./src/main.js?v=73f1e442-20261125T204325Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=73f1e442-20261125T204325Z"></script>
 </body>
 </html>

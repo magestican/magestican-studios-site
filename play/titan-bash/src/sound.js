@@ -23,7 +23,11 @@ export const gainsAt = (names, gains = {}, volume = VOLUME) =>
 
 
 
-export const MUSIC_TRACKS = Object.freeze(['lobby', 'battle', 'storm']);
+
+
+
+export const MUSIC_TRACKS = Object.freeze(['lobby', 'battle', 'storm', 'sting']);
+export const STING_MS = 12000;
 
 export const musicFor = (screen, storm = false) => (screen !== 'match' ? 'lobby' : storm ? 'storm' : 'battle');
 

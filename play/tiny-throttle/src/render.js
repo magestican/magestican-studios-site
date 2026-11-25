@@ -484,7 +484,8 @@ function buildCars(scene, race, models) {
   
   return race.racers.map((r, i) => {
     const mine = r.id === (race.me ?? 'you');
-    const body = mine ? 'buggy' : BODIES[i % BODIES.length];
+    
+    const body = r.body ?? (mine ? 'buggy' : BODIES[i % BODIES.length]);
     const o = clone(models, `car_${body}`);
     const colour = mine ? LIVERIES[0] : LIVERIES[1 + (i % (LIVERIES.length - 1))];
     o.traverse((n) => {

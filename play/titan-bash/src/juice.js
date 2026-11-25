@@ -19,8 +19,29 @@ export const HOLD_GAP = 20;
 
 const IMPACT = { slam: 2, counter: 2, bell: 4 };
 
-export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
-  const j = { particles: [], rings: [], hold: 0, sinceHold: HOLD_GAP, impact: null, flash: new Map() };
+
+
+
+
+export const FX_MAX_LIFE = 42;
+export const FX = Object.freeze({
+  muzzle: { life: 6, size: 2.4, grow: 0 },
+  beam: { life: 9, size: 10, grow: 0 },
+  explosion: { life: 26, size: 7, grow: 0.5 },
+  clang: { life: 14, size: 4.5, grow: 0.3 },
+  ringout: { life: 36, size: 18, grow: 0.6 },
+});
+
+export const FX_REDUCED_ALPHA = 0.5;
+
+export function createJuice(rng = Math.random, { reducedMotion = false, art = null, tint = tintCanvas } = {}) {
+  const j = { particles: [], rings: [], fx: [], art, hold: 0, sinceHold: HOLD_GAP, impact: null, flash: new Map() };
+  const tinted = new Map();
+  
+  const paint = (key, x, y, colour, rot = 0) => {
+    if (reducedMotion && key === 'ringout') return;
+    if (j.fx.length < 60) j.fx.push({ key, x, y, colour, rot, life: FX[key].life, max: FX[key].life });
+  };
   const freeze = (type) => {
     const n = HOLD[type];
     if (!n) return;
@@ -53,6 +74,14 @@ export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
       const tg = e.target != null ? m.titans[e.target] : e.id != null ? m.titans[e.id] : null;
       freeze(e.type);
       if (tg) impact(e.type, tg.x, tg.y - 1, e.type === 'bell' ? '#fff2b0' : '#ffffff', tg.id ?? (e.target ?? e.id));
+      if (e.type === 'fire' && tg) {
+        const c = colourOf(tg); const f = tg.facing || 0;
+        const mx = tg.x + Math.cos(f) * 1.4; const my = tg.y - 1 + Math.sin(f) * 1.4;
+        paint('muzzle', mx, my, c);
+        if (tg.frame === 'lancer') paint('beam', mx + Math.cos(f) * FX.beam.size / 2, my + Math.sin(f) * FX.beam.size / 2, c, f);
+      } else if (e.type === 'blast') paint('explosion', e.x, e.y - 0.5, e.by != null && m.titans[e.by] ? colourOf(m.titans[e.by]) : '#ffb040');
+      else if (e.type === 'clang') paint('clang', e.x, e.y - 1, '#9fe3ff');
+      else if (e.type === 'bell' && tg) paint('ringout', tg.x, tg.y - 1, e.by != null && m.titans[e.by] ? colourOf(m.titans[e.by]) : '#ffd040');
       if (e.type === 'hit' && tg) burst(tg.x, tg.y - 1, 6, { speed: 10, life: 18, colour: '#ffe2a8', size: 0.18 });
       else if (e.type === 'slam' && tg) { burst(tg.x, tg.y, 14, { speed: 16, life: 24, colour: '#fff3c4' }); ring(tg.x, tg.y, 3, 18, '#ffffff'); }
       else if (e.type === 'clang') { burst(e.x, e.y, 18, { speed: 20, life: 26, colour: '#9fe3ff', size: 0.22 }); ring(e.x, e.y, 4, 20, '#9fe3ff'); }
@@ -75,8 +104,33 @@ export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
     j.particles = j.particles.filter((p) => p.life > 0);
     for (const r of j.rings) r.life -= 1;
     j.rings = j.rings.filter((r) => r.life > 0);
+    for (const f of j.fx) f.life -= 1;
+    j.fx = j.fx.filter((f) => f.life > 0);
+  };
+  
+  j.drawFx = (ctx, X, Y, s) => {
+    if (!j.art) return;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for (const f of j.fx) {
+      const img = j.art[f.key];
+      if (!img || !img.width) continue;
+      const k = f.life / f.max; const spec = FX[f.key];
+      const w = spec.size * s * (1 + spec.grow * (1 - k)); const h = w * (img.height / img.width);
+      const a = Math.pow(k, 0.6) * (reducedMotion ? FX_REDUCED_ALPHA : 1);
+      const id = `${f.key}|${f.colour}`;
+      if (!tinted.has(id)) tinted.set(id, tint(img, f.colour));
+      const ang = f.rot ? Math.atan2(Y(f.y + Math.sin(f.rot)) - Y(f.y), X(f.x + Math.cos(f.rot)) - X(f.x)) : 0;
+      ctx.translate(X(f.x), Y(f.y)); if (ang) ctx.rotate(ang);
+      ctx.globalAlpha = a; ctx.drawImage(tinted.get(id), -w / 2, -h / 2, w, h);
+      ctx.globalAlpha = a * 0.55; ctx.drawImage(img, -w / 2, -h / 2, w, h);
+      if (ang) ctx.rotate(-ang);
+      ctx.translate(-X(f.x), -Y(f.y));
+    }
+    ctx.restore();
   };
   j.draw = (ctx, X, Y, s) => {
+    j.drawFx(ctx, X, Y, s);
     ctx.save();
     for (const p of j.particles) {
       const a = p.life / p.max;
@@ -106,4 +160,26 @@ export function createJuice(rng = Math.random, { reducedMotion = false } = {}) {
     ctx.restore();
   };
   return j;
+}
+
+
+
+export function loadFxArt(base = new URL('../assets/vfx/', import.meta.url)) {
+  const art = {};
+  if (typeof Image === 'undefined') return art;
+  for (const key of Object.keys(FX)) {
+    const img = new Image(); img.src = new URL(`${key}.webp`, base).href;
+    img.decode().then(() => { art[key] = img; }, () => {});
+  }
+  return art;
+}
+
+
+
+function tintCanvas(img, colour) {
+  if (typeof document === 'undefined') return img;
+  const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+  const g = c.getContext('2d');
+  g.drawImage(img, 0, 0); g.globalCompositeOperation = 'multiply'; g.fillStyle = colour; g.fillRect(0, 0, c.width, c.height);
+  return c;
 }

@@ -21,22 +21,20 @@
 
 
 
-
-
 import { rcTuning } from '../../../web-engine/rc/rcTuning.js';
 
 export const CLASSES = Object.freeze({
   zippy: Object.freeze({
-    name: 'Zippy', blurb: 'Jumps off the line and turns on a coin. Gets shoved about.',
-    mul: Object.freeze({ topSpeed: 0.97, accel: 1.15, turnRate: 1.08, gripTurn: 1.0, weight: 0.75 }),
+    name: 'Zippy', blurb: 'Quick off the line and sharp in the turns, but bigger cars push it around.',
+    mul: Object.freeze({ topSpeed: 0.97, accel: 1.08, turnRate: 1.08, gripTurn: 1.0, weight: 0.75 }),
   }),
   allround: Object.freeze({
-    name: 'All-round', blurb: 'No weak spot. The car the game was tuned on.',
+    name: 'All-round', blurb: 'No weak spot, and the car the tracks were built for.',
     mul: Object.freeze({ topSpeed: 1, accel: 1, turnRate: 1, gripTurn: 1, weight: 1 }),
   }),
   heavy: Object.freeze({
-    name: 'Heavy', blurb: 'Slow to wind up, hard to stop, and it pushes back.',
-    mul: Object.freeze({ topSpeed: 1.03, accel: 0.88, turnRate: 0.94, gripTurn: 1.05, weight: 1.35 }),
+    name: 'Heavy', blurb: 'Slow to get going, hard to stop, and it pushes back.',
+    mul: Object.freeze({ topSpeed: 1.03, accel: 0.95, turnRate: 0.94, gripTurn: 1.05, weight: 1.35 }),
   }),
 });
 
