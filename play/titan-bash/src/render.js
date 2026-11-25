@@ -25,7 +25,7 @@ export const LIP = 6;
 
 
 
-export function layout(w, h, dpr = 1, { hud: withHud = true, arena = 'bellRing' } = {}) {
+export function layout(w, h, dpr = 1, { hud: withHud = true, arena = 'bellRing', reserve = 0 } = {}) {
   const g = Math.max(16 * dpr, Math.round(Math.min(w, h) * 0.02));
   
   const rows = w / dpr < 760 ? 2 : 1;
@@ -39,7 +39,11 @@ export function layout(w, h, dpr = 1, { hud: withHud = true, arena = 'bellRing' 
   const aw = A.w * scale; const ah = A.h * scale;
   
   const free = (h - hud - g * 3) - ah;
-  const oy = hud + g * 2 + (rows === 2 ? 0 : free / 2) + ah / 2;
+  
+  
+  
+  const band = reserve > 0 ? Math.max(0, free - reserve) : 0;
+  const oy = hud + g * 2 + (rows === 2 ? band / 2 : free / 2) + ah / 2;
   return { g, hud, row, rows, dpr, scale, ox: (w - aw) / 2 + aw / 2, oy, aw, ah };
 }
 

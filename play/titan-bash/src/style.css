@@ -146,6 +146,12 @@ body.tb-phone-mode .studio-bar { display: none; }
 .tb-card-rows .stats { flex-basis: 100%; color: var(--dim); font-size: 0.9rem; padding-left: calc(2.2em + 30px); }
 .tb-card-rows .pts { font-weight: 800; color: #ffd040; }
 .tb-card-rows .stars { flex-basis: 100%; color: #ffe08a; font-size: 0.9rem; padding-left: calc(2.2em + 30px); }
+
+
+.tb-card-rows .stars { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.tb-card-rows .stars .unlock { display: inline-block; padding: 4px 12px; border: 2px solid #ffe08a; border-radius: 999px;
+  background: rgba(255, 224, 138, 0.12); color: #fff3c4; font-weight: 800; letter-spacing: 0.02em; }
+.tb-card-rows .stars .tip { flex-basis: 100%; color: var(--dim); font-size: 0.85rem; }
 .tb-stars-line { color: #ffe08a; margin: 12px 0 0; }
 .tb-standings { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
 .tb-standings li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; background: var(--slate-hi); }

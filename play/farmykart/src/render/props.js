@@ -47,6 +47,7 @@ import { isWaterAt } from 'arbelo/trackGround';
 import { PALETTE } from '../palette.js';
 import { makeBarnTexture } from './textures.js';
 import { layerTile, LAYER } from './artistTiles.js';
+import { gableRoof } from './barnRoof.js';
 
 
 
@@ -752,6 +753,7 @@ function buildBarns(path, rng, count) {
   layerTile(barnMap, 'barn_planks', LAYER.barn);
   const wallMat = surface({ map: barnMap });
   const roofMat = surface({ color: PALETTE.barnRoof, flatShading: true });
+  const roofGeo = new THREE.CylinderGeometry(1, 1, 1, 3, 1).rotateX(-Math.PI / 2);
   for (let i = 0; i < count; i += 1) {
     
     
@@ -766,10 +768,10 @@ function buildBarns(path, rng, count) {
     g.add(walls);
     
     
-    const roof = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.72, w * 0.72, d + 1.2, 3, 1), roofMat);
-    roof.rotation.z = Math.PI / 2;
-    roof.rotation.y = Math.PI / 2;
-    roof.position.y = h + w * 0.3;
+    const gable = gableRoof(w, d, h);
+    const roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.scale.set(...gable.scale);
+    roof.position.y = gable.y;
     g.add(roof);
     g.position.set(p.x, p.y, p.z);
     g.rotation.y = rng() * Math.PI * 2;

@@ -28,7 +28,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, ptsText, standingScore, starsLine, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, ptsText, standingScore, rewardParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -308,7 +308,10 @@ let L = null;
 function resize() {
   const c = $('stage'); const dpr = Math.min(2, window.devicePixelRatio || 1);
   c.width = Math.round(c.clientWidth * dpr); c.height = Math.round(c.clientHeight * dpr);
-  L = layout(c.width, c.height, dpr, { arena: match ? match.arena : 'bellRing' });
+  
+  const lg = $('legend'); const touch = document.body.classList.contains('tb-touch-on');
+  const cover = touch && !lg.hidden ? Math.max(0, c.getBoundingClientRect().bottom - lg.getBoundingClientRect().top + 16) : 0;
+  L = layout(c.width, c.height, dpr, { arena: match ? match.arena : 'bellRing', reserve: Math.round(cover * dpr) });
   
   const side = document.body.classList.contains('tb-touch-on') ? 0 : legendSide((L.ox - L.aw / 2) / dpr - LIP);
   $('legend').classList.toggle('side', side > 0); $('legend').style.width = side ? `${side}px` : '';
@@ -343,16 +346,29 @@ function wear(s) {
 function giveStars(id, n, tip) {
   const s = night.seats[id];
   if (!s || s.control === 'bot' || !(n > 0 || tip)) return null;
-  const parts = n > 0 ? [starsLine(n)] : [];
+  let unlocks = [];
+  let tipText = null;
   if (s.control.startsWith('phone')) {
     link?.send(s.control, { t: MSG.REWARD, stars: n, tip });
   } else if (screenSlot(s.control) && store) {
     const res = addStars(loadStars(store, s.control), n);
     saveStars(store, s.control, equipNewest(res.record, res.unlocked));
-    for (const u of res.unlocked) parts.push(`${RT.stars.new}: ${u.name}`);
-    if (tip) parts.push(RT.tip[tip]); 
+    unlocks = res.unlocked.map((u) => u.name);
+    if (tip) tipText = RT.tip[tip]; 
   }
-  return parts.length ? { line: parts.join(' - ') } : null;
+  
+  const parts = rewardParts({ stars: n, unlocks, tip: tipText, newWord: RT.stars.new });
+  return parts.length ? { parts, line: parts.map((p) => p.text).join(' - ') } : null;
+}
+
+function rewardBlock(parts, colour) {
+  const box = el('span', 'stars');
+  for (const p of parts) {
+    if (p.kind === 'stars') box.append(el('span', 'star-n', p.text));
+    else if (p.kind === 'unlock') { const c = el('span', 'unlock', p.text); c.style.borderColor = colour; box.append(c); }
+    else box.append(el('span', 'tip', p.text));
+  }
+  return box;
 }
 
 function award(card) {
@@ -403,7 +419,7 @@ function results(m) {
     tintFace(face, r.frame, r.house);
     li.append(el('span', 'place', `${r.place + 1}.`), face, nm, b, el('span', 'pts', `+${r.points}`), stats);
     const got = earned.get(r.id);
-    if (got) li.append(el('span', 'stars', got.line));
+    if (got) li.append(rewardBlock(got.parts, HOUSE[r.house].colour));
     ol.append(li);
   }
   paintStandings();

@@ -101,6 +101,20 @@ export function standingScore(e, all = [e]) {
 export function starsLine(n) { return `+${n} House Star${n === 1 ? '' : 's'}`; }
 
 
+
+
+
+
+
+export function rewardParts({ stars = 0, unlocks = [], tip = null, newWord = 'Unlocked' } = {}) {
+  const out = [];
+  if (stars > 0) out.push({ kind: 'stars', text: starsLine(stars) });
+  for (const name of unlocks) out.push({ kind: 'unlock', text: `${newWord}: ${name}` });
+  if (tip) out.push({ kind: 'tip', text: tip });
+  return out;
+}
+
+
 export function fallText(name, value) {
   return value < 0 ? `${name} fell out! ${value} Bell` : `${name} fell out!`;
 }
