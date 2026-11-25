@@ -3,7 +3,7 @@
 
 
 import { createCoopSession } from '../net/coopSession.js';
-import { channelTransport, hostCode, netUrls, newHostCode, openTransport, parseCode, shareLink } from '../net/peer.js';
+import { channelTransport, hostCode, netUrls, newHostCode, openTransport, parseCode, shareLink, withRetry } from '../net/peer.js';
 import { showLobby } from '../ui/coopLobby.js';
 import { coopStep } from './coop.js';
 
@@ -65,7 +65,9 @@ export function startCoop({ seat, level, variant, view, titleRoot, onStart, onSe
   let close = () => {};
   let nextHello = 0;
   const urls = netUrls(location);
-  const opened = urls ? openTransport({ role, code, urls, onLeft: () => {} }) : Promise.resolve(channelTransport(code));
+  const opened = urls
+    ? withRetry(() => openTransport({ role, code, urls, onLeft: () => {} }), role === 'host' ? 4 : 1)
+    : Promise.resolve(channelTransport(code));
   opened
     .then((t) => {
       close = t.close;

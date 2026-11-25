@@ -1,8 +1,6 @@
 
 
 
-
-
 import { SITE_PATH } from '../site/adapter.js';
 
 const CODE_PREFIX = 's95-';
@@ -100,6 +98,17 @@ function loadScript(src) {
 }
 
 
+export async function withRetry(open, tries, wait = (ms) => new Promise((r) => setTimeout(r, ms))) {
+  for (let i = 1; ; i++) {
+    try {
+      return await open();
+    } catch (e) {
+      if (i >= tries) throw e;
+      await wait(1500);
+    }
+  }
+}
+
 
 
 
@@ -115,7 +124,11 @@ export async function openTransport({ role, code, urls, onLeft }) {
   });
   mesh.addEventListener('peer-left', () => onLeft?.());
   const transport = { send: (m) => mesh.broadcast(m), onMessage: (fn) => handlers.push(fn) };
-  await new Promise((ok, fail) => {
+  await new Promise((ok, f) => {
+    const fail = (e) => {
+      mesh.destroy();
+      f(e);
+    };
     mesh.addEventListener('error', (e) => fail(new Error(e.detail.message)), { once: true });
     mesh.addEventListener('join-failed', (e) => fail(new Error(e.detail.reason)), { once: true });
     mesh.addEventListener(
