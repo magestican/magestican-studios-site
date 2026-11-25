@@ -19,12 +19,13 @@ import { createProgress, addRacer, updateRacer, standings } from '../../../web-e
 import { createFlow, stepFlow, canDrive, PHASE } from '../../../web-engine/kart/raceFlow.js';
 import { SIM_SCALE, toSim, METRICS, gripOf, rcTuning, hopSpeed, gravitySim } from '../../../web-engine/rc/rcTuning.js';
 import { connectorSpans, onDeck, spanAt } from '../../../web-engine/rc/connector.js';
-import { createLooseProps, stepProps } from '../../../web-engine/rc/props.js';
+import { createLooseProps, stepProps, KINDS as PROP_KINDS } from '../../../web-engine/rc/props.js';
 import { createPickups, stepPickups, usePickup, gripAt, padAim } from '../../../web-engine/rc/pickups.js';
 import { createWorldEvents, stepWorldEvents, worldGripAt } from '../../../web-engine/rc/worldEvents.js';
 import { applyEffect } from '../../../web-engine/kart/items.js';
 import { applyBoost } from '../../../web-engine/kart/driftBoost.js';
 import { supportY } from './support.js';
+import { personalityOf, hazardAim, tailAim } from './botBrain.js';
 
 export const SAMPLES = 14; 
 export const SHOULDER = toSim(0.25); 
@@ -120,7 +121,7 @@ export function surfaceFor(track, kart) {
 
 export function createRace(def, {
   bots = 11, difficulty = 'market', laps = def.laps, player = true, countdown, seed, padAim: aimPads = true, cars = null,
-  classes = true,
+  classes = true, brain = true,
 } = {}) {
   const track = buildTrack(def);
   
@@ -139,6 +140,7 @@ export function createRace(def, {
       id, isPlayer, slot: i, body, carClass: classOf(body),
       kart: createKart({ x: g.x, y: g.y, z: g.z, heading: g.heading, id, tuning: classTuning(classOf(body)) }),
       driver: isPlayer ? null : createDriver(i, difficulty),
+      personality: personalityOf(i), 
       s: g.s, safeS: g.s, falls: 0, offDeck: 0,
     });
   }
@@ -146,7 +148,7 @@ export function createRace(def, {
   for (const r of racers) addRacer(progress, r.id, r.s);
   const flow = createFlow({ laps, ...(countdown != null ? { countdown } : {}) });
   return {
-    track, racers, progress, flow, clock: 0, laps, loose: placeLoose(track), aimPads,
+    track, racers, progress, flow, clock: 0, laps, loose: placeLoose(track), aimPads, brain,
     pickups: createPickups(padPlacements(track), { seed: seed ?? 1 }),
     world: createWorldEvents(eventPlacements(track), { length: lapM(track) }),
   };
@@ -236,6 +238,28 @@ function looseGround(track, x, z, p) {
   return supportY(track.def, x, z);
 }
 
+
+
+
+
+
+function hazardsOf(race) {
+  const { track } = race;
+  const out = [];
+  const add = (b, r, kind) => {
+    const surf = trackSurface(track.path, toSim(b.x), toSim(b.z), b.hint, { shoulder: SHOULDER });
+    b.hint = surf.index;
+    const half = surf.width / 2 / SIM_SCALE;
+    const side = (surf.lateral ?? 0) / SIM_SCALE;
+    if (Math.abs(side) > half + r) return;
+    if (Math.abs((b.y ?? 0) - (surf.roadY ?? surf.y) / SIM_SCALE) > 0.1) return;
+    out.push({ s: surf.s / SIM_SCALE, side, r, kind });
+  };
+  for (const b of race.loose) add(b, PROP_KINDS[b.kind].radius, b.kind);
+  for (const c of race.critters ?? []) add(c, c.r, 'critter');
+  return out;
+}
+
 function stepLoose(race, dt, events) {
   const { loose, racers, track } = race;
   if (!loose.length) return;
@@ -269,6 +293,8 @@ export function stepRace(race, playerInput, dt) {
   const posById = new Map(table.map((t, i) => [t.id, i + 1]));
   const drive = canDrive(flow);
   const lapLen = lapM(track);
+  const hazards = race.brain ? hazardsOf(race) : [];
+  const carsM = racers.map((r) => ({ id: r.id, s: r.sM ?? r.s / SIM_SCALE, side: r.sideM ?? 0 }));
   for (const r of racers) {
     const surf = surfaceFor(track, r.kart);
     r.kart.pathHint = surf.index;
@@ -302,8 +328,17 @@ export function stepRace(race, playerInput, dt) {
       
       
       const onSpan = (sSim) => spanAt(track.spans, sSim, track.path.length) >= 0;
-      let pad = race.aimPads && !onSpan(surf.s) ? padAim(race.pickups, { id: r.id, s: r.sM, side: r.sideM }, lapLen) : null;
-      if (pad && onSpan(wrapS(track.path, toSim(pad.s)))) pad = null;
+      
+      
+      
+      const p = race.brain ? r.personality : null;
+      const me = { id: r.id, s: r.sM, side: r.sideM, speed: Math.max(0, r.kart.speed) / SIM_SCALE };
+      const lane = { length: lapLen, half: surf.width / 2 / SIM_SCALE };
+      const spanFree = (t) => t && !onSpan(wrapS(track.path, toSim(t.s))) ? t : null;
+      const here = !onSpan(surf.s);
+      let pad = here && p ? spanFree(hazardAim(me, hazards, p, lane)) : null;
+      if (!pad && here && race.aimPads && (!p || p.pads)) pad = spanFree(padAim(race.pickups, me, lapLen));
+      if (!pad && here && p) pad = spanFree(tailAim(me, carsM, p, lane));
       const at = pad && trackPoint(track, pad.s, pad.side);
       const aim = at ? { x: at.x * SIM_SCALE, z: at.z * SIM_SCALE } : cornerAim(track.line, surf.s, r.kart.speed);
       input = driveBot(r.driver, r.kart, track.line, {

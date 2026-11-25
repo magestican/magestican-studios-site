@@ -164,10 +164,16 @@ export function createJuice(rng = Math.random, { reducedMotion = false, art = nu
 
 
 
-export function loadFxArt(base = new URL('../assets/vfx/', import.meta.url)) {
+
+export const FX_DELIVERED = Object.freeze([]);
+
+
+
+export function loadFxArt(base = new URL('../assets/vfx/', import.meta.url), delivered = FX_DELIVERED) {
   const art = {};
   if (typeof Image === 'undefined') return art;
-  for (const key of Object.keys(FX)) {
+  for (const key of delivered) {
+    if (!FX[key]) continue;
     const img = new Image(); img.src = new URL(`${key}.webp`, base).href;
     img.decode().then(() => { art[key] = img; }, () => {});
   }

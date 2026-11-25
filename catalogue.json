@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "c3e38ed8-20261125T212316Z",
+ "buildId": "ed9baae4-20261125T225859Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -994,7 +994,7 @@
    "ageNote": null,
    "order": 32,
    "addedAt": "2026-11-19",
-   "bytes": 5117029
+   "bytes": 5120801
   },
   {
    "id": "glimmercoil",
@@ -1058,7 +1058,7 @@
    "ageNote": null,
    "order": 34,
    "addedAt": "2026-11-24",
-   "bytes": 7185623
+   "bytes": 7185722
   },
   {
    "id": "emberpane",
