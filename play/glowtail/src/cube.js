@@ -229,3 +229,24 @@ export function edgePoint(a, b) {
   out[AXES[ib]] = pb[AXES[ib]];
   return out;
 }
+
+
+
+
+
+
+export const LANDMARKS = Object.freeze(['vent', 'coral', 'lamp', 'geode', 'wreck', 'stalagmite']);
+
+const LANDMARK_CORNERS = [[1, 1], [N - 2, 1], [1, N - 2], [N - 2, N - 2], [N - 2, 1], [1, N - 2]];
+
+
+export function landmarkCells() {
+  return LANDMARK_CORNERS.map(([u, v], f) => {
+    const i = f >> 1, s = f & 1 ? -1 : 1;
+    const c = vec(0, 0, 0);
+    c[AXES[i]] = s > 0 ? N : -1;
+    c[AXES[(i + 1) % 3]] = u;
+    c[AXES[(i + 2) % 3]] = v;
+    return c;
+  });
+}

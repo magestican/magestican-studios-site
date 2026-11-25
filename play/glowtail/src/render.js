@@ -12,10 +12,12 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { W, H, DIRS } from './sim.js';
 import { unwrapEel, wrapCoord, edgeFade } from './eelPath.js';
 import * as Cube from './cube.js';
 import { cubeChain, chainAt, sampleCubeEel } from './cubePath.js';
+import { turnAngle, preCrossU, residualAngle, ROLL_CELLS, LEAN_DEG, LEAN_CELLS } from './cubeTurn.js';
 
 const MAX_LIGHTS = 48;
 const MAX_RIPPLES = 8;
@@ -172,11 +174,9 @@ const cubeFrag = `
   }`;
 
 const CUBE_TINTS = [[1.15, 0.8, 0.7], [0.75, 0.85, 1.25], [1.2, 1.05, 0.65], [0.8, 1.15, 0.9], [1.15, 0.75, 1.15], [1, 1, 1]];
-const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-const smooth01 = (x) => { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); };
-export const CUBE_LEAN_DEG = 15; 
-export const CUBE_LEAN_CELLS = 2;
-export const CUBE_ROLL_TICKS = 3; 
+export const CUBE_LEAN_DEG = LEAN_DEG; 
+export const CUBE_LEAN_CELLS = LEAN_CELLS;
+export const CUBE_ROLL_TICKS = ROLL_CELLS; 
 export const CUBE_WINDOW = 1.5; 
 export const CUBE_VIEW_CELLS = 13; 
 export const CUBE_AHEAD = 0.75; 
@@ -405,6 +405,47 @@ export function createRenderer(canvas, { search = '' } = {}) {
   cubeMesh.visible = false;
   world.add(cubeMesh);
   
+  
+  
+  
+  const landmarkGroup = new THREE.Group();
+  landmarkGroup.visible = false;
+  world.add(landmarkGroup);
+  const LANDMARK_CELLS = 1.15; 
+  const LANDMARK_DIM = 0.55; 
+  let landmarksAsked = false;
+  function loadLandmarks() {
+    if (landmarksAsked) return;
+    landmarksAsked = true;
+    const loader = new GLTFLoader();
+    const cells = Cube.landmarkCells();
+    Cube.LANDMARKS.forEach((name, f) => {
+      const url = new URL(`../assets/landmarks/${name}/${name}.glb`, import.meta.url).href;
+      loader.load(url, (gltf) => {
+        const m = gltf.scene;
+        const box = new THREE.Box3().setFromObject(m);
+        const size = box.getSize(new THREE.Vector3());
+        const k = LANDMARK_CELLS / Math.max(size.x, size.z, 1e-3);
+        m.scale.setScalar(k);
+        m.position.set(-((box.min.x + box.max.x) / 2) * k, -box.min.y * k, -((box.min.z + box.max.z) / 2) * k);
+        const tint = new THREE.Color(...CUBE_TINTS[f]).multiplyScalar(LANDMARK_DIM);
+        m.traverse((o) => {
+          if (!o.isMesh) return;
+          o.material = o.material.clone();
+          if (o.material.color) o.material.color.multiply(tint);
+          if (o.material.emissive) o.material.emissive.setScalar(0);
+          o.material.depthWrite = false;
+          o.renderOrder = -1;
+        });
+        const holder = new THREE.Group();
+        holder.add(m);
+        cubeLocal(cells[f], 0, holder.position);
+        faceQuat(cells[f], holder.quaternion);
+        landmarkGroup.add(holder);
+      }, undefined, () => {  });
+    });
+  }
+  
   const cues = [];
   for (let i = 0; i < 8; i++) {
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xffffff, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
@@ -435,7 +476,8 @@ export function createRenderer(canvas, { search = '' } = {}) {
   }
   const cubeCam = {
     on: false, key: '', target: new THREE.Quaternion(), display: new THREE.Quaternion(), from: new THREE.Quaternion(),
-    rollT: 1, rollDur: 0.5, fadeT: -1, swap: false, follow: new THREE.Vector3(), look: new THREE.Vector3(),
+    rolls: [], lastHead: null, fresh: true, prevTarget: new THREE.Quaternion(), desired: new THREE.Quaternion(),
+    fadeT: -1, swap: false, follow: new THREE.Vector3(), look: new THREE.Vector3(),
     headQ: new THREE.Quaternion(), headSet: false,
   };
   const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -857,31 +899,47 @@ export function createRenderer(canvas, { search = '' } = {}) {
     cubeMat.uniforms.uLightCount.value = lightCount;
 
     
+    
+    
+    
+    
     const still = reducedMotion();
     frameQuat(state.frame, cubeCam.target);
-    if (!still && alive) {
-      const moving = state.prevSnake && state.prevSnake.length && !Cube.same(state.prevSnake[0], state.snake[0]);
-      const dist = cellsToEdge(state) + (moving ? 1 - alpha : 0);
-      const ang = THREE.MathUtils.degToRad(CUBE_LEAN_DEG) * smooth01(1 - dist / CUBE_LEAN_CELLS);
-      if (ang > 1e-4) {
-        leanAxis.crossVectors(SCREEN_WORLD[state.dir], UP).normalize();
-        leanQ.setFromAxisAngle(leanAxis, ang);
-        cubeCam.target.premultiply(leanQ);
-      }
-    }
     const key = faceKey(state.frame);
+    const newTick = !cubeCam.lastHead || !Cube.same(cubeCam.lastHead, headCell);
+    if (newTick) { cubeCam.lastHead = { ...headCell }; for (const r of cubeCam.rolls) r.ticks++; }
     if (!cubeCam.key) {
-      cubeCam.display.copy(cubeCam.target); cubeCam.rollT = 1; cubeCam.fadeT = -1;
+      cubeCam.rolls.length = 0; cubeCam.fadeT = -1; cubeCam.fresh = true;
       cubeLocal(state.snake[0], 0, cubeCam.follow);
     } else if (key !== cubeCam.key) {
       
       
-      cubeCam.from.copy(cubeCam.display);
-      cubeCam.rollT = 0;
-      cubeCam.rollDur = Math.max(0.12, CUBE_ROLL_TICKS * tickSec);
+      tmpQl.copy(cubeCam.target).multiply(tmpQa.copy(cubeCam.prevTarget).invert());
+      if (tmpQl.w < 0) { tmpQl.x = -tmpQl.x; tmpQl.y = -tmpQl.y; tmpQl.z = -tmpQl.z; tmpQl.w = -tmpQl.w; }
+      const axis = new THREE.Vector3(tmpQl.x, tmpQl.y, tmpQl.z);
+      if (axis.lengthSq() > 1e-8) cubeCam.rolls.push({ axis: axis.normalize(), ticks: 0 });
+      if (cubeCam.rolls.length > 3) cubeCam.rolls.shift();
       if (still) cubeCam.fadeT = 0;
     }
     cubeCam.key = key;
+    cubeCam.prevTarget.copy(cubeCam.target);    
+    cubeCam.desired.copy(cubeCam.target);
+    if (!still && alive) {
+      const moving = state.prevSnake && state.prevSnake.length && !Cube.same(state.prevSnake[0], state.snake[0]);
+      const dist = cellsToEdge(state) + (moving ? 1 - alpha : 0);
+      const ang = THREE.MathUtils.degToRad(turnAngle(preCrossU(dist)));
+      if (ang > 1e-4) {
+        leanAxis.crossVectors(SCREEN_WORLD[state.dir], UP).normalize();
+        leanQ.setFromAxisAngle(leanAxis, ang);
+        cubeCam.desired.premultiply(leanQ);
+      }
+    }
+    for (let i = cubeCam.rolls.length - 1; i >= 0; i--) {
+      const r = cubeCam.rolls[i];
+      const left = residualAngle(r.ticks, still ? 1 : alpha); 
+      if (left > -1e-3) { cubeCam.rolls.splice(i, 1); continue; }
+      cubeCam.desired.premultiply(leanQ.setFromAxisAngle(r.axis, THREE.MathUtils.degToRad(left)));
+    }
     let fade = 0;
     if (still) {
       if (cubeCam.fadeT >= 0) {
@@ -891,12 +949,13 @@ export function createRenderer(canvas, { search = '' } = {}) {
         fade = Math.max(0, 1 - Math.abs(cubeCam.fadeT - half) / half);
         if (cubeCam.fadeT >= CUBE_FADE_S) { cubeCam.fadeT = -1; fade = 0; }
       } else cubeCam.display.copy(cubeCam.target);
-      cubeCam.rollT = 1;
-    } else if (cubeCam.rollT < 1) {
-      cubeCam.rollT = Math.min(1, cubeCam.rollT + dt / cubeCam.rollDur);
-      cubeCam.display.slerpQuaternions(cubeCam.from, cubeCam.target, easeInOut(cubeCam.rollT));
+      cubeCam.rolls.length = 0;
+    } else if (cubeCam.fresh) {
+      cubeCam.display.copy(cubeCam.desired); cubeCam.fresh = false;
     } else {
-      cubeCam.display.slerp(cubeCam.target, 1 - Math.exp(-dt * 10));
+      
+      
+      cubeCam.display.slerp(cubeCam.desired, 1 - Math.exp(-dt * 18));
     }
     if (grade) grade.uniforms.uFade.value = fade;
     
@@ -937,6 +996,8 @@ export function createRenderer(canvas, { search = '' } = {}) {
     const cube = onCube(state);
     floor.visible = !cube;
     cubeMesh.visible = cube;
+    landmarkGroup.visible = cube;
+    if (cube) loadLandmarks();
     if (!cube && cubeCam.key) {
       world.position.set(0, 0, 0); world.quaternion.identity(); head.quaternion.identity();
       cubeCam.key = ''; cubeCam.headSet = false;

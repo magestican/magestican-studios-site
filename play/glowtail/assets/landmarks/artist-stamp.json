@@ -1,0 +1,144 @@
+{
+ "stamp": 1,
+ "request": "2026-11-25-cube-landmarks",
+ "assets": [
+  {
+   "name": "vent",
+   "kind": {
+    "id": "model",
+    "sha256": "2111181fcad3366ad10b8baed41c91afd86fb53f1aa3b8c83154495353c6e37a"
+   },
+   "style": {
+    "id": "modern",
+    "sha256": "fdbba0cf032779d9fcd2d1a543946559cf97fd664b057a5743c4094a35b5845b"
+   }
+  },
+  {
+   "name": "coral",
+   "kind": {
+    "id": "model",
+    "sha256": "2111181fcad3366ad10b8baed41c91afd86fb53f1aa3b8c83154495353c6e37a"
+   },
+   "style": {
+    "id": "modern",
+    "sha256": "fdbba0cf032779d9fcd2d1a543946559cf97fd664b057a5743c4094a35b5845b"
+   }
+  },
+  {
+   "name": "lamp",
+   "kind": {
+    "id": "model",
+    "sha256": "2111181fcad3366ad10b8baed41c91afd86fb53f1aa3b8c83154495353c6e37a"
+   },
+   "style": {
+    "id": "modern",
+    "sha256": "fdbba0cf032779d9fcd2d1a543946559cf97fd664b057a5743c4094a35b5845b"
+   }
+  },
+  {
+   "name": "geode",
+   "kind": {
+    "id": "model",
+    "sha256": "2111181fcad3366ad10b8baed41c91afd86fb53f1aa3b8c83154495353c6e37a"
+   },
+   "style": {
+    "id": "modern",
+    "sha256": "fdbba0cf032779d9fcd2d1a543946559cf97fd664b057a5743c4094a35b5845b"
+   }
+  },
+  {
+   "name": "wreck",
+   "kind": {
+    "id": "model",
+    "sha256": "2111181fcad3366ad10b8baed41c91afd86fb53f1aa3b8c83154495353c6e37a"
+   },
+   "style": {
+    "id": "modern",
+    "sha256": "fdbba0cf032779d9fcd2d1a543946559cf97fd664b057a5743c4094a35b5845b"
+   }
+  },
+  {
+   "name": "stalagmite",
+   "kind": {
+    "id": "model",
+    "sha256": "2111181fcad3366ad10b8baed41c91afd86fb53f1aa3b8c83154495353c6e37a"
+   },
+   "style": {
+    "id": "modern",
+    "sha256": "fdbba0cf032779d9fcd2d1a543946559cf97fd664b057a5743c4094a35b5845b"
+   }
+  }
+ ],
+ "engine": {
+  "artist_commit": "271d549c2eabed22de57a75c000abcfa4ce67aa2",
+  "engine": "artist-engine 0.2.0-phaseB"
+ },
+ "gates": {
+  "AT": [
+   "AT-01",
+   "AT-02",
+   "AT-03",
+   "AT-04",
+   "AT-05",
+   "AT-06"
+  ],
+  "CD": [
+   "CD-00",
+   "CD-01",
+   "CD-02",
+   "CD-03",
+   "CD-04",
+   "CD-05",
+   "CD-07",
+   "CD-08",
+   "CD-09",
+   "CD-10"
+  ],
+  "RQ": [
+   "RQ-01",
+   "RQ-02",
+   "RQ-03",
+   "RQ-04",
+   "RQ-05",
+   "RQ-06",
+   "RQ-07",
+   "RQ-08",
+   "RQ-09",
+   "RQ-10",
+   "RQ-11",
+   "RQ-12"
+  ],
+  "SG": [
+   "SG-00",
+   "SG-01",
+   "SG-02",
+   "SG-03",
+   "SG-04",
+   "SG-05",
+   "SG-06",
+   "SG-07",
+   "SG-08",
+   "SG-09",
+   "SG-10",
+   "SG-11",
+   "SG-12",
+   "SG-13",
+   "SG-14"
+  ]
+ },
+ "files": {
+  "contact-sheet.png": "5ac5ece87673ad35adb21461da89b2aefae49531aa20839c227d6311e737220e",
+  "coral/coral.glb": "4280e3de80bacddbad4b28d029713aabaa2f15a9018971d271e35a0050120bd9",
+  "coral/preview.png": "f5a513c35961ca2e2a4399ccbcfc70310601dc073c229c418185b7b1576e4ff7",
+  "geode/geode.glb": "6721b88aef2c04cf059bd3e7a87316d41c60251c7a84f6c5d3345bc6bc83ab1a",
+  "geode/preview.png": "02239f066f0e7e5d9c9646a31b79a1994010877ae40ceb7d1ccf8912deb7e9eb",
+  "lamp/lamp.glb": "e572ce2b8a0dfc1fdb687c63afabc9c88891b8516ba751e429b20597c52a5126",
+  "lamp/preview.png": "a288d98e4a1df747ecc125495c7b76e47219db8f021727925548d6a1951eb485",
+  "stalagmite/preview.png": "191937bb1a998a34db6ec16631d1ba1d79af15281ebaa1dfe3a3ad9c81b696e8",
+  "stalagmite/stalagmite.glb": "5b22c00031002bf6b369883ca3a8c09692debc650c6e57e19a8655c11df9dd45",
+  "vent/preview.png": "266a1f922e4b28e12f61b4fd346b558b9b4d6e813864472a72c7a82efafec21e",
+  "vent/vent.glb": "14448842ddadc3a316b5deb76e00fd799dab5922535ff633f93817680a770fb1",
+  "wreck/preview.png": "a3483db075a07e251de32341bd1414fb9fc1b9a371f9dfabd24c085049744c2d",
+  "wreck/wreck.glb": "1f8c7377909dbdf978e85ebabb34b2a3d6e9735d489f78468f3e52e0832b75e3"
+ }
+}

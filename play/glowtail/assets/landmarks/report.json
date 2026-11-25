@@ -1,0 +1,598 @@
+{
+ "project": "arbelo-games glowtail (Glimmercoil)",
+ "look": "modern",
+ "style": "default",
+ "seconds": 11.5,
+ "ok": true,
+ "contact_sheet": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\contact-sheet.png",
+ "assets": [
+  {
+   "name": "vent",
+   "kind": "model",
+   "ok": true,
+   "painted": false,
+   "notes": [],
+   "files": {
+    "model": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\vent\\vent.glb",
+    "preview": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\vent\\preview.png"
+   },
+   "checks": [
+    {
+     "name": "glb",
+     "ok": true,
+     "detail": "8296 bytes"
+    },
+    {
+     "name": "detail:preview.png",
+     "ok": true,
+     "detail": "luminance std 0.100"
+    },
+    {
+     "name": "guard:RG-115:glb_tangents:vent.glb",
+     "ok": true,
+     "detail": "0 normal-mapped primitive(s) ok"
+    },
+    {
+     "name": "guard:MG-105:glb_accessor_bounds:vent.glb",
+     "ok": true,
+     "detail": "bounds exact, all finite"
+    },
+    {
+     "name": "guard:MG-116:glb_acmr:vent.glb",
+     "ok": true,
+     "detail": "ACMR <= 1.5"
+    },
+    {
+     "name": "guard:MG-104:glb_alignment:vent.glb",
+     "ok": true,
+     "detail": "12 accessors aligned"
+    },
+    {
+     "name": "guard:MG-109:glb_alpha_mode:vent.glb",
+     "ok": true,
+     "detail": "alpha declared"
+    },
+    {
+     "name": "guard:MG-108+MG-113:glb_attributes:vent.glb",
+     "ok": true,
+     "detail": "attribute sets consistent"
+    },
+    {
+     "name": "guard:MG-125:glb_budget:vent.glb",
+     "ok": true,
+     "detail": "84 triangles, 8296 bytes"
+    },
+    {
+     "name": "guard:MG-103:glb_container:vent.glb",
+     "ok": true,
+     "detail": "glb v2, 8296 bytes"
+    },
+    {
+     "name": "guard:MG-112:glb_images:vent.glb",
+     "ok": true,
+     "detail": "0 images ok"
+    },
+    {
+     "name": "guard:MG-107:glb_indices:vent.glb",
+     "ok": true,
+     "detail": "indices valid"
+    },
+    {
+     "name": "guard:MG-115:glb_redundant_vertices:vent.glb",
+     "ok": true,
+     "detail": "no redundant vertices"
+    },
+    {
+     "name": "guard:MG-106:glb_unit_vectors:vent.glb",
+     "ok": true,
+     "detail": "normals/tangents unit"
+    },
+    {
+     "name": "preview MO-01 contrast_min",
+     "ok": true,
+     "detail": "p95/p5 luminance contrast 2.76 on the model pixels (min 2.5)"
+    },
+    {
+     "name": "preview MO-02 saturation_range",
+     "ok": true,
+     "detail": "mean saturation 0.69 on the model pixels (wanted 0.25-0.9)"
+    },
+    {
+     "name": "preview MO-03 palette_match",
+     "ok": true,
+     "detail": "mean deltaE 20.0 to the dossier palette (max 35)"
+    }
+   ]
+  },
+  {
+   "name": "coral",
+   "kind": "model",
+   "ok": true,
+   "painted": false,
+   "notes": [],
+   "files": {
+    "model": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\coral\\coral.glb",
+    "preview": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\coral\\preview.png"
+   },
+   "checks": [
+    {
+     "name": "glb",
+     "ok": true,
+     "detail": "155264 bytes"
+    },
+    {
+     "name": "detail:preview.png",
+     "ok": true,
+     "detail": "luminance std 0.184"
+    },
+    {
+     "name": "guard:RG-115:glb_tangents:coral.glb",
+     "ok": true,
+     "detail": "0 normal-mapped primitive(s) ok"
+    },
+    {
+     "name": "guard:MG-105:glb_accessor_bounds:coral.glb",
+     "ok": true,
+     "detail": "bounds exact, all finite"
+    },
+    {
+     "name": "guard:MG-116:glb_acmr:coral.glb",
+     "ok": true,
+     "detail": "ACMR <= 1.5"
+    },
+    {
+     "name": "guard:MG-104:glb_alignment:coral.glb",
+     "ok": true,
+     "detail": "4 accessors aligned"
+    },
+    {
+     "name": "guard:MG-109:glb_alpha_mode:coral.glb",
+     "ok": true,
+     "detail": "alpha declared"
+    },
+    {
+     "name": "guard:MG-108+MG-113:glb_attributes:coral.glb",
+     "ok": true,
+     "detail": "attribute sets consistent"
+    },
+    {
+     "name": "guard:MG-125:glb_budget:coral.glb",
+     "ok": true,
+     "detail": "5120 triangles, 155264 bytes"
+    },
+    {
+     "name": "guard:MG-103:glb_container:coral.glb",
+     "ok": true,
+     "detail": "glb v2, 155264 bytes"
+    },
+    {
+     "name": "guard:MG-112:glb_images:coral.glb",
+     "ok": true,
+     "detail": "0 images ok"
+    },
+    {
+     "name": "guard:MG-107:glb_indices:coral.glb",
+     "ok": true,
+     "detail": "indices valid"
+    },
+    {
+     "name": "guard:MG-115:glb_redundant_vertices:coral.glb",
+     "ok": true,
+     "detail": "no redundant vertices"
+    },
+    {
+     "name": "guard:MG-106:glb_unit_vectors:coral.glb",
+     "ok": true,
+     "detail": "normals/tangents unit"
+    },
+    {
+     "name": "preview MO-01 contrast_min",
+     "ok": true,
+     "detail": "p95/p5 luminance contrast 3.39 on the model pixels (min 2.5)"
+    },
+    {
+     "name": "preview MO-02 saturation_range",
+     "ok": true,
+     "detail": "mean saturation 0.71 on the model pixels (wanted 0.25-0.9)"
+    },
+    {
+     "name": "preview MO-03 palette_match",
+     "ok": true,
+     "detail": "mean deltaE 16.2 to the dossier palette (max 35)"
+    }
+   ]
+  },
+  {
+   "name": "lamp",
+   "kind": "model",
+   "ok": true,
+   "painted": false,
+   "notes": [],
+   "files": {
+    "model": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\lamp\\lamp.glb",
+    "preview": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\lamp\\preview.png"
+   },
+   "checks": [
+    {
+     "name": "glb",
+     "ok": true,
+     "detail": "5916 bytes"
+    },
+    {
+     "name": "detail:preview.png",
+     "ok": true,
+     "detail": "luminance std 0.143"
+    },
+    {
+     "name": "guard:RG-115:glb_tangents:lamp.glb",
+     "ok": true,
+     "detail": "0 normal-mapped primitive(s) ok"
+    },
+    {
+     "name": "guard:MG-105:glb_accessor_bounds:lamp.glb",
+     "ok": true,
+     "detail": "bounds exact, all finite"
+    },
+    {
+     "name": "guard:MG-116:glb_acmr:lamp.glb",
+     "ok": true,
+     "detail": "ACMR <= 1.5"
+    },
+    {
+     "name": "guard:MG-104:glb_alignment:lamp.glb",
+     "ok": true,
+     "detail": "8 accessors aligned"
+    },
+    {
+     "name": "guard:MG-109:glb_alpha_mode:lamp.glb",
+     "ok": true,
+     "detail": "alpha declared"
+    },
+    {
+     "name": "guard:MG-108+MG-113:glb_attributes:lamp.glb",
+     "ok": true,
+     "detail": "attribute sets consistent"
+    },
+    {
+     "name": "guard:MG-125:glb_budget:lamp.glb",
+     "ok": true,
+     "detail": "86 triangles, 5916 bytes"
+    },
+    {
+     "name": "guard:MG-103:glb_container:lamp.glb",
+     "ok": true,
+     "detail": "glb v2, 5916 bytes"
+    },
+    {
+     "name": "guard:MG-112:glb_images:lamp.glb",
+     "ok": true,
+     "detail": "0 images ok"
+    },
+    {
+     "name": "guard:MG-107:glb_indices:lamp.glb",
+     "ok": true,
+     "detail": "indices valid"
+    },
+    {
+     "name": "guard:MG-115:glb_redundant_vertices:lamp.glb",
+     "ok": true,
+     "detail": "no redundant vertices"
+    },
+    {
+     "name": "guard:MG-106:glb_unit_vectors:lamp.glb",
+     "ok": true,
+     "detail": "normals/tangents unit"
+    },
+    {
+     "name": "preview MO-01 contrast_min",
+     "ok": true,
+     "detail": "p95/p5 luminance contrast 4.67 on the model pixels (min 2.5)"
+    },
+    {
+     "name": "preview MO-02 saturation_range",
+     "ok": true,
+     "detail": "mean saturation 0.57 on the model pixels (wanted 0.25-0.9)"
+    },
+    {
+     "name": "preview MO-03 palette_match",
+     "ok": true,
+     "detail": "mean deltaE 14.6 to the dossier palette (max 35)"
+    }
+   ]
+  },
+  {
+   "name": "geode",
+   "kind": "model",
+   "ok": true,
+   "painted": false,
+   "notes": [],
+   "files": {
+    "model": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\geode\\geode.glb",
+    "preview": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\geode\\preview.png"
+   },
+   "checks": [
+    {
+     "name": "glb",
+     "ok": true,
+     "detail": "159240 bytes"
+    },
+    {
+     "name": "detail:preview.png",
+     "ok": true,
+     "detail": "luminance std 0.242"
+    },
+    {
+     "name": "guard:RG-115:glb_tangents:geode.glb",
+     "ok": true,
+     "detail": "0 normal-mapped primitive(s) ok"
+    },
+    {
+     "name": "guard:MG-105:glb_accessor_bounds:geode.glb",
+     "ok": true,
+     "detail": "bounds exact, all finite"
+    },
+    {
+     "name": "guard:MG-116:glb_acmr:geode.glb",
+     "ok": true,
+     "detail": "ACMR <= 1.5"
+    },
+    {
+     "name": "guard:MG-104:glb_alignment:geode.glb",
+     "ok": true,
+     "detail": "12 accessors aligned"
+    },
+    {
+     "name": "guard:MG-109:glb_alpha_mode:geode.glb",
+     "ok": true,
+     "detail": "alpha declared"
+    },
+    {
+     "name": "guard:MG-108+MG-113:glb_attributes:geode.glb",
+     "ok": true,
+     "detail": "attribute sets consistent"
+    },
+    {
+     "name": "guard:MG-125:glb_budget:geode.glb",
+     "ok": true,
+     "detail": "5288 triangles, 159240 bytes"
+    },
+    {
+     "name": "guard:MG-103:glb_container:geode.glb",
+     "ok": true,
+     "detail": "glb v2, 159240 bytes"
+    },
+    {
+     "name": "guard:MG-112:glb_images:geode.glb",
+     "ok": true,
+     "detail": "0 images ok"
+    },
+    {
+     "name": "guard:MG-107:glb_indices:geode.glb",
+     "ok": true,
+     "detail": "indices valid"
+    },
+    {
+     "name": "guard:MG-115:glb_redundant_vertices:geode.glb",
+     "ok": true,
+     "detail": "no redundant vertices"
+    },
+    {
+     "name": "guard:MG-106:glb_unit_vectors:geode.glb",
+     "ok": true,
+     "detail": "normals/tangents unit"
+    },
+    {
+     "name": "preview MO-01 contrast_min",
+     "ok": true,
+     "detail": "p95/p5 luminance contrast 3.66 on the model pixels (min 2.5)"
+    },
+    {
+     "name": "preview MO-02 saturation_range",
+     "ok": true,
+     "detail": "mean saturation 0.55 on the model pixels (wanted 0.25-0.9)"
+    },
+    {
+     "name": "preview MO-03 palette_match",
+     "ok": true,
+     "detail": "mean deltaE 16.4 to the dossier palette (max 35)"
+    }
+   ]
+  },
+  {
+   "name": "wreck",
+   "kind": "model",
+   "ok": true,
+   "painted": false,
+   "notes": [],
+   "files": {
+    "model": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\wreck\\wreck.glb",
+    "preview": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\wreck\\preview.png"
+   },
+   "checks": [
+    {
+     "name": "glb",
+     "ok": true,
+     "detail": "5868 bytes"
+    },
+    {
+     "name": "detail:preview.png",
+     "ok": true,
+     "detail": "luminance std 0.075"
+    },
+    {
+     "name": "guard:RG-115:glb_tangents:wreck.glb",
+     "ok": true,
+     "detail": "0 normal-mapped primitive(s) ok"
+    },
+    {
+     "name": "guard:MG-105:glb_accessor_bounds:wreck.glb",
+     "ok": true,
+     "detail": "bounds exact, all finite"
+    },
+    {
+     "name": "guard:MG-116:glb_acmr:wreck.glb",
+     "ok": true,
+     "detail": "ACMR <= 1.5"
+    },
+    {
+     "name": "guard:MG-104:glb_alignment:wreck.glb",
+     "ok": true,
+     "detail": "12 accessors aligned"
+    },
+    {
+     "name": "guard:MG-109:glb_alpha_mode:wreck.glb",
+     "ok": true,
+     "detail": "alpha declared"
+    },
+    {
+     "name": "guard:MG-108+MG-113:glb_attributes:wreck.glb",
+     "ok": true,
+     "detail": "attribute sets consistent"
+    },
+    {
+     "name": "guard:MG-125:glb_budget:wreck.glb",
+     "ok": true,
+     "detail": "44 triangles, 5868 bytes"
+    },
+    {
+     "name": "guard:MG-103:glb_container:wreck.glb",
+     "ok": true,
+     "detail": "glb v2, 5868 bytes"
+    },
+    {
+     "name": "guard:MG-112:glb_images:wreck.glb",
+     "ok": true,
+     "detail": "0 images ok"
+    },
+    {
+     "name": "guard:MG-107:glb_indices:wreck.glb",
+     "ok": true,
+     "detail": "indices valid"
+    },
+    {
+     "name": "guard:MG-115:glb_redundant_vertices:wreck.glb",
+     "ok": true,
+     "detail": "no redundant vertices"
+    },
+    {
+     "name": "guard:MG-106:glb_unit_vectors:wreck.glb",
+     "ok": true,
+     "detail": "normals/tangents unit"
+    },
+    {
+     "name": "preview MO-01 contrast_min",
+     "ok": true,
+     "detail": "p95/p5 luminance contrast 4.72 on the model pixels (min 2.5)"
+    },
+    {
+     "name": "preview MO-02 saturation_range",
+     "ok": true,
+     "detail": "mean saturation 0.55 on the model pixels (wanted 0.25-0.9)"
+    },
+    {
+     "name": "preview MO-03 palette_match",
+     "ok": true,
+     "detail": "mean deltaE 33.7 to the dossier palette (max 35)"
+    }
+   ]
+  },
+  {
+   "name": "stalagmite",
+   "kind": "model",
+   "ok": true,
+   "painted": false,
+   "notes": [],
+   "files": {
+    "model": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\stalagmite\\stalagmite.glb",
+    "preview": "C:\\Users\\BryanArbelo\\projects\\arbelo-games\\.claude\\worktrees\\g10b\\games\\glowtail\\assets\\landmarks\\stalagmite\\preview.png"
+   },
+   "checks": [
+    {
+     "name": "glb",
+     "ok": true,
+     "detail": "23524 bytes"
+    },
+    {
+     "name": "detail:preview.png",
+     "ok": true,
+     "detail": "luminance std 0.227"
+    },
+    {
+     "name": "guard:RG-115:glb_tangents:stalagmite.glb",
+     "ok": true,
+     "detail": "0 normal-mapped primitive(s) ok"
+    },
+    {
+     "name": "guard:MG-105:glb_accessor_bounds:stalagmite.glb",
+     "ok": true,
+     "detail": "bounds exact, all finite"
+    },
+    {
+     "name": "guard:MG-116:glb_acmr:stalagmite.glb",
+     "ok": true,
+     "detail": "ACMR <= 1.5"
+    },
+    {
+     "name": "guard:MG-104:glb_alignment:stalagmite.glb",
+     "ok": true,
+     "detail": "4 accessors aligned"
+    },
+    {
+     "name": "guard:MG-109:glb_alpha_mode:stalagmite.glb",
+     "ok": true,
+     "detail": "alpha declared"
+    },
+    {
+     "name": "guard:MG-108+MG-113:glb_attributes:stalagmite.glb",
+     "ok": true,
+     "detail": "attribute sets consistent"
+    },
+    {
+     "name": "guard:MG-125:glb_budget:stalagmite.glb",
+     "ok": true,
+     "detail": "126 triangles, 23524 bytes"
+    },
+    {
+     "name": "guard:MG-103:glb_container:stalagmite.glb",
+     "ok": true,
+     "detail": "glb v2, 23524 bytes"
+    },
+    {
+     "name": "guard:MG-112:glb_images:stalagmite.glb",
+     "ok": true,
+     "detail": "1 images ok"
+    },
+    {
+     "name": "guard:MG-107:glb_indices:stalagmite.glb",
+     "ok": true,
+     "detail": "indices valid"
+    },
+    {
+     "name": "guard:MG-115:glb_redundant_vertices:stalagmite.glb",
+     "ok": true,
+     "detail": "no redundant vertices"
+    },
+    {
+     "name": "guard:MG-106:glb_unit_vectors:stalagmite.glb",
+     "ok": true,
+     "detail": "normals/tangents unit"
+    },
+    {
+     "name": "preview MO-01 contrast_min",
+     "ok": true,
+     "detail": "p95/p5 luminance contrast 3.37 on the model pixels (min 2.5)"
+    },
+    {
+     "name": "preview MO-02 saturation_range",
+     "ok": true,
+     "detail": "mean saturation 0.55 on the model pixels (wanted 0.25-0.9)"
+    },
+    {
+     "name": "preview MO-03 palette_match",
+     "ok": true,
+     "detail": "mean deltaE 15.8 to the dossier palette (max 35)"
+    }
+   ]
+  }
+ ]
+}
