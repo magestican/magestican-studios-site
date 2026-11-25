@@ -342,7 +342,8 @@ export function step(s, a) {
       if (s.screen !== 'clockin') return { state: s, out };
       const clockMs = s.ctx.clockMs + (a.ms ?? 0);
       if (clockMs < CLOCKIN_MS) return { state: { ...s, ctx: { ...s.ctx, clockMs } }, out };
-      out.push({ go: 'play', shift: s.ctx.shift });
+      
+      out.push({ cue: 'ui.shiftStart' }, { go: 'play', shift: s.ctx.shift });
       return { state: enter(s, 'play', out), out };
     }
     case 'event':
