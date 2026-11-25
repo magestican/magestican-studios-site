@@ -679,5 +679,9 @@ body.tb-touch-on .tb-legend li:not(.goal) { display: none; }
 }
 
 
+
+.tb-you-night { list-style: none; margin: 20px auto 0; padding: 0; display: grid; gap: 12px; justify-items: center; font-weight: 700; }
+.tb-you-night li { padding: 8px 16px; background: rgba(10, 13, 21, 0.72); box-shadow: inset 4px 0 0 var(--bell); }
+.tb-you-night .you { display: inline-block; margin-right: 4px; padding: 2px 8px 0; background: var(--bell); color: #0a0d15; font: 700 0.85em/1.2 var(--display); letter-spacing: 0.08em; text-transform: uppercase; }
 #podium .you { display: inline-block; margin-left: 4px; padding: 2px 8px 0; background: var(--bell); color: #0a0d15; font: 700 0.85em/1.2 var(--display); letter-spacing: 0.08em; text-transform: uppercase; }
 #podium li.mine { box-shadow: inset 4px 0 0 var(--bell); }

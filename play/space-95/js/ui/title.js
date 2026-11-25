@@ -3,6 +3,7 @@
 
 
 import { drawPortrait } from './joPortrait.js';
+import { keyAction } from './menu/input.js';
 
 
 
@@ -84,9 +85,11 @@ export function showTitle(root, variant, onStart, shifts = [], onShift = () => {
   };
   const onKey = (e) => {
     if (e.target instanceof HTMLInputElement) return; 
-    if (e.code === 'ArrowLeft' || e.code === 'KeyA') pick = 'woman';
-    else if (e.code === 'ArrowRight' || e.code === 'KeyD') pick = 'man';
-    else if (e.code === 'Enter' || e.code === 'Space') {
+    
+    const a = keyAction(e.code);
+    if (a?.dir === 'left') pick = 'woman';
+    else if (a?.dir === 'right') pick = 'man';
+    else if (a?.type === 'confirm') {
       e.preventDefault();
       go();
       return;

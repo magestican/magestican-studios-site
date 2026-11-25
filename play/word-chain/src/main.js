@@ -67,7 +67,11 @@ const TICK_FROM = 5;
 const lang = gameLang();
 
 
-const MUSIC_NAMES = { main: { ja: 'シティポップ', default: 'City pop' }, local: 'Bolero' };
+
+
+
+
+const MUSIC_NAMES = { main: { ja: 'ジャズ', default: 'Jazz' }, local: 'Bolero' };
 const music = createTrackMusic({
   game: 'word-chain', lang, homeLang: 'vi',
   manifestUrl: new URL('../assets/music/music.json', import.meta.url),

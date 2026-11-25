@@ -17,13 +17,7 @@
   font-display: swap;
 }
 :root {
-  --paper: #fff6e2;
-  --paper-2: #f3e3c0;
-  --suit: #ff8a3d;
-  --plum: #4a1f57;
-  --cut: 18px; 
-  --cut-s: 10px; 
-  --display: "S95 Display", "Arial Rounded MT Bold", system-ui, sans-serif;
+  
   font-family: "S95 Text", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 button,

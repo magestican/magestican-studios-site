@@ -27,6 +27,8 @@ const ARM_A = -7.6;
 const TABLE = -5.72; 
 const ARM_B = -3.8;
 
+import { skittles, canPair, spill } from './loose.js';
+
 export const H2 = Object.freeze({
   id: 'H2',
   name: 'Lounge Loop',
@@ -86,6 +88,14 @@ export const H2 = Object.freeze({
   rugs: Object.freeze([{ x0: -1.1, x1: 6.3, z0: -16.5, z1: -6.9, color: 0x9c3b3b, border: 0xe0b45a }]),
   
   platforms: Object.freeze([]),
+  
+  
+  loose: Object.freeze([
+    ...skittles(0.12, -0.3),
+    ...spill('marble', 0.36, 0),
+    ...canPair(0.70, 0.25),
+    ...spill('toy_block', 0.85, -0.25, 2),
+  ]),
   props: Object.freeze([
     
     { model: 'sofa', x: 10.5, z: -15.9, rot: -Math.PI / 2 },

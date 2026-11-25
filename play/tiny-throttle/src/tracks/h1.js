@@ -18,6 +18,8 @@ const COUNTER = 0.8;
 const DECK = 0.9; 
 const TOP = 0.905; 
 
+import { skittles, spill } from './loose.js';
+
 export const H1 = Object.freeze({
   id: 'H1',
   name: 'Countertop Canyon',
@@ -84,6 +86,17 @@ export const H1 = Object.freeze({
   
   
   
+  
+  
+  loose: Object.freeze([
+    
+    ...skittles(0.14, 0.3),
+    
+    { model: 'soda_can_green', u: 0.38, side: -0.18 },
+    
+    ...spill('marble', 0.66, 0),
+    ...spill('toy_block', 0.86, -0.25, 2),
+  ]),
   props: Object.freeze([
     ...counterRows(),
     { model: 'fridge', x: -1.35, z: -4, rot: 0 },

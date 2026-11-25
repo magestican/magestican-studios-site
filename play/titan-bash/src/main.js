@@ -28,7 +28,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, warmNote, legendSide, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -472,6 +472,12 @@ function showPodium() {
     li.append(who, el('span', 'name', e.houses.map((h) => HOUSE[h].name).join(', ')), el('span', 'score', `${e.score} pts - ${bellsText(e.bells)}`), el('div', 'block', String(e.place + 1)));
     ol.append(li);
   }
+  
+  const mine = $('night-you'); mine.textContent = '';
+  for (const l of yourNightLines(standings(night), night.seats, night.mode === 'team' ? teamName : null)) {
+    const li = el('li'); li.append(el('span', 'you', l.tag), ` ${l.text}`); mine.append(li);
+  }
+  mine.hidden = !mine.childElementCount;
   try { localStorage.setItem(NIGHTS_KEY, String(nightsPlayed() + 1)); } catch {  }
   
   const lines = [];
@@ -716,6 +722,8 @@ if (cheats.state === 'results' || cheats.state === 'podium') {
     while (!match.over) step(match, inputsFor(match));
     if (r < rounds - 1) recordRound(night, match);
   }
+  
+  if (cheats.you !== null && seats[cheats.you]) seats[cheats.you].control = FIRST;
   results(match);
   if (cheats.state === 'podium') showPodium();
   humans = [{ control: FIRST }];

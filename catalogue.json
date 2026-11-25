@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "79a5057e-20261124T210818Z",
+ "buildId": "22c0098e-20261124T235041Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -387,7 +387,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 6538631
+   "bytes": 5372260
   },
   {
    "id": "truco",
@@ -738,7 +738,7 @@
    "ageNote": null,
    "order": 24,
    "addedAt": "2026-10-23",
-   "bytes": 336676919
+   "bytes": 336690278
   },
   {
    "id": "magic-mirror-moves",
@@ -994,7 +994,7 @@
    "ageNote": null,
    "order": 32,
    "addedAt": "2026-11-19",
-   "bytes": 5029516
+   "bytes": 5035000
   },
   {
    "id": "glimmercoil",
@@ -1026,7 +1026,7 @@
    "ageNote": null,
    "order": 33,
    "addedAt": "2026-11-24",
-   "bytes": 11614372
+   "bytes": 11628357
   },
   {
    "id": "ringtitans",
@@ -1058,7 +1058,7 @@
    "ageNote": null,
    "order": 34,
    "addedAt": "2026-11-24",
-   "bytes": 6474838
+   "bytes": 6478732
   },
   {
    "id": "emberpane",

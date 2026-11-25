@@ -3,13 +3,52 @@
 
 
 
+
 import { ART_BIOME } from './biomeArt.js';
 
 
 
 
 
-export const OUTLINE = 0x4a2a6e;
+
+export const ARTIST_OUTLINE_RGB = [0.3, 0.13, 0.34];
+export const BLOOM = { threshold: 0.84, intensity: 0.16 };
+
+
+export const OUTLINE = ARTIST_OUTLINE_RGB.reduce((h, c) => (h << 8) | Math.round(c * 255), 0);
+
+
+
+
+
+export const CONTACT = { color: OUTLINE, opacity: 0.45, maxDrop: 6, minScale: 0.45, width: 1.3, depth: 0.42 };
+
+
+
+
+
+
+export function groundBelow(world, x, y, maxDrop = CONTACT.maxDrop) {
+  if (!world || typeof world.solid !== 'function' || typeof world.oneWay !== 'function') return null;
+  const T = world.tile;
+  const c = Math.floor(x / T);
+  const top = Math.ceil(y / T - 1e-6) - 1;
+  const bottom = Math.floor((y - maxDrop) / T);
+  for (let r = top; r >= Math.max(0, bottom); r--) {
+    if (world.solid(c, r) || world.oneWay(c, r)) {
+      const g = (r + 1) * T;
+      return y - g <= maxDrop + 1e-9 ? g : null;
+    }
+  }
+  return null;
+}
+
+
+export function contactShadow(height) {
+  if (height === null || height === undefined || height > CONTACT.maxDrop) return { scale: 0, opacity: 0 };
+  const k = Math.max(0, height) / CONTACT.maxDrop;
+  return { scale: 1 - (1 - CONTACT.minScale) * k, opacity: CONTACT.opacity * (1 - k) };
+}
 
 
 

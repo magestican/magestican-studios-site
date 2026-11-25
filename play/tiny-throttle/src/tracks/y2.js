@@ -34,6 +34,8 @@ const CROSS_X = -2;
 const SLIDE_X = 5.5;
 const SLIDE_Z = 2.6;
 
+import { skittles, canPair, spill } from './loose.js';
+
 export const Y2 = Object.freeze({
   id: 'Y2',
   name: 'Sandpit Summit',
@@ -109,6 +111,15 @@ export const Y2 = Object.freeze({
     { x0: CROSS_X - 0.7, x1: CROSS_X + 0.7, z0: -3.7, z1: -1.5, y: OVER },
     { x0: -8, x1: 0, z0: -8, z1: -4, y: PIT_Y },
     { x0: SLIDE_X - 1.9, x1: SLIDE_X + 1.62, z0: SLIDE_Z - 0.6, z1: SLIDE_Z + 0.6, y: 5 },
+  ]),
+  
+  
+  loose: Object.freeze([
+    ...skittles(0.12, 0.05),
+    ...spill('toy_block', 0.26, 0, 3),
+    ...spill('marble', 0.56, 0, 2),
+    
+    ...canPair(0.85, 0.35),
   ]),
   props: Object.freeze([
     

@@ -11,6 +11,7 @@ import { loadModels, createView } from './render.js';
 import { formatTime, ordinal } from '../../../web-engine/kart/raceProgress.js';
 import { countdownText } from '../../../web-engine/kart/raceFlow.js';
 import { createTouchSteer } from './touchSteer.js';
+import { SIM_SCALE } from '../../../web-engine/rc/rcTuning.js';
 
 const q = new URLSearchParams(location.search);
 const def = TRACKS[q.get('track') ?? 'H1'] ?? TRACKS.H1;
@@ -208,12 +209,33 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
+
+
+const PROP_SFX = { can: ['canHit', 'canHit_2', 'canHit_3'], marble: ['marble', 'marble_2', 'marble_3', 'marble_4'],
+  block: ['block', 'block_2'] };
+let propTake = 0;
+function propSound(e, mine) {
+  const takes = PROP_SFX[e.kind];
+  if (!takes) return;
+  let vol = 0.7;
+  if (!mine) {
+    const me = race.racers.find((r) => r.isPlayer)?.kart;
+    const p = race.loose[e.i];
+    if (!me || !p) return;
+    vol = 0.5 - 0.1 * Math.hypot(me.x / SIM_SCALE - p.x, me.z / SIM_SCALE - p.z);
+    if (vol < 0.06) return;
+  }
+  propTake = (propTake + 1) % takes.length;
+  sfx(takes[propTake], Math.min(0.8, vol * Math.min(1.4, 0.5 + e.speed / 2)));
+}
+
 function onEvents(events) {
   for (const e of events) {
     const mine = e.id === 'you';
     if (e.type === 'hop' && mine) sfx('hop');
     else if (e.type === 'respawn' && mine) sfx('fall');
     else if (e.type === 'bump') sfx('bump', 0.4);
+    else if (e.type === 'prop') propSound(e, mine);
     else if (e.type === 'lap' && mine) {
       if (e.lap === race.laps - 1) { sfx('finalLap'); banner('Final lap', 1.4); } else if (e.lap < race.laps) sfx('lap');
     } else if (e.type === 'finish' && mine) { sfx('finish'); banner('Finish!', 2); }

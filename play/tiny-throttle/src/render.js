@@ -15,6 +15,8 @@ import { sampleAt } from '../../../web-engine/kart/trackPath.js';
 import { deckRuns, piecesAlong, trestlesAlong } from '../../../web-engine/rc/connector.js';
 import { SIM_SCALE, METRICS } from '../../../web-engine/rc/rcTuning.js';
 import { propDir } from './propDirs.js';
+import { supportY } from './support.js';
+import { KINDS } from '../../../web-engine/rc/props.js';
 
 const m = (units) => units / SIM_SCALE;
 
@@ -32,7 +34,7 @@ const ASSET_DIRS = {
 
 
 export function modelsFor(def) {
-  const names = new Set(def.props.map((p) => p.model));
+  const names = new Set([...def.props, ...(def.loose ?? [])].map((p) => p.model));
   const out = [...names].map((n) => [propDir(n), n]);
   out.push([ASSET_DIRS.connector, 'track_piece'], [ASSET_DIRS.connector, 'trestle'], [ASSET_DIRS.connector, 'start_arch']);
   for (const b of BODIES) out.push([ASSET_DIRS.car, `car_${b}`]);
@@ -97,6 +99,7 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
   buildProps(scene, race.track.def, models);
   buildStart(scene, race.track, models);
   const cars = buildCars(scene, race, models);
+  const loose = buildLoose(scene, race, models);
 
   const cam = { pos: new THREE.Vector3(), look: new THREE.Vector3(), ready: false, fov: METRICS.fov.base };
 
@@ -117,6 +120,7 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
       c.obj.rotation.x = -(k.steerVisual ?? 0) * 0.1;
       c.obj.visible = !(k.respawning && Math.floor(race.clock * 10) % 2 === 0);
     }
+    drawLoose(loose, race);
     const f = race.racers.find((x) => x.id === focusId) ?? race.racers[race.racers.length - 1];
     const k = f.kart;
     const fx = Math.sin(k.heading); const fz = Math.cos(k.heading);
@@ -309,16 +313,7 @@ function stripMesh(pos, mat) {
 }
 
 
-
-export function supportY(def, x, z) {
-  for (const p of def.props) {
-    if (p.support != null && Math.hypot(p.x - x, p.z - z) < 0.3) return p.support;
-  }
-  for (const q of def.platforms ?? []) {
-    if (x > q.x0 && x < q.x1 && z > q.z0 && z < q.z1) return q.y;
-  }
-  return 0;
-}
+export { supportY };
 
 function buildConnector(scene, track, models) {
   const { path, spans, def } = track;
@@ -377,6 +372,41 @@ function buildProps(scene, def, models) {
     }
     scene.add(o);
   }
+}
+
+
+
+
+function buildLoose(scene, race, models) {
+  return race.loose.map((p) => {
+    const box = models.get(p.model).box;
+    const inner = clone(models, p.model);
+    inner.position.set(-(box.min.x + box.max.x) / 2, -(box.min.y + box.max.y) / 2, -(box.min.z + box.max.z) / 2);
+    const g = new THREE.Group();
+    g.add(inner);
+    g.rotation.order = 'YXZ';
+    scene.add(g);
+    return { g, half: (box.max.y - box.min.y) / 2 };
+  });
+}
+
+function drawLoose(loose, race) {
+  loose.forEach((o, i) => {
+    const p = race.loose[i];
+    const K = KINDS[p.kind];
+    if (K.tips && p.down) {
+      
+      o.g.position.set(p.x, p.y + K.radius, p.z);
+      o.g.rotation.set(p.roll, p.heading, Math.PI / 2);
+    } else if (p.kind === 'marble') {
+      o.g.position.set(p.x, p.y + o.half, p.z);
+      o.g.rotation.set(p.roll, p.heading, 0);
+    } else {
+      
+      o.g.position.set(p.x, p.y + o.half, p.z);
+      o.g.rotation.set(0, p.heading + p.roll * 0.05, 0);
+    }
+  });
 }
 
 function buildStart(scene, track, models) {

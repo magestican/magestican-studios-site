@@ -206,7 +206,9 @@ export function draw(ctx, m, fx, L, opts = {}) {
   
   drawShadows(ctx, shadowSpots(m, X, Y, s));
   
-  for (const t of m.titans.filter((o) => o.alive).sort((a, b) => a.y - b.y)) titan(ctx, m, t, X, Y, s, t === big, opts);
+  const plates = [];
+  for (const t of m.titans.filter((o) => o.alive).sort((a, b) => a.y - b.y)) plates.push(titan(ctx, m, t, X, Y, s, t === big, opts));
+  drawPlates(ctx, m, plates, s); 
   if (opts.juice) opts.juice.draw(ctx, X, Y, s);
 
   
@@ -222,6 +224,9 @@ export function draw(ctx, m, fx, L, opts = {}) {
       
       const by = Y(-A.h / 2) + s * 3;
       const pl = bannerPlate(ctx.measureText(f.text).width, px, L.ox, by);
+      
+      const under = m.titans.filter((o) => o.alive).map((o) => titanBox(X(o.x), Y(o.y), T.radius * s, s));
+      ctx.globalAlpha = a * bannerAlpha(pl, under);
       ctx.fillStyle = 'rgba(6,8,13,0.72)'; roundRect(ctx, pl.x, pl.y, pl.w, pl.h, pl.h * 0.2); ctx.fill();
       ctx.lineWidth = Math.max(3, px * 0.16); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
       ctx.strokeText(f.text, L.ox, by); ctx.fillText(f.text, L.ox, by);
@@ -537,7 +542,30 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
 
   
   
-  const bw = s * 4; const by = fr ? top - s * 0.6 : cy - r - s * 1.6;
+  
+  const by = fr ? top - s * 0.6 : cy - r - s * 1.6;
+  return { t, cx, by, label: (opts.labels && opts.labels[t.id]) || h.name };
+}
+
+
+function drawPlates(ctx, m, plates, s) {
+  ctx.save();
+  ctx.font = `700 ${Math.max(11, Math.round(s * 0.95))}px system-ui, sans-serif`;
+  const fh = Math.max(11, Math.round(s * 0.95)); const barH = Math.max(4, s * 0.4);
+  const rects = plates.map((p) => {
+    const w = Math.max(s * 4, ctx.measureText(p.label).width + s * 3.2); 
+    return { x: p.cx - w / 2, y: p.by - 2 - fh, w, h: fh + 2 + barH };
+  });
+  const lay = placePlates(rects, { maxLift: (fh + barH) * 2.5 });
+  plates.forEach((p, i) => {
+    ctx.globalAlpha = lay[i].alpha;
+    namePlate(ctx, m, p.t, p.cx, p.by + lay[i].dy, s, p.label);
+  });
+  ctx.restore();
+}
+
+function namePlate(ctx, m, t, cx, by, s, label) {
+  const bw = s * 4;
   ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(cx - bw / 2, by, bw, Math.max(4, s * 0.4));
   ctx.fillStyle = t.armour / t.maxArmour > 0.35 ? '#7dff8a' : '#ff5a3c';
   ctx.fillRect(cx - bw / 2, by, bw * Math.max(0, t.armour / t.maxArmour), Math.max(4, s * 0.4));
@@ -545,7 +573,6 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
   ctx.font = `700 ${Math.max(11, Math.round(s * 0.95))}px system-ui, sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
   ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.fillStyle = '#fff';
-  const label = (opts.labels && opts.labels[t.id]) || h.name;
   ctx.strokeText(label, cx, by - 2); ctx.fillText(label, cx, by - 2);
   
   if (t.rookie) leaf(ctx, cx - ctx.measureText(label).width / 2 - s * 0.7, by - 2 - s * 0.5, s * 0.6);
@@ -710,6 +737,52 @@ function drawStormCrackle(ctx, pts, X, Y, s) {
     ctx.beginPath(); for (const [x, y] of pts) ctx.lineTo(X(x), Y(y)); ctx.stroke();
   }
   ctx.restore();
+}
+
+
+export const PLATE_FADE = 0.45;
+
+
+
+
+
+
+
+export function placePlates(rects, { maxLift = Infinity, gap = 2 } = {}) {
+  const out = rects.map(() => ({ dy: 0, alpha: 1 }));
+  const placed = [];
+  const order = rects.map((_, i) => i).sort((a, b) => rects[b].y - rects[a].y || b - a);
+  for (const i of order) {
+    const p = rects[i]; let dy = 0;
+    for (let guard = 0; guard <= placed.length; guard++) {
+      const y = p.y + dy;
+      const hit = placed.find((q) => p.x < q.x + q.w && p.x + p.w > q.x && y < q.y + q.h + gap && y + p.h + gap > q.y);
+      if (!hit) break;
+      dy = hit.y - gap - p.h - p.y;
+    }
+    if (-dy > maxLift) { out[i] = { dy: 0, alpha: PLATE_FADE }; continue; }
+    out[i] = { dy, alpha: 1 };
+    placed.push({ ...p, y: p.y + dy });
+  }
+  return out;
+}
+
+
+export const BANNER_SEE_THROUGH = 0.35;
+
+
+
+
+
+export function titanBox(cx, cy, r, s) {
+  const feet = cy + r * 0.7; const top = feet - r * 3.4 - s * 2;
+  return { x: cx - r * 1.3, y: top, w: r * 2.6, h: feet - top };
+}
+
+
+export function bannerAlpha(pl, boxes) {
+  const hit = boxes.some((b) => b.x < pl.x + pl.w && b.x + b.w > pl.x && b.y < pl.y + pl.h && b.y + b.h > pl.y);
+  return hit ? BANNER_SEE_THROUGH : 1;
 }
 
 

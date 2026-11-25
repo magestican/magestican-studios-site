@@ -17,6 +17,8 @@ import { createProgress, addRacer, updateRacer, standings } from '../../../web-e
 import { createFlow, stepFlow, canDrive, PHASE } from '../../../web-engine/kart/raceFlow.js';
 import { SIM_SCALE, toSim, METRICS, gripOf, rcTuning, hopSpeed, gravitySim } from '../../../web-engine/rc/rcTuning.js';
 import { connectorSpans, onDeck, spanAt } from '../../../web-engine/rc/connector.js';
+import { createLooseProps, stepProps } from '../../../web-engine/rc/props.js';
+import { supportY } from './support.js';
 
 export const SAMPLES = 14; 
 export const SHOULDER = toSim(0.25); 
@@ -106,7 +108,61 @@ export function createRace(def, { bots = 11, difficulty = 'market', laps = def.l
   const progress = createProgress(track.path, { laps, checkpoints: 8, startS: track.startS });
   for (const r of racers) addRacer(progress, r.id, r.s);
   const flow = createFlow({ laps, ...(countdown != null ? { countdown } : {}) });
-  return { track, racers, progress, flow, clock: 0, laps };
+  return { track, racers, progress, flow, clock: 0, laps, loose: placeLoose(track) };
+}
+
+
+
+
+
+
+
+export function loosePlacements(track) {
+  return (track.def.loose ?? []).map((l) => {
+    const q = sampleAt(track.path, wrapS(track.path, track.startS + l.u * track.path.length + toSim(l.along ?? 0)));
+    const side = l.side ?? 0;
+    return {
+      model: l.model,
+      x: (q.x + q.nx * toSim(side)) / SIM_SCALE,
+      z: (q.z + q.nz * toSim(side)) / SIM_SCALE,
+      y: (q.roadY ?? q.y) / SIM_SCALE,
+      hint: q.index,
+    };
+  });
+}
+
+function placeLoose(track) {
+  const places = loosePlacements(track);
+  const bodies = createLooseProps(places);
+  bodies.forEach((b, i) => { b.hint = places[i].hint; });
+  return bodies;
+}
+
+
+
+function looseGround(track, x, z, p) {
+  const surf = trackSurface(track.path, toSim(x), toSim(z), p.hint, { shoulder: SHOULDER });
+  p.hint = surf.index;
+  if (Math.abs(surf.lateral ?? 0) <= surf.width / 2) {
+    if (spanAt(track.spans, surf.s, track.path.length) >= 0 && inGap(track, surf.s)) return track.basinY / SIM_SCALE;
+    return (surf.roadY ?? surf.y) / SIM_SCALE;
+  }
+  return supportY(track.def, x, z);
+}
+
+function stepLoose(race, dt, events) {
+  const { loose, racers, track } = race;
+  if (!loose.length) return;
+  const cars = racers.map((r) => ({
+    id: r.id, x: r.kart.x / SIM_SCALE, z: r.kart.z / SIM_SCALE, y: r.kart.y / SIM_SCALE,
+    vx: r.kart.vx / SIM_SCALE, vz: r.kart.vz / SIM_SCALE,
+  }));
+  const { hits, carDeltas } = stepProps(loose, cars, dt, (x, z, p) => looseGround(track, x, z, p));
+  for (const r of racers) {
+    const d = carDeltas.get(r.id);
+    if (d) r.kart = { ...r.kart, vx: r.kart.vx + toSim(d.dvx), vz: r.kart.vz + toSim(d.dvz) };
+  }
+  for (const h of hits) events.push({ type: 'prop', i: h.i, kind: h.kind, model: h.model, id: h.carId, speed: h.speed });
 }
 
 
@@ -171,6 +227,7 @@ export function stepRace(race, playerInput, dt) {
       racers[b].kart = kb;
     }
   }
+  stepLoose(race, dt, events);
   const racing = flow.phase !== PHASE.COUNTDOWN;
   for (const r of racers) {
     const surf = trackSurface(track.path, r.kart.x, r.kart.z, r.kart.pathHint, { shoulder: SHOULDER });

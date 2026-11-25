@@ -5,12 +5,12 @@
     {
       "id": "main",
       "side": "A",
-      "title": "THE LAST LETTER",
-      "genre": "city-pop",
+      "title": "NEXT WORD",
+      "genre": "jazz",
       "file": "word-chain-main.webm",
-      "loopSamples": 6646154,
-      "seed": 1718238876,
-      "lufs": -16.2
+      "loopSamples": 3544615,
+      "seed": 1521969622,
+      "lufs": -14.3
     },
     {
       "id": "local",

@@ -225,3 +225,31 @@ export function rowTag(control = 'bot', humans = 1) {
   if (control.startsWith('pad')) return `Pad ${Number(control.slice(3)) + 1}`;
   return null;
 }
+
+
+export function ordinal(n) {
+  const t = n % 100;
+  if (t >= 11 && t <= 13) return `${n}th`;
+  return `${n}${({ 1: 'st', 2: 'nd', 3: 'rd' })[n % 10] || 'th'}`;
+}
+
+
+
+
+
+
+
+export function yourNightLines(standings, seats, teamName = null) {
+  const humans = seats.filter((s) => s && s.control && s.control !== 'bot').length;
+  const lines = [];
+  for (const e of standings.slice(3)) {
+    for (const id of e.members) {
+      const tag = rowTag(seats[id]?.control, humans);
+      if (!tag) continue;
+      const pts = `${e.score} pt${e.score === 1 ? '' : 's'}`;
+      const team = teamName && e.team != null ? `${teamName(e.team)} - ` : '';
+      lines.push({ tag, text: `${team}${ordinal(e.place + 1)} - ${pts}` });
+    }
+  }
+  return lines;
+}

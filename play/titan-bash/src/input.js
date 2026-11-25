@@ -61,6 +61,8 @@ export function cheatsFrom(search) {
     arena: ['rotate', 'bellRing', 'shatterfield', 'tidewall'].includes(q.get('arena')) ? q.get('arena') : null,
     cpu: ['cadet', 'pilot', 'ace'].includes(q.get('cpu')) ? q.get('cpu') : null,
     rookie: q.get('rookie') === '1' ? true : q.get('rookie') === '0' ? false : null,
+    
+    you: int('you') === null ? null : Math.max(0, Math.min(7, int('you'))),
   };
 }
 

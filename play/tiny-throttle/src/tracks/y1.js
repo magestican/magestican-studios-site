@@ -30,6 +30,8 @@ const PZ = -6;
 const SIDE_Z = -3.1; 
 
 
+import { skittles, spill } from './loose.js';
+
 export const Y1 = Object.freeze({
   id: 'Y1',
   name: 'Deep End Dash',
@@ -89,6 +91,15 @@ export const Y1 = Object.freeze({
   rugs: Object.freeze([{ x0: -15.5, x1: 3.2, z0: -4.4, z1: -1.4, color: 0xa8774a, border: 0x86592f, boards: true }]),
   
   platforms: Object.freeze([{ x0: PX - 4, x1: PX + 4, z0: PZ - 2, z1: PZ + 2, y: OVER }]),
+  
+  
+  loose: Object.freeze([
+    
+    { model: 'soda_can_red', u: 0.2, side: 0.2 },
+    ...spill('marble', 0.45, 0, 2),
+    ...skittles(0.74, -0.3),
+    ...spill('toy_block', 0.88, 0.25, 2),
+  ]),
   props: Object.freeze([
     
     { model: 'pool', x: PX, z: PZ },

@@ -31,7 +31,7 @@ import { createSilk, silkEntityView } from './silkView.js';
 import { createSky, skyEntityView } from './skyView.js';
 import { sovereignEntityView } from './sovereignView.js';
 import { createTrainView } from './trainView.js';
-import { setShiftGrade } from './unify.js';
+import { CONTACT, contactShadow, groundBelow, setShiftGrade } from './unify.js';
 
 const CAM_DIST = 20;
 const PORTRAIT_RIDE_PULL = 1.25;
@@ -118,6 +118,36 @@ export function createView(canvas, level, labels) {
   const jo = joPlaceholder();
   scene.add(jo.group);
   const joSprite = createJoSprite(jo.body);
+  
+  
+  const joShadow = (() => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const g2 = c.getContext('2d');
+    if (g2) {
+      const grad = g2.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(255,255,255,1)');
+      grad.addColorStop(0.55, 'rgba(255,255,255,0.85)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      g2.fillStyle = grad;
+      g2.fillRect(0, 0, 64, 64);
+    }
+    const m = new THREE.Mesh(
+      new THREE.PlaneGeometry(CONTACT.width, CONTACT.depth),
+      new THREE.MeshBasicMaterial({
+        color: CONTACT.color,
+        map: new THREE.CanvasTexture(c),
+        transparent: true,
+        depthWrite: false,
+        depthTest: false,
+      }),
+    );
+    
+    m.renderOrder = 1;
+    m.visible = false;
+    scene.add(m);
+    return m;
+  })();
   
   let pendingEvents = [];
   const bolt = boltPlaceholder();
@@ -300,12 +330,24 @@ export function createView(canvas, level, labels) {
         jo.body.scale.set(sx * p.facing, sy, 1);
         joSprite.update(dt, p, pendingEvents, { punt: session.punt > 0 });
         jo.group.visible = myVisible;
+        const gy = groundBelow(session.world, x, y);
+        const sh = contactShadow(gy === null ? null : y - gy);
+        joShadow.visible = myVisible && sh.opacity > 0;
+        if (joShadow.visible && gy !== null) {
+          joShadow.position.set(x, gy + 0.02, 0.33);
+          joShadow.scale.set(sh.scale, sh.scale, 1);
+           (joShadow.material).opacity = sh.opacity;
+        }
       } else if (fig.jo) {
+        joShadow.visible = false;
         jo.group.position.set(fig.jo.x, fig.jo.y, 0.34);
         jo.body.scale.set(fig.jo.facing, 1, 1);
         joSprite.update(dt, fig.jo.body, [], { punt: false });
         jo.group.visible = true;
-      } else jo.group.visible = false;
+      } else {
+        jo.group.visible = false;
+        joShadow.visible = false;
+      }
       pendingEvents = [];
       if (fig.bolt === 'follow') {
         followJo(boltPos, { x, y }, p.facing, dt, session.time);

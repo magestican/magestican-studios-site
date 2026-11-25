@@ -7,9 +7,11 @@
 
 
 import { useLanguage, activeLanguage, t } from '../../../web-engine/i18n/tr.js';
-import { JA, ES } from './translations.js';
+import { JA, ES, PT, TL, KO, ID, VI } from './translations.js';
 
-useLanguage({ ja: JA, es: ES });
+
+export const DICTS = Object.freeze({ ja: JA, es: ES, pt: PT, tl: TL, ko: KO, id: ID, vi: VI });
+useLanguage(DICTS);
 
 const STATIC = [
   ['#game@aria-label', t('Glimmercoil game board')],

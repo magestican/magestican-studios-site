@@ -1,0 +1,49 @@
+
+
+
+
+
+:root {
+  
+  --ink: #14183a;
+  --card: rgba(20, 24, 58, 0.72);
+  --card-text: #ffffff;
+  --muted: #b9c3ff;
+  --teal: #2fe0d0;
+  --gold: #ffd34d;
+  --paper: #fff6e2;
+  --paper-2: #f3e3c0;
+  --suit: #ff8a3d;
+  --plum: #4d2157; 
+  --focus-ring: #2fe0d0;
+  --stamp-red: #e5484d;
+
+  
+  --gutter: 16px;
+  --pad-card: 16px;
+  --gap: 12px;
+  --gap-section: 24px;
+  --gap-hero: 32px;
+  --touch-min: 44px;
+  --lift: 4px; 
+
+  
+  --radius: 14px;
+  --cut: 18px; 
+  --cut-s: 10px; 
+  --outline-w: 2px; 
+
+  
+  --display: "S95 Display", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --text-xs: 13px; 
+  --text-s: 15px;
+  --text-m: 18px;
+  --text-l: 24px;
+  --text-xl: 36px;
+
+  
+  --enter-ms: 220ms;
+  --leave-ms: 160ms;
+  --fade-ms: 120ms;
+  --ease-paper: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
