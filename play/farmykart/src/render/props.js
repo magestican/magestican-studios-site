@@ -46,6 +46,7 @@ import { RESPAWNS, crossesRoad, waterPlaneY } from 'arbelo/trackHazards';
 import { isWaterAt } from 'arbelo/trackGround';
 import { PALETTE } from '../palette.js';
 import { makeBarnTexture } from './textures.js';
+import { layerTile, LAYER } from './artistTiles.js';
 
 
 
@@ -746,7 +747,10 @@ function buildSnowmen(path, rng, count) {
 function buildBarns(path, rng, count) {
   const group = new THREE.Group();
   group.name = 'barns';
-  const wallMat = surface({ map: makeBarnTexture() });
+  const barnMap = makeBarnTexture();
+  
+  layerTile(barnMap, 'barn_planks', LAYER.barn);
+  const wallMat = surface({ map: barnMap });
   const roofMat = surface({ color: PALETTE.barnRoof, flatShading: true });
   for (let i = 0; i < count; i += 1) {
     

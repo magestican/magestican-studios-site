@@ -1,0 +1,97 @@
+{
+ "stamp": 1,
+ "carried": [
+  {
+   "request": "2026-11-25-kartzoom-world-textures",
+   "artist_commit": "7c2904a399fbb5e32cb04e20c7c730c8304b576d"
+  }
+ ],
+ "files": {
+  "contact-sheet.webp": "e41ebe8e8bcb77a212b8837678f48ac2cf274cd885a964b59e8017f10dd68f71",
+  "kartzoom_world/atlas.webp": "d4c02513ca260ca724012fa59f10bd238e7abbb576ff485235dc53e0625b669d",
+  "kartzoom_world/tiles/barn_planks.webp": "c92104a26e31ebaf942ed2f95b099c2300ab09db1def6ce24c1fa8c33da073a0",
+  "kartzoom_world/tiles/fence_wood.webp": "9782f16e922b80983e0e073261b055c1090227289de0a0945ae5f52d6fb6607a",
+  "kartzoom_world/tiles/grass_mud.webp": "39ee827962820488ea8a3ed12257f0ae76ce90e729827c7d6e5fdbf5499c4c67",
+  "kartzoom_world/tiles/grass_rain.webp": "2624c3c175678b3f4824eb2b48083673fb2a6b5cff9647da6ef93cbd1ec0d103",
+  "kartzoom_world/tiles/grass_snow.webp": "365e4976c487240c23b600f8bc228003fad97252cff3c541bac0c2c28e3a12c0",
+  "kartzoom_world/tiles/grass_summer.webp": "da4321429fccea46451c71a43bb71722fbee8a8c3a023addc2507aaf2df99523",
+  "kartzoom_world/tiles/kart_paint.webp": "cc1a5cf0916c98ef4e958817b3c5dbdc3c9a99a1654f5020a922c20d0785905f",
+  "kartzoom_world/tiles/road_mud.webp": "c04bae1c712a783b25921740fd32620d81eeea20102659565f5e70aa5078cf40",
+  "kartzoom_world/tiles/road_snow.webp": "2538b69e3523be7a0e444357588dae834bf8fb02bc975fcc5f31271cd19d4de8",
+  "kartzoom_world/tiles/road_summer.webp": "a205d81a5faac6248c5af414f13bb8ee16e2cf478edc3fed2e6df71d2a2933c6"
+ },
+ "converted": {
+  "contact-sheet.webp": {
+   "from": "contact-sheet.png",
+   "from_sha256": "9d2c4a99aaf4c351e4f874bc404868d1c32331d9e26508f59f30fcd657f75c1c",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/atlas.webp": {
+   "from": "kartzoom_world/atlas.png",
+   "from_sha256": "c09030d6295d5f5a1d695251385e9bd41669594c289a5f38ecb2157d3c1f939d",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/barn_planks.webp": {
+   "from": "kartzoom_world/tiles/barn_planks.png",
+   "from_sha256": "2c33f7a56c1be393f7a7daee28c4b4a05a2827db96b294601ec530a83a4a4421",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/fence_wood.webp": {
+   "from": "kartzoom_world/tiles/fence_wood.png",
+   "from_sha256": "e6659abb4f7e7ba127efb4bb0537fe9b9fad84339bdbdd3325ca2fedef9ab9a2",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/grass_mud.webp": {
+   "from": "kartzoom_world/tiles/grass_mud.png",
+   "from_sha256": "384d0cb50656930ddad920cd93656c717f2eb76e732e9b632a3042d2402c18cd",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/grass_rain.webp": {
+   "from": "kartzoom_world/tiles/grass_rain.png",
+   "from_sha256": "2fab27ffee998b2de2b8ef6a085fd8e9e428763df638c18ea0c3e9eecdacaf88",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/grass_snow.webp": {
+   "from": "kartzoom_world/tiles/grass_snow.png",
+   "from_sha256": "b0d5b61838e9e88392f41e055895b0c79540bacb63bdd3982ec85afc94ae332c",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/grass_summer.webp": {
+   "from": "kartzoom_world/tiles/grass_summer.png",
+   "from_sha256": "fe9f48fb41206d1ddbcce9a005d1b8019a81cf3784b81cab1627253852cf6320",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/kart_paint.webp": {
+   "from": "kartzoom_world/tiles/kart_paint.png",
+   "from_sha256": "d6b5e7ad1ec2527ef88221b5e621fbda6798bb89c9c5f8c53bfb83d3d6637204",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/road_mud.webp": {
+   "from": "kartzoom_world/tiles/road_mud.png",
+   "from_sha256": "3bd246195943a72089f6b821c01637332116b4dacffde5ca56f50e15227e32d9",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/road_snow.webp": {
+   "from": "kartzoom_world/tiles/road_snow.png",
+   "from_sha256": "4e05847e84751cab77e39fc747dec9bd572d4f3c1f98a2b5d6e0000e238af3c2",
+   "format": "webp",
+   "quality": 82
+  },
+  "kartzoom_world/tiles/road_summer.webp": {
+   "from": "kartzoom_world/tiles/road_summer.png",
+   "from_sha256": "87c29dc9e6fe9d22a32f79817959b043ebc1679d46f564258ed716e96844666e",
+   "format": "webp",
+   "quality": 82
+  }
+ }
+}

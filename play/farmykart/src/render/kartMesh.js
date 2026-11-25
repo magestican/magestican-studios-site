@@ -67,7 +67,17 @@ import {
   stepDeploy, rigPhases, propSpin, rigVisible, WHEEL_TUCK, WHEEL_ROLL,
 } from '../../../../web-engine/render/boatRig.js';
 import { boatFor, BOAT_STYLES } from '../../../../web-engine/render/boatSpec.js';
-import { makePaintTexture } from './textures.js';
+import { makePaintTexture as drawnPaintTexture } from './textures.js';
+import { layerTile, LAYER } from './artistTiles.js';
+
+
+
+let paintLayered = false;
+function makePaintTexture() {
+  const t = drawnPaintTexture();
+  if (!paintLayered) { paintLayered = true; layerTile(t, 'kart_paint', LAYER.paint); }
+  return t;
+}
 
 
 

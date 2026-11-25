@@ -18,6 +18,7 @@ import { nearestOnBranch, sampleAt, trackSurface } from 'arbelo/trackPath';
 import { PALETTE } from '../palette.js';
 import { makeRoadTexture, makeGrassTexture, makeShortcutTexture, makeGroundNormal } from './textures.js';
 import { surface, addGroundDetail, applyShadows } from './materials.js';
+import { layerTile, tileTexture, LAYER, GROUND_TILE, ROAD_TILE } from './artistTiles.js';
 import { themeOf } from './themes.js';
 
 import { NORMAL_SCALE } from '../../../../web-engine/render/lookGrade.js';
@@ -258,6 +259,8 @@ function buildRoad(path, theme) {
     { scale: 0.020, strength: 0.20 },
   ));
   if (normalMap) mesh.material.normalScale.set(NORMAL_SCALE.road, NORMAL_SCALE.road);
+  
+  layerTile(map, ROAD_TILE[theme] ?? ROAD_TILE.summer, LAYER.road, { normalMap });
   mesh.name = 'road';
   applyShadows(mesh, 'road');
   return mesh;
@@ -671,6 +674,8 @@ function buildGround(path, track) {
   ));
   if (normalMap) mesh.material.normalScale.set(NORMAL_SCALE.ground, NORMAL_SCALE.ground);
   mesh.position.set(cx, -0.05, cz);
+  
+  layerTile(map, GROUND_TILE[theme] ?? GROUND_TILE.summer, LAYER.ground, { normalMap });
   mesh.name = 'ground';
   applyShadows(mesh, 'ground');
   return mesh;
@@ -1856,9 +1861,11 @@ export function buildFences(path, count, seed = 0xfe4ce5) {
   const rng = () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 4294967296; };
 
   const postGeo = new THREE.BoxGeometry(0.16, 1.35, 0.16);
-  const postMat = surface({ color: PALETTE.fence });
+  
+  const fenceMap = tileTexture('fence_wood');
+  const postMat = surface({ color: PALETTE.fence, ...(fenceMap ? { map: fenceMap } : {}) });
   const railGeo = new THREE.BoxGeometry(1, 0.11, 0.07);
-  const railMat = surface({ color: PALETTE.fenceDark });
+  const railMat = surface({ color: PALETTE.fenceDark, ...(fenceMap ? { map: fenceMap } : {}) });
 
   const posts = new THREE.InstancedMesh(postGeo, postMat, count);
   const rails = new THREE.InstancedMesh(railGeo, railMat, count * 2);

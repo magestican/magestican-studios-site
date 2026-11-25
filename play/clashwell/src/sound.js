@@ -13,7 +13,8 @@
 
 
 
-export const MENU_CUES = Object.freeze(['tap', 'back', 'toggleOn', 'toggleOff', 'open']);
+
+export const MENU_CUES = Object.freeze(['tap', 'back', 'toggleOn', 'toggleOff', 'open', 'focus']);
 const BACK_IDS = new Set(['select-back', 'leave-room', 'quit', 'to-title']);
 
 

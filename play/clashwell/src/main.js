@@ -12,6 +12,7 @@ import { initAnalytics } from '../../../web-engine/visits/visits.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
 import { createHands } from './hands.js';
 import { createDrag } from './touch.js';
+import { BACK, PRIMARY, keyAction, padHeld, padPresses, padPlay, pickNext } from './menuNav.js';
 import { createClock } from './clock.js';
 import { createDuel } from './duel.js';
 import { layoutMatch } from './layout.js';
@@ -96,11 +97,109 @@ let hadHost = false;
 const isTouch = () => matchMedia('(pointer: coarse)').matches;
 
 function show(name) {
+  const changed = name !== screen;
   screen = name;
   for (const id of SCREENS) $(id).hidden = id !== name;
   if (name !== 'match') {
     hands.clear();
     duel = name === 'end' ? duel : null;
+  }
+  
+  
+  const el = $(name);
+  if (changed) {
+    el.classList.remove('cw-enter');
+    void el.offsetWidth;
+    el.classList.add('cw-enter');
+  }
+  focusPrimary(name);
+}
+
+
+
+
+
+let navMode = false;
+let padState = null;
+const padHands = new Set();
+function focusables() {
+  const page = $(screen);
+  if (!page) return [];
+  return [...page.querySelectorAll('button, summary, input')].filter((b) => !b.disabled && b.offsetParent !== null);
+}
+function focusPrimary(name) {
+  
+  
+  if (isTouch() && !navMode) return;
+  const id = (PRIMARY[name] || []).find((x) => $(x) && !$(x).hidden);
+  if (id) $(id).focus({ preventScroll: true });
+  else if (name === 'match') document.activeElement?.blur?.();
+}
+function markLit(el) {
+  for (const x of document.querySelectorAll('.cw-lit')) if (x !== el) x.classList.remove('cw-lit');
+  if (el && navMode) el.classList.add('cw-lit');
+}
+function navMove(dir) {
+  const list = focusables();
+  if (!list.length) return;
+  const from = list.indexOf(document.activeElement);
+  const rects = list.map((b) => { const q = b.getBoundingClientRect(); return { x: q.left, y: q.top, w: q.width, h: q.height }; });
+  const i = pickNext(rects, from, dir);
+  if (i < 0) return;
+  if (i !== from) {
+    list[i].focus({ preventScroll: true });
+    list[i].scrollIntoView?.({ block: 'nearest' });
+    if (uiSoundOn()) ui.play('focus');
+  }
+  markLit(list[i]);
+}
+function navConfirm() {
+  const list = focusables();
+  const a = document.activeElement;
+  (list.includes(a) ? a : list[0])?.click();
+}
+function navBack() {
+  
+  if (screen === 'title' && $('more').open) {
+    $('more').open = false;
+    $('more-label').focus({ preventScroll: true });
+    if (uiSoundOn()) ui.play('back');
+    return;
+  }
+  const id = BACK[screen];
+  const b = id && $(id);
+  if (!b || b.hidden) return;
+  
+  
+  if (screen === 'match') {
+    if (document.activeElement === b) { b.blur(); markLit(null); } else { b.focus({ preventScroll: true }); markLit(b); }
+    return;
+  }
+  b.click();
+}
+function pollPad(now) {
+  const pads = navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean) : [];
+  if (!pads.length && !padState) return;
+  const held = new Set();
+  for (const p of pads) for (const w of padHeld(p)) held.add(w);
+  const r = padPresses(padState, held, now);
+  padState = pads.length ? r.state : null;
+  if (screen === 'match') {
+    const quitFocused = document.activeElement === $('quit');
+    const want = new Set(quitFocused || mine === null ? [] : padPlay(held));
+    for (const k of want) if (!padHands.has(k)) { padHands.add(k); hands.down(k); }
+    for (const k of [...padHands]) if (!want.has(k)) { padHands.delete(k); hands.up(k); }
+    if (r.presses.length) navMode = true;
+    if (r.presses.includes('start') || r.presses.includes('back')) navBack();
+    else if (quitFocused && r.presses.includes('confirm')) $('quit').click();
+    return;
+  }
+  for (const k of [...padHands]) { padHands.delete(k); hands.up(k); }
+  if (r.presses.length) navMode = true;
+  for (const w of r.presses) {
+    if (w === 'back') navBack();
+    else if (w === 'confirm' || w === 'start') navConfirm();
+    else if (w === 'up' || w === 'down' || w === 'left' || w === 'right') navMove(w);
   }
 }
 
@@ -224,8 +323,9 @@ function resize() {
 
 loadArt();
 
-function paint() {
+function paint(now = performance.now()) {
   requestAnimationFrame(paint);
+  pollPad(now);
   if (screen !== 'match' || !duel) return;
   const size = resize();
   const ctx = $('stage').getContext('2d');
@@ -504,7 +604,14 @@ function drawSelect() {
       b.type = 'button';
       b.textContent = label;
       b.setAttribute('aria-pressed', String(isOn(value)));
-      b.addEventListener('click', () => { onPick(value); drawSelect(); });
+      
+      
+      b.addEventListener('click', () => {
+        onPick(value);
+        const at = [...$(container).children].indexOf(b);
+        drawSelect();
+        $(container).children[at]?.focus({ preventScroll: true });
+      });
       return b;
     }));
   };
@@ -561,11 +668,29 @@ function wire() {
   drawSound();
 
   addEventListener('keydown', (e) => {
-    const key = KEYBOARD[e.code];
-    if (!key || screen !== 'match') return;
+    if (screen === 'match') {
+      if (e.code === 'Escape') { e.preventDefault(); navMode = true; navBack(); return; }
+      const key = KEYBOARD[e.code];
+      if (!key) return;
+      
+      if (document.activeElement === $('quit')) { $('quit').blur(); markLit(null); }
+      e.preventDefault();
+      hands.down(key);
+      return;
+    }
+    
+    
+    const act = keyAction(e.code);
+    if (!act || act === 'confirm' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const typing = e.target instanceof HTMLInputElement;
+    if (typing && e.code !== 'Escape') return;
     e.preventDefault();
-    hands.down(key);
+    navMode = true;
+    if (act === 'back') navBack();
+    else navMove(act);
   });
+  document.addEventListener('focusin', (e) => markLit(e.target.closest?.('button, summary, input') || null));
+  addEventListener('pointerdown', () => { navMode = false; markLit(null); }, true);
   addEventListener('keyup', (e) => { const key = KEYBOARD[e.code]; if (key) hands.up(key); });
   addEventListener('blur', () => hands.clear());
   for (const button of $('pad').querySelectorAll('button')) {
@@ -600,6 +725,8 @@ wire();
 show('title');
 drawSelect();
 bootDone();
+
+requestAnimationFrame(() => { if (screen === 'title') focusPrimary('title'); });
 
 const params = new URLSearchParams(location.search);
 const linkRoom = roomFromHref(location.href);
