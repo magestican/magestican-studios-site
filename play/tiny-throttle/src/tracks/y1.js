@@ -30,7 +30,7 @@ const PZ = -6;
 const SIDE_Z = -3.1; 
 
 
-import { skittles, spill } from './loose.js';
+import { skittles, spill, padRow } from './loose.js';
 
 export const Y1 = Object.freeze({
   id: 'Y1',
@@ -93,6 +93,11 @@ export const Y1 = Object.freeze({
   platforms: Object.freeze([{ x0: PX - 4, x1: PX + 4, z0: PZ - 2, z1: PZ + 2, y: OVER }]),
   
   
+  
+  pads: Object.freeze([...padRow(0.32, [-0.22, 0.22]), ...padRow(0.94)]),
+  
+  events: Object.freeze([{ id: 'sprinkler', source: 'sprinkler', lap: 3, u0: 0.72, u1: 0.86, side: 0, half: 0.75,
+    sweep: 5, at: { x: -9.5, z: -5.6 } }]),
   loose: Object.freeze([
     
     { model: 'soda_can_red', u: 0.2, side: 0.2 },

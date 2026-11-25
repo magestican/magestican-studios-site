@@ -18,6 +18,10 @@ import { createFlow, stepFlow, canDrive, PHASE } from '../../../web-engine/kart/
 import { SIM_SCALE, toSim, METRICS, gripOf, rcTuning, hopSpeed, gravitySim } from '../../../web-engine/rc/rcTuning.js';
 import { connectorSpans, onDeck, spanAt } from '../../../web-engine/rc/connector.js';
 import { createLooseProps, stepProps } from '../../../web-engine/rc/props.js';
+import { createPickups, stepPickups, usePickup, gripAt } from '../../../web-engine/rc/pickups.js';
+import { createWorldEvents, stepWorldEvents, worldGripAt } from '../../../web-engine/rc/worldEvents.js';
+import { applyEffect } from '../../../web-engine/kart/items.js';
+import { applyBoost } from '../../../web-engine/kart/driftBoost.js';
 import { supportY } from './support.js';
 
 export const SAMPLES = 14; 
@@ -88,7 +92,9 @@ export function surfaceFor(track, kart) {
 
 
 
-export function createRace(def, { bots = 11, difficulty = 'market', laps = def.laps, player = true, countdown } = {}) {
+export function createRace(def, {
+  bots = 11, difficulty = 'market', laps = def.laps, player = true, countdown, seed,
+} = {}) {
   const track = buildTrack(def);
   const count = bots + (player ? 1 : 0);
   
@@ -108,7 +114,56 @@ export function createRace(def, { bots = 11, difficulty = 'market', laps = def.l
   const progress = createProgress(track.path, { laps, checkpoints: 8, startS: track.startS });
   for (const r of racers) addRacer(progress, r.id, r.s);
   const flow = createFlow({ laps, ...(countdown != null ? { countdown } : {}) });
-  return { track, racers, progress, flow, clock: 0, laps, loose: placeLoose(track) };
+  return {
+    track, racers, progress, flow, clock: 0, laps, loose: placeLoose(track),
+    pickups: createPickups(padPlacements(track), { seed: seed ?? 1 }),
+    world: createWorldEvents(eventPlacements(track), { length: lapM(track) }),
+  };
+}
+
+
+
+
+const lapM = (track) => track.path.length / SIM_SCALE;
+const uToS = (track, u) => wrapS(track.path, track.startS + u * track.path.length) / SIM_SCALE;
+
+export const padPlacements = (track) => (track.def.pads ?? []).map((p) => ({
+  s: uToS(track, p.u), side: p.side ?? 0, half: p.half,
+}));
+
+export const eventPlacements = (track) => (track.def.events ?? []).map(({ u0, u1, ...e }) => ({
+  ...e, s0: uToS(track, u0), s1: uToS(track, u1),
+}));
+
+
+export function trackPoint(track, s, side = 0) {
+  const q = sampleAt(track.path, wrapS(track.path, toSim(s)));
+  return {
+    x: (q.x + q.nx * toSim(side)) / SIM_SCALE,
+    z: (q.z + q.nz * toSim(side)) / SIM_SCALE,
+    y: (q.roadY ?? q.y) / SIM_SCALE,
+    heading: q.heading,
+  };
+}
+
+const leaderLap = (race) => {
+  const top = standings(race.progress)[0];
+  return top ? (top.lapTimes?.length ?? 0) + 1 : 1;
+};
+
+function stepItems(race, cars, dt, events) {
+  const { racers, track } = race;
+  const length = lapM(track);
+  const out = stepPickups(race.pickups, cars, dt, { length, fieldSize: racers.length });
+  for (const fx of out.effects) {
+    const r = racers.find((x) => x.id === fx.carId);
+    if (!r) continue;
+    if (fx.effect === 'boost') r.kart = { ...r.kart, boost: applyBoost(r.kart.boost, fx) };
+    else if (fx.effect === 'bounce') r.kart = applyEffect(r.kart, 'bounce', { from: fx.from }).kart;
+    else if (fx.effect === 'slow') r.kart = { ...r.kart, squashTime: Math.max(r.kart.squashTime ?? 0, fx.time) };
+  }
+  events.push(...out.events);
+  events.push(...stepWorldEvents(race.world, { leaderLap: leaderLap(race) }, dt).events);
 }
 
 
@@ -176,9 +231,17 @@ export function stepRace(race, playerInput, dt) {
   const table = standings(progress);
   const posById = new Map(table.map((t, i) => [t.id, i + 1]));
   const drive = canDrive(flow);
+  const lapLen = lapM(track);
   for (const r of racers) {
     const surf = surfaceFor(track, r.kart);
     r.kart.pathHint = surf.index;
+    
+    r.sM = surf.s / SIM_SCALE;
+    r.sideM = (surf.lateral ?? 0) / SIM_SCALE;
+    
+    if (!surf.gap && !surf.fallen) {
+      surf.gripScale *= gripAt(race.pickups, r.sM, r.sideM, lapLen) * worldGripAt(race.world, r.sM, r.sideM, lapLen);
+    }
     let input;
     if (!drive) input = { throttle: 0, steer: 0, drift: false };
     else if (r.isPlayer && playerInput && !progress.racers.get(r.id)?.finished) input = playerInput;
@@ -191,6 +254,11 @@ export function stepRace(race, playerInput, dt) {
     
     
     
+    
+    if (r.isPlayer && input === playerInput) {
+      if (input.use && !r.usePrev) usePickup(race.pickups, { id: r.id, s: r.sM, side: r.sideM }, { length: lapLen });
+      r.usePrev = !!input.use;
+    }
     let pre = r.kart;
     r.hopCool = Math.max(0, (r.hopCool ?? 0) - dt);
     if (input.jump && pre.grounded && r.hopCool <= 0) {
@@ -228,6 +296,14 @@ export function stepRace(race, playerInput, dt) {
     }
   }
   stepLoose(race, dt, events);
+  if (drive) {
+    const cars = racers.map((r) => ({
+      id: r.id, s: r.sM, side: r.sideM, position: posById.get(r.id) ?? racers.length,
+      
+      bot: !r.isPlayer || !playerInput || !!progress.racers.get(r.id)?.finished,
+    }));
+    stepItems(race, cars, dt, events);
+  }
   const racing = flow.phase !== PHASE.COUNTDOWN;
   for (const r of racers) {
     const surf = trackSurface(track.path, r.kart.x, r.kart.z, r.kart.pathHint, { shoulder: SHOULDER });

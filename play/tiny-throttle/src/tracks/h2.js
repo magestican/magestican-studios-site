@@ -27,7 +27,7 @@ const ARM_A = -7.6;
 const TABLE = -5.72; 
 const ARM_B = -3.8;
 
-import { skittles, canPair, spill } from './loose.js';
+import { skittles, canPair, spill, padRow } from './loose.js';
 
 export const H2 = Object.freeze({
   id: 'H2',
@@ -90,6 +90,11 @@ export const H2 = Object.freeze({
   platforms: Object.freeze([]),
   
   
+  
+  pads: Object.freeze([...padRow(0.24, [-0.22, 0.22]), ...padRow(0.92)]),
+  
+  
+  events: Object.freeze([]),
   loose: Object.freeze([
     ...skittles(0.12, -0.3),
     ...spill('marble', 0.36, 0),

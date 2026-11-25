@@ -13,6 +13,14 @@ export function skittles(u, side, models = ['soda_can_red', 'soda_can_green', 's
 }
 
 
+
+export function padRow(u, sides = [-0.4, 0, 0.4]) {
+  
+  const half = sides.length > 1 ? (sides[1] - sides[0]) / 2 : 0.3;
+  return sides.map((side) => ({ u, side, half }));
+}
+
+
 export function canPair(u, side, models = ['soda_can_blue', 'soda_can_red']) {
   return [{ model: models[0], u, side: side - 0.06 }, { model: models[1], u, side: side + 0.06 }];
 }

@@ -18,7 +18,7 @@ const COUNTER = 0.8;
 const DECK = 0.9; 
 const TOP = 0.905; 
 
-import { skittles, spill } from './loose.js';
+import { skittles, spill, padRow } from './loose.js';
 
 export const H1 = Object.freeze({
   id: 'H1',
@@ -88,6 +88,11 @@ export const H1 = Object.freeze({
   
   
   
+  
+  
+  pads: Object.freeze([...padRow(0.04), ...padRow(0.30, [-0.2, 0.2])]),
+  
+  events: Object.freeze([{ id: 'tap', source: 'tap', lap: 3, u0: 0.45, u1: 0.53, side: 0, half: 0.45 }]),
   loose: Object.freeze([
     
     ...skittles(0.14, 0.3),

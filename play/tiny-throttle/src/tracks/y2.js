@@ -34,7 +34,7 @@ const CROSS_X = -2;
 const SLIDE_X = 5.5;
 const SLIDE_Z = 2.6;
 
-import { skittles, canPair, spill } from './loose.js';
+import { skittles, canPair, spill, padRow } from './loose.js';
 
 export const Y2 = Object.freeze({
   id: 'Y2',
@@ -114,6 +114,11 @@ export const Y2 = Object.freeze({
   ]),
   
   
+  
+  pads: Object.freeze([...padRow(0.19), ...padRow(0.68, [-0.22, 0.22])]),
+  
+  events: Object.freeze([{ id: 'sprinkler', source: 'sprinkler', lap: 3, u0: 0.84, u1: 0.95, side: 0, half: 0.75,
+    sweep: 5, at: { x: 15.6, z: -3.6 } }]),
   loose: Object.freeze([
     ...skittles(0.12, 0.05),
     ...spill('toy_block', 0.26, 0, 3),

@@ -17,6 +17,7 @@ import { SIM_SCALE, METRICS } from '../../../web-engine/rc/rcTuning.js';
 import { propDir } from './propDirs.js';
 import { supportY } from './support.js';
 import { KINDS } from '../../../web-engine/rc/props.js';
+import { buildItems } from './renderItems.js';
 
 const m = (units) => units / SIM_SCALE;
 
@@ -34,7 +35,8 @@ const ASSET_DIRS = {
 
 
 export function modelsFor(def) {
-  const names = new Set([...def.props, ...(def.loose ?? [])].map((p) => p.model));
+  
+  const names = new Set([...def.props, ...(def.loose ?? [])].map((p) => p.model).concat(['toy_block', 'marble']));
   const out = [...names].map((n) => [propDir(n), n]);
   out.push([ASSET_DIRS.connector, 'track_piece'], [ASSET_DIRS.connector, 'trestle'], [ASSET_DIRS.connector, 'start_arch']);
   for (const b of BODIES) out.push([ASSET_DIRS.car, `car_${b}`]);
@@ -100,6 +102,7 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
   buildStart(scene, race.track, models);
   const cars = buildCars(scene, race, models);
   const loose = buildLoose(scene, race, models);
+  const items = buildItems(scene, race, models);
 
   const cam = { pos: new THREE.Vector3(), look: new THREE.Vector3(), ready: false, fov: METRICS.fov.base };
 
@@ -121,6 +124,7 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
       c.obj.visible = !(k.respawning && Math.floor(race.clock * 10) % 2 === 0);
     }
     drawLoose(loose, race);
+    items.draw(race.clock);
     const f = race.racers.find((x) => x.id === focusId) ?? race.racers[race.racers.length - 1];
     const k = f.kart;
     const fx = Math.sin(k.heading); const fz = Math.cos(k.heading);

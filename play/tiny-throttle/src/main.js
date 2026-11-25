@@ -7,7 +7,10 @@
 
 import { TRACKS, TRACK_ORDER } from './tracks/index.js';
 import { createRace, stepRace, standings, PHASE } from './race.js';
-import { loadModels, createView } from './render.js';
+import { loadModels, createView, LIVERIES } from './render.js';
+import { minimapModel, drawMinimap, wetRuns } from './minimap.js';
+import { minimapSize } from '../../../web-engine/kart/minimap.js';
+import { PICKUPS } from '../../../web-engine/rc/pickups.js';
 import { formatTime, ordinal } from '../../../web-engine/kart/raceProgress.js';
 import { countdownText } from '../../../web-engine/kart/raceFlow.js';
 import { createTouchSteer } from './touchSteer.js';
@@ -61,7 +64,7 @@ function sfx(name, volume = 0.7, dir = 'sfx') {
 const keys = new Set();
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left',
-  ArrowRight: 'right', KeyD: 'right', Space: 'hop', ShiftLeft: 'drift', ShiftRight: 'drift',
+  ArrowRight: 'right', KeyD: 'right', Space: 'hop', ShiftLeft: 'drift', ShiftRight: 'drift', KeyE: 'use',
 };
 addEventListener('keydown', (e) => {
   const k = KEYMAP[e.code];
@@ -123,7 +126,7 @@ function readInput() {
   
   const keySteer = (has('right') ? 1 : 0) - (has('left') ? 1 : 0);
   const steer = keySteer || steerTouch.value();
-  return { throttle, steer, drift: has('drift'), jump: has('hop') };
+  return { throttle, steer, drift: has('drift'), jump: has('hop'), use: has('use') };
 }
 
 
@@ -138,6 +141,26 @@ let last = 0;
 
 function resize() {
   if (view) view.resize(innerWidth, innerHeight);
+  fitMinimap();
+}
+
+
+const mapCanvas = $('minimap');
+const mapCtx = mapCanvas.getContext('2d');
+let mapModel = null;
+let mapTints = LIVERIES;
+function fitMinimap() {
+  if (!race) return;
+  
+  const size = Math.round(minimapSize(innerWidth, innerHeight) * (innerWidth < 600 ? 0.95 : 0.8));
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  document.documentElement.style.setProperty('--map', `${size}px`);
+  mapCanvas.width = size * dpr;
+  mapCanvas.height = size * dpr;
+  mapCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  mapModel = minimapModel(race.track, size);
+  
+  mapTints = race.racers.map((r, i) => (r.isPlayer ? LIVERIES[0] : LIVERIES[1 + (i % (LIVERIES.length - 1))]));
 }
 addEventListener('resize', resize);
 
@@ -167,6 +190,7 @@ function newRace({ attract = false } = {}) {
   resize();
   lastBeat = null;
   acc = 0;
+  fitMinimap();
 }
 
 function start() {
@@ -236,6 +260,13 @@ function onEvents(events) {
     else if (e.type === 'respawn' && mine) sfx('fall');
     else if (e.type === 'bump') sfx('bump', 0.4);
     else if (e.type === 'prop') propSound(e, mine);
+    else if (e.type === 'pickup' && mine) sfx(e.pickup === 'battery' ? 'pickup_2' : 'pickup', 0.7);
+    else if (e.type === 'use' && mine) sfx(USE_SFX[e.pickup], 0.75);
+    else if (e.type === 'splash' && e.owner === 'you') sfx('splash', 0.6);
+    else if (e.type === 'pickupHit' && (mine || e.from === 'you')) sfx(e.pickup === 'gum' ? 'gum_2' : 'bouncyMarble_2', mine ? 0.75 : 0.5);
+    else if (e.type === 'worldWarn') { sfx(e.source === 'tap' ? 'tap' : 'sprinkler', 0.75); toast(WORLD_TOAST[e.source], 3.2); }
+    else if (e.type === 'worldOn' && e.source === 'sprinkler') sfx('sprinkler', 0.5);
+    else if (e.type === 'worldOn' && e.source === 'tap') sfx('splash_2', 0.6);
     else if (e.type === 'lap' && mine) {
       if (e.lap === race.laps - 1) { sfx('finalLap'); banner('Final lap', 1.4); } else if (e.lap < race.laps) sfx('lap');
     } else if (e.type === 'finish' && mine) { sfx('finish'); banner('Finish!', 2); }
@@ -248,6 +279,21 @@ function onEvents(events) {
     sfx(text === 'GO!' ? 'go' : 'countdown');
   }
   if (race.flow.phase === PHASE.RESULTS && running) results();
+}
+
+
+const USE_SFX = { battery: 'boost', balloon: 'balloon', marble: 'bouncyMarble', gum: 'gum' };
+const WORLD_TOAST = {
+  tap: 'The tap is running. Wet worktop ahead.',
+  sprinkler: 'The sprinkler is on. Wet grass ahead.',
+};
+let toastTimer = 0;
+function toast(text, secs) {
+  const t = $('toast');
+  t.textContent = text;
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, secs * 1000);
 }
 
 let bannerUntil = 0;
@@ -278,6 +324,14 @@ function hud() {
   
   const t = me.finished ? me.finishTime : (race.flow.phase === PHASE.COUNTDOWN ? 0 : race.flow.time);
   $('time').textContent = formatTime(t);
+  
+  const held = race.pickups.held.get('you');
+  const slot = $('slot');
+  slot.classList.toggle('has', !!held);
+  $('slotName').textContent = held ? PICKUPS[held].name : 'No pickup';
+  $('slotHint').textContent = held ? (isTouch ? 'Tap Use' : 'E to use') : '';
+  document.querySelector('.pad.use')?.classList.toggle('empty', !held);
+  if (mapModel) drawMinimap(mapCtx, mapModel, race, 'you', mapTints, wetRuns(mapModel, race));
 }
 
 function results() {
@@ -287,6 +341,7 @@ function results() {
   
   $('banner').hidden = true;
   bannerUntil = 0;
+  $('toast').hidden = true;
   $('pads').classList.remove('on');
   steerTouch.reset();
   showSteer();
