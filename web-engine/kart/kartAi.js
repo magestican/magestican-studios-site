@@ -868,7 +868,12 @@ export function driveBot(driver, kart, line, ctx) {
     driver.railRode = false;
   }
 
-  const target = branchTarget ?? railTarget ?? lineAt(line, surface.s + look);
+  
+  
+  
+  
+  const onLine = lineAt(line, surface.s + look);
+  const target = branchTarget ?? railTarget ?? (ctx.aim ? { ...onLine, x: ctx.aim.x, z: ctx.aim.z } : onLine);
 
   
   
@@ -881,6 +886,7 @@ export function driveBot(driver, kart, line, ctx) {
   if (railTarget) {
     wobble = Math.max(-RAIL_WOBBLE_M, Math.min(RAIL_WOBBLE_M, wobble));
   }
+  if (!branchTarget && !railTarget && ctx.aim) wobble = 0;
   
   
   

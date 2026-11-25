@@ -64,14 +64,28 @@ export function joinNames(names) {
 
 
 
-export function statParts(r, rows = [r]) {
+export function statParts(r, rows = [r], mode = 'brawl') {
   const parts = [];
   if (rows.some((x) => x.clangsWon > 0)) parts.push(['Clangs', ' won', '', r.clangsWon]);
-  parts.push(['', 'Perfect ', 'Vents', r.perfectVents], ['', 'Best ', 'streak', r.bestStreak]);
+  
+  
+  
+  if (rows.some((x) => x.perfectVents > 0)) parts.push(['', 'Perfect ', 'Vents', r.perfectVents]);
+  parts.push(['', 'Best ', 'streak', r.bestStreak]);
   
   if (r.falls > 0) parts.push(['Fell out', '', '', r.falls]);
+  
+  
+  
+  if (mode !== 'team' && rows.some((x) => x !== r && x.bells === r.bells && x.place !== r.place)) parts.push(['Rung out', '', '', r.rung]);
   return parts;
 }
+
+
+export function ptsText(n) { return `${n} pt${n === 1 ? '' : 's'}`; }
+
+
+export function starsLine(n) { return `+${n} House Star${n === 1 ? '' : 's'}`; }
 
 
 export function fallText(name, value) {

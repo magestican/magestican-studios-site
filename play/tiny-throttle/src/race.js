@@ -18,7 +18,7 @@ import { createFlow, stepFlow, canDrive, PHASE } from '../../../web-engine/kart/
 import { SIM_SCALE, toSim, METRICS, gripOf, rcTuning, hopSpeed, gravitySim } from '../../../web-engine/rc/rcTuning.js';
 import { connectorSpans, onDeck, spanAt } from '../../../web-engine/rc/connector.js';
 import { createLooseProps, stepProps } from '../../../web-engine/rc/props.js';
-import { createPickups, stepPickups, usePickup, gripAt } from '../../../web-engine/rc/pickups.js';
+import { createPickups, stepPickups, usePickup, gripAt, padAim } from '../../../web-engine/rc/pickups.js';
 import { createWorldEvents, stepWorldEvents, worldGripAt } from '../../../web-engine/rc/worldEvents.js';
 import { applyEffect } from '../../../web-engine/kart/items.js';
 import { applyBoost } from '../../../web-engine/kart/driftBoost.js';
@@ -93,7 +93,7 @@ export function surfaceFor(track, kart) {
 
 
 export function createRace(def, {
-  bots = 11, difficulty = 'market', laps = def.laps, player = true, countdown, seed,
+  bots = 11, difficulty = 'market', laps = def.laps, player = true, countdown, seed, padAim: aimPads = true,
 } = {}) {
   const track = buildTrack(def);
   const count = bots + (player ? 1 : 0);
@@ -115,7 +115,7 @@ export function createRace(def, {
   for (const r of racers) addRacer(progress, r.id, r.s);
   const flow = createFlow({ laps, ...(countdown != null ? { countdown } : {}) });
   return {
-    track, racers, progress, flow, clock: 0, laps, loose: placeLoose(track),
+    track, racers, progress, flow, clock: 0, laps, loose: placeLoose(track), aimPads,
     pickups: createPickups(padPlacements(track), { seed: seed ?? 1 }),
     world: createWorldEvents(eventPlacements(track), { length: lapM(track) }),
   };
@@ -247,8 +247,15 @@ export function stepRace(race, playerInput, dt) {
     else if (r.isPlayer && playerInput && !progress.racers.get(r.id)?.finished) input = playerInput;
     else {
       if (!r.driver) r.driver = createDriver(r.slot, 'sunday');
+      
+      
+      const onSpan = (sSim) => spanAt(track.spans, sSim, track.path.length) >= 0;
+      let pad = race.aimPads && !onSpan(surf.s) ? padAim(race.pickups, { id: r.id, s: r.sM, side: r.sideM }, lapLen) : null;
+      if (pad && onSpan(wrapS(track.path, toSim(pad.s)))) pad = null;
+      const at = pad && trackPoint(track, pad.s, pad.side);
       input = driveBot(r.driver, r.kart, track.line, {
         surface: surf, time: race.clock, dt, position: posById.get(r.id) ?? 1, fieldSize: racers.length,
+        ...(at ? { aim: { x: at.x * SIM_SCALE, z: at.z * SIM_SCALE } } : {}),
       });
     }
     

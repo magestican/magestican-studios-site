@@ -28,7 +28,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, ptsText, starsLine, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -343,7 +343,7 @@ function wear(s) {
 function giveStars(id, n, tip) {
   const s = night.seats[id];
   if (!s || s.control === 'bot' || !(n > 0 || tip)) return null;
-  const parts = n > 0 ? [`+${n} ${RT.stars.earned}`] : [];
+  const parts = n > 0 ? [starsLine(n)] : [];
   if (s.control.startsWith('phone')) {
     link?.send(s.control, { t: MSG.REWARD, stars: n, tip });
   } else if (screenSlot(s.control) && store) {
@@ -398,7 +398,7 @@ function results(m) {
     const you = rowTag(seats[r.id]?.control, humanCount);
     if (you) { nm.append(' ', el('span', 'you', you)); li.classList.add('mine'); }
     const b = el('span', 'bells', bellsText(r.bells));
-    const stats = statsLine(r, card.rows);
+    const stats = statsLine(r, card.rows, card.mode);
     const face = el('span', 'tb-face'); face.setAttribute('aria-hidden', 'true'); face.style.borderColor = HOUSE[r.house].colour;
     tintFace(face, r.frame, r.house);
     li.append(el('span', 'place', `${r.place + 1}.`), face, nm, b, el('span', 'pts', `+${r.points}`), stats);
@@ -414,9 +414,9 @@ function results(m) {
 
 
 
-function statsLine(r, rows) {
+function statsLine(r, rows, mode) {
   const s = el('span', 'stats');
-  statParts(r, rows).forEach(([lead, long, tail, n], i) => {
+  statParts(r, rows, mode).forEach(([lead, long, tail, n], i) => {
     if (i) s.append(' - ');
     s.append(lead); if (long) s.append(el('span', 'lg', long)); s.append(el('span', 'k', tail), ` ${n}`);
   });
@@ -432,7 +432,7 @@ function paintStandings() {
     const name = night.mode === 'team'
       ? `${teamName(e.team)}: ${e.members.map((i) => HOUSE[night.seats[i].house].name).join(', ')}`
       : HOUSE[night.seats[e.members[0]].house].name;
-    li.append(el('span', '', name), el('span', 'score', `${e.score} pts`));
+    li.append(el('span', '', name), el('span', 'score', ptsText(e.score)));
     ol.append(li);
   }
 }
@@ -470,7 +470,7 @@ function showPodium() {
       const f = el('span', 'tb-face'); f.dataset.titan = seat.titan; f.title = HOUSE[seat.house].name;
       f.style.setProperty('--house', HOUSE[seat.house].colour); tintFace(f, seat.titan, seat.house); who.append(f);
     }
-    li.append(who, el('span', 'name', e.houses.map((h) => HOUSE[h].name).join(', ')), el('span', 'score', `${e.score} pts - ${bellsText(e.bells)}`), el('div', 'block', String(e.place + 1)));
+    li.append(who, el('span', 'name', e.houses.map((h) => HOUSE[h].name).join(', ')), el('span', 'score', `${ptsText(e.score)} - ${bellsText(e.bells)}`), el('div', 'block', String(e.place + 1)));
     ol.append(li);
   }
   

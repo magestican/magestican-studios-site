@@ -100,6 +100,35 @@ export function createPickups(pads, { seed = 1 } = {}) {
 }
 
 
+
+
+
+
+
+
+
+
+export const AIM_NEAR = 0.5;
+export const AIM_FAR = 3;
+export function padAim(st, c, length) {
+  if (st.held.has(c.id)) return null;
+  let rowS = null;
+  let best = Infinity;
+  for (const p of st.pads) {
+    const d = dS(c.s, p.s, length);
+    if (d >= AIM_NEAR && d <= AIM_FAR && d < best) { best = d; rowS = p.s; }
+  }
+  if (rowS == null) return null;
+  const row = st.pads.filter((p) => Math.abs(dS(rowS, p.s, length)) < 0.05);
+  if (row.some((p) => p.ready && Math.abs(c.side - p.side) <= p.half)) return null; 
+  let aim = null;
+  for (const p of row) {
+    if (!p.ready) continue;
+    if (!aim || Math.abs(c.side - p.side) < Math.abs(c.side - aim.side)) aim = p;
+  }
+  return aim ? { s: aim.s, side: aim.side } : null;
+}
+
 export function usePickup(st, c, { length }) {
   const id = st.held.get(c.id);
   if (!id) return null;

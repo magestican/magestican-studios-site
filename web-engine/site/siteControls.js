@@ -203,14 +203,29 @@ export function pickSlot(candidates, obstacles) {
 }
 
 
-export function slotCandidates(vw, vh) {
+
+
+
+
+
+
+
+
+export const AVOID_GAP = 12;
+export function grow(rect, gap) {
+  return { left: rect.left - gap, top: rect.top - gap, right: rect.right + gap, bottom: rect.bottom + gap };
+}
+
+
+export function slotCandidates(vw, vh, gutter = 0) {
   const w = vw <= 600 ? 22 : 30;
   const h = vw <= 600 ? 44 : 48;
+  const g = Math.max(0, Number(gutter) || 0);
   const out = [];
   for (const side of ['left', 'right']) {
     for (const frac of [0.34, 0.5, 0.22, 0.66, 0.78, 0.12, 0.88]) {
       const top = Math.round(Math.min(Math.max(frac * vh - h / 2, 4), vh - h - 4));
-      const left = side === 'left' ? 0 : vw - w;
+      const left = side === 'left' ? g : vw - w - g;
       out.push({ side, top, rect: { left, top, right: left + w, bottom: top + h } });
     }
   }
@@ -253,6 +268,7 @@ const CSS = `
 .mg-screen[data-side="right"] .mg-screen-tab { border: 1px solid rgba(255,255,255,0.35); border-right: 0; border-radius: 10px 0 0 10px; margin-left: auto; }
 .mg-screen[data-side="right"] .mg-screen-menu { left: auto; right: 44px; }
 .mg-screen[data-low="1"] .mg-screen-menu { top: auto; bottom: -8px; }
+.mg-screen[data-gutter="1"] .mg-screen-tab { border: 1px solid rgba(255,255,255,0.35); border-radius: 10px; }
 @media (max-width: 600px) {
   .mg-screen-tab { width: 22px; height: 44px; }
   .mg-screen-tab svg { width: 14px; height: 14px; }
@@ -432,17 +448,29 @@ export function mountSiteControls({ doc = document, win = window } = {}) {
       if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) === 0) continue;
       list.push(r);
     }
+    for (const el of doc.querySelectorAll('[data-mg-avoid]')) {
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) continue;
+      list.push(grow(r, AVOID_GAP));
+    }
     return list;
   };
+  const gutter = () => Number(doc.documentElement.dataset.mgGutter) || 0;
   let slot = null;
   const place = (force) => {
     if (host.dataset.open === '1') return;
     const obs = obstacles();
     if (!force && slot && pickSlot([slot], obs).area === 0) return;   
-    const next = pickSlot(slotCandidates(win.innerWidth, win.innerHeight), obs);
+    const g = gutter();
+    const next = pickSlot(slotCandidates(win.innerWidth, win.innerHeight, g), obs);
     if (!next) return;
     slot = next;
     host.dataset.side = next.side;
+    if (g > 0) {
+      host.dataset.gutter = '1';
+      host.style.left = next.side === 'left' ? `${g}px` : 'auto';
+      host.style.right = next.side === 'right' ? `${g}px` : 'auto';
+    }
     host.dataset.low = next.top > win.innerHeight / 2 ? '1' : '0';   
     host.style.top = `${next.top}px`;
   };
