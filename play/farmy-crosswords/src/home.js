@@ -262,11 +262,13 @@ export function create(app) {
     g.clip();
     g.translate(0, -scroll);
 
-    const head = { x: box.x, y: box.y + 8, width: box.width, height: 52 };
-    paint.text(g, localGameName('farmy-crosswords'), head, { size: SIZES.h1, colour: COLORS.ink });
+    
+    
+    const head = { x: box.x, y: box.y + 8, width: contentW, height: 52 };
+    paint.text(g, localGameName('farmy-crosswords'), head, { size: SIZES.h1, colour: COLORS.ink, fit: true });
     paint.text(g, 'Four word games. Nothing is timed.',
-      { x: box.x, y: box.y + 64, width: box.width, height: 32 },
-      { size: SIZES.base, weight: 400, colour: COLORS.inkSoft });
+      { x: box.x, y: box.y + 64, width: contentW, height: 32 },
+      { size: SIZES.base, weight: 400, colour: COLORS.inkSoft, fit: true });
 
     cards.forEach((c, i) => {
       

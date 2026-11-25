@@ -14,6 +14,7 @@ import {
 } from '../../../web-engine/words/coop.js';
 import * as paint from './paint.js';
 import { panelBox } from './overlay.js';
+import { stepCursor } from './menuNav.js';
 
 
 
@@ -310,11 +311,16 @@ export function room(app, {
 
 
 
-export function more(app, { items }) {
+export function more(app, { items, focus = null }) {
   let box = panelBox(app, false);
   let buttons = [];
   let hover = -1;
   let hoverAt = 0;
+  
+  
+  
+  
+  let cursor = app.keyboardMode ? Math.max(0, items.findIndex((it) => it.id === focus)) : -1;
 
   
   
@@ -347,6 +353,7 @@ export function more(app, { items }) {
         label: b.label,
         hover: hover === i ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
       });
+      if (i === cursor && app.keyboardMode) paint.focusRing(g, b);
     });
   }
 
@@ -370,7 +377,11 @@ export function more(app, { items }) {
       if (i >= 0) buttons[i].run();
     },
     key: (action) => {
-      if (action.type === 'submit') { app.closeOverlay(); return true; }
+      if (action.type === 'move') { cursor = stepCursor(cursor, buttons.length, action); app.invalidate(); return true; }
+      if (action.type === 'submit') {
+        if (cursor >= 0 && buttons[cursor]) { app.sound('press'); buttons[cursor].run(); } else app.closeOverlay();
+        return true;
+      }
       return false;
     },
     describe: () => ({
@@ -411,6 +422,14 @@ export function results(app, { state, onNext, onGames, onClose }) {
   
   const openedAt = app.now();
   const GLOW_MS = 6000;
+  
+  let cursor = app.keyboardMode ? 0 : -1;
+  function press(i) {
+    const id = buttons[i].id;
+    if (id === 'next') onNext();
+    else if (id === 'games') onGames();
+    else onClose();
+  }
 
   function layout() {
     box = panelBox(app, false);
@@ -539,6 +558,7 @@ export function results(app, { state, onNext, onGames, onClose }) {
         glow: breath,
         hover: hover === i ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
       });
+      if (i === cursor && app.keyboardMode) paint.focusRing(g, b);
     });
   }
 
@@ -555,14 +575,15 @@ export function results(app, { state, onNext, onGames, onClose }) {
     pointerDown: () => {},
     pointerUp: (pt) => {
       const i = rectAt(buttons, pt.x, pt.y);
-      if (i < 0) return;
-      const id = buttons[i].id;
-      if (id === 'next') onNext();
-      else if (id === 'games') onGames();
-      else onClose();
+      if (i >= 0) press(i);
     },
+    
     key: (action) => {
-      if (action.type === 'submit') { onNext(); return true; }
+      if (action.type === 'move') { cursor = stepCursor(cursor, buttons.length, action); app.invalidate(); return true; }
+      if (action.type === 'submit') {
+        if (cursor >= 0 && buttons[cursor]) { app.sound('press'); press(cursor); } else onNext();
+        return true;
+      }
       return false;
     },
     describe: () => ({
@@ -592,6 +613,12 @@ export function say(app, { onSay }) {
   let buttons = [];
   let hover = -1;
   let hoverAt = 0;
+  
+  let cursor = app.keyboardMode ? 0 : -1;
+  function press(i) {
+    if (buttons[i].id === 'close') app.closeOverlay();
+    else onSay(buttons[i].id);
+  }
 
   function layout() {
     box = panelBox(app, false);
@@ -616,6 +643,7 @@ export function say(app, { onSay }) {
         size: SIZES.min,
         hover: hover === i ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
       });
+      if (i === cursor && app.keyboardMode) paint.focusRing(g, b);
     });
   }
 
@@ -632,12 +660,14 @@ export function say(app, { onSay }) {
     pointerDown: () => {},
     pointerUp: (pt) => {
       const i = rectAt(buttons, pt.x, pt.y);
-      if (i < 0) return;
-      if (buttons[i].id === 'close') app.closeOverlay();
-      else onSay(buttons[i].id);
+      if (i >= 0) press(i);
     },
     key: (action) => {
-      if (action.type === 'submit') { app.closeOverlay(); return true; }
+      if (action.type === 'move') { cursor = stepCursor(cursor, buttons.length, action); app.invalidate(); return true; }
+      if (action.type === 'submit') {
+        if (cursor >= 0 && buttons[cursor]) { app.sound('press'); press(cursor); } else app.closeOverlay();
+        return true;
+      }
       return false;
     },
     describe: () => ({

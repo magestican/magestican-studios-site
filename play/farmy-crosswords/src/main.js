@@ -58,6 +58,12 @@ import {
   seating, isObserver, watchingText, MAX_PLAYERS,
 } from '../../../web-engine/words/coop.js';
 import * as sfx from './sfx.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
+import { addUiMuteSource, uiSoundOn } from '../../../web-engine/brand/uiSound.js';
+import {
+  TITLE_BUTTONS, titleMove, titleKey, padHeld, padPresses, PAD_KEY, backTarget, MENU_CUES, MENU_GAINS, pageGutter,
+  CUE_GAP_MS, panelLook, TITLE_OUT_MS,
+} from './menuNav.js';
 import * as music from '../../shared/audio/lofi.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
 import { mountLiveBadge } from '../../shared/ui/liveBadge.js';
@@ -84,6 +90,21 @@ initAnalytics({ page: 'farmy-crosswords' });
 
 
 sfx.install();
+
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+addUiMuteSource(() => sfx.isMuted());
+let lastCueAt = -Infinity;
+
+function uiCue(name) {
+  const now = performance.now();
+  if (now - lastCueAt < CUE_GAP_MS) return;
+  lastCueAt = now;
+  if (!sfx.isMuted() && uiSoundOn()) ui.play(name);
+}
+
 startVersionChecker({
   versionUrl: './version.json',
   label: 'A new version of Wordburrow is available.',
@@ -167,7 +188,10 @@ const app = {
   
   
   
-  sound: (event, opts) => sfx.play(event, opts),
+  
+  
+  
+  sound: (event, opts) => (event === 'press' ? uiCue('tap') : sfx.play(event, opts)),
   
   
   openHints: (spec) => {
@@ -329,7 +353,7 @@ function resize() {
 }
 
 function contentBox() {
-  const pad = app.width < 520 ? 10 : 20;
+  const pad = pageGutter(app.width);
   
   
   
@@ -358,7 +382,7 @@ function contentBox() {
 
 
 function infoRow() {
-  const pad = app.width < 520 ? 10 : 20;
+  const pad = pageGutter(app.width);
   const mod = MODULES[current];
   
   
@@ -514,7 +538,8 @@ function layoutBar() {
     
     
     barRects = [
-      ...(current === HOME ? [] : [{ x: 12, y, w: 52, h, id: 'back', label: '←' }]),
+      
+      { x: 12, y, w: 52, h, id: current === HOME ? 'title' : 'back', label: '←' },
       ...chipRect(moreX - 8 - 132, 132),
       ...(roomState.active ? [] : [{
         x: moreX - 8 - 56, y, w: 56, h, id: 'together',
@@ -538,6 +563,7 @@ function layoutBar() {
   const prizesRect = { x: prizesX, y, w: 140, h, id: 'prizes', label: SEE_PRIZES };
   if (current === HOME) {
     barRects = [
+      { x: 12, y, w: 52, h, id: 'title', label: '←' },
       { x: helpX, y, w: 48, h, id: 'help', label: '?' },
       { x: soundX, y, w: 140, h, id: 'sound', label: soundLabel() },
       { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
@@ -777,6 +803,25 @@ function statusText() {
   return app.message || '';
 }
 
+
+
+
+let overlayAt = -Infinity;
+let panelShown = false;
+let leaving = null;
+function drawOverlayLayer(panel, look, now) {
+  if (!look || look.alpha <= 0) return;
+  g.save();
+  g.globalAlpha = look.alpha;
+  if (look.scale !== 1) {
+    g.translate(app.width / 2, app.height / 2);
+    g.scale(look.scale, look.scale);
+    g.translate(-app.width / 2, -app.height / 2);
+  }
+  panel.draw(g, now);
+  g.restore();
+}
+
 function frame() {
   const now = performance.now();
   const active = overlay ?? screen;
@@ -795,14 +840,23 @@ function frame() {
   
   
   if (match.startedAt !== null && match.pausedAt === null && sessionOver(matchArgs())) endMatch();
-  const step = tick({ dirty, moving: !!(active && active.animating(now)) || partying || ticking, wasMoving });
+  
+  
+  if (overlay && !panelShown) { overlayAt = now; uiCue('open'); }
+  panelShown = !!overlay;
+  const inLook = overlay ? panelLook(now, overlayAt, false, app.motion) : null;
+  const outLook = leaving ? panelLook(now, leaving.at, true, app.motion) : null;
+  if (outLook?.done) leaving = null;
+  const fading = (inLook && !inLook.done) || (outLook && !outLook.done);
+  const step = tick({ dirty, moving: !!(active && active.animating(now)) || partying || ticking || fading, wasMoving });
   dirty = false;
   wasMoving = step.wasMoving;
   if (step.draw) {
     paint.clear(g, app.width, app.height);
     if (screen) screen.draw(g, now);
     drawBar(now);
-    if (overlay) overlay.draw(g, now);
+    if (leaving && outLook) drawOverlayLayer(leaving.panel, outLook, now);
+    if (overlay) drawOverlayLayer(overlay, inLook, now);
     
     
     if (countAtMs >= 0) {
@@ -1519,6 +1573,7 @@ function goHome() {
 }
 
 function closeOverlay() {
+  if (overlay) { leaving = { panel: overlay, at: performance.now() }; uiCue('back'); }
   overlay = null;
   app.message = '';
   keysAre(screen.keys);
@@ -1849,7 +1904,7 @@ function openName() {
   invalidate();
 }
 
-function openMore() {
+function openMore(focus = null) {
   app.message = '';
   const items = [
     ...(current === HOME ? [] : [{ id: 'picker', label: 'Puzzles', run: openPicker }]),
@@ -1878,7 +1933,7 @@ function openMore() {
     {
       id: 'sound',
       label: soundLabel(),
-      run: () => { toggleSound(); openMore(); },
+      run: () => { toggleSound(); openMore('sound'); },
     },
     { id: 'name', label: `Your name: ${nameOf(roomState.me ?? 'me')}`, run: openName },
     { id: 'help', label: 'How to play', run: openHelp },
@@ -1889,16 +1944,23 @@ function openMore() {
     
     
     ...(current === HOME ? [] : [{ id: 'games', label: 'Choose another game', run: () => { closeOverlay(); goHome(); } }]),
+    
+    ...(current === HOME ? [{ id: 'title', label: 'Title screen', run: () => { closeOverlay(); showTitle(); } }] : []),
     { id: 'close', label: 'Close', run: () => closeOverlay() },
   ];
-  overlay = morePanel(app, { items });
+  overlay = morePanel(app, { items, focus });
   overlay.layout();
   invalidate();
 }
 
 function toggleSound() {
-  sfx.setMuted(!sfx.isMuted());
-  app.sound('press');
+  
+  
+  const off = !sfx.isMuted();
+  lastCueAt = -Infinity;
+  if (off) uiCue('toggleOff');
+  sfx.setMuted(off);
+  if (!off) uiCue('toggleOn');
   layoutBar();
   announce(sfx.isMuted() ? 'Sound off.' : 'Sound on.');
   invalidate();
@@ -2000,6 +2062,7 @@ canvas.addEventListener('pointerup', (e) => {
     if (b.off) return;                       
     app.sound('press');
     if (b.id === 'back') goHome();
+    else if (b.id === 'title') showTitle();
     else if (b.id === 'help') openHelp();
     else if (b.id === 'more') openMore();
     else if (b.id === 'together') openRoom();
@@ -2049,11 +2112,17 @@ document.addEventListener('keydown', (e) => {
   );
   if (!action) return;
   e.preventDefault();
-  if (action.type === 'move') { app.keyboardMode = true; invalidate(); }
+  if (action.type === 'move') {
+    app.keyboardMode = true;
+    
+    if (overlay || current === HOME) uiCue('focus');
+    invalidate();
+  }
 
   if (action.type === 'back') {
     if (overlay) closeOverlay();
-    else if (current !== HOME) goHome();
+    else if (backTarget(current === HOME) === 'home') { uiCue('back'); goHome(); }
+    else { app.keyboardMode = true; openMore('close'); }
     return;
   }
   if (action.type === 'help') { if (overlay) closeOverlay(); else openHelp(); return; }
@@ -2264,12 +2333,78 @@ if (!atTitle) document.body.classList.remove('at-title');
 function leaveTitle() {
   if (!atTitle) return;
   atTitle = false;
-  document.body.classList.remove('at-title');
+  
+  
+  const body = document.body;
+  const done = () => { body.classList.remove('at-title', 'title-leaving'); };
+  if (app.motion) { body.classList.add('title-leaving'); clearTimeout(titleTimer); titleTimer = setTimeout(done, TITLE_OUT_MS); }
+  else done();
   canvas.focus({ preventScroll: true });
   invalidate();
 }
+let titleTimer = 0;
 const $start = document.getElementById('start');
 const $seeOptions = document.getElementById('see-options');
+const titleEls = TITLE_BUTTONS.map((id) => document.getElementById(id));
+
+
+const touchFirst = globalThis.matchMedia?.('(hover: none)')?.matches === true;
+
+function focusTitle(force = false) {
+  if (!atTitle || (touchFirst && !force)) return;
+  const at = titleEls.indexOf(document.activeElement);
+  (titleEls[at < 0 ? 0 : at] ?? $start).focus({ preventScroll: true });
+}
+
+function showTitle() {
+  clearTimeout(titleTimer);
+  overlay = null;
+  atTitle = true;
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  focusTitle();
+  invalidate();
+}
+
+
+
+document.addEventListener('keydown', (e) => {
+  if (!atTitle) return;
+  const dir = titleKey(e.key);
+  const at = titleEls.indexOf(document.activeElement);
+  if (dir) {
+    e.preventDefault();
+    const to = titleMove(at, dir);
+    if (to !== at) uiCue('focus');
+    titleEls[to].focus({ preventScroll: true });
+    return;
+  }
+  if (!e.isTrusted && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    (titleEls[at] ?? $start).click();
+  }
+});
+
+
+
+let padState = null;
+let padLoop = 0;
+function pollPads() {
+  padLoop = 0;
+  const pads = [...(navigator.getGamepads?.() ?? [])].filter(Boolean);
+  if (!pads.length) return;
+  const held = new Set();
+  for (const p of pads) for (const w of padHeld(p)) held.add(w);
+  const out = padPresses(padState, held, performance.now());
+  padState = out.state;
+  for (const w of out.presses) {
+    if (atTitle && document.activeElement && !titleEls.includes(document.activeElement)) focusTitle(true);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: PAD_KEY[w], bubbles: true }));
+  }
+  padLoop = requestAnimationFrame(pollPads);
+}
+globalThis.addEventListener?.('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPads); });
+if ([...(navigator.getGamepads?.() ?? [])].some(Boolean)) padLoop = requestAnimationFrame(pollPads);
 $start.addEventListener('click', () => {
   leaveTitle();
   if (current === HOME) openGame('wordle');
@@ -2326,4 +2461,7 @@ if (linkRoom && canPlayTogether()) {
   startNet().join(linkRoom);
 }
 resize();
+focusTitle();
+
+canvas.addEventListener('pointerdown', () => { if (app.keyboardMode) { app.keyboardMode = false; invalidate(); } }, true);
 trackEvent('game_start', { game: 'farmy-crosswords' });

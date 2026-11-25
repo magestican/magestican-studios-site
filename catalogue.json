@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "9bfd4d31-20261125T143309Z",
+ "buildId": "1ab374ef-20261125T145309Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -196,7 +196,7 @@
    "ageNote": null,
    "order": 5,
    "addedAt": "2026-09-04",
-   "bytes": 228595
+   "bytes": 321828
   },
   {
    "id": "farmy-chess",
@@ -1122,7 +1122,7 @@
    "ageNote": null,
    "order": 37,
    "addedAt": "2026-09-21",
-   "bytes": 228595
+   "bytes": 321828
   },
   {
    "id": "farmy-hive",
@@ -1154,7 +1154,7 @@
    "ageNote": null,
    "order": 38,
    "addedAt": "2026-09-21",
-   "bytes": 228595
+   "bytes": 321828
   },
   {
    "id": "farmy-herds",
@@ -1186,7 +1186,7 @@
    "ageNote": null,
    "order": 39,
    "addedAt": "2026-09-21",
-   "bytes": 228595
+   "bytes": 321828
   },
   {
    "id": "farmy-furrows",
@@ -1218,7 +1218,7 @@
    "ageNote": null,
    "order": 40,
    "addedAt": "2026-09-21",
-   "bytes": 228595
+   "bytes": 321828
   }
  ]
 }
