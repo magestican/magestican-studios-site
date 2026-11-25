@@ -50,8 +50,10 @@ export const SFX_FILES = Object.freeze({
 export const SFX_TAKES = Object.freeze(Object.fromEntries(Object.entries(SFX_FILES).map(([n, f]) => [n, f.length])));
 
 
+
 export const UI_FILES = Object.freeze({
   tap: 'tap.wav', back: 'back.wav', toggleOn: 'toggleOn.wav', toggleOff: 'toggleOff.wav', open: 'open.wav',
+  xp: 'xp.wav', levelUp: 'levelUp.wav', badge: 'badge.wav', trophy: 'trophy.wav', share: 'share.wav',
 });
 export const UI_SOUNDS = Object.freeze(Object.keys(UI_FILES));
 

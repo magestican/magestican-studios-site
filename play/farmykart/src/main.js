@@ -1540,6 +1540,7 @@ function uiSound(name) {
 const SHARED_UI_TO_KZ = Object.freeze({
   tap: 'tap', back: 'back', toggleOn: 'toggleOn', toggleOff: 'toggleOff', open: 'open',
   tick: 'tap', sheet: 'open', error: 'back',
+  xp: 'xp', levelUp: 'levelUp', badge: 'badge', trophy: 'trophy', share: 'share',
 });
 useOwnUiSounds((name) => { if (SHARED_UI_TO_KZ[name]) uiSound(SHARED_UI_TO_KZ[name]); });
 document.addEventListener('click', (e) => {

@@ -44,3 +44,37 @@ shots:
     idea: the fiddle tuning up, a quick rising run G B D G
     fade_out_ms: 90
     notes: [{note: G4, at: 0, vel: 54, program: 110}, {note: B4, at: 55, vel: 64, program: 110}, {note: D5, at: 110, vel: 74, program: 110}, {note: G5, at: 165, vel: 86, program: 110}]
+  # REWARDS (2026-11-25, KZ-AAA-3 reward-sound gap): until now xp/levelUp/badge/trophy/share were SILENT in Kartzoom
+  # rather than borrow the site kit. Same porch band, written for the moments of a farm kart race: a seed counted, a
+  # driver ranking up, a ribbon pinned at the county fair, the winner's barn-dance finish, a holler to the neighbours.
+  # Reward notes stay on G A B D E (G major pentatonic) so nothing in a reward clashes with the race music.
+  - name: xp
+    ms: 240
+    peak_db: -3.0
+    idea: a seed dropped in the tin, two quick high banjo plucks D to G, a soft fiddle G under the second so it rings
+    fade_out_ms: 60
+    notes: ["D5@0:80", "G5@45:90", {note: G5, at: 45, vel: 76, program: 110, hold: 180}]
+  - name: levelUp
+    ms: 720
+    peak_db: -2.0
+    idea: a banjo forward roll up the G chord, then the fiddle lands on a held high D
+    fade_out_ms: 200
+    notes: ["G4@0:66", "B4@50:70", "D5@100:76", "G5@150:84", {note: D5, at: 200, vel: 90, program: 110, hold: 420}]
+  - name: badge
+    ms: 560
+    peak_db: -3.0
+    idea: the county-fair ribbon, a strummed banjo G chord and a fiddle double stop above it
+    fade_out_ms: 180
+    notes: ["G4@0:74", "D5@14:72", "G5@28:74", "B5@42:78", {note: B4, at: 60, vel: 80, program: 110, hold: 320}, {note: G5, at: 60, vel: 80, program: 110, hold: 320}]
+  - name: trophy
+    ms: 1300
+    peak_db: -3.5
+    idea: the winner's barn-dance finish, cowbell, a banjo roll up two octaves and the fiddle holding the top G
+    fade_out_ms: 360
+    notes: ["cowbell@0:96", "G4@0:72", "B4@60:74", "D5@120:78", "G5@180:82", "B5@240:86", "D6@300:90", "cowbell@300:84", {note: G5, at: 360, vel: 96, program: 110, hold: 700}, {note: D5, at: 360, vel: 84, program: 110, hold: 700}, "G4@360:80"]
+  - name: share
+    ms: 260
+    peak_db: -4.5
+    idea: a holler over the fence, the fiddle sliding up a quick E to A
+    fade_out_ms: 80
+    notes: [{note: E5, at: 0, vel: 70, program: 110}, {note: A5, at: 70, vel: 84, program: 110, hold: 140}]
