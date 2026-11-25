@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "425208fd-20261125T193440Z",
+ "buildId": "1f43ea50-20261125T202120Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -355,7 +355,7 @@
    "ageNote": null,
    "order": 10,
    "addedAt": "2026-10-15",
-   "bytes": 5954089
+   "bytes": 6076808
   },
   {
    "id": "word-chain",

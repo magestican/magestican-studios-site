@@ -34,6 +34,7 @@ export const STRINGS = Object.freeze({
     doubleThree: 'A double-three is not allowed in omok.', tapAgain: 'Tap again to place the stone.',
     help: 'Place stones where the lines cross. Five in a row - across, down or diagonally - wins.',
     boardLabel: 'Gomoku board, 15 by 15', empty: 'empty', point: '{p}: {s}', placed: '{who}: {p}',
+    start: "START", seeOptions: "See options", menu: "Menu", resume: "Resume", options: "Options", titleScreen: "Title screen", tagline: "Five in a row",
   },
   es: {
     rules: '/es/gomoku-online.html', back: 'Cómo jugar',
@@ -56,6 +57,7 @@ export const STRINGS = Object.freeze({
     doubleThree: 'En omok no se permite el doble tres.', tapAgain: 'Toca otra vez para poner la piedra.',
     help: 'Pon piedras donde se cruzan las líneas. Gana quien haga cinco en línea: horizontal, vertical o diagonal.',
     boardLabel: 'Tablero de gomoku de 15 por 15', empty: 'vacío', point: '{p}: {s}', placed: '{who}: {p}',
+    start: "EMPEZAR", seeOptions: "Ver opciones", menu: "Menú", resume: "Seguir", options: "Opciones", titleScreen: "Pantalla de inicio", tagline: "Cinco en línea",
   },
   pt: {
     rules: '/pt/gomoku-online.html', back: 'Como jogar',
@@ -78,6 +80,7 @@ export const STRINGS = Object.freeze({
     doubleThree: 'No omok, o duplo três não é permitido.', tapAgain: 'Toque de novo para colocar a pedra.',
     help: 'Coloque pedras nos cruzamentos das linhas. Vence quem fizer cinco em linha: na horizontal, vertical ou diagonal.',
     boardLabel: 'Tabuleiro de gomoku 15 por 15', empty: 'vazio', point: '{p}: {s}', placed: '{who}: {p}',
+    start: "COMEÇAR", seeOptions: "Ver opções", menu: "Menu", resume: "Continuar", options: "Opções", titleScreen: "Tela inicial", tagline: "Cinco em linha",
   },
   tl: {
     rules: '/tl/gomoku.html', back: 'Paano laruin',
@@ -100,6 +103,7 @@ export const STRINGS = Object.freeze({
     doubleThree: 'Bawal ang double-three sa omok.', tapAgain: 'I-tap ulit para ilagay ang bato.',
     help: 'Maglagay ng bato kung saan nagtatagpo ang mga linya. Panalo ang limang sunod-sunod: pahiga, patayo o pahilis.',
     boardLabel: 'Gomoku board, 15 por 15', empty: 'walang laman', point: '{p}: {s}', placed: '{who}: {p}',
+    start: "SIMULAN", seeOptions: "Tingnan ang mga opsyon", menu: "Menu", resume: "Ituloy", options: "Mga opsyon", titleScreen: "Unang screen", tagline: "Lima sa isang hanay",
   },
   ja: {
     rules: '/ja/gomoku-online.html', back: '遊び方',
@@ -122,6 +126,7 @@ export const STRINGS = Object.freeze({
     doubleThree: 'オモクでは三三は禁じ手です。', tapAgain: 'もう一度タップすると石を置きます。',
     help: '線の交点に石を置きます。縦・横・斜めのどれかに5つ並べたら勝ちです。',
     boardLabel: '15路の五目並べの盤', empty: '空き', point: '{p}：{s}', placed: '{who}：{p}',
+    start: "スタート", seeOptions: "設定を見る", menu: "メニュー", resume: "続ける", options: "設定", titleScreen: "タイトル画面", tagline: "五つ並べたら勝ち",
   },
   ko: {
     rules: '/ko/omok-online.html', back: '게임 방법',
@@ -144,6 +149,7 @@ export const STRINGS = Object.freeze({
     doubleThree: '오목룰에서는 쌍삼이 금지입니다.', tapAgain: '한 번 더 누르면 돌을 놓습니다.',
     help: '선이 만나는 곳에 돌을 놓으세요. 가로, 세로, 대각선으로 5개를 먼저 이으면 승리합니다.',
     boardLabel: '15줄 오목판', empty: '빈 곳', point: '{p}: {s}', placed: '{who}: {p}',
+    start: "시작", seeOptions: "설정 보기", menu: "메뉴", resume: "계속하기", options: "설정", titleScreen: "처음 화면", tagline: "다섯 알을 한 줄로",
   },
   id: {
     rules: '/id/gomoku-online.html', back: 'Cara bermain',
@@ -166,6 +172,7 @@ export const STRINGS = Object.freeze({
     doubleThree: 'Double-three tidak boleh dalam omok.', tapAgain: 'Ketuk lagi untuk menaruh batu.',
     help: 'Taruh batu di persilangan garis. Lima berderet - mendatar, menurun atau diagonal - menang.',
     boardLabel: 'Papan gomoku 15 kali 15', empty: 'kosong', point: '{p}: {s}', placed: '{who}: {p}',
+    start: "MULAI", seeOptions: "Lihat pilihan", menu: "Menu", resume: "Lanjut", options: "Pilihan", titleScreen: "Layar judul", tagline: "Lima sebaris",
   },
   vi: {
     rules: '/vi/co-caro-online.html', back: 'Cách chơi',
@@ -188,6 +195,7 @@ export const STRINGS = Object.freeze({
     doubleThree: 'Luật omok cấm nước đôi ba.', tapAgain: 'Chạm lần nữa để đặt quân.',
     help: 'Đặt quân vào giao điểm. Ai xếp được 5 quân liên tiếp theo hàng ngang, dọc hoặc chéo trước sẽ thắng.',
     boardLabel: 'Bàn cờ caro 15 x 15', empty: 'trống', point: '{p}: {s}', placed: '{who}: {p}',
+    start: "BẮT ĐẦU", seeOptions: "Xem tùy chọn", menu: "Menu", resume: "Chơi tiếp", options: "Tùy chọn", titleScreen: "Màn hình chính", tagline: "Năm quân liên tiếp",
   },
 });
 
