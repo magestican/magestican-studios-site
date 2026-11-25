@@ -77,6 +77,7 @@ import { hex, PALETTE } from './palette.js';
 import { showTouchOverlay } from './input/controls.js';
 import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState, SFX } from './audio/sfx.js';
 import { playUiSound } from './audio/samples.js';
+import { useOwnUiSounds } from '../../../web-engine/brand/uiSound.js';
 
 
 
@@ -1533,6 +1534,14 @@ const UI_SELF = new Set(['pause-sound', 'lobby-sound', 'mg-info-btn']);
 function uiSound(name) {
   try { playUiSound(audio, name); } catch {  }
 }
+
+
+
+const SHARED_UI_TO_KZ = Object.freeze({
+  tap: 'tap', back: 'back', toggleOn: 'toggleOn', toggleOff: 'toggleOff', open: 'open',
+  tick: 'tap', sheet: 'open', error: 'back',
+});
+useOwnUiSounds((name) => { if (SHARED_UI_TO_KZ[name]) uiSound(SHARED_UI_TO_KZ[name]); });
 document.addEventListener('click', (e) => {
   const b = e.target?.closest?.('button');
   if (!b || b.disabled || UI_SELF.has(b.id) || b.closest('.mg-info-panel')) return;

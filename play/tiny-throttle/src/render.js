@@ -423,10 +423,13 @@ function buildStart(scene, track, models) {
 }
 
 function buildCars(scene, race, models) {
+  
+  
   return race.racers.map((r, i) => {
-    const body = r.isPlayer ? 'buggy' : BODIES[i % BODIES.length];
+    const mine = r.id === (race.me ?? 'you');
+    const body = mine ? 'buggy' : BODIES[i % BODIES.length];
     const o = clone(models, `car_${body}`);
-    const colour = r.isPlayer ? LIVERIES[0] : LIVERIES[1 + (i % (LIVERIES.length - 1))];
+    const colour = mine ? LIVERIES[0] : LIVERIES[1 + (i % (LIVERIES.length - 1))];
     o.traverse((n) => {
       if (!n.isMesh) return;
       const mats = Array.isArray(n.material) ? n.material : [n.material];

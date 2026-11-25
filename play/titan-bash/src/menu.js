@@ -71,7 +71,10 @@ export function statParts(r, rows = [r], mode = 'brawl') {
   
   
   if (rows.some((x) => x.perfectVents > 0)) parts.push(['', 'Perfect ', 'Vents', r.perfectVents]);
-  parts.push(['', 'Best ', 'streak', r.bestStreak]);
+  
+  
+  
+  if (r.bestStreak >= 2) parts.push(['', 'Best ', 'streak', r.bestStreak]);
   
   if (r.falls > 0) parts.push(['Fell out', '', '', r.falls]);
   
@@ -83,6 +86,16 @@ export function statParts(r, rows = [r], mode = 'brawl') {
 
 
 export function ptsText(n) { return `${n} pt${n === 1 ? '' : 's'}`; }
+
+
+
+
+
+
+export function standingScore(e, all = [e]) {
+  const decided = all.some((x) => x !== e && x.score === e.score && x.place !== e.place);
+  return decided ? `${ptsText(e.score)} - ${bellsText(e.bells)}` : ptsText(e.score);
+}
 
 
 export function starsLine(n) { return `+${n} House Star${n === 1 ? '' : 's'}`; }

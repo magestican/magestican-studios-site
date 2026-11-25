@@ -127,9 +127,20 @@ export function preloadFiles(urls) {
   }
 }
 
+
+
+
+
+let ownPlayer = null;
+
+
+export function useOwnUiSounds(fn) {
+  ownPlayer = typeof fn === 'function' ? fn : null;
+}
+
 function preloadAll(c) {
   if (typeof globalThis.fetch !== 'function') return;
-  for (const name of Object.keys(UI_SOUNDS)) load(c, name);
+  if (!ownPlayer) for (const name of Object.keys(UI_SOUNDS)) load(c, name);
   for (const url of fileUrls) loadKey(c, url, url);
 }
 
@@ -194,6 +205,11 @@ function play(key, fetchIt, gain = 1, rate = 1) {
 export function playUi(name) {
   try {
     if (!Object.prototype.hasOwnProperty.call(UI_SOUNDS, name)) return false;
+    if (ownPlayer) {
+      if (silenced()) return false;
+      ownPlayer(name);
+      return true;
+    }
     return play(name, (c) => load(c, name));
   } catch {
     return false;
@@ -250,4 +266,4 @@ function bootUnlock() {
 bootUnlock();
 
 
-export function _resetUiSoundPlayer() { ctx = null; bus = null; muteSources.clear(); buffers.clear(); fileUrls.clear(); live.clear(); pending.clear(); }
+export function _resetUiSoundPlayer() { ownPlayer = null; ctx = null; bus = null; muteSources.clear(); buffers.clear(); fileUrls.clear(); live.clear(); pending.clear(); }

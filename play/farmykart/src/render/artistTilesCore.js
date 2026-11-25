@@ -127,11 +127,18 @@ export async function layerTile(texture, name, how, opts = {}) {
   g.globalCompositeOperation = 'source-over';
   g.globalAlpha = 1;
 
+  
+  
+  
+  
+  
+  texture.dispose?.();
   texture.image = out;
   texture.needsUpdate = true;
   if (opts.normalMap && how.normal) {
     const fresh = opts.deriveNormal ? opts.deriveNormal(texture, how.normal) : null;
     if (fresh) {
+      opts.normalMap.dispose?.();
       opts.normalMap.image = fresh.image;
       opts.normalMap.needsUpdate = true;
       fresh.dispose?.();

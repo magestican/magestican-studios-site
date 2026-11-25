@@ -28,7 +28,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, ptsText, starsLine, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, ptsText, standingScore, starsLine, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -425,14 +425,15 @@ function statsLine(r, rows, mode) {
 
 function paintStandings() {
   const ol = $('standings'); ol.textContent = '';
-  for (const e of standings(night)) {
+  const all = standings(night);
+  for (const e of all) {
     const li = el('li');
     li.append(el('span', 'place', `${e.place + 1}.`));
     for (const i of e.members) li.append(swatch(night.seats[i].house));
     const name = night.mode === 'team'
       ? `${teamName(e.team)}: ${e.members.map((i) => HOUSE[night.seats[i].house].name).join(', ')}`
       : HOUSE[night.seats[e.members[0]].house].name;
-    li.append(el('span', '', name), el('span', 'score', ptsText(e.score)));
+    li.append(el('span', '', name), el('span', 'score', standingScore(e, all)));
     ol.append(li);
   }
 }

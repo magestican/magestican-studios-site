@@ -16,6 +16,11 @@ import { countdownText } from '../../../web-engine/kart/raceFlow.js';
 import { createTouchSteer } from './touchSteer.js';
 import { SIM_SCALE } from '../../../web-engine/rc/rcTuning.js';
 import { MOTION, screenTimes, BACK, focusStep, loadSettings, saveSettings, recordBest } from './menus.js';
+import { createHostLink, createGuestLink, linkFrom, joinLinkFor, watchLinkOf, canLink } from './netRoom.js';
+import { makeSnap, createSnapBuffer, receiveSnap, applySnaps, packInput, SNAP_MS, INPUT_HZ } from './netSync.js';
+import { applyRoom, roleOf, carOf, grid as roomGrid, ROLE, RACER_SEATS } from './room.js';
+import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
+import { shareLink } from '../../../web-engine/share/shareInvite.js';
 
 const q = new URLSearchParams(location.search);
 
@@ -26,6 +31,8 @@ const opts = {
   bots: clampInt(q.get('bots'), 0, 11, 11),
   cam: q.get('cam') === 'top' ? 'top' : 'chase',
   auto: q.get('auto') === '1',
+  
+  render: q.get('render') !== 'off',
 };
 function clampInt(v, lo, hi, dflt) {
   const n = Number.parseInt(v ?? '', 10);
@@ -114,6 +121,12 @@ const KEYMAP = {
 const ARROWS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']);
 addEventListener('keydown', (e) => {
   if (e.code === 'KeyM') { toggleSound(); return; }
+  if (screen === 'room' && e.code === 'Escape') { leaveOnline(); e.preventDefault(); return; }
+  if (screen === 'race' && net && !me && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) {
+    spectate(e.code === 'ArrowRight' ? 1 : -1);
+    e.preventDefault();
+    return;
+  }
   
   if (e.code === 'Escape' || (e.code === 'KeyP' && (screen === 'race' || screen === 'pause'))) {
     const to = BACK[screen];
@@ -128,7 +141,7 @@ addEventListener('keydown', (e) => {
     const onControl = document.activeElement?.tagName === 'BUTTON';
     if ((e.code === 'Enter' || e.code === 'Space') && !onControl) {
       if (screen === 'title' && !$('start').disabled) start();
-      else if (screen === 'results') start();
+      else if (screen === 'results') again();
       e.preventDefault();
     }
     return;
@@ -232,7 +245,7 @@ function fitMinimap() {
   mapCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   mapModel = minimapModel(race.track, size);
   
-  mapTints = race.racers.map((r, i) => (r.isPlayer ? LIVERIES[0] : LIVERIES[1 + (i % (LIVERIES.length - 1))]));
+  mapTints = race.racers.map((r, i) => (r.id === me ? LIVERIES[0] : LIVERIES[1 + (i % (LIVERIES.length - 1))]));
 }
 addEventListener('resize', resize);
 
@@ -249,9 +262,11 @@ async function boot() {
   $('start').textContent = 'Start';
   $('start').disabled = false;
   updateSoundButtons();
+  requestAnimationFrame(frame);
+  const link = linkFrom(location.href);
+  if (link && canLink()) { joinOnline(link.code, link.watch); return; }
   showScreen($('title'));
   $('start').focus();
-  requestAnimationFrame(frame);
 }
 
 
@@ -284,10 +299,12 @@ async function pickTrack(id) {
   loadingTrack = false;
 }
 
-function newRace({ attract = false } = {}) {
+function newRace({ attract = false, cars = null, laps = opts.laps, seed } = {}) {
   race = createRace(def, {
-    bots: attract ? 6 : opts.bots, laps: opts.laps, player: !attract, countdown: attract ? 0 : undefined,
+    bots: attract ? 6 : opts.bots, laps, player: !attract, countdown: attract ? 0 : undefined, cars, seed,
   });
+  if (!cars) me = attract ? null : 'you';
+  race.me = me;
   const old = view;
   view = createView(canvas, race, models);
   if (old) old.renderer.dispose();
@@ -327,7 +344,7 @@ function releaseInputs() {
 function pause() {
   if (screen !== 'race' || !running) return;
   screen = 'pause';
-  paused = true;
+  paused = !net;
   sfx('back', 0.6, 'ui');
   releaseInputs();
   $('pads').classList.remove('on');
@@ -348,7 +365,7 @@ function resume() {
   setMusic();
 }
 function restart() {
-  if (screen !== 'pause') return;
+  if (screen !== 'pause' || net) return;
   sfx('open', 0.7, 'ui');
   document.activeElement?.blur?.();
   hideScreen($('pause'));
@@ -356,6 +373,7 @@ function restart() {
 }
 function toTitle() {
   if (screen === 'title') return;
+  if (net) { leaveOnline(); return; }
   sfx('back', 0.6, 'ui');
   running = false;
   paused = false;
@@ -406,17 +424,40 @@ function frame(now) {
   const dt = Math.min(0.1, last ? (now - last) / 1000 : 0);
   last = now;
   acc += dt;
-  const player = race.racers.find((r) => r.isPlayer);
+  const player = me ? race.racers.find((r) => r.id === me) : null;
   if (paused) acc = 0; 
-  while (acc >= STEP) {
-    acc -= STEP;
-    const input = running && player && !opts.auto ? readInput() : null;
-    const { events } = stepRace(race, input, STEP);
-    if (running) onEvents(events);
+  if (net?.kind === 'guest' && net.racing) {
+    acc = 0;
+    applySnaps(race, net.buf, now);
+    if (me && running && now - net.sentAt >= 1000 / INPUT_HZ) {
+      net.sentAt = now;
+      
+      if (!opts.auto) net.link.sendInput(packInput(screen === 'race' ? readInput() : { throttle: 0, steer: 0 }));
+    }
+    if (running && race.flow.phase === PHASE.RESULTS && screen === 'race') results();
+  } else {
+    while (acc >= STEP) {
+      acc -= STEP;
+      let input = running && player && !opts.auto ? readInput() : null;
+      if (net?.kind === 'host' && net.racing) {
+        const byId = Object.fromEntries(net.link.inputs);
+        if (me && !opts.auto) byId[me] = screen === 'race' ? readInput() : { throttle: 0, steer: 0 };
+        input = { byId };
+      }
+      const { events } = stepRace(race, input, STEP);
+      if (net?.kind === 'host' && net.racing) net.events.push(...events);
+      if (running) onEvents(events);
+    }
+    if (net?.kind === 'host' && net.racing && now - net.sentAt >= SNAP_MS) {
+      net.sentAt = now;
+      net.seq += 1;
+      net.link.snap(makeSnap(race, { seq: net.seq, events: net.events, table: standings(race.progress) }));
+      net.events = [];
+    }
   }
-  if (!running && !race.racers.some((r) => r.isPlayer) && race.flow.phase === PHASE.RESULTS) newRace({ attract: true });
-  const focus = player?.id ?? race.racers[0].id;
-  view.draw(dt, focus, { camMode: running ? opts.cam : 'top' });
+  if (!running && !net && !race.racers.some((r) => r.isPlayer) && race.flow.phase === PHASE.RESULTS) newRace({ attract: true });
+  const focus = player?.id ?? (net && !me ? spectateFocus() : race.racers[0].id);
+  if (opts.render) view.draw(dt, focus, { camMode: running ? opts.cam : 'top' });
   if (running) hud();
   requestAnimationFrame(frame);
 }
@@ -431,10 +472,10 @@ function propSound(e, mine) {
   if (!takes) return;
   let vol = 0.7;
   if (!mine) {
-    const me = race.racers.find((r) => r.isPlayer)?.kart;
+    const k = race.racers.find((r) => r.id === (me ?? spectateFocus()))?.kart;
     const p = race.loose[e.i];
-    if (!me || !p) return;
-    vol = 0.5 - 0.1 * Math.hypot(me.x / SIM_SCALE - p.x, me.z / SIM_SCALE - p.z);
+    if (!k || !p) return;
+    vol = 0.5 - 0.1 * Math.hypot(k.x / SIM_SCALE - p.x, k.z / SIM_SCALE - p.z);
     if (vol < 0.06) return;
   }
   propTake = (propTake + 1) % takes.length;
@@ -443,15 +484,15 @@ function propSound(e, mine) {
 
 function onEvents(events) {
   for (const e of events) {
-    const mine = e.id === 'you';
+    const mine = !!me && e.id === me;
     if (e.type === 'hop' && mine) sfx('hop');
     else if (e.type === 'respawn' && mine) sfx('fall');
-    else if (e.type === 'bump') sfx('bump', 0.4);
+    else if (e.type === 'bump' && me && (e.a === me || e.b === me)) sfx('bump', 0.4);
     else if (e.type === 'prop') propSound(e, mine);
     else if (e.type === 'pickup' && mine) sfx(e.pickup === 'battery' ? 'pickup_2' : 'pickup', 0.7);
     else if (e.type === 'use' && mine) sfx(USE_SFX[e.pickup], 0.75);
-    else if (e.type === 'splash' && e.owner === 'you') sfx('splash', 0.6);
-    else if (e.type === 'pickupHit' && (mine || e.from === 'you')) sfx(e.pickup === 'gum' ? 'gum_2' : 'bouncyMarble_2', mine ? 0.75 : 0.5);
+    else if (e.type === 'splash' && me && e.owner === me) sfx('splash', 0.6);
+    else if (e.type === 'pickupHit' && (mine || (me && e.from === me))) sfx(e.pickup === 'gum' ? 'gum_2' : 'bouncyMarble_2', mine ? 0.75 : 0.5);
     else if (e.type === 'worldWarn') { sfx(e.source === 'tap' ? 'tap' : 'sprinkler', 0.75); toast(WORLD_TOAST[e.source], 3.2); }
     else if (e.type === 'worldOn' && e.source === 'sprinkler') sfx('sprinkler', 0.5);
     else if (e.type === 'worldOn' && e.source === 'tap') sfx('splash_2', 0.6);
@@ -466,7 +507,7 @@ function onEvents(events) {
     banner(text, 0.85);
     sfx(text === 'GO!' ? 'go' : 'countdown');
   }
-  if (race.flow.phase === PHASE.RESULTS && running) results();
+  if (race.flow.phase === PHASE.RESULTS && running && net?.kind !== 'guest') results();
 }
 
 
@@ -494,17 +535,25 @@ function banner(text, secs) {
 }
 
 function hud() {
-  const table = standings(race.progress);
-  const me = table.find((t) => t.id === 'you');
-  if (!me) return;
+  const table = race.netTable ?? standings(race.progress);
+  const hudId = me ?? spectateFocus();
+  const watching = $('watching');
+  watching.hidden = !net?.watchers;
+  if (net?.watchers) watching.textContent = `${net.watchers} watching`;
+  if (net && !me) $('specName').textContent = `Watching ${carName(hudId)}`;
+  const mine = table.find((t) => t.id === hudId);
+  if (!mine) return;
+  hudRow(table, mine, hudId, !!me);
+}
+function hudRow(table, me, hudId, driving) {
   
   
   let place = me.position;
   if (race.flow.phase === PHASE.COUNTDOWN) {
     const L = race.track.path.length;
     const ahead = (r) => ((r.s - race.track.startS) % L + L * 1.5) % L - L / 2;
-    const mine = ahead(race.racers.find((r) => r.isPlayer));
-    place = 1 + race.racers.filter((r) => !r.isPlayer && ahead(r) > mine).length;
+    const mine = ahead(race.racers.find((r) => r.id === hudId));
+    place = 1 + race.racers.filter((r) => r.id !== hudId && ahead(r) > mine).length;
   }
   $('pos').innerHTML = `${ordinal(place)}<small>/${table.length}</small>`;
   const lap = Math.min(race.laps, (me.lapTimes?.length ?? 0) + 1);
@@ -513,13 +562,13 @@ function hud() {
   const t = me.finished ? me.finishTime : (race.flow.phase === PHASE.COUNTDOWN ? 0 : race.flow.time);
   $('time').textContent = formatTime(t);
   
-  const held = race.pickups.held.get('you');
+  const held = race.pickups.held.get(hudId);
   const slot = $('slot');
   slot.classList.toggle('has', !!held);
   $('slotName').textContent = held ? PICKUPS[held].name : 'No pickup';
-  $('slotHint').textContent = held ? (isTouch ? 'Tap Use' : 'E to use') : '';
+  $('slotHint').textContent = held && driving ? (isTouch ? 'Tap Use' : 'E to use') : '';
   document.querySelector('.pad.use')?.classList.toggle('empty', !held);
-  if (mapModel) drawMinimap(mapCtx, mapModel, race, 'you', mapTints, wetRuns(mapModel, race));
+  if (mapModel) drawMinimap(mapCtx, mapModel, race, hudId, mapTints, wetRuns(mapModel, race));
 }
 
 function results() {
@@ -534,23 +583,40 @@ function results() {
   $('pads').classList.remove('on');
   steerTouch.reset();
   showSteer();
-  const table = standings(race.progress);
-  const me = table.find((t) => t.id === 'you');
-  $('place').textContent = me ? `${ordinal(me.position)}${me.position === 1 ? '!' : ''}` : 'Finished';
+  const table = race.netTable ?? standings(race.progress);
+  const mine = me ? table.find((t) => t.id === me) : null;
+  $('place').textContent = mine ? `${ordinal(mine.position)}${mine.position === 1 ? '!' : ''}` : 'Finished';
   const rows = table.map((t) => {
     const time = t.finished ? formatTime(t.finishTime) : 'running';
-    const name = t.id === 'you' ? 'You' : `Car ${t.id.replace('bot', '')}`;
-    return `<tr class="${t.id === 'you' ? 'you' : ''}"><td>${ordinal(t.position)}</td><td>${name}</td><td>${time}</td></tr>`;
+    const name = esc(carName(t.id));
+    return `<tr class="${t.id === me ? 'you' : ''}"><td>${ordinal(t.position)}</td><td>${name}</td><td>${time}</td></tr>`;
   });
   $('table').innerHTML = rows.join('');
   
-  if (me && !opts.auto && recordBest(settings, def.id, me.position)) saveSettings(safeStorage(), settings);
+  if (mine && !net && !opts.auto && recordBest(settings, def.id, mine.position)) saveSettings(safeStorage(), settings);
+  
+  if (net?.kind === 'host') {
+    
+    net.seq += 1;
+    net.link.snap(makeSnap(race, { seq: net.seq, events: [], table: standings(race.progress) }));
+    net.racing = false;
+    net.link.end();
+  }
+  if (net?.kind === 'guest') net.racing = false;
+  $('again').hidden = net?.kind === 'guest';
+  $('resultsWait').hidden = net?.kind !== 'guest';
+  $('resultsTitle').textContent = net ? 'Leave room' : 'Pick a track';
+  $('spectate').hidden = true;
   showScreen($('results'));
-  $('again').focus();
+  ($('again').hidden ? $('resultsTitle') : $('again')).focus();
+}
+function again() {
+  if (net?.kind === 'host') hostStart();
+  else if (!net) start();
 }
 
 $('start').addEventListener('click', start);
-$('again').addEventListener('click', start);
+$('again').addEventListener('click', again);
 $('resultsTitle').addEventListener('click', toTitle);
 $('pauseBtn').addEventListener('click', pause);
 $('resume').addEventListener('click', resume);
@@ -561,6 +627,190 @@ for (const b of document.querySelectorAll('.sound')) b.addEventListener('click',
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 
 
-window.__tinyThrottle = { get race() { return race; }, opts };
+
+let me = null;  
+let net = null; 
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+function carName(id) {
+  if (id === me) return 'You';
+  if (id === 'you') return 'You';
+  const seat = Number(String(id).replace(/^(p|bot)/, ''));
+  const s = net?.room?.seats?.[seat];
+  if (/^p\d/.test(id) && s) return s.name;
+  return `Car ${/^bot/.test(id) && !net ? seat : seat + 1}`;
+}
+function spectateFocus() {
+  if (!race) return null;
+  const table = race.netTable ?? standings(race.progress);
+  if (!net || net.focus === 'lead') return table[0]?.id ?? race.racers[0].id;
+  return race.racers[((net.focus % race.racers.length) + race.racers.length) % race.racers.length].id;
+}
+function spectate(step) {
+  if (!net) return;
+  sfx('tap', 0.5, 'ui');
+  if (step === 0) { net.focus = 'lead'; return; }
+  const cur = race.racers.findIndex((r) => r.id === spectateFocus());
+  net.focus = cur + step;
+}
+$('specPrev').addEventListener('click', () => spectate(-1));
+$('specNext').addEventListener('click', () => spectate(1));
+$('specLead').addEventListener('click', () => spectate(0));
+
+const newCode = newCodeButton($('copyWatch'), { onReset: () => { if (net?.kind === 'host') { net.link.newCode(); } } });
+function openRoomScreen() {
+  for (const id of ['title', 'results', 'pause']) hideScreen($(id));
+  $('hud').hidden = true;
+  $('spectate').hidden = true;
+  $('pads').classList.remove('on');
+  running = false;
+  screen = 'room';
+  showScreen($('room'));
+}
+function drawRoom() {
+  if (!net) return;
+  const room = net.room;
+  const myId = net.kind === 'host' ? room?.hostId : net.link.myId;
+  const role = room ? roleOf(room, myId) : null;
+  const seats = room ? roomGrid(room) : [];
+  $('seats').innerHTML = seats.map((c) => {
+    const mine = c.peerId && c.peerId === myId;
+    const label = c.human ? (mine ? `${c.seat + 1}. You` : `${c.seat + 1}. ${esc(c.name)}`) : `${c.seat + 1}. Bot`;
+    return `<li class="${c.human ? '' : 'bot'} ${mine ? 'me' : ''}">${label}</li>`;
+  }).join('');
+  const w = room?.watchers?.length ?? 0;
+  net.watchers = w;
+  $('watchCount').textContent = w ? `${w} watching` : 'Twelve drive, the rest watch';
+  $('roomRole').textContent = role === ROLE.RACER ? (net.kind === 'host' ? 'You host and drive car 1' : `You drive car ${seatNo(room, myId)}.`)
+    : role === ROLE.WATCHER ? 'You watch until a seat frees' : '';
+  $('roomStart').hidden = net.kind !== 'host';
+  $('roomStart').disabled = !room;
+  $('roomLinks').hidden = !room;
+  newCode.show(net.kind === 'host' && !!room);
+}
+const seatNo = (room, id) => room.seats.findIndex((x) => x && x.peerId === id) + 1;
+
+function hostOnline() {
+  if (net || !canLink() || !models) return;
+  sfx('open', 0.7, 'ui');
+  const link = createHostLink({
+    onRoom: (room) => { if (net?.link === link) { net.room = room; drawRoom(); } },
+    onCode: (code, state) => {
+      $('roomCode').textContent = code ? `Room code ${code.replace(/^tql-/, '').toUpperCase()}` : state === 'opening' ? 'Opening a room' : 'The room could not open. Try again soon.';
+      drawRoom();
+    },
+  });
+  net = { kind: 'host', link, racing: false, seq: 0, sentAt: 0, events: [], watchers: 0, room: null, focus: 'lead' };
+  openRoomScreen();
+  drawRoom();
+  link.host(0);
+  $('roomStart').focus();
+}
+
+function joinOnline(code, watch) {
+  if (net || !canLink() || !models) return;
+  const link = createGuestLink(code, {
+    watch,
+    onRoom: (wire) => { if (net?.link !== link) return; net.room = applyRoom(wire); drawRoom(); },
+    onStart: (msg) => { if (net?.link === link) guestStart(msg); },
+    onSnap: (snap) => {
+      if (net?.link !== link || !net.racing) return;
+      const events = receiveSnap(net.buf, snap, performance.now());
+      if (events && running) onEvents(events.filter((e) => !me || e.id === me || e.type === 'worldWarn' || e.type === 'worldOn'));
+    },
+    onEnd: () => {
+      if (net?.link !== link) return;
+      applySnaps(race, net.buf, Infinity, { delay: 0 }); 
+      if (running && screen !== 'results') results();
+    },
+    onState: (state) => {
+      if (net?.link !== link) return;
+      if (state === 'closed') { leaveOnline(); toast('The host left. The room is closed.', 4); }
+      else if (state === 'full') { leaveOnline(); toast('That room is full.', 4); }
+      else if (/^failed/.test(state)) { leaveOnline(); toast('Could not join that room. Check the code.', 4); }
+      else $('roomCode').textContent = state === 'joined' ? `Room code ${code.replace(/^tql-/, '').toUpperCase()}` : 'Joining the room';
+    },
+  });
+  net = { kind: 'guest', link, racing: false, buf: createSnapBuffer(), sentAt: 0, watchers: 0, room: null, focus: 'lead', code };
+  openRoomScreen();
+  $('roomCode').textContent = 'Joining the room';
+  drawRoom();
+  $('roomLeave').focus();
+}
+
+function goOnlineRace(cars, laps, seed) {
+  hideScreen($('room'));
+  hideScreen($('results'));
+  screen = 'race';
+  paused = false;
+  $('hud').hidden = false;
+  $('pads').classList.toggle('on', !!me);
+  $('spectate').hidden = !!me;
+  newRace({ cars, laps, seed });
+  running = true;
+  setMusic();
+}
+
+function hostStart() {
+  if (net?.kind !== 'host' || !net.room) return;
+  sfx('open', 0.7, 'ui');
+  const seed = (Math.random() * 1e9) | 0;
+  const cars = net.link.start({ track: def.id, laps: opts.laps, seed });
+  if (!cars) return;
+  me = carOf(net.link.room, net.link.room.hostId);
+  net.racing = true;
+  net.seq = 0;
+  net.events = [];
+  goOnlineRace(cars, opts.laps, seed);
+}
+
+async function guestStart(msg) {
+  if (!TRACKS[msg.track] || !Array.isArray(msg.grid)) return;
+  const link = net.link;
+  if (msg.track !== def.id) {
+    def = TRACKS[msg.track];
+    try { models = await loadModels(def, './assets', () => {}); } catch (err) { console.error(err); return; }
+    if (net?.link !== link) return;
+  }
+  const cars = msg.grid.slice(0, RACER_SEATS).map((c, i) => ({ seat: i, carId: String(c.carId), human: !!c.human, name: String(c.name ?? '') }));
+  me = net.room ? carOf(net.room, link.myId) : null;
+  
+  if (!me) me = cars.find((c) => msg.grid.find((g) => g.carId === c.carId)?.peerId === link.myId)?.carId ?? null;
+  net.racing = true;
+  net.buf = createSnapBuffer();
+  goOnlineRace(cars, clampInt(msg.laps, 1, 9, def.laps), msg.seed);
+}
+
+function leaveOnline() {
+  if (!net) return;
+  sfx('back', 0.6, 'ui');
+  try { net.link.leave(); } catch {  }
+  net = null;
+  me = null;
+  const u = new URL(location.href);
+  u.searchParams.delete('join');
+  u.searchParams.delete('watch');
+  history.replaceState(null, '', `${u.pathname}${u.search}`);
+  hideScreen($('room'));
+  $('again').hidden = false;
+  $('resultsWait').hidden = true;
+  $('resultsTitle').textContent = 'Pick a track';
+  $('spectate').hidden = true;
+  $('watching').hidden = true;
+  screen = 'results'; 
+  toTitle();
+}
+
+
+
+
+$('online').addEventListener('click', hostOnline);
+$('roomStart').addEventListener('click', hostStart);
+$('roomLeave').addEventListener('click', leaveOnline);
+$('copyJoin').addEventListener('click', (e) => { const c = net?.link?.code ?? net?.code; if (c) shareLink({ link: joinLinkFor(location.href, c), gameName: 'Tiny Throttle', code: c, button: e.currentTarget }); });
+$('copyWatch').addEventListener('click', (e) => { const c = net?.link?.code ?? net?.code; if (c) shareLink({ link: watchLinkOf(location.href, c), gameName: 'Tiny Throttle', code: c, button: e.currentTarget, text: 'Watch my Tiny Throttle race' }); });
+if (!canLink()) $('online').hidden = true;
+
+
+window.__tinyThrottle = { get race() { return race; }, opts, get net() { return net; }, get me() { return me; } };
 
 boot();

@@ -129,6 +129,23 @@
     .pad.on { transform: scale(0.94); background: #ffe08a; }
     #results { background: rgba(243, 230, 207, 0.94); }
     
+    #room { background: rgba(243, 230, 207, 0.96); overflow-y: auto; justify-content: flex-start; padding: 32px 16px; }
+    #room h2 { margin: 0; }
+    #roomCode { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+    #seats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px; width: min(560px, 100%); }
+    #seats li { background: var(--panel); border: 3px solid var(--ink); border-radius: 12px; padding: 6px 10px; font-size: 14px;
+      font-weight: 800; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #seats li.bot { opacity: 0.55; font-weight: 700; }
+    #seats li.me { background: #ffe08a; }
+    #spectate { position: fixed; left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); display: flex;
+      flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; }
+    
+    @media (max-width: 600px) { #specName { flex-basis: 100%; order: -1; text-align: center; } }
+    #room .big { padding: 16px 40px; }
+    #spectate[hidden] { display: none; }
+    #watching[hidden] { display: none; }
+    
 
 
     .screen.enter { animation: tt-in 220ms cubic-bezier(.2, .8, .2, 1) both; }
@@ -183,7 +200,8 @@
     <p class="sub" id="blurb">Race a toy RC car round a giant kitchen, up the cutting board and over the sink.</p>
     <button id="start" class="big pulse" disabled>Loading</button>
     <nav id="tracks" aria-label="Pick a track"><span class="pick">Pick a track</span><div id="trackList"></div></nav>
-    <button class="mini sound" type="button" aria-pressed="true">Sound on</button>
+    <div class="row"><button id="online" class="mini" type="button">Race friends online</button>
+      <button class="mini sound" type="button" aria-pressed="true">Sound on</button></div>
     <p class="keys" id="keys"><span class="kb">Arrows or WASD to drive &middot; Space to hop &middot; Shift to drift &middot; Esc to pause</span><span class="tap">Drag anywhere to steer &middot; HOP to jump &middot; BRK to brake</span></p>
   </section>
   
@@ -196,13 +214,31 @@
         <button class="mini sound" type="button" aria-pressed="true">Sound on</button></div>
     </div>
   </section>
+  
+  <section id="room" class="screen" hidden aria-label="Online room">
+    <h2>Online room</h2>
+    <p class="sub" id="roomCode" aria-live="polite">Opening a room</p>
+    <p class="keys" id="roomRole"></p>
+    <button id="roomStart" class="big" type="button">Start race</button>
+    <div class="row" id="roomLinks"><button id="copyJoin" class="mini" type="button">Copy invite link</button>
+      <button id="copyWatch" class="mini" type="button">Copy watch link</button></div>
+    <ol id="seats" aria-label="Drivers"></ol>
+    <p class="keys" id="watchCount"></p>
+    <button id="roomLeave" class="mini" type="button">Leave room</button>
+  </section>
   <div id="hud" hidden>
     <div class="left" data-mg-avoid><div class="chip" id="pos">12<small>/12</small></div>
       <div class="chip" id="slot"><b id="slotName">No pickup</b><small id="slotHint"></small></div>
       <canvas id="minimap" aria-hidden="true"></canvas></div>
     <div class="right" data-mg-avoid><div class="chip" id="lap">Lap 1/4</div><div class="chip" id="time">0:00.00</div>
+      <div class="chip" id="watching" hidden></div>
       <button id="pauseBtn" class="mini" type="button" aria-label="Pause">Pause</button></div>
   </div>
+  
+  <div id="spectate" hidden><button id="specPrev" class="mini" type="button" aria-label="Last car">&lsaquo;</button>
+    <span class="chip" id="specName">Watching</span>
+    <button id="specNext" class="mini" type="button" aria-label="Next car">&rsaquo;</button>
+    <button id="specLead" class="mini" type="button">Follow the leader</button></div>
   <div id="banner" hidden></div>
   <div id="toast" hidden></div>
   <div id="steer" hidden aria-hidden="true"><span></span></div>
@@ -215,9 +251,12 @@
     <h2 id="place">1st!</h2>
     <table id="table"></table>
     <button id="again" class="big">Race again</button>
+    <p class="keys" id="resultsWait" hidden>The host starts the next race</p>
     <button id="resultsTitle" class="mini" type="button">Pick a track</button>
   </section>
-  <script type="module" src="./src/main.js?v=8e775be0-20261125T073935Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=8e775be0-20261125T073935Z"></script>
+  
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=c3f6d48e-20261125T081203Z"></script>
+  <script type="module" src="./src/main.js?v=c3f6d48e-20261125T081203Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=c3f6d48e-20261125T081203Z"></script>
 </body>
 </html>

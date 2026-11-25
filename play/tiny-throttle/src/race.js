@@ -93,17 +93,19 @@ export function surfaceFor(track, kart) {
 
 
 export function createRace(def, {
-  bots = 11, difficulty = 'market', laps = def.laps, player = true, countdown, seed, padAim: aimPads = true,
+  bots = 11, difficulty = 'market', laps = def.laps, player = true, countdown, seed, padAim: aimPads = true, cars = null,
 } = {}) {
   const track = buildTrack(def);
-  const count = bots + (player ? 1 : 0);
+  
+  
+  const count = cars ? cars.length : bots + (player ? 1 : 0);
   
   const grid = startGrid(track.path, count, { startS: track.startS, rowGap: toSim(0.42), laneGap: 0.24 });
   const racers = [];
   for (let i = 0; i < count; i += 1) {
-    const isPlayer = player && i === count - 1;
+    const isPlayer = cars ? !!cars[i].human : player && i === count - 1;
     const g = grid[i];
-    const id = isPlayer ? 'you' : `bot${i + 1}`;
+    const id = cars ? cars[i].carId : isPlayer ? 'you' : `bot${i + 1}`;
     racers.push({
       id, isPlayer, slot: i,
       kart: createKart({ x: g.x, y: g.y, z: g.z, heading: g.heading, id, tuning: rcTuning() }),
@@ -225,8 +227,14 @@ function stepLoose(race, dt, events) {
 
 
 
+
+
+
+
 export function stepRace(race, playerInput, dt) {
   const { track, racers, progress, flow } = race;
+  const byId = playerInput && playerInput.byId ? playerInput.byId : null;
+  const inputOf = (r) => (byId ? byId[r.id] ?? null : playerInput);
   const events = [];
   const table = standings(progress);
   const posById = new Map(table.map((t, i) => [t.id, i + 1]));
@@ -243,8 +251,9 @@ export function stepRace(race, playerInput, dt) {
       surf.gripScale *= gripAt(race.pickups, r.sM, r.sideM, lapLen) * worldGripAt(race.world, r.sM, r.sideM, lapLen);
     }
     let input;
+    const mine = inputOf(r);
     if (!drive) input = { throttle: 0, steer: 0, drift: false };
-    else if (r.isPlayer && playerInput && !progress.racers.get(r.id)?.finished) input = playerInput;
+    else if (r.isPlayer && mine && !progress.racers.get(r.id)?.finished) input = mine;
     else {
       if (!r.driver) r.driver = createDriver(r.slot, 'sunday');
       
@@ -262,7 +271,7 @@ export function stepRace(race, playerInput, dt) {
     
     
     
-    if (r.isPlayer && input === playerInput) {
+    if (r.isPlayer && input === mine) {
       if (input.use && !r.usePrev) usePickup(race.pickups, { id: r.id, s: r.sM, side: r.sideM }, { length: lapLen });
       r.usePrev = !!input.use;
     }
@@ -296,7 +305,7 @@ export function stepRace(race, playerInput, dt) {
     for (let b = a + 1; b < racers.length; b += 1) {
       const [ka, kb] = resolveKartContact(racers[a].kart, racers[b].kart);
       if ((racers[a].isPlayer || racers[b].isPlayer) && (ka !== racers[a].kart || kb !== racers[b].kart)) {
-        events.push({ type: 'bump' });
+        events.push({ type: 'bump', a: racers[a].id, b: racers[b].id });
       }
       racers[a].kart = ka;
       racers[b].kart = kb;
@@ -307,7 +316,7 @@ export function stepRace(race, playerInput, dt) {
     const cars = racers.map((r) => ({
       id: r.id, s: r.sM, side: r.sideM, position: posById.get(r.id) ?? racers.length,
       
-      bot: !r.isPlayer || !playerInput || !!progress.racers.get(r.id)?.finished,
+      bot: !r.isPlayer || !inputOf(r) || !!progress.racers.get(r.id)?.finished,
     }));
     stepItems(race, cars, dt, events);
   }
@@ -322,12 +331,13 @@ export function stepRace(race, playerInput, dt) {
       events.push({ type: 'lap', id: r.id, lap: rec.lapTimes.length });
     }
   }
-  const player = racers.find((r) => r.isPlayer);
+  const humans = racers.filter((r) => r.isPlayer);
   const allFinished = racers.every((r) => progress.racers.get(r.id)?.finished);
   
   
   
-  const playerFinished = player ? !!progress.racers.get(player.id)?.finished : allFinished;
+  
+  const playerFinished = humans.length ? humans.every((h) => progress.racers.get(h.id)?.finished) : allFinished;
   stepFlow(flow, dt, { playerFinished, allFinished });
   race.clock += dt;
   return { events };
