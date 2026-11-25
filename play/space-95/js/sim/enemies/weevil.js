@@ -16,7 +16,7 @@ import { ENTITY_GRAVITY, groundAhead, moveBody, registerKind } from '../entities
 
 const PATROL = 2; 
 const CHARGE = 6; 
-const TELEGRAPH = 0.5; 
+const TELEGRAPH = 0.6; 
 const CHARGE_MAX = 10; 
 const REST = 0.8; 
 const SIGHT = 8; 

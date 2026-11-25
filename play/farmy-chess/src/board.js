@@ -247,6 +247,8 @@ export function create(app) {
     layout,
     reload() { selected = -1; },
     clearSelection() { selected = -1; },
+    
+    hasSelection: () => selected >= 0,
 
     draw(g, now) {
       const d = state();

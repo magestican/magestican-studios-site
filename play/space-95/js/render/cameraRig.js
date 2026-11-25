@@ -185,3 +185,31 @@ export function floorView(pose, aspect) {
     return [px + d[0] * t, py + d[1] * t];
   });
 }
+
+
+
+
+export const HOLD_MIX = 0.6;
+const HOLD_IN = 0.2;
+const HOLD_OUT = 0.35;
+const ease = (u) => u * u * (3 - 2 * u);
+
+
+export function createHold(x, y, dur) {
+  return { x, y, dur, t: 0 };
+}
+
+
+
+
+
+
+
+export function holdWeight(h, dt, opts = {}) {
+  if (!h || h.t >= h.dur) return 0;
+  h.t = Math.min(h.dur, h.t + dt);
+  if (opts.reduceMotion) return 0;
+  const inW = ease(Math.min(1, h.t / HOLD_IN));
+  const outW = ease(Math.min(1, (h.dur - h.t) / HOLD_OUT));
+  return HOLD_MIX * Math.min(inW, outW);
+}

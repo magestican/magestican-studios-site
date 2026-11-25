@@ -39,6 +39,18 @@ const INTRO_TIME = 1.2;
 const clodOn = (e, ctx) => ctx.session.entities.some((c) => c.kind === 'clod' && c.alive && c.state === 'fall' && overlaps(c, e));
 const poundOn = (e, ctx) => ctx.player.ab?.pound === 'fall' && overlaps(ctx.player, e); 
 
+
+
+
+
+export const BOSS_STAMP = 'SHIFT BOSS CLEARED';
+function celebrate(e, ctx) {
+  if (e.celebrated) return;
+  e.celebrated = true;
+  ctx.session.hitstop = Math.max(ctx.session.hitstop ?? 0, HITSTOP_BOSS);
+  ctx.events.push({ type: 'bossCelebrate', id: e.id, x: e.x, y: e.y, stamp: BOSS_STAMP });
+}
+
 function enterPhase(e, ctx, i) {
   
   const spawn = e.phases[i].spawn;
@@ -190,10 +202,12 @@ registerKind('boss', {
           e.stage = 'escaped';
           e.t = 0;
           ctx.events.push({ type: 'bossEscape', id: e.id, x: e.x, y: e.y });
+          celebrate(e, ctx);
           for (const x of s.entities) if (x.kind === 'finish' && x.bossGate === e.id) x.alive = true;
         } else {
           e.stage = 'defeated';
           ctx.events.push({ type: 'bossDefeat', id: e.id, x: e.x, y: e.y });
+          celebrate(e, ctx);
           for (const x of s.entities) if (x.kind === 'finish' && x.bossGate === e.id) x.alive = true;
         }
       } else {

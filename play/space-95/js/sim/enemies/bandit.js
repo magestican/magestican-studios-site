@@ -10,7 +10,7 @@ import { ENTITY_GRAVITY, moveBody, registerKind } from '../entities.js';
 import { stepRailFoe } from '../train.js';
 
 const IDLE_T = 0.6;
-const WINDUP_T = 0.4;
+const WINDUP_T = 0.6; 
 const CROUCH_T = 0.8;
 const HOP_LEN = 6; 
 const HOP_AIR = 1.0; 

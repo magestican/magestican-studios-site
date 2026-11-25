@@ -67,7 +67,9 @@ import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
 import {
   displayName, shareLinkFor, joinIdFrom, describeSaying, describeRoom,
 } from '../../../web-engine/words/coop.js';
-import { WHITE, BLACK, squareName } from '../../../web-engine/chess/position.js';
+import {
+  WHITE, BLACK, squareName, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING,
+} from '../../../web-engine/chess/position.js';
 import { speakMove } from '../../../web-engine/chess/notation.js';
 import {
   newMatch, replay, applyMove, undo, resign, swapSides, seatsWith,
@@ -90,6 +92,14 @@ import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import * as sfx from './sfx.js';
+
+
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
+import { addUiMuteSource, uiSoundOn } from '../../../web-engine/brand/uiSound.js';
+import {
+  TITLE_BUTTONS, titleMove, titleKey, padHeld, padPresses, PAD_KEY, boardBack, MENU_CUES, MENU_GAINS, menuCue,
+  CUE_GAP_MS, panelLook, pieceBob,
+} from './menuNav.js';
 import { cueFor } from '../../../web-engine/chess/chessSound.js';
 import { easeOut } from '../../../web-engine/words/motion.js';
 import { createCelebration } from '../../shared/ui/celebrate.js';
@@ -212,6 +222,10 @@ const app = {
   
   slide: (now) => slide(now),
   sound: (event) => sfx.play(event),
+  
+  cue: (id) => { const c = menuCue(id); if (c) uiCue(c); },
+  
+  focusMoved: () => uiCue('focus'),
   me: SOLO,
   state: () => derived,
   myTurn: () => isMyTurn(derived, app.me) && !isBot(derived.turnId),
@@ -807,9 +821,12 @@ function drawBar(now) {
 function frame() {
   const now = performance.now();
   const active = overlay ?? screen;
+  
+  const opening = !!overlay && !panelLook(now, overlayAt, false, app.motion).done;
+  if (leaving && panelLook(now, leaving.at, true, app.motion).done) leaving = null;
   const step = tick({
     dirty,
-    moving: !!(active && active.animating(now)) || party.running(),
+    moving: !!(active && active.animating(now)) || party.running() || opening || !!leaving,
     wasMoving,
   });
   dirty = false;
@@ -818,7 +835,8 @@ function frame() {
     paint.clear(g, app.width, app.height);
     if (screen) screen.draw(g, now);
     drawBar(now);
-    if (overlay) overlay.draw(g, now);
+    if (leaving && !overlay) drawPanel(leaving.panel, panelLook(now, leaving.at, true, app.motion), now);
+    if (overlay) drawPanel(overlay, panelLook(now, overlayAt, false, app.motion), now);
     
     
     
@@ -837,7 +855,39 @@ function frame() {
 
 
 
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+addUiMuteSource(() => sfx.isMuted());
+let lastCueAt = -Infinity;
+
+function uiCue(name) {
+  const now = performance.now();
+  if (now - lastCueAt < CUE_GAP_MS) return;
+  lastCueAt = now;
+  if (uiSoundOn()) ui.play(name);
+}
+
+
+
+let overlayAt = -Infinity;
+let leaving = null;
+function drawPanel(panel, look, now) {
+  if (look.alpha <= 0) return;
+  g.save();
+  g.globalAlpha = look.alpha;
+  if (look.scale !== 1) {
+    g.translate(app.width / 2, app.height / 2);
+    g.scale(look.scale, look.scale);
+    g.translate(-app.width / 2, -app.height / 2);
+  }
+  panel.draw(g, now);
+  g.restore();
+}
+
 function closeOverlay() {
+  if (overlay) { leaving = { panel: overlay, at: performance.now() }; uiCue('back'); }
   overlay = null;
   app.message = '';
   keysAre(screen.keys);
@@ -845,10 +895,19 @@ function closeOverlay() {
   invalidate();
 }
 
-function show(panel) {
+
+
+
+
+
+function show(panel, { focus = null } = {}) {
   app.message = '';
+  if (!overlay) uiCue('open');
+  overlayAt = performance.now();
+  leaving = null;
   overlay = panel;
   overlay.layout();
+  if (app.keyboardMode) overlay.focusOn?.(focus);
   invalidate();
 }
 
@@ -1007,7 +1066,8 @@ const openSay = () => show(sayPanel(app, {
   onClose: closeOverlay,
 }));
 
-function openMenu() {
+
+function openMenu({ focus = null } = {}) {
   show(menu(app, {
     items: [
       { id: 'sides', label: 'Play a bot, or choose a side', tone: 'blue', run: openSides },
@@ -1024,17 +1084,21 @@ function openMenu() {
         id: 'sound',
         label: sfx.isMuted() ? 'Sound: off' : 'Sound: on',
         run: () => {
+          
+          if (!sfx.isMuted()) uiCue('toggleOff');
           const muted = sfx.setMuted(!sfx.isMuted());
-          if (!muted) sfx.play('lift');
+          if (!muted) uiCue('toggleOn');
           announce(muted ? 'Sound off.' : 'Sound on.');
-          openMenu();
+          openMenu({ focus: 'sound' });
         },
       },
       { id: 'prizes', label: 'See prizes', run: openPrizes },
       { id: 'help', label: 'How to play', run: openHelp },
+      
+      { id: 'title', label: 'Title screen', run: () => { closeOverlay(); showTitle(); } },
       { id: 'close', label: 'Close', run: closeOverlay },
     ],
-  }));
+  }), { focus });
 }
 
 function openPrizes() {
@@ -1198,6 +1262,8 @@ const pointAt = (e) => {
 
 canvas.addEventListener('pointerdown', (e) => {
   const pt = pointAt(e);
+  
+  if (e.pointerType === 'touch') app.keyboardMode = false;
   canvas.setPointerCapture?.(e.pointerId);
   if (overlay) { overlay.pointerDown(pt); return; }
   if (rectAt(barRects, pt.x, pt.y) >= 0) return;   
@@ -1245,18 +1311,85 @@ canvas.addEventListener('pointerleave', () => {
 
 canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
-document.addEventListener('keydown', (e) => {
-  if (atTitle) return;
+
+
+
+
+function pressKey(key, mods = {}) {
+  if (atTitle) return titlePress(key);
   const action = routeKey(
-    { key: e.key, ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey },
+    { key, ctrl: !!mods.ctrl, meta: !!mods.meta, alt: !!mods.alt },
     { screen: 'chess', overlay: !!overlay, games: ['chess'] },
   );
-  if (!action) return;
-  e.preventDefault();
-  if (action.type === 'move') { app.keyboardMode = true; invalidate(); }
-  if (action.type === 'back') { if (overlay) closeOverlay(); return; }
-  if (action.type === 'help') { if (overlay) closeOverlay(); else openHelp(); return; }
+  if (!action) return false;
+  if (action.type === 'move' && overlay && !app.keyboardMode) {
+    
+    app.keyboardMode = true;
+    overlay.focusOn?.(null);
+    uiCue('focus');
+    return true;
+  }
+  if (action.type === 'move' || action.type === 'submit' || action.type === 'back') {
+    app.keyboardMode = true;
+    invalidate();
+  }
+  if (action.type === 'back') {
+    if (overlay) { closeOverlay(); return true; }
+    
+    if (boardBack(screen.hasSelection()) === 'drop') { screen.clearSelection(); uiCue('back'); invalidate(); }
+    else openMenu({ focus: 'close' });
+    return true;
+  }
+  if (action.type === 'help') { if (overlay) closeOverlay(); else openHelp(); return true; }
   (overlay ?? screen).key(action);
+  return true;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (atTitle) {
+    
+    if (titleKey(e.key) && titlePress(e.key)) e.preventDefault();
+    return;
+  }
+  if (pressKey(e.key, { ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey })) e.preventDefault();
+});
+
+
+const titleButtons = () => TITLE_BUTTONS.map((id) => document.getElementById(id));
+function titlePress(key) {
+  const buttons = titleButtons();
+  const at = buttons.indexOf(document.activeElement);
+  if (key === 'Enter') { (buttons[at] ?? buttons[0]).click(); return true; }
+  const dir = titleKey(key);
+  if (!dir) return false;
+  const next = titleMove(at, dir);
+  if (next !== at) { buttons[next].focus(); uiCue('focus'); }
+  return true;
+}
+
+
+
+let padState = null;
+let padLoop = false;
+function pollPad() {
+  const pads = [...(navigator.getGamepads?.() ?? [])].filter(Boolean);
+  if (!pads.length) { padLoop = false; padState = null; return; }
+  const held = new Set();
+  for (const p of pads) for (const w of padHeld(p)) held.add(w);
+  const r = padPresses(padState, held, performance.now());
+  padState = r.state;
+  for (const w of r.presses) {
+    const key = PAD_KEY[w];
+    if (!key) continue;
+    if (atTitle) { if (w !== 'back' && w !== 'start') titlePress(key); }
+    else pressKey(key);
+  }
+  requestAnimationFrame(pollPad);
+}
+globalThis.addEventListener('gamepadconnected', () => {
+  if (padLoop) return;
+  padLoop = true;
+  requestAnimationFrame(pollPad);
 });
 
 reduceMotion?.addEventListener?.('change', (e) => {
@@ -1422,17 +1555,80 @@ maybeThink();
 
 
 
+
+
+
+
+const TITLE_OUT_MS = 220;
+const isTouch = () => !!globalThis.matchMedia?.('(pointer: coarse)').matches;
 function leaveTitle() {
   if (!atTitle) return;
   atTitle = false;
-  document.body.classList.remove('at-title');
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    invalidate();
+  };
+  if (app.motion) {
+    document.body.classList.add('title-leaving');
+    setTimeout(done, TITLE_OUT_MS);
+  } else done();
   canvas.focus({ preventScroll: true });
   invalidate();
 }
+
+function showTitle() {
+  if (atTitle) return;
+  atTitle = true;
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  showProgress();
+  startTitleMotion();
+  if (!isTouch() || app.keyboardMode) $start.focus({ preventScroll: true });
+}
 const $start = document.getElementById('start');
 const $seeOptions = document.getElementById('see-options');
-$start.addEventListener('click', () => { leaveTitle(); sfx.play('lift'); });
+$start.addEventListener('click', () => { uiCue('tap'); leaveTitle(); });
 $seeOptions.addEventListener('click', () => { leaveTitle(); openMenu(); });
+
+
+
+const $mark = document.getElementById('title-pieces');
+const markG = $mark?.getContext?.('2d') ?? null;
+const ROW = [ROOK, KNIGHT, BISHOP, QUEEN, KING, PAWN];
+let titleMoving = false;
+function drawTitlePieces(now) {
+  if (!markG) return;
+  const dpr = globalThis.devicePixelRatio || 1;
+  const cssW = $mark.clientWidth || 360;
+  const cssH = $mark.clientHeight || 64;
+  if ($mark.width !== Math.round(cssW * dpr)) { $mark.width = Math.round(cssW * dpr); $mark.height = Math.round(cssH * dpr); }
+  markG.setTransform(dpr, 0, 0, dpr, 0, 0);
+  markG.clearRect(0, 0, cssW, cssH);
+  const s = Math.min(cssH - 10, cssW / ROW.length - 6);
+  const gap = (cssW - s * ROW.length) / (ROW.length + 1);
+  ROW.forEach((code, i) => {
+    const y = cssH - s - 2 + pieceBob(now, i, ROW.length, app.motion);
+    paint.chip(markG, { x: gap + i * (s + gap), y, w: s, h: s }, i % 2 ? -code : code);
+  });
+}
+function titleFrame(now) {
+  if (!atTitle) { titleMoving = false; return; }
+  drawTitlePieces(now);
+  if (app.motion) requestAnimationFrame(titleFrame);
+  else titleMoving = false;
+}
+function startTitleMotion() {
+  if (titleMoving || !markG) return;
+  titleMoving = true;
+  requestAnimationFrame(titleFrame);
+}
+const $name = document.getElementById('title-name');
+if ($name) $name.textContent = GAME_NAME;
+if (atTitle) {
+  startTitleMotion();
+  
+  if (!isTouch()) $start.focus({ preventScroll: true });
+}
 
 const linkRoom = joinIdFrom(globalThis.location.href);
 if (linkRoom && canPlayTogether()) {

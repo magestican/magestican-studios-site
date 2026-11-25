@@ -14,7 +14,7 @@
 
 import { hurtPlayer, stompBounce } from '../combat.js';
 import { overlaps, registerKind, spawnEntities } from '../entities.js';
-import { registerBossType } from './boss.js';
+import { BOSS_STAMP, registerBossType } from './boss.js';
 
 const CHARGE_SPEED = 12; 
 const ERUPT_RISE = 1; 
@@ -253,7 +253,8 @@ registerBossType('foreman', {
     if (e.phase === e.phases.length - 1 && e.hp <= 1) {
       
       e.mood = 'dazed';
-      ctx.events.push({ type: 'bossCelebrate', id: e.id, x: e.x, y: e.y, text: 'CAVE-IN!' });
+      e.celebrated = true; 
+      ctx.events.push({ type: 'bossCelebrate', id: e.id, x: e.x, y: e.y, text: 'CAVE-IN!', stamp: BOSS_STAMP });
     }
     return how;
   },

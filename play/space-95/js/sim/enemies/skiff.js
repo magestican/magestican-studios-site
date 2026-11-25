@@ -17,7 +17,7 @@ import { clampToWater } from './strider.js';
 
 const ROW = 4; 
 const RAM = 2; 
-const ROW_WINDUP = 0.5; 
+const ROW_WINDUP = 0.6; 
 const RAM_WINDUP = 0.8; 
 
 registerKind('skiff', {

@@ -60,7 +60,7 @@ registerKind('dustmite', {
 
 
 
-const CREW = Object.freeze({ WALK: 1.5, WAKE: 14, WAKE_Y: 9, JAB_NEAR: 1.5, JAB_TELE: 0.5, JAB_REACH: 1.8, JAB_COOL: 1.0 });
+const CREW = Object.freeze({ WALK: 1.5, WAKE: 14, WAKE_Y: 9, JAB_NEAR: 1.5, JAB_TELE: 0.6, JAB_REACH: 1.8, JAB_COOL: 1.0 });
 
 function createCrew(e) {
   e.w = 0.7;

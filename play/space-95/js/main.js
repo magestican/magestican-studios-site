@@ -28,6 +28,7 @@ import { fullResume } from './sim/stamps.js';
 import { placeTrain } from './sim/train.js';
 import { site } from './site/adapter.js';
 import { v } from './site/assetUrl.js';
+import { showBossStamp } from './ui/bossStamp.js';
 import { createEdgeMarker, edgeMarker } from './ui/edgeMarker.js';
 import { createEnding } from './ui/ending.js';
 import { createHud } from './ui/hud.js';
@@ -340,6 +341,8 @@ function frame(now) {
       
       if (e.type === 'bossIntro') audio.musicFirst(['boss-mini', ...levelMusic]);
       if (e.type === 'bossDefeat' || e.type === 'bossEscape') audio.musicFirst(levelMusic);
+      
+      if (e.type === 'bossCelebrate') showBossStamp(document, e);
       
       if (e.type === 'defeat' && e.how === 'pebble') site.count('pebbleKills');
       if (e.type === 'secret' && e.secret === 'specimen') site.seen('specimens', String(e.id));

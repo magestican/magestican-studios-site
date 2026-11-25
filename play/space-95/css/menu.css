@@ -331,6 +331,46 @@ body.is-menu .help {
 }
 
 
+.boss-stamp {
+  position: fixed;
+  top: 22%;
+  left: 50%;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--gap) / 2);
+  padding: var(--gap) var(--pad-card);
+  background: var(--paper);
+  border: calc(var(--outline-w) * 2) solid var(--stamp-red);
+  border-radius: var(--radius);
+  pointer-events: none;
+  transform: translateX(-50%) rotate(-6deg);
+  animation: boss-stamp var(--enter-ms) var(--ease-paper) both;
+}
+.boss-stamp p {
+  margin: 0;
+  font-family: var(--display);
+  text-transform: uppercase;
+  color: var(--stamp-red);
+}
+.boss-stamp-text {
+  font-size: var(--text-xl);
+}
+.boss-stamp-sub {
+  font-size: var(--text-m);
+}
+@keyframes boss-stamp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) rotate(-6deg) scale(1.8);
+  }
+}
+:root[data-reduce-motion="true"] .boss-stamp {
+  animation: m-fade-in var(--fade-ms) linear both;
+}
+
+
 .m-join {
   display: flex;
   flex-direction: column;

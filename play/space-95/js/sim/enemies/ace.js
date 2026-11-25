@@ -51,7 +51,7 @@ export const ACE = Object.freeze({
   BEHIND: 2, 
   CONE: 8 * D,
   RANGE: 12,
-  TELEGRAPH: 0.5,
+  TELEGRAPH: 0.6, 
   LEADER_TELEGRAPH: 0.7,
   DARTS: 3,
   DART_GAP: 0.15,

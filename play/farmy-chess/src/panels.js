@@ -150,7 +150,19 @@ function card(app, {
       const was = press;
       press = -1;
       app.invalidate();
-      if (i >= 0 && i === was && !rects[i].disabled) rects[i].run?.();
+      if (i >= 0 && i === was && !rects[i].disabled) { app.cue?.(rects[i].id); rects[i].run?.(); }
+    },
+    
+
+
+
+
+    focusOn(id) {
+      let i = rects.findIndex((r) => r.id === id && !r.disabled);
+      if (i < 0) i = rects.findIndex((r) => !r.disabled);
+      hover = i;
+      hoverAt = app.now();
+      app.invalidate();
     },
     pointerLeave() { hover = -1; press = -1; app.invalidate(); },
     key(action) {
@@ -160,13 +172,16 @@ function card(app, {
         if (!usable.length) return true;
         const at = usable.indexOf(rects[hover]);
         const next = Math.max(0, Math.min(usable.length - 1, (at < 0 ? 0 : at) + (action.dy || action.dx || 0)));
+        const was = hover;
         hover = rects.indexOf(usable[next]);
+        if (hover !== was) app.focusMoved?.();
         hoverAt = app.now();
         app.invalidate();
         return true;
       }
       if (action.type === 'submit') {
         const chosen = hover >= 0 && !rects[hover]?.disabled ? rects[hover] : rects.find((r) => !r.disabled);
+        if (chosen) app.cue?.(chosen.id);
         chosen?.run?.();
         return true;
       }

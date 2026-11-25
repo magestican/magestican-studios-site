@@ -15,7 +15,17 @@ import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js'
 import { createBoltSprite } from './boltSprite.js';
 import { bossLabelPosition } from './bossLabel.js';
 import { burrowEntityView, createBurrow } from './burrowView.js';
-import { createCameraRig, frameLift, framePull, frameShift, hintDyCap, rideLead, updateCameraRig } from './cameraRig.js';
+import {
+  createCameraRig,
+  createHold,
+  frameLift,
+  framePull,
+  frameShift,
+  hintDyCap,
+  holdWeight,
+  rideLead,
+  updateCameraRig,
+} from './cameraRig.js';
 import { coopFigures } from './coopFigures.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
@@ -187,6 +197,7 @@ export function createView(canvas, level, labels) {
   
   let lastFrame = null; 
   let shake = 0; 
+  let bossHold = null; 
   
   const reduceMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const kick = (a) => {
@@ -315,8 +326,12 @@ export function createView(canvas, level, labels) {
       
       planePull += ((session.plane && !level.camDist ? PLANE_PULL : 1) - planePull) * Math.min(1, dt * 2);
       const arenaPull = lastFrame ? 1 + (pullNow - 1) * frameK : 1;
-      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, camDist() * planePull * arenaPull); 
-      camera.lookAt(camX + sx0, rig.y + hintDy + 0.6 + sy0, 0);
+      
+      const hw = holdWeight(bossHold, dt, { reduceMotion });
+      const camXh = hw ? camX + (bossHold.x - camX) * hw : camX;
+      const camYh = hw ? rig.y + hintDy + (bossHold.y - rig.y - hintDy) * hw : rig.y + hintDy;
+      camera.position.set(camXh + sx0, camYh + 1.2 + sy0, camDist() * planePull * arenaPull); 
+      camera.lookAt(camXh + sx0, camYh + 0.6 + sy0, 0);
 
       squash *= Math.exp(-dt * 14);
       const sx = 1 + squash * 0.35;
@@ -467,6 +482,7 @@ export function createView(canvas, level, labels) {
       const juice = juiceFor(e, { reduceMotion });
       if (juice.shake) kick(juice.shake);
       for (const sp of juice.sparks) spark(sp.x, sp.y, sp.color, sp.life, sp.size);
+      if (juice.hold && e.x != null) bossHold = createHold(e.x, e.y ?? 0, juice.hold);
       night?.onEvent(e);
       silk?.onEvent(e);
       burrow?.onEvent(e);

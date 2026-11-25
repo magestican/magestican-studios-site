@@ -55,6 +55,7 @@ export const REWARD_EVENTS = [
   'checkpoint',
   'clear',
   'ability',
+  'bossCelebrate',
 ];
 
 
@@ -99,9 +100,15 @@ export const JUICE = {
   checkpoint: { bursts: [ring(8, TEAL, 0.7, 0.1, 0.6, 0.9)] },
   clear: { bursts: [ring(16, GOLD, 1.2, 0.12, 1, 1)] },
   ability: { bursts: [ring(12, TEAL, 1, 0.11, 0.8, 0.8)] },
+  
+  bossCelebrate: {
+    shake: MAX_SHAKE,
+    hold: 1.2,
+    bursts: [ring(24, GOLD, 1.4, 0.16, 1.4, 1.2), ring(14, WHITE, 0.9, 0.12, 0.8, 1.2)],
+  },
 };
 
-const NONE = Object.freeze({ shake: 0, sparks: Object.freeze([]) });
+const NONE = Object.freeze({ shake: 0, hold: 0, sparks: Object.freeze([]) });
 
 
 
@@ -111,7 +118,7 @@ const NONE = Object.freeze({ shake: 0, sparks: Object.freeze([]) });
 
 export function juiceFor(e, opts = {}) {
   const row = JUICE[e.type];
-  if (!row || (row.when && !row.when(e))) return { shake: NONE.shake, sparks: [] };
+  if (!row || (row.when && !row.when(e))) return { shake: NONE.shake, hold: 0, sparks: [] };
   const shake = Math.min(MAX_SHAKE, row.shake ?? 0) * (opts.reduceMotion ? 0.5 : 1);
   const x = e.x ?? 0;
   const y = e.y ?? 0;
@@ -122,7 +129,7 @@ export function juiceFor(e, opts = {}) {
       sparks.push({ x: x + Math.cos(a) * b.r, y: y + b.dy + Math.sin(a) * b.r, color: b.color, life: b.life, size: b.size });
     }
   }
-  return { shake, sparks };
+  return { shake, hold: row.hold ?? 0, sparks };
 }
 
 

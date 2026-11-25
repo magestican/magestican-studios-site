@@ -59,7 +59,7 @@ export const TRAIN = Object.freeze({
   HALT_T: 2, 
   REWIND: 8, 
   HOP_RANGE: 12, 
-  HOP_WINDUP: 0.4,
+  HOP_WINDUP: 0.6, 
   HOP_AIR: 0.8,
   PEA_R: 0.6,
   LADDER_T: 1.0, 
