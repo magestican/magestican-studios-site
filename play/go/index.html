@@ -33,7 +33,7 @@
   <title>Play Weiqiwise - free Go online: weiqi, igo, baduk</title>
   <meta name="description" content="Weiqiwise is free Go (weiqi, igo, baduk - 围棋, 囲碁, 바둑) in your browser on a kaya board with slate and shell stones: 9x9, 13x13 or 19x19, Japanese or Chinese counting, and a guide that shows atari and ko. Play the computer at three levels or a friend in a room.">
   <meta name="keywords" content="weiqiwise, go, go game, weiqi, igo, baduk, go online, 围棋, 圍棋, 囲碁, 바둑, 围棋 在线, 圍棋 線上, cờ vây">
-  <meta name="build" content="ed9baae4-20261125T225859Z">
+  <meta name="build" content="9d96d07c-20261125T231654Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/go/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Weiqiwise - free Go online: weiqi, igo, baduk">
@@ -51,8 +51,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=ed9baae4-20261125T225859Z" data-game="go" data-zh="1" data-levels="easy,medium,hard" data-level-key="weiqiwise-settings-v1" data-level-default="easy"></script>
-  <link rel="stylesheet" href="./src/style.css?v=ed9baae4-20261125T225859Z">
+  <script src="../shared/ui/boot.js?v=9d96d07c-20261125T231654Z" data-game="go" data-zh="1" data-levels="easy,medium,hard" data-level-key="weiqiwise-settings-v1" data-level-default="easy"></script>
+  <link rel="stylesheet" href="./src/style.css?v=9d96d07c-20261125T231654Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -80,7 +80,7 @@
   </script>
   <script type="module" src="/web-engine/library/openHook.js?play=go"></script>
 </head>
-<body>
+<body class="at-title">
   <div class="studio-bar">
     <a class="studio-home" href="/" aria-label="Magestican Studios home">
       <img src="/assets/logo.svg" width="36" height="36" alt="">
@@ -100,6 +100,36 @@
       </svg>
     </button>
   </div>
+
+  
+
+
+
+  <section class="wq-title" id="title" aria-labelledby="title-name">
+    <div class="wq-title-card">
+      <p class="wq-title-name" id="title-name" data-game-name>Weiqiwise</p>
+      <p class="wq-title-tag" data-t="tagline">Surround to capture</p>
+      <svg class="wq-title-cap" viewBox="0 0 6 6" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="wq-tb" cx="0.36" cy="0.32" r="0.75"><stop offset="0" stop-color="#5A5A60"/><stop offset="0.45" stop-color="#1B1B1E"/><stop offset="1" stop-color="#050506"/></radialGradient>
+          <radialGradient id="wq-tw" cx="0.36" cy="0.32" r="0.75"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.5" stop-color="#F1ECE0"/><stop offset="1" stop-color="#B9B09C"/></radialGradient>
+        </defs>
+        <rect class="kaya" x="0" y="0" width="6" height="6" rx="0.3"/>
+        <line class="grid" x1="1" y1="1" x2="5" y2="1"/><line class="grid" x1="1" y1="2" x2="5" y2="2"/>
+        <line class="grid" x1="1" y1="3" x2="5" y2="3"/><line class="grid" x1="1" y1="4" x2="5" y2="4"/>
+        <line class="grid" x1="1" y1="5" x2="5" y2="5"/>
+        <line class="grid" x1="1" y1="1" x2="1" y2="5"/><line class="grid" x1="2" y1="1" x2="2" y2="5"/>
+        <line class="grid" x1="3" y1="1" x2="3" y2="5"/><line class="grid" x1="4" y1="1" x2="4" y2="5"/>
+        <line class="grid" x1="5" y1="1" x2="5" y2="5"/>
+        <circle class="hoshi" cx="3" cy="3" r="0.09"/>
+        <circle class="tw" cx="3" cy="3" r="0.46"/>
+        <circle class="tb" cx="3" cy="2" r="0.46"/><circle class="tb" cx="4" cy="3" r="0.46"/>
+        <circle class="tb" cx="3" cy="4" r="0.46"/><circle class="tb" cx="2" cy="3" r="0.46"/>
+      </svg>
+      <button class="wq-start wq-btn skin-lacquer-button_primary" id="start" type="button" data-t="start">START</button>
+      <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-settings" id="see-options" type="button" data-t="seeOptions">See options</button>
+    </div>
+  </section>
 
   <main class="wq">
     <h1 class="mg-own" data-game-name>Weiqiwise</h1>
@@ -181,6 +211,7 @@
         <button class="wq-btn skin-lacquer-button_secondary" id="resume" type="button" data-t="keepPlaying" hidden>Keep playing</button>
         <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-give_up" id="resign" type="button" data-t="resign">Resign</button>
         <button class="wq-btn skin-lacquer-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+        <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-settings" id="menu-btn" type="button" data-t="menu" aria-haspopup="dialog">Menu</button>
       </div>
     </section>
     <p class="wq-help"><span data-t="help">Tap a point to place a stone. A group with no liberties is captured. When neither player has a useful move, both pass and the board is counted.</span>
@@ -200,13 +231,26 @@
     </section>
   </main>
 
+  
+
+
+  <div class="wq-menu" id="menu" hidden>
+    <div class="wq-menu-card" role="dialog" aria-modal="true" aria-labelledby="menu-head">
+      <h2 class="wq-menu-head" id="menu-head" data-t="menu">Menu</h2>
+      <button class="wq-btn skin-lacquer-button_primary" id="menu-resume" type="button" data-t="resumeMenu">Resume</button>
+      <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-new_game" id="menu-new" type="button" data-t="newGame">New game</button>
+      <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-settings" id="menu-options" type="button" data-t="options">Options</button>
+      <button class="wq-btn skin-lacquer-button_secondary mg-i mg-i-leave" id="menu-title" type="button" data-t="titleScreen">Title screen</button>
+    </div>
+  </div>
+
   <noscript>
     <p>Weiqiwise is a Go game and needs JavaScript; there is nothing to download.
     <a href="/go.html">How to play</a>.</p>
   </noscript>
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=ed9baae4-20261125T225859Z"></script>
-  <script type="module" src="./src/main.js?v=ed9baae4-20261125T225859Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=ed9baae4-20261125T225859Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=9d96d07c-20261125T231654Z"></script>
+  <script type="module" src="./src/main.js?v=9d96d07c-20261125T231654Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=9d96d07c-20261125T231654Z"></script>
 </body>
 </html>

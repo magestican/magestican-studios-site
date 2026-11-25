@@ -35,6 +35,7 @@ const OWN = {
     help: 'Tap a point to place a stone. A group with no liberties is captured. When neither player has a useful move, both pass and the board is counted.',
     note: 'No position may repeat (superko). In the Japanese count, points inside a seki are counted as territory.',
     stoneOn: '{color} stone on {sq}, {libs} liberties', emptySq: 'empty {sq}',
+    start: 'START', seeOptions: 'See options', menu: 'Menu', resumeMenu: 'Resume', options: 'Options', titleScreen: 'Title screen', tagline: 'Surround to capture',
   },
   es: {
     rules: '/es/go.html',
@@ -55,6 +56,7 @@ const OWN = {
     help: 'Toca un punto para poner una piedra. Un grupo sin libertades queda capturado. Cuando a nadie le queda una jugada útil, los dos pasan y se cuenta el tablero.',
     note: 'Ninguna posición puede repetirse (superko). En la cuenta japonesa, los puntos dentro de un seki cuentan como territorio.',
     stoneOn: 'Piedra {color} en {sq}, {libs} libertades', emptySq: '{sq} vacío',
+    start: 'EMPEZAR', seeOptions: 'Ver opciones', menu: 'Menú', resumeMenu: 'Seguir', options: 'Opciones', titleScreen: 'Pantalla de inicio', tagline: 'Rodea para capturar',
   },
   pt: {
     rules: '/pt/go.html',
@@ -75,6 +77,7 @@ const OWN = {
     help: 'Toque num ponto para colocar uma pedra. Um grupo sem liberdades é capturado. Quando ninguém tem mais jogada útil, os dois passam e o tabuleiro é contado.',
     note: 'Nenhuma posição pode se repetir (superko). Na contagem japonesa, pontos dentro de um seki contam como território.',
     stoneOn: 'Pedra {color} em {sq}, {libs} liberdades', emptySq: '{sq} vazio',
+    start: 'COMEÇAR', seeOptions: 'Ver opções', menu: 'Menu', resumeMenu: 'Continuar', options: 'Opções', titleScreen: 'Tela inicial', tagline: 'Cerque para capturar',
   },
   tl: {
     rules: '/tl/go.html',
@@ -95,6 +98,7 @@ const OWN = {
     help: 'Mag-tap ng punto para maglagay ng bato. Nahuhuli ang grupong walang liberty. Kapag wala nang silbing tira, parehong mag-pass at bibilangin ang board.',
     note: 'Walang puwestong puwedeng maulit (superko). Sa bilangang Hapon, teritoryo ang mga punto sa loob ng seki.',
     stoneOn: '{color} na bato sa {sq}, {libs} liberty', emptySq: 'bakanteng {sq}',
+    start: 'SIMULAN', seeOptions: 'Tingnan ang mga opsyon', menu: 'Menu', resumeMenu: 'Ituloy', options: 'Mga opsyon', titleScreen: 'Unang screen', tagline: 'Palibutan para makuha',
   },
   ja: {
     rules: '/ja/go.html',
@@ -115,6 +119,7 @@ const OWN = {
     help: '交点をタップして石を置きます。呼吸点のなくなった石は取られます。打つ手がなくなったら二人ともパスし、地を数えます。',
     note: '同じ局面の繰り返しは禁止です(スーパーコウ)。日本ルールの計算では、セキの中の点も地に数えます。',
     stoneOn: '{sq}の{color}石、呼吸点{libs}', emptySq: '{sq} 空点',
+    start: 'スタート', seeOptions: '設定を見る', menu: 'メニュー', resumeMenu: '続ける', options: '設定', titleScreen: 'タイトル画面', tagline: '囲んで取る',
   },
   ko: {
     rules: '/ko/go.html',
@@ -135,6 +140,7 @@ const OWN = {
     help: '교차점을 눌러 돌을 놓습니다. 활로가 없는 돌은 따냅니다. 더 둘 곳이 없으면 둘 다 패스하고 계가합니다.',
     note: '같은 국면은 다시 나올 수 없습니다(슈퍼코). 일본식 계가에서는 빅 안의 점도 집으로 셉니다.',
     stoneOn: '{sq}의 {color} 돌, 활로 {libs}', emptySq: '{sq} 빈 점',
+    start: '시작', seeOptions: '설정 보기', menu: '메뉴', resumeMenu: '계속하기', options: '설정', titleScreen: '처음 화면', tagline: '둘러싸서 잡기',
   },
   id: {
     rules: '/id/go.html',
@@ -155,6 +161,7 @@ const OWN = {
     help: 'Ketuk titik untuk menaruh batu. Kelompok tanpa kebebasan tertangkap. Saat tak ada lagi langkah berguna, keduanya pas dan papan dihitung.',
     note: 'Tidak ada posisi yang boleh berulang (superko). Dalam hitungan Jepang, titik di dalam seki dihitung sebagai wilayah.',
     stoneOn: 'Batu {color} di {sq}, {libs} kebebasan', emptySq: '{sq} kosong',
+    start: 'MULAI', seeOptions: 'Lihat pilihan', menu: 'Menu', resumeMenu: 'Lanjut', options: 'Pilihan', titleScreen: 'Layar judul', tagline: 'Kepung untuk menangkap',
   },
   vi: {
     rules: '/vi/go.html',
@@ -175,6 +182,7 @@ const OWN = {
     help: 'Chạm vào một giao điểm để đặt quân. Nhóm quân hết khí bị bắt. Khi không còn nước có ích, cả hai bỏ lượt và bàn cờ được đếm.',
     note: 'Không thế cờ nào được lặp lại (superko). Khi đếm kiểu Nhật, các điểm trong seki được tính là đất.',
     stoneOn: 'Quân {color} ở {sq}, {libs} khí', emptySq: '{sq} trống',
+    start: 'BẮT ĐẦU', seeOptions: 'Xem tùy chọn', menu: 'Menu', resumeMenu: 'Chơi tiếp', options: 'Tùy chọn', titleScreen: 'Màn hình chính', tagline: 'Vây để bắt quân',
   },
   'zh-Hant': {
     rules: '/zh-hant/go.html',
@@ -195,6 +203,7 @@ const OWN = {
     help: '點擊交叉點落子。沒有氣的棋子會被提走。雙方都沒有有用的棋可下時,兩人都停一手,然後計算棋盤。',
     note: '同一局面不得重複出現(全局同形禁止)。日本規則計分時,雙活中的點也算作地。',
     stoneOn: '{sq}的{color}子,{libs}口氣', emptySq: '{sq} 空點',
+    start: '開始', seeOptions: '查看設定', menu: '選單', resumeMenu: '繼續', options: '設定', titleScreen: '標題畫面', tagline: '圍而提之',
   },
   'zh-Hans': {
     rules: '/zh-hans/go.html',
@@ -215,6 +224,7 @@ const OWN = {
     help: '点击交叉点落子。没有气的棋子会被提走。双方都没有有用的棋可下时,两人都停一手,然后计算棋盘。',
     note: '同一局面不得重复出现(全局同形禁止)。日本规则计分时,双活中的点也算作地。',
     stoneOn: '{sq}的{color}子,{libs}口气', emptySq: '{sq} 空点',
+    start: '开始', seeOptions: '查看设置', menu: '菜单', resumeMenu: '继续', options: '设置', titleScreen: '标题画面', tagline: '围而提之',
   },
 };
 

@@ -33,7 +33,7 @@ import { chooseMove, LEVELS, seededRng } from '../../../web-engine/go/goBot.js';
 import { applyGameName, gameLang, localGameName } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
-import { playUi } from '../../../web-engine/brand/uiSound.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
@@ -57,6 +57,10 @@ import {
 import { createNet, canPlayTogether } from './net.js';
 import { forgetRoomCode } from './net.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
+import {
+  showsTitle, TITLE_BUTTONS, MENU_BUTTONS, navKey, stepFocus, STEP, gridStep, startPoint, padHeld, padPresses, PAD_KEY,
+  MENU_CUES, MENU_GAINS, menuCue, TITLE_OUT_MS,
+} from './menuNav.js';
 
 const GAME_ID = 'go';
 const SETTINGS_KEY = 'weiqiwise-settings-v1';
@@ -75,6 +79,13 @@ initAnalytics({ page: GAME_ID });
 startVersionChecker({ versionUrl: './version.json', label: 'A new version of Weiqiwise is available.' });
 
 const $ = (id) => document.getElementById(id);
+
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+
+let cursor = -1;
 const statusEl = $('status');
 const flashEl = $('flash');
 const boardEl = $('board');
@@ -276,9 +287,9 @@ function sound(before) {
   if (!before || !view) return;
   const mv = view.moves.at(-1);
   syncLive();
-  if (!live || mv === 'pass' || mv === 'resume') { playUi('toggleOff'); return; }
+  if (!live || mv === 'pass' || mv === 'resume') { ui.play('toggleOff'); return; }
   const took = capturedSince(before).length > 0;
-  playUi(took ? 'tap' : 'toggleOn');
+  ui.play(took ? 'tap' : 'toggleOn');
 }
 
 
@@ -300,7 +311,7 @@ function doAction(a) {
     return;
   }
   const before = snapshot();
-  if (!act(match, myId(), a)) { playUi('error'); draw(); return; }
+  if (!act(match, myId(), a)) { ui.play('error'); draw(); return; }
   refresh(a.mv ? before : null);
   if (a.mv) sound(before);
 }
@@ -317,7 +328,7 @@ function echoTimedOut() {
   if (confirmedView) view = confirmedView;
   clearEcho();
   waitingAnswer = false;
-  playUi('error');
+  ui.play('error');
   flash(T.refused, 3200);
   syncLive();
   draw();
@@ -399,7 +410,7 @@ function finished() {
   if (me < 0) return;
   const w = view.result.winner;
   const result = w === me ? 'won' : 'lost';
-  playUi(result === 'won' ? 'toggleOn' : 'toggleOff');
+  ui.play(result === 'won' ? 'toggleOn' : 'toggleOff');
   const turn = reportGate.take();
   if (turn) {
     const arg = twoSeatMatch({
@@ -467,8 +478,12 @@ function drawBoard() {
   const n = live ? live.n : settings.size;
   $('table').style.setProperty('--n', String(n));
   if (!LINES.has(n)) LINES.set(n, linesSvg(n));
+  
+  
+  const hadFocus = boardEl.contains(document.activeElement);
   boardEl.innerHTML = LINES.get(n);
   if (!live) return;
+  if (!(cursor >= 0 && cursor < n * n)) cursor = startPoint(n);
   const b = live.pos.board;
   const mine = myTurnToPlay();
   const guide = settings.guide && live.phase === 'play' && !view.result ? guideFor(live.pos) : null;
@@ -509,9 +524,12 @@ function drawBoard() {
       el.style.setProperty('--i', String(p % 97));
     }
     if (view?.echo && p === last) el.classList.add('echo');
-    el.addEventListener('click', (e) => onPoint(p, e.pointerType));
+    el.addEventListener('click', (e) => { cursor = p; onPoint(p, e.pointerType); });
+    
+    el.tabIndex = p === cursor ? 0 : -1;
     boardEl.append(el);
   }
+  if (hadFocus) boardEl.querySelector(`[data-p="${cursor}"]`)?.focus({ preventScroll: true });
 }
 
 
@@ -650,7 +668,7 @@ function drawProgress() {
 }
 $('goal-head').textContent = PW.goal;
 $('prizes-head').textContent = PW.prizes;
-$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; drawProgress(); });
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; ui.play(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
 
 
 function cellPx() {
@@ -665,13 +683,13 @@ function onPoint(p, pointerType) {
     
     shownLibs = shownLibs === p ? -1 : p;
     ghost = -1;
-    playUi('tap');
+    ui.play('tap');
     draw();
     return;
   }
   if (!myTurnToPlay()) return;
   if (!playPos(live.pos, p)) {
-    playUi('error');
+    ui.play('error');
     flash(whyNot(p) === 'ko' ? T.koHere : T.notHere, 3200);
     return;
   }
@@ -679,14 +697,16 @@ function onPoint(p, pointerType) {
     ghost = p;
     shownLibs = -1;
     if (!toldTapAgain) { flash(T.tapAgain, 3200); toldTapAgain = true; }
-    playUi('tap');
+    ui.play('tap');
     draw();
     return;
   }
   doAction({ type: 'move', mv: toSgf(p, live.n) });
 }
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && (ghost >= 0 || shownLibs >= 0)) { ghost = -1; shownLibs = -1; draw(); }
+  
+  
+  if (e.key === 'Escape' && (ghost >= 0 || shownLibs >= 0)) { e.preventDefault(); ghost = -1; shownLibs = -1; draw(); }
 });
 
 
@@ -740,7 +760,7 @@ for (const b of document.querySelectorAll('[data-mode]')) {
   b.addEventListener('click', () => {
     const mode = b.dataset.mode;
     if (mode === settings.mode) return;
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'room') leaveRoom();
     settings.mode = mode;
     botGen += 1;
@@ -752,7 +772,7 @@ for (const b of document.querySelectorAll('[data-level]')) {
   b.addEventListener('click', () => {
     settings.level = b.dataset.level;
     persist();
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'bot') newMatch();
     else if (match && !isGuest()) {
       match.seats = match.seats.map((s) => (isBot(s) ? `bot:${settings.level}#1` : s));
@@ -765,13 +785,13 @@ for (const b of document.querySelectorAll('[data-side]')) {
     if (settings.mode !== 'bot' || b.dataset.side === settings.side) return;
     settings.side = b.dataset.side;
     persist();
-    playUi('toggleOn');
+    ui.play('toggleOn');
     newMatch();
   });
 }
 function setupChanged() {
   persist();
-  playUi('toggleOn');
+  ui.play('toggleOn');
   if (settings.mode === 'bot') newMatch();
   else if (match && !isGuest()) restartRoom();
 }
@@ -793,15 +813,15 @@ for (const b of document.querySelectorAll('[data-rules]')) {
 $('guide').addEventListener('click', () => {
   settings.guide = !settings.guide;
   persist();
-  playUi(settings.guide ? 'toggleOn' : 'toggleOff');
+  ui.play(settings.guide ? 'toggleOn' : 'toggleOff');
   draw();
 });
 $('pass').addEventListener('click', () => {
   if (!myTurnToPlay()) return;
   doAction({ type: 'move', mv: 'pass' });
 });
-$('accept').addEventListener('click', () => { playUi('toggleOn'); doAction({ type: 'accept' }); });
-$('resume').addEventListener('click', () => { playUi('tap'); doAction({ type: 'resume' }); });
+$('accept').addEventListener('click', () => { ui.play('toggleOn'); doAction({ type: 'accept' }); });
+$('resume').addEventListener('click', () => { ui.play('tap'); doAction({ type: 'resume' }); });
 let resignArmed = null;
 $('resign').addEventListener('click', () => {
   if (!view || view.result || view.you < 0) return;
@@ -818,7 +838,7 @@ $('resign').addEventListener('click', () => {
 });
 $('new-game').addEventListener('click', () => {
   if (watcher()) return;
-  playUi('tap');
+  ui.play('tap');
   if (isGuest()) { net.propose({ type: 'rematch' }); return; }
   if (match && settings.mode === 'room') { restartRoom(); return; }
   if (settings.mode === 'room') { flash(T.waiting); return; }
@@ -855,7 +875,7 @@ function onView(v, meta = {}) {
   if (echoed && real) before.n = real.moves.length;
   clearEcho();
   waitingAnswer = false;
-  if (echoed && meta?.nack) { playUi('error'); flash(T.refused, 3200); }
+  if (echoed && meta?.nack) { ui.play('error'); flash(T.refused, 3200); }
   if (!real || v.moves.length < real.moves.length || v.n !== real.n || (real.result && !v.result)) {
     gameNo += 1;
     reportGate.begin(v.seats);
@@ -976,14 +996,14 @@ function leaveRoom() {
   Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 
-$('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
+$('create-room').addEventListener('click', () => { ui.play('tap'); openRoom(); });
 $('join-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  playUi('tap');
+  ui.play('tap');
   joinRoom($('join-code').value.trim());
 });
 $('leave-room').addEventListener('click', () => {
-  playUi('toggleOff');
+  ui.play('toggleOff');
   leaveRoom();
   settings.mode = 'bot';
   newMatch();
@@ -1016,7 +1036,158 @@ $('watch-link').addEventListener('click', () => {
 });
 
 
-foldSetup();
+
+
+
+
+const titleEl = $('title');
+const menuEl = $('menu');
+const mainEl = document.querySelector('main.wq');
+const reduced = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+const coarse = () => globalThis.matchMedia?.('(pointer: coarse)').matches;
+let usedKeys = false;
+let setupFold = null;          
+let menuReturn = null;         
+const atTitle = () => document.body.classList.contains('at-title');
+const menuOpen = () => !menuEl.hidden;
+const focusEl = (node) => node?.focus({ preventScroll: true });
+const cursorEl = () => boardEl.querySelector(`[data-p="${cursor}"]`) || boardEl.querySelector('.wq-pt');
+const focusBoard = () => focusEl(cursorEl());
+
+function showTitle() {
+  closeMenu(false);
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  titleEl.hidden = false;
+  mainEl.inert = true;
+  if (usedKeys || !coarse()) focusEl($('start'));
+}
+function leaveTitle(then) {
+  if (!atTitle()) { then?.(); return; }
+  mainEl.inert = false;
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    titleEl.hidden = true;
+    fit.refit({ grow: true });
+    then?.();
+  };
+  if (reduced()) { done(); return; }
+  document.body.classList.add('title-leaving');
+  setTimeout(done, TITLE_OUT_MS);
+}
+function openOptions() {
+  if (setupFold) setupFold.open = true;
+  ui.play(menuCue('menu-options'));
+  const first = document.querySelector('[data-mode][aria-pressed="true"]') || document.querySelector('[data-mode]');
+  focusEl(first);
+  first?.scrollIntoView?.({ block: 'nearest' });
+}
+function openMenu() {
+  if (menuOpen() || atTitle()) return;
+  menuReturn = document.activeElement;
+  menuEl.hidden = false;
+  mainEl.inert = true;
+  ui.play('open');
+  focusEl($('menu-resume'));
+}
+function closeMenu(restore = true) {
+  if (!menuOpen()) return;
+  menuEl.hidden = true;
+  mainEl.inert = false;
+  if (!restore) return;
+  
+  
+  if (menuReturn && menuReturn !== document.body && document.contains(menuReturn)) focusEl(menuReturn);
+  else focusBoard();
+}
+
+
+
+$('start').addEventListener('click', () => { ui.play(menuCue('start')); leaveTitle(() => { if (usedKeys || !coarse()) focusBoard(); }); });
+$('see-options').addEventListener('click', () => leaveTitle(openOptions));
+$('menu-btn').addEventListener('click', openMenu);
+$('menu-resume').addEventListener('click', () => { ui.play(menuCue('menu-resume')); closeMenu(); });
+$('menu-new').addEventListener('click', () => { closeMenu(false); $('new-game').click(); focusBoard(); });
+$('menu-options').addEventListener('click', () => { closeMenu(false); openOptions(); });
+$('menu-title').addEventListener('click', () => { ui.play(menuCue('menu-title')); showTitle(); });
+
+menuEl.addEventListener('click', (ev) => { if (ev.target === menuEl) { ui.play('back'); closeMenu(); } });
+
+
+function navList() {
+  if (atTitle()) return TITLE_BUTTONS.map($);
+  if (menuOpen()) return MENU_BUTTONS.map($);
+  return [...mainEl.querySelectorAll('button, select, input, summary')]
+    .filter((b) => !b.disabled && !b.classList.contains('wq-pt') && b.getClientRects().length);
+}
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (/^(Arrow|Tab$|Enter$|Escape$| $)/.test(ev.key)) usedKeys = true;
+  if (ev.defaultPrevented) return;
+  if (ev.key === 'Escape') {
+    if (atTitle()) return;
+    ev.preventDefault();
+    if (menuOpen()) { ui.play('back'); closeMenu(); } else openMenu();
+    return;
+  }
+  const word = navKey(ev.key);
+  if (!word) return;
+  const t = ev.target;
+  if (t?.tagName === 'SELECT' || t?.tagName === 'INPUT') return;
+  ev.preventDefault();
+  
+  if (t?.classList?.contains('wq-pt') && !menuOpen()) {
+    const n = live ? live.n : settings.size;
+    const from = Number(t.dataset.p);
+    const next = gridStep(from, word, n);
+    if (next === from) return;
+    t.tabIndex = -1;
+    cursor = next;
+    const el = cursorEl();
+    el.tabIndex = 0;
+    focusEl(el);
+    ui.play('focus');
+    return;
+  }
+  const list = navList();
+  if (!list.length) return;
+  const next = list[stepFocus(list.indexOf(document.activeElement), STEP[word], list.length)];
+  if (next && next !== document.activeElement) { focusEl(next); ui.play('focus'); }
+});
+
+
+function pressKey(key) {
+  usedKeys = true;
+  let t = document.activeElement;
+  if (!t || t === document.body) {
+    if (atTitle()) focusEl($('start'));
+    else if (menuOpen()) focusEl($('menu-resume'));
+    else focusBoard();
+    t = document.activeElement;
+    if (key !== 'Escape') return; 
+  }
+  
+  if (key === 'Enter' && t && t !== document.body) { t.click(); return; }
+  (t || document).dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+}
+let padState = null;
+let padLoop = 0;
+function pollPad() {
+  padLoop = 0;
+  const p = [...(navigator.getGamepads?.() || [])].find(Boolean);
+  if (!p) { padState = null; return; }
+  const r = padPresses(padState, padHeld(p), performance.now());
+  padState = r.state;
+  for (const w of r.presses) pressKey(PAD_KEY[w]);
+  padLoop = requestAnimationFrame(pollPad);
+}
+
+globalThis.addEventListener('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+
+
+setupFold = foldSetup();
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Weiqiwise' });
 const linkRoom = roomFromHref(location.href);
 afterBoot(() => countPlay(GAME_ID, { isHost: !linkRoom }));
@@ -1026,9 +1197,20 @@ function boot() {
     settings.mode = 'room';
     if (!joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH })) { settings.mode = 'bot'; newMatch(); }
   } else newMatch();
+  
+  
+  const framed = document.documentElement.classList.contains('framed');
+  if (showsTitle(params, { linkRoom: !!linkRoom, framed })) showTitle();
+  else { document.body.classList.remove('at-title'); titleEl.hidden = true; }
   requestAnimationFrame(() => { fit.refit({ grow: true }); bootDone(); });
 }
 boot();
+
+
+
+afterBoot(() => {
+  if (atTitle() && (usedKeys || !coarse()) && document.activeElement === document.body) focusEl($('start'));
+});
 
 trackEvent('game_start', { game: GAME_ID, mode: settings.mode });
 
