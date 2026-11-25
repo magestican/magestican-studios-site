@@ -15,12 +15,12 @@
     {
       "id": "local",
       "side": "B",
-      "title": "NOI TU",
+      "title": "NOI TIEP",
       "genre": "bolero-vn",
       "file": "word-chain-local.webm",
-      "loopSamples": 5456842,
-      "seed": 737163482,
-      "lufs": -23.6
+      "loopSamples": 4388571,
+      "seed": 41317614,
+      "lufs": -14.5
     }
   ]
 }

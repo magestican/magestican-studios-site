@@ -71,6 +71,8 @@ const lang = gameLang();
 
 
 
+
+
 const MUSIC_NAMES = { main: { ja: 'ジャズ', default: 'Jazz' }, local: 'Bolero' };
 const music = createTrackMusic({
   game: 'word-chain', lang, homeLang: 'vi',

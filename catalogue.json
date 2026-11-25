@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "22c0098e-20261124T235041Z",
+ "buildId": "32c86b7f-20261125T003729Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -387,7 +387,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 5372260
+   "bytes": 4863935
   },
   {
    "id": "truco",
@@ -1058,7 +1058,7 @@
    "ageNote": null,
    "order": 34,
    "addedAt": "2026-11-24",
-   "bytes": 6478732
+   "bytes": 6479303
   },
   {
    "id": "emberpane",

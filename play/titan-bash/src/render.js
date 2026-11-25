@@ -208,7 +208,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
   
   const plates = [];
   for (const t of m.titans.filter((o) => o.alive).sort((a, b) => a.y - b.y)) plates.push(titan(ctx, m, t, X, Y, s, t === big, opts));
-  drawPlates(ctx, m, plates, s); 
+  drawPlates(ctx, m, plates, s, L.dpr || 1); 
   if (opts.juice) opts.juice.draw(ctx, X, Y, s);
 
   
@@ -222,12 +222,15 @@ export function draw(ctx, m, fx, L, opts = {}) {
       ctx.font = `800 ${px}px ${DISPLAY}`;
       
       
-      const by = Y(-A.h / 2) + s * 3;
-      const pl = bannerPlate(ctx.measureText(f.text).width, px, L.ox, by);
       
+      const tw = ctx.measureText(f.text).width;
+      const ys = [Y(-A.h / 2) + s * 3, Y(A.h / 2) - s * 3];
+      const lanes = ys.map((y) => bannerPlate(tw, px, L.ox, y));
       const under = m.titans.filter((o) => o.alive).map((o) => titanBox(X(o.x), Y(o.y), T.radius * s, s));
-      ctx.globalAlpha = a * bannerAlpha(pl, under);
+      const spot = bannerSpot(lanes, under); const pl = lanes[spot.lane]; const by = ys[spot.lane];
+      ctx.globalAlpha = a * spot.plate;
       ctx.fillStyle = 'rgba(6,8,13,0.72)'; roundRect(ctx, pl.x, pl.y, pl.w, pl.h, pl.h * 0.2); ctx.fill();
+      ctx.globalAlpha = a * spot.text;
       ctx.lineWidth = Math.max(3, px * 0.16); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
       ctx.strokeText(f.text, L.ox, by); ctx.fillText(f.text, L.ox, by);
     } else {
@@ -548,10 +551,19 @@ function titan(ctx, m, t, X, Y, s, isBounty, opts) {
 }
 
 
-function drawPlates(ctx, m, plates, s) {
+
+
+
+
+
+export const PLATE_MIN_CSS = 11;
+export const plateFontPx = (s, dpr = 1) => Math.max(Math.round(PLATE_MIN_CSS * dpr), Math.round(s * 0.95));
+
+
+function drawPlates(ctx, m, plates, s, dpr) {
   ctx.save();
-  ctx.font = `700 ${Math.max(11, Math.round(s * 0.95))}px system-ui, sans-serif`;
-  const fh = Math.max(11, Math.round(s * 0.95)); const barH = Math.max(4, s * 0.4);
+  ctx.font = `700 ${plateFontPx(s, dpr)}px system-ui, sans-serif`;
+  const fh = plateFontPx(s, dpr); const barH = Math.max(4, s * 0.4);
   const rects = plates.map((p) => {
     const w = Math.max(s * 4, ctx.measureText(p.label).width + s * 3.2); 
     return { x: p.cx - w / 2, y: p.by - 2 - fh, w, h: fh + 2 + barH };
@@ -559,18 +571,18 @@ function drawPlates(ctx, m, plates, s) {
   const lay = placePlates(rects, { maxLift: (fh + barH) * 2.5 });
   plates.forEach((p, i) => {
     ctx.globalAlpha = lay[i].alpha;
-    namePlate(ctx, m, p.t, p.cx, p.by + lay[i].dy, s, p.label);
+    namePlate(ctx, m, p.t, p.cx, p.by + lay[i].dy, s, p.label, fh);
   });
   ctx.restore();
 }
 
-function namePlate(ctx, m, t, cx, by, s, label) {
+function namePlate(ctx, m, t, cx, by, s, label, fh) {
   const bw = s * 4;
   ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(cx - bw / 2, by, bw, Math.max(4, s * 0.4));
   ctx.fillStyle = t.armour / t.maxArmour > 0.35 ? '#7dff8a' : '#ff5a3c';
   ctx.fillRect(cx - bw / 2, by, bw * Math.max(0, t.armour / t.maxArmour), Math.max(4, s * 0.4));
   if (t.rattle > 0) { ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillRect(cx - bw / 2, by + Math.max(4, s * 0.4), bw * Math.min(1, t.rattle / 100), Math.max(2, s * 0.15)); }
-  ctx.font = `700 ${Math.max(11, Math.round(s * 0.95))}px system-ui, sans-serif`;
+  ctx.font = `700 ${fh}px system-ui, sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
   ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.fillStyle = '#fff';
   ctx.strokeText(label, cx, by - 2); ctx.fillText(label, cx, by - 2);
@@ -783,6 +795,19 @@ export function titanBox(cx, cy, r, s) {
 export function bannerAlpha(pl, boxes) {
   const hit = boxes.some((b) => b.x < pl.x + pl.w && b.x + b.w > pl.x && b.y < pl.y + pl.h && b.y + b.h > pl.y);
   return hit ? BANNER_SEE_THROUGH : 1;
+}
+
+
+
+
+
+
+
+
+export function bannerSpot(lanes, boxes) {
+  if (bannerAlpha(lanes[0], boxes) === 1) return { lane: 0, plate: 1, text: 1 };
+  if (bannerAlpha(lanes[1], boxes) === 1) return { lane: 1, plate: 1, text: 1 };
+  return { lane: 0, plate: BANNER_SEE_THROUGH, text: 1 };
 }
 
 
