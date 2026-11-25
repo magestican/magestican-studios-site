@@ -25,6 +25,9 @@ export const ENTER_CLASSES = ['tb-enter', 'tb-enter-match', 'tb-enter-results'];
 
 export function countdownAt(ms, reduced) {
   const { step, go } = COUNTDOWN_MS;
+  
+  
+  ms = Math.max(0, ms);
   if (ms >= step * 3 + go) return null;
   const i = Math.floor(ms / step);
   const counting = i < 3;

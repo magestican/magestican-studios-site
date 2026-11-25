@@ -280,7 +280,8 @@ function addFx(m, events) {
 
 function frame(now) {
   if (!match) return;
-  const dt = Math.min(0.25, (now - last) / 1000); last = now;
+  
+  const dt = Math.max(0, Math.min(0.25, (now - last) / 1000)); last = now;
   countMs += dt * 1000;
   
   $('legend').classList.toggle('gone', countMs > COUNTDOWN_MS.step * 3 + COUNTDOWN_MS.go + LEGEND_MS);

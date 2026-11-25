@@ -131,7 +131,13 @@ export class PeerMesh extends EventTarget {
     if (!IS_PEER_AVAILABLE()) throw new Error('window.Peer (PeerJS) not loaded');
     this.star = star;
     this.peer = new window.Peer(hostIdHint || undefined, {
-      debug: 1,
+      
+      
+      
+      
+      
+      
+      debug: hostIdHint ? 0 : 1,
       config: ICE_CONFIG,
     });
     
