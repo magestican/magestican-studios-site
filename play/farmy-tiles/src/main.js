@@ -85,6 +85,15 @@ import { forgetRoomCode } from './net.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
+
+
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
+import { addUiMuteSource, uiSoundOn } from '../../../web-engine/brand/uiSound.js';
+import {
+  TITLE_BUTTONS, TITLE_TILES, titleMove, titleKey, padHeld, padPresses, PAD_KEY, MENU_CUES, MENU_GAINS, menuCue,
+  CUE_GAP_MS, panelLook, tileBob,
+} from './menuNav.js';
+import { VALUES } from '../../../web-engine/words/scrabbleRules.js';
 import { createCelebration } from '../../shared/ui/celebrate.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { mountLiveBadge } from '../../shared/ui/liveBadge.js';
@@ -240,6 +249,10 @@ const app = {
 
 
   sound: (event, opts) => sfx.play(event, opts),
+  
+  cue: (id) => { const c = menuCue(id); if (c) uiCue(c); },
+  
+  focusMoved: () => uiCue('focus'),
   
   barBottom: BAR,
   now: () => performance.now(),
@@ -701,9 +714,12 @@ function drawBar(now) {
 function frame() {
   const now = performance.now();
   const active = overlay ?? screen;
+  
+  const opening = !!overlay && !panelLook(now, overlayAt, false, app.motion).done;
+  if (leaving && panelLook(now, leaving.at, true, app.motion).done) leaving = null;
   const step = tick({
     dirty,
-    moving: !!(active && active.animating(now)) || party.running(),
+    moving: !!(active && active.animating(now)) || party.running() || opening || !!leaving,
     wasMoving,
   });
   dirty = false;
@@ -712,7 +728,8 @@ function frame() {
     paint.clear(g, app.width, app.height);
     if (screen) screen.draw(g, now);
     drawBar(now);
-    if (overlay) overlay.draw(g, now);
+    if (leaving && !overlay) drawPanel(leaving.panel, panelLook(now, leaving.at, true, app.motion), now);
+    if (overlay) drawPanel(overlay, panelLook(now, overlayAt, false, app.motion), now);
     
     
     
@@ -731,7 +748,40 @@ function frame() {
 
 
 
+
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+addUiMuteSource(() => sfx.isMuted());
+let lastCueAt = -Infinity;
+
+function uiCue(name) {
+  const now = performance.now();
+  if (now - lastCueAt < CUE_GAP_MS) return;
+  lastCueAt = now;
+  if (!sfx.isMuted() && uiSoundOn()) ui.play(name);
+}
+
+
+
+let overlayAt = -Infinity;
+let leaving = null;
+function drawPanel(panel, look, now) {
+  if (look.alpha <= 0) return;
+  g.save();
+  g.globalAlpha = look.alpha;
+  if (look.scale !== 1) {
+    g.translate(app.width / 2, app.height / 2);
+    g.scale(look.scale, look.scale);
+    g.translate(-app.width / 2, -app.height / 2);
+  }
+  panel.draw(g, now);
+  g.restore();
+}
+
 function closeOverlay() {
+  if (overlay) { leaving = { panel: overlay, at: performance.now() }; uiCue('back'); }
   overlay = null;
   app.message = '';
   keysAre(screen.keys);
@@ -739,10 +789,19 @@ function closeOverlay() {
   invalidate();
 }
 
-function show(panel) {
+
+
+
+
+
+function show(panel, { focus = null } = {}) {
   app.message = '';
+  if (!overlay) uiCue('open');
+  overlayAt = performance.now();
+  leaving = null;
   overlay = panel;
   overlay.layout();
+  if (app.keyboardMode) overlay.focusOn?.(focus);
   invalidate();
 }
 
@@ -778,9 +837,11 @@ const openPrizes = () => show(prizesPanel(app, {
 
 
 function toggleSound() {
+  
+  if (!sfx.isMuted()) uiCue('toggleOff');
   sfx.setMuted(!sfx.isMuted());
   sfx.wake();
-  app.sound('lift');
+  if (!sfx.isMuted()) { lastCueAt = -Infinity; uiCue('toggleOn'); }
   layoutBar();
   announce(sfx.isMuted() ? 'Sound off.' : 'Sound on.');
   invalidate();
@@ -955,7 +1016,8 @@ const openSay = () => show(sayPanel(app, {
   onClose: closeOverlay,
 }));
 
-function openMenu() {
+
+function openMenu({ focus = null } = {}) {
   show(menu(app, {
     items: [
       { id: 'together', label: togetherLabel(), tone: 'blue', run: openRoom },
@@ -965,14 +1027,17 @@ function openMenu() {
       
       
       
-      { id: 'sound', label: soundLabel(sfx.isMuted()), run: () => { toggleSound(); openMenu(); } },
+      { id: 'sound', label: soundLabel(sfx.isMuted()), run: () => { toggleSound(); openMenu({ focus: 'sound' }); } },
       { id: 'new', label: 'New game', run: () => { closeOverlay(); restart(); } },
       { id: 'prizes', label: SEE_PRIZES, run: openPrizes },
       { id: 'values', label: 'What the tiles are worth', run: openValues },
       { id: 'help', label: 'How to play', run: openHelp },
+      
+      
+      { id: 'title', label: 'Title screen', run: () => { closeOverlay(); showTitle(); } },
       { id: 'close', label: 'Close', run: closeOverlay },
     ],
-  }));
+  }), { focus });
 }
 
 
@@ -1094,6 +1159,8 @@ canvas.addEventListener('pointerdown', (e) => {
   const pt = pointAt(e);
   app.touch = e.pointerType === 'touch' || e.pointerType === 'pen';
   
+  if (app.touch) app.keyboardMode = false;
+  
   
   
   
@@ -1148,19 +1215,83 @@ canvas.addEventListener('pointerleave', () => {
 
 canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
-document.addEventListener('keydown', (e) => {
-  if (atTitle) return;
+
+
+
+
+function pressKey(key, mods = {}) {
+  if (atTitle) return titlePress(key);
   sfx.wake();
   const action = routeKey(
-    { key: e.key, ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey },
+    { key, ctrl: !!mods.ctrl, meta: !!mods.meta, alt: !!mods.alt },
     { screen: 'scrabble', overlay: !!overlay, games: ['scrabble'] },
   );
-  if (!action) return;
-  e.preventDefault();
-  if (action.type === 'move') { app.keyboardMode = true; invalidate(); }
-  if (action.type === 'back') { if (overlay) closeOverlay(); return; }
-  if (action.type === 'help') { if (overlay) closeOverlay(); else openHelp(); return; }
+  if (!action) return false;
+  if (action.type === 'move' && overlay && !app.keyboardMode) {
+    
+    app.keyboardMode = true;
+    overlay.focusOn?.(null);
+    uiCue('focus');
+    return true;
+  }
+  if (action.type === 'move' || action.type === 'back') { app.keyboardMode = true; invalidate(); }
+  if (action.type === 'back') {
+    
+    
+    if (overlay) closeOverlay();
+    else openMenu({ focus: 'close' });
+    return true;
+  }
+  if (action.type === 'help') { if (overlay) closeOverlay(); else openHelp(); return true; }
   (overlay ?? screen).key(action);
+  return true;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (atTitle) {
+    
+    if (titleKey(e.key) && titlePress(e.key)) e.preventDefault();
+    return;
+  }
+  if (pressKey(e.key, { ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey })) e.preventDefault();
+});
+
+
+const titleButtons = () => TITLE_BUTTONS.map((id) => document.getElementById(id));
+function titlePress(key) {
+  const buttons = titleButtons();
+  const at = buttons.indexOf(document.activeElement);
+  if (key === 'Enter') { (buttons[at] ?? buttons[0]).click(); return true; }
+  const dir = titleKey(key);
+  if (!dir) return false;
+  const next = titleMove(at, dir);
+  if (next !== at) { buttons[next].focus(); uiCue('focus'); }
+  return true;
+}
+
+
+
+let padState = null;
+let padLoop = false;
+function pollPad() {
+  const pads = [...(navigator.getGamepads?.() ?? [])].filter(Boolean);
+  if (!pads.length) { padLoop = false; padState = null; return; }
+  const held = new Set();
+  for (const p of pads) for (const w of padHeld(p)) held.add(w);
+  const r = padPresses(padState, held, performance.now());
+  padState = r.state;
+  for (const w of r.presses) {
+    const key = PAD_KEY[w];
+    if (!key) continue;
+    if (atTitle) { if (w !== 'back' && w !== 'start') titlePress(key); }
+    else pressKey(key);
+  }
+  requestAnimationFrame(pollPad);
+}
+globalThis.addEventListener('gamepadconnected', () => {
+  if (padLoop) return;
+  padLoop = true;
+  requestAnimationFrame(pollPad);
 });
 
 reduceMotion?.addEventListener?.('change', (e) => {
@@ -1331,15 +1462,83 @@ countPlay('farmy-scrabble', { isHost: !joinedSomebodyElse });
 
 
 
+
+
+
+
+
+const TITLE_OUT_MS = 220;
+const isTouch = () => !!globalThis.matchMedia?.('(pointer: coarse)').matches;
 function leaveTitle() {
   if (!atTitle) return;
   atTitle = false;
-  document.body.classList.remove('at-title');
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    invalidate();
+  };
+  if (app.motion) {
+    document.body.classList.add('title-leaving');
+    setTimeout(done, TITLE_OUT_MS);
+  } else done();
   canvas.focus({ preventScroll: true });
   invalidate();
 }
+
+function showTitle() {
+  if (atTitle) return;
+  atTitle = true;
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  renderGoal();
+  startTitleMotion();
+  if (!isTouch() || app.keyboardMode) $start.focus({ preventScroll: true });
+}
 const $start = document.getElementById('start');
 const $seeOptions = document.getElementById('see-options');
-$start.addEventListener('click', () => { leaveTitle(); });
+$start.addEventListener('click', () => { uiCue('tap'); leaveTitle(); });
 $seeOptions.addEventListener('click', () => { leaveTitle(); openMenu(); });
+
+
+
+const $mark = document.getElementById('title-tiles');
+const markG = $mark?.getContext?.('2d') ?? null;
+let titleMoving = false;
+function drawTitleTiles(now) {
+  if (!markG) return;
+  const dpr = globalThis.devicePixelRatio || 1;
+  const cssW = $mark.clientWidth || 280;
+  const cssH = $mark.clientHeight || 72;
+  
+  
+  const bw = Math.round(cssW * dpr);
+  const bh = Math.round(cssH * dpr);
+  if ($mark.width !== bw || $mark.height !== bh) { $mark.width = bw; $mark.height = bh; }
+  markG.setTransform(dpr, 0, 0, dpr, 0, 0);
+  markG.clearRect(0, 0, cssW, cssH);
+  const n = TITLE_TILES.length;
+  const s = Math.min(cssH - 14, cssW / n - 10);
+  const gap = (cssW - s * n) / (n + 1);
+  TITLE_TILES.forEach((ch, i) => {
+    const y = cssH - s - 8 + tileBob(now, i, n, app.motion);
+    paint.rackTile(markG, { x: gap + i * (s + gap), y, w: s, h: s }, { ch, value: VALUES[ch] ?? null });
+  });
+}
+function titleFrame(now) {
+  if (!atTitle) { titleMoving = false; return; }
+  drawTitleTiles(now);
+  if (app.motion) requestAnimationFrame(titleFrame);
+  else titleMoving = false;
+}
+function startTitleMotion() {
+  if (titleMoving || !markG) return;
+  titleMoving = true;
+  requestAnimationFrame(titleFrame);
+}
+const $name = document.getElementById('title-name');
+if ($name) $name.textContent = GAME_NAME;
+if (atTitle) {
+  startTitleMotion();
+  
+  if (!isTouch()) $start.focus({ preventScroll: true });
+}
 renderGoal();

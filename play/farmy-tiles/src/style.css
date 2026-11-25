@@ -307,8 +307,13 @@ body.at-title .title {
   padding: 72px 0 32px;
   background: var(--fc-paper);
 }
+
+
+
+
 #start {
-  width: calc(100% - 32px);
+  width: calc(100% - 44px);
+  margin-right: 12px;
   max-width: 620px;
   min-height: 120px;
   height: clamp(120px, 22vh, 160px);
@@ -353,6 +358,47 @@ body.at-title .title {
 }
 @media (max-width: 560px) {
   body.at-title .title { padding-top: 64px; }
+}
+
+
+
+
+
+body.at-title .title { overflow-y: auto; }
+.title-mark { order: -1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#title-tiles { display: block; width: min(300px, calc(100vw - 64px)); height: 72px; }
+.title-name {
+  margin: 0;
+  color: var(--fc-ink);
+  font-family: var(--fc-font);
+  font-size: clamp(1.6rem, 8vw, 2.4rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+body.at-title .title { animation: fs-title-in 260ms ease-out both; }
+body.at-title .title > * { animation: fs-rise 320ms ease-out backwards; }
+body.at-title .title > .title-mark { animation-delay: 0ms; }
+body.at-title .title > #start { animation-delay: 60ms; }
+body.at-title .title > #see-options { animation-delay: 120ms; }
+body.at-title .title > .goal { animation-delay: 170ms; }
+body.title-leaving .title { animation: fs-title-out 220ms ease-in both; pointer-events: none; }
+#start { transition: transform 120ms ease-out, box-shadow 120ms ease-out; }
+body.at-title:not(.title-leaving) #start:not(:active):not(:hover) { animation: fs-rise 320ms 60ms ease-out backwards, fs-breathe 3s 400ms ease-in-out infinite; }
+#see-options { transition: transform 120ms ease-out; }
+#see-options:focus-visible, #see-options:hover { transform: translateY(-2px); }
+#see-options:active { transform: translateY(1px); }
+@keyframes fs-title-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fs-title-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes fs-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fs-breathe {
+  0%, 100% { box-shadow: 10px 10px 0 var(--fc-blue); }
+  50% { box-shadow: 12px 12px 0 var(--fc-blue); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.at-title .title, body.at-title .title > *, body.title-leaving .title,
+  body.at-title:not(.title-leaving) #start:not(:active):not(:hover) { animation: none; }
+  #start, #see-options { transition: none; }
 }
 
 
