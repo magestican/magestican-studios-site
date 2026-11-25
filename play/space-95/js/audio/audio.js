@@ -6,6 +6,7 @@ import { v } from '../site/assetUrl.js';
 import { createPicker } from './cues.js';
 import { MUSIC_TRACKS } from './musicManifest.js';
 import { SFX } from './sfxManifest.js';
+import { takesToLoad } from './uiSounds.js';
 
 const VOICES_PER_SOUND = 4;
 const MUTE_KEY = 's95.muted';
@@ -103,7 +104,7 @@ export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX),
     const info = SFX[name];
     if (!info || requested.has(name)) return;
     requested.add(name);
-    const [head, ...tail] = info.files;
+    const [head, ...tail] = takesToLoad(name, info.files);
     firstLeft++;
     (urgent ? firstQ.unshift.bind(firstQ) : firstQ.push.bind(firstQ))({ name, file: head, first: true });
     for (const file of tail) restQ.push({ name, file, first: false });

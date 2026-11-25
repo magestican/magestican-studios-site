@@ -213,6 +213,10 @@ export class Painter {
       } else if (e.k === 'wall') {
         this.spawn({ shape: 0, add: true, x, y, vx: 0, vy: 0, rot: 0, vr: 0, life: 0, max: 0.18, size: 24,
           rgb: [1, 0.85, 0.6], grav: 0 });
+      } else if (e.k === 'punch') {
+        
+        this.burst(x, y, [1, 0.9, 0.6], 10, 380, 5);
+        this.ring(x, y, [1, 0.8, 0.45], 30, 0.25);
       } else if (e.k === 'draft') {
         
         
@@ -448,6 +452,17 @@ export class Painter {
       G.add(0, x, y, EMBER_R * 7 * big, EMBER_R * 7 * big, rgb, 0.55);
       G.add(4, x, y, EMBER_R * 2.3 * big, EMBER_R * 2.3 * big, rgb, 1);
       if (e.chg > 0 && !e.held) G.add(3, x, y, EMBER_R * 4, EMBER_R * 4, rgb, 0.35 + 0.1 * e.chg);
+      if (e.rush) {
+        
+        
+        
+        const vl = Math.hypot(e.vx, e.vy) || 1, bx = -e.vx / vl, by = e.vy / vl;
+        for (let k = 1; k <= 9; k++) {
+          const d = k * EMBER_R * 1.5, r = EMBER_R * (5.2 - k * 0.5);
+          G.add(0, x + bx * d, y + by * d, r, r, [1, 0.55 + k * 0.04, 0.2], 0.95 - k * 0.09);
+        }
+        G.add(4, x + bx * EMBER_R * 2, y + by * EMBER_R * 2, EMBER_R * 2.4, EMBER_R * 2.4, [1, 0.85, 0.5], 0.9);
+      }
       if (e.flare > 0) G.add(0, x, y, EMBER_R * 11, EMBER_R * 11, [1, 0.92, 0.7], 0.5 + 0.2 * Math.sin(t * 20));
       if (e.moth) S.add(12, x, y + 10, 26, 22, [1, 1, 1], 1, 0, 0, e.id);
     }

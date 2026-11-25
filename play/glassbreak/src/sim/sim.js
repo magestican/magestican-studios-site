@@ -218,13 +218,13 @@ function respeed(s, e) { setDir(s, e, iatan2(e.vx, e.vy)); }
 function newEmber(s, own, x, y) {
   if (s.embers.length >= CAP.embers) return null;
   const e = { id: s.serial++, own, x, y, vx: 0, vy: 0, held: 1, hx: 0, tint: s.players[own]?.tint ?? 0, chg: 0, heat: 0,
-    moth: 0, chain: 0, age: 0, last: own, flare: 0 };
+    moth: 0, chain: 0, age: 0, last: own, flare: 0, punch: 0, rush: 0, dt: 0 };
   s.embers.push(e);
   return e;
 }
 
 function launch(s, e, seat) {
-  e.held = 0;
+  e.held = 0; e.punch = 1; e.dt = s.tick; 
   const jitter = (hash32(s.seed, s.tick, seat, e.id) % 360) - 180;
   setDir(s, e, ANG / 2 + jitter);
   ev(s, 'launch', e.x, e.y, seat);
@@ -308,6 +308,14 @@ function hitGrid(s, e) {
       continue;
     }
     if (t !== C_IRON && e.heat >= 4 && g.hp[i] <= 2) { breakCell(s, i, e, e.last); continue; } 
+    if (e.punch && e.vy < 0 && t !== C_IRON && g.hp[i] <= 1) {
+      
+      
+      e.punch = 0; s.stats.punches = (s.stats.punches | 0) + 1;
+      breakCell(s, i, e, e.last);
+      ev(s, 'punch', e.x, e.y);
+      continue;
+    }
     damageCell(s, i, e.heat >= 3 ? 2 : 1, e, e.last);
     bounce = true;
   }
@@ -356,6 +364,7 @@ function hitPaddles(s, e) {
   e.tint = p.tint;
   e.chg = 3 + e.heat;
   e.flare = 0;
+  e.punch = 1; e.dt = s.tick; 
   if (p.flare) {
     p.flare = 0; e.heat = 4; e.flare = FLARE_PANES; s.stats.flares++;
     ev(s, 'flare', e.x, U(PADDLE_Y), best);
@@ -475,7 +484,12 @@ function hitEcho(s, e) {
 
 
 
-export const SEEK_AFTER = 300, SEEK_LEFT = 4, SEEK_TURN = 10, SEEK_TURN_MAX = 160;
+
+
+
+
+
+export const SEEK_AFTER = 150, SEEK_LEFT = 12, SEEK_TURN = 10, SEEK_TURN_MAX = 160, SEEK_GRACE = 120;
 function seekLastLight(s) {
   const dry = s.tick - s.lastBreak;
   if (dry < SEEK_AFTER) return;
@@ -497,7 +511,7 @@ function seekLastLight(s) {
   }
   if (!goals.length) return;
   for (const e of s.embers) {
-    if (e.held) continue;
+    if (e.held || s.tick - (e.dt | 0) < SEEK_GRACE) continue;
     let best = null, bd = Infinity;
     for (const [cx, cy] of goals) {
       const d = abs(cx - e.x) + abs(cy - e.y);
@@ -546,6 +560,19 @@ function draft(s, e, p) {
   if (abs(p.dx) >= U(4) && e.age % DRAFT_EV === 0) ev(s, 'draft', e.x, e.y, p.dx > 0 ? 1 : 0);
 }
 
+
+
+
+
+
+
+export const UPDRAFT_MUL = 2, UPDRAFT_GAP = EMBER_R * 2;
+export function updraft(s, e) {
+  if (e.held || e.vy >= 0 || e.moth) return false;
+  const mb = massBottom(s);
+  return mb != null && e.y >= mb + U(UPDRAFT_GAP);
+}
+
 function stepEmber(s, e) {
   e.age++;
   const p = s.players[e.own];
@@ -557,9 +584,13 @@ function stepEmber(s, e) {
     return;
   }
   draft(s, e, p);
-  const n = Math.max(1, Math.ceil(Math.max(abs(e.vx), abs(e.vy)) / U(4)));
+  
+  
+  e.rush = updraft(s, e) ? 1 : 0;
+  const mul = e.rush ? UPDRAFT_MUL : 1;
+  const n = Math.max(1, Math.ceil(Math.max(abs(e.vx), abs(e.vy)) * mul / U(4)));
   for (let k = 0; k < n; k++) {
-    const sx = (e.vx / n) | 0, sy = (e.vy / n) | 0;
+    const sx = (e.vx * mul / n) | 0, sy = (e.vy * mul / n) | 0;
     e.x += sx;
     if (e.x < U(EMBER_R)) { e.x = U(EMBER_R); e.vx = abs(e.vx); ev(s, 'wall', e.x, e.y); }
     else if (e.x > U(FIELD_W - EMBER_R)) { e.x = U(FIELD_W - EMBER_R); e.vx = -abs(e.vx); ev(s, 'wall', e.x, e.y); }

@@ -128,6 +128,9 @@ function card(app, {
         });
         
         
+        if (i === hover && app.keyboardMode && !r.disabled) paint.focusRing(g, { x: r.x, y: r.y + pressed, w: r.w, h: r.h });
+        
+        
         
         
         if (r.piece) {

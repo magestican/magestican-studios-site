@@ -20,7 +20,7 @@ const SHIFTS = 20;
 export const ROOT = 'title';
 
 
-export const UI_CUES = ['ui.move', 'ui.confirm', 'ui.back', 'ui.error', 'ui.clockIn', 'ui.stamp', 'ui.pause'];
+export const UI_CUES = ['ui.move', 'ui.confirm', 'ui.back', 'ui.error', 'ui.clockIn', 'ui.stamp', 'ui.pause', 'ui.shiftStart'];
 
 
 
@@ -210,7 +210,8 @@ function choose(s, item, out) {
       }
       break;
     case 'clockin':
-      out.push({ cue: 'ui.confirm' }, { go: 'play', shift: ctx.shift });
+      
+      out.push({ cue: 'ui.shiftStart' }, { go: 'play', shift: ctx.shift });
       return enter(s, 'play', out);
     case 'pause':
       if (item.id === 'resume') {

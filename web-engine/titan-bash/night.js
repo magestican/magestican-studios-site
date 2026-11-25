@@ -125,5 +125,10 @@ export function podium(night) {
   }));
   const champ = top[0];
   const lead = champ ? champ.houses[0] : null;
-  return { entries: top, champion: champ || null, well: lead ? HOUSE_WELL[lead] : null };
+  
+  
+  
+  const champions = top.filter((e) => e.place === 0);
+  const wells = [...new Set(champions.map((e) => HOUSE_WELL[e.houses[0]]))];
+  return { entries: top, champion: champ || null, well: lead ? HOUSE_WELL[lead] : null, champions, wells };
 }

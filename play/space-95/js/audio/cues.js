@@ -142,7 +142,8 @@ const CUES = {
   hop: ['ladybot_hop'],
   checkpoint: ['checkpoint_clockin'],
   secret: ['intel_found'],
-  clear: ['shift_clear'],
+  clear: ['sting_shift_clear', 'shift_clear'], 
+  bossCelebrate: ['sting_boss_clear'], 
   
   pointsThrow: ['points_throw', 'key_clack'],
   pointsPass: ['points_clack', 'key_clack'],

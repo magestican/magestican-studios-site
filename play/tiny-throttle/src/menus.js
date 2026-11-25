@@ -39,14 +39,18 @@ const KEY = 'tinyThrottle.menu.v1';
 export function loadSettings(storage) {
   try {
     const v = JSON.parse(storage?.getItem(KEY) ?? 'null');
-    return { muted: v?.muted === true, best: v && typeof v.best === 'object' && v.best ? { ...v.best } : {} };
+    
+    const assist = typeof v?.assist === 'boolean' ? v.assist : null;
+    return { muted: v?.muted === true, assist, best: v && typeof v.best === 'object' && v.best ? { ...v.best } : {} };
   } catch {
-    return { muted: false, best: {} };
+    return { muted: false, assist: null, best: {} };
   }
 }
 
 export function saveSettings(storage, settings) {
-  try { storage?.setItem(KEY, JSON.stringify({ muted: !!settings.muted, best: settings.best ?? {} })); } catch {  }
+  try { storage?.setItem(KEY, JSON.stringify({
+    muted: !!settings.muted, assist: typeof settings.assist === 'boolean' ? settings.assist : null, best: settings.best ?? {},
+  })); } catch {  }
 }
 
 

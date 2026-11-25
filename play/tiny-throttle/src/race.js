@@ -264,7 +264,9 @@ export function stepRace(race, playerInput, dt) {
         const co = driveBot(r.coDriver, r.kart, track.line, {
           surface: surf, time: race.clock, dt, position: posById.get(r.id) ?? 1, fieldSize: racers.length,
         });
-        input = assistInput(mine, co, mine.assist);
+        
+        const edge = surf.gap ? null : { lateral: surf.lateral ?? 0, half: surf.width / 2 };
+        input = assistInput(mine, co, mine.assist, edge);
       }
     }
     else {

@@ -4,6 +4,7 @@ import { createAudio } from './audio/audio.js';
 import { createFootsteps, createGallop, createLadder, cueFor, cueRate, signalSounds } from './audio/cues.js';
 import { SFX } from './audio/sfxManifest.js';
 import { levelMusic as musicOf, SURFACE, shiftSounds } from './audio/shiftSounds.js';
+import { uiSound } from './audio/uiSounds.js';
 import { readCheats } from './cheats.js';
 import { createBoltVoice } from './game/bolt.js';
 import { createCoach, TIP_SECONDS } from './game/coach.js';
@@ -244,7 +245,8 @@ const menu = createMenuShell( (document.getElementById('menu')), {
   },
   onOut: (o, st) => {
     
-    if (o.cue && o.cue in SFX) audio.play(o.cue, { bus: 'ui' });
+    const ui = o.cue ? uiSound(o.cue, (n) => n in SFX) : null;
+    if (ui) audio.play(ui.name, { bus: 'ui', volume: ui.volume });
     if (o.setting === 'variant') {
       saveVariant(o.value);
       document.documentElement.dataset.variant = o.value;

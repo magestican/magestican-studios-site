@@ -28,7 +28,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, stepsOrder, tieBreakNote, statParts, ptsText, standingScore, rewardParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, nightTitle, wellLine, stepsOrder, tieBreakNote, statParts, ptsText, standingScore, rewardParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -465,12 +465,11 @@ function tintFace(face, frame, house, retry = true) {
 
 function showPodium() {
   const p = podium(night);
-  const champ = p.champion;
   $('night-mode').textContent = `${MODE_NAME[night.mode]} - ${night.rounds} rounds`;
-  $('night-title').textContent = night.mode === 'team'
-    ? `${teamName(night.seats[champ.members[0]].team)} - Night Champions!`
-    : `${HOUSE[champ.houses[0]].name} - Night Champion!`;
-  $('night-well').textContent = `The well goes to ${p.well}.`;
+  
+  $('night-title').textContent = nightTitle(p.champions.map((e) => (night.mode === 'team'
+    ? teamName(night.seats[e.members[0]].team) : HOUSE[e.houses[0]].name)), night.mode === 'team');
+  $('night-well').textContent = wellLine(p.wells);
   const ol = $('steps'); ol.textContent = '';
   
   for (const e of stepsOrder(p.entries)) {

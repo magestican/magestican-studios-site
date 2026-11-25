@@ -13,8 +13,8 @@ import { minimapSize } from '../../../web-engine/kart/minimap.js';
 import { PICKUPS } from '../../../web-engine/rc/pickups.js';
 import { formatTime, ordinal } from '../../../web-engine/kart/raceProgress.js';
 import { countdownText } from '../../../web-engine/kart/raceFlow.js';
-import { createTouchSteer } from './touchSteer.js';
-import { ASSIST_TOUCH } from './driveAssist.js';
+import { createTouchSteer, steerRangeFor, steerZone } from './touchSteer.js';
+import { assistFor } from './driveAssist.js';
 import { SIM_SCALE } from '../../../web-engine/rc/rcTuning.js';
 import { MOTION, screenTimes, BACK, focusStep, loadSettings, saveSettings, recordBest } from './menus.js';
 import { createHostLink, createGuestLink, linkFrom, joinLinkFor, watchLinkOf, canLink } from './netRoom.js';
@@ -174,7 +174,7 @@ for (const b of document.querySelectorAll('.pad')) {
   b.addEventListener('pointerleave', off);
 }
 addEventListener('pointerdown', (e) => {
-  if (e.pointerType === 'touch' && !isTouch) { isTouch = true; document.body.classList.add('touch'); }
+  if (e.pointerType === 'touch' && !isTouch) { isTouch = true; document.body.classList.add('touch'); updateAssistButtons(); }
 }, { capture: true });
 if (matchMedia('(pointer: coarse)').matches) { isTouch = true; document.body.classList.add('touch'); }
 
@@ -182,14 +182,29 @@ if (matchMedia('(pointer: coarse)').matches) { isTouch = true; document.body.cla
 
 const steerTouch = createTouchSteer();
 const steerRing = $('steer');
-const fitSteerRange = () => steerTouch.setRange(Math.min(90, Math.max(48, innerWidth * 0.16)));
+
+let steerRange = steerRangeFor(innerWidth);
+let steerY = 0;
+let steerKey = '';
+const fitSteerRange = () => {
+  steerRange = steerRangeFor(innerWidth);
+  steerTouch.setRange(steerRange);
+  steerRing.style.setProperty('--range', `${steerRange}px`);
+};
 fitSteerRange();
 addEventListener('resize', fitSteerRange);
 function showSteer() {
-  if (!steerTouch.active) { steerRing.hidden = true; return; }
-  steerRing.hidden = false;
-  steerRing.style.left = `${steerTouch.centre}px`;
-  steerRing.style.setProperty('--knob', `${(steerTouch.x - steerTouch.centre).toFixed(1)}px`);
+  const driving = isTouch && running && !paused && screen === 'race' && $('pads').classList.contains('on');
+  const z = steerZone({ width: innerWidth, height: innerHeight, range: steerRange, driving, steer: steerTouch, y: steerY });
+  const key = `${z.show}|${z.idle}|${z.cx}|${z.cy}|${z.knob.toFixed(1)}`;
+  if (key === steerKey) return; 
+  steerKey = key;
+  steerRing.hidden = !z.show;
+  if (!z.show) return;
+  steerRing.classList.toggle('idle', z.idle);
+  steerRing.style.left = `${z.cx}px`;
+  steerRing.style.top = `${z.cy}px`;
+  steerRing.style.setProperty('--knob', `${z.knob.toFixed(1)}px`);
 }
 const gameEl = $('game');
 gameEl.addEventListener('pointerdown', (e) => {
@@ -197,7 +212,7 @@ gameEl.addEventListener('pointerdown', (e) => {
   if (!steerTouch.down(e.pointerId, e.clientX)) return;
   e.preventDefault();
   try { gameEl.setPointerCapture(e.pointerId); } catch {  }
-  steerRing.style.top = `${e.clientY}px`;
+  steerY = e.clientY;
   showSteer();
 });
 gameEl.addEventListener('pointermove', (e) => { steerTouch.move(e.pointerId, e.clientX); showSteer(); });
@@ -213,7 +228,7 @@ function readInput() {
   const keySteer = (has('right') ? 1 : 0) - (has('left') ? 1 : 0);
   const steer = keySteer || steerTouch.value();
   
-  return { throttle, steer, drift: has('drift'), jump: has('hop'), use: has('use'), assist: isTouch ? ASSIST_TOUCH : 0 };
+  return { throttle, steer, drift: has('drift'), jump: has('hop'), use: has('use'), assist: assistFor(settings.assist, isTouch) };
 }
 
 
@@ -264,6 +279,7 @@ async function boot() {
   $('start').textContent = 'Start';
   $('start').disabled = false;
   updateSoundButtons();
+  updateAssistButtons();
   requestAnimationFrame(frame);
   const link = linkFrom(location.href);
   if (link && canLink()) { joinOnline(link.code, link.watch); return; }
@@ -401,6 +417,21 @@ function updateSoundButtons() {
     b.setAttribute('aria-pressed', String(!muted));
   }
 }
+
+
+function assistOn() { return assistFor(settings.assist, isTouch) > 0; }
+function updateAssistButtons() {
+  for (const b of document.querySelectorAll('.assist')) {
+    b.textContent = assistOn() ? 'Assist on' : 'Assist off';
+    b.setAttribute('aria-pressed', String(assistOn()));
+  }
+}
+function toggleAssist() {
+  settings.assist = !assistOn();
+  sfx(settings.assist ? 'toggleOn' : 'toggleOff', 0.6, 'ui');
+  saveSettings(safeStorage(), settings);
+  updateAssistButtons();
+}
 function toggleSound() {
   if (!muted) sfx('toggleOff', 0.6, 'ui');
   muted = !muted;
@@ -461,6 +492,7 @@ function frame(now) {
   const focus = player?.id ?? (net && !me ? spectateFocus() : race.racers[0].id);
   if (opts.render) view.draw(dt, focus, { camMode: running ? opts.cam : 'top' });
   if (running) hud();
+  showSteer();
   requestAnimationFrame(frame);
 }
 
@@ -625,6 +657,7 @@ $('resume').addEventListener('click', resume);
 $('restart').addEventListener('click', restart);
 $('toTitle').addEventListener('click', toTitle);
 for (const b of document.querySelectorAll('.sound')) b.addEventListener('click', toggleSound);
+for (const b of document.querySelectorAll('.assist')) b.addEventListener('click', toggleAssist);
 
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 

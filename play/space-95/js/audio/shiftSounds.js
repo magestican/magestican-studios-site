@@ -19,6 +19,7 @@ import { CUE_VARIANTS, cueFor, signalSounds } from './cues.js';
 import { MUSIC_TRACKS } from './musicManifest.js';
 import { SFX } from './sfxManifest.js';
 import { SHIFT_EVENTS } from './shiftEvents.js';
+import { UI_SOUND_NAMES } from './uiSounds.js';
 
 
 export const SURFACE = {
@@ -121,7 +122,8 @@ function variantFits( type,  level) {
 
 
 export function shiftSounds(level) {
-  const names = new Set(ALWAYS_SOUNDS);
+  
+  const names = new Set([...ALWAYS_SOUNDS, ...UI_SOUND_NAMES.filter(delivered)]);
   const surface = SURFACE[level.id ?? 0] ?? 'dirt';
   names.add(`footstep_${surface}_walk`).add(`footstep_${surface}_run`);
   const kinds = (level.entities ?? []).flatMap(( e) => KIND_EVENTS[e.kind] ?? []);

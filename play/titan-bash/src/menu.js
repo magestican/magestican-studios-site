@@ -62,15 +62,28 @@ export function joinNames(names) {
 
 
 
+export function nightTitle(names, team = false) {
+  return `${joinNames(names)} - Night Champion${names.length > 1 || team ? 's' : ''}!`;
+}
+export function wellLine(wells) {
+  return wells.length > 1 ? `The wells go to ${joinNames(wells)}.` : `The well goes to ${wells[0]}.`;
+}
+
+
+
+
+
 
 
 export function statParts(r, rows = [r], mode = 'brawl') {
   const parts = [];
-  if (rows.some((x) => x.clangsWon > 0)) parts.push(['Clangs', ' won', '', r.clangsWon]);
+  
+  
+  if (r.clangsWon > 0) parts.push(['Clangs', ' won', '', r.clangsWon]);
   
   
   
-  if (rows.some((x) => x.perfectVents > 0)) parts.push(['', 'Perfect ', 'Vents', r.perfectVents]);
+  if (r.perfectVents > 0) parts.push(['', 'Perfect ', 'Vents', r.perfectVents]);
   
   
   

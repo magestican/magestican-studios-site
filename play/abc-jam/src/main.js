@@ -34,6 +34,11 @@ import { id as vid, FIXED, countId } from './voiceLines.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { escapeGoesHome, pickFocus } from './menus.js';
 import { PAGES, PAGE_W, PAGE_H, createHunt, panRange, clampPan, panTo, huntHint } from './seek.js';
+import { blockZoom } from './noZoom.js';
+
+
+
+blockZoom();
 
 const GAME_ID = 'abc-jam';
 

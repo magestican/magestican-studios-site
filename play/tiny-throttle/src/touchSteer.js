@@ -45,3 +45,35 @@ export function createTouchSteer({ range = 70 } = {}) {
     },
   };
 }
+
+
+
+
+
+
+export const PAD_PX = 76; 
+export const GUTTER_PX = 16;
+export const KNOB_PX = 56;
+
+
+export function steerRangeFor(width) {
+  return Math.round(Math.max(72, Math.min(130, width * 0.22)));
+}
+
+
+
+
+
+export function steerZone({ width, height, range, driving, steer, y = 0 }) {
+  const w = 2 * range + KNOB_PX;
+  if (!driving) return { show: false, idle: false, cx: 0, cy: 0, knob: 0, width: w };
+  if (steer.active) {
+    const knob = Math.max(-range, Math.min(range, steer.x - steer.centre));
+    return { show: true, idle: false, cx: steer.centre, cy: y, knob, width: w };
+  }
+  return {
+    show: true, idle: true, knob: 0, width: w,
+    cx: GUTTER_PX + w / 2,
+    cy: height - GUTTER_PX - PAD_PX - 12 - 32,
+  };
+}
