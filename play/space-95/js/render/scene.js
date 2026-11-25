@@ -11,6 +11,7 @@ import { heaveAt } from '../sim/heave.js';
 import { sparkState } from '../sim/pins.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
+import { createAmbient } from './ambient.js';
 import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js';
 import { createBoltSprite } from './boltSprite.js';
 import { bossLabelPosition } from './bossLabel.js';
@@ -200,6 +201,7 @@ export function createView(canvas, level, labels) {
   let bossHold = null; 
   
   const reduceMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ambient = createAmbient(scene, camera, level, { reduceMotion }); 
   const kick = (a) => {
     shake = Math.min(0.15, Math.max(shake, a));
   };
@@ -412,6 +414,7 @@ export function createView(canvas, level, labels) {
       night?.update(session, dt, camera);
       silk?.update(session, dt, camera);
       props?.update(session.time, camera.position.x, camera.position.y);
+      ambient?.update(session.time);
       burrow?.update(session, dt);
       kitchen?.update(session, dt);
       ride?.update(session);

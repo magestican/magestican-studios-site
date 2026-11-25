@@ -51,6 +51,20 @@ function celebrate(e, ctx) {
   ctx.events.push({ type: 'bossCelebrate', id: e.id, x: e.x, y: e.y, stamp: BOSS_STAMP });
 }
 
+
+
+
+
+const TEACH_X = 1.5;
+function teleEvent(e, atk) {
+  const base = atk.telegraph;
+  if (!e.teachNext) return { type: 'telegraph', id: e.id, attack: atk.name, seconds: base, x: e.x, y: e.y };
+  e.teachNext = false;
+  e.teaching = true;
+  e.teachMin = base * TEACH_X;
+  return { type: 'telegraph', id: e.id, attack: atk.name, seconds: e.teachMin, base, teach: true, x: e.x, y: e.y };
+}
+
 function enterPhase(e, ctx, i) {
   
   const spawn = e.phases[i].spawn;
@@ -67,6 +81,12 @@ function enterPhase(e, ctx, i) {
   e.weakNow = undefined;
   e.interrupt = null;
   e.introFor = undefined;
+  
+  e.teaching = false;
+  e.teachMin = undefined;
+  e.taught = e.taught ?? [];
+  e.teachNext = !!e.teach && !e.taught.includes(i);
+  if (e.teachNext) e.taught.push(i);
   ctx.events.push({ type: 'bossPhase', id: e.id, phase: i, name: e.phases[i].name });
 }
 
@@ -138,9 +158,10 @@ registerKind('boss', {
     } else if (e.stage === 'intro' && e.t >= (e.introFor ?? ph.intro ?? INTRO_TIME)) {
       e.stage = 'telegraph';
       e.t = 0;
-      ctx.events.push({ type: 'telegraph', id: e.id, attack: atk.name, seconds: atk.telegraph, x: e.x, y: e.y });
-    } else if (e.stage === 'telegraph' && e.t >= (e.teleFor ?? atk.telegraph)) {
+      ctx.events.push(teleEvent(e, atk));
+    } else if (e.stage === 'telegraph' && e.t >= Math.max(e.teleFor ?? atk.telegraph, e.teachMin ?? 0)) {
       e.teleFor = undefined; 
+      e.teachMin = undefined;
       e.stage = 'active';
       e.t = 0;
       e.endActive = false;
@@ -153,11 +174,12 @@ registerKind('boss', {
     } else if (e.stage === 'recover' && e.t >= (e.recoverFor ?? atk.recover)) {
       e.recoverFor = undefined;
       e.weakNow = undefined;
+      e.teaching = false;
       e.attackIdx += 1;
       const next = ph.attacks[e.attackIdx % ph.attacks.length];
       e.stage = 'telegraph';
       e.t = 0;
-      ctx.events.push({ type: 'telegraph', id: e.id, attack: next.name, seconds: next.telegraph, x: e.x, y: e.y });
+      ctx.events.push(teleEvent(e, next));
     }
     
     if (e.stage !== 'intro') impl.attack(e, ctx, ph.attacks[e.attackIdx % ph.attacks.length], e.stage);

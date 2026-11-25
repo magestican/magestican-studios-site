@@ -14,6 +14,8 @@ const GOLD = 0xffd34d;
 const TEAL = 0x2fe0d0;
 const BLOOM = 0xff9ad5;
 
+const PINK = 0xff2fa0;
+
 
 const ring = (n, color, life, size, r = 0.4, dy = 0.4) => ({ n, color, life, size, r, dy });
 
@@ -85,6 +87,12 @@ export const JUICE = {
   prune: { shake: 0.1 },
   pruneCut: { shake: 0.1 },
   
+  
+  telegraph: {
+    bursts: [ring(6, PINK, 0.45, 0.1, 0.55, 0.9)],
+    teach: { shake: 0.04, bursts: [ring(12, PINK, 0.9, 0.14, 1.1, 1), ring(6, PINK, 0.6, 0.1, 0.5, 1)] },
+  },
+  
   land: { shake: 0.05, when: (e) => (e.fall ?? 0) > 4 },
   ripple: { shake: 0.06, when: (e) => !!e.big },
   
@@ -117,7 +125,7 @@ const NONE = Object.freeze({ shake: 0, hold: 0, sparks: Object.freeze([]) });
 
 
 export function juiceFor(e, opts = {}) {
-  const row = JUICE[e.type];
+  const row =  (e).teach && JUICE[e.type]?.teach ? JUICE[e.type].teach : JUICE[e.type];
   if (!row || (row.when && !row.when(e))) return { shake: NONE.shake, hold: 0, sparks: [] };
   const shake = Math.min(MAX_SHAKE, row.shake ?? 0) * (opts.reduceMotion ? 0.5 : 1);
   const x = e.x ?? 0;

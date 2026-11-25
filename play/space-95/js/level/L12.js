@@ -341,6 +341,7 @@ export function buildL12() {
   });
   L.putAt('boss', 23, 2, {
     type: 'matriarch',
+    teach: true, 
     name: 'Dustmite Matriarch',
     w: 3.5,
     h: 3,

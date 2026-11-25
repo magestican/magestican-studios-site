@@ -1,6 +1,7 @@
 
 
 
+import { hqMemo } from '../game/goals.js';
 import { endingTier, intelPercent } from '../sim/intel.js';
 import { reviewFor } from './review.js';
 
@@ -30,6 +31,8 @@ export function createTimesheet(root) {
       const underPar = par && !s.partial && s.clearTime <= par;
       
       const review = level.id === 20 ? reviewFor(endingTier(save)) : null;
+      
+      const memo = hqMemo({ levelId: level.id, allIntel: secretsTotal > 0 && s.found.size >= secretsTotal, underPar: !!underPar });
       root.innerHTML = `
         <div class="sheet" role="dialog" aria-label="Shift timesheet">
           <p class="sheet-k">Space 95 Survey Co. - Timesheet</p>
@@ -44,6 +47,7 @@ export function createTimesheet(root) {
             <div><dt>Survey complete</dt><dd>${intelPercent(save).toFixed(1)} %</dd></div>
           </dl>
           ${newsHtml ? `<section class="sheet-news" aria-label="This shift">${newsHtml}</section>` : ''}
+          ${memo ? `<section class="sheet-review sheet-memo" aria-label="HQ memo"><p class="sheet-k">HQ memo</p><p>${memo}</p></section>` : ''}
           ${review ? `<section class="sheet-review" aria-label="Performance review"><p class="sheet-k">HQ performance review</p><h3>${review.title}</h3><p>${review.line}</p></section>` : ''}
           <div class="sheet-actions">
             <button type="button" data-act="replay">Clock in again</button>

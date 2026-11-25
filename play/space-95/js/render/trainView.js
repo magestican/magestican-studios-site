@@ -9,6 +9,7 @@
 import * as THREE from 'three';
 import { nearestOnRail, posAt } from '../sim/track.js';
 import { nextThrowable } from '../sim/train.js';
+import { createAmbient } from './ambient.js';
 import { skinMaterial } from './biomeArt.js';
 import { createBoltSprite } from './boltSprite.js';
 import { createTrainRig, TRAIN_CAM, trainCameraPose, updateTrainRig } from './cameraRig.js';
@@ -38,6 +39,8 @@ export function createTrainView(canvas, level, labels) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x2e2638); 
   const camera = new THREE.PerspectiveCamera(TRAIN_CAM.fovY, 16 / 9, 0.5, 320);
+  const reduceMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ambient = createAmbient(scene, camera, level, { reduceMotion }); 
   const hemi = new THREE.HemisphereLight(0xfff6e6, 0x8a7a6a, 1.8);
   scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff1d6, 1.5);
@@ -160,6 +163,7 @@ export function createTrainView(canvas, level, labels) {
       camera.position.set(pose.position[0] + sx, pose.position[1] + sy, pose.position[2]);
       camera.lookAt(pose.lookAt[0] + sx, pose.lookAt[1] + sy, 0);
       camera.updateMatrixWorld();
+      ambient?.update(time);
 
       
       const back = t.cars[t.cars.length - 1];

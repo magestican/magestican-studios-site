@@ -88,3 +88,12 @@ export function sheetNews(before, after, levelId, names) {
   const won = prizes(after).filter((p) => p.got && !had.has(p.id));
   return { newBest, prizes: won, goal: won.length ? null : nextGoal(after, names) };
 }
+
+
+
+
+export function hqMemo({ levelId, allIntel, underPar }) {
+  if (levelId === 20) return null;
+  if (allIntel) return 'Every Intel filed. The survey grows.';
+  return underPar ? 'Under par. Fine work, surveyors.' : 'Shift filed. See you next clock-in.';
+}

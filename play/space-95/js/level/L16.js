@@ -235,6 +235,7 @@ export function buildL16() {
   L.putAt('boss', 48, 6, {
     id: BOSS,
     type: 'duchessMounted',
+    teach: true, 
     name: 'Duchess Mandibella (and Trowel)',
     w: 5,
     h: 4.5,

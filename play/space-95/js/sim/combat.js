@@ -38,6 +38,9 @@ export function stompBounce(p) {
 
 export function hurtPlayer(s, fromX) {
   if (s.invuln > 0 || s.dead > 0) return false;
+  
+  if (s.entities?.some((b) => b.kind === 'boss' && b.teaching && b.alive !== false && b.stage !== 'defeated' && b.stage !== 'escaped'))
+    return false;
   const p = s.player;
   
   if (s.shield) {

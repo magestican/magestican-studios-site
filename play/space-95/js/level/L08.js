@@ -204,6 +204,7 @@ export function buildL08() {
   L.putAt('boss', 15, Y(264), {
     id: BOSS,
     type: 'duchess',
+    teach: true, 
     name: 'Duchess Mandibella',
     w: 3,
     h: 2,
