@@ -18,7 +18,8 @@ import { assistFor } from './driveAssist.js';
 import { SIM_SCALE } from '../../../web-engine/rc/rcTuning.js';
 import { MOTION, screenTimes, BACK, focusStep, loadSettings, saveSettings, recordBest } from './menus.js';
 import { createHostLink, createGuestLink, linkFrom, joinLinkFor, watchLinkOf, canLink } from './netRoom.js';
-import { makeSnap, createSnapBuffer, receiveSnap, applySnaps, packInput, SNAP_MS, INPUT_HZ } from './netSync.js';
+import { makeSnap, createSnapBuffer, receiveSnap, applySnaps, resumeRace, packInput, SNAP_MS, INPUT_HZ } from './netSync.js';
+import { successorOf, takeOverRoom, RECLAIM_MS } from './hostMigration.js';
 import { applyRoom, roleOf, carOf, grid as roomGrid, ROLE, RACER_SEATS } from './room.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
@@ -724,16 +725,25 @@ function drawRoom() {
 }
 const seatNo = (room, id) => room.seats.findIndex((x) => x && x.peerId === id) + 1;
 
-function hostOnline() {
-  if (net || !canLink() || !models) return;
-  sfx('open', 0.7, 'ui');
+const codeLabel = (code) => `Room code ${code.replace(/^tql-/, '').toUpperCase()}`;
+function makeHostLink(takeover = null) {
   const link = createHostLink({
+    takeover,
     onRoom: (room) => { if (net?.link === link) { net.room = room; drawRoom(); } },
     onCode: (code, state) => {
-      $('roomCode').textContent = code ? `Room code ${code.replace(/^tql-/, '').toUpperCase()}` : state === 'opening' ? 'Opening a room' : 'The room could not open. Try again soon.';
+      if (net?.link !== link) return;
+      
+      if (takeover && !code && /^trouble/.test(state)) { leaveOnline(); toast('The host left. The room is closed.', 4); return; }
+      $('roomCode').textContent = code ? codeLabel(code) : state === 'opening' ? 'Opening a room' : 'The room could not open. Try again soon.';
       drawRoom();
     },
   });
+  return link;
+}
+function hostOnline() {
+  if (net || !canLink() || !models) return;
+  sfx('open', 0.7, 'ui');
+  const link = makeHostLink();
   net = { kind: 'host', link, racing: false, seq: 0, sentAt: 0, events: [], watchers: 0, room: null, focus: 'lead' };
   openRoomScreen();
   drawRoom();
@@ -741,10 +751,10 @@ function hostOnline() {
   $('roomStart').focus();
 }
 
-function joinOnline(code, watch) {
-  if (net || !canLink() || !models) return;
+function makeGuestLink(code, { watch, was = null }) {
   const link = createGuestLink(code, {
     watch,
+    was,
     onRoom: (wire) => { if (net?.link !== link) return; net.room = applyRoom(wire); drawRoom(); },
     onStart: (msg) => { if (net?.link === link) guestStart(msg); },
     onSnap: (snap) => {
@@ -759,17 +769,69 @@ function joinOnline(code, watch) {
     },
     onState: (state) => {
       if (net?.link !== link) return;
-      if (state === 'closed') { leaveOnline(); toast('The host left. The room is closed.', 4); }
+      if (state === 'host-gone') hostGone();
+      else if (state === 'closed') { leaveOnline(); toast('The host left. The room is closed.', 4); }
       else if (state === 'full') { leaveOnline(); toast('That room is full.', 4); }
+      else if (/^failed/.test(state) && net.redialUntil) redial(); 
       else if (/^failed/.test(state)) { leaveOnline(); toast('Could not join that room. Check the code.', 4); }
-      else $('roomCode').textContent = state === 'joined' ? `Room code ${code.replace(/^tql-/, '').toUpperCase()}` : 'Joining the room';
+      else if (state === 'joined') { net.redialUntil = 0; $('roomCode').textContent = codeLabel(code); }
+      else if (!net.redialUntil) $('roomCode').textContent = 'Joining the room';
     },
   });
-  net = { kind: 'guest', link, racing: false, buf: createSnapBuffer(), sentAt: 0, watchers: 0, room: null, focus: 'lead', code };
+  return link;
+}
+function joinOnline(code, watch) {
+  if (net || !canLink() || !models) return;
+  const link = makeGuestLink(code, { watch });
+  net = { kind: 'guest', link, racing: false, buf: createSnapBuffer(), sentAt: 0, watchers: 0, room: null, focus: 'lead', code, watch };
   openRoomScreen();
   $('roomCode').textContent = 'Joining the room';
   drawRoom();
   $('roomLeave').focus();
+}
+
+
+
+
+function hostGone() {
+  const old = net;
+  const myId = old.link.myId;
+  const code = old.code;
+  const next = old.room ? successorOf(old.room, code) : null;
+  try { old.link.leave(); } catch {  }
+  if (!next) { leaveOnline(); toast('The host left. The room is closed.', 4); return; }
+  if (next === myId) { takeOver(old, myId); return; }
+  const seat = old.room.seats.findIndex((s) => s && !s.left && s.peerId === next);
+  toast(seat >= 0 ? `The host left. Car ${seat + 1} hosts now.` : 'The host left. A watcher hosts now.', 3);
+  net.was = myId;
+  net.redialUntil = performance.now() + RECLAIM_MS - 2000;
+  net.buf = createSnapBuffer(); 
+  net.link = { myId, sendInput() {}, leave() {} }; 
+  setTimeout(() => { if (net === old && net.redialUntil) redial(); }, 1000); 
+}
+function redial() {
+  if (!net || net.kind !== 'guest') return;
+  if (performance.now() > net.redialUntil) { net.redialUntil = 0; leaveOnline(); toast('The host left. The room is closed.', 4); return; }
+  const cur = net;
+  setTimeout(() => {
+    if (net !== cur || !net.redialUntil) return;
+    try { net.link.leave(); } catch {  }
+    net.link = makeGuestLink(net.code, { watch: !!net.watch, was: net.was });
+  }, 1500);
+}
+function takeOver(old, myId) {
+  const code = old.code;
+  const { room, awaiting } = takeOverRoom(old.room, { goneHostId: code, me: myId, newHostId: code });
+  const link = makeHostLink({ code, room, awaiting, started: old.start ?? null });
+  const lastSnap = old.buf?.list?.at(-1)?.snap;
+  if (old.racing && lastSnap) resumeRace(race, lastSnap);
+  net = {
+    kind: 'host', link, racing: old.racing && !!lastSnap, seq: (old.buf?.lastSeq ?? 0) + 1, sentAt: 0, events: [],
+    watchers: old.watchers, room, focus: old.focus,
+  };
+  link.host(0);
+  toast('The host left. You host the room now.', 3);
+  drawRoom();
 }
 
 function goOnlineRace(cars, laps, seed) {
@@ -801,6 +863,10 @@ function hostStart() {
 async function guestStart(msg) {
   if (!TRACKS[msg.track] || !Array.isArray(msg.grid)) return;
   const link = net.link;
+  
+  
+  if (net.racing && net.start && net.start.seed === msg.seed && msg.track === def.id) { net.start = msg; net.buf = createSnapBuffer(); return; }
+  net.start = msg;
   if (msg.track !== def.id) {
     def = TRACKS[msg.track];
     try { models = await loadModels(def, './assets', () => {}); } catch (err) { console.error(err); return; }

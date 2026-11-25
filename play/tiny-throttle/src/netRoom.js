@@ -12,16 +12,22 @@
 
 
 
+
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import { stickyRoomCode } from '../../../web-engine/net/stickyRoomCode.js';
 import { roomCode, normaliseCode, shareLinkFor } from '../../../web-engine/words/coop.js';
 import { watchLinkFor, roomFromHref, ROLE as LINK_ROLE } from '../../../web-engine/net/watchers.js';
 import { createRoom, joinRoom, leaveRoom, acceptsInput, carOf, serializeRoom, startRace, endRace } from './room.js';
 import { unpackInput } from './netSync.js';
+import { reclaimSeat, dropUnclaimed, RECLAIM_MS } from './hostMigration.js';
 
 
 export const PREFIX = 'tql-';
 const CODE_TRIES = 5;
+
+
+export const TAKEOVER_TRIES = 20;
+export const TAKEOVER_RETRY_MS = 1500;
 const stickyCode = stickyRoomCode(PREFIX);
 export const MSG = Object.freeze({ HI: 'hi', ROOM: 'room', START: 'start', END: 'end', SNAP: 's', INPUT: 'i', FULL: 'full' });
 
@@ -42,8 +48,11 @@ export const watchLinkOf = (href, code) => watchLinkFor(bare(href), code);
 
 
 
-export function createHostLink({ name = 'Host', onRoom, onCode, onBot = () => {}, Mesh = PeerMesh, linkable = canLink }) {
+export function createHostLink({ name = 'Host', onRoom, onCode, onBot = () => {}, Mesh = PeerMesh, linkable = canLink, takeover = null }) {
   let mesh = null;
+  let awaiting = new Set(); 
+  let reclaimTimer = null;
+  let retryTimer = null;
   let room = null;
   let started = null; 
   
@@ -55,8 +64,21 @@ export function createHostLink({ name = 'Host', onRoom, onCode, onBot = () => {}
       if (mesh !== mine) return;
       mine.opened = true;
       mine.host();
-      stickyCode.keep(e.detail.id);
-      room = createRoom({ hostId: e.detail.id, hostName: name });
+      if (takeover) {
+        
+        room = takeover.room;
+        awaiting = new Set(takeover.awaiting ?? []);
+        started = takeover.started ?? null;
+        reclaimTimer = setTimeout(() => {
+          reclaimTimer = null;
+          if (mesh !== mine || !room) return;
+          for (const car of dropUnclaimed(room, awaiting)) { inputs.delete(car); onBot(car); }
+          share();
+        }, takeover.reclaimMs ?? RECLAIM_MS);
+      } else {
+        stickyCode.keep(e.detail.id);
+        room = createRoom({ hostId: e.detail.id, hostName: name });
+      }
       onCode(e.detail.id, 'open');
       onRoom(room);
     }, { once: true });
@@ -72,6 +94,7 @@ export function createHostLink({ name = 'Host', onRoom, onCode, onBot = () => {}
         return;
       }
       if (message?.t === MSG.HI) {
+        if (typeof message.was === 'string') reclaimSeat(room, awaiting, { was: message.was, peerId: from });
         const got = joinRoom(room, { peerId: from, name: message.name, watch: !!message.watch });
         if (!got) { mine.send(from, { t: MSG.FULL }); return; }
         share();
@@ -99,7 +122,8 @@ export function createHostLink({ name = 'Host', onRoom, onCode, onBot = () => {}
     get code() { return room?.hostId ?? null; },
     host(attempt = 0) {
       if (mesh || !linkable()) return;
-      const hint = stickyCode.hint(attempt, () => roomCode(Math.random, PREFIX), CODE_TRIES);
+      
+      const hint = takeover ? takeover.code : stickyCode.hint(attempt, () => roomCode(Math.random, PREFIX), CODE_TRIES);
       const mine = new Mesh({ hostIdHint: hint ?? undefined, star: true });
       mesh = mine;
       wire(mine);
@@ -107,7 +131,9 @@ export function createHostLink({ name = 'Host', onRoom, onCode, onBot = () => {}
         if (!/unavailable-id/.test(e.detail?.message ?? '') || mesh !== mine || mine.opened) return;
         try { mine.destroy(); } catch {  }
         mesh = null;
-        stickyCode.retry(attempt, () => this.host(attempt + 1));
+        if (!takeover) { stickyCode.retry(attempt, () => this.host(attempt + 1)); return; }
+        if (attempt + 1 >= TAKEOVER_TRIES) { onCode(null, 'trouble: the room code did not come free'); return; }
+        retryTimer = setTimeout(() => { retryTimer = null; this.host(attempt + 1); }, TAKEOVER_RETRY_MS);
       });
       if (attempt === 0) onCode(null, 'opening');
     },
@@ -115,6 +141,9 @@ export function createHostLink({ name = 'Host', onRoom, onCode, onBot = () => {}
     newCode() { stickyCode.forget(); this.leave(); this.host(0); },
     leave() {
       stickyCode.cancel();
+      if (reclaimTimer) { clearTimeout(reclaimTimer); reclaimTimer = null; }
+      if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
+      awaiting = new Set();
       try { mesh?.destroy(); } catch {  }
       mesh = null;
       room = null;
@@ -150,14 +179,15 @@ export function createHostLink({ name = 'Host', onRoom, onCode, onBot = () => {}
 
 
 
-export function createGuestLink(code, { name = '', watch = false, onRoom, onStart, onSnap, onEnd = () => {}, onState, Mesh = PeerMesh }) {
+export function createGuestLink(code, { name = '', watch = false, was = null, onRoom, onStart, onSnap, onEnd = () => {}, onState, Mesh = PeerMesh }) {
   const mesh = new Mesh({ star: true });
   let joined = false;
   mesh.addEventListener('open', () => { mesh.connectTo(code); onState('joining'); }, { once: true });
   mesh.addEventListener('peer-joined', (e) => {
     if (e.detail?.id !== code) return;
     joined = true;
-    mesh.send(code, { t: MSG.HI, name, watch });
+    
+    mesh.send(code, { t: MSG.HI, name, watch, ...(was ? { was } : {}) });
     onState('joined');
   });
   mesh.addEventListener('message', (e) => {
@@ -169,8 +199,10 @@ export function createGuestLink(code, { name = '', watch = false, onRoom, onStar
     else if (message.t === MSG.END) onEnd();
     else if (message.t === MSG.FULL) onState('full');
   });
-  mesh.addEventListener('peer-left', (e) => { if (e.detail?.id === code) onState('closed'); });
-  mesh.addEventListener('host-changed', () => onState('closed'));
+  
+  
+  mesh.addEventListener('peer-left', (e) => { if (e.detail?.id === code) onState(joined ? 'host-gone' : 'failed'); });
+  mesh.addEventListener('host-changed', () => onState(joined ? 'host-gone' : 'failed'));
   mesh.addEventListener('join-failed', () => onState('failed'));
   mesh.addEventListener('error', (e) => { if (!joined) onState(`failed: ${e.detail?.message ?? ''}`); });
   return {

@@ -31,7 +31,8 @@ export function makeSnap(race, { seq, events = [], table }) {
     t: 's',
     q: seq,
     c: R(race.clock),
-    f: [f.phase, R(f.time), R(f.countdown ?? 0)],
+    
+    f: [f.phase, R(f.time), R(f.countdown ?? 0), f.playerFinishedAt == null ? null : R(f.playerFinishedAt)],
     
     k: race.racers.map((r) => {
       const k = r.kart;
@@ -40,7 +41,9 @@ export function makeSnap(race, { seq, events = [], table }) {
     
     l: (race.loose ?? []).map((p) => [R(p.x), R(p.y), R(p.z), R(p.heading, 100), R(p.roll, 100), p.down ? 1 : 0]),
     
-    st: table.map((t) => [t.id, t.position, t.finished ? 1 : 0, R(t.finishTime ?? 0), t.lapTimes?.length ?? 0, R(t.distance ?? 0, 10)]),
+    
+    st: table.map((t) => [t.id, t.position, t.finished ? 1 : 0, R(t.finishTime ?? 0), t.lapTimes?.length ?? 0, R(t.distance ?? 0, 10),
+      [...(t.visited ?? [])].reduce((m, g) => m | (1 << g), 0), (t.lapTimes ?? []).map((v) => R(v))]),
     
     h: [...(race.pickups?.held ?? new Map())].filter(([, v]) => v),
     e: events.filter((e) => SENT_EVENTS.has(e.type)).slice(0, 24),
@@ -113,6 +116,45 @@ export function applySnaps(race, buf, now, { delay = INTERP_MS } = {}) {
     for (const [id, v] of B.h ?? []) race.pickups.held.set(id, v);
   }
   return true;
+}
+
+
+
+
+
+
+
+
+
+export function resumeRace(race, snap) {
+  const buf = createSnapBuffer();
+  receiveSnap(buf, snap, 0);
+  applySnaps(race, buf, 0, { delay: 0 });
+  delete race.netTable; 
+  const fin = snap.f?.[3];
+  race.flow.playerFinishedAt = typeof fin === 'number' ? fin : (race.flow.phase === 'finished' ? race.flow.time : null);
+  if (race.flow.phase !== 'countdown' && race.flow.startedAt == null) race.flow.startedAt = 0;
+  const path = race.progress.path;
+  const len = path.length;
+  for (const r of race.racers) {
+    r.safeS = r.s;
+    const rec = race.progress.racers.get(r.id);
+    if (rec) rec.lastS = ((r.s % len) + len) % len;
+  }
+  for (const row of snap.st ?? []) {
+    const [id, , finished, finishTime, laps, distance, mask = 0, times = null] = row;
+    const rec = race.progress.racers.get(id);
+    if (!rec) continue;
+    rec.lap = laps;
+    rec.distance = distance;
+    rec.finished = !!finished;
+    rec.finishTime = finished ? finishTime : null;
+    rec.lapTimes = Array.isArray(times) ? times.slice() : new Array(laps).fill(0);
+    rec.bestLap = rec.lapTimes.length ? Math.min(...rec.lapTimes) : null;
+    rec.visited = new Set();
+    for (let g = 0; g < race.progress.checkpoints; g += 1) if (mask & (1 << g)) rec.visited.add(g);
+  }
+  return race;
 }
 
 

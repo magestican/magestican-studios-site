@@ -301,8 +301,13 @@ body.at-title .title {
   background-image: repeating-conic-gradient(rgba(23, 21, 15, 0.05) 0 25%, transparent 0 50%);
   background-size: 96px 96px;
 }
+
+
+
+
 #start {
-  width: calc(100% - 32px);
+  width: calc(100% - 44px);
+  margin-right: 12px;
   max-width: 620px;
   min-height: 120px;
   height: clamp(120px, 22vh, 160px);
