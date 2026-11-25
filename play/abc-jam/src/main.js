@@ -14,6 +14,7 @@ import {
   TIMING, createParade, jamPress, pickRound, createSpeller, createRain,
   loadProgress, saveProgress, addSticker, PARTY_AFTER, createResetConfirm, resetProgress,
   PRIZES, prizesFor, newPrizes, nextGoal, meters, createDinoEggs, createDinoMatch, FOUND_PRIZE, hintFor,
+  huntStart, huntPageDone,
 } from './rules.js';
 import { PUZZLES, createPuzzle, pieceShape, PIC_W, PIC_H, dropFor, nearness } from './puzzle.js';
 import { SFX_NAMES } from './sfx.js';
@@ -32,6 +33,7 @@ import { loose, step } from './fall.js';
 import { id as vid, FIXED, countId } from './voiceLines.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { escapeGoesHome, pickFocus } from './menus.js';
+import { PAGES, PAGE_W, PAGE_H, createHunt, panRange, clampPan, panTo, huntHint } from './seek.js';
 
 const GAME_ID = 'abc-jam';
 
@@ -301,10 +303,13 @@ function layoutInput() {
   const narrow = isNarrow();
   
   
-  const useBubbles = narrow && mode !== 'rain' && mode !== 'match' && mode !== 'tower' && mode !== 'puzzle';
+  const useBubbles = narrow && mode !== 'rain' && mode !== 'match' && mode !== 'tower' && mode !== 'puzzle' && mode !== 'hunt';
+  
+  const noKeys = mode === 'puzzle' || mode === 'hunt';
   $('bubbles').hidden = !useBubbles || !mode;
-  $('kb').hidden = narrow || !mode || mode === 'puzzle';
-  $('kb-toggle').hidden = narrow || !mode || mode === 'puzzle';
+  $('kb').hidden = narrow || !mode || noKeys;
+  $('kb-toggle').hidden = narrow || !mode || noKeys;
+  document.body.classList.toggle('aj-hunt-on', mode === 'hunt');
   document.body.classList.toggle('aj-narrow', narrow);
 }
 narrowMq?.addEventListener?.('change', () => { layoutInput(); if (mode === 'jam') setChoices(jamChoices()); });
@@ -322,7 +327,7 @@ function press(ch) {
   const c = String(ch).toUpperCase();
   if (!/^[A-Z]$/.test(c)) return;
   flashKey(c);
-  ({ parade: paradePress, jam: jamPressed, words: wordPress, rain: rainPress, eggs: eggsPress, match: matchPress, tower: towerPress, puzzle: puzzlePress })[mode]?.(c);
+  ({ parade: paradePress, jam: jamPressed, words: wordPress, rain: rainPress, eggs: eggsPress, match: matchPress, tower: towerPress, puzzle: puzzlePress, hunt: huntPress })[mode]?.(c);
 }
 
 document.addEventListener('keydown', (e) => {
@@ -1529,6 +1534,249 @@ function pzFinish() {
   later(() => { busy = false; showPuzzles(); }, 1500 + TIMING.partyMs + TIMING.wordGapMs);
 }
 
+
+
+
+
+
+
+
+const HUNT_PICS = new URL('../assets/comic/abc-comic/svg/sticker/', import.meta.url);
+const huntSrc = (p) => new URL(`${p.pic}.svg`, HUNT_PICS).href;
+const HUNT_GAP = 16; 
+const HUNT_SLIDE_MS = 600;
+
+let hunt = null; 
+let huntGeo = { pageW: 0, pageH: 0, viewW: 0 };
+let huntPan = 0; 
+let huntAskedAt = 0; 
+let huntHintAt = 'none';
+let huntDrag = null; 
+let huntDraggedAt = -Infinity;
+
+function startHunt() {
+  leaveMode();
+  mode = 'hunt';
+  hunt = createHunt(huntStart(progress));
+  save();
+  trackEvent?.('game_start', { game: GAME_ID, level: `hunt-${hunt.pageIndex + 1}` });
+  show('play');
+  layoutInput();
+  buildKeyboard();
+  renderHunt();
+  later(() => huntAsk(), 500);
+}
+
+function renderHunt() {
+  const st = $('stage');
+  st.innerHTML = '';
+  st.className = 'aj-stage aj-stage-hunt';
+  
+  
+  huntMarkNext();
+  const r = st.getBoundingClientRect();
+  const pageH = Math.max(200, Math.floor(r.height));
+  const pageW = Math.round(pageH * (PAGE_W / PAGE_H));
+  huntGeo = { pageW, pageH, viewW: Math.floor(r.width) };
+  const strip = document.createElement('div');
+  strip.className = 'aj-hunt-strip';
+  strip.style.width = `${PAGES.length * (pageW + HUNT_GAP) - HUNT_GAP}px`;
+  strip.style.height = `${pageH}px`;
+  PAGES.forEach((p, i) => {
+    const pg = document.createElement('div');
+    pg.className = 'aj-hunt-page' + (i < hunt.pageIndex ? ' is-done' : '') + (i === hunt.pageIndex ? ' is-now' : '');
+    pg.dataset.page = String(i);
+    pg.style.left = `${i * (pageW + HUNT_GAP)}px`;
+    pg.style.width = `${pageW}px`;
+    pg.style.height = `${pageH}px`;
+    const img = document.createElement('img');
+    img.className = 'aj-hunt-pic';
+    img.alt = fill(T.huntPage, { n: i + 1, total: PAGES.length });
+    img.draggable = false;
+    img.src = huntSrc(p);
+    pg.appendChild(img);
+    for (const m of p.marks) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'aj-hunt-letter';
+      b.dataset.id = String(m.id);
+      b.dataset.ch = m.ch;
+      b.textContent = m.ch;
+      b.style.left = `${(m.x / PAGE_W) * 100}%`;
+      b.style.top = `${(m.y / PAGE_H) * 100}%`;
+      b.style.fontSize = `${Math.round((p.size / PAGE_H) * pageH)}px`;
+      b.style.setProperty('--c', colourFor(m.ch));
+      b.style.setProperty('--tilt', `${m.tilt}deg`);
+      b.setAttribute('aria-label', fill(T.huntLetter, { letter: m.ch }));
+      const live = i === hunt.pageIndex;
+      if (!live) b.tabIndex = -1;
+      
+      if (i < hunt.pageIndex && m.find) b.classList.add('is-found');
+      if (live && hunt.isFound(m.id)) b.classList.add('is-found');
+      pg.appendChild(b);
+    }
+    strip.appendChild(pg);
+  });
+  st.appendChild(strip);
+  huntPan = panRange(hunt.pageIndex, pageW, HUNT_GAP, huntGeo.viewW)[0];
+  huntMove({ instant: true });
+  huntMarkNext();
+}
+
+function huntMove({ instant = false } = {}) {
+  const strip = document.querySelector('.aj-hunt-strip');
+  if (!strip) return;
+  strip.classList.toggle('is-sliding', !instant && !reduceMotion);
+  strip.style.transform = `translateX(${-huntPan}px)`;
+}
+
+function huntMarkNext() {
+  renderProgress(hunt.page.letters, hunt.found);
+}
+
+function huntAsk() {
+  const next = hunt?.wanted;
+  if (!next) return;
+  wanted = next;
+  clearHints();
+  markWanted();
+  huntAskedAt = performance.now();
+  huntHintAt = 'none';
+  say(vid.find(next));
+  huntHintTick();
+}
+
+
+
+function huntHintTick() {
+  if (mode !== 'hunt' || !hunt?.wanted) return;
+  if (!busy) huntShowHint(huntHint(performance.now() - huntAskedAt, hunt.misses));
+  later(huntHintTick, 1000);
+}
+
+function huntShowHint(step) {
+  if (step === huntHintAt) return;
+  huntHintAt = step;
+  const m = hunt.wantedMark();
+  const el = m && document.querySelector(`.aj-hunt-page.is-now .aj-hunt-letter[data-id="${m.id}"]`);
+  if (!el) return;
+  clearHints();
+  if (step === 'none') return;
+  el.classList.add(...{ glow: ['hint-glow'], show: ['hint-glow', 'hint-bounce'], point: ['hint-glow', 'hint-bounce', 'hint-point'] }[step]);
+  if (step !== 'glow') {
+    const { pageW, viewW } = huntGeo;
+    huntPan = panTo(hunt.pageIndex * (pageW + HUNT_GAP) + (m.x / PAGE_W) * pageW, hunt.pageIndex, pageW, HUNT_GAP, viewW);
+    huntMove();
+    play('hint');
+    say(vid.find(hunt.wanted));
+  }
+}
+
+function huntTap(id) {
+  if (mode !== 'hunt' || busy || !hunt) return;
+  const el = document.querySelector(`.aj-hunt-page.is-now .aj-hunt-letter[data-id="${id}"]`);
+  const r = hunt.tap(id);
+  if (r.kind === 'none') return;
+  if (r.kind === 'other') {
+    
+    if (el) bump(el, 'aj-wobble');
+    play(jamPress(r.ch).note);
+    say(vid.name(r.ch));
+    huntShowHint(huntHint(performance.now() - huntAskedAt, hunt.misses));
+    return;
+  }
+  busy = true;
+  wanted = null;
+  markWanted();
+  clearHints();
+  el?.classList.add('is-found', 'aj-hunt-pop');
+  play(jamPress(r.ch).note);
+  say(vid.phrase(r.ch));
+  stars(6, el);
+  huntMarkNext();
+  if (r.pageDone) { huntPageEnd(r.stripDone); return; }
+  later(() => { busy = false; huntAsk(); }, TIMING.letterGapMs);
+}
+
+function huntPageEnd(stripDone) {
+  const at = hunt.pageIndex;
+  const pg = document.querySelector('.aj-hunt-page.is-now');
+  huntPageDone(progress, at);
+  save();
+  later(() => {
+    pg?.classList.add('is-done');
+    for (const f of pg?.querySelectorAll('.aj-hunt-letter.is-found') || []) bump(f, 'aj-dance');
+    play('word');
+    stars(10, pg);
+    if (!stripDone) say(FIXED.hooray);
+  }, TIMING.letterGapMs);
+  if (stripDone) {
+    later(() => party(), TIMING.letterGapMs + 800);
+    later(() => { play('star'); stickerToast(T.letterHunt, 'map'); }, TIMING.letterGapMs + 800 + TIMING.partyMs);
+    later(() => { busy = false; goHome(); }, TIMING.letterGapMs + 800 + TIMING.partyMs + TIMING.wordGapMs);
+    return;
+  }
+  
+  later(() => {
+    if (mode !== 'hunt') return;
+    hunt.next();
+    pg?.classList.remove('is-now');
+    const nx = document.querySelector(`.aj-hunt-page[data-page="${hunt.pageIndex}"]`);
+    nx?.classList.add('is-now');
+    for (const b of nx?.querySelectorAll('.aj-hunt-letter') || []) b.removeAttribute('tabindex');
+    for (const b of pg?.querySelectorAll('.aj-hunt-letter') || []) b.tabIndex = -1;
+    huntPan = panRange(hunt.pageIndex, huntGeo.pageW, HUNT_GAP, huntGeo.viewW)[0];
+    play('whoosh');
+    huntMove();
+    huntMarkNext();
+    trackEvent?.('game_start', { game: GAME_ID, level: `hunt-${hunt.pageIndex + 1}` });
+  }, TIMING.letterGapMs + TIMING.wordGapMs);
+  later(() => { busy = false; huntAsk(); }, TIMING.letterGapMs + TIMING.wordGapMs + HUNT_SLIDE_MS + 200);
+}
+
+
+function huntPress(c) {
+  const marks = hunt.page.marks.filter((m) => m.ch === c && !hunt.isFound(m.id));
+  const m = marks.find((x) => x.find && x.ch === hunt.wanted) || marks[0];
+  if (m) huntTap(m.id);
+  else { play(jamPress(c).note); say(vid.name(c)); }
+}
+
+
+
+document.addEventListener('pointerdown', (e) => {
+  if (mode !== 'hunt' || e.button > 0 || !e.target.closest?.('.aj-stage-hunt')) return;
+  huntDrag = { id: e.pointerId, x0: e.clientX, pan0: huntPan, on: false };
+});
+document.addEventListener('pointermove', (e) => {
+  const d = huntDrag;
+  if (!d || d.id !== e.pointerId || mode !== 'hunt') return;
+  const dx = e.clientX - d.x0;
+  if (!d.on && Math.abs(dx) < 10) return;
+  d.on = true;
+  huntPan = clampPan(d.pan0 - dx, panRange(hunt.pageIndex, huntGeo.pageW, HUNT_GAP, huntGeo.viewW));
+  huntMove({ instant: true });
+});
+const huntDragEnd = (e) => {
+  if (!huntDrag || huntDrag.id !== e.pointerId) return;
+  if (huntDrag.on) huntDraggedAt = performance.now();
+  huntDrag = null;
+};
+document.addEventListener('pointerup', huntDragEnd);
+document.addEventListener('pointercancel', huntDragEnd);
+document.addEventListener('click', (e) => {
+  const b = e.target.closest?.('.aj-hunt-page.is-now .aj-hunt-letter');
+  if (!b || performance.now() - huntDraggedAt < 300) return;
+  unlockVoice();
+  huntTap(Number(b.dataset.id));
+});
+
+
+globalThis.addEventListener?.('resize', () => {
+  if (mode !== 'hunt' || !hunt) return;
+  renderHunt();
+});
+
 function showStickers() {
   leaveMode();
   show('stickers');
@@ -1600,7 +1848,18 @@ function showStickers() {
     s.addEventListener('click', () => { bump(s, 'aj-jump'); if (got) { play('word'); say(FIXED.hooray); } else play('tap'); });
     Pz.appendChild(s);
   }
-  const total = progress.letters.length + progress.words.length + progress.dinos.length + progress.puzzles.length;
+  
+  const Hs = document.createElement('button');
+  Hs.type = 'button';
+  Hs.className = 'aj-sticker aj-sticker-word' + (progress.huntDone ? ' is-got' : '');
+  Hs.style.setProperty('--c', '#2ec4b6');
+  Hs.innerHTML = '<i aria-hidden="true"></i><b></b>';
+  setPic(Hs.querySelector('i'), progress.huntDone ? 'map' : 'mystery');
+  Hs.querySelector('b').textContent = progress.huntDone ? T.letterHunt : 'A-Z';
+  Hs.setAttribute('aria-label', progress.huntDone ? T.letterHunt : T.wordNotYet);
+  Hs.addEventListener('click', () => { bump(Hs, 'aj-jump'); if (progress.huntDone) { play('word'); say(FIXED.hooray); } else play('tap'); });
+  Pz.appendChild(Hs);
+  const total = progress.letters.length + progress.words.length + progress.dinos.length + progress.puzzles.length + (progress.huntDone ? 1 : 0);
   $('book-count').innerHTML = `${iconHtml('star')} ${total}  ·  ${iconHtml('balloon')} ${progress.pops}`;
   say(countId(total));
 }
@@ -1614,6 +1873,7 @@ function prizeLabel(z) {
   if (z.id === 'dinos') return T.prizeDinos;
   if (z.id === 'puzzles') return T.prizePuzzles;
   if (z.id === 'puzzles-all') return T.prizePuzzlesAll;
+  if (z.id === 'hunt') return T.prizeHunt;
   if (z.id === 'dinos-found') return fill(T.prizeFound, { n: z.n });
   if (z.size) return fill(T.stepWords, { n: z.size });
   return fill(T.prizeBalloons, { n: z.n });
@@ -1622,8 +1882,8 @@ function prizeLabel(z) {
 function renderHub() {
   const m = meters(progress);
   const goal = nextGoal(progress);
-  const total = { parade: LETTERS.length, words: WORD_STEPS.reduce((n, s) => n + s.words.length, 0), eggs: DINOS.length, match: FOUND_PRIZE, puzzles: PUZZLES.length };
-  const got = { parade: progress.letters.length, words: progress.words.length, eggs: progress.dinos.length, match: progress.found, puzzles: progress.puzzles.length };
+  const total = { parade: LETTERS.length, words: WORD_STEPS.reduce((n, s) => n + s.words.length, 0), eggs: DINOS.length, match: FOUND_PRIZE, puzzles: PUZZLES.length, hunt: PAGES.length };
+  const got = { parade: progress.letters.length, words: progress.words.length, eggs: progress.dinos.length, match: progress.found, puzzles: progress.puzzles.length, hunt: progress.huntDone ? PAGES.length : progress.hunt };
   const targets = {
     parade: $('start'),
     jam: document.querySelector('.aj-tile[data-go="jam"]'),
@@ -1633,6 +1893,7 @@ function renderHub() {
     eggs: document.querySelector('.aj-tile[data-go="eggs"]'),
     match: document.querySelector('.aj-tile[data-go="match"]'),
     puzzles: document.querySelector('.aj-tile[data-go="puzzles"]'),
+    hunt: document.querySelector('.aj-tile[data-go="hunt"]'),
   };
   for (const [k, el] of Object.entries(targets)) {
     if (!el) continue;
@@ -1710,6 +1971,7 @@ for (const t of document.querySelectorAll('.aj-tile')) {
     else if (go === 'match') startMatch();
     else if (go === 'tower') startTower();
     else if (go === 'puzzles') showPuzzles();
+    else if (go === 'hunt') startHunt();
   });
 }
 
@@ -1777,7 +2039,9 @@ if (HAS_MUSIC) {
 }
 
 
-globalThis.__abcJam = { get mode() { return mode; }, get busy() { return busy; }, get wanted() { return wanted; }, PARTY_AFTER };
+globalThis.__abcJam = { get mode() { return mode; }, get busy() { return busy; }, get wanted() { return wanted; }, PARTY_AFTER,
+  
+  get hunt() { return hunt && { page: hunt.pageIndex, wanted: hunt.wanted, mark: hunt.wantedMark()?.id ?? null }; } };
 
 goHome({ quiet: true });
 bootDone();

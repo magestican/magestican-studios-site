@@ -37,6 +37,7 @@ export const T = Object.freeze({
   dinoMatch: 'Dino Match',
   blockTower: 'Block Tower',
   abcPuzzles: 'ABC Puzzles',
+  letterHunt: 'Letter Hunt',
 
   kbToAbcSpoken: 'Keys in ABC order',
   kbToKeysSpoken: 'Keys like a keyboard',
@@ -57,6 +58,10 @@ export const T = Object.freeze({
   prizePuzzles: 'Five puzzles',
   prizePuzzlesAll: 'Every puzzle',
   puzzlePiece: 'Piece {letter}',
+  
+  prizeHunt: 'The whole comic strip',
+  huntLetter: 'Letter {letter}',
+  huntPage: 'Page {n} of {total}',
   
   puzzleNames: Object.freeze({ unicorn: 'Unicorn', dino: 'Dinosaur', princess: 'Princess', dino_family: 'Dinosaur family', party: 'Birthday picnic',
     night: 'Unicorn and moon', pond: 'Dinosaur pond', sea: 'Princess boat', parade: 'Dinosaur parade', kite: 'Kite' }),

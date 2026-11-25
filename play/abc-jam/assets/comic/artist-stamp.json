@@ -1,0 +1,89 @@
+{
+ "stamp": 1,
+ "request": "2026-11-25-abc-jam-letter-hunt",
+ "assets": [
+  {
+   "name": "abc-comic",
+   "kind": {
+    "id": "icon",
+    "sha256": "5fb53e0a3beffe51275cdc9698655ae86335e1faaa65ed0551c43d3eb537105c"
+   },
+   "style": {
+    "id": "sticker",
+    "sha256": "31c7b466875b1eed81909d49c5f91ae7d22f22702e24fd2404ceab1e309a1f98"
+   }
+  }
+ ],
+ "engine": {
+  "artist_commit": "ac036aa48ba96abecbb672811518fb9ffb326b85",
+  "engine": "artist-engine 0.2.0-phaseB"
+ },
+ "gates": {
+  "AT": [
+   "AT-01",
+   "AT-02",
+   "AT-03",
+   "AT-04",
+   "AT-05",
+   "AT-06"
+  ],
+  "CD": [
+   "CD-00",
+   "CD-01",
+   "CD-02",
+   "CD-03",
+   "CD-04",
+   "CD-05",
+   "CD-07",
+   "CD-08",
+   "CD-09",
+   "CD-10"
+  ],
+  "RQ": [
+   "RQ-01",
+   "RQ-02",
+   "RQ-03",
+   "RQ-04",
+   "RQ-05",
+   "RQ-06",
+   "RQ-07",
+   "RQ-08",
+   "RQ-09",
+   "RQ-10",
+   "RQ-11",
+   "RQ-12"
+  ],
+  "SG": [
+   "SG-00",
+   "SG-01",
+   "SG-02",
+   "SG-03",
+   "SG-04",
+   "SG-05",
+   "SG-06",
+   "SG-07",
+   "SG-08",
+   "SG-09",
+   "SG-10",
+   "SG-11",
+   "SG-12",
+   "SG-13",
+   "SG-14"
+  ]
+ },
+ "files": {
+  "abc-comic/preview.png": "34f1ebd18827a32fcd5659d9d610f52d2fbe0739cc68baa886cc43526c42d75a",
+  "abc-comic/sprite.png": "b376ececa59639330dcd98c188a740a206ddb564ce81dba5fe02397192623ed9",
+  "abc-comic/sprite@2x.png": "728f44cf7f1c9bd845f263c3defaebe16e72ed1bb838341ca31bb78ec314a12c",
+  "abc-comic/svg/sticker/comic_beach.svg": "5fde8134efe850899e1409571ff396389412bbad343eabb6c5b1c9d15e2bbae7",
+  "abc-comic/svg/sticker/comic_castle.svg": "f6913c1da8c8026c400e2b65b46eab0c5d0e1d04d02cd393a9341d97a7a33378",
+  "abc-comic/svg/sticker/comic_fair.svg": "a133bd7266407a7e95084100d9c468883796a077811aede6880ab52e57d22672",
+  "abc-comic/svg/sticker/comic_farm.svg": "b3dd2a3aa4fd920ff9f07e4b25a68b67e99766c02a95910b3c7e8cdc1d9d73be",
+  "abc-comic/svg/sticker/comic_garden.svg": "eae5fc83e689fdc7932731d6f6daa5ac842cd09c5d89fcd03258b61d2ced5b6b",
+  "abc-comic/svg/sticker/comic_night.svg": "f68a3b29c936dea80cbbfc8f9cfe185e1a61c81678f7823cff5b680eb47c4e52",
+  "abc-comic/svg/sticker/comic_parade.svg": "c671c9ff8f81f51b808e0e3aaf7525478755a55e94b665e169014cc06031bde9",
+  "abc-comic/svg/sticker/comic_zoo.svg": "dd2676bf5b8a0b316d8f84192e512eb3c137c3c5485ba39b56734bc64bd623a8",
+  "abc-comic/symbols-sticker.svg": "057fcc7787da5b9a0d398052196c1e82962690dba54861baa50461f2c4b3b6d7",
+  "contact-sheet.png": "fd6aa65d1a52e6206ac20081937f501b8438ac475b822a7ba3450d484942fb4d"
+ }
+}

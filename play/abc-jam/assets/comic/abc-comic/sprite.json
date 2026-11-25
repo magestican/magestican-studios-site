@@ -1,0 +1,58 @@
+{
+ "comic_beach-sticker": {
+  "x": 0,
+  "y": 0,
+  "width": 192,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "comic_castle-sticker": {
+  "x": 194,
+  "y": 0,
+  "width": 192,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "comic_fair-sticker": {
+  "x": 0,
+  "y": 130,
+  "width": 192,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "comic_farm-sticker": {
+  "x": 194,
+  "y": 130,
+  "width": 192,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "comic_garden-sticker": {
+  "x": 0,
+  "y": 260,
+  "width": 192,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "comic_night-sticker": {
+  "x": 194,
+  "y": 260,
+  "width": 192,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "comic_parade-sticker": {
+  "x": 0,
+  "y": 390,
+  "width": 192,
+  "height": 128,
+  "pixelRatio": 1
+ },
+ "comic_zoo-sticker": {
+  "x": 194,
+  "y": 390,
+  "width": 192,
+  "height": 128,
+  "pixelRatio": 1
+ }
+}

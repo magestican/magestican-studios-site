@@ -1,0 +1,70 @@
+{
+ "set": "abc_comic",
+ "size": 192,
+ "grid": 96,
+ "colourways": [
+  "sticker"
+ ],
+ "scales": [
+  1,
+  2
+ ],
+ "icons": [
+  {
+   "id": "comic_garden",
+   "label": "The garden picnic",
+   "group": "comic",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "comic_farm",
+   "label": "The farm",
+   "group": "comic",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "comic_fair",
+   "label": "The fair",
+   "group": "comic",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "comic_zoo",
+   "label": "The zoo",
+   "group": "comic",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "comic_night",
+   "label": "The night sea",
+   "group": "comic",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "comic_castle",
+   "label": "The castle",
+   "group": "comic",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "comic_beach",
+   "label": "The beach",
+   "group": "comic",
+   "width": 192,
+   "height": 128
+  },
+  {
+   "id": "comic_parade",
+   "label": "The big parade",
+   "group": "comic",
+   "width": 192,
+   "height": 128
+  }
+ ]
+}

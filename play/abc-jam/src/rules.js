@@ -4,6 +4,7 @@
 
 import { LETTERS, WORD_STEPS, DINOS, DINO } from './content.js';
 import { PUZZLES, PUZZLE, FIRST_PUZZLES } from './puzzle.js';
+import { PAGES as HUNT_PAGES, startPage } from './seek.js';
 
 
 
@@ -272,7 +273,7 @@ export function createRain({ letters = LETTERS.map((l) => l.ch), rand = Math.ran
 export const SAVE_KEY = 'abcjam-v1';
 
 export function loadProgress(storage) {
-  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0, puzzles: [] };
+  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0, puzzles: [], hunt: 0, huntDone: false };
   try {
     const raw = storage?.getItem(SAVE_KEY);
     if (!raw) return blank;
@@ -288,6 +289,9 @@ export function loadProgress(storage) {
       found: Math.max(0, p.found | 0),
       
       puzzles: Array.isArray(p.puzzles) ? p.puzzles.filter((x) => typeof x === 'string' && PUZZLE[x]) : [],
+      
+      hunt: Math.max(0, Math.min(HUNT_PAGES.length, p.hunt | 0)),
+      huntDone: Boolean(p.huntDone),
     };
   } catch { return blank; }
 }
@@ -298,7 +302,7 @@ export function saveProgress(storage, p) {
 
 
 export function resetProgress(storage) {
-  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0, puzzles: [] };
+  const blank = { furthest: 0, letters: [], words: [], pops: 0, stars: 0, dinos: [], found: 0, puzzles: [], hunt: 0, huntDone: false };
   saveProgress(storage, blank);
   return blank;
 }
@@ -322,8 +326,8 @@ export function createResetConfirm({ windowMs = 4000, now = () => Date.now() } =
 
 const stepFull = (p, step) => step.words.every(([w]) => p.words.includes(w));
 const ALL_LETTERS = LETTERS.length;
-const ALL_STICKERS = LETTERS.length + WORD_STEPS.reduce((n, s) => n + s.words.length, 0) + DINOS.length + PUZZLES.length;
-const stickersOf = (p) => p.letters.length + p.words.length + p.dinos.length + (p.puzzles?.length || 0);
+const ALL_STICKERS = LETTERS.length + WORD_STEPS.reduce((n, s) => n + s.words.length, 0) + DINOS.length + PUZZLES.length + 1; 
+const stickersOf = (p) => p.letters.length + p.words.length + p.dinos.length + (p.puzzles?.length || 0) + (p.huntDone ? 1 : 0);
 
 export const FOUND_PRIZE = DINOS.length * 3;
 const BALLOON_PRIZES = [25, 50, 100];
@@ -338,6 +342,7 @@ export const PRIZES = Object.freeze([
   
   { id: 'puzzles', pic: 'unicorn', done: (p) => FIRST_PUZZLES.every((z) => p.puzzles?.includes(z.id)) },
   { id: 'puzzles-all', pic: 'castle', done: (p) => PUZZLES.every((z) => p.puzzles?.includes(z.id)) },
+  { id: 'hunt', pic: 'map', done: (p) => Boolean(p.huntDone) },
   { id: 'book', pic: 'heart', done: (p) => stickersOf(p) >= ALL_STICKERS },
 ].map(Object.freeze));
 
@@ -364,6 +369,8 @@ export function nextGoal(p) {
   if (p.found < FOUND_PRIZE) return { go: 'match' };
   
   if (!PUZZLES.every((z) => p.puzzles?.includes(z.id))) return { go: 'puzzles' };
+  
+  if (!p.huntDone) return { go: 'hunt' };
   if (p.pops < BALLOON_PRIZES[BALLOON_PRIZES.length - 1]) return { go: 'rain' };
   return { go: 'jam' };
 }
@@ -380,6 +387,7 @@ export function meters(p) {
     eggs: Math.min(1, p.dinos.length / DINOS.length),
     match: Math.min(1, p.found / FOUND_PRIZE),
     puzzles: Math.min(1, (p.puzzles?.length || 0) / PUZZLES.length),
+    hunt: p.huntDone ? 1 : Math.min(1, (p.hunt || 0) / HUNT_PAGES.length),
     stickers: Math.min(1, stickersOf(p) / ALL_STICKERS),
   };
 }
@@ -390,5 +398,22 @@ export function addSticker(p, kind, id) {
   const list = kind === 'word' ? p.words : kind === 'dino' ? p.dinos : kind === 'puzzle' ? p.puzzles : p.letters;
   if (list.includes(id)) return false;
   list.push(id);
+  return true;
+}
+
+
+
+
+export function huntStart(p) {
+  const at = startPage(p.hunt || 0);
+  if (at === 0) p.hunt = 0;
+  return at;
+}
+
+
+export function huntPageDone(p, i) {
+  p.hunt = Math.max(p.hunt || 0, Math.min(HUNT_PAGES.length, i + 1));
+  if (p.hunt < HUNT_PAGES.length) return false;
+  p.huntDone = true;
   return true;
 }
