@@ -62,6 +62,20 @@ function setLine(l, pts) {
   p.needsUpdate = true;
 }
 
+
+
+const WEB_PAD = 8;
+
+
+
+
+function spanCull( obj,  w) {
+  const r = Math.hypot(w.x1 - w.x0, w.y1 - w.y0) / 2 + WEB_PAD;
+  obj.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3((w.x0 + w.x1) / 2, (w.y0 + w.y1) / 2, Z), r);
+  obj.frustumCulled = true;
+  return obj;
+}
+
 const lerp = (a, b, k) => a + (b - a) * k;
 const mix = (a, b, k) => new THREE.Color(a).lerp(new THREE.Color(b), k);
 
@@ -103,6 +117,7 @@ export function createSilk(scene, level, { sun, spark, views, jo, backdrop = nul
     shade.renderOrder = 2;
     band.renderOrder = 2;
     edge.renderOrder = 3;
+    for (const m of [shade, band, edge]) spanCull(m, w);
     group.add(shade, band, edge);
     const V = { w, i, n, band, edge, shade, pluck: 0 };
     if (w.net) {
@@ -110,7 +125,7 @@ export function createSilk(scene, level, { sun, spark, views, jo, backdrop = nul
         new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array((n + 1) * 6), 3)),
         new THREE.LineBasicMaterial({ color: BAND, transparent: true, opacity: 0.55 }),
       );
-      V.fringe.frustumCulled = false;
+      spanCull(V.fringe, w);
       group.add(V.fringe);
     }
     if (w.harp) {
@@ -131,6 +146,8 @@ export function createSilk(scene, level, { sun, spark, views, jo, backdrop = nul
         [ax, ay, -0.3],
         [ax + dir * 1.2, ay + 1.6, -0.6],
       ]);
+      g.geometry.computeBoundingSphere(); 
+      g.frustumCulled = true;
       group.add(g);
     }
     return V;

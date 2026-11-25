@@ -4,6 +4,7 @@
 
 import { v } from '../site/assetUrl.js';
 import { createPicker } from './cues.js';
+import { duckGains, isStinger, MIX } from './mix.js';
 import { MUSIC_TRACKS } from './musicManifest.js';
 import { SFX } from './sfxManifest.js';
 import { takesToLoad } from './uiSounds.js';
@@ -27,7 +28,8 @@ export function busGain( name,  level) {
 
 
 
-export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX), after = Promise.resolve() } = {}) {
+
+export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX), after = Promise.resolve(), room = null } = {}) {
   const Ctx = window.AudioContext || window.webkitAudioContext;
   if (!Ctx) return nullAudio();
   const ctx = new Ctx();
@@ -47,6 +49,36 @@ export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX),
   }
   let muted = readMuted();
   master.gain.value = muted ? 0 : 1;
+
+  
+  
+  const level = { ...BUS_GAIN };
+  let menuOn = false;
+  let stingUntil = 0;
+  const applyMix = () => {
+    const d = duckGains({ menu: menuOn, stinger: ctx.currentTime < stingUntil });
+    for (const name of Object.keys(bus)) {
+      const g = bus[name].gain;
+      const target = level[name] * (d[name] ?? 1);
+      g.cancelScheduledValues(ctx.currentTime);
+      g.setTargetAtTime(target, ctx.currentTime, (target < g.value ? MIX.attack : MIX.release) / 3);
+    }
+  };
+  
+  if (room && room.send > 0) {
+    const send = ctx.createGain();
+    send.gain.value = room.send;
+    const delay = ctx.createDelay(0.5);
+    delay.delayTime.value = room.delay;
+    const tone = ctx.createBiquadFilter();
+    tone.type = 'lowpass';
+    tone.frequency.value = room.tone;
+    const fb = ctx.createGain();
+    fb.gain.value = room.feedback;
+    bus.sfx.connect(send).connect(delay).connect(tone);
+    tone.connect(fb).connect(delay);
+    tone.connect(master);
+  }
 
   const probe = document.createElement('audio');
   const ext = probe.canPlayType('audio/ogg; codecs="opus"') || probe.canPlayType('audio/ogg; codecs="vorbis"') ? 'ogg' : 'm4a';
@@ -190,11 +222,26 @@ export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX),
       voices.push(src);
       playing.set(name, voices);
       src.start();
+      
+      if (isStinger(name)) {
+        const len = src.buffer.duration / (o.rate ?? 1);
+        stingUntil = Math.max(stingUntil, ctx.currentTime + len);
+        applyMix();
+        setTimeout(applyMix, len * 1000 + 20);
+      }
     },
     
-    setLevel( name,  level) {
-      const g = busGain(name, level);
-      if (g !== null) bus[name].gain.setTargetAtTime(g, ctx.currentTime, 0.02);
+    setLevel( name,  lvl) {
+      const g = busGain(name, lvl);
+      if (g === null) return;
+      level[name] = g;
+      applyMix();
+    },
+    
+    duck( on) {
+      if (menuOn === !!on) return;
+      menuOn = !!on;
+      applyMix();
     },
     toggleMute() {
       muted = !muted;
@@ -227,6 +274,7 @@ function nullAudio() {
     music() {},
     musicFirst() {},
     setLevel() {},
+    duck() {},
     toggleMute: () => true,
     muted: true,
   };

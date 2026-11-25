@@ -12,6 +12,7 @@ import { sparkState } from '../sim/pins.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
 import { createAmbient } from './ambient.js';
+import { batchStatic } from './batch.js';
 import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js';
 import { createBoltSprite } from './boltSprite.js';
 import { bossLabelPosition } from './bossLabel.js';
@@ -1190,7 +1191,8 @@ function tileMeshes(world, skin = null, art = null) {
       c = end;
     }
   }
-  return group;
+  
+  return batchStatic(group, 16 * T);
 }
 
 

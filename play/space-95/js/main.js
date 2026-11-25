@@ -2,6 +2,7 @@
 
 import { createAudio } from './audio/audio.js';
 import { createFootsteps, createGallop, createLadder, cueFor, cueRate, signalSounds } from './audio/cues.js';
+import { roomFor } from './audio/mix.js';
 import { SFX } from './audio/sfxManifest.js';
 import { levelMusic as musicOf, SURFACE, shiftSounds } from './audio/shiftSounds.js';
 import { uiSound } from './audio/uiSounds.js';
@@ -133,6 +134,7 @@ if (train) hud.update(session, 1 / 60);
 const audio = createAudio(undefined, {
   sounds: shiftSounds(level),
   after: Promise.all([joSpriteLoaded, preloadCritterSprites(level.entities ?? [])]),
+  room: roomFor(level.id), 
 });
 const footsteps = createFootsteps(SURFACE[level.id] ?? 'dirt');
 const gallop = level.ride ? createGallop() : null; 
@@ -314,6 +316,7 @@ function frame(now) {
   let steps = 0;
   if (paused) acc = 0;
   if (paused) coop?.lobbyFrame(now);
+  audio.duck(paused); 
   while (acc >= STEP && steps < MAX_STEPS) {
     stepSession(session, input.sample());
     if (cheats.god && session.dead > 0) session.dead = 1;
