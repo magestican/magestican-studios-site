@@ -56,6 +56,7 @@ import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
 import { createShowcaseView, freshCanvas } from './render/showcase.js';
 import { setMusicMuted, musicClock, musicNow } from './audio/music.js';
 import { createLobbyMusic } from '../../../web-engine/audio/lobbyMusic.js';
+import { MENU_TRACK_ID } from './audio/raceBed.js';
 import { EMOTES, EMOTE_TIME } from 'arbelo/emotes';
 import { renderKartBoard } from './ui/kartBoard.js';
 
@@ -1699,6 +1700,8 @@ function menuBed() {
     
     destination: audio.master,
     manifestUrl: new URL('../assets/music/music.json', import.meta.url),
+    
+    trackId: MENU_TRACK_ID,
   });
   lobbyMusic.setMuted(state.muted);
   return lobbyMusic;

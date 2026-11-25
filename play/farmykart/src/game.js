@@ -138,7 +138,13 @@ import { createRaceNet } from './net/raceNet.js';
 
 import { countPlay } from 'arbelo/leaderboard';
 import { createAudio, resumeAudio, startEngine, updateEngine, updateRivals, updateAirshipDrone, stopEngine, SFX, setMuted } from './audio/sfx.js';
-import { startMusic, stopMusic, setMusicIntensity, duckMusic } from './audio/music.js';
+
+
+
+
+
+import { setMusicIntensity, duckMusic } from './audio/music.js';
+import { startRaceBed, stopRaceBed } from './audio/raceBed.js';
 import { PALETTE } from './palette.js';
 
 
@@ -1826,7 +1832,7 @@ export function createRace(options) {
       running = false;
       cancelAnimationFrame(raf);
       stopEngine(audio);
-      stopMusic(audio);
+      stopRaceBed(audio);
       showPageBanner({ id: FAULT_BANNER, text: d.message, ...offerReload });
     }
   }
@@ -1854,7 +1860,7 @@ export function createRace(options) {
     
     
     if (ceremony) return;
-    stopMusic(audio);
+    stopRaceBed(audio);
     const table = standings(progress);
     
     try {
@@ -2124,7 +2130,10 @@ export function createRace(options) {
       
       
       
-      startMusic(audio, { trackId: track.id, theme: track.theme });
+      
+      
+      
+      startRaceBed(audio);
       running = true;
       last = performance.now();
       raf = requestAnimationFrame(frame);
@@ -2134,7 +2143,7 @@ export function createRace(options) {
       if (unlockZoom) { unlockZoom(); unlockZoom = null; }
       cancelAnimationFrame(raf);
       stopEngine(audio);
-      stopMusic(audio);
+      stopRaceBed(audio);
     },
     setMuted: (m) => setMuted(audio, m),
     

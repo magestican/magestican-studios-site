@@ -1,13 +1,23 @@
 {
   "sampleRate": 48000,
-  "loopSamples": 4194304,
-  "loopSeconds": 87.381333,
+  "loopSamples": 2560000,
+  "loopSeconds": 53.333333,
   "tracks": [
     {
-      "id": "kart-lobby",
+      "id": "kartzoom-menu",
       "side": "A",
-      "title": "THE LONG PADDOCK",
-      "file": "kart-lobby.webm"
+      "title": "Porch Time",
+      "file": "farmykart-menu-country-2.webm",
+      "seed": 343760304,
+      "loopSamples": 2560000
+    },
+    {
+      "id": "kartzoom-race",
+      "side": "A",
+      "title": "Mud Run",
+      "file": "farmykart-bgm-country-1.webm",
+      "seed": 206252011,
+      "loopSamples": 2194286
     }
   ]
 }
