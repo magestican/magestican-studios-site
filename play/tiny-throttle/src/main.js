@@ -14,6 +14,7 @@ import { PICKUPS } from '../../../web-engine/rc/pickups.js';
 import { formatTime, ordinal } from '../../../web-engine/kart/raceProgress.js';
 import { countdownText } from '../../../web-engine/kart/raceFlow.js';
 import { createTouchSteer } from './touchSteer.js';
+import { ASSIST_TOUCH } from './driveAssist.js';
 import { SIM_SCALE } from '../../../web-engine/rc/rcTuning.js';
 import { MOTION, screenTimes, BACK, focusStep, loadSettings, saveSettings, recordBest } from './menus.js';
 import { createHostLink, createGuestLink, linkFrom, joinLinkFor, watchLinkOf, canLink } from './netRoom.js';
@@ -211,7 +212,8 @@ function readInput() {
   
   const keySteer = (has('right') ? 1 : 0) - (has('left') ? 1 : 0);
   const steer = keySteer || steerTouch.value();
-  return { throttle, steer, drift: has('drift'), jump: has('hop'), use: has('use') };
+  
+  return { throttle, steer, drift: has('drift'), jump: has('hop'), use: has('use'), assist: isTouch ? ASSIST_TOUCH : 0 };
 }
 
 

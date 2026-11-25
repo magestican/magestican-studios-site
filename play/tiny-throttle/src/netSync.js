@@ -118,12 +118,16 @@ export function applySnaps(race, buf, now, { delay = INTERP_MS } = {}) {
 
 
 export function packInput(i) {
-  return ['i', R(i.throttle ?? 0, 100), R(i.steer ?? 0, 100), i.drift ? 1 : 0, i.jump ? 1 : 0, i.use ? 1 : 0];
+  
+  return ['i', R(i.throttle ?? 0, 100), R(i.steer ?? 0, 100), i.drift ? 1 : 0, i.jump ? 1 : 0, i.use ? 1 : 0, R(i.assist ?? 0, 100)];
 }
 
 const clamp1 = (v) => (Number.isFinite(v) ? Math.max(-1, Math.min(1, v)) : 0);
 
 export function unpackInput(a) {
   if (!Array.isArray(a) || a[0] !== 'i') return null;
-  return { throttle: clamp1(a[1]), steer: clamp1(a[2]), drift: a[3] === 1, jump: a[4] === 1, use: a[5] === 1 };
+  return {
+    throttle: clamp1(a[1]), steer: clamp1(a[2]), drift: a[3] === 1, jump: a[4] === 1, use: a[5] === 1,
+    assist: Math.max(0, clamp1(a[6] ?? 0)),
+  };
 }

@@ -46,6 +46,9 @@ export function feedStamp(news = NEWS) {
   return news.length ? `${news[0].at}|${news[0].title}` : '';
 }
 
+
+
+
 const CSS = `
 .mg-news-btn{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));
   z-index:45;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:999px;
@@ -56,10 +59,11 @@ const CSS = `
 .mg-news-dot{width:9px;height:9px;border-radius:50%;background:var(--gold,#f4c95d);flex:none}
 .mg-news-dot[hidden]{display:none}
 .mg-news-panel{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:calc(max(16px,env(safe-area-inset-bottom)) + 56px);
-  z-index:46;width:min(380px,calc(100vw - 32px));max-height:min(560px,calc(100vh - 120px));overflow:auto;
+  z-index:90001;width:min(380px,calc(100vw - 32px));max-height:min(560px,calc(100vh - 120px));overflow:auto;
   box-sizing:border-box;padding:16px 16px 8px;border-radius:14px;border:1px solid var(--line,#d9d2c1);
   background:var(--paper-lit,#fffdf6);color:var(--ink,#1c1a17);box-shadow:0 12px 32px rgba(0,0,0,.25)}
 .mg-news-panel[hidden]{display:none}
+body .device-qr-card,body .device-qr-summon{bottom:calc(max(16px,env(safe-area-inset-bottom)) + 60px)}
 .mg-news-panel:focus{outline:none}
 .mg-news-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
 .mg-news-head h2{margin:0;font:700 19px/1.2 var(--serif,Georgia,serif)}

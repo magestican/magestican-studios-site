@@ -13,6 +13,7 @@ import { buildPath, trackSurface, startGrid, sampleAt, wrapS } from '../../../we
 import { buildRacingLine } from '../../../web-engine/kart/racingLine.js';
 import { createKart, stepKart, respawnKart, resolveKartContact, GRAVITY } from '../../../web-engine/kart/kartPhysics.js';
 import { createDriver, driveBot } from '../../../web-engine/kart/kartAi.js';
+import { assistInput, createCoDriver } from './driveAssist.js';
 import { createProgress, addRacer, updateRacer, standings } from '../../../web-engine/kart/raceProgress.js';
 import { createFlow, stepFlow, canDrive, PHASE } from '../../../web-engine/kart/raceFlow.js';
 import { SIM_SCALE, toSim, METRICS, gripOf, rcTuning, hopSpeed, gravitySim } from '../../../web-engine/rc/rcTuning.js';
@@ -251,9 +252,21 @@ export function stepRace(race, playerInput, dt) {
       surf.gripScale *= gripAt(race.pickups, r.sM, r.sideM, lapLen) * worldGripAt(race.world, r.sM, r.sideM, lapLen);
     }
     let input;
+    let human = false; 
     const mine = inputOf(r);
     if (!drive) input = { throttle: 0, steer: 0, drift: false };
-    else if (r.isPlayer && mine && !progress.racers.get(r.id)?.finished) input = mine;
+    else if (r.isPlayer && mine && !progress.racers.get(r.id)?.finished) {
+      input = mine;
+      human = true;
+      
+      if (mine.assist > 0) {
+        if (!r.coDriver) r.coDriver = createCoDriver(r.slot);
+        const co = driveBot(r.coDriver, r.kart, track.line, {
+          surface: surf, time: race.clock, dt, position: posById.get(r.id) ?? 1, fieldSize: racers.length,
+        });
+        input = assistInput(mine, co, mine.assist);
+      }
+    }
     else {
       if (!r.driver) r.driver = createDriver(r.slot, 'sunday');
       
@@ -271,7 +284,7 @@ export function stepRace(race, playerInput, dt) {
     
     
     
-    if (r.isPlayer && input === mine) {
+    if (human) {
       if (input.use && !r.usePrev) usePickup(race.pickups, { id: r.id, s: r.sM, side: r.sideM }, { length: lapLen });
       r.usePrev = !!input.use;
     }

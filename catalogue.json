@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "e783dc4a-20261125T094054Z",
+ "buildId": "d2a66b5d-20261125T100326Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -994,7 +994,7 @@
    "ageNote": null,
    "order": 32,
    "addedAt": "2026-11-19",
-   "bytes": 5092389
+   "bytes": 5093812
   },
   {
    "id": "glimmercoil",
