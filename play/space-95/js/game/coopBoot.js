@@ -3,7 +3,7 @@
 
 
 import { createCoopSession } from '../net/coopSession.js';
-import { channelTransport, hostCode, netUrls, newHostCode, openTransport, parseCode, shareLink, withRetry } from '../net/peer.js';
+import { channelTransport, hostCode, netUrls, newHostCode, onHide, openTransport, parseCode, shareLink, withRetry } from '../net/peer.js';
 import { showLobby } from '../ui/coopLobby.js';
 import { coopStep } from './coop.js';
 
@@ -73,7 +73,7 @@ export function startCoop({ seat, level, variant, view, titleRoot, onStart, onSe
       close = t.close;
       net = createCoopSession({ role, transport: t.transport, level: level.id, variant: role === 'host' ? variant : 'bolt' });
       view.setCoop(role);
-      window.addEventListener('pagehide', () => {
+      onHide(window, () => {
         net.leave();
         close();
       });

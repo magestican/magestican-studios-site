@@ -72,7 +72,6 @@ export function coopFromUrl(search) {
 
 
 
-
 export function channelTransport(code, Channel = globalThis.BroadcastChannel) {
   const ch = new Channel(CODE_PREFIX + code);
   const handlers = [];
@@ -98,6 +97,17 @@ function loadScript(src) {
 }
 
 
+export const closeMesh = (m) => {
+  m.destroy();
+  m.peer?.destroy();
+};
+
+export function onHide(w, bye) {
+  w.addEventListener('pagehide', bye);
+  w.addEventListener('pageshow', (e) => e.persisted && w.location.reload());
+}
+
+
 export async function withRetry(open, tries, wait = (ms) => new Promise((r) => setTimeout(r, ms))) {
   for (let i = 1; ; i++) {
     try {
@@ -108,7 +118,6 @@ export async function withRetry(open, tries, wait = (ms) => new Promise((r) => s
     }
   }
 }
-
 
 
 
@@ -145,6 +154,6 @@ export async function openTransport({ role, code, urls, onLeft }) {
       { once: true },
     );
   });
-  return { transport, close: () => mesh.destroy() };
+  return { transport, close: () => closeMesh(mesh) };
 }
 
