@@ -33,7 +33,7 @@
   <title>Play Xiangqiwise - free xiangqi online, Chinese chess</title>
   <meta name="description" content="Xiangqiwise is free xiangqi (Chinese chess, 象棋) in your browser: the 9x10 board with the river and the palaces, the red and black pieces, and a move guide for beginners. Play the computer at three levels or a friend in a room.">
   <meta name="keywords" content="xiangqiwise, xiangqi, chinese chess, xiangqi online, 象棋, 中國象棋, 中国象棋, 象棋 線上, 象棋 在线, cờ tướng">
-  <meta name="build" content="ab09d978-20261126T080802Z">
+  <meta name="build" content="abf44fc7-20261126T081916Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/xiangqi/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Xiangqiwise - free xiangqi online, Chinese chess">
@@ -51,8 +51,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=ab09d978-20261126T080802Z" data-game="xiangqi" data-zh="1" data-levels="easy,medium,hard" data-level-key="xiangqiwise-settings-v1" data-level-default="easy"></script>
-  <link rel="stylesheet" href="./src/style.css?v=ab09d978-20261126T080802Z">
+  <script src="../shared/ui/boot.js?v=abf44fc7-20261126T081916Z" data-game="xiangqi" data-zh="1" data-levels="easy,medium,hard" data-level-key="xiangqiwise-settings-v1" data-level-default="easy"></script>
+  <link rel="stylesheet" href="./src/style.css?v=abf44fc7-20261126T081916Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -80,7 +80,7 @@
   </script>
   <script type="module" src="/web-engine/library/openHook.js?play=xiangqi"></script>
 </head>
-<body>
+<body class="at-title">
   <div class="studio-bar">
     <a class="studio-home" href="/" aria-label="Magestican Studios home">
       <img src="/assets/logo.svg" width="36" height="36" alt="">
@@ -100,6 +100,29 @@
       </svg>
     </button>
   </div>
+
+  
+
+
+
+  <section class="xq-title" id="title" aria-labelledby="title-name" translate="no">
+    <div class="xq-title-card">
+      <p class="xq-title-name" id="title-name" data-game-name>Xiangqiwise</p>
+      <p class="xq-title-tag" data-t="tagline">Jump the screen, take the chariot</p>
+      <svg class="xq-title-jump" viewBox="0 0 6 2.2" aria-hidden="true" focusable="false">
+        <rect class="wood" x="0.05" y="0.75" width="5.9" height="1.1" rx="0.08"/>
+        <line class="grid" x1="0.6" y1="1.3" x2="5.4" y2="1.3"/>
+        <line class="grid" x1="0.6" y1="0.95" x2="0.6" y2="1.65"/><line class="grid" x1="1.8" y1="0.95" x2="1.8" y2="1.65"/>
+        <line class="grid" x1="3" y1="0.95" x2="3" y2="1.65"/><line class="grid" x1="4.2" y1="0.95" x2="4.2" y2="1.65"/>
+        <line class="grid" x1="5.4" y1="0.95" x2="5.4" y2="1.65"/>
+        <g class="pc black scr"><circle r="0.4"/><text y="0.15" text-anchor="middle">卒</text></g>
+        <g class="pc black ch"><circle r="0.4"/><text y="0.15" text-anchor="middle">車</text></g>
+        <g class="pc red cn"><circle r="0.4"/><text y="0.15" text-anchor="middle">炮</text></g>
+      </svg>
+      <button class="xq-start xq-btn skin-lacquer-button_primary" id="start" type="button" data-t="start">START</button>
+      <button class="xq-btn skin-lacquer-button_secondary mg-i mg-i-settings" id="see-options" type="button" data-t="seeOptions">See options</button>
+    </div>
+  </section>
 
   <main class="xq">
     <h1 class="mg-own" data-game-name>Xiangqiwise</h1>
@@ -168,6 +191,7 @@
       <div class="xq-foot">
         <button class="xq-btn skin-lacquer-button_secondary mg-i mg-i-give_up" id="resign" type="button" data-t="resign">Resign</button>
         <button class="xq-btn skin-lacquer-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+        <button class="xq-btn skin-lacquer-button_secondary mg-i mg-i-settings" id="menu-btn" type="button" data-t="menu" aria-haspopup="dialog">Menu</button>
       </div>
       
 
@@ -190,13 +214,25 @@
     </section>
   </main>
 
+  
+
+  <div class="xq-menu" id="menu" hidden>
+    <div class="xq-menu-card" role="dialog" aria-modal="true" aria-labelledby="menu-head">
+      <h2 class="xq-menu-head" id="menu-head" data-t="menu">Menu</h2>
+      <button class="xq-btn skin-lacquer-button_primary" id="menu-resume" type="button" data-t="resumeMenu">Resume</button>
+      <button class="xq-btn skin-lacquer-button_secondary mg-i mg-i-new_game" id="menu-new" type="button" data-t="newGame">New game</button>
+      <button class="xq-btn skin-lacquer-button_secondary mg-i mg-i-settings" id="menu-options" type="button" data-t="options">Options</button>
+      <button class="xq-btn skin-lacquer-button_secondary mg-i mg-i-leave" id="menu-title" type="button" data-t="titleScreen">Title screen</button>
+    </div>
+  </div>
+
   <noscript>
     <p>Xiangqiwise is a xiangqi game and needs JavaScript; there is nothing to download.
     <a href="/xiangqi.html">How to play</a>.</p>
   </noscript>
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=ab09d978-20261126T080802Z"></script>
-  <script type="module" src="./src/main.js?v=ab09d978-20261126T080802Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=ab09d978-20261126T080802Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=abf44fc7-20261126T081916Z"></script>
+  <script type="module" src="./src/main.js?v=abf44fc7-20261126T081916Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=abf44fc7-20261126T081916Z"></script>
 </body>
 </html>
