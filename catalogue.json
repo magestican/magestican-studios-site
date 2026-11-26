@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "fb65f24c-20261126T101142Z",
+ "buildId": "be9b78e4-20261126T110501Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -419,7 +419,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-10-15",
-   "bytes": 12286799
+   "bytes": 12438990
   },
   {
    "id": "buraco",

@@ -33,7 +33,7 @@
   <title>Play Trucowise - free Argentine truco online</title>
   <meta name="description" content="Trucowise is free Argentine truco in your browser: envido, truco, retruco, vale cuatro and flor with the 40-card Spanish deck. Play the computer, 2 vs 2, or friends in a room.">
   <meta name="keywords" content="trucowise, truco, truco argentino, truco online, jugar truco, envido, truco 2 vs 2">
-  <meta name="build" content="fb65f24c-20261126T101142Z">
+  <meta name="build" content="be9b78e4-20261126T110501Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/truco/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Trucowise - free Argentine truco online">
@@ -51,8 +51,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=fb65f24c-20261126T101142Z" data-game="truco" data-levels="easy,medium,hard" data-level-key="trucowise-settings-v1" data-level-default="medium" data-deck="../shared/cards/spanish40/"></script>
-  <link rel="stylesheet" href="./src/style.css?v=fb65f24c-20261126T101142Z">
+  <script src="../shared/ui/boot.js?v=be9b78e4-20261126T110501Z" data-game="truco" data-levels="easy,medium,hard" data-level-key="trucowise-settings-v1" data-level-default="medium" data-deck="../shared/cards/spanish40/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=be9b78e4-20261126T110501Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -80,7 +80,7 @@
   </script>
   <script type="module" src="/web-engine/library/openHook.js?play=truco"></script>
 </head>
-<body>
+<body class="at-title">
   
 
   <div class="studio-bar">
@@ -102,6 +102,25 @@
       </svg>
     </button>
   </div>
+
+  
+
+
+
+
+  <section class="tr-title" id="title" aria-labelledby="title-name" translate="no">
+    <div class="tr-title-card">
+      <p class="tr-title-name" id="title-name" data-game-name>Trucowise</p>
+      <p class="tr-title-tag" data-t="tagline">Call it with a straight face</p>
+      <div class="tr-title-scene" aria-hidden="true">
+        <div class="tr-title-fan" id="title-fan"></div>
+        <span class="tr-say tr-say-call">¡Truco!</span>
+        <span class="tr-say tr-say-answer">¡Quiero!</span>
+      </div>
+      <button class="tr-start tr-btn skin-wood-button_primary" id="start" type="button" data-t="start">START</button>
+      <button class="tr-btn skin-wood-button_secondary mg-i mg-i-settings" id="see-options" type="button" data-t="seeOptions">See options</button>
+    </div>
+  </section>
 
   <main class="tr">
     <h1 data-game-name>Trucowise</h1>
@@ -173,6 +192,7 @@
 
     <div class="tr-foot">
       <button class="tr-btn skin-wood-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+      <button class="tr-btn skin-wood-button_secondary mg-i mg-i-settings" id="menu-btn" type="button" data-t="menu" aria-haspopup="dialog">Menu</button>
     </div>
     <p class="tr-help" data-t="help">Win two of the three bazas. Sing envido before your first card; call truco on your turn. First to the target wins.</p>
     
@@ -193,6 +213,18 @@
     </section>
   </main>
 
+  
+
+  <div class="tr-menu" id="menu" hidden>
+    <div class="tr-menu-card" role="dialog" aria-modal="true" aria-labelledby="menu-head">
+      <h2 class="tr-menu-head" id="menu-head" data-t="menu">Menu</h2>
+      <button class="tr-btn skin-wood-button_primary" id="menu-resume" type="button" data-t="resumeMenu">Resume</button>
+      <button class="tr-btn skin-wood-button_secondary mg-i mg-i-new_game" id="menu-new" type="button" data-t="newGame">New game</button>
+      <button class="tr-btn skin-wood-button_secondary mg-i mg-i-settings" id="menu-options" type="button" data-t="options">Options</button>
+      <button class="tr-btn skin-wood-button_secondary mg-i mg-i-leave" id="menu-title" type="button" data-t="titleScreen">Title screen</button>
+    </div>
+  </div>
+
   <noscript>
     <p>Trucowise is a truco card game and needs JavaScript; there is nothing to download.
     <a href="/truco.html">How to play</a>.</p>
@@ -200,8 +232,8 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=fb65f24c-20261126T101142Z"></script>
-  <script type="module" src="./src/main.js?v=fb65f24c-20261126T101142Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=fb65f24c-20261126T101142Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=be9b78e4-20261126T110501Z"></script>
+  <script type="module" src="./src/main.js?v=be9b78e4-20261126T110501Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=be9b78e4-20261126T110501Z"></script>
 </body>
 </html>

@@ -27,7 +27,10 @@ import { sortHand } from '../../../web-engine/cards/cards.js';
 import { applyGameName, gameLang, localGameName } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
-import { playUi } from '../../../web-engine/brand/uiSound.js';
+import {
+  showsTitle, TITLE_BUTTONS, MENU_BUTTONS, navKey, stepFocus, STEP, handStep, clampCursor, padHeld, padPresses, PAD_KEY,
+  MENU_CUES, MENU_GAINS, menuCue, TITLE_OUT_MS, FAN_CARDS,
+} from './menuNav.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
@@ -81,6 +84,12 @@ const music = createTrackMusic({
 });
 
 const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['card', 'call', 'point', 'win', 'lose'], { card: 4 });
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+
+let cursor = 0;
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -327,6 +336,10 @@ function refresh(move = null) {
 
 function botMove() {
   botTimer = null;
+  
+  
+  
+  if (atTitle() || menuOpen()) { const gen = timerGen; whenPlaying(() => { if (gen === timerGen) botMove(); }); return; }
   if (!match || match.game.over || match.game.hand.over) return;
   const id = actorId(match);
   if (!isBot(id)) return;
@@ -378,13 +391,13 @@ function doAction(a) {
     if (echoTimer) clearTimeout(echoTimer);
     echoTimer = setTimeout(echoTimedOut, ECHO_TIMEOUT_MS);
     net.propose(a);
-    if (a.type === 'play') sfx.play('card'); else playUi('tap');
+    if (a.type === 'play') sfx.play('card'); else ui.play('tap');
     draw();
     return;
   }
   const before = tableRects();
   const r = act(match, myId(), a);
-  if (r.error) { flash(r.error); playUi('error'); return; }
+  if (r.error) { flash(r.error); ui.play('error'); return; }
   match = r.match;
   sounds(match.game.events);
   noteEvents(match.game.events);
@@ -399,7 +412,7 @@ function clearEcho() {
 
 
 function rollBack() {
-  playUi('error');
+  ui.play('error');
   flash(T.refused, 3200);
 }
 
@@ -473,7 +486,7 @@ function sounds(events) {
   if (kinds.has('call')) sfx.play('call');
   else if (kinds.has('points')) sfx.play('point');
   else if (kinds.has('play')) sfx.play('card');
-  else playUi('toggleOn');
+  else ui.play('toggleOn');
 }
 
 let flashTimer = null;
@@ -667,19 +680,31 @@ function drawTable() {
 }
 
 function drawHand(legal) {
+  
+  
+  const hadFocus = handEl.contains(document.activeElement);
   handEl.replaceChildren();
   if (!view) return;
   const h = view.game.hand;
   const cards = sortHand((h.hands[view.you] || []).filter(Boolean), { key: (c) => power(c, h.muestra) });
+  cursor = clampCursor(cursor, cards.length);
   const playable = new Set(legal.filter((a) => a.type === 'play').map((a) => a.card));
-  for (const c of cards) {
-    if (!c) continue;
+  let anyPlayable = false;
+  cards.forEach((c, i) => {
     const can = playable.has(c) && !waitingAnswer;
-    const el = cardEl(c, { big: true, onClick: can ? () => doAction({ type: 'play', card: c }) : null });
+    const el = cardEl(c, { big: true, onClick: can ? () => { cursor = i; doAction({ type: 'play', card: c }); } : null });
     el.classList.toggle('playable', can);
     el.dataset.play = c;
+    el.dataset.i = String(i);
+    
+    if (can) { el.tabIndex = i === cursor ? 0 : -1; anyPlayable = true; }
     handEl.append(el);
+  });
+  if (anyPlayable && !handEl.querySelector('button[tabindex="0"]')) {
+    const first = handEl.querySelector('button[data-i]');
+    if (first) { first.tabIndex = 0; cursor = Number(first.dataset.i); }
   }
+  if (hadFocus) handEl.querySelector('button[tabindex="0"]')?.focus({ preventScroll: true });
 }
 
 const CALL_SKIN = {
@@ -815,7 +840,7 @@ function drawProgress() {
 }
 $('goal-head').textContent = PW.goal;
 $('prizes-head').textContent = PW.prizes;
-$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; playUi(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; ui.play(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
 
 
 function finished() {
@@ -863,7 +888,7 @@ for (const b of document.querySelectorAll('[data-mode]')) {
   b.addEventListener('click', () => {
     const mode = b.dataset.mode;
     if (mode === settings.mode) return;
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'room') leaveRoom();
     settings.mode = mode;
     if (mode === 'bot') newMatch();
@@ -875,7 +900,7 @@ for (const b of document.querySelectorAll('[data-size]')) {
     if (room.active) return;
     settings.size = Number(b.dataset.size);
     persist();
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'bot') restartSolo(); else draw();
   });
 }
@@ -883,7 +908,7 @@ for (const b of document.querySelectorAll('[data-level]')) {
   b.addEventListener('click', () => {
     settings.level = b.dataset.level;
     persist();
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'bot') restartSolo();
     else if (match && !isGuest()) {
       
@@ -895,13 +920,13 @@ for (const b of document.querySelectorAll('[data-level]')) {
 targetEl.addEventListener('change', () => {
   settings.target = Number(targetEl.value) === 30 ? 30 : 15;
   persist();
-  playUi('toggleOn');
+  ui.play('toggleOn');
   if (settings.mode === 'bot') restartSolo(); else if (room.active && net?.hosting) newMatch();
 });
 florEl.addEventListener('change', () => {
   settings.flor = florEl.checked;
   persist();
-  playUi('toggleOn');
+  ui.play('toggleOn');
   if (settings.mode === 'bot') restartSolo(); else if (room.active && net?.hosting) newMatch();
 });
 variantEl.addEventListener('change', () => {
@@ -912,13 +937,13 @@ variantEl.addEventListener('change', () => {
   settings.flor = settings.variant === 'uy';
   trackForRules(settings.variant);
   persist();
-  playUi('toggleOn');
+  ui.play('toggleOn');
   if (settings.mode === 'bot') restartSolo(); else if (room.active && net?.hosting) newMatch();
 });
 nextEl.addEventListener('click', () => { if (!isGuest()) dealNext(); });
 $('new-game').addEventListener('click', () => {
   if (watcher()) return;
-  playUi('tap');
+  ui.play('tap');
   if (isGuest()) { net.propose({ type: 'rematch' }); return; }
   if (match && settings.mode === 'room') { stopTimers(); begin(rematch(match, freshSeed())); return; }
   if (settings.mode === 'room') { flash(T.waiting); return; }
@@ -1102,14 +1127,14 @@ function leaveRoom() {
   Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 
-$('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
+$('create-room').addEventListener('click', () => { ui.play('tap'); openRoom(); });
 $('join-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  playUi('tap');
+  ui.play('tap');
   joinRoom($('join-code').value.trim());
 });
 $('leave-room').addEventListener('click', () => {
-  playUi('toggleOff');
+  ui.play('toggleOff');
   leaveRoom();
   settings.mode = 'bot';
   newMatch();
@@ -1160,7 +1185,181 @@ function trackForRules(variant) {
 }
 if (params.get('rules') !== null) trackForRules(settings.variant);
 
-foldSetup();
+
+
+
+
+
+const titleEl = $('title');
+const menuEl = $('menu');
+const mainEl = document.querySelector('main.tr');
+const reduced = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+const coarse = () => globalThis.matchMedia?.('(pointer: coarse)').matches;
+let usedKeys = false;
+let setupFold = null;          
+let menuReturn = null;         
+function atTitle() { return document.body.classList.contains('at-title'); }
+function menuOpen() { return !menuEl.hidden; }
+const focusEl = (node) => node?.focus({ preventScroll: true });
+const cursorEl = () => handEl.querySelector(`button[data-i="${cursor}"]`) || handEl.querySelector('button[data-i]');
+
+const focusPlay = () => focusEl(cursorEl() || actionsEl.querySelector('button:not(:disabled)') || (!nextEl.hidden && nextEl) || $('new-game'));
+
+
+let heldPlay = [];
+function whenPlaying(f) { if (atTitle() || menuOpen()) heldPlay.push(f); else f(); }
+function resumePlay() { const q = heldPlay; heldPlay = []; for (const f of q) f(); }
+
+function showTitle() {
+  closeMenu(false);
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  titleEl.hidden = false;
+  mainEl.inert = true;
+  if (usedKeys || !coarse()) focusEl($('start'));
+}
+function leaveTitle(then) {
+  if (!atTitle()) { then?.(); return; }
+  mainEl.inert = false;
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    titleEl.hidden = true;
+    fit.refit({ grow: true });
+    then?.();
+    resumePlay();
+  };
+  if (reduced()) { done(); return; }
+  document.body.classList.add('title-leaving');
+  setTimeout(done, TITLE_OUT_MS);
+}
+function openOptions() {
+  if (setupFold) setupFold.open = true;
+  ui.play(menuCue('menu-options'));
+  const first = document.querySelector('[data-mode][aria-pressed="true"]') || document.querySelector('[data-mode]');
+  focusEl(first);
+  first?.scrollIntoView?.({ block: 'nearest' });
+}
+function openMenu() {
+  if (menuOpen() || atTitle()) return;
+  menuReturn = document.activeElement;
+  menuEl.hidden = false;
+  mainEl.inert = true;
+  ui.play('open');
+  focusEl($('menu-resume'));
+}
+function closeMenu(restore = true) {
+  if (!menuOpen()) return;
+  menuEl.hidden = true;
+  mainEl.inert = false;
+  if (restore) {
+    
+    if (menuReturn && menuReturn !== document.body && document.contains(menuReturn)) focusEl(menuReturn);
+    else focusPlay();
+  }
+  if (!atTitle()) resumePlay();
+}
+
+
+
+$('start').addEventListener('click', () => { ui.play(menuCue('start')); leaveTitle(() => { if (usedKeys || !coarse()) focusPlay(); }); });
+$('see-options').addEventListener('click', () => leaveTitle(openOptions));
+$('menu-btn').addEventListener('click', openMenu);
+$('menu-resume').addEventListener('click', () => { ui.play(menuCue('menu-resume')); closeMenu(); });
+$('menu-new').addEventListener('click', () => { closeMenu(false); $('new-game').click(); focusPlay(); });
+$('menu-options').addEventListener('click', () => { closeMenu(false); openOptions(); });
+$('menu-title').addEventListener('click', () => { ui.play(menuCue('menu-title')); showTitle(); });
+
+menuEl.addEventListener('click', (ev) => { if (ev.target === menuEl) { ui.play('back'); closeMenu(); } });
+
+
+function navList() {
+  if (atTitle()) return TITLE_BUTTONS.map($);
+  if (menuOpen()) return MENU_BUTTONS.map($);
+  return [...mainEl.querySelectorAll('button, select, input, summary')]
+    .filter((b) => !b.disabled && b.getClientRects().length && !(handEl.contains(b) && b.tabIndex < 0));
+}
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (/^(Arrow|Tab$|Enter$|Escape$| $)/.test(ev.key)) usedKeys = true;
+  if (ev.defaultPrevented) return;
+  if (ev.key === 'Escape') {
+    if (atTitle()) return;
+    ev.preventDefault();
+    if (menuOpen()) { ui.play('back'); closeMenu(); return; }
+    openMenu();
+    return;
+  }
+  const word = navKey(ev.key);
+  if (!word) return;
+  const t = ev.target;
+  if (t?.tagName === 'SELECT' || t?.tagName === 'INPUT') return;
+  ev.preventDefault();
+  
+  if (handEl.contains(t) && t.dataset?.i !== undefined && !menuOpen()) {
+    const cards = [...handEl.querySelectorAll('button[data-i]')];
+    const at = cards.indexOf(t);
+    const next = handStep(at, word, cards.length);
+    if (next !== null) {
+      if (next === at) return;
+      t.tabIndex = -1;
+      const el = cards[next];
+      cursor = Number(el.dataset.i);
+      el.tabIndex = 0;
+      focusEl(el);
+      ui.play('focus');
+      return;
+    }
+  }
+  const list = navList();
+  if (!list.length) return;
+  const next = list[stepFocus(list.indexOf(document.activeElement), STEP[word], list.length)];
+  if (next && next !== document.activeElement) { focusEl(next); ui.play('focus'); }
+});
+
+
+function pressKey(key) {
+  usedKeys = true;
+  let t = document.activeElement;
+  if (!t || t === document.body) {
+    if (atTitle()) focusEl($('start'));
+    else if (menuOpen()) focusEl($('menu-resume'));
+    else focusPlay();
+    t = document.activeElement;
+    if (key !== 'Escape') return; 
+  }
+  
+  if (key === 'Enter' && t && t !== document.body) { t.click(); return; }
+  (t || document).dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+}
+let padState = null;
+let padLoop = 0;
+function pollPad() {
+  padLoop = 0;
+  const p = [...(navigator.getGamepads?.() || [])].find(Boolean);
+  if (!p) { padState = null; return; }
+  const r = padPresses(padState, padHeld(p), performance.now());
+  padState = r.state;
+  for (const w of r.presses) pressKey(PAD_KEY[w]);
+  padLoop = requestAnimationFrame(pollPad);
+}
+
+globalThis.addEventListener('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+
+
+function fillTitleFan() {
+  const fan = $('title-fan');
+  if (!fan || !atlas || fan.childElementCount) return;
+  FAN_CARDS.forEach((id, i) => {
+    const el = makeCard(document, atlas, id, { width: 64, className: 'tr-title-c' });
+    el.style.setProperty('--i', String(i));
+    fan.append(el);
+  });
+}
+
+
+setupFold = foldSetup();
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Trucowise' });
 
 
@@ -1172,10 +1371,16 @@ afterBoot(() => countPlay('truco', { isHost: !linkRoom }));
 
 
 
-const atlasReady = loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch(() => {  });
+const atlasReady = loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); fillTitleFan(); }).catch(() => {  });
 Promise.race([atlasReady, new Promise((r) => { setTimeout(r, 4000); })]).then(() => { fit.refit({ grow: true }); bootDone(); });
 
 function boot() {
+  
+  
+  
+  const framed = document.documentElement.classList.contains('framed');
+  if (showsTitle(params, { linkRoom: !!linkRoom, framed })) showTitle();
+  else { document.body.classList.remove('at-title'); titleEl.hidden = true; }
   if (linkRoom) {
     settings.mode = 'room';
     if (!joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH })) { settings.mode = 'bot'; newMatch({ keepHand: true }); }
@@ -1184,6 +1389,12 @@ function boot() {
   newMatch({ keepHand: true });
 }
 boot();
+
+
+
+afterBoot(() => {
+  if (atTitle() && (usedKeys || !coarse()) && document.activeElement === document.body) focusEl($('start'));
+});
 
 trackEvent('game_start', { game: GAME_ID, mode: settings.mode, size: settings.size });
 
