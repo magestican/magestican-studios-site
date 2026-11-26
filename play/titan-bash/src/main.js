@@ -27,6 +27,7 @@ import { createWarmup, warmupStep, lessonFor } from '../../../web-engine/titan-b
 import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice, loadFxArt } from './juice.js';
+import { createCutins, loadFaceArt } from './cutin.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
 import { primaryFor, createLeave, createPadNav, joinNames, nightTitle, wellLine, stepsOrder, tieBreakNote, statParts, ptsText, standingScore, rewardParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, joinHint, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
@@ -92,6 +93,9 @@ const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-r
 
 const fxArt = loadFxArt();
 let juice = createJuice(Math.random, { reducedMotion, art: fxArt });
+
+const faceArt = loadFaceArt();
+let cutins = createCutins({ reducedMotion });
 
 let countMs = Infinity;
 
@@ -210,7 +214,7 @@ function start() {
   if (cheats.heat !== null) for (const t of match.titans) if (!t.cpu) t.heat = cheats.heat;
   if (cheats.storm) match.tick = secs(T.roundTime - T.stormTime);
   if (cheats.sleeper) match.tick = secs(T.roundTime - T.stormTime + T.sleeperWakeAfter - 1);
-  fx = []; juice = createJuice(Math.random, { reducedMotion, art: fxArt }); acc = 0; last = performance.now(); sounds = createSoundTracker(); ui.play('start'); countMs = 0;
+  fx = []; juice = createJuice(Math.random, { reducedMotion, art: fxArt }); cutins = createCutins({ reducedMotion }); acc = 0; last = performance.now(); sounds = createSoundTracker(); ui.play('start'); countMs = 0;
   globalThis.__titanBash = { get match() { return match; }, get phones() { return link?.phones.list() ?? []; } }; 
   paintLegend();
   show('match'); resize();
@@ -257,9 +261,10 @@ function addFx(m, events) {
       const t = m.titans[e.target];
       const text = e.by === null ? fallText(nameOf(m, e.target), e.value) :`${nameOf(m, e.by)} rings ${nameOf(m, e.target)}!`;
       fx.push({ kind: 'banner', text, ttl: 90, colour: e.by === null ? '#fff' : HOUSE[m.titans[e.by].house].colour });
-      fx.push({ kind: 'pop', text: 'BELL!', x: t.x, y: t.y, ttl: 60, big: true, colour: '#ffd040' });
-    } else if (e.type === EVENT.CLANG) fx.push({ kind: 'pop', text: 'CLANG!', x: e.x, y: e.y, ttl: 50, big: true, colour: '#9fe3ff' });
-    else if (e.type === EVENT.PERFECT_VENT) { const t = m.titans[e.id]; fx.push({ kind: 'pop', text: 'PERFECT VENT', x: t.x, y: t.y - 3, ttl: 60, colour: '#6ff3ff' }); }
+      
+      fx.push({ kind: 'pop', text: 'BELL!', x: t.x, y: t.y, ttl: 60, ttl0: 60, big: true, colour: '#ffd040' });
+    } else if (e.type === EVENT.CLANG) fx.push({ kind: 'pop', text: 'CLANG!', x: e.x, y: e.y, ttl: 50, ttl0: 50, big: true, colour: '#9fe3ff' });
+    else if (e.type === EVENT.PERFECT_VENT) { const t = m.titans[e.id]; fx.push({ kind: 'pop', text: 'PERFECT!', x: t.x, y: t.y - 3, ttl: 60, ttl0: 60, big: true, colour: '#6ff3ff' }); }
     else if (e.type === EVENT.STALL) {
       
       const t = m.titans[e.id]; const ctl = seats[e.id]?.control || 'bot';
@@ -296,10 +301,13 @@ function frame(now) {
   let steps = 0;
   while (acc >= 1 / HZ && steps < 5 && !match.over) {
     
-    if (juice.holding()) { juice.holdTick(); acc -= 1 / HZ; steps += 1; continue; }
+    
+    if (juice.holding() || cutins.holding()) { if (juice.holding()) juice.holdTick(); cutins.tick(); acc -= 1 / HZ; steps += 1; continue; }
     const events = step(match, inputsFor(match));
     addFx(match, events);
-    juice.onEvents(match, events, (t) => HOUSE[t.house]?.colour || '#ffd040'); juice.step();
+    const colourOfT = (t) => HOUSE[t.house]?.colour || '#ffd040';
+    juice.onEvents(match, events, colourOfT); juice.step();
+    cutins.onEvents(match, events, colourOfT, (t) => HOUSE[t.house]?.name || ''); cutins.tick();
     for (const name of sounds.tick(match, events)) sfx.play(name);
     acc -= 1 / HZ; steps += 1;
     for (const f of fx) f.ttl -= 1;
@@ -334,7 +342,7 @@ function paint() {
   const hs = new Set(seats.map((s, i) => (s.control !== 'bot' ? i : -1)).filter((i) => i >= 0));
   const tag = (c) => (c === 'touch' ? 'You' : c === 'p1' ? 'P1' : c === 'p2' ? 'P2' : c.startsWith('phone') ? `Phone ${Number(c.slice(5)) + 1}` : `Pad ${Number(c.slice(3)) + 1}`);
   const labels = seats.map((s) => (s.control === 'bot' ? null : `${emblemGlyph(wear(s).emblem)} ${HOUSE[s.house].name} (${tag(s.control)})`.trim()));
-  draw(ctx, match, fx, L, { humans: hs, labels, paints: seats.map((s) => paintColor(wear(s).paint)), juice, countdown: countdownAt(countMs, reducedMotion) });
+  draw(ctx, match, fx, L, { humans: hs, labels, paints: seats.map((s) => paintColor(wear(s).paint)), juice, countdown: countdownAt(countMs, reducedMotion), cutin: cutins.current(), faceArt, reducedMotion });
 }
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };

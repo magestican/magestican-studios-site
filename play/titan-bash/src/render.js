@@ -8,6 +8,7 @@
 import { TUNING as T, secs } from '../../../web-engine/titan-bash/tuning.js';
 import { HOUSES, TITANS, WEAPONS } from '../../../web-engine/titan-bash/titans.js';
 import { poseFor, spriteFor } from './titanSprites.js';
+import { drawCutin, popScale } from './cutin.js';
 import { floorPattern, DIM } from './floors.js';
 import { ARENAS } from '../../../web-engine/titan-bash/arenas.js';
 import { ABILITIES } from '../../../web-engine/titan-bash/abilities.js';
@@ -319,7 +320,15 @@ function drawStanding(ctx, m, V, L, A, s, X, Y, opts, W) {
         ctx.fillStyle = 'rgba(6,8,13,0.8)'; roundRect(ctx, xx - half, yy - px * 0.75, half * 2, px * 1.5, px * 0.3); ctx.fill();
         ctx.fillStyle = f.colour || '#fff';
       }
-      ctx.strokeText(f.text, xx, yy); ctx.fillText(f.text, xx, yy);
+      if (f.big && f.ttl0) {
+        
+        
+        const k = popScale(f.ttl0 - f.ttl, opts.reducedMotion);
+        ctx.save(); ctx.translate(xx, yy); ctx.rotate(opts.reducedMotion ? 0 : -0.08); ctx.scale(k, k);
+        ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(4, fpx * 0.2);
+        ctx.strokeText(f.text, 0, 0); ctx.fillText(f.text, 0, 0);
+        ctx.restore();
+      } else { ctx.strokeText(f.text, xx, yy); ctx.fillText(f.text, xx, yy); }
     }
     ctx.globalAlpha = 1;
   }
@@ -327,6 +336,8 @@ function drawStanding(ctx, m, V, L, A, s, X, Y, opts, W) {
 
   if (!m.endless) scoreboard(ctx, m, L, W, big); 
   if (opts.countdown) drawCountdown(ctx, L, opts.countdown);
+  
+  if (opts.cutin) drawCutin(ctx, opts.cutin, ctx.canvas.width, ctx.canvas.height, L.oy, cutinFace(opts.cutin, opts.faceArt), DISPLAY);
   ctx.restore();
 }
 
@@ -901,4 +912,13 @@ export function bannerSpot(lanes, boxes) {
 export function bannerPlate(textW, px, cx, cy) {
   const w = textW + px * 1.2; const h = px * 1.5;
   return { x: cx - w / 2, y: cy - h / 2, w, h };
+}
+
+
+
+export function cutinFace(cur, faceArt) {
+  const img = faceArt && faceArt[cur.frame];
+  if (img) return { img, sx: 0, sy: 0, sw: img.naturalWidth || img.width, sh: img.naturalHeight || img.height };
+  const spr = spriteFor(cur.frame, cur.colour); const fr = spr && spr.byName.idle;
+  return fr ? { img: spr.canvas, sx: fr.x, sy: fr.y, sw: fr.w, sh: fr.h } : null;
 }
