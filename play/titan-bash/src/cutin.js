@@ -19,7 +19,7 @@ export const POP_TICKS = 7;
 
 
 
-export const FACES_DELIVERED = Object.freeze(['wisp']);
+export const FACES_DELIVERED = Object.freeze(['wisp', 'lancer']);
 export const FACE_DIR = new URL('../assets/faces/', import.meta.url);
 export const faceFile = (frame) => `face_${frame}.webp`;
 
