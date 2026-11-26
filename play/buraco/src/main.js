@@ -31,7 +31,10 @@ import { sortHand, parseCard, rngFrom, DECKS } from '../../../web-engine/cards/c
 import { applyGameName, gameLang, localGameName } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
-import { playUi } from '../../../web-engine/brand/uiSound.js';
+import {
+  showsTitle, TITLE_BUTTONS, MENU_BUTTONS, navKey, stepFocus, STEP, handStep, clampCursor, padHeld, padPresses, PAD_KEY,
+  MENU_CUES, MENU_GAINS, menuCue, TITLE_OUT_MS,
+} from './menuNav.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
@@ -85,6 +88,12 @@ const music = createTrackMusic({
 });
 
 const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['card', 'draw', 'meld', 'canastra', 'win', 'lose'], { card: 4, draw: 4, meld: 4 });
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+
+let cursor = 0;
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -328,12 +337,16 @@ function refresh(move = null) {
   if (id !== null && isBot(id)) {
     const gen = timerGen;
     const ms = g.hand.phase === 'draw' ? BOT_MS : BOT_PLAY_MS;
+    
+    
     flying.then(() => { if (gen === timerGen) botTimer = setTimeout(botMove, ms); });
   }
 }
 
 function botMove() {
   botTimer = null;
+  
+  if (atTitle() || menuOpen()) { const gen = timerGen; whenPlaying(() => { if (gen === timerGen) botMove(); }); return; }
   if (!match || match.game.over || match.game.hand.over) return;
   const id = actorId(match);
   if (!isBot(id)) return;
@@ -396,7 +409,7 @@ function doAction(a) {
       view = echo;
       if (a.type !== 'draw' && a.type !== 'take') selected = new Set();
       sounds([{ type: a.type }]);
-    } else playUi('tap');
+    } else ui.play('tap');
     if (echoTimer) clearTimeout(echoTimer);
     echoTimer = setTimeout(echoTimedOut, ECHO_TIMEOUT_MS);
     net.propose(a);
@@ -405,7 +418,7 @@ function doAction(a) {
   }
   const before = tableRects();
   const r = act(match, myId(), a);
-  if (r.error) { flash(errorText(r.error)); playUi('error'); return false; }
+  if (r.error) { flash(errorText(r.error)); ui.play('error'); return false; }
   match = r.match;
   if (a.type !== 'draw' && a.type !== 'take') selected = new Set();
   sounds(match.game.events);
@@ -422,7 +435,7 @@ function clearEcho() {
 
 
 function rollBack() {
-  playUi('error');
+  ui.play('error');
   flash(T.refused, 3200);
 }
 
@@ -750,23 +763,33 @@ function drawMelds() {
 }
 
 function drawHand() {
+  
+  
+  const hadFocus = handEl.contains(document.activeElement);
   handEl.replaceChildren();
   if (!view || view.you < 0) return;
   const cards = sortedHand(view.game.hand.mine);
+  cursor = clampCursor(cursor, cards.length);
   const canPick = myTurn() && view.game.hand.phase === 'play';
   
   
   const w = widthFor('hand');
   handEl.style.setProperty('--bu-fan', `${Math.round(w * (screenW() <= 560 ? 0.36 : 0.71)) - w}px`);
-  for (const c of cards) {
-    const el = cardEl(c, { kind: 'hand', onClick: canPick ? () => toggle(c) : null });
+  cards.forEach((c, i) => {
+    const el = cardEl(c, { kind: 'hand', onClick: canPick ? () => { cursor = i; toggle(c); } : null });
     el.classList.toggle('sel', selected.has(c));
     el.classList.toggle('wildcard', isWildCard(c));
     el.dataset.id = c;
-    if (canPick) el.setAttribute('aria-pressed', String(selected.has(c)));
+    el.dataset.i = String(i);
+    if (canPick) {
+      el.setAttribute('aria-pressed', String(selected.has(c)));
+      
+      el.tabIndex = i === cursor ? 0 : -1;
+    }
     if (echoed(c)) el.classList.add('echo');
     handEl.append(el);
-  }
+  });
+  if (hadFocus && canPick) handEl.querySelector(`[data-i="${cursor}"]`)?.focus({ preventScroll: true });
   
   for (let k = 0; k < (view.echo?.incoming || 0); k++) {
     const el = cardEl('back', { kind: 'hand', faceDown: true });
@@ -780,7 +803,7 @@ const echoed = (c) => !!view?.echo && view.echo.cards.includes(c);
 
 function toggle(c) {
   if (selected.has(c)) selected.delete(c); else selected.add(c);
-  playUi('tap');
+  ui.play('tap');
   draw();
 }
 
@@ -788,7 +811,7 @@ function layOff(k) {
   if (!selected.size) { flash(T.pickCards); return; }
   const h = view.game.hand;
   const own = h.melds[teamOf(view.you)][k];
-  if (!own || !meldInfo([...own, ...selected]).ok) { flash(T.noFit); playUi('error'); return; }
+  if (!own || !meldInfo([...own, ...selected]).ok) { flash(T.noFit); ui.play('error'); return; }
   doAction({ type: 'layoff', meld: k, cards: [...selected] });
 }
 
@@ -818,11 +841,11 @@ function drawActions() {
   }
   const sel = [...selected];
   add('meld', T.meld, () => {
-    if (sel.length < 3 || !meldInfo(sel).ok) { flash(T.badMeld); playUi('error'); return; }
+    if (sel.length < 3 || !meldInfo(sel).ok) { flash(T.badMeld); ui.play('error'); return; }
     doAction({ type: 'meld', cards: sel });
   }, { primary: sel.length >= 3, disabled: sel.length < 3 });
   add('discard', T.discard, () => {
-    if (sel.length !== 1) { flash(T.pickOne); playUi('error'); return; }
+    if (sel.length !== 1) { flash(T.pickOne); ui.play('error'); return; }
     doAction({ type: 'discard', card: sel[0] });
   }, { primary: sel.length === 1, disabled: sel.length !== 1 });
   add('clear', T.clear, () => { selected = new Set(); draw(); }, { disabled: !sel.length });
@@ -960,7 +983,7 @@ function drawProgress() {
 }
 $('goal-head').textContent = PW.goal;
 $('prizes-head').textContent = PW.prizes;
-$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; playUi(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; ui.play(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
 
 
 function finished() {
@@ -1008,7 +1031,7 @@ for (const b of document.querySelectorAll('[data-mode]')) {
   b.addEventListener('click', () => {
     const mode = b.dataset.mode;
     if (mode === settings.mode) return;
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'room') leaveRoom();
     settings.mode = mode;
     if (mode === 'bot') newMatch();
@@ -1020,7 +1043,7 @@ for (const b of document.querySelectorAll('[data-size]')) {
     if (room.active) return;
     settings.size = Number(b.dataset.size);
     persist();
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'bot') restartSolo(); else draw();
   });
 }
@@ -1028,7 +1051,7 @@ for (const b of document.querySelectorAll('[data-level]')) {
   b.addEventListener('click', () => {
     settings.level = b.dataset.level;
     persist();
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'bot') restartSolo();
     else if (match && !isGuest()) {
       
@@ -1040,19 +1063,19 @@ for (const b of document.querySelectorAll('[data-level]')) {
 targetEl.addEventListener('change', () => {
   settings.target = pick(Number(targetEl.value), TARGETS, 3000);
   persist();
-  playUi('toggleOn');
+  ui.play('toggleOn');
   if (settings.mode === 'bot') restartSolo(); else if (room.active && net?.hosting) newMatch();
 });
 sortEl.addEventListener('click', () => {
   settings.sort = settings.sort === 'suit' ? 'rank' : 'suit';
   persist();
-  playUi('toggleOn');
+  ui.play('toggleOn');
   draw();
 });
 nextEl.addEventListener('click', () => { if (!isGuest()) dealNext(); });
 $('new-game').addEventListener('click', () => {
   if (watcher()) return;
-  playUi('tap');
+  ui.play('tap');
   if (isGuest()) { net.propose({ type: 'rematch' }); return; }
   if (match && settings.mode === 'room') { stopTimers(); begin(rematch(match, freshSeed())); return; }
   if (settings.mode === 'room') { flash(T.waiting); return; }
@@ -1238,14 +1261,14 @@ function leaveRoom() {
   Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 
-$('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
+$('create-room').addEventListener('click', () => { ui.play('tap'); openRoom(); });
 $('join-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  playUi('tap');
+  ui.play('tap');
   joinRoom($('join-code').value.trim());
 });
 $('leave-room').addEventListener('click', () => {
-  playUi('toggleOff');
+  ui.play('toggleOff');
   leaveRoom();
   settings.mode = 'bot';
   newMatch();
@@ -1281,10 +1304,173 @@ $('watch-link').addEventListener('click', () => {
 });
 
 
+
+
+
+
+const titleEl = $('title');
+const menuEl = $('menu');
+const mainEl = document.querySelector('main.bu');
+const reduced = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+const coarse = () => globalThis.matchMedia?.('(pointer: coarse)').matches;
+let usedKeys = false;
+let setupFold = null;          
+let menuReturn = null;         
+function atTitle() { return document.body.classList.contains('at-title'); }
+function menuOpen() { return !menuEl.hidden; }
+const focusEl = (node) => node?.focus({ preventScroll: true });
+const cursorEl = () => handEl.querySelector(`button[data-i="${cursor}"]`) || handEl.querySelector('button');
+
+const focusPlay = () => focusEl(cursorEl() || actionsEl.querySelector('.primary:not(:disabled)') || actionsEl.querySelector('button:not(:disabled)') || $('new-game'));
+
+
+let heldPlay = [];
+function whenPlaying(f) { if (atTitle() || menuOpen()) heldPlay.push(f); else f(); }
+function resumePlay() { const q = heldPlay; heldPlay = []; for (const f of q) f(); }
+
+function showTitle() {
+  closeMenu(false);
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  titleEl.hidden = false;
+  mainEl.inert = true;
+  if (usedKeys || !coarse()) focusEl($('start'));
+}
+function leaveTitle(then) {
+  if (!atTitle()) { then?.(); return; }
+  mainEl.inert = false;
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    titleEl.hidden = true;
+    fit.refit({ grow: true });
+    then?.();
+    resumePlay();
+  };
+  if (reduced()) { done(); return; }
+  document.body.classList.add('title-leaving');
+  setTimeout(done, TITLE_OUT_MS);
+}
+function openOptions() {
+  if (setupFold) setupFold.open = true;
+  ui.play(menuCue('menu-options'));
+  const first = document.querySelector('[data-mode][aria-pressed="true"]') || document.querySelector('[data-mode]');
+  focusEl(first);
+  first?.scrollIntoView?.({ block: 'nearest' });
+}
+function openMenu() {
+  if (menuOpen() || atTitle()) return;
+  menuReturn = document.activeElement;
+  menuEl.hidden = false;
+  mainEl.inert = true;
+  ui.play('open');
+  focusEl($('menu-resume'));
+}
+function closeMenu(restore = true) {
+  if (!menuOpen()) return;
+  menuEl.hidden = true;
+  mainEl.inert = false;
+  if (restore) {
+    
+    if (menuReturn && menuReturn !== document.body && document.contains(menuReturn)) focusEl(menuReturn);
+    else focusPlay();
+  }
+  if (!atTitle()) resumePlay();
+}
+
+
+
+$('start').addEventListener('click', () => { ui.play(menuCue('start')); leaveTitle(() => { if (usedKeys || !coarse()) focusPlay(); }); });
+$('see-options').addEventListener('click', () => leaveTitle(openOptions));
+$('menu-btn').addEventListener('click', openMenu);
+$('menu-resume').addEventListener('click', () => { ui.play(menuCue('menu-resume')); closeMenu(); });
+$('menu-new').addEventListener('click', () => { closeMenu(false); $('new-game').click(); focusPlay(); });
+$('menu-options').addEventListener('click', () => { closeMenu(false); openOptions(); });
+$('menu-title').addEventListener('click', () => { ui.play(menuCue('menu-title')); showTitle(); });
+
+menuEl.addEventListener('click', (ev) => { if (ev.target === menuEl) { ui.play('back'); closeMenu(); } });
+
+
+function navList() {
+  if (atTitle()) return TITLE_BUTTONS.map($);
+  if (menuOpen()) return MENU_BUTTONS.map($);
+  return [...mainEl.querySelectorAll('button, select, input, summary')]
+    .filter((b) => !b.disabled && b.getClientRects().length && !(handEl.contains(b) && b.tabIndex < 0));
+}
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (/^(Arrow|Tab$|Enter$|Escape$| $)/.test(ev.key)) usedKeys = true;
+  if (ev.defaultPrevented) return;
+  if (ev.key === 'Escape') {
+    if (atTitle()) return;
+    ev.preventDefault();
+    if (menuOpen()) { ui.play('back'); closeMenu(); return; }
+    
+    if (selected.size) { selected = new Set(); ui.play('back'); draw(); return; }
+    openMenu();
+    return;
+  }
+  const word = navKey(ev.key);
+  if (!word) return;
+  const t = ev.target;
+  if (t?.tagName === 'SELECT' || t?.tagName === 'INPUT') return;
+  ev.preventDefault();
+  
+  if (handEl.contains(t) && t.dataset?.i !== undefined && !menuOpen()) {
+    const cards = [...handEl.querySelectorAll('button[data-i]')];
+    const next = handStep(Number(t.dataset.i), word, cards.length);
+    if (next !== null) {
+      if (next === cursor) return;
+      t.tabIndex = -1;
+      cursor = next;
+      const el = cursorEl();
+      el.tabIndex = 0;
+      focusEl(el);
+      ui.play('focus');
+      return;
+    }
+  }
+  const list = navList();
+  if (!list.length) return;
+  const next = list[stepFocus(list.indexOf(document.activeElement), STEP[word], list.length)];
+  if (next && next !== document.activeElement) { focusEl(next); ui.play('focus'); }
+});
+
+
+function pressKey(key) {
+  usedKeys = true;
+  let t = document.activeElement;
+  if (!t || t === document.body) {
+    if (atTitle()) focusEl($('start'));
+    else if (menuOpen()) focusEl($('menu-resume'));
+    else focusPlay();
+    t = document.activeElement;
+    if (key !== 'Escape') return; 
+  }
+  
+  if (key === 'Enter' && t && t !== document.body) { t.click(); return; }
+  (t || document).dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+}
+let padState = null;
+let padLoop = 0;
+function pollPad() {
+  padLoop = 0;
+  const p = [...(navigator.getGamepads?.() || [])].find(Boolean);
+  if (!p) { padState = null; return; }
+  const r = padPresses(padState, padHeld(p), performance.now());
+  padState = r.state;
+  for (const w of r.presses) pressKey(PAD_KEY[w]);
+  padLoop = requestAnimationFrame(pollPad);
+}
+
+globalThis.addEventListener('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+
+
 wireMusicButton({ music });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
 
-foldSetup();
+setupFold = foldSetup();
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Buracowise' });
 
 
@@ -1300,6 +1486,12 @@ const atlasReady = loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch
 Promise.race([atlasReady, new Promise((r) => { setTimeout(r, 4000); })]).then(() => { fit.refit({ grow: true }); bootDone(); });
 
 function boot() {
+  
+  
+  
+  const framed = document.documentElement.classList.contains('framed');
+  if (showsTitle(params, { linkRoom: !!linkRoom, framed })) showTitle();
+  else { document.body.classList.remove('at-title'); titleEl.hidden = true; }
   if (linkRoom) {
     settings.mode = 'room';
     if (!joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH })) { settings.mode = 'bot'; newMatch({ cheats: true }); }
@@ -1308,6 +1500,12 @@ function boot() {
   newMatch({ cheats: true });
 }
 boot();
+
+
+
+afterBoot(() => {
+  if (atTitle() && (usedKeys || !coarse()) && document.activeElement === document.body) focusEl($('start'));
+});
 
 trackEvent('game_start', { game: GAME_ID, mode: settings.mode, size: settings.size });
 

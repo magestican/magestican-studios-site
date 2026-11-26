@@ -33,7 +33,7 @@
   <title>Play Buracowise - free Brazilian buraco card game online</title>
   <meta name="description" content="Buracowise is free Brazilian buraco, the card game, in your browser: sequences, mortos, clean and dirty canastras. Play the computer, 2 vs 2, or friends in a room.">
   <meta name="keywords" content="buracowise, buraco, buraco online, jogar buraco online, buraco card game, burako, canastra">
-  <meta name="build" content="76837d63-20261126T092837Z">
+  <meta name="build" content="0637e62e-20261126T095553Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/buraco/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Buracowise - free Brazilian buraco card game online">
@@ -51,8 +51,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=76837d63-20261126T092837Z" data-game="buraco" data-levels="easy,medium,hard" data-level-key="buracowise-settings-v1" data-level-default="medium" data-deck="../shared/cards/french52/"></script>
-  <link rel="stylesheet" href="./src/style.css?v=76837d63-20261126T092837Z">
+  <script src="../shared/ui/boot.js?v=0637e62e-20261126T095553Z" data-game="buraco" data-levels="easy,medium,hard" data-level-key="buracowise-settings-v1" data-level-default="medium" data-deck="../shared/cards/french52/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=0637e62e-20261126T095553Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -80,7 +80,7 @@
   </script>
   <script type="module" src="/web-engine/library/openHook.js?play=buraco"></script>
 </head>
-<body>
+<body class="at-title">
   
 
   <div class="studio-bar">
@@ -102,6 +102,29 @@
       </svg>
     </button>
   </div>
+
+  
+
+
+
+  <section class="bu-title" id="title" aria-labelledby="title-name" translate="no">
+    <div class="bu-title-card">
+      <p class="bu-title-name" id="title-name" data-game-name>Buracowise</p>
+      <p class="bu-title-tag" data-t="tagline">Lay the run, close the canastra</p>
+      <svg class="bu-title-run" viewBox="0 0 6.2 2.2" aria-hidden="true" focusable="false">
+        <rect class="felt" x="0.05" y="0.05" width="6.1" height="2.1" rx="0.12"/>
+        <g class="rc" style="--i:0" transform="translate(0.35 0.3)"><rect width="1.1" height="1.6" rx="0.1"/><text class="rk" x="0.14" y="0.42">3</text><text class="st" x="0.55" y="1.12" text-anchor="middle">&#9829;</text></g>
+        <g class="rc" style="--i:1" transform="translate(1.1 0.3)"><rect width="1.1" height="1.6" rx="0.1"/><text class="rk" x="0.14" y="0.42">4</text><text class="st" x="0.55" y="1.12" text-anchor="middle">&#9829;</text></g>
+        <g class="rc" style="--i:2" transform="translate(1.85 0.3)"><rect width="1.1" height="1.6" rx="0.1"/><text class="rk" x="0.14" y="0.42">5</text><text class="st" x="0.55" y="1.12" text-anchor="middle">&#9829;</text></g>
+        <g class="rc" style="--i:3" transform="translate(2.6 0.3)"><rect width="1.1" height="1.6" rx="0.1"/><text class="rk" x="0.14" y="0.42">6</text><text class="st" x="0.55" y="1.12" text-anchor="middle">&#9829;</text></g>
+        <g class="rc" style="--i:4" transform="translate(3.35 0.3)"><rect width="1.1" height="1.6" rx="0.1"/><text class="rk" x="0.14" y="0.42">7</text><text class="st" x="0.55" y="1.12" text-anchor="middle">&#9829;</text></g>
+        <g class="rc" style="--i:5" transform="translate(4.1 0.3)"><rect width="1.1" height="1.6" rx="0.1"/><text class="rk" x="0.14" y="0.42">8</text><text class="st" x="0.55" y="1.12" text-anchor="middle">&#9829;</text></g>
+        <g class="rc" style="--i:6" transform="translate(4.85 0.3)"><rect width="1.1" height="1.6" rx="0.1"/><text class="rk" x="0.14" y="0.42">9</text><text class="st" x="0.55" y="1.12" text-anchor="middle">&#9829;</text></g>
+      </svg>
+      <button class="bu-start bu-btn skin-wood-button_primary" id="start" type="button" data-t="start">START</button>
+      <button class="bu-btn skin-wood-button_secondary mg-i mg-i-settings" id="see-options" type="button" data-t="seeOptions">See options</button>
+    </div>
+  </section>
 
   <main class="bu">
     <h1 data-game-name>Buracowise</h1>
@@ -169,6 +192,7 @@
     <div class="bu-foot">
       <button class="bu-btn skin-wood-button_primary mg-i mg-i-rematch" id="next-hand" type="button" data-t="nextHand" hidden>Next hand</button>
       <button class="bu-btn skin-wood-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+      <button class="bu-btn skin-wood-button_secondary mg-i mg-i-settings" id="menu-btn" type="button" data-t="menu" aria-haspopup="dialog">Menu</button>
     </div>
     <p class="bu-help" data-t="help">Build sequences of one suit, take your morto when your hand runs out, close a clean canastra (7 cards) and go out. 2s and jokers are wild.</p>
     
@@ -189,6 +213,18 @@
     </section>
   </main>
 
+  
+
+  <div class="bu-menu" id="menu" hidden>
+    <div class="bu-menu-card" role="dialog" aria-modal="true" aria-labelledby="menu-head">
+      <h2 class="bu-menu-head" id="menu-head" data-t="menu">Menu</h2>
+      <button class="bu-btn skin-wood-button_primary" id="menu-resume" type="button" data-t="resumeMenu">Resume</button>
+      <button class="bu-btn skin-wood-button_secondary mg-i mg-i-new_game" id="menu-new" type="button" data-t="newGame">New game</button>
+      <button class="bu-btn skin-wood-button_secondary mg-i mg-i-settings" id="menu-options" type="button" data-t="options">Options</button>
+      <button class="bu-btn skin-wood-button_secondary mg-i mg-i-leave" id="menu-title" type="button" data-t="titleScreen">Title screen</button>
+    </div>
+  </div>
+
   <noscript>
     <p>Buracowise is a buraco card game and needs JavaScript; there is nothing to download.
     <a href="/buraco.html">How to play</a>.</p>
@@ -196,8 +232,8 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=76837d63-20261126T092837Z"></script>
-  <script type="module" src="./src/main.js?v=76837d63-20261126T092837Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=76837d63-20261126T092837Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=0637e62e-20261126T095553Z"></script>
+  <script type="module" src="./src/main.js?v=0637e62e-20261126T095553Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=0637e62e-20261126T095553Z"></script>
 </body>
 </html>
