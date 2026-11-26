@@ -551,7 +551,7 @@ function onEvents(events) {
     else if (e.type === 'pickup' && mine) sfx(e.pickup === 'battery' ? 'pickup_2' : 'pickup', 0.7);
     else if (e.type === 'use' && mine) sfx(USE_SFX[e.pickup], 0.75);
     else if (e.type === 'splash' && me && e.owner === me) sfx('splash', 0.6);
-    else if (e.type === 'pickupHit' && (mine || (me && e.from === me))) sfx(e.pickup === 'gum' ? 'gum_2' : 'bouncyMarble_2', mine ? 0.75 : 0.5);
+    else if (e.type === 'pickupHit' && (mine || (me && e.from === me))) sfx(HIT_SFX[e.pickup] ?? 'bouncyMarble_2', mine ? 0.75 : 0.5);
     else if (e.type === 'worldWarn') { sfx(e.source === 'tap' ? 'tap' : 'sprinkler', 0.75); toast(WORLD_TOAST[e.source], 3.2); }
     else if (e.type === 'worldOn' && e.source === 'sprinkler') sfx('sprinkler', 0.5);
     else if (e.type === 'worldOn' && e.source === 'tap') sfx('splash_2', 0.6);
@@ -570,7 +570,13 @@ function onEvents(events) {
 }
 
 
-const USE_SFX = { battery: 'boost', balloon: 'balloon', marble: 'bouncyMarble', gum: 'gum' };
+
+
+const USE_SFX = {
+  battery: 'boost', balloon: 'balloon', marble: 'bouncyMarble', gum: 'gum',
+  rocket: 'hiss', band: 'flip', magnet: 'pickup_2', fan: 'flap',
+};
+const HIT_SFX = { gum: 'gum_2', rocket: 'bump_2', band: 'flip_2' };
 const WORLD_TOAST = {
   tap: 'The tap is running. Wet worktop ahead.',
   sprinkler: 'The sprinkler is on. Wet grass ahead.',

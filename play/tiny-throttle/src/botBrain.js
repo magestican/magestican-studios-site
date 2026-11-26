@@ -22,9 +22,9 @@ export const HAZARD_CAR_R = 1.55 / 12;
 
 
 export const PERSONALITIES = Object.freeze({
-  careful: Object.freeze({ id: 'careful', dodge: ['critter', 'can', 'block', 'marble'], clear: 0.06, lookM: 0.8, lookT: 0.5, pads: false, tail: false }),
-  racer: Object.freeze({ id: 'racer', dodge: ['critter', 'can', 'block'], clear: 0.035, lookM: 0.6, lookT: 0.4, pads: true, tail: false }),
-  bully: Object.freeze({ id: 'bully', dodge: ['critter'], clear: 0.02, lookM: 0.4, lookT: 0.3, pads: true, tail: true }),
+  careful: Object.freeze({ id: 'careful', dodge: ['critter', 'can', 'block', 'marble'], clear: 0.06, lookM: 0.8, lookT: 0.5, pads: false, tail: false, patience: 6 }),
+  racer: Object.freeze({ id: 'racer', dodge: ['critter', 'can', 'block'], clear: 0.035, lookM: 0.6, lookT: 0.4, pads: true, tail: false, patience: 4 }),
+  bully: Object.freeze({ id: 'bully', dodge: ['critter'], clear: 0.02, lookM: 0.4, lookT: 0.3, pads: true, tail: true, patience: 2.5 }),
 });
 
 const ORDER = [PERSONALITIES.racer, PERSONALITIES.careful, PERSONALITIES.bully];
@@ -97,4 +97,49 @@ export function tailAim(me, cars, p, { length, half }) {
   }
   if (!mark || Math.abs(mark.side) > half - 0.3) return null;
   return { s: (mark.s + 0.1) % length, side: mark.side };
+}
+
+
+
+
+
+
+
+export const REACT = 0.3;
+
+const carIn = (me, cars, { from, to, lane = Infinity }, length) => cars.some((c) => {
+  if (c.id === me.id) return false;
+  let d = (c.s - me.s) % length;
+  if (d > length / 2) d -= length;
+  if (d < -length / 2) d += length;
+  return d >= from && d <= to && Math.abs(c.side - me.side) <= lane;
+});
+
+
+export const USE_RULES = Object.freeze({
+  battery: () => true,
+  
+  rocket: (me, cars, p, L) => {
+    const close = carIn(me, cars, { from: 0, to: 0.8, lane: 0.3 }, L);
+    if (p.id === 'bully') return close || !carIn(me, cars, { from: 0, to: 3 }, L);
+    return !close;
+  },
+  magnet: (me, cars, p, L) => carIn(me, cars, { from: 0.4, to: 3 }, L),
+  band: (me, cars, p, L) => carIn(me, cars, { from: 0.5, to: 7, lane: 0.6 }, L),
+  marble: (me, cars, p, L) => carIn(me, cars, { from: 0.5, to: 4, lane: 0.15 }, L),
+  balloon: (me, cars, p, L) => carIn(me, cars, { from: 1, to: 3, lane: 0.5 }, L),
+  
+  
+  gum: (me, cars, p, L) => carIn(me, cars, { from: -2.5, to: -0.8, lane: 0.3 }, L),
+  fan: (me, cars, p, L) => carIn(me, cars, { from: -2.5, to: -0.8 }, L) && !carIn(me, cars, { from: -0.8, to: 0 }, L),
+});
+
+
+
+
+export function wantsUse(pickup, me, cars, p, { length, heldFor }) {
+  if (heldFor < REACT) return false;
+  if (heldFor >= p.patience) return true;
+  const rule = USE_RULES[pickup];
+  return rule ? rule(me, cars, p, length) : true;
 }

@@ -42,16 +42,50 @@ export const PICKUPS = Object.freeze({
     
     back: 0.35, radius: 0.1, slow: 1, life: 40,
   }),
+  
+  rocket: Object.freeze({
+    id: 'rocket', name: 'Rocket Bottle', kind: 'self',
+    
+    
+    boost: Object.freeze({ time: 1.2, power: 1.7, name: 'rocket' }), ram: 1.2,
+  }),
+  band: Object.freeze({
+    id: 'band', name: 'Rubber Band', kind: 'shot',
+    
+    
+    
+    
+    speed: 10, life: 0.9, radius: 0.05, home: 1.5, keep: 0.3, slow: 0.6,
+  }),
+  magnet: Object.freeze({
+    id: 'magnet', name: 'Magnet', kind: 'tow',
+    
+    
+    time: 3, near: 0.2, reach: 3, boost: Object.freeze({ time: 0.2, power: 1.35, name: 'magnet' }),
+  }),
+  fan: Object.freeze({
+    id: 'fan', name: 'Desk Fan', kind: 'drop',
+    
+    
+    
+    
+    back: 0.35, zone: 0.3, push: 4, life: 8,
+  }),
 });
+
+const RAM_R = 2 * CAR_R; 
 
 export const PICKUP_IDS = Object.freeze(Object.keys(PICKUPS));
 
 
+
+
+
 export const TABLE = Object.freeze([
-  Object.freeze({ upTo: 0.001, weights: Object.freeze({ gum: 45, balloon: 35, marble: 15, battery: 5 }) }),
-  Object.freeze({ upTo: 0.34, weights: Object.freeze({ gum: 30, balloon: 30, marble: 25, battery: 15 }) }),
-  Object.freeze({ upTo: 0.67, weights: Object.freeze({ gum: 15, balloon: 25, marble: 30, battery: 30 }) }),
-  Object.freeze({ upTo: 1, weights: Object.freeze({ gum: 5, balloon: 15, marble: 30, battery: 50 }) }),
+  Object.freeze({ upTo: 0.001, weights: Object.freeze({ gum: 30, fan: 25, balloon: 25, marble: 12, band: 5, battery: 3 }) }),
+  Object.freeze({ upTo: 0.34, weights: Object.freeze({ gum: 18, fan: 16, balloon: 18, marble: 16, band: 14, battery: 12, magnet: 5, rocket: 1 }) }),
+  Object.freeze({ upTo: 0.67, weights: Object.freeze({ gum: 8, fan: 7, balloon: 13, marble: 17, band: 18, battery: 17, magnet: 12, rocket: 8 }) }),
+  Object.freeze({ upTo: 1, weights: Object.freeze({ gum: 3, fan: 2, balloon: 7, marble: 13, band: 15, battery: 22, magnet: 17, rocket: 21 }) }),
 ]);
 
 
@@ -94,6 +128,8 @@ export function createPickups(pads, { seed = 1 } = {}) {
     held: new Map(),
     hazards: [],
     botWait: new Map(),
+    heldFor: new Map(), 
+    active: [], 
     rng: mulberry32(seed),
     queue: { events: [], effects: [] },
   };
@@ -134,11 +170,20 @@ export function usePickup(st, c, { length }) {
   if (!id) return null;
   st.held.delete(c.id);
   st.botWait.delete(c.id);
+  st.heldFor?.delete(c.id);
   const P = PICKUPS[id];
   st.queue.events.push({ type: 'use', id: c.id, pickup: id });
-  if (P.kind === 'self') st.queue.effects.push({ carId: c.id, effect: 'boost', ...P.boost });
-  else if (P.kind === 'drop') {
-    st.hazards.push({ id, s: wrap(c.s - P.back, length), side: c.side, owner: c.id, grace: GRACE, age: 0 });
+  st.active ??= [];
+  if (P.kind === 'self') {
+    st.queue.effects.push({ carId: c.id, effect: 'boost', ...P.boost });
+    if (P.ram) st.active.push({ id, owner: c.id, t: P.ram, hit: new Set() });
+  } else if (P.kind === 'tow') {
+    st.active.push({ id, owner: c.id, t: P.time });
+  } else if (P.kind === 'drop') {
+    
+    const h = { id, s: wrap(c.s - P.back, length), side: c.side, owner: c.id, grace: GRACE, age: 0 };
+    if (id === 'fan') h.dir = c.side >= 0 ? -1 : 1;
+    st.hazards.push(h);
   } else {
     st.hazards.push({ id, s: wrap(c.s + LAUNCH, length), side: c.side, owner: c.id, grace: GRACE, age: 0,
       landed: false });
@@ -183,8 +228,16 @@ export function stepPickups(st, cars, dt, ctx) {
     }
   }
   
+  
+  st.heldFor ??= new Map();
   for (const c of cars) {
     if (!c.bot || !st.held.has(c.id)) continue;
+    if (ctx.botUse) {
+      const t = st.heldFor.get(c.id) ?? 0;
+      if (ctx.botUse(c, st.held.get(c.id), t)) usePickup(st, c, ctx);
+      else st.heldFor.set(c.id, t + dt);
+      continue;
+    }
     if (!st.botWait.has(c.id)) st.botWait.set(c.id, 0.6 + st.rng() * 3);
     const w = st.botWait.get(c.id) - dt;
     st.botWait.set(c.id, w);
@@ -209,6 +262,38 @@ export function stepPickups(st, cars, dt, ctx) {
     }
     if (h.age > P.life) continue;
     let gone = false;
+    if (h.id === 'band') {
+      
+      let mark = null;
+      let markD = Infinity;
+      for (const c of cars) {
+        if (c.id === h.owner) continue;
+        const d = dS(h.s, c.s, length);
+        if (d >= -CAR_R && d < markD) { markD = d; mark = c; }
+      }
+      if (mark) {
+        const step = P.home * dt;
+        h.side += Math.max(-step, Math.min(step, mark.side - h.side));
+      }
+      h.s = wrap(h.s + P.speed * dt, length);
+    }
+    if (h.id === 'fan') {
+      for (const c of cars) {
+        if (c.id === h.owner && h.grace > 0) continue;
+        if (Math.abs(dS(h.s, c.s, length)) > P.zone) continue;
+        effects.push({ carId: c.id, effect: 'push', dir: h.dir ?? 1, dv: P.push * dt, from: h.owner });
+      }
+    }
+    if (h.id === 'band') {
+      for (const c of cars) {
+        if (c.id === h.owner && h.grace > 0) continue;
+        if (Math.hypot(dS(h.s, c.s, length), c.side - h.side) > CAR_R + P.radius) continue;
+        effects.push({ carId: c.id, effect: 'snap', keep: P.keep, time: P.slow, from: h.owner });
+        events.push({ type: 'pickupHit', id: c.id, pickup: h.id, from: h.owner });
+        gone = true;
+        break;
+      }
+    }
     if (h.id === 'marble' || h.id === 'gum') {
       for (const c of cars) {
         if (c.id === h.owner && h.grace > 0) continue;
@@ -223,6 +308,26 @@ export function stepPickups(st, cars, dt, ctx) {
     if (!gone) keep.push(h);
   }
   st.hazards = keep;
+  
+  st.active = (st.active ?? []).filter((a) => {
+    a.t -= dt;
+    const me = cars.find((c) => c.id === a.owner);
+    if (me && a.id === 'rocket') {
+      for (const c of cars) {
+        if (c.id === a.owner || a.hit.has(c.id)) continue;
+        if (Math.hypot(dS(me.s, c.s, length), c.side - me.side) > RAM_R) continue;
+        a.hit.add(c.id);
+        effects.push({ carId: c.id, effect: 'bounce', from: a.owner });
+        events.push({ type: 'pickupHit', id: c.id, pickup: 'rocket', from: a.owner });
+      }
+    } else if (me && a.id === 'magnet') {
+      const M = PICKUPS.magnet;
+      if (cars.some((c) => { const d = dS(me.s, c.s, length); return c.id !== a.owner && d >= M.near && d <= M.reach; })) {
+        effects.push({ carId: a.owner, effect: 'boost', ...M.boost });
+      }
+    }
+    return a.t > 0;
+  });
   events.push(...st.queue.events);
   effects.push(...st.queue.effects);
   st.queue = { events: [], effects: [] };

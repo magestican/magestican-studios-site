@@ -25,7 +25,7 @@ import { createWorldEvents, stepWorldEvents, worldGripAt } from '../../../web-en
 import { applyEffect } from '../../../web-engine/kart/items.js';
 import { applyBoost } from '../../../web-engine/kart/driftBoost.js';
 import { supportY } from './support.js';
-import { personalityOf, hazardAim, tailAim } from './botBrain.js';
+import { personalityOf, hazardAim, tailAim, wantsUse } from './botBrain.js';
 
 export const SAMPLES = 14; 
 export const SHOULDER = toSim(0.25); 
@@ -149,6 +149,8 @@ export function createRace(def, {
   const flow = createFlow({ laps, ...(countdown != null ? { countdown } : {}) });
   return {
     track, racers, progress, flow, clock: 0, laps, loose: placeLoose(track), aimPads, brain,
+    
+    brainUse: brain ? brainUseOf(racers) : null,
     pickups: createPickups(padPlacements(track), { seed: seed ?? 1 }),
     world: createWorldEvents(eventPlacements(track), { length: lapM(track) }),
   };
@@ -184,16 +186,38 @@ const leaderLap = (race) => {
   return top ? (top.lapTimes?.length ?? 0) + 1 : 1;
 };
 
+const brainUseOf = (racers) => (c, pickup, heldFor, cars, length) => {
+  const r = racers.find((x) => x.id === c.id);
+  return wantsUse(pickup, c, cars, r?.personality ?? personalityOf(0), { length, heldFor });
+};
+
+
+export function applyPickupEffect(race, r, fx) {
+  if (fx.effect === 'boost') r.kart = { ...r.kart, boost: applyBoost(r.kart.boost, fx) };
+  else if (fx.effect === 'bounce') r.kart = applyEffect(r.kart, 'bounce', { from: fx.from }).kart;
+  else if (fx.effect === 'snap') {
+    
+    const k = r.kart;
+    r.kart = { ...k, vx: k.vx * fx.keep, vz: k.vz * fx.keep, speed: (k.speed ?? 0) * fx.keep, boost: null,
+      squashTime: Math.max(k.squashTime ?? 0, fx.time), lastHitBy: fx.from };
+  }
+  else if (fx.effect === 'slow') r.kart = { ...r.kart, squashTime: Math.max(r.kart.squashTime ?? 0, fx.time) };
+  else if (fx.effect === 'push') {
+    
+    const q = sampleAt(race.track.path, wrapS(race.track.path, toSim(r.sM ?? 0)));
+    const dv = toSim(fx.dv * fx.dir);
+    r.kart = { ...r.kart, vx: r.kart.vx + q.nx * dv, vz: r.kart.vz + q.nz * dv };
+  }
+}
+
 function stepItems(race, cars, dt, events) {
   const { racers, track } = race;
   const length = lapM(track);
-  const out = stepPickups(race.pickups, cars, dt, { length, fieldSize: racers.length });
+  const botUse = race.brainUse ? (c, pickup, heldFor) => race.brainUse(c, pickup, heldFor, cars, length) : undefined;
+  const out = stepPickups(race.pickups, cars, dt, { length, fieldSize: racers.length, ...(botUse ? { botUse } : {}) });
   for (const fx of out.effects) {
     const r = racers.find((x) => x.id === fx.carId);
-    if (!r) continue;
-    if (fx.effect === 'boost') r.kart = { ...r.kart, boost: applyBoost(r.kart.boost, fx) };
-    else if (fx.effect === 'bounce') r.kart = applyEffect(r.kart, 'bounce', { from: fx.from }).kart;
-    else if (fx.effect === 'slow') r.kart = { ...r.kart, squashTime: Math.max(r.kart.squashTime ?? 0, fx.time) };
+    if (r) applyPickupEffect(race, r, fx);
   }
   events.push(...out.events);
   events.push(...stepWorldEvents(race.world, { leaderLap: leaderLap(race) }, dt).events);
