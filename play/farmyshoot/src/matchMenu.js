@@ -32,9 +32,31 @@ export function humansIn(game) {
   return n;
 }
 
-const CSS = `
+
+
+
+
+
+export const MENU_Z = Object.freeze({ scrim: 10000, card: 10001, plates: 10002, settings: 10003, tiebreak: 10004,
+  matchEnd: 10005 });
+
+
+export const HIDDEN_UNDER_MENU = Object.freeze(['#enable-sound', '#hill-banner', '#carry-banner', '#powerup-pill',
+  '#poison-hint', '#chat', '#chat-btn', '#kill-feed']);
+
+export const MENU_CSS = `
+  #mm-scrim { position: fixed; inset: 0; z-index: ${MENU_Z.scrim}; display: none; pointer-events: auto;
+    background: rgba(6, 9, 14, 0.62); }
+  body.mm-open #mm-scrim { display: block; }
+  body.mm-open #scoreboard { z-index: ${MENU_Z.card}; }
+  body.mm-open #settings-modal { z-index: ${MENU_Z.settings}; }
+  body.mm-open #anagramWrap { z-index: ${MENU_Z.tiebreak}; }
+  /* A match that ends for everyone while my menu is open (people in the room, so it was not held): the result,
+     the vote and the intermission are the news, and they come up over the menu. */
+  body.mm-open #round-result, body.mm-open #vote-overlay, body.mm-open #intermission { z-index: ${MENU_Z.matchEnd}; }
+  ${HIDDEN_UNDER_MENU.map((s) => `body.mm-open ${s}`).join(', ')} { visibility: hidden !important; }
   #match-menu { position: fixed; left: 50%; bottom: max(24px, 7vh); transform: translateX(-50%);
-    z-index: 21; display: none; flex-direction: column; align-items: center; gap: 12px;
+    z-index: ${MENU_Z.plates}; display: none; flex-direction: column; align-items: center; gap: 12px;
     width: min(760px, 94vw); pointer-events: auto; font-family: system-ui, sans-serif; }
   #match-menu.open { display: flex; animation: mm-rise 180ms ease-out both; }
   #match-menu .mm-row { display: flex; gap: 12px; width: 100%; }
@@ -62,7 +84,6 @@ const CSS = `
     body.mm-open #scoreboard { align-items: flex-start; padding: 64px 0 150px; box-sizing: border-box; }
     body.mm-open #scoreboard .sb-card { max-height: 100%; overflow: hidden; }
   }
-  body.mm-open #chat-btn { visibility: hidden; }
   @media (prefers-reduced-motion: reduce) { #match-menu.open { animation: none; } #match-menu button { transition: none; } }
 `;
 
@@ -74,9 +95,14 @@ export function mountMatchMenu({ game, ui, onLeave, openSettings, now = () => Da
   if (!document.getElementById('match-menu-styles')) {
     const s = document.createElement('style');
     s.id = 'match-menu-styles';
-    s.textContent = CSS;
+    s.textContent = MENU_CSS;
     document.head.appendChild(s);
   }
+  
+  const scrim = document.createElement('div');
+  scrim.id = 'mm-scrim';
+  scrim.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(scrim);
   const root = document.createElement('div');
   root.id = 'match-menu';
   root.setAttribute('role', 'menu');
