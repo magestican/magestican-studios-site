@@ -20,7 +20,6 @@
 
 
 
-
 import { rcTuning } from '../../../web-engine/rc/rcTuning.js';
 
 export const CLASSES = Object.freeze({
@@ -42,10 +41,24 @@ const BODY_CLASS = Object.freeze({
   buggy: 'allround', rally: 'allround',
   openwheel: 'zippy', street: 'zippy',
   monster: 'heavy', pickup: 'heavy',
+  
+  bubble: 'allround', truggy: 'allround',
+  kart: 'zippy', roadster: 'zippy',
+  van: 'heavy', jeep: 'heavy',
 });
 
 
-export const BODIES = Object.freeze(['buggy', 'monster', 'openwheel', 'rally', 'pickup', 'street']);
+
+
+
+export const BODIES = Object.freeze(['buggy', 'monster', 'openwheel', 'rally', 'pickup', 'street',
+  'bubble', 'van', 'kart', 'truggy', 'jeep', 'roadster']);
+
+
+
+
+const A11 = new Set(['bubble', 'van', 'kart', 'truggy', 'jeep', 'roadster']);
+export const carDir = (body) => (A11.has(body) ? 'cars-a11' : 'cars');
 
 export function classOf(body) {
   const id = BODY_CLASS[body];

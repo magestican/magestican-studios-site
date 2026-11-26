@@ -24,7 +24,7 @@ import { createAttitude, stepAttitude, createSparks, emitSparks, stepSparks, SPA
 const m = (units) => units / SIM_SCALE;
 
 
-import { BODIES } from './carClass.js';
+import { BODIES, carDir } from './carClass.js';
 export { BODIES };
 
 export const LIVERIES = Object.freeze([
@@ -45,7 +45,7 @@ export function modelsFor(def) {
   out.push([ASSET_DIRS.connector, 'track_piece'], [ASSET_DIRS.connector, 'trestle'], [ASSET_DIRS.connector, 'start_arch']);
   
   out.push([ASSET_DIRS.pickups, 'desk_fan'], [ASSET_DIRS.pickups, 'rubber_band']);
-  for (const b of BODIES) out.push([ASSET_DIRS.car, `car_${b}`]);
+  for (const b of BODIES) out.push([carDir(b), `car_${b}`]);
   return out;
 }
 
