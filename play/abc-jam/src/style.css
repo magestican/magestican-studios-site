@@ -560,6 +560,24 @@ body.aj-pz-dragging { cursor: grabbing; }
 
 .aj-hunt-on .aj-progress { padding: 10px; gap: 12px; }
 .aj-hunt-on .aj-input { display: none; }
+
+
+
+.aj-hunt-map { position: absolute; left: 50%; translate: -50% 0; bottom: 0; z-index: 3; width: 132px; aspect-ratio: 3 / 2;
+  border-radius: 12px; overflow: hidden; background: #fffdf6; box-shadow: 0 0 0 3px #2b1b4a, 0 4px 12px rgba(0, 0, 0, .3);
+  cursor: pointer; touch-action: none; }
+.aj-hunt-map[hidden] { display: none; }
+.aj-hunt-map img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.aj-hunt-map-frame { position: absolute; top: 0; bottom: 0; border: 3px solid var(--sun, #ffd23f); border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(43, 27, 74, .35); pointer-events: none; transition: left .25s ease; }
+.aj-hunt-map-dot { position: absolute; width: 10px; height: 10px; translate: -50% -50%; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 2px #2b1b4a; pointer-events: none; }
+.aj-hunt-map-dot.is-found { background: var(--sun, #ffd23f); }
+
+.aj-hunt-map-dot.is-asked { background: #ff4f8b; animation: aj-map-pulse 1s ease-in-out infinite; }
+@keyframes aj-map-pulse { 50% { scale: 1.6; } }
 @media (prefers-reduced-motion: reduce) {
   .aj-hunt-strip.is-sliding { transition: none; }
+  .aj-hunt-map-frame { transition: none; }
+  .aj-hunt-map-dot.is-asked { animation: none; }
 }

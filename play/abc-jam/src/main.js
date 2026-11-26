@@ -33,7 +33,8 @@ import { loose, step } from './fall.js';
 import { id as vid, FIXED, countId } from './voiceLines.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { escapeGoesHome, pickFocus } from './menus.js';
-import { PAGES, PAGE_W, PAGE_H, createHunt, panRange, clampPan, panTo, huntHint } from './seek.js';
+import { PAGES, PAGE_W, PAGE_H, createHunt, panRange, clampPan, panTo, huntHint, needsMap, mapFrame,
+  mapPan } from './seek.js';
 import { blockZoom } from './noZoom.js';
 
 
@@ -1550,6 +1551,7 @@ const HUNT_PICS = new URL('../assets/comic/abc-comic/svg/sticker/', import.meta.
 const huntSrc = (p) => new URL(`${p.pic}.svg`, HUNT_PICS).href;
 const HUNT_GAP = 16; 
 const HUNT_SLIDE_MS = 600;
+const HUNT_MAP_BAND = 104; 
 
 let hunt = null; 
 let huntGeo = { pageW: 0, pageH: 0, viewW: 0 };
@@ -1580,7 +1582,11 @@ function renderHunt() {
   
   huntMarkNext();
   const r = st.getBoundingClientRect();
-  const pageH = Math.max(200, Math.floor(r.height));
+  let pageH = Math.max(200, Math.floor(r.height));
+  
+  
+  
+  if (needsMap(Math.round(pageH * (PAGE_W / PAGE_H)), Math.floor(r.width))) pageH = Math.max(200, pageH - HUNT_MAP_BAND);
   const pageW = Math.round(pageH * (PAGE_W / PAGE_H));
   huntGeo = { pageW, pageH, viewW: Math.floor(r.width) };
   const strip = document.createElement('div');
@@ -1623,6 +1629,7 @@ function renderHunt() {
     strip.appendChild(pg);
   });
   st.appendChild(strip);
+  st.appendChild(huntMapBuild());
   huntPan = panRange(hunt.pageIndex, pageW, HUNT_GAP, huntGeo.viewW)[0];
   huntMove({ instant: true });
   huntMarkNext();
@@ -1633,6 +1640,74 @@ function huntMove({ instant = false } = {}) {
   if (!strip) return;
   strip.classList.toggle('is-sliding', !instant && !reduceMotion);
   strip.style.transform = `translateX(${-huntPan}px)`;
+  huntMapUpdate();
+}
+
+
+
+
+
+function huntMapBuild() {
+  const map = document.createElement('div');
+  map.className = 'aj-hunt-map';
+  
+  
+  map.setAttribute('role', 'img');
+  const img = document.createElement('img');
+  img.alt = '';
+  img.draggable = false;
+  const frame = document.createElement('div');
+  frame.className = 'aj-hunt-map-frame';
+  map.append(img, frame);
+  const go = (e) => {
+    const r = map.getBoundingClientRect();
+    huntPan = mapPan((e.clientX - r.left) / r.width, hunt.pageIndex, huntGeo.pageW, HUNT_GAP, huntGeo.viewW);
+    huntMove({ instant: e.type === 'pointermove' });
+  };
+  let held = null;
+  map.addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
+    held = e.pointerId;
+    go(e);
+    
+    
+    try { map.setPointerCapture(e.pointerId); } catch {  }
+  });
+  map.addEventListener('pointermove', (e) => { if (held === e.pointerId) go(e); });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  map.addEventListener('pointerup', letGo);
+  map.addEventListener('pointercancel', letGo);
+  return map;
+}
+
+function huntMapUpdate() {
+  const map = document.querySelector('.aj-hunt-map');
+  if (!map || !hunt) return;
+  const { pageW, viewW } = huntGeo;
+  map.hidden = !needsMap(pageW, viewW);
+  if (map.hidden) return;
+  const p = hunt.page;
+  const img = map.querySelector('img');
+  if (img.dataset.pic !== p.pic) {
+    img.dataset.pic = p.pic;
+    img.src = huntSrc(p);
+    map.setAttribute('aria-label', fill(T.huntPage, { n: hunt.pageIndex + 1, total: PAGES.length }));
+  }
+  const f = mapFrame(huntPan, hunt.pageIndex, pageW, HUNT_GAP, viewW);
+  const frame = map.querySelector('.aj-hunt-map-frame');
+  frame.style.left = `${f.x * 100}%`;
+  frame.style.width = `${f.w * 100}%`;
+  for (const d of map.querySelectorAll('.aj-hunt-map-dot')) d.remove();
+  const asked = huntHintAt !== 'none' ? hunt.wantedMark() : null;
+  for (const m of p.marks) {
+    const found = hunt.isFound(m.id);
+    if (!found && m !== asked) continue;
+    const d = document.createElement('span');
+    d.className = 'aj-hunt-map-dot' + (found ? ' is-found' : ' is-asked');
+    d.style.left = `${(m.x / PAGE_W) * 100}%`;
+    d.style.top = `${(m.y / PAGE_H) * 100}%`;
+    map.appendChild(d);
+  }
 }
 
 function huntMarkNext() {
@@ -1647,6 +1722,7 @@ function huntAsk() {
   markWanted();
   huntAskedAt = performance.now();
   huntHintAt = 'none';
+  huntMapUpdate();
   say(vid.find(next));
   huntHintTick();
 }
@@ -1666,6 +1742,7 @@ function huntShowHint(step) {
   const el = m && document.querySelector(`.aj-hunt-page.is-now .aj-hunt-letter[data-id="${m.id}"]`);
   if (!el) return;
   clearHints();
+  huntMapUpdate();
   if (step === 'none') return;
   el.classList.add(...{ glow: ['hint-glow'], show: ['hint-glow', 'hint-bounce'], point: ['hint-glow', 'hint-bounce', 'hint-point'] }[step]);
   if (step !== 'glow') {
@@ -1699,6 +1776,7 @@ function huntTap(id) {
   say(vid.phrase(r.ch));
   stars(6, el);
   huntMarkNext();
+  huntMapUpdate();
   if (r.pageDone) { huntPageEnd(r.stripDone); return; }
   later(() => { busy = false; huntAsk(); }, TIMING.letterGapMs);
 }
