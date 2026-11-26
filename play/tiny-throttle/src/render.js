@@ -33,7 +33,7 @@ export const LIVERIES = Object.freeze([
 ]);
 
 const ASSET_DIRS = {
-  car: 'cars', connector: 'connector', house: 'house', yard: 'yard',
+  car: 'cars', connector: 'connector', house: 'house', yard: 'yard', pickups: 'pickups',
 };
 
 
@@ -43,6 +43,8 @@ export function modelsFor(def) {
   const names = new Set([...def.props, ...(def.loose ?? [])].map((p) => p.model).concat(['toy_block', 'marble']));
   const out = [...names].map((n) => [propDir(n), n]);
   out.push([ASSET_DIRS.connector, 'track_piece'], [ASSET_DIRS.connector, 'trestle'], [ASSET_DIRS.connector, 'start_arch']);
+  
+  out.push([ASSET_DIRS.pickups, 'desk_fan'], [ASSET_DIRS.pickups, 'rubber_band']);
   for (const b of BODIES) out.push([ASSET_DIRS.car, `car_${b}`]);
   return out;
 }

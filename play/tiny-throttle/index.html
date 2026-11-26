@@ -92,7 +92,10 @@
     #time { font-size: clamp(14px, 3.6vw, 18px); }
     
     .left { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
-    #slot { display: flex; flex-direction: column; gap: 2px; font-size: clamp(14px, 3.6vw, 18px); min-width: 7.5em; }
+    #slot { display: flex; flex-direction: row; align-items: center; gap: 10px; font-size: clamp(14px, 3.6vw, 18px); min-width: 7.5em; }
+    #slot .slotText { display: flex; flex-direction: column; gap: 2px; }
+    
+    #slotIcon { width: 40px; height: 40px; flex: none; }
     #slot small { font-size: 12px; font-weight: 700; opacity: 0.75; }
     #slot.has { background: #ffe08a; }
     #slot.has b { color: var(--hot); }
@@ -253,7 +256,7 @@
   </section>
   <div id="hud" hidden>
     <div class="left" data-mg-avoid><div class="chip" id="pos">12<small>/12</small></div>
-      <div class="chip" id="slot"><b id="slotName">No pickup</b><small id="slotHint"></small></div>
+      <div class="chip" id="slot"><img id="slotIcon" alt="" width="40" height="40" hidden><span class="slotText"><b id="slotName">No pickup</b><small id="slotHint"></small></span></div>
       <canvas id="minimap" aria-hidden="true"></canvas></div>
     <div class="right" data-mg-avoid><div class="chip" id="lap">Lap 1/4</div><div class="chip" id="time">0:00.00</div>
       <div class="chip" id="watching" hidden></div>
@@ -280,8 +283,8 @@
     <button id="resultsTitle" class="mini" type="button">Pick a track</button>
   </section>
   
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=753b2082-20261126T023306Z"></script>
-  <script type="module" src="./src/main.js?v=753b2082-20261126T023306Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=753b2082-20261126T023306Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=fa971b90-20261126T024944Z"></script>
+  <script type="module" src="./src/main.js?v=fa971b90-20261126T024944Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=fa971b90-20261126T024944Z"></script>
 </body>
 </html>

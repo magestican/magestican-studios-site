@@ -1,0 +1,114 @@
+{
+ "balloon-dark": {
+  "x": 0,
+  "y": 0,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "balloon-slot": {
+  "x": 98,
+  "y": 0,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "band-dark": {
+  "x": 196,
+  "y": 0,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "band-slot": {
+  "x": 294,
+  "y": 0,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "battery-dark": {
+  "x": 0,
+  "y": 98,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "battery-slot": {
+  "x": 98,
+  "y": 98,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "fan-dark": {
+  "x": 196,
+  "y": 98,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "fan-slot": {
+  "x": 294,
+  "y": 98,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "gum-dark": {
+  "x": 0,
+  "y": 196,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "gum-slot": {
+  "x": 98,
+  "y": 196,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "magnet-dark": {
+  "x": 196,
+  "y": 196,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "magnet-slot": {
+  "x": 294,
+  "y": 196,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "marble-dark": {
+  "x": 0,
+  "y": 294,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "marble-slot": {
+  "x": 98,
+  "y": 294,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "rocket-dark": {
+  "x": 196,
+  "y": 294,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ },
+ "rocket-slot": {
+  "x": 294,
+  "y": 294,
+  "width": 96,
+  "height": 96,
+  "pixelRatio": 2
+ }
+}

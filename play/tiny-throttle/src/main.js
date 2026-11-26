@@ -572,11 +572,12 @@ function onEvents(events) {
 
 
 
+
 const USE_SFX = {
   battery: 'boost', balloon: 'balloon', marble: 'bouncyMarble', gum: 'gum',
-  rocket: 'hiss', band: 'flip', magnet: 'pickup_2', fan: 'flap',
+  rocket: 'rocket', band: 'band', magnet: 'magnet', fan: 'fan',
 };
-const HIT_SFX = { gum: 'gum_2', rocket: 'bump_2', band: 'flip_2' };
+const HIT_SFX = { gum: 'gum_2', rocket: 'rocketHit', band: 'bandHit' };
 const WORLD_TOAST = {
   tap: 'The tap is running. Wet worktop ahead.',
   sprinkler: 'The sprinkler is on. Wet grass ahead.',
@@ -631,6 +632,9 @@ function hudRow(table, me, hudId, driving) {
   const slot = $('slot');
   slot.classList.toggle('has', !!held);
   $('slotName').textContent = held ? PICKUPS[held].name : 'No pickup';
+  const icon = $('slotIcon');
+  icon.hidden = !held;
+  if (held && icon.dataset.id !== held) { icon.dataset.id = held; icon.src = `./assets/pickups/pickup_icons/svg/slot/${held}.svg`; }
   $('slotHint').textContent = held && driving ? (isTouch ? 'Tap Use' : 'E to use') : '';
   document.querySelector('.pad.use')?.classList.toggle('empty', !held);
   if (mapModel) drawMinimap(mapCtx, mapModel, race, hudId, mapTints, wetRuns(mapModel, race));

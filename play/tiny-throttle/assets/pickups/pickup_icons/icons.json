@@ -1,0 +1,71 @@
+{
+ "set": "tiny_throttle",
+ "size": 48,
+ "grid": 48,
+ "colourways": [
+  "slot",
+  "dark"
+ ],
+ "scales": [
+  1,
+  2
+ ],
+ "icons": [
+  {
+   "id": "battery",
+   "label": "Battery Boost",
+   "group": "pickup",
+   "width": 48,
+   "height": 48
+  },
+  {
+   "id": "balloon",
+   "label": "Water Balloon",
+   "group": "pickup",
+   "width": 48,
+   "height": 48
+  },
+  {
+   "id": "marble",
+   "label": "Bouncy Marble",
+   "group": "pickup",
+   "width": 48,
+   "height": 48
+  },
+  {
+   "id": "gum",
+   "label": "Sticky Gum",
+   "group": "pickup",
+   "width": 48,
+   "height": 48
+  },
+  {
+   "id": "rocket",
+   "label": "Rocket Bottle",
+   "group": "pickup",
+   "width": 48,
+   "height": 48
+  },
+  {
+   "id": "band",
+   "label": "Rubber Band",
+   "group": "pickup",
+   "width": 48,
+   "height": 48
+  },
+  {
+   "id": "magnet",
+   "label": "Magnet",
+   "group": "pickup",
+   "width": 48,
+   "height": 48
+  },
+  {
+   "id": "fan",
+   "label": "Desk Fan",
+   "group": "pickup",
+   "width": 48,
+   "height": 48
+  }
+ ]
+}

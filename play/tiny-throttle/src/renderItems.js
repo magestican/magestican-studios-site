@@ -6,6 +6,7 @@
 
 
 
+
 import * as THREE from 'three';
 import { trackPoint } from './race.js';
 import { PICKUPS } from '../../../web-engine/rc/pickups.js';
@@ -15,8 +16,6 @@ import { SIM_SCALE } from '../../../web-engine/rc/rcTuning.js';
 const PAD_SCALE = 2.6; 
 const WATER = 0x5fb8ff;
 const GUM = 0xff5fa2;
-const BAND = 0xc9925a;
-const FAN = 0x3f5d73;
 
 export function buildItems(scene, race, models) {
   const track = race.track;
@@ -68,7 +67,6 @@ export function buildItems(scene, race, models) {
   const live = new Map();
   const discGeo = new THREE.CircleGeometry(1, 28);
   const blobGeo = new THREE.SphereGeometry(0.045, 14, 10);
-  const bandGeo = new THREE.TorusGeometry(0.035, 0.005, 6, 20);
   function meshFor(h) {
     let o;
     if (h.id === 'marble') {
@@ -86,31 +84,31 @@ export function buildItems(scene, race, models) {
       o.userData.lift = 0.003;
     } else if (h.id === 'band') {
       
-      o = new THREE.Mesh(bandGeo, new THREE.MeshStandardMaterial({ color: BAND, roughness: 0.6 }));
-      o.rotation.x = -Math.PI / 2;
+      o = new THREE.Group();
+      o.add(models.get('rubber_band').root.clone(true));
       o.userData.lift = 0.03;
     } else if (h.id === 'fan') {
       
       
+      
       o = new THREE.Group();
-      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.02, 16),
-        new THREE.MeshStandardMaterial({ color: FAN, roughness: 0.5 }));
-      base.position.y = 0.01;
-      const guard = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.006, 8, 24),
-        new THREE.MeshStandardMaterial({ color: FAN, roughness: 0.4 }));
-      guard.position.y = 0.075;
-      guard.rotation.y = Math.PI / 2;
-      const blades = new THREE.Mesh(new THREE.CircleGeometry(0.045, 3),
-        new THREE.MeshBasicMaterial({ color: 0xdfe8ef, side: THREE.DoubleSide }));
-      blades.position.y = 0.075;
-      blades.rotation.y = Math.PI / 2;
+      const fan = models.get('desk_fan').root.clone(true);
+      const blades = fan.getObjectByName('blades');
+      const pivot = new THREE.Group();
+      if (blades) {
+        const hub = new THREE.Box3().setFromObject(blades).getCenter(new THREE.Vector3());
+        blades.parent.add(pivot);
+        pivot.position.copy(hub);
+        pivot.add(blades);
+        blades.position.sub(hub);
+      }
       const gust = new THREE.Mesh(new THREE.PlaneGeometry(1, PICKUPS.fan.zone * 2),
         new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, depthWrite: false }));
       gust.rotation.x = -Math.PI / 2;
       gust.position.y = 0.004;
       gust.renderOrder = 3;
-      o.add(base, guard, blades, gust);
-      o.userData = { blades, gust, lift: 0 };
+      o.add(fan, gust);
+      o.userData = { blades: pivot, gust, lift: 0 };
     } else {
       o = new THREE.Group();
       const blob = new THREE.Mesh(blobGeo, new THREE.MeshStandardMaterial({
