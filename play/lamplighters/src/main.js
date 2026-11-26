@@ -29,6 +29,7 @@ import { startVersionChecker } from '../../../web-engine/updater/versionChecker.
 import { playUi } from '../../../web-engine/brand/uiSound.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
 import { setupPanels, togglePanel } from './setupPanels.js';
+import { installMenuInput } from './menuInput.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { createNet, canPlayTogether } from './net.js';
 import { forgetRoomCode } from './net.js';
@@ -1391,6 +1392,8 @@ function wireButtons() {
 
 fillStaticText();
 wireButtons();
+
+installMenuInput();
 show('setup');
 drawSetup();
 const params = new URLSearchParams(location.search);

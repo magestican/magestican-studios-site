@@ -253,6 +253,35 @@ html[data-kit] .ll-title .ll-mini { margin-left: auto; min-width: 0; min-height:
 @keyframes ll-flicker { 50% { opacity: 0.45; } }
 @keyframes ll-on { from { opacity: 0; } to { opacity: 1; } }
 
+
+
+
+
+
+@keyframes ll-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes ll-window { 0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 196, 96, 0)); } 50% { filter: drop-shadow(0 0 18px rgba(255, 196, 96, 0.55)); } }
+@keyframes ll-screen-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ll-card-light { 0% { opacity: 0; transform: translateY(10px) scale(0.98); box-shadow: 0 0 0 rgba(255, 196, 96, 0); } 60% { opacity: 1; box-shadow: 0 0 36px rgba(255, 196, 96, 0.45); } 100% { opacity: 1; transform: none; box-shadow: 0 0 0 rgba(255, 196, 96, 0); } }
+.ll-setup:not([hidden]) .ll-head { animation: ll-rise 260ms ease-out backwards; }
+.ll-setup:not([hidden]) .ll-start { animation: ll-rise 260ms ease-out 60ms backwards, ll-window 2600ms ease-in-out 600ms infinite; }
+.ll-setup:not([hidden]) .ll-picked, .ll-setup:not([hidden]) .ll-goal { animation: ll-rise 260ms ease-out 120ms backwards; }
+.ll-setup:not([hidden]) .ll-more { animation: ll-rise 260ms ease-out 180ms backwards; }
+.ll-setup:not([hidden]) .ll-skyline { animation: ll-rise 260ms ease-out 240ms backwards; }
+.ll-match:not([hidden]), .ll-end:not([hidden]) { animation: ll-screen-in 200ms ease-out; }
+.ll-end:not([hidden]) .ll-result { animation: ll-card-light 240ms ease-out 120ms backwards; }
+
+main.ll button { transition: translate 120ms ease-out; }
+main.ll button:focus-visible { translate: 0 -1px; }
+main.ll button:active:not(:disabled) { translate: 0 1px; }
+
+html[data-kit] main.ll #end-buttons button.ll-go { min-height: 56px; font-size: 20px; padding-inline: 28px; }
+#end-buttons { align-items: center; }
+
 @media (prefers-reduced-motion: reduce) {
   .ll-cell.pop, .ll-cell.blow, .ll-cell.pending, .ll-lastcall, .ll-reveal { animation: none; }
+  .ll-setup:not([hidden]) .ll-head, .ll-setup:not([hidden]) .ll-start, .ll-setup:not([hidden]) .ll-picked,
+  .ll-setup:not([hidden]) .ll-goal, .ll-setup:not([hidden]) .ll-more, .ll-setup:not([hidden]) .ll-skyline,
+  .ll-match:not([hidden]), .ll-end:not([hidden]), .ll-end:not([hidden]) .ll-result { animation: none; }
+  main.ll button { transition: none; }
+  main.ll button:focus-visible, main.ll button:active:not(:disabled) { translate: none; }
 }
