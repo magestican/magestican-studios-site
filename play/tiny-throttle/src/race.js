@@ -13,6 +13,7 @@ import { buildPath, trackSurface, startGrid, sampleAt, wrapS } from '../../../we
 import { buildRacingLine, lineAt } from '../../../web-engine/kart/racingLine.js';
 import { bodyFor, classOf, classTuning } from './carClass.js';
 import { createKart, stepKart, respawnKart, resolveKartContact, GRAVITY } from '../../../web-engine/kart/kartPhysics.js';
+import { bogKart } from './surfaceFeel.js';
 import { createDriver, driveBot } from '../../../web-engine/kart/kartAi.js';
 import { assistInput, createCoDriver } from './driveAssist.js';
 import { createProgress, addRacer, updateRacer, standings } from '../../../web-engine/kart/raceProgress.js';
@@ -102,11 +103,13 @@ export function surfaceFor(track, kart) {
   if (gap) groundY = track.basinY;
   else if (offLifted) groundY = 0;
   const fallen = lifted && kart.y < roadY - FELL;
-  const grip = gripOf(track.surfaceAt[surf.index] ?? 'tile');
+  const name = track.surfaceAt[surf.index] ?? 'tile';
+  const grip = gripOf(name);
   return {
     ...surf,
     groundY,
     gripScale: (surf.gripScale ?? 1) * grip,
+    name, 
     lost: surf.lost || fallen,
     onDeck: connector && onDeck(track.spans, surf.s, surf.lateral ?? 0, half, track.path.length),
     gap,
@@ -386,6 +389,8 @@ export function stepRace(race, playerInput, dt) {
       events.push({ type: 'hop', id: r.id });
     }
     let k = stepKart(pre, { ...input, jump: false }, surf, dt);
+    
+    if (!surf.gap) k = bogKart(k, surf.name, dt);
     
     if (!k.grounded) k = { ...k, vy: k.vy - (gravitySim() - GRAVITY) * dt };
     if (surf.onDeck === false && surf.gap === false && spanAt(track.spans, surf.s, track.path.length) >= 0

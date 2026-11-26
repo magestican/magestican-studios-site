@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "edba66d3-20261126T051512Z",
+ "buildId": "f56dcd18-20261126T063917Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -547,7 +547,7 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-10-29",
-   "bytes": 1282033
+   "bytes": 1411595
   },
   {
    "id": "xiangqi",
@@ -994,7 +994,7 @@
    "ageNote": null,
    "order": 32,
    "addedAt": "2026-11-19",
-   "bytes": 5727760
+   "bytes": 6553358
   },
   {
    "id": "glimmercoil",

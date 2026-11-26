@@ -6,7 +6,8 @@
 
 
 import { TRACKS, TRACK_ORDER } from './tracks/index.js';
-import { createRace, stepRace, standings, PHASE } from './race.js';
+import { createRace, stepRace, standings, PHASE, surfaceFor } from './race.js';
+import { createTyres, stepTyres, TYRE_LOOPS } from './surfaceFeel.js';
 import { loadModels, createView, LIVERIES } from './render.js';
 import { minimapModel, drawMinimap, wetRuns } from './minimap.js';
 import { minimapSize } from '../../../web-engine/kart/minimap.js';
@@ -15,7 +16,7 @@ import { formatTime, ordinal } from '../../../web-engine/kart/raceProgress.js';
 import { countdownText } from '../../../web-engine/kart/raceFlow.js';
 import { createTouchSteer, steerRangeFor, steerZone } from './touchSteer.js';
 import { assistFor } from './driveAssist.js';
-import { SIM_SCALE } from '../../../web-engine/rc/rcTuning.js';
+import { SIM_SCALE, toSim } from '../../../web-engine/rc/rcTuning.js';
 import { MOTION, screenTimes, BACK, focusStep, loadSettings, saveSettings, recordBest } from './menus.js';
 import { statsCard, classOf, bodyFor } from './carClass.js';
 import { createHostLink, createGuestLink, linkFrom, joinLinkFor, watchLinkOf, canLink } from './netRoom.js';
@@ -134,6 +135,37 @@ function sfx(name, volume = 0.7, dir = 'sfx') {
     const a = (SFX[`${dir}/${name}`] ??= new Audio(`./assets/${dir}/${name}.wav`)).cloneNode();
     a.volume = volume;
     a.play().catch(() => {});
+  } catch {  }
+}
+
+
+
+
+
+const LOOPS = {};
+const TYRE_VOL = 0.5;
+const MOTOR_VOL = 0.2;
+const tyres = createTyres();
+function loopAudio(name) {
+  return (LOOPS[name] ??= Object.assign(new Audio(`./assets/sfx/${name}.wav`), { loop: true, volume: 0, preservesPitch: false }));
+}
+function setLoop(name, volume, rate) {
+  const a = loopAudio(name);
+  a.volume = Math.max(0, Math.min(1, volume));
+  a.playbackRate = rate;
+  if (volume > 0 && a.paused) a.play().catch(() => {});
+  else if (volume <= 0 && !a.paused) a.pause();
+}
+function carSound(dt, focusId) {
+  const r = running && !paused && !muted && screen === 'race' ? race.racers.find((x) => x.id === focusId) : null;
+  try {
+    if (!r) { for (const a of Object.values(LOOPS)) if (!a.paused) a.pause(); return; }
+    const surf = surfaceFor(race.track, r.kart);
+    const air = surf.gap || r.kart.y - surf.groundY > toSim(0.015);
+    const mix = stepTyres(tyres, { surface: surf.name, kart: r.kart, air, dt });
+    for (const name of TYRE_LOOPS) setLoop(name, mix.gains[name] * TYRE_VOL, mix.rate);
+    setLoop('motor', MOTOR_VOL, mix.motorRate);
+    if (mix.skid) sfx(mix.skid, 0.45);
   } catch {  }
 }
 
@@ -517,6 +549,7 @@ function frame(now) {
   if (opts.render) view.draw(dt, focus, { camMode: running ? opts.cam : 'top' });
   if (running) hud();
   showSteer();
+  carSound(dt, focus);
   requestAnimationFrame(frame);
 }
 
