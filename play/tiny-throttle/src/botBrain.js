@@ -22,9 +22,9 @@ export const HAZARD_CAR_R = 1.55 / 12;
 
 
 export const PERSONALITIES = Object.freeze({
-  careful: Object.freeze({ id: 'careful', dodge: ['critter', 'can', 'block', 'marble'], clear: 0.06, lookM: 0.8, lookT: 0.5, pads: false, tail: false, patience: 6 }),
-  racer: Object.freeze({ id: 'racer', dodge: ['critter', 'can', 'block'], clear: 0.035, lookM: 0.6, lookT: 0.4, pads: true, tail: false, patience: 4 }),
-  bully: Object.freeze({ id: 'bully', dodge: ['critter'], clear: 0.02, lookM: 0.4, lookT: 0.3, pads: true, tail: true, patience: 2.5 }),
+  careful: Object.freeze({ id: 'careful', dodge: ['critter', 'can', 'block', 'marble'], clear: 0.06, lookM: 0.8, lookT: 0.5, pads: false, tail: false, patience: 6, react: 0.6, aim: 0.6 }),
+  racer: Object.freeze({ id: 'racer', dodge: ['critter', 'can', 'block'], clear: 0.035, lookM: 0.6, lookT: 0.4, pads: true, tail: false, patience: 4, react: 0.35, aim: 1 }),
+  bully: Object.freeze({ id: 'bully', dodge: ['critter'], clear: 0.02, lookM: 0.4, lookT: 0.3, pads: true, tail: true, patience: 2.5, react: 0.2, aim: 1.5 }),
 });
 
 const ORDER = [PERSONALITIES.racer, PERSONALITIES.careful, PERSONALITIES.bully];
@@ -44,6 +44,12 @@ const AIM_NEAR = 0.3;
 const AIM_FAR = 0.55;
 
 
+
+
+
+const CRITTER_FLOOR = Object.freeze({ lookM: 0.6, lookT: 0.4, clear: 0.035 });
+
+
 export const lookOf = (p, speed = 0) => p.lookM + Math.max(0, speed) * p.lookT;
 
 
@@ -56,11 +62,13 @@ export function hazardAim(me, hazards, p, { length, half }) {
   let best = null;
   let bestD = Infinity;
   const look = lookOf(p, me.speed);
+  const critterLook = Math.max(look, lookOf(CRITTER_FLOOR, me.speed));
   for (const h of hazards) {
     if (!p.dodge.includes(h.kind)) continue;
+    const critter = h.kind === 'critter';
     const d = ahead(me.s, h.s, length);
-    if (d <= 0 || d > look || d >= bestD) continue;
-    const gap = h.r + HAZARD_CAR_R + p.clear;
+    if (d <= 0 || d > (critter ? critterLook : look) || d >= bestD) continue;
+    const gap = h.r + HAZARD_CAR_R + (critter ? Math.max(p.clear, CRITTER_FLOOR.clear) : p.clear);
     if (Math.abs(h.side - me.side) >= gap) continue;
     best = { h, gap };
     bestD = d;
@@ -105,7 +113,8 @@ export function tailAim(me, cars, p, { length, half }) {
 
 
 
-export const REACT = 0.3;
+
+export const REACT = 0.2; 
 
 const carIn = (me, cars, { from, to, lane = Infinity }, length) => cars.some((c) => {
   if (c.id === me.id) return false;
@@ -125,9 +134,9 @@ export const USE_RULES = Object.freeze({
     return !close;
   },
   magnet: (me, cars, p, L) => carIn(me, cars, { from: 0.4, to: 3 }, L),
-  band: (me, cars, p, L) => carIn(me, cars, { from: 0.5, to: 7, lane: 0.6 }, L),
-  marble: (me, cars, p, L) => carIn(me, cars, { from: 0.5, to: 4, lane: 0.15 }, L),
-  balloon: (me, cars, p, L) => carIn(me, cars, { from: 1, to: 3, lane: 0.5 }, L),
+  band: (me, cars, p, L) => carIn(me, cars, { from: 0.5, to: 7, lane: 0.6 * p.aim }, L),
+  marble: (me, cars, p, L) => carIn(me, cars, { from: 0.5, to: 4, lane: 0.15 * p.aim }, L),
+  balloon: (me, cars, p, L) => carIn(me, cars, { from: 1, to: 3, lane: 0.5 * p.aim }, L),
   
   
   gum: (me, cars, p, L) => carIn(me, cars, { from: -2.5, to: -0.8, lane: 0.3 }, L),
@@ -138,7 +147,7 @@ export const USE_RULES = Object.freeze({
 
 
 export function wantsUse(pickup, me, cars, p, { length, heldFor }) {
-  if (heldFor < REACT) return false;
+  if (heldFor < Math.max(REACT, p.react ?? REACT)) return false;
   if (heldFor >= p.patience) return true;
   const rule = USE_RULES[pickup];
   return rule ? rule(me, cars, p, length) : true;
