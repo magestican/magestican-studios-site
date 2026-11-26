@@ -361,3 +361,121 @@ noscript p { max-width: 32em; margin: 24px auto; padding: 0 16px; }
 .kk-prizes ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
 .kk-prizes li { padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, currentColor 8%, transparent); font-size: 15px; }
 @media (prefers-reduced-motion: reduce) { .kk-goal-bar span { transition: none; } }
+
+
+
+
+
+
+
+
+.kk-title {
+  position: fixed; inset: 52px 0 0 0; z-index: 30; display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(23, 12, 8, 0.5); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  animation: kk-fade-in 260ms ease-out both;
+}
+.kk-title[hidden] { display: none; }
+body.title-leaving .kk-title { animation: kk-fade-out 220ms ease-in both; }
+.kk-title-card {
+  width: min(100%, 440px); display: flex; flex-direction: column; align-items: stretch; gap: 16px;
+  padding: 24px 20px 28px; border-radius: 18px; background: linear-gradient(#2B1712, #120907); color: #FBF5E4;
+  box-shadow: 0 0 0 3px #C9A24A, 0 0 0 6px #7A2318, 0 18px 48px rgba(0, 0, 0, 0.5); text-align: center;
+}
+.kk-title-name {
+  margin: 0; font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, "Times New Roman", serif; font-weight: 700;
+  font-size: clamp(34px, 10vw, 54px); line-height: 1.05; letter-spacing: 0.02em; color: #FBF5E4;
+}
+.kk-title-tag { margin: -8px 0 0; font-size: 17px; font-weight: 700; font-style: italic; color: #E2C27A; text-wrap: balance; }
+
+.kk-title-scene {
+  position: relative; height: 168px; margin: 0 auto; width: min(100%, 340px); border-radius: 12px;
+  background: repeating-linear-gradient(90deg, #C9B77E 0 22px, #BBA86E 22px 24px), #C9B77E;
+  box-shadow: inset 0 0 0 3px #2F4A2A, inset 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+.kk-title-fan { position: absolute; left: 50%; bottom: 14px; width: 0; height: 0; }
+.kk-title-c {
+  position: absolute; left: -30px; bottom: 0; transform-origin: 50% 120%; border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+  animation: kk-t-deal 5200ms ease-out infinite both; animation-delay: calc(var(--i) * 140ms);
+}
+.kk-title-c:nth-child(1) { --rot: -16deg; --dx: -36px; }
+.kk-title-c:nth-child(2) { --rot: 0deg; --dx: 0px; }
+.kk-title-c:nth-child(3) { --rot: 16deg; --dx: 36px; }
+
+.kk-say {
+  position: absolute; top: 10px; left: 12px; padding: 6px 12px; border-radius: 6px; background: #120907; color: #E2C27A;
+  font-family: Georgia, "Times New Roman", serif; font-weight: 700; font-size: 18px; line-height: 1.1;
+  box-shadow: 0 0 0 2px #C9A24A, 0 3px 8px rgba(0, 0, 0, 0.4); animation: kk-t-say 5200ms ease-out infinite both;
+  animation-delay: 600ms;
+}
+.kk-seal {
+  position: absolute; top: 8px; right: 12px; padding: 8px 10px; border-radius: 8px; background: #B3261E; color: #FFF6E8;
+  font-family: Georgia, "Times New Roman", serif; font-weight: 900; font-size: 20px; line-height: 1; transform: rotate(-6deg);
+  box-shadow: inset 0 0 0 2px #FFF6E8, 0 4px 10px rgba(0, 0, 0, 0.45); animation: kk-t-seal 5200ms ease-out infinite both;
+  animation-delay: 1300ms;
+}
+
+
+.kk-start, html[data-kit] .kk-title-card button.kk-start {
+  min-height: 88px; font-size: clamp(34px, 10vw, 46px); font-weight: 900; letter-spacing: 0.06em;
+  animation: kk-start-glow 2400ms ease-in-out infinite;
+}
+.kk-title-card .kk-btn:not(.kk-start) { align-self: center; }
+.kk-title-card .kk-btn:focus-visible, .kk-menu-card .kk-btn:focus-visible {
+  outline: 4px solid #8FC1FF; outline-offset: 3px; transform: translateY(-2px);
+}
+.kk-title-card .kk-btn:active, .kk-menu-card .kk-btn:active { transform: translateY(1px); }
+
+.kk-menu {
+  position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(23, 12, 8, 0.55); animation: kk-fade-in 180ms ease-out both;
+}
+.kk-menu[hidden] { display: none; }
+.kk-menu-card {
+  width: min(100%, 360px); display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding: 20px 16px 24px;
+  border-radius: 16px; background: linear-gradient(#2B1712, #120907); color: #FBF5E4;
+  box-shadow: 0 0 0 3px #C9A24A, 0 14px 40px rgba(0, 0, 0, 0.5); animation: kk-rise 180ms ease-out both;
+}
+.kk-menu-head { margin: 0 0 4px; text-align: center; font-family: Georgia, "Times New Roman", serif; font-size: 26px; }
+.kk-menu-card > .kk-btn, html[data-kit] .kk-menu-card > button.kk-btn { min-height: 52px; font-size: 19px; animation: kk-rise 180ms ease-out both; }
+.kk-menu-card > .kk-btn:nth-of-type(2) { animation-delay: 40ms; }
+.kk-menu-card > .kk-btn:nth-of-type(3) { animation-delay: 80ms; }
+.kk-menu-card > .kk-btn:nth-of-type(4) { animation-delay: 120ms; }
+
+
+.kk-hand .kk-card.playable:focus-visible { transform: translateY(-8px); z-index: 2; }
+
+@keyframes kk-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kk-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes kk-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+@keyframes kk-t-deal {
+  0% { opacity: 0; transform: translate(0, -40px) rotate(0deg); }
+  8% { opacity: 1; transform: translate(var(--dx), 2px) rotate(var(--rot)); }
+  10%, 88% { opacity: 1; transform: translate(var(--dx), 0) rotate(var(--rot)); }
+  96%, 100% { opacity: 0; transform: translate(var(--dx), 0) rotate(var(--rot)); }
+}
+
+@keyframes kk-t-say {
+  0% { opacity: 0; }
+  6%, 72% { opacity: 1; }
+  78%, 100% { opacity: 0; }
+}
+
+@keyframes kk-t-seal {
+  0% { opacity: 0; transform: rotate(-6deg) scale(1.6); }
+  4% { opacity: 1; transform: rotate(-6deg) scale(0.94); }
+  7%, 70% { opacity: 1; transform: rotate(-6deg) scale(1); }
+  76%, 100% { opacity: 0; transform: rotate(-6deg) scale(1); }
+}
+@keyframes kk-start-glow {
+  0%, 100% { transform: none; filter: drop-shadow(0 0 0 rgba(201, 162, 74, 0)); }
+  50% { transform: translateY(-3px); filter: drop-shadow(0 0 10px rgba(201, 162, 74, 0.85)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kk-title, body.title-leaving .kk-title, .kk-title-c, .kk-say, .kk-seal, .kk-start, .kk-menu, .kk-menu-card, .kk-menu-card > .kk-btn {
+    animation: none !important;
+  }
+  .kk-title-c { transform: translate(var(--dx), 0) rotate(var(--rot)); }
+  .kk-hand .kk-card.playable:focus-visible { transform: none; }
+}

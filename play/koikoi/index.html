@@ -33,7 +33,7 @@
   <title>Play Hanawise - free Koi-Koi hanafuda online</title>
   <meta name="description" content="Hanawise is free Koi-Koi in your browser with the 48-card hanafuda deck: match the months, collect yaku, then stop or call koi-koi. Play the computer at three levels or a friend in a room.">
   <meta name="keywords" content="hanawise, koi-koi, koi koi online, hanafuda, こいこい, 花札, 花札 線上, 花札在线">
-  <meta name="build" content="be9b78e4-20261126T110501Z">
+  <meta name="build" content="02a80d4e-20261126T114748Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/koikoi/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Hanawise - free Koi-Koi hanafuda online">
@@ -51,8 +51,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=be9b78e4-20261126T110501Z" data-game="koikoi" data-zh="1" data-levels="easy,medium,hard" data-level-key="hanawise-settings-v1" data-level-default="easy" data-deck="../shared/cards/hanafuda48/"></script>
-  <link rel="stylesheet" href="./src/style.css?v=be9b78e4-20261126T110501Z">
+  <script src="../shared/ui/boot.js?v=02a80d4e-20261126T114748Z" data-game="koikoi" data-zh="1" data-levels="easy,medium,hard" data-level-key="hanawise-settings-v1" data-level-default="easy" data-deck="../shared/cards/hanafuda48/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=02a80d4e-20261126T114748Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -80,7 +80,7 @@
   </script>
   <script type="module" src="/web-engine/library/openHook.js?play=koikoi"></script>
 </head>
-<body>
+<body class="at-title">
   <div class="studio-bar">
     <a class="studio-home" href="/" aria-label="Magestican Studios home">
       <img src="/assets/logo.svg" width="36" height="36" alt="">
@@ -100,6 +100,25 @@
       </svg>
     </button>
   </div>
+
+  
+
+
+
+
+  <section class="kk-title" id="title" aria-labelledby="title-name" translate="no">
+    <div class="kk-title-card">
+      <p class="kk-title-name" id="title-name" data-game-name>Hanawise</p>
+      <p class="kk-title-tag" data-t="tagline">Make a yaku, then dare to play on</p>
+      <div class="kk-title-scene" aria-hidden="true">
+        <div class="kk-title-fan" id="title-fan"></div>
+        <span class="kk-say" data-t="sankoSay">Sanko!</span>
+        <span class="kk-seal" data-t="koikoiBtn">Koi-koi!</span>
+      </div>
+      <button class="kk-btn kk-start skin-lacquer-button_primary" id="start" type="button" data-t="start">START</button>
+      <button class="kk-btn skin-lacquer-button_secondary mg-i mg-i-settings" id="see-options" type="button" data-t="seeOptions">See options</button>
+    </div>
+  </section>
 
   <main class="kk">
     <h1 class="mg-own" data-game-name>Hanawise</h1>
@@ -165,6 +184,7 @@
 
     <div class="kk-foot">
       <button class="kk-btn skin-lacquer-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+      <button class="kk-btn skin-lacquer-button_secondary mg-i mg-i-settings" id="menu-btn" type="button" data-t="menu" aria-haspopup="dialog">Menu</button>
     </div>
     
 
@@ -185,13 +205,25 @@
     </section>
   </main>
 
+  
+
+  <div class="kk-menu" id="menu" hidden>
+    <div class="kk-menu-card" role="dialog" aria-modal="true" aria-labelledby="menu-head">
+      <h2 class="kk-menu-head" id="menu-head" data-t="menu">Menu</h2>
+      <button class="kk-btn skin-lacquer-button_primary" id="menu-resume" type="button" data-t="resumeMenu">Resume</button>
+      <button class="kk-btn skin-lacquer-button_secondary mg-i mg-i-new_game" id="menu-new" type="button" data-t="newGame">New game</button>
+      <button class="kk-btn skin-lacquer-button_secondary mg-i mg-i-settings" id="menu-options" type="button" data-t="options">Options</button>
+      <button class="kk-btn skin-lacquer-button_secondary mg-i mg-i-leave" id="menu-title" type="button" data-t="titleScreen">Title screen</button>
+    </div>
+  </div>
+
   <noscript>
     <p>Hanawise is a Koi-Koi card game and needs JavaScript; there is nothing to download.
     <a href="/koikoi.html">How to play</a>.</p>
   </noscript>
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=be9b78e4-20261126T110501Z"></script>
-  <script type="module" src="./src/main.js?v=be9b78e4-20261126T110501Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=be9b78e4-20261126T110501Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=02a80d4e-20261126T114748Z"></script>
+  <script type="module" src="./src/main.js?v=02a80d4e-20261126T114748Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=02a80d4e-20261126T114748Z"></script>
 </body>
 </html>

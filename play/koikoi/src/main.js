@@ -30,7 +30,11 @@ import { loadAtlas, makeCard } from '../../../web-engine/cards/cardArt.js';
 import { applyGameName, gameLang, localGameName } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
-import { playUi } from '../../../web-engine/brand/uiSound.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
+import {
+  showsTitle, TITLE_BUTTONS, MENU_BUTTONS, navKey, stepFocus, STEP, handStep, clampCursor, padHeld, padPresses, PAD_KEY,
+  MENU_CUES, MENU_GAINS, menuCue, TITLE_OUT_MS, FAN_CARDS,
+} from './menuNav.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
@@ -71,6 +75,12 @@ const KINDS = ['H', 'T', 'R', 'K'];
 
 const lang = gameLang(undefined, undefined, undefined, { zh: true });
 const T = stringsFor(lang);
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+
+let cursor = 0;
 applyGameName(GAME_ID, document, lang);
 initAnalytics({ page: GAME_ID });
 startVersionChecker({ versionUrl: './version.json', label: 'A new version of Hanawise is available.' });
@@ -362,7 +372,7 @@ function banner(text, kindName) {
   
   void bannerEl.offsetWidth;
   bannerEl.classList.add('on');
-  if (kindName === 'koikoi' || kindName === 'yaku') playUi('toggleOn');
+  if (kindName === 'koikoi' || kindName === 'yaku') ui.play('toggleOn');
   return new Promise((r) => {
     bannerTimer = setTimeout(() => { bannerEl.hidden = true; bannerEl.classList.remove('on'); r(); }, BANNER_MS);
   });
@@ -405,6 +415,10 @@ function refresh(before = null) {
 
 function botMove() {
   botTimer = null;
+  
+  
+  
+  if (atTitle() || menuOpen()) { const gen = timerGen; whenPlaying(() => { if (gen === timerGen) botMove(); }); return; }
   if (!match || match.state.phase === 'over') return;
   const id = actorId(match);
   if (!isBot(id)) return;
@@ -417,12 +431,14 @@ function botMove() {
 
 function dealNext() {
   nextTimer = null;
+  
+  if (atTitle() || menuOpen()) { const gen = timerGen; whenPlaying(() => { if (gen === timerGen) dealNext(); }); return; }
   if (!match || matchOver(match) || match.state.phase !== 'over') return;
   for (const who of queuedArrivals) match.seats = seatsWith(match.seats, who, false);
   queuedArrivals = [];
   if (!nextRound(match)) return;
   lastFlash = '';
-  playUi('tap');
+  ui.play('tap');
   refresh();
 }
 
@@ -435,9 +451,9 @@ function stopTimers() {
 }
 
 function sound(a) {
-  if (a.type === 'koikoi') playUi('toggleOn');
-  else if (a.type === 'stop') playUi('toggleOff');
-  else playUi('tap');
+  if (a.type === 'koikoi') ui.play('toggleOn');
+  else if (a.type === 'stop') ui.play('toggleOff');
+  else ui.play('tap');
 }
 
 
@@ -456,7 +472,7 @@ function doAction(a) {
     return;
   }
   const before = tableRects();
-  if (!act(match, myId(), a)) { playUi('error'); return; }
+  if (!act(match, myId(), a)) { ui.play('error'); return; }
   sound(a);
   refresh(before);
 }
@@ -468,7 +484,7 @@ function clearEcho() {
 }
 
 function rollBack() {
-  playUi('error');
+  ui.play('error');
   flash(T.refused, 3200);
 }
 
@@ -696,17 +712,31 @@ function drawTable(legal) {
 }
 
 function drawHand(legal) {
+  
+  
+  const hadFocus = handEl.contains(document.activeElement);
   handEl.replaceChildren();
   if (!view || view.you < 0) return;
   const playable = new Set(legal.filter((a) => a.type === 'play').map((a) => a.card));
   const fieldMonths = new Set(view.field.map(month));
-  for (const c of [...view.hand].sort(byMonth)) {
+  const cards = [...view.hand].sort(byMonth);
+  cursor = clampCursor(cursor, cards.length);
+  let anyPlayable = false;
+  cards.forEach((c, i) => {
     const can = playable.has(c) && !waitingAnswer;
-    const el = cardEl(c, { size: 'hand', onClick: can ? () => doAction({ type: 'play', card: c }) : null });
+    const el = cardEl(c, { size: 'hand', onClick: can ? () => { cursor = i; doAction({ type: 'play', card: c }); } : null });
     el.classList.toggle('playable', can);
     if (can && fieldMonths.has(month(c))) el.classList.add('kk-match');
+    el.dataset.i = String(i);
+    
+    if (can) { el.tabIndex = i === cursor ? 0 : -1; anyPlayable = true; }
     handEl.append(el);
+  });
+  if (anyPlayable && !handEl.querySelector('[data-i][tabindex="0"]')) {
+    const first = handEl.querySelector('.playable[data-i]');
+    if (first) { first.tabIndex = 0; cursor = Number(first.dataset.i); }
   }
+  if (hadFocus) handEl.querySelector('[data-i][tabindex="0"]')?.focus({ preventScroll: true });
 }
 
 function drawActions(legal) {
@@ -811,7 +841,7 @@ function drawProgress() {
 }
 $('goal-head').textContent = PW.goal;
 $('prizes-head').textContent = PW.prizes;
-$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; playUi(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; ui.play(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
 
 
 function finished() {
@@ -821,7 +851,7 @@ function finished() {
   if (me < 0) return;
   const [a, b] = [view.scores[me], view.scores[1 - me]];
   const result = a > b ? 'won' : a < b ? 'lost' : 'draw';
-  playUi(result === 'won' ? 'toggleOn' : 'toggleOff');
+  ui.play(result === 'won' ? 'toggleOn' : 'toggleOff');
   const turn = reportGate.take();
   if (turn) {
     const arg = twoSeatMatch({
@@ -849,7 +879,7 @@ for (const b of document.querySelectorAll('[data-mode]')) {
   b.addEventListener('click', () => {
     const mode = b.dataset.mode;
     if (mode === settings.mode) return;
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'room') leaveRoom();
     settings.mode = mode;
     if (mode === 'bot') newMatch();
@@ -860,7 +890,7 @@ for (const b of document.querySelectorAll('[data-level]')) {
   b.addEventListener('click', () => {
     settings.level = b.dataset.level;
     persist();
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'bot') newMatch();
     else if (match && !isGuest()) {
       match.seats = match.seats.map((s) => (isBot(s) ? `bot:${settings.level}#1` : s));
@@ -871,13 +901,13 @@ for (const b of document.querySelectorAll('[data-level]')) {
 roundsEl.addEventListener('change', () => {
   settings.rounds = pick(Number(roundsEl.value), ROUND_CHOICES, 6);
   persist();
-  playUi('toggleOn');
+  ui.play('toggleOn');
   if (settings.mode === 'bot') newMatch(); else if (room.active && net?.hosting) restartRoom();
 });
 nextEl.addEventListener('click', () => { if (!isGuest()) { stopTimers(); dealNext(); } });
 $('new-game').addEventListener('click', () => {
   if (watcher()) return;
-  playUi('tap');
+  ui.play('tap');
   if (isGuest()) { net.propose({ type: 'rematch' }); return; }
   if (match && settings.mode === 'room') { restartRoom(); return; }
   if (settings.mode === 'room') { flash(T.waiting); return; }
@@ -1030,14 +1060,14 @@ function leaveRoom() {
   Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 
-$('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
+$('create-room').addEventListener('click', () => { ui.play('tap'); openRoom(); });
 $('join-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  playUi('tap');
+  ui.play('tap');
   joinRoom($('join-code').value.trim());
 });
 $('leave-room').addEventListener('click', () => {
-  playUi('toggleOff');
+  ui.play('toggleOff');
   leaveRoom();
   settings.mode = 'bot';
   newMatch();
@@ -1070,15 +1100,196 @@ $('watch-link').addEventListener('click', () => {
 });
 
 
-foldSetup();
+
+
+
+
+const titleEl = $('title');
+const mainEl = document.querySelector('main.kk');
+const reduced = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+const coarse = () => globalThis.matchMedia?.('(pointer: coarse)').matches;
+let usedKeys = false;
+let setupFold = null;          
+let menuReturn = null;         
+
+function atTitle() { return document.body.classList.contains('at-title'); }
+function menuOpen() { return !document.getElementById('menu').hidden; }
+const focusEl = (node) => node?.focus({ preventScroll: true });
+const cursorEl = () => handEl.querySelector(`[data-i="${cursor}"].playable`) || handEl.querySelector('.playable[data-i]');
+
+const focusPlay = () => focusEl(cursorEl() || actionsEl.querySelector('button:not(:disabled)')
+  || fieldEl.querySelector('.playable') || (!nextEl.hidden && nextEl) || $('new-game'));
+
+
+
+let heldPlay = [];
+function whenPlaying(f) { if (atTitle() || menuOpen()) heldPlay.push(f); else f(); }
+function resumePlay() { const q = heldPlay; heldPlay = []; for (const f of q) f(); }
+
+function showTitle() {
+  closeMenu(false);
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  titleEl.hidden = false;
+  mainEl.inert = true;
+  if (usedKeys || !coarse()) focusEl($('start'));
+}
+function leaveTitle(then) {
+  if (!atTitle()) { then?.(); return; }
+  mainEl.inert = false;
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    titleEl.hidden = true;
+    fit.refit({ grow: true });
+    then?.();
+    resumePlay();
+  };
+  if (reduced()) { done(); return; }
+  document.body.classList.add('title-leaving');
+  setTimeout(done, TITLE_OUT_MS);
+}
+function openOptions() {
+  if (setupFold) setupFold.open = true;
+  ui.play(menuCue('menu-options'));
+  const first = document.querySelector('[data-mode][aria-pressed="true"]') || document.querySelector('[data-mode]');
+  focusEl(first);
+  first?.scrollIntoView?.({ block: 'nearest' });
+}
+function openMenu() {
+  if (menuOpen() || atTitle()) return;
+  menuReturn = document.activeElement;
+  $('menu').hidden = false;
+  mainEl.inert = true;
+  ui.play('open');
+  focusEl($('menu-resume'));
+}
+function closeMenu(restore = true) {
+  if (!menuOpen()) return;
+  $('menu').hidden = true;
+  mainEl.inert = false;
+  if (restore) {
+    
+    if (menuReturn && menuReturn !== document.body && document.contains(menuReturn)) focusEl(menuReturn);
+    else focusPlay();
+  }
+  if (!atTitle()) resumePlay();
+}
+
+
+
+$('start').addEventListener('click', () => { ui.play(menuCue('start')); leaveTitle(() => { if (usedKeys || !coarse()) focusPlay(); }); });
+$('see-options').addEventListener('click', () => leaveTitle(openOptions));
+$('menu-btn').addEventListener('click', openMenu);
+$('menu-resume').addEventListener('click', () => { ui.play(menuCue('menu-resume')); closeMenu(); });
+$('menu-new').addEventListener('click', () => { closeMenu(false); $('new-game').click(); focusPlay(); });
+$('menu-options').addEventListener('click', () => { closeMenu(false); openOptions(); });
+$('menu-title').addEventListener('click', () => { ui.play(menuCue('menu-title')); showTitle(); });
+
+$('menu').addEventListener('click', (ev) => { if (ev.target === $('menu')) { ui.play('back'); closeMenu(); } });
+
+
+function navList() {
+  if (atTitle()) return TITLE_BUTTONS.map($);
+  if (menuOpen()) return MENU_BUTTONS.map($);
+  return [...mainEl.querySelectorAll('button, select, input, summary')]
+    .filter((b) => !b.disabled && b.getClientRects().length && !(handEl.contains(b) && b.tabIndex < 0));
+}
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (/^(Arrow|Tab$|Enter$|Escape$| $)/.test(ev.key)) usedKeys = true;
+  if (ev.defaultPrevented) return;
+  if (ev.key === 'Escape') {
+    if (atTitle()) return;
+    ev.preventDefault();
+    if (menuOpen()) { ui.play('back'); closeMenu(); return; }
+    openMenu();
+    return;
+  }
+  const word = navKey(ev.key);
+  if (!word) return;
+  const t = ev.target;
+  if (t?.tagName === 'SELECT' || t?.tagName === 'INPUT') return;
+  ev.preventDefault();
+  
+  if (handEl.contains(t) && t.dataset?.i !== undefined && !menuOpen()) {
+    const cards = [...handEl.querySelectorAll('.playable[data-i]')];
+    const at = cards.indexOf(t);
+    const next = handStep(at, word, cards.length);
+    if (next !== null) {
+      if (next === at) return;
+      t.tabIndex = -1;
+      const el = cards[next];
+      cursor = Number(el.dataset.i);
+      el.tabIndex = 0;
+      focusEl(el);
+      ui.play('focus');
+      return;
+    }
+  }
+  const list = navList();
+  if (!list.length) return;
+  const next = list[stepFocus(list.indexOf(document.activeElement), STEP[word], list.length)];
+  if (next && next !== document.activeElement) { focusEl(next); ui.play('focus'); }
+});
+
+
+function pressKey(key) {
+  usedKeys = true;
+  let t = document.activeElement;
+  if (!t || t === document.body) {
+    if (atTitle()) focusEl($('start'));
+    else if (menuOpen()) focusEl($('menu-resume'));
+    else focusPlay();
+    t = document.activeElement;
+    if (key !== 'Escape') return; 
+  }
+  
+  if (key === 'Enter' && t && t !== document.body) { t.click(); return; }
+  (t || document).dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+}
+let padState = null;
+let padLoop = 0;
+function pollPad() {
+  padLoop = 0;
+  const p = [...(navigator.getGamepads?.() || [])].find(Boolean);
+  if (!p) { padState = null; return; }
+  const r = padPresses(padState, padHeld(p), performance.now());
+  padState = r.state;
+  for (const w of r.presses) pressKey(PAD_KEY[w]);
+  padLoop = requestAnimationFrame(pollPad);
+}
+
+globalThis.addEventListener('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+
+
+function fillTitleFan() {
+  const fan = $('title-fan');
+  if (!fan || !atlas || fan.childElementCount) return;
+  FAN_CARDS.forEach((id, i) => {
+    const el = makeCard(document, atlas, id, { width: 60, label: cardName(T, id), className: 'kk-title-c' });
+    el.style.setProperty('--i', String(i));
+    fan.append(el);
+  });
+}
+
+
+setupFold = foldSetup();
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Hanawise' });
 const linkRoom = roomFromHref(location.href);
 afterBoot(() => countPlay(GAME_ID, { isHost: !linkRoom }));
 
-const atlasReady = loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch(() => {  });
+const atlasReady = loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); fillTitleFan(); }).catch(() => {  });
 Promise.race([atlasReady, new Promise((r) => { setTimeout(r, 4000); })]).then(() => { fit.refit({ grow: true }); bootDone(); });
 
 function boot() {
+  
+  
+  
+  const framed = document.documentElement.classList.contains('framed');
+  if (showsTitle(params, { linkRoom: !!linkRoom, framed })) showTitle();
+  else { document.body.classList.remove('at-title'); titleEl.hidden = true; }
   if (linkRoom) {
     settings.mode = 'room';
     if (!joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH })) { settings.mode = 'bot'; newMatch({ keepHand: true }); }
@@ -1087,6 +1298,12 @@ function boot() {
   newMatch({ keepHand: true });
 }
 boot();
+
+
+
+afterBoot(() => {
+  if (atTitle() && (usedKeys || !coarse()) && document.activeElement === document.body) focusEl($('start'));
+});
 
 trackEvent('game_start', { game: GAME_ID, mode: settings.mode });
 
