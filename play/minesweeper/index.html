@@ -33,7 +33,7 @@
   <title>Play Sweepwise - free Minesweeper online, no download</title>
   <meta name="description" content="Sweepwise is free Minesweeper in your browser: Beginner, Intermediate, Expert and custom boards, a first click that always opens an area, flags, chording, a timer and your best times. No download, no account.">
   <meta name="keywords" content="sweepwise, minesweeper online, free minesweeper, minesweeper no download, buscaminas online, campo minado online, マインスイーパー オンライン, 지뢰찾기, dò mìn">
-  <meta name="build" content="02a80d4e-20261126T114748Z">
+  <meta name="build" content="f551f359-20261126T122627Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/minesweeper/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Sweepwise - free Minesweeper online">
@@ -51,8 +51,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=02a80d4e-20261126T114748Z" data-game="minesweeper" data-levels="beginner,intermediate,expert" data-level-key="sweepwise-level-v1" data-level-default="beginner"></script>
-  <link rel="stylesheet" href="./src/style.css?v=02a80d4e-20261126T114748Z">
+  <script src="../shared/ui/boot.js?v=f551f359-20261126T122627Z" data-game="minesweeper" data-levels="beginner,intermediate,expert" data-level-key="sweepwise-level-v1" data-level-default="beginner"></script>
+  <link rel="stylesheet" href="./src/style.css?v=f551f359-20261126T122627Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -79,7 +79,21 @@
   </script>
   <script type="module" src="/web-engine/library/openHook.js?play=minesweeper"></script>
 </head>
-<body>
+<body class="at-title">
+  
+
+
+
+
+  <section class="sw-title" id="title" aria-labelledby="title-name" translate="no">
+    <div class="sw-title-card skin-stone-plaque">
+      <p class="sw-title-name" id="title-name" data-game-name>Sweepwise</p>
+      <p class="sw-title-tag" data-t="tagline">Read the numbers, clear the meadow</p>
+      <div class="sw-title-patch" id="title-patch" aria-hidden="true"></div>
+      <button class="sw-btn sw-start skin-stone-button_primary" id="start" type="button" data-t="startTitle">START</button>
+      <button class="sw-btn skin-stone-button_secondary mg-i mg-i-settings" id="see-options" type="button" data-t="seeOptions">See options</button>
+    </div>
+  </section>
   
 
   <div class="studio-bar">
@@ -185,6 +199,7 @@
     <div class="sw-foot">
       <button class="sw-btn skin-stone-toggle mg-i mg-i-flag" id="mode" type="button" aria-pressed="false"><span data-t="flag">Flag</span></button>
       <span class="sw-best skin-stone-badge mg-i mg-i-star"><span data-t="bestLabel">Best</span>: <output id="best">-</output></span>
+      <button class="sw-btn skin-stone-button_secondary mg-i mg-i-settings" id="menu-btn" type="button" data-t="menu" aria-haspopup="dialog">Menu</button>
     </div>
     <p class="sw-message" id="message" role="status" aria-live="polite"></p>
     <p class="sw-tip" id="tip" aria-live="polite"></p>
@@ -207,6 +222,18 @@
     </section>
   </main>
 
+  
+
+  <div class="sw-menu" id="menu" hidden>
+    <div class="sw-menu-card skin-stone-plaque" role="dialog" aria-modal="true" aria-labelledby="menu-head">
+      <h2 class="sw-menu-head" id="menu-head" data-t="menu">Menu</h2>
+      <button class="sw-btn skin-stone-button_primary" id="menu-resume" type="button" data-t="resumeMenu">Resume</button>
+      <button class="sw-btn skin-stone-button_secondary mg-i mg-i-new_game" id="menu-new" type="button" data-t="newGame">New game</button>
+      <button class="sw-btn skin-stone-button_secondary mg-i mg-i-settings" id="menu-options" type="button" data-t="options">Options</button>
+      <button class="sw-btn skin-stone-button_secondary mg-i mg-i-leave" id="menu-title" type="button" data-t="titleScreen">Title screen</button>
+    </div>
+  </div>
+
   <noscript>
     <p>Sweepwise is Minesweeper and needs JavaScript; there is nothing to download.
     <a href="/minesweeper.html">How to play</a>.</p>
@@ -214,8 +241,8 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=02a80d4e-20261126T114748Z"></script>
-  <script type="module" src="./src/main.js?v=02a80d4e-20261126T114748Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=02a80d4e-20261126T114748Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=f551f359-20261126T122627Z"></script>
+  <script type="module" src="./src/main.js?v=f551f359-20261126T122627Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=f551f359-20261126T122627Z"></script>
 </body>
 </html>

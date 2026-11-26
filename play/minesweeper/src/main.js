@@ -31,7 +31,10 @@ import { roomPresence } from '../../shared/net/roomPresence.js';
 import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
-import { playUi } from '../../../web-engine/brand/uiSound.js';
+import {
+  showsTitle, TITLE_BUTTONS, MENU_BUTTONS, navKey, stepFocus, STEP, resumedStart, padHeld, padPresses, PAD_KEY,
+  MENU_CUES, MENU_GAINS, menuCue, TITLE_OUT_MS, PATCH, cascadeOrder, CASCADE_STEP_MS,
+} from './menuNav.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
@@ -67,6 +70,9 @@ const music = createTrackMusic({
 });
 
 const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['dig', 'cascade', 'flag', 'unflag', 'boom', 'win']);
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -142,7 +148,7 @@ function drawGoal() {
     return li;
   }));
 }
-seePrizes.addEventListener('click', () => { playUi('tap'); prizesEl.hidden = !prizesEl.hidden; drawGoal(); });
+seePrizes.addEventListener('click', () => { ui.play('tap'); prizesEl.hidden = !prizesEl.hidden; drawGoal(); });
 let g = null;
 let focusIndex = 0;
 let ticker = null;
@@ -419,10 +425,10 @@ boardEl.addEventListener('keydown', (e) => {
   }
 });
 
-faceEl.addEventListener('click', () => { if (playMode === 'race') return; playUi('tap'); start(); });
+faceEl.addEventListener('click', () => { if (playMode === 'race') return; ui.play('tap'); start(); });
 modeEl.addEventListener('click', () => {
   mode = mode === 'flag' ? 'dig' : 'flag';
-  playUi(mode === 'flag' ? 'toggleOn' : 'toggleOff');
+  ui.play(mode === 'flag' ? 'toggleOn' : 'toggleOff');
   draw();
 });
 for (const b of document.querySelectorAll('[data-level]')) {
@@ -431,7 +437,7 @@ for (const b of document.querySelectorAll('[data-level]')) {
     if (playMode === 'race') { pickRaceLevel(b.dataset.level); return; }
     level = b.dataset.level;
     save(LEVEL_KEY, level);
-    playUi('tap');
+    ui.play('tap');
     start();
   });
 }
@@ -489,7 +495,7 @@ function blankBoard(l) {
 function pickRaceLevel(l) {
   if (!RACE_LEVELS.includes(l)) return;
   if (!net?.hosting || raceRunning(rs) || room.watching) return; 
-  playUi('tap');
+  ui.play('tap');
   rs = { ...rs, level: l };
   net.publish();
   blankBoard(l);
@@ -515,7 +521,7 @@ function beginRound(rc, { decided = false } = {}) {
   say(fill(T.countdown, { n }));
   race.countdown = setInterval(() => {
     n -= 1;
-    if (n > 0) { say(fill(T.countdown, { n })); playUi('tap'); return; }
+    if (n > 0) { say(fill(T.countdown, { n })); ui.play('tap'); return; }
     clearInterval(race.countdown);
     race.countdown = null;
     go();
@@ -976,7 +982,7 @@ function leaveRoom() {
 for (const b of document.querySelectorAll('[data-mode]')) {
   b.addEventListener('click', () => {
     if (b.dataset.mode === playMode) return;
-    playUi('tap');
+    ui.play('tap');
     if (b.dataset.mode === 'race') { enterRace(); return; }
     leaveRoom();
     playMode = 'solo';
@@ -986,20 +992,20 @@ for (const b of document.querySelectorAll('[data-mode]')) {
     start();
   });
 }
-$('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
+$('create-room').addEventListener('click', () => { ui.play('tap'); openRoom(); });
 $('join-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  playUi('tap');
+  ui.play('tap');
   joinRoom($('join-code').value.trim());
 });
 $('leave-room').addEventListener('click', () => {
-  playUi('toggleOff');
+  ui.play('toggleOff');
   leaveRoom();
   enterRace();
   say('');
 });
 $('race-go').addEventListener('click', () => {
-  playUi('tap');
+  ui.play('tap');
   if (net?.hosting) startNextRace();
   else net?.propose({ kind: 'again' });
 });
@@ -1033,6 +1039,176 @@ $('watch-link').addEventListener('click', () => {
     }, () => say(link, 8000));
 });
 
+
+
+
+
+
+const titleEl = $('title');
+const mainEl = document.querySelector('main.sw');
+const reduced = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+const coarse = () => globalThis.matchMedia?.('(pointer: coarse)').matches;
+let usedKeys = false;
+let setupFold = null;          
+let menuReturn = null;         
+let pausedAt = null;           
+function atTitle() { return document.body.classList.contains('at-title'); }
+function menuOpen() { return !$('menu').hidden; }
+const focusEl = (node) => node?.focus({ preventScroll: true });
+
+const focusPlay = () => focusEl(boardEl.querySelector('.sw-cell[tabindex="0"]') || faceEl);
+
+
+function pauseClock() {
+  if (pausedAt !== null || playMode === 'race' || !g || g.state !== 'playing') return;
+  pausedAt = g.now();
+  clearInterval(ticker);
+  ticker = null;
+}
+function resumeClock() {
+  if (pausedAt === null) return;
+  if (g && playMode !== 'race') {
+    g.startedAt = resumedStart(g.startedAt, pausedAt, g.now(), g.state === 'playing');
+    if (g.state === 'playing' && !ticker) ticker = setInterval(() => { clockEl.textContent = pad3(secs(elapsed(g))); }, 250);
+  }
+  pausedAt = null;
+}
+
+function showTitle() {
+  closeMenu(false);
+  pauseClock();
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  titleEl.hidden = false;
+  mainEl.inert = true;
+  fillTitlePatch();
+  if (usedKeys || !coarse()) focusEl($('start'));
+}
+function leaveTitle(then) {
+  if (!atTitle()) { then?.(); return; }
+  mainEl.inert = false;
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    titleEl.hidden = true;
+    fit?.refit?.({ grow: true });
+    resumeClock();
+    then?.();
+  };
+  if (reduced()) { done(); return; }
+  document.body.classList.add('title-leaving');
+  setTimeout(done, TITLE_OUT_MS);
+}
+function openOptions() {
+  if (setupFold) setupFold.open = true;
+  ui.play(menuCue('menu-options'));
+  const first = document.querySelector('[data-level][aria-pressed="true"]') || document.querySelector('[data-level]');
+  focusEl(first);
+  first?.scrollIntoView?.({ block: 'nearest' });
+}
+function openMenu() {
+  if (menuOpen() || atTitle()) return;
+  menuReturn = document.activeElement;
+  pauseClock();
+  $('menu').hidden = false;
+  mainEl.inert = true;
+  ui.play('open');
+  focusEl($('menu-resume'));
+}
+function closeMenu(restore = true) {
+  if (!menuOpen()) return;
+  $('menu').hidden = true;
+  mainEl.inert = false;
+  if (restore) {
+    if (menuReturn && menuReturn !== document.body && document.contains(menuReturn)) focusEl(menuReturn);
+    else focusPlay();
+  }
+  if (!atTitle()) resumeClock();
+}
+
+$('start').addEventListener('click', () => { ui.play(menuCue('start')); leaveTitle(() => { if (usedKeys || !coarse()) focusPlay(); }); });
+$('see-options').addEventListener('click', () => leaveTitle(openOptions));
+$('menu-btn').addEventListener('click', openMenu);
+$('menu-resume').addEventListener('click', () => { ui.play(menuCue('menu-resume')); closeMenu(); });
+$('menu-new').addEventListener('click', () => { closeMenu(false); faceEl.click(); focusPlay(); });
+$('menu-options').addEventListener('click', () => { closeMenu(false); openOptions(); });
+$('menu-title').addEventListener('click', () => { ui.play(menuCue('menu-title')); showTitle(); });
+$('menu').addEventListener('click', (ev) => { if (ev.target === $('menu')) { ui.play('back'); closeMenu(); } });
+
+
+function navList() {
+  if (atTitle()) return TITLE_BUTTONS.map($);
+  if (menuOpen()) return MENU_BUTTONS.map($);
+  return [...mainEl.querySelectorAll('button, select, input, summary')]
+    .filter((b) => !b.disabled && b.getClientRects().length && !(boardEl.contains(b) && b.tabIndex < 0));
+}
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (/^(Arrow|Tab$|Enter$|Escape$| $)/.test(ev.key)) usedKeys = true;
+  if (ev.defaultPrevented) return;
+  if (ev.key === 'Escape') {
+    if (atTitle()) return;
+    ev.preventDefault();
+    if (menuOpen()) { ui.play('back'); closeMenu(); return; }
+    openMenu();
+    return;
+  }
+  const word = navKey(ev.key);
+  if (!word) return;
+  const t = ev.target;
+  if (t?.tagName === 'SELECT' || t?.tagName === 'INPUT') return;
+  if (boardEl.contains(t)) return; 
+  ev.preventDefault();
+  const list = navList();
+  if (!list.length) return;
+  const next = list[stepFocus(list.indexOf(document.activeElement), STEP[word], list.length)];
+  if (next && next !== document.activeElement) { focusEl(next); ui.play('focus'); }
+});
+
+
+function pressKey(key) {
+  usedKeys = true;
+  let t = document.activeElement;
+  if (!t || t === document.body) {
+    if (atTitle()) focusEl($('start'));
+    else if (menuOpen()) focusEl($('menu-resume'));
+    else focusPlay();
+    t = document.activeElement;
+    if (key !== 'Escape') return; 
+  }
+  
+  if (key === 'Enter' && t && t !== document.body && !boardEl.contains(t)) { t.click(); return; }
+  (t || document).dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+}
+let padState = null;
+let padLoop = 0;
+function pollPad() {
+  padLoop = 0;
+  const p = [...(navigator.getGamepads?.() || [])].find(Boolean);
+  if (!p) { padState = null; return; }
+  const r = padPresses(padState, padHeld(p), performance.now());
+  padState = r.state;
+  for (const w of r.presses) pressKey(PAD_KEY[w]);
+  padLoop = requestAnimationFrame(pollPad);
+}
+globalThis.addEventListener('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+
+
+function fillTitlePatch() {
+  const patch = $('title-patch');
+  if (!patch || patch.childElementCount) return;
+  const order = new Map(cascadeOrder().map(([i], k) => [i, k]));
+  PATCH.forEach((v, i) => {
+    const sq = document.createElement('span');
+    let cls = 'sw-cell sw-t-sq';
+    if (v === 'F') cls += ' flag sw-t-flag';
+    else if (v !== '') { cls += ' open sw-t-open'; if (v > 0) { cls += ` n${v}`; sq.textContent = String(v); } }
+    sq.className = cls;
+    if (order.has(i)) sq.style.setProperty('--d', `${order.get(i) * CASCADE_STEP_MS}ms`);
+    patch.append(sq);
+  });
+}
+
 let resizeQueued = false;
 addEventListener('resize', () => {
   if (resizeQueued) return;
@@ -1044,7 +1220,7 @@ wireMusicButton({ music });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
 
 
-foldSetup({ stopAt: '#room' });
+setupFold = foldSetup({ stopAt: '#room' });
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Sweepwise' });
 
 
@@ -1063,8 +1239,16 @@ if (linkRoom) {
   enterRace();
   if (!joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH })) drawRoom();
 } else drawRoom();
+{
+  const framed = document.documentElement.classList.contains('framed');
+  if (showsTitle(params, { linkRoom: !!linkRoom, framed })) showTitle();
+  else { document.body.classList.remove('at-title'); titleEl.hidden = true; }
+}
 
 bootDone();
+afterBoot(() => {
+  if (atTitle() && (usedKeys || !coarse()) && document.activeElement === document.body) focusEl($('start'));
+});
 
 
 
