@@ -108,8 +108,10 @@ export function createJuice(rng = Math.random, { reducedMotion = false, art = nu
     j.fx = j.fx.filter((f) => f.life > 0);
   };
   
-  j.drawFx = (ctx, X, Y, s) => {
+  
+  j.drawFx = (ctx, X, Y, s, P) => {
     if (!j.art) return;
+    const pt = P || ((x, y) => [X(x), Y(y)]);
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     for (const f of j.fx) {
@@ -120,42 +122,46 @@ export function createJuice(rng = Math.random, { reducedMotion = false, art = nu
       const a = Math.pow(k, 0.6) * (reducedMotion ? FX_REDUCED_ALPHA : 1);
       const id = `${f.key}|${f.colour}`;
       if (!tinted.has(id)) tinted.set(id, tint(img, f.colour));
-      const ang = f.rot ? Math.atan2(Y(f.y + Math.sin(f.rot)) - Y(f.y), X(f.x + Math.cos(f.rot)) - X(f.x)) : 0;
-      ctx.translate(X(f.x), Y(f.y)); if (ang) ctx.rotate(ang);
+      const [fxp, fyp] = pt(f.x, f.y);
+      const [ex, ey] = f.rot ? pt(f.x + Math.cos(f.rot), f.y + Math.sin(f.rot)) : [0, 0];
+      const ang = f.rot ? Math.atan2(ey - fyp, ex - fxp) : 0;
+      ctx.translate(fxp, fyp); if (ang) ctx.rotate(ang);
       ctx.globalAlpha = a; ctx.drawImage(tinted.get(id), -w / 2, -h / 2, w, h);
       ctx.globalAlpha = a * 0.55; ctx.drawImage(img, -w / 2, -h / 2, w, h);
       if (ang) ctx.rotate(-ang);
-      ctx.translate(-X(f.x), -Y(f.y));
+      ctx.translate(-fxp, -fyp);
     }
     ctx.restore();
   };
-  j.draw = (ctx, X, Y, s) => {
-    j.drawFx(ctx, X, Y, s);
+  j.draw = (ctx, X, Y, s, P) => {
+    j.drawFx(ctx, X, Y, s, P);
+    const pt = P || ((x, y) => [X(x), Y(y)]);
     ctx.save();
     for (const p of j.particles) {
       const a = p.life / p.max;
       if (p.kind === 'spark') {
         ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a;
         ctx.strokeStyle = p.colour; ctx.lineWidth = Math.max(1.5, p.size * s * a); ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(X(p.x), Y(p.y)); ctx.lineTo(X(p.x - p.vx * 3), Y(p.y - p.vy * 3)); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(...pt(p.x, p.y)); ctx.lineTo(...pt(p.x - p.vx * 3, p.y - p.vy * 3)); ctx.stroke();
       } else {
         ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a * 0.6; ctx.fillStyle = p.colour;
-        ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), p.size * s * (1.6 - a), 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(...pt(p.x, p.y), p.size * s * (1.6 - a), 0, Math.PI * 2); ctx.fill();
       }
     }
     
     if (j.impact) {
       const k = j.impact.life / j.impact.max; const R = s * (j.impact.max >= 4 ? 16 : 8);
-      const g = ctx.createRadialGradient(X(j.impact.x), Y(j.impact.y), 0, X(j.impact.x), Y(j.impact.y), R);
+      const [ix, iy] = pt(j.impact.x, j.impact.y);
+      const g = ctx.createRadialGradient(ix, iy, 0, ix, iy, R);
       g.addColorStop(0, j.impact.colour); g.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.55 * k; ctx.fillStyle = g;
-      ctx.fillRect(X(j.impact.x) - R, Y(j.impact.y) - R, R * 2, R * 2);
+      ctx.fillRect(ix - R, iy - R, R * 2, R * 2);
     }
     ctx.globalCompositeOperation = 'lighter';
     for (const r of j.rings) {
       const k = 1 - r.life / r.max;
       ctx.globalAlpha = (1 - k) * 0.8; ctx.strokeStyle = r.colour; ctx.lineWidth = Math.max(2, s * 0.35 * (1 - k));
-      ctx.beginPath(); ctx.ellipse(X(r.x), Y(r.y), r.r * k * s, r.r * k * s * 0.5, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(...pt(r.x, r.y), r.r * k * s, r.r * k * s * 0.5, 0, 0, Math.PI * 2); ctx.stroke();
     }
     ctx.restore();
   };

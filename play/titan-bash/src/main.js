@@ -11,7 +11,7 @@ import { initAnalytics } from '../../../web-engine/visits/visits.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
 import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats, setupFromCheats, defaultCpuLevel, defaultRookie, seatRookie, isTouchDevice, firstPilot } from './input.js';
 import { wirePad } from './touchPad.js';
-import { layout, draw, LIP } from './render.js';
+import { layout, draw, LIP, screenToWorld } from './render.js';
 import { createScreenLink, joinCodeFrom, linkFor, canLink, PREFIX } from './net.js';
 import { MSG, STATUS_HZ, encodeStatus } from './wire.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
@@ -231,16 +231,19 @@ function paintLegend() {
 
 const IDLE = Object.freeze({ mx: 0, my: 0, fire: false, boost: false, ability: false });
 
-function inputsFor(m, list = seats, brains = bots) {
+
+
+function inputsFor(m, list = seats, brains = bots, view = L) {
   const pads = navigator.getGamepads ? [...navigator.getGamepads()] : [];
+  const human = (inp) => screenToWorld(view, inp);
   return list.map((s, i) => {
     const cpu = () => (brains ? botInput(brains[i], m) : { ...IDLE });
     if (s.control === 'bot') return cpu();
-    if (s.control === 'touch') return touchPad ? touchPad.read() : { ...IDLE };
-    if (s.control === 'p1' || s.control === 'p2') return keyboardInput(KEYMAPS[s.control], down);
-    if (s.control.startsWith('phone')) return link?.phones.inputFor(s.control, performance.now()) ?? cpu();
+    if (s.control === 'touch') return touchPad ? human(touchPad.read()) : { ...IDLE };
+    if (s.control === 'p1' || s.control === 'p2') return human(keyboardInput(KEYMAPS[s.control], down));
+    if (s.control.startsWith('phone')) { const v = link?.phones.inputFor(s.control, performance.now()); return v ? human(v) : cpu(); }
     const pad = pads[Number(s.control.slice(3))];
-    return pad ? padInput(pad) : { mx: 0, my: 0, fire: false, boost: false, ability: false };
+    return pad ? human(padInput(pad)) : { ...IDLE };
   });
 }
 
@@ -313,8 +316,14 @@ function resize() {
   c.width = Math.round(c.clientWidth * dpr); c.height = Math.round(c.clientHeight * dpr);
   
   const lg = $('legend'); const touch = document.body.classList.contains('tb-touch-on');
+  lg.classList.remove('over-hud'); 
   const cover = touch && !lg.hidden ? Math.max(0, c.getBoundingClientRect().bottom - lg.getBoundingClientRect().top + 16) : 0;
-  L = layout(c.width, c.height, dpr, { arena: match ? match.arena : 'bellRing', reserve: Math.round(cover * dpr) });
+  L = layout(c.width, c.height, dpr, { arena: match ? match.arena : 'bellRing', reserve: Math.round(cover * dpr), turn: true }); 
+  
+  
+  lg.classList.toggle('over-hud', !!L.rot && touch);
+  
+  $('match').classList.toggle('turned', !!L.rot);
   
   const side = document.body.classList.contains('tb-touch-on') ? 0 : legendSide((L.ox - L.aw / 2) / dpr - LIP);
   $('legend').classList.toggle('side', side > 0); $('legend').style.width = side ? `${side}px` : '';
@@ -607,7 +616,7 @@ function warmFrame(now) {
   warmAcc += Math.min(0.25, (now - warmLast) / 1000); warmLast = now;
   let n = 0;
   while (warmAcc >= 1 / HZ && n < 5) {
-    const events = warmupStep(warm, inputsFor(warm.match, warmSeats, null));
+    const events = warmupStep(warm, inputsFor(warm.match, warmSeats, null, LW));
     for (const name of sounds.tick(warm.match, events)) sfx.play(name);
     warmAcc -= 1 / HZ; n += 1;
   }

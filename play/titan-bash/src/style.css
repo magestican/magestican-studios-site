@@ -565,6 +565,9 @@ select.tb-input {
 .tb-legend .swatch { width: 14px; height: 14px; border-radius: 50%; flex: none; }
 .tb-legend.gone { opacity: 0; }
 
+.tb-legend.over-hud { top: 8px; bottom: auto; left: 16px; right: 16px; max-width: none; }
+#match.turned #quit { right: 8px; padding-left: 10px; padding-right: 10px; }
+
 
 .tb-legend.side { max-width: none; font-size: 1.3rem; line-height: 1.2; gap: 12px; }
 @media (prefers-reduced-motion: reduce) { .tb-legend { transition: none; } }

@@ -28,13 +28,42 @@ export const LIP = 6;
 
 
 
-export function layout(w, h, dpr = 1, { hud: withHud = true, arena = 'bellRing', reserve = 0, gutter = null } = {}) {
+
+
+
+
+export const TURN_GAIN = 1.08;
+export function layout(w, h, dpr = 1, opts = {}) {
+  const flat = flatLayout(w, h, dpr, { ...opts, swap: false });
+  if (!opts.turn || h <= w) return flat;
+  const turned = flatLayout(w, h, dpr, { ...opts, swap: true });
+  return turned.scale >= flat.scale * TURN_GAIN ? turned : flat;
+}
+
+
+export function project(L, x, y) {
+  return L.rot ? [L.ox - y * L.scale, L.oy + x * L.scale] : [L.ox + x * L.scale, L.oy + y * L.scale];
+}
+
+
+
+
+
+export function screenToWorld(L, inp) {
+  if (!L || !L.rot || !inp) return inp;
+  const out = { ...inp, mx: inp.my || 0, my: -(inp.mx || 0) };
+  if (inp.ax != null || inp.ay != null) { out.ax = inp.ay || 0; out.ay = -(inp.ax || 0); }
+  return out;
+}
+
+function flatLayout(w, h, dpr, { hud: withHud = true, arena = 'bellRing', reserve = 0, gutter = null, swap = false } = {}) {
   const g = gutter != null ? gutter * dpr : Math.max(16 * dpr, Math.round(Math.min(w, h) * 0.02));
   
   const rows = w / dpr < 760 ? 2 : 1;
   const row = Math.max(44 * dpr, Math.round(Math.min(h * 0.09, 96 * dpr)));
   const hud = withHud ? g * 0.6 + rows * row + (rows - 1) * 12 * dpr : -g;
-  const A = ARENAS[arena] || ARENAS.bellRing;
+  const A0 = ARENAS[arena] || ARENAS.bellRing;
+  const A = swap ? { w: A0.h, h: A0.w } : A0; 
   
   
   const lip = LIP * dpr;
@@ -48,7 +77,8 @@ export function layout(w, h, dpr = 1, { hud: withHud = true, arena = 'bellRing',
   
   const band = reserve > 0 ? Math.max(0, free - reserve) : 0;
   const oy = hud + g * 2 + lip + (rows === 2 ? band / 2 : free / 2) + ah / 2;
-  return { g, hud, row, rows, dpr, scale, ox: (w - aw) / 2 + aw / 2, oy, aw, ah };
+  
+  return { g, hud, row, rows, dpr, scale, ox: (w - aw) / 2 + aw / 2, oy, aw, ah, rot: swap, vw: A0.w * scale, vh: A0.h * scale };
 }
 
 
@@ -100,11 +130,39 @@ export function draw(ctx, m, fx, L, opts = {}) {
   const { width: W, height: H } = ctx.canvas;
   const A = ARENAS[m.arena];
   const s = L.scale;
-  const X = (x) => L.ox + x * s; const Y = (y) => L.oy + y * s;
   const storm = isStorm(m);
   ctx.save();
   ctx.fillStyle = '#06080d'; ctx.fillRect(0, 0, W, H);
   
+  
+  
+  const Lw = L.rot ? { ...L, ox: 0, oy: 0, aw: L.vw, ah: L.vh } : L;
+  if (L.rot) { ctx.save(); ctx.translate(L.ox, L.oy); ctx.rotate(Math.PI / 2); }
+  
+  drawFloorLayers(ctx, m, Lw, A, s, storm, L.rot ? () => { ctx.save(); ctx.rotate(-Math.PI / 2); ctx.translate(-L.ox, -L.oy); drawLighting(ctx, L); ctx.restore(); } : undefined);
+  if (L.rot) ctx.restore();
+  const V = turnView(m, fx, L);
+  const X = (x) => L.ox + x * s; const Y = (y) => L.oy + y * s;
+  drawStanding(ctx, m, V, L, A, s, X, Y, opts, W); 
+}
+
+
+
+
+
+
+export function turnView(m, fx, L) {
+  if (!L.rot) return { titans: m.titans, decoys: m.decoys || [], fx };
+  const q = Math.PI / 2;
+  return {
+    titans: m.titans.map((t) => ({ ...t, x: -t.y, y: t.x, facing: (t.facing || 0) + q, lungeDx: -(t.lungeDy || 0), lungeDy: t.lungeDx || 0 })),
+    decoys: (m.decoys || []).map((d) => ({ ...d, x: -d.y, y: d.x, facing: (d.facing || 0) + q })),
+    fx: fx.map((f) => (f.x == null ? f : { ...f, x: -f.y, y: f.x })),
+  };
+}
+
+function drawFloorLayers(ctx, m, L, A, s, storm, light = () => drawLighting(ctx, L)) {
+  const X = (x) => L.ox + x * s; const Y = (y) => L.oy + y * s;
 
   
   const fx0 = X(-A.w / 2); const fy0 = Y(-A.h / 2);
@@ -182,7 +240,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
   }
 
   
-  drawLighting(ctx, L);
+  light();
 
   drawSleeper(ctx, m, X, Y, s);
 
@@ -203,39 +261,43 @@ export function draw(ctx, m, fx, L, opts = {}) {
   }
 
   ctx.restore();
+}
 
+function drawStanding(ctx, m, V, L, A, s, X, Y, opts, W) {
   
-  for (const d of m.decoys || []) {
+  for (const d of V.decoys) {
     const t = m.titans[d.owner];
     ctx.globalAlpha = 0.45; body(ctx, X(d.x), Y(d.y), s, HOUSE[t.house].colour, d.facing); ctx.globalAlpha = 1;
   }
 
-  const big = bounty(m);
+  const bigReal = bounty(m); const big = bigReal && V.titans[m.titans.indexOf(bigReal)];
   
-  drawShadows(ctx, shadowSpots(m, X, Y, s));
+  drawShadows(ctx, shadowSpots({ titans: V.titans }, X, Y, s));
   
   const plates = [];
-  for (const t of m.titans.filter((o) => o.alive).sort((a, b) => a.y - b.y)) plates.push(titan(ctx, m, t, X, Y, s, t === big, opts));
+  for (const t of V.titans.filter((o) => o.alive).sort((a, b) => a.y - b.y)) plates.push(titan(ctx, m, t, X, Y, s, t === big, opts));
   
   drawPlates(ctx, m, plates, s, L.dpr || 1, m.endless ? -Infinity : L.hud + 4 * (L.dpr || 1));
-  if (opts.juice) opts.juice.draw(ctx, X, Y, s);
+  
+  if (opts.juice) opts.juice.draw(ctx, X, Y, s, (x, y) => project(L, x, y));
 
   
+  const fx = V.fx;
   for (const f of fx) {
     const a = Math.min(1, f.ttl / 20);
     ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     if (f.kind === 'banner') {
       
       
-      const px = bannerPx(ctx, f.text, s, A.w * s);
+      const px = bannerPx(ctx, f.text, s, L.aw); 
       ctx.font = `800 ${px}px ${DISPLAY}`;
       
       
       
       const tw = ctx.measureText(f.text).width;
-      const ys = [Y(-A.h / 2) + s * 3, Y(A.h / 2) - s * 3];
+      const ys = [L.oy - L.ah / 2 + s * 3, L.oy + L.ah / 2 - s * 3];
       const lanes = ys.map((y) => bannerPlate(tw, px, L.ox, y));
-      const under = m.titans.filter((o) => o.alive).map((o) => titanBox(X(o.x), Y(o.y), T.radius * s, s));
+      const under = V.titans.filter((o) => o.alive).map((o) => titanBox(X(o.x), Y(o.y), T.radius * s, s));
       const spot = bannerSpot(lanes, under); const pl = lanes[spot.lane]; const by = ys[spot.lane];
       ctx.globalAlpha = a * spot.plate;
       ctx.fillStyle = 'rgba(6,8,13,0.72)'; roundRect(ctx, pl.x, pl.y, pl.w, pl.h, pl.h * 0.2); ctx.fill();
@@ -252,7 +314,7 @@ export function draw(ctx, m, fx, L, opts = {}) {
         
         
         const tw = ctx.measureText(f.text).width; const px = fpx; 
-        const half = tw / 2 + px * 0.5; const lo = X(-A.w / 2) + half + 8; const hi = X(A.w / 2) - half - 8;
+        const half = tw / 2 + px * 0.5; const lo = L.ox - L.aw / 2 + half + 8; const hi = L.ox + L.aw / 2 - half - 8;
         xx = lo <= hi ? Math.min(Math.max(xx, lo), hi) : L.ox;
         ctx.fillStyle = 'rgba(6,8,13,0.8)'; roundRect(ctx, xx - half, yy - px * 0.75, half * 2, px * 1.5, px * 0.3); ctx.fill();
         ctx.fillStyle = f.colour || '#fff';
