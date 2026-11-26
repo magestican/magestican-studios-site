@@ -7,7 +7,7 @@
 
 import { TUNING as T, secs } from '../../../web-engine/titan-bash/tuning.js';
 import { HOUSES, TITANS, WEAPONS } from '../../../web-engine/titan-bash/titans.js';
-import { poseFor, spriteFor } from './titanSprites.js';
+import { poseFor, spriteFor, tintImage } from './titanSprites.js';
 import { drawCutin, popScale } from './cutin.js';
 import { floorPattern, DIM } from './floors.js';
 import { ARENAS } from '../../../web-engine/titan-bash/arenas.js';
@@ -916,9 +916,13 @@ export function bannerPlate(textW, px, cx, cy) {
 
 
 
-export function cutinFace(cur, faceArt) {
+
+export function cutinFace(cur, faceArt, make) {
   const img = faceArt && faceArt[cur.frame];
-  if (img) return { img, sx: 0, sy: 0, sw: img.naturalWidth || img.width, sh: img.naturalHeight || img.height };
+  if (img) {
+    const c = tintImage(`face|${cur.frame}`, img, cur.colour, make);
+    return { img: c, sx: 0, sy: 0, sw: c.width, sh: c.height };
+  }
   const spr = spriteFor(cur.frame, cur.colour); const fr = spr && spr.byName.idle;
   return fr ? { img: spr.canvas, sx: fr.x, sy: fr.y, sw: fr.w, sh: fr.h } : null;
 }

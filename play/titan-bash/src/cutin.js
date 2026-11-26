@@ -17,8 +17,11 @@ export const POP_TICKS = 7;
 
 
 
-export const FACES_DELIVERED = Object.freeze([]);
+
+
+export const FACES_DELIVERED = Object.freeze(['wisp']);
 export const FACE_DIR = new URL('../assets/faces/', import.meta.url);
+export const faceFile = (frame) => `face_${frame}.webp`;
 
 
 export function cutinFor(m, e, colourOf, nameOf) {
@@ -141,7 +144,7 @@ export function loadFaceArt(base = FACE_DIR, delivered = FACES_DELIVERED) {
   const art = {};
   if (typeof Image === 'undefined') return art;
   for (const f of delivered) {
-    const img = new Image(); img.src = new URL(`${f}.png`, base).href;
+    const img = new Image(); img.src = new URL(`${f}/${faceFile(f)}`, base).href;
     img.decode().then(() => { art[f] = img; }, () => {});
   }
   return art;

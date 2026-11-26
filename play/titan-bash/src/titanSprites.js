@@ -84,6 +84,23 @@ export function spriteFor(frame, colour) {
 
 
 
+
+const tintedImages = new Map();
+function newCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+export function tintImage(key, img, colour, make = newCanvas) {
+  const k = `${key}|${colour}`;
+  if (tintedImages.has(k)) return tintedImages.get(k);
+  const w = img.naturalWidth || img.width; const h = img.naturalHeight || img.height;
+  const c = make(w, h); const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0);
+  const px = g.getImageData(0, 0, w, h); recolour(px.data, hexRgb(colour)); g.putImageData(px, 0, 0);
+  tintedImages.set(k, c);
+  return c;
+}
+
+
+
+
 const faces = new Map();
 export function faceUrl(frame, colour) {
   const key = `${frame}|${colour}`;
