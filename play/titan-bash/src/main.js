@@ -28,7 +28,7 @@ import { loadTitanSprites, faceUrl } from './titanSprites.js';
 import { loadFloors } from './floors.js';
 import { createJuice, loadFxArt } from './juice.js';
 import { enterClass, ENTER_CLASSES, countdownAt, COUNTDOWN_MS } from './transitions.js';
-import { primaryFor, createLeave, createPadNav, joinNames, nightTitle, wellLine, stepsOrder, tieBreakNote, statParts, ptsText, standingScore, rewardParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
+import { primaryFor, createLeave, createPadNav, joinNames, nightTitle, wellLine, stepsOrder, tieBreakNote, statParts, ptsText, standingScore, rewardParts, fallText, teamTotalsNote, firstTeams, controlsFor, controlsLine, bellsText, goalLine, stallPrompt, lessonPrompt, joinHint, rowTag, yourNightLines, warmNote, legendSide, LEGEND_MS } from './menu.js';
 import { T as RT, starsForRound, starsForNight, addStars, equipNewest, loadStars, saveStars, tipFor, rowsFor, paintColor, emblemGlyph } from '../../../web-engine/titan-bash/rewards.js';
 
 const $ = (id) => document.getElementById(id);
@@ -83,6 +83,7 @@ const touchPad = touchFirst
   ? wirePad({ zone: $('tp-stick'), knob: $('tp-knob'), fire: $('tp-fire'), boost: $('tp-boost'), ability: $('tp-ability') })
   : null;
 if (touchFirst) document.body.classList.add('tb-touch-mode');
+$('join-hint').textContent = joinHint(touchFirst); 
 const hasTouchSeat = () => !!touchPad && humans.some((h) => h.control === 'touch');
 let humans = [{ control: FIRST }];
 let match = null; let bots = []; let seats = []; let fx = []; let raf = 0; let acc = 0; let last = 0;
@@ -616,7 +617,12 @@ function warmFrame(now) {
     const t = warm.match.titans[i]; const l = lessonFor(warm, i);
     
     const text = l && (l.praise || (l.prompt && lessonPrompt(s.control, l.shown, l.prompt)));
-    if (t && t.alive && text) fxw.push({ kind: 'pop', text, x: t.x, y: t.y - 7, ttl: 60, colour: l.praise ? '#ffd040' : '#fff' });
+    
+    
+    
+    const hh = ARENAS[warm.match.arena]?.h ?? 32;
+    const ly = t && t.y > 0 ? -(hh / 2 - 3) : hh / 2 - 3;
+    if (t && t.alive && text) fxw.push({ kind: 'pop', text, x: t.x, y: ly, ttl: 60, plate: true, colour: l.praise ? '#ffd040' : '#fff' });
   });
   const labels = warmSeats.map((s) => `${HOUSE[s.house].name}`);
   if (LW) draw($('warm').getContext('2d'), warm.match, fxw, LW, { humans: new Set(warmSeats.map((_, i) => i)), labels });

@@ -258,11 +258,27 @@ export function warmNote(seats = []) {
   return `${WARM_GOAL}${lines.length ? ` ${lines.join('. ')}.` : ''}`;
 }
 
+
+
+
+
+export function joinHint(touchFirst = false) {
+  return touchFirst
+    ? 'Friends join from their own phones with the room code. Gamepads: press A. Empty seats get CPU pilots.'
+    : 'Player 2: press an arrow key. Gamepads: press A. Empty seats get CPU pilots.';
+}
+
 const LESSON = { fire: (k) => `${k} to FIRE at a target!`, boost: (k) => `${k} to BOOST and dash!`, ability: (k) => `${k} for your ABILITY!` };
+
+
+const LESSON_NAMED = { fire: (k) => `${k} to shoot a target!`, boost: (k) => `${k} to dash!`, ability: (k) => `${k} for your special move!` };
 
 export function lessonPrompt(control, stage, fallback = '') {
   const c = controlsFor(control);
-  return c && LESSON[stage] ? `${c.verb} ${LESSON[stage](c[stage])}` : fallback;
+  if (!c || !LESSON[stage]) return fallback;
+  const key = c[stage];
+  const say = String(key).toUpperCase() === stage.toUpperCase() ? LESSON_NAMED : LESSON;
+  return `${c.verb} ${say[stage](key)}`;
 }
 
 

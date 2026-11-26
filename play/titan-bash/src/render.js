@@ -216,7 +216,8 @@ export function draw(ctx, m, fx, L, opts = {}) {
   
   const plates = [];
   for (const t of m.titans.filter((o) => o.alive).sort((a, b) => a.y - b.y)) plates.push(titan(ctx, m, t, X, Y, s, t === big, opts));
-  drawPlates(ctx, m, plates, s, L.dpr || 1); 
+  
+  drawPlates(ctx, m, plates, s, L.dpr || 1, m.endless ? -Infinity : L.hud + 4 * (L.dpr || 1));
   if (opts.juice) opts.juice.draw(ctx, X, Y, s);
 
   
@@ -242,14 +243,15 @@ export function draw(ctx, m, fx, L, opts = {}) {
       ctx.lineWidth = Math.max(3, px * 0.16); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
       ctx.strokeText(f.text, L.ox, by); ctx.fillText(f.text, L.ox, by);
     } else {
-      ctx.font = `800 ${Math.round(s * (f.big ? 1.8 : 1.2))}px ${DISPLAY}`;
+      const fpx = popFontPx(s, L.dpr || 1, f.big);
+      ctx.font = `800 ${popFontPx(s, L.dpr || 1, f.big)}px ${DISPLAY}`;
       ctx.lineWidth = Math.max(3, s * 0.25); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
       const yy = Y(f.y) - ((f.ttl0 ?? 60) - f.ttl) * 0.02 * s; 
       let xx = X(f.x);
       if (f.plate) {
         
         
-        const tw = ctx.measureText(f.text).width; const px = s * 1.2;
+        const tw = ctx.measureText(f.text).width; const px = fpx; 
         const half = tw / 2 + px * 0.5; const lo = X(-A.w / 2) + half + 8; const hi = X(A.w / 2) - half - 8;
         xx = lo <= hi ? Math.min(Math.max(xx, lo), hi) : L.ox;
         ctx.fillStyle = 'rgba(6,8,13,0.8)'; roundRect(ctx, xx - half, yy - px * 0.75, half * 2, px * 1.5, px * 0.3); ctx.fill();
@@ -568,7 +570,22 @@ export const PLATE_MIN_CSS = 11;
 export const plateFontPx = (s, dpr = 1) => Math.max(Math.round(PLATE_MIN_CSS * dpr), Math.round(s * 0.95));
 
 
-function drawPlates(ctx, m, plates, s, dpr) {
+
+
+
+
+export const POP_MIN_CSS = 16;
+export const popFontPx = (s, dpr = 1, big = false) => Math.max(Math.round(POP_MIN_CSS * dpr), Math.round(s * (big ? 1.8 : 1.2)));
+
+
+
+
+
+
+
+export const plateDy = (rectY, dy, minY = -Infinity) => (rectY + dy < minY ? minY - rectY : dy);
+
+function drawPlates(ctx, m, plates, s, dpr, minY = -Infinity) {
   ctx.save();
   ctx.font = `700 ${plateFontPx(s, dpr)}px system-ui, sans-serif`;
   const fh = plateFontPx(s, dpr); const barH = Math.max(4, s * 0.4);
@@ -579,7 +596,7 @@ function drawPlates(ctx, m, plates, s, dpr) {
   const lay = placePlates(rects, { maxLift: (fh + barH) * 2.5 });
   plates.forEach((p, i) => {
     ctx.globalAlpha = lay[i].alpha;
-    namePlate(ctx, m, p.t, p.cx, p.by + lay[i].dy, s, p.label, fh);
+    namePlate(ctx, m, p.t, p.cx, p.by + plateDy(rects[i].y, lay[i].dy, minY), s, p.label, fh);
   });
   ctx.restore();
 }
