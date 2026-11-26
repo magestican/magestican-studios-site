@@ -23,6 +23,7 @@ const plateUrl = (name) => `${D}/${name}/plate.webp`;
 
 const SHIPPED_HOUSE = 'assets/art/biome/batch3/kitchen-far/plate.webp';
 const SHIPPED_GARDEN = 'assets/art/biome/sovereign/morningsky-far/plate.webp';
+const SILL = 'assets/art/biome/sovereign/sill/texture.png';
 
 
 
@@ -40,6 +41,7 @@ export function stampedeArt(ready = PHASE_F_READY) {
     sky: HOUSE_SKY,
     planeSky: GARDEN_SKY,
     swapX: STAMPEDE_SWAP_X,
+    houseTop: { map: SILL, normal: SILL.replace('texture.png', 'normal.png'), tint: 0xffe2b8, unit: 3 },
     top: null,
     solid: null,
   };

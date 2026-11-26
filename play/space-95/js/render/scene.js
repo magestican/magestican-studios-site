@@ -1117,7 +1117,7 @@ function skyTexture() {
 
 
 
-function tileMeshes(world, skin = null, art = null) {
+export function tileMeshes(world, skin = null, art = null) {
   const T = world.tile;
   const group = new THREE.Group();
   const rock = skin === 'bedrock';
@@ -1134,8 +1134,12 @@ function tileMeshes(world, skin = null, art = null) {
   const cabinet = kitchen ? (art?.cabinet ?? null) : null;
   if (cabinet) skinMaterial(solidMat, cabinet);
   
+  
+  const sx = art?.houseTop ? art.swapX / T : 0;
+  const houseMat = new THREE.MeshLambertMaterial();
+  if (sx) skinMaterial(houseMat, art.houseTop);
   const uv = (m, spec) => {
-    if ((painted || cabinet) && spec) worldUV(m.geometry, m.position, spec.unit * T);
+    if ((painted || cabinet || sx) && spec) worldUV(m.geometry, m.position, spec.unit * T);
     return m;
   };
   const oneWayMat = new THREE.MeshLambertMaterial({ color: 0xf2c879 });
@@ -1162,18 +1166,18 @@ function tileMeshes(world, skin = null, art = null) {
         m.position.set(c * T + w / 2, r * T + T / 2, -TILE_DEPTH / 2 + 0.3);
         group.add(uv(m, cabinet ?? art?.solid));
         
-        
         for (let k = c; k < end; ) {
           if (world.solid(k, r + 1)) {
             k++;
             continue;
           }
           let k2 = k + 1;
-          while (k2 < end && !world.solid(k2, r + 1)) k2++;
+          const h = k < sx;
+          while (k2 < end && !world.solid(k2, r + 1) && k2 < sx === h) k2++;
           const cw = (k2 - k) * T;
-          const cap = new THREE.Mesh(new THREE.BoxGeometry(cw, T * 0.3, TILE_DEPTH + 0.02), topMat);
+          const cap = new THREE.Mesh(new THREE.BoxGeometry(cw, T * 0.3, TILE_DEPTH + 0.02), h ? houseMat : topMat);
           cap.position.set(k * T + cw / 2, (r + 1) * T - T * 0.15 + 0.005, -TILE_DEPTH / 2 + 0.3);
-          group.add(uv(cap, art?.top));
+          group.add(uv(cap, h ? art.houseTop : art?.top));
           k = k2;
         }
       }
