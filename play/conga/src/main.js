@@ -37,7 +37,10 @@ import { sortHand, parseCard, DECKS } from '../../../web-engine/cards/cards.js';
 import { applyGameName, gameLang, localGameName } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
-import { playUi } from '../../../web-engine/brand/uiSound.js';
+import {
+  showsTitle, TITLE_BUTTONS, MENU_BUTTONS, navKey, stepFocus, STEP, handStep, clampCursor, padHeld, padPresses, PAD_KEY,
+  MENU_CUES, MENU_GAINS, menuCue, TITLE_OUT_MS, CONGA_CARDS,
+} from './menuNav.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
@@ -97,6 +100,12 @@ const music = createTrackMusic({
 
 
 const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['card', 'draw', 'win', 'lose'], { card: 4, draw: 4 });
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+
+let cursor = 0;
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -325,6 +334,10 @@ function refresh(move = null) {
 
 function botMove() {
   botTimer = null;
+  
+  
+  
+  if (atTitle() || menuOpen()) { const gen = timerGen; whenPlaying(() => { if (gen === timerGen) botMove(); }); return; }
   if (!match || match.game.over || match.game.hand.over) return;
   const id = actorId(match);
   if (!isBot(id)) return;
@@ -381,7 +394,7 @@ function doAction(a) {
       confirmedView = view;
       view = echo;
       sounds([{ kind: a.type }], false);
-    } else playUi('tap');
+    } else ui.play('tap');
     if (echoTimer) clearTimeout(echoTimer);
     echoTimer = setTimeout(echoTimedOut, ECHO_TIMEOUT_MS);
     net.propose(a);
@@ -390,7 +403,7 @@ function doAction(a) {
   }
   const before = tableRects();
   const r = act(match, myId(), a);
-  if (r.error) { flash(errorText(r.error)); playUi('error'); return false; }
+  if (r.error) { flash(errorText(r.error)); ui.play('error'); return false; }
   match = r.match;
   sounds(match.game.events, match.game.over);
   noteEvents(match.game.events);
@@ -406,7 +419,7 @@ function clearEcho() {
 
 
 function rollBack() {
-  playUi('error');
+  ui.play('error');
   flash(T.refused, 3200);
 }
 
@@ -687,7 +700,7 @@ function drawCentre() {
   const stock = document.createElement('div');
   stock.className = 'cg-stack cg-stock';
   const sc = cardEl('back', { kind: 'pile', faceDown: true, onClick: turn ? () => doAction({ type: 'draw', from: 'stock' }) : null });
-  if (turn) sc.classList.add('can');
+  if (turn) { sc.classList.add('can'); sc.tabIndex = -1; }
   sc.setAttribute('aria-label', `${T.stock} (${h.stockCount})${turn ? ` - ${T.drawStock}` : ''}`);
   const sslot = document.createElement('div');
   sslot.className = 'cg-slot';
@@ -720,7 +733,7 @@ function drawCentre() {
     }
     const tc = cardEl(top, { kind: 'pile', onClick: canTake ? () => doAction({ type: 'draw', from: 'pile' }) : null });
     tc.classList.add('top');
-    if (canTake) { tc.classList.add('can'); tc.setAttribute('aria-label', `${T.takePile}: ${cardName(T, top)}`); }
+    if (canTake) { tc.classList.add('can'); tc.tabIndex = -1; tc.setAttribute('aria-label', `${T.takePile}: ${cardName(T, top)}`); }
     if (echoed(top)) tc.classList.add('echo');
     pslot.append(tc);
   }
@@ -732,6 +745,12 @@ function drawCentre() {
 }
 
 function drawHand() {
+  
+  
+  
+  
+  
+  const hadFocus = handEl.contains(document.activeElement) || actionsEl.contains(document.activeElement);
   handEl.replaceChildren();
   if (!view || view.you < 0) return;
   const h = view.game.hand;
@@ -747,15 +766,20 @@ function drawHand() {
   const avail = Math.max(w, (handEl.clientWidth || screenW() - 48) - 4);
   const step = total > 1 ? Math.min(w + 6, Math.floor((avail - w) / (total - 1))) : w;
   handEl.style.setProperty('--cg-fan', `${step - w}px`);
-  for (const c of cards) {
-    const el = cardEl(c, { kind: 'hand', onClick: canThrow ? () => doAction({ type: 'discard', card: c }) : null });
+  cursor = clampCursor(cursor, cards.length);
+  cards.forEach((c, i) => {
+    const el = cardEl(c, { kind: 'hand', onClick: canThrow ? () => { cursor = i; doAction({ type: 'discard', card: c }); } : null });
+    el.dataset.i = String(i);
+    
+    if (canThrow) el.tabIndex = i === cursor ? 0 : -1;
     el.classList.toggle('in-meld', inMeld.has(c));
     el.classList.toggle('wildcard', isJoker(c));
     if (h.drawn && h.drawn.card === c) el.classList.add('drawn');
     el.dataset.id = c;
     if (echoed(c)) el.classList.add('echo');
     handEl.append(el);
-  }
+  });
+  if (hadFocus) handEl.querySelector('button[tabindex="0"]')?.focus({ preventScroll: true });
   
   for (let k = 0; k < (view.echo?.incoming || 0); k++) {
     const el = cardEl('back', { kind: 'hand', faceDown: true });
@@ -1029,7 +1053,7 @@ for (const b of document.querySelectorAll('[data-mode]')) {
   b.addEventListener('click', () => {
     const mode = b.dataset.mode;
     if (mode === settings.mode) return;
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'room') leaveRoom();
     settings.mode = mode;
     if (mode === 'bot') newMatch();
@@ -1041,7 +1065,7 @@ for (const b of document.querySelectorAll('[data-size]')) {
     if (room.active) return;
     settings.size = Number(b.dataset.size);
     persist();
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'bot') restartSolo(); else draw();
   });
 }
@@ -1049,7 +1073,7 @@ for (const b of document.querySelectorAll('[data-level]')) {
   b.addEventListener('click', () => {
     settings.level = b.dataset.level;
     persist();
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'bot') restartSolo();
     else if (match && !isGuest()) {
       
@@ -1061,13 +1085,13 @@ for (const b of document.querySelectorAll('[data-level]')) {
 reengEl.addEventListener('change', () => {
   settings.reenganche = reengEl.checked;
   persist();
-  playUi(reengEl.checked ? 'toggleOn' : 'toggleOff');
+  ui.play(reengEl.checked ? 'toggleOn' : 'toggleOff');
   if (settings.mode === 'bot') restartSolo(); else if (room.active && net?.hosting) newMatch();
 });
 nextEl.addEventListener('click', () => { if (!isGuest()) dealNext(); });
 $('new-game').addEventListener('click', () => {
   if (watcher()) return;
-  playUi('tap');
+  ui.play('tap');
   if (isGuest()) { net.propose({ type: 'rematch' }); return; }
   if (match && settings.mode === 'room') { stopTimers(); begin(rematch(match, freshSeed())); return; }
   if (settings.mode === 'room') { flash(T.waiting); return; }
@@ -1076,7 +1100,7 @@ $('new-game').addEventListener('click', () => {
 window.addEventListener('resize', () => draw());
 $('goal-head').textContent = PW.goal;
 $('prizes-head').textContent = PW.prizes;
-$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; playUi(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
+$('prizes-btn').addEventListener('click', () => { prizesOpen = !prizesOpen; ui.play(prizesOpen ? 'toggleOn' : 'toggleOff'); drawProgress(); });
 
 
 const codeOf = (id) => String(id ?? '').replace(/^fcg-/i, '').toUpperCase();
@@ -1256,14 +1280,14 @@ function leaveRoom() {
   Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 
-$('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
+$('create-room').addEventListener('click', () => { ui.play('tap'); openRoom(); });
 $('join-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  playUi('tap');
+  ui.play('tap');
   joinRoom($('join-code').value.trim());
 });
 $('leave-room').addEventListener('click', () => {
-  playUi('toggleOff');
+  ui.play('toggleOff');
   leaveRoom();
   settings.mode = 'bot';
   newMatch();
@@ -1299,10 +1323,183 @@ $('watch-link').addEventListener('click', () => {
 });
 
 
+
+
+
+
+const titleEl = $('title');
+const menuEl = $('menu');
+const mainEl = document.querySelector('main.cg');
+const reduced = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+const coarse = () => globalThis.matchMedia?.('(pointer: coarse)').matches;
+let usedKeys = false;
+let setupFold = null;          
+let menuReturn = null;         
+function atTitle() { return document.body.classList.contains('at-title'); }
+function menuOpen() { return !menuEl.hidden; }
+const focusEl = (node) => node?.focus({ preventScroll: true });
+const cursorEl = () => handEl.querySelector('button[tabindex="0"]') || handEl.querySelector('button[data-i]');
+
+const focusPlay = () => focusEl(cursorEl() || actionsEl.querySelector('button:not(:disabled)') || (!nextEl.hidden && nextEl) || $('new-game'));
+
+
+let heldPlay = [];
+function whenPlaying(f) { if (atTitle() || menuOpen()) heldPlay.push(f); else f(); }
+function resumePlay() { const q = heldPlay; heldPlay = []; for (const f of q) f(); }
+
+function showTitle() {
+  closeMenu(false);
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  titleEl.hidden = false;
+  mainEl.inert = true;
+  if (usedKeys || !coarse()) focusEl($('start'));
+}
+function leaveTitle(then) {
+  if (!atTitle()) { then?.(); return; }
+  mainEl.inert = false;
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    titleEl.hidden = true;
+    fit.refit({ grow: true });
+    then?.();
+    resumePlay();
+  };
+  if (reduced()) { done(); return; }
+  document.body.classList.add('title-leaving');
+  setTimeout(done, TITLE_OUT_MS);
+}
+function openOptions() {
+  if (setupFold) setupFold.open = true;
+  ui.play(menuCue('menu-options'));
+  const first = document.querySelector('[data-mode][aria-pressed="true"]') || document.querySelector('[data-mode]');
+  focusEl(first);
+  first?.scrollIntoView?.({ block: 'nearest' });
+}
+function openMenu() {
+  if (menuOpen() || atTitle()) return;
+  menuReturn = document.activeElement;
+  menuEl.hidden = false;
+  mainEl.inert = true;
+  ui.play('open');
+  focusEl($('menu-resume'));
+}
+function closeMenu(restore = true) {
+  if (!menuOpen()) return;
+  menuEl.hidden = true;
+  mainEl.inert = false;
+  if (restore) {
+    
+    if (menuReturn && menuReturn !== document.body && document.contains(menuReturn)) focusEl(menuReturn);
+    else focusPlay();
+  }
+  if (!atTitle()) resumePlay();
+}
+
+
+
+$('start').addEventListener('click', () => { ui.play(menuCue('start')); leaveTitle(() => { if (usedKeys || !coarse()) focusPlay(); }); });
+$('see-options').addEventListener('click', () => leaveTitle(openOptions));
+$('menu-btn').addEventListener('click', openMenu);
+$('menu-resume').addEventListener('click', () => { ui.play(menuCue('menu-resume')); closeMenu(); });
+$('menu-new').addEventListener('click', () => { closeMenu(false); $('new-game').click(); focusPlay(); });
+$('menu-options').addEventListener('click', () => { closeMenu(false); openOptions(); });
+$('menu-title').addEventListener('click', () => { ui.play(menuCue('menu-title')); showTitle(); });
+
+menuEl.addEventListener('click', (ev) => { if (ev.target === menuEl) { ui.play('back'); closeMenu(); } });
+
+
+function navList() {
+  if (atTitle()) return TITLE_BUTTONS.map($);
+  if (menuOpen()) return MENU_BUTTONS.map($);
+  return [...mainEl.querySelectorAll('button, select, input, summary')]
+    .filter((b) => !b.disabled && b.getClientRects().length && b.tabIndex >= 0);
+}
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (/^(Arrow|Tab$|Enter$|Escape$| $)/.test(ev.key)) usedKeys = true;
+  if (ev.defaultPrevented) return;
+  if (ev.key === 'Escape') {
+    if (atTitle()) return;
+    ev.preventDefault();
+    if (menuOpen()) { ui.play('back'); closeMenu(); return; }
+    openMenu();
+    return;
+  }
+  const word = navKey(ev.key);
+  if (!word) return;
+  const t = ev.target;
+  if (t?.tagName === 'SELECT' || t?.tagName === 'INPUT') return;
+  ev.preventDefault();
+  
+  if (handEl.contains(t) && t.dataset?.i !== undefined && !menuOpen()) {
+    const cards = [...handEl.querySelectorAll('button[data-i]')];
+    const at = cards.indexOf(t);
+    const next = handStep(at, word, cards.length);
+    if (next !== null) {
+      if (next === at) return;
+      t.tabIndex = -1;
+      const el = cards[next];
+      cursor = Number(el.dataset.i);
+      el.tabIndex = 0;
+      focusEl(el);
+      ui.play('focus');
+      return;
+    }
+  }
+  const list = navList();
+  if (!list.length) return;
+  const next = list[stepFocus(list.indexOf(document.activeElement), STEP[word], list.length)];
+  if (next && next !== document.activeElement) { focusEl(next); ui.play('focus'); }
+});
+
+
+function pressKey(key) {
+  usedKeys = true;
+  let t = document.activeElement;
+  if (!t || t === document.body) {
+    if (atTitle()) focusEl($('start'));
+    else if (menuOpen()) focusEl($('menu-resume'));
+    else focusPlay();
+    t = document.activeElement;
+    if (key !== 'Escape') return; 
+  }
+  
+  if (key === 'Enter' && t && t !== document.body) { t.click(); return; }
+  (t || document).dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+}
+let padState = null;
+let padLoop = 0;
+function pollPad() {
+  padLoop = 0;
+  const p = [...(navigator.getGamepads?.() || [])].find(Boolean);
+  if (!p) { padState = null; return; }
+  const r = padPresses(padState, padHeld(p), performance.now());
+  padState = r.state;
+  for (const w of r.presses) pressKey(PAD_KEY[w]);
+  padLoop = requestAnimationFrame(pollPad);
+}
+
+globalThis.addEventListener('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+
+
+function fillTitleFan() {
+  const run = $('title-run');
+  if (!run || !atlas || run.childElementCount) return;
+  CONGA_CARDS.forEach((id, i) => {
+    const el = makeCard(document, atlas, id, { width: 52, className: 'cg-title-c' });
+    el.style.setProperty('--i', String(i));
+    run.append(el);
+  });
+}
+
+
 wireMusicButton({ music });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
 
-foldSetup();
+setupFold = foldSetup();
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Congawise' });
 
 
@@ -1314,10 +1511,16 @@ afterBoot(() => countPlay('conga', { isHost: !linkRoom }));
 
 
 
-const atlasReady = loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch(() => {  });
+const atlasReady = loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); fillTitleFan(); }).catch(() => {  });
 Promise.race([atlasReady, new Promise((r) => { setTimeout(r, 4000); })]).then(() => { fit.refit({ grow: true }); bootDone(); });
 
 function boot() {
+  
+  
+  
+  const framed = document.documentElement.classList.contains('framed');
+  if (showsTitle(params, { linkRoom: !!linkRoom, framed })) showTitle();
+  else { document.body.classList.remove('at-title'); titleEl.hidden = true; }
   if (linkRoom) {
     settings.mode = 'room';
     if (!joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH })) { settings.mode = 'bot'; newMatch({ cheats: true }); }
@@ -1327,6 +1530,12 @@ function boot() {
   newMatch({ cheats: true });
 }
 boot();
+
+
+
+afterBoot(() => {
+  if (atTitle() && (usedKeys || !coarse()) && document.activeElement === document.body) focusEl($('start'));
+});
 
 trackEvent('game_start', { game: GAME_ID, mode: settings.mode, players: settings.size });
 

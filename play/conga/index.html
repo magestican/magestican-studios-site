@@ -33,7 +33,7 @@
   <title>Play Congawise - free Uruguayan conga card game online</title>
   <meta name="description" content="Congawise is free Uruguayan conga, the card game, in your browser: the 50-card Spanish deck, escaleras and piernas, cut with 5 or less left over, over 100 you are out. Play the computer or friends in a room.">
   <meta name="keywords" content="congawise, conga, conga uruguaya, conga online, conga juego de cartas, jugar conga, chinchon">
-  <meta name="build" content="f551f359-20261126T122627Z">
+  <meta name="build" content="58575b4a-20261126T132057Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/conga/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Congawise - free Uruguayan conga card game online">
@@ -51,8 +51,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=f551f359-20261126T122627Z" data-game="conga" data-levels="easy,medium,hard" data-level-key="congawise-settings-v1" data-level-default="medium" data-deck="../shared/cards/spanish50/"></script>
-  <link rel="stylesheet" href="./src/style.css?v=f551f359-20261126T122627Z">
+  <script src="../shared/ui/boot.js?v=58575b4a-20261126T132057Z" data-game="conga" data-levels="easy,medium,hard" data-level-key="congawise-settings-v1" data-level-default="medium" data-deck="../shared/cards/spanish50/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=58575b4a-20261126T132057Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -79,7 +79,7 @@
   </script>
   <script type="module" src="/web-engine/library/openHook.js?play=conga"></script>
 </head>
-<body>
+<body class="at-title">
   
 
   <div class="studio-bar">
@@ -101,6 +101,24 @@
       </svg>
     </button>
   </div>
+
+  
+
+
+
+
+  <section class="cg-title" id="title" aria-labelledby="title-name" translate="no">
+    <div class="cg-title-card">
+      <p class="cg-title-name" id="title-name" data-game-name>Congawise</p>
+      <p class="cg-title-tag" data-t="tagline">Seven in a row wins it all</p>
+      <div class="cg-title-scene" aria-hidden="true">
+        <div class="cg-title-run" id="title-run"></div>
+        <span class="cg-stamp">¡Conga!</span>
+      </div>
+      <button class="cg-start cg-btn skin-wood-button_primary" id="start" type="button" data-t="start">START</button>
+      <button class="cg-btn skin-wood-button_secondary mg-i mg-i-settings" id="see-options" type="button" data-t="seeOptions">See options</button>
+    </div>
+  </section>
 
   <main class="cg">
     <h1 data-game-name>Congawise</h1>
@@ -165,6 +183,7 @@
     <div class="cg-foot">
       <button class="cg-btn skin-wood-button_primary mg-i mg-i-rematch" id="next-hand" type="button" data-t="nextHand" hidden>Next hand</button>
       <button class="cg-btn skin-wood-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+      <button class="cg-btn skin-wood-button_secondary mg-i mg-i-settings" id="menu-btn" type="button" data-t="menu" aria-haspopup="dialog">Menu</button>
     </div>
     <p class="cg-help" data-t="help">Take a card from the stock or the pile, then throw one. Make escaleras (3 or more in a row of one suit) and piernas (3 or 4 of one number); cut when what is left over adds up to 5 or less. Over 100 points you are out, and the last one in wins. A conga - all 7 in one escalera - wins at once.</p>
     
@@ -185,6 +204,18 @@
     </section>
   </main>
 
+  
+
+  <div class="cg-menu" id="menu" hidden>
+    <div class="cg-menu-card" role="dialog" aria-modal="true" aria-labelledby="menu-head">
+      <h2 class="cg-menu-head" id="menu-head" data-t="menu">Menu</h2>
+      <button class="cg-btn skin-wood-button_primary" id="menu-resume" type="button" data-t="resumeMenu">Resume</button>
+      <button class="cg-btn skin-wood-button_secondary mg-i mg-i-new_game" id="menu-new" type="button" data-t="newGame">New game</button>
+      <button class="cg-btn skin-wood-button_secondary mg-i mg-i-settings" id="menu-options" type="button" data-t="options">Options</button>
+      <button class="cg-btn skin-wood-button_secondary mg-i mg-i-leave" id="menu-title" type="button" data-t="titleScreen">Title screen</button>
+    </div>
+  </div>
+
   <noscript>
     <p>Congawise is a conga card game and needs JavaScript; there is nothing to download.
     <a href="/conga.html">How to play</a>.</p>
@@ -192,8 +223,8 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=f551f359-20261126T122627Z"></script>
-  <script type="module" src="./src/main.js?v=f551f359-20261126T122627Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=f551f359-20261126T122627Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=58575b4a-20261126T132057Z"></script>
+  <script type="module" src="./src/main.js?v=58575b4a-20261126T132057Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=58575b4a-20261126T132057Z"></script>
 </body>
 </html>
