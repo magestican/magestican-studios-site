@@ -49,6 +49,8 @@ import { HIGH_SPAN, PARALLAX, highLayout, propLayout, propSpan, runwayLights } f
 import { setData, setHidden, setText, setTransform } from './hudWrite.js';
 import { activeLanguage, t, tv } from '../../../web-engine/i18n/tr.js';
 import { mountPicker } from './lang.js';
+import { installMenuInput } from './menuInput.js';
+import { quitPress } from './menuNav.js';
 import { createTurnTracker, fieldToBox, fitScale, pageAngle, sidewaysOn, toField, viewAngle } from './viewTurn.js';
 
 const $ = (id) => document.getElementById(id);
@@ -850,7 +852,9 @@ function openBriefing() {
   speak(voicePlan(briefingIds(who, briefingFor(who)), activeLanguage()), 400);
 }
 $('pick-go').addEventListener('click', () => openBriefing());
-$('pick-back').addEventListener('click', () => { $('pick').hidden = true; $('title').hidden = false; ui.play('back'); });
+
+
+$('pick-back').addEventListener('click', () => toTitle());
 $('b-back').addEventListener('click', () => { radioOff(); $('brief').hidden = true; $('pick').hidden = false; ui.play('back'); });
 $('b-launch').addEventListener('click', () => {
   radioOff();
@@ -867,7 +871,40 @@ function setPaused(p) {
   if (!paused) music.wake?.();
 }
 function togglePause() { if (mode === 'play') setPaused(!paused); }
-$('paused').addEventListener('click', () => setPaused(false));
+
+
+
+
+let quitArmedAt = 0;
+function disarmQuit() { quitArmedAt = 0; $('p-quit').textContent = t('Quit to title'); }
+$('paused').addEventListener('click', (e) => { if (!e.target.closest('#p-quit')) { disarmQuit(); setPaused(false); } });
+$('p-quit').addEventListener('click', () => {
+  const r = quitPress(quitArmedAt, performance.now());
+  quitArmedAt = r.armedAt;
+  if (r.quit) { disarmQuit(); toTitle(); return; }
+  $('p-quit').textContent = t('Quit? Press again');
+  ui.play('tap');
+});
+$('p-quit').addEventListener('blur', disarmQuit);
+
+function toTitle() {
+  radioOff();
+  if (net) { leaveCoop(); return; }
+  sim = null; mode = 'title'; paused = false;
+  Object.assign(seen, SEEN0);
+  for (const id of ['paused', 'pick', 'brief', 'tally', 'ending']) $(id).hidden = true;
+  $('invite').hidden = true;
+  $('field').dataset.screen = 'menu';
+  drawContinue();
+  $('title').hidden = false;
+  ui.play('back');
+}
+installMenuInput({
+  cue: (c) => ui.play(c),
+  playing: () => mode === 'play' && !paused && !net,
+  pause: () => setPaused(true),
+  resume: () => { disarmQuit(); setPaused(false); },
+});
 
 
 const runGoesOn = (s) => !s.over && s.clear > 0 && s.stage + 1 < STAGES.length;

@@ -82,6 +82,8 @@ export const ES = {
   'Back to the title': 'Volver al inicio',
   'Paused': 'Pausa',
   'Tap to carry on': 'Toca para seguir',
+  'Quit to title': 'Salir al título',
+  'Quit? Press again': '¿Salir? Pulsa otra vez',
   
   'Invite friends': 'Invitar amigos',
   'Opening a room...': 'Abriendo una sala...',

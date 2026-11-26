@@ -399,6 +399,37 @@
     .net #controls button { flex: 1; }
     .net .help { font-size: 12px; opacity: 0.75; }
     .net [hidden] { display: none !important; }
+    
+
+
+
+
+    @keyframes fw-fade { from { opacity: 0; } }
+    @keyframes fw-rise { from { opacity: 0; translate: 0 12px; } }
+    @keyframes fw-pop { from { opacity: 0; scale: 0.92; } }
+    .overlay:not([hidden]) { animation: fw-fade 220ms ease-out; }
+    .overlay:not([hidden]) :is(h2, .brand, .plates > *, .pair > button, .pick-row, .cards, dl, .tag),
+    .overlay:not([hidden]) > button { animation: fw-rise 220ms ease-out 60ms backwards; }
+    .overlay:not([hidden]) :is(.plates, .pair) > :nth-child(2) { animation-delay: 110ms; }
+    .overlay:not([hidden]) :is(.plates, .pair) > :nth-child(3) { animation-delay: 160ms; }
+    .overlay:not([hidden]) :is(.plates, .pair) > :nth-child(4) { animation-delay: 210ms; }
+    .overlay:not([hidden]) :is(.plates, .pair) > :nth-child(n+5) { animation-delay: 260ms; }
+    
+    #paused .p-card { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 24px;
+      background: linear-gradient(100deg, rgba(20, 22, 34, 0.94), rgba(28, 24, 46, 0.9));
+      clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%); }
+    
+
+    #paused:not([hidden]) { justify-content: flex-end; padding-bottom: 160px; }
+    #paused .pair { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    
+    #paused .pair > .alt { background: linear-gradient(90deg, var(--ember) 0 5px, transparent 5px), linear-gradient(100deg, #2a2d44, #342c52); }
+    #paused .pair > .alt:is(:hover, :focus-visible) { color: #fff;
+      background: linear-gradient(90deg, var(--iris-lit) 0 5px, transparent 5px), linear-gradient(100deg, #3c3266, #4a3c7a); }
+    #paused:not([hidden]) .p-card { animation: fw-pop 160ms ease-out; }
+    @media (prefers-reduced-motion: reduce) {
+      .overlay:not([hidden]), .overlay:not([hidden]) *, #paused:not([hidden]) .p-card { animation: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -526,7 +557,10 @@
     <div class="names" id="names" aria-hidden="true"></div>
     <div class="toast" id="toast" role="status" hidden></div>
     <ul class="radio live" id="radio" aria-live="polite" hidden><li class="r-btns" id="r-btns"><button id="r-next" type="button">Next</button><button id="r-skip" type="button">Skip all</button></li></ul>
-    <section class="overlay" id="paused" hidden><h2>Paused</h2><p class="tag">Tap to carry on</p></section>
+    
+
+    <section class="overlay" id="paused" hidden><div class="p-card"><h2>Paused</h2><p class="tag">Tap to carry on</p>
+      <div class="pair"><button class="alt" id="p-quit" type="button">Quit to title</button><button class="go" id="p-resume" type="button">Carry on</button></div></div></section>
     <div id="err"></div>
   </div>
   <aside>
@@ -565,7 +599,7 @@
       </section>
     </main>
   </template>
-  <script type="module" src="src/boot.js?v=37cd83b1-20261126T194509Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=37cd83b1-20261126T194509Z"></script>
+  <script type="module" src="src/boot.js?v=302de89e-20261126T204307Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=302de89e-20261126T204307Z"></script>
 </body>
 </html>

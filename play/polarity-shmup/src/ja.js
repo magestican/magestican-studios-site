@@ -76,6 +76,8 @@ export const JA = {
   'Back to the title': 'タイトルへ戻る',
   'Paused': 'ポーズ中',
   'Tap to carry on': 'タップで再開',
+  'Quit to title': 'タイトルへ戻る',
+  'Quit? Press again': '本当に戻る？もう一度押して',
   
   'Invite friends': '友だちを招待',
   'Opening a room...': 'ルームを開いています…',
