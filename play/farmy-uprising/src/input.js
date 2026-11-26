@@ -191,6 +191,9 @@ export function createInput(canvas, view, emit, opts = {}) {
     const gps = navigator.getGamepads ? navigator.getGamepads() : [];
     const gp = [...gps].find((g) => g && g.connected);
     if (!gp) return;
+    
+    
+    if (emit.menuOpen && emit.menuOpen()) { pad.prev = gp.buttons.map((b) => b.pressed); return; }
 
     const dead = (v) => (Math.abs(v) < 0.18 ? 0 : v);
     
@@ -230,7 +233,8 @@ export function createInput(canvas, view, emit, opts = {}) {
     if (pressed(3)) emit.toggleQuick();                                
     if (pressed(4)) emit.select({ kind: 'army' });                     
     if (pressed(5)) emit.select({ kind: 'gather' });                   
-    if (pressed(9)) emit.select({ kind: 'all' });                      
+    
+    if (pressed(8)) emit.select({ kind: 'all' });                      
     if (pressed(11)) emit.select({ kind: 'view' });                    
     if (pressed(14)) view.rotate(-1);                                  
     if (pressed(15)) view.rotate(1);                                   

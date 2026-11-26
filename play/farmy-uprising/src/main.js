@@ -33,6 +33,7 @@ import { nameFor, joinIdFrom } from '../../../web-engine/words/coop.js';
 import { createRenderer } from './render.js';
 import { createHud } from './hud.js';
 import { createInput } from './input.js';
+import { installMenuInput } from './menuInput.js';
 import { createAudio } from './audio.js';
 import { createVoices } from './voices.js';
 import { createNet, openRooms, canPlayTogether } from './net.js';
@@ -829,6 +830,9 @@ async function start(resumed, networked) {
         hud.setSelection(selection);
       },
       toggleQuick() { $('quick').classList.toggle('open'); },
+      
+      
+      menuOpen() { return !!(menuUi && menuUi.top()); },
       jumpToAction() {
         if (match && match.lastOrderSector >= 0) {
           const s = match.w.sectors[match.lastOrderSector];
@@ -1529,7 +1533,21 @@ $('start').addEventListener('click', () => {
 $('see-options').addEventListener('click', () => {
   leaveTitle();
   $('menu').classList.add('show');
-  $('btn-play').focus({ preventScroll: true });
+});
+
+
+
+
+function backToTitle() {
+  atTitle = true;
+  document.body.classList.add('at-title');
+  $('menu').inert = true;
+}
+
+const menuUi = installMenuInput({
+  pause: () => pauseMatch(true),
+  resume: () => pauseMatch(false),
+  toTitle: backToTitle,
 });
 
 
