@@ -73,6 +73,7 @@ import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import { createLobbyUi } from './ui/lobby.js';
 import { driverPanelHtml } from './ui/driverPanel.js';
 import { drawItemIcon } from './render/itemMesh.js';
+import { installMenuInput } from './ui/menuInput.js';
 import { hex, PALETTE } from './palette.js';
 import { showTouchOverlay } from './input/controls.js';
 import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState, SFX } from './audio/sfx.js';
@@ -289,6 +290,12 @@ function boot() {
     if (!state.race) return;
     if ($('pause').classList.contains('show')) resumeRace(); else pauseRace();
   });
+
+  
+  
+  try {
+    installMenuInput({ pauseRace, resumeRace, isRacing: () => !!state.race && !$('pause').classList.contains('show') });
+  } catch {  }
 
   
   
