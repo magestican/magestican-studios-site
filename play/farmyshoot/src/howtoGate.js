@@ -22,7 +22,8 @@ export function createHowtoGate({ overlay, close, storage }) {
   const seen = () => {
     try { return !!storage.getItem(HOWTO_KEY); } catch { return false; }
   };
-  const show = () => { overlay.style.display = 'flex'; };
+  
+  const show = () => { overlay.style.display = 'flex'; close.focus?.({ preventScroll: true }); };
 
   close.addEventListener('click', () => {
     try { storage.setItem(HOWTO_KEY, '1'); } catch {  }

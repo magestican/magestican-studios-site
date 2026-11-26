@@ -43,6 +43,12 @@ import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
 import { publishShootRoom } from './shootRoom.js';
 
 
+import { TITLE_CONTROLS, MENU_CUES, MENU_GAINS, menuCue, navKey, STEP, stepFocus } from './menuNav.js';
+import { mountMatchMenu, MENU_WORDS } from './matchMenu.js';
+import { mountPadControls } from './padControls.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
+
+
 
 
 
@@ -780,7 +786,67 @@ try { paintGoal(); } catch (err) { console.warn('[goal] card unavailable:', err)
 
 
 
-$('quickPlayBtn')?.addEventListener('click', () => (howto ? howto.before(quickPlay) : quickPlay()));
+
+
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+let liveGame = null;
+let liveMenu = null;
+const titleOpen = () => $('menu')?.style.display !== 'none';
+const titleControls = () => TITLE_CONTROLS.map((id) => $(id)).filter((el) => el && el.offsetParent !== null);
+function walkTitle(word) {
+  const list = titleControls();
+  const i = stepFocus(list.indexOf(document.activeElement), STEP[word] || 0, list.length);
+  if (i < 0) return;
+  list[i].focus();
+  ui.play('focus');
+}
+const touchOnly = matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
+if (!touchOnly) $('quickPlayBtn')?.focus({ preventScroll: true });
+window.addEventListener('keydown', (e) => {
+  if (!titleOpen() || liveGame) return;
+  const t = document.activeElement;
+  if (t && t !== document.body && !TITLE_CONTROLS.includes(t.id)) return;   
+  const word = navKey(e.key);
+  if (!word) return;
+  e.preventDefault();
+  walkTitle(word);
+});
+for (const id of TITLE_CONTROLS.slice(1)) $(id)?.addEventListener('click', () => ui.play(menuCue(id)));
+
+let quickBusy = false;
+$('quickPlayBtn')?.addEventListener('click', () => {
+  
+  
+  if (quickBusy) { ui.play('error'); return; }
+  ui.play(menuCue('quickPlayBtn'));
+  return howto ? howto.before(quickPlayOnce) : quickPlayOnce();
+});
+async function quickPlayOnce() {
+  const btn = $('quickPlayBtn');
+  const word = btn?.textContent;
+  quickBusy = true;
+  if (btn) { btn.textContent = 'Opening a room.'; btn.setAttribute('aria-busy', 'true'); btn.classList.add('busy'); }
+  try { await quickPlay(); }
+  catch (err) {
+    quickBusy = false;
+    if (btn) { btn.textContent = word; btn.removeAttribute('aria-busy'); btn.classList.remove('busy'); }
+    throw err;
+  }
+}
+
+mountPadControls({
+  getGame: () => liveGame,
+  menu: () => liveMenu,
+  walkTitle,
+  settingsOpen: () => !!$('settings-modal')?.classList.contains('visible'),
+  escape: () => {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape' }));
+    if (liveGame?._scoreboardOpen && document.pointerLockElement) document.exitPointerLock?.();
+  },
+});
 async function quickPlay() {
   const roll = assertPlayable(randomLoadout({
     maps: MAP_IDS, modes: MODE_IDS,
@@ -1047,7 +1113,34 @@ async function startGame(hostIdToJoin) {
     closeChat:        () => game.chat?.close?.(),
     closeSettings:    () => $('settings-modal')?.classList.remove('visible'),
     closeCareer:      () => leaderboardUi?.close(),
-    setScoreboard:    (on) => game._paintScoreboard(on),
+    setScoreboard:    (on) => { game._paintScoreboard(on); matchMenu.show(on); },
+  });
+
+  
+  
+  
+  
+  
+  
+  const matchMenu = mountMatchMenu({
+    game,
+    ui,
+    openSettings: () => document.getElementById('settings-btn')?.click(),
+    
+    
+    onLeave: () => location.assign(location.pathname),
+  });
+  liveGame = game;
+  liveMenu = matchMenu;
+  const paint = game._paintScoreboard.bind(game);
+  game._paintScoreboard = (show) => { paint(show); if (!show) matchMenu.show(false); };
+  const pill = $('topbar');
+  const pillMenu = () => queueMicrotask(() => matchMenu.show(!!game._scoreboardOpen));
+  pill?.addEventListener('click', pillMenu);
+  pill?.addEventListener('touchstart', pillMenu, { passive: true });
+  
+  $('settings-leave')?.addEventListener('click', () => {
+    if (matchMenu.leave() === 'arm') $('settings-leave').textContent = MENU_WORDS.confirm.replace(/\.$/, '');
   });
 
   

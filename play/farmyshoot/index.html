@@ -370,6 +370,33 @@
     button.quickplay:hover { background-color: #c8452f; }
     button.quickplay:active { transform: translateY(6px); box-shadow: 0 2px 0 #5a1610; }
     @media (min-width: 900px) { button.quickplay { min-height: 160px; } }
+    
+
+
+    .lobby-head > * { animation: sb-rise 220ms ease-out both; }
+    .lobby-head > :nth-child(2) { animation-delay: 45ms; }
+    .lobby-head > :nth-child(3) { animation-delay: 90ms; }
+    .lobby-head > :nth-child(4) { animation-delay: 135ms; }
+    @keyframes sb-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    button.quickplay { animation: sb-rise 220ms ease-out 90ms both, sb-breathe 2.6s ease-in-out 400ms infinite; }
+    @keyframes sb-breathe {
+      0%, 100% { transform: translateY(0); box-shadow: 0 8px 0 #5a1610, 0 14px 30px rgba(0,0,0,.45); }
+      50% { transform: translateY(-2px); box-shadow: 0 10px 0 #5a1610, 0 16px 36px rgba(183,58,42,.55); }
+    }
+    button.quickplay:focus-visible { outline: 4px solid #fff8e6; outline-offset: 5px; }
+    button.quickplay:active { animation: none; }
+    button.quickplay.busy { font-size: clamp(26px, 7vw, 40px); animation: none; cursor: progress; }
+    #goal-toggle:focus-visible, #see-options-summary:focus-visible { outline: 3px solid #fff8e6; outline-offset: 3px; }
+    #settings-leave { background: #8e2f22; color: #fff8e6; border: 2px solid #f3e6c4; padding: 10px 22px;
+      border-radius: 8px; cursor: pointer; font: 700 14px inherit; margin-right: 12px; }
+    body:not(.in-match) #settings-leave { display: none; }
+    
+
+    .lobby-head .mg-share-game { margin-top: 14px; }
+    .lobby-head .mg-level-chip { margin: 14px 4px 0; }
+    @media (prefers-reduced-motion: reduce) {
+      .lobby-head > *, button.quickplay { animation: none; }
+    }
 
     
 
@@ -1550,7 +1577,7 @@
 
 
       <details id="see-options" class="see-options">
-      <summary>See options</summary>
+      <summary id="see-options-summary">See options</summary>
       <div class="lobby-grid">
 
         
@@ -1894,6 +1921,7 @@
         </div>
       </div>
       <p id="support-slot" style="margin:14px 0 0;font-size:13px;color:#7f8798;"></p>
+      <button id="settings-leave" type="button">Leave match</button>
       <button id="settings-close">Close</button>
     </div>
   </div>
@@ -1921,8 +1949,8 @@
   </div>
 
   
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=e6e14200-20261126T142348Z"></script>
-  <script type="module" src="./src/main.js?v=e6e14200-20261126T142348Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=e6e14200-20261126T142348Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=f50fac3d-20261126T154301Z"></script>
+  <script type="module" src="./src/main.js?v=f50fac3d-20261126T154301Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=f50fac3d-20261126T154301Z"></script>
 </body>
 </html>

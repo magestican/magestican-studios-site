@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "e6e14200-20261126T142348Z",
+ "buildId": "f50fac3d-20261126T154301Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -40,7 +40,7 @@
    "ageNote": "Frequent cartoon shooting between farm animals. No gore and no realistic weapons, but it is a first-person shooter and is rated as one.",
    "order": 0,
    "addedAt": "2026-08-30",
-   "bytes": 11985566
+   "bytes": 12146373
   },
   {
    "id": "farmy-uprising",

@@ -4272,7 +4272,9 @@ export class Game {
     
     
     this.hitFlash?.update(dt);
-    if (!this.gameOver) {
+    
+    
+    if (!this.gameOver && !this._menuHeld) {
       try { this._tick(dt); }
       catch (err) {
         
@@ -4310,7 +4312,7 @@ export class Game {
     try {
       this.skyBrawl?.update(dt, this.camera.position);
       this.critters?.update(dt, this.camera.position);
-      if (!this.gameOver) this._tickHill(dt);
+      if (!this.gameOver && !this._menuHeld) this._tickHill(dt);
       
       
       
