@@ -43,6 +43,7 @@
 
 
 
+import { kitchenTiles, officeCarpet } from '../render/floorPaint.js';
 import { levelBuilder } from './dsl.js';
 
 const COW = { motif: 'cow-catcher' };
@@ -311,5 +312,7 @@ export function buildL13() {
   const level = L.build();
   
   level.trainPlan = { points: { J0: 'b', J7: 'a', J5: 'b', J8: 'a', J6: 'a', J3: 'b' }, boost: 'auto' };
+  
+  Object.defineProperty(level, 'floorPaint', { value: { kitchenTiles, officeCarpet } });
   return level;
 }

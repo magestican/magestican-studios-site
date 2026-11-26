@@ -405,27 +405,29 @@ function floorMeshes(level, renderer) {
   const g = new THREE.Group();
   const { w, h } = level.floor;
   const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-  const rnd = lcg(13);
-  const carpet = canvasTexture(128, 128, (ctx, cw, ch) => {
-    ctx.fillStyle = '#56607e';
-    ctx.fillRect(0, 0, cw, ch);
-    for (let i = 0; i < 900; i++) {
-      ctx.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.10)';
-      ctx.fillRect(rnd() * cw, rnd() * ch, 2, 2);
-    }
-  });
-  const tiles = canvasTexture(128, 128, (ctx, cw, ch) => {
-    ctx.fillStyle = '#b6a98f';
-    ctx.fillRect(0, 0, cw, ch);
-    ctx.fillStyle = '#efe6d2';
-    ctx.fillRect(3, 3, cw - 6, ch - 6);
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    ctx.fillRect(10, 10, 40, 6);
-  });
-  for (const tex of [carpet, tiles]) {
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.anisotropy = aniso;
-  }
+  
+  
+  const fp = level.floorPaint;
+  const tex = (data, n, srgb) => {
+    const t = new THREE.DataTexture(data, n, n);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.minFilter = THREE.LinearMipmapLinearFilter;
+    t.magFilter = THREE.LinearFilter;
+    t.generateMipmaps = true;
+    t.anisotropy = aniso;
+    if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+    t.needsUpdate = true;
+    return t;
+  };
+  const look = (img, c, rep) => {
+    if (!img) return { color: c };
+    const m = { map: tex(img.color, img.size, true), normalMap: tex(img.normal, img.size) };
+    m.map.repeat.setScalar(rep);
+    m.normalMap.repeat.setScalar(rep);
+    return m;
+  };
+  const tiles = look(fp?.kitchenTiles(), 0xefe6d2, 0.5); 
+  const carpet = look(fp?.officeCarpet(), 0x56607e, 1);
   
   const floorPlane = (pw) => {
     const geo = new THREE.PlaneGeometry(pw, h);
@@ -435,12 +437,12 @@ function floorMeshes(level, renderer) {
   };
   const skins = trainFloorArt();
   const cw = Math.min(46, w);
-  const cm = new THREE.Mesh(floorPlane(cw), lambert(0xffffff, { map: carpet }));
+  const cm = new THREE.Mesh(floorPlane(cw), new THREE.MeshLambertMaterial(carpet));
   cm.position.set(cw / 2, h / 2, 0);
   if (skins.rug) skinMaterial(cm.material, skins.rug);
   g.add(cm);
   if (w > 46) {
-    const tm = new THREE.Mesh(floorPlane(w - 46), lambert(0xffffff, { map: tiles }));
+    const tm = new THREE.Mesh(floorPlane(w - 46), new THREE.MeshLambertMaterial(tiles));
     tm.position.set(46 + (w - 46) / 2, h / 2, 0);
     if (skins.tiles) skinMaterial(tm.material, skins.tiles);
     g.add(tm);

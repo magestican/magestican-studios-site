@@ -1,10 +1,6 @@
 
 
 
-
-
-
-
 const D = 'assets/art/biome/phase-f';
 
 
@@ -25,6 +21,10 @@ const GARDEN_SKY = 0x9fdcff;
 const plateUrl = (name) => `${D}/${name}/plate.webp`;
 
 
+const SHIPPED_HOUSE = 'assets/art/biome/batch3/kitchen-far/plate.webp';
+const SHIPPED_GARDEN = 'assets/art/biome/sovereign/morningsky-far/plate.webp';
+
+
 
 
 
@@ -32,11 +32,11 @@ const plateUrl = (name) => `${D}/${name}/plate.webp`;
 export function stampedeArt(ready = PHASE_F_READY) {
   const house = ready['stampede-house-far'];
   const garden = ready['stampede-garden-far'];
-  if (!house && !garden) return null;
   return {
-    ...(house ? { plate: plateUrl('stampede-house-far') } : {}),
-    ...(garden ? { planePlate: plateUrl('stampede-garden-far') } : {}),
+    plate: house ? plateUrl('stampede-house-far') : SHIPPED_HOUSE,
+    planePlate: garden ? plateUrl('stampede-garden-far') : SHIPPED_GARDEN,
     plateAspect: 16 / 9,
+    plateZoom: 1.15, 
     sky: HOUSE_SKY,
     planeSky: GARDEN_SKY,
     swapX: STAMPEDE_SWAP_X,
