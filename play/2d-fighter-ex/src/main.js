@@ -22,6 +22,7 @@ import { cursorAt, stateAt, totalMs, sceneAt, STANDOFF_MS } from './fightPlaybac
 import { FPS } from './fightScript.js';
 import { renderFrame, setFighter3dFactory } from './render.js';
 import { installAudio } from './audio.js';
+import { installMenuInput } from './menuInput.js';
 
 
 
@@ -348,6 +349,9 @@ function setPlaying(next) {
   $('playpause').textContent = playing ? 'Pause' : 'Play';
   $('playpause').setAttribute('aria-pressed', String(!playing));
   if (playing) leaveTitle();
+  
+  
+  if (playing && $('paused')) $('paused').hidden = true;
 }
 setPlaying(playing);
 
@@ -388,6 +392,32 @@ globalThis.addEventListener('keydown', (e) => {
     elapsed = Math.max(0, elapsed - 1000 / FPS);
   }
 });
+
+
+
+
+
+const pauseCard = $('paused');
+function openPause() {
+  setPlaying(false);
+  pauseCard.hidden = false;
+}
+function closePause() {
+  pauseCard.hidden = true;
+  setPlaying(true);
+}
+function toTitle() {
+  pauseCard.hidden = true;
+  setPlaying(false);
+  atTitle = true;
+  elapsed = STANDOFF_MS;
+  document.body.classList.add('at-title');
+}
+$('p-resume').addEventListener('click', closePause);
+$('p-title').addEventListener('click', toTitle);
+
+canvas.addEventListener('click', () => { if (playing && !atTitle) openPause(); });
+installMenuInput({ pause: openPause, resume: closePause });
 
 canvas.width = CANVAS.width;
 canvas.height = CANVAS.height;

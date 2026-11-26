@@ -176,6 +176,43 @@
     details.more[open] > summary { margin-bottom: 4px; }
     .readout { justify-content: center; padding: 0 16px; }
 
+    
+
+
+
+    .frame { position: relative; }
+    .pausecard {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 12px; padding: 16px; line-height: 1.5;
+      background: rgba(20, 8, 22, .62);
+    }
+    .pausecard[hidden] { display: none; }
+    .pausecard-banner {
+      margin: 0; padding: 4px 20px; background: #ff5f57; color: #1c0a1e;
+      font-family: "Arial Black", "Segoe UI Black", ui-sans-serif, system-ui, sans-serif;
+      font-size: 1.3rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+      box-shadow: inset 0 4px 0 #ffb199, inset 0 -6px 0 #b3262a;
+    }
+    .pausecard-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .pausecard-row button { min-width: 140px; }
+    .pausecard-row button:focus-visible { outline: 3px solid #ff5f57; outline-offset: 2px; }
+    body.at-title #start { animation: fx-plate-in 260ms cubic-bezier(.2, .9, .3, 1.2) both, fx-sun 3.2s ease-in-out 260ms infinite; }
+    body.at-title #start:focus-visible { animation: fx-plate-in 260ms cubic-bezier(.2, .9, .3, 1.2) both, fx-sun 3.2s ease-in-out 260ms infinite, fx-ring 1.1s ease-in-out 260ms infinite; }
+    .pausecard:not([hidden]) { animation: fx-card-in 200ms ease-out both; }
+    .pausecard:not([hidden]) .pausecard-row button { animation: fx-rise 200ms ease-out both; }
+    .pausecard:not([hidden]) .pausecard-row button + button { animation-delay: 50ms; }
+    @keyframes fx-plate-in { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: none; } }
+    @keyframes fx-sun { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.12); } }
+    @keyframes fx-ring { 0%, 100% { outline-offset: -10px; } 50% { outline-offset: -14px; } }
+    @keyframes fx-card-in { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: none; } }
+    @keyframes fx-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      body.at-title #start, body.at-title #start:focus-visible,
+      .pausecard:not([hidden]), .pausecard:not([hidden]) .pausecard-row button { animation: none; }
+    }
+    
+    @media (pointer: coarse) { footer #fx-controls-body, footer #fx-controls-body + br { display: none; } }
+
     @media (max-width: 720px) {
       body { padding: 0 0 16px; }
       header { margin: 10px 0 8px; }
@@ -195,6 +232,15 @@
 
   <div class="frame">
     <canvas id="stage" width="502" height="271" aria-label="A two-fighter animation drawn in coloured blocks"></canvas>
+    
+
+    <section class="pausecard" id="paused" role="dialog" aria-label="Paused" hidden>
+      <p class="pausecard-banner">Paused</p>
+      <div class="pausecard-row">
+        <button id="p-resume" type="button">Resume</button>
+        <button id="p-title" type="button">Back to title</button>
+      </div>
+    </section>
   </div>
 
   
@@ -313,7 +359,7 @@
   <script type="importmap">
   {"imports":{"three":"../../web-engine/vendor/three-0.161.0/three.module.js"}}
   </script>
-  <script type="module" src="./src/main.js?v=65210888-20261126T210654Z"></script>
+  <script type="module" src="./src/main.js?v=cc3d71ae-20261126T213234Z"></script>
 
   
 
@@ -329,6 +375,6 @@
     });
   </script>
 
-  <script type="module" src="/web-engine/site/siteControls.js?v=65210888-20261126T210654Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=cc3d71ae-20261126T213234Z"></script>
 </body>
 </html>
