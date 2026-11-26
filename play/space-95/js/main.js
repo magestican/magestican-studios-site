@@ -215,9 +215,6 @@ let paused =
 
 const seat = level.id && SHIFT_IDS.includes(level.id) ? coopFromUrl(location.search) : null;
 
-
-
-
 const settings = readSettings();
 for (const k of SLIDERS) if (k in settings) audio.setLevel(k, settings[k]);
 const prefersCalm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;

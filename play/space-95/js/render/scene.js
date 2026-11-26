@@ -1,8 +1,5 @@
 
 
-
-
-
 import * as THREE from 'three';
 import { followJo } from '../game/bolt.js';
 import { BODY_H, BODY_W, RUN_SPEED } from '../sim/constants.js';
@@ -35,6 +32,7 @@ import { juiceFor, shakeOffset } from './juice.js';
 import { createKitchen, kitchenEntityView } from './kitchenView.js';
 import { clampLabelToView } from './labelClamp.js';
 import { createNight, nightEntityView } from './nightView.js';
+import { KIT_SIZE, kitColor, kitLayout } from './pickupKit.js';
 import { propBillboard } from './propArt.js';
 import { createProps } from './propLayer.js';
 import { restartPosts } from './restartPosts.js';
@@ -48,7 +46,6 @@ import { CONTACT, contactShadow, groundBelow, setShiftGrade } from './unify.js';
 const CAM_DIST = 20;
 const PORTRAIT_RIDE_PULL = 1.25;
 const TILE_DEPTH = 2.4;
-
 
 const HEAVE_INSET = 0.04;
 
@@ -81,7 +78,6 @@ export function createView(canvas, level, labels) {
   sun.position.set(-8, 14, 12);
   scene.add(sun);
 
-  
   
   const kitchenSkin = !!level.colds?.length && !art?.solid;
   scene.add(tileMeshes(level.world, level.darkTint === 'umber' ? 'bedrock' : kitchenSkin ? 'kitchen' : null, art));
@@ -130,7 +126,6 @@ export function createView(canvas, level, labels) {
   const jo = joPlaceholder();
   scene.add(jo.group);
   const joSprite = createJoSprite(jo.body);
-  
   
   const joShadow = (() => {
     const c = document.createElement('canvas');
@@ -222,16 +217,12 @@ export function createView(canvas, level, labels) {
   let viewHalfW = 11;
   let viewAspect = 16 / 9;
   
-  
   const camDist = () => (level.camDist ?? CAM_DIST) * (level.ride && viewAspect < 1 ? PORTRAIT_RIDE_PULL : 1);
   function resize() {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
     renderer.setSize(w, h, false);
     const aspect = w / Math.max(1, h);
-    
-    
-    
     
     const visibleH = Math.max(VIEW_H, VIEW_MIN_W / aspect);
     viewHalfW = (visibleH * aspect) / 2; 
@@ -244,7 +235,6 @@ export function createView(canvas, level, labels) {
   resize();
   window.addEventListener('resize', resize);
   
-  
   const arenaInsets = () => {
     const buttons = [...document.querySelectorAll('.touch button')].map((b) => b.getBoundingClientRect()).filter((r) => r.height > 0);
     const els = [...document.querySelectorAll('.touch button, .touch .touch-stick')]
@@ -254,7 +244,6 @@ export function createView(canvas, level, labels) {
     const h = Math.max(1, canvas.clientHeight);
     const w = Math.max(1, canvas.clientWidth);
     const hud = document.querySelector('.hud')?.getBoundingClientRect();
-    
     
     const low = w > h ? els.filter((r) => r.top > h / 2) : [];
     const lefts = low.filter((r) => r.left + r.right < w);
@@ -307,7 +296,6 @@ export function createView(canvas, level, labels) {
       
       aheadK += ((hint?.ahead === 0 ? 0 : 1) - aheadK) * (1 - Math.exp(-dt * 3));
       
-      
       const fr = hint?.frame;
       frameK += ((fr ? 1 : 0) - frameK) * (1 - Math.exp(-dt * 2.5));
       if (fr && fr !== lastFrame) frameInsets = arenaInsets();
@@ -325,7 +313,6 @@ export function createView(canvas, level, labels) {
       
       shake *= Math.exp(-dt * 18);
       const { x: sx0, y: sy0 } = shakeOffset(shake, session.time);
-      
       
       planePull += ((session.plane && !level.camDist ? PLANE_PULL : 1) - planePull) * Math.min(1, dt * 2);
       const arenaPull = lastFrame ? 1 + (pullNow - 1) * frameK : 1;
@@ -493,10 +480,7 @@ export function createView(canvas, level, labels) {
       kitchen?.onEvent(e);
       sky?.onEvent(e);
       
-      
       if (e.type === 'crownPop') {
-        
-        
         
         for (let n = 0; n < 44; n++) {
           spark(e.x + (Math.random() - 0.5) * 2.2, e.y + (Math.random() - 0.5) * 2.2, n % 3 ? 0xf2c230 : 0x2a2440, 3.6, 0.2);
@@ -600,7 +584,7 @@ export function createView(canvas, level, labels) {
 }
 
 
-export function entityView(e) {
+export function entityView(e, kit) {
   const g = new THREE.Group();
   const mat = (color) => new THREE.MeshLambertMaterial({ color });
   
@@ -696,8 +680,11 @@ export function entityView(e) {
       art.position.y = 0.2;
       g.add(art);
     } else {
-      const m = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
-      m.position.y = 0.5;
+      const box = new THREE.BoxGeometry(KIT_SIZE, KIT_SIZE, KIT_SIZE);
+      const m = new THREE.Mesh(box, new THREE.MeshBasicMaterial({ color: kitColor(e.grant) }));
+      m.add(new THREE.LineSegments(new THREE.EdgesGeometry(box), new THREE.LineBasicMaterial({ color: 0x1c1030 })));
+      m.position.y = 0.45;
+      g.userData.dx = kit?.get(e.id)?.dx ?? 0;
       m.name = 'spin';
       g.add(m);
     }
@@ -1030,17 +1017,19 @@ export function entityView(e) {
   return g;
 }
 
+const kits = new WeakMap();
 function syncEntities(scene, views, entities, alpha, time) {
   for (const e of entities) {
     let v = views.get(e.id);
     if (!v) {
-      v = entityView(e);
+      if (!kits.has(entities)) kits.set(entities, kitLayout(entities));
+      v = entityView(e, kits.get(entities));
       views.set(e.id, v);
       scene.add(v);
     }
     v.visible = e.alive;
     if (!e.alive) continue;
-    v.position.set(e.px + (e.x - e.px) * alpha, e.py + (e.y - e.py) * alpha, 0.2);
+    v.position.set(e.px + (e.x - e.px) * alpha + (v.userData.dx ?? 0), e.py + (e.y - e.py) * alpha, 0.2);
     v.scale.x = e.facing < 0 ? -1 : 1;
     const ball = v.getObjectByName('ball');
     if (ball) {
