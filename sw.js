@@ -28,7 +28,7 @@
 
 
 
-const BUILD = '2f48d7b7-20261126T014825Z';
+const BUILD = '753b2082-20261126T023306Z';
 const CACHE = `magestican-${BUILD}`;
 
 

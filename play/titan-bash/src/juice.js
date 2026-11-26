@@ -165,7 +165,7 @@ export function createJuice(rng = Math.random, { reducedMotion = false, art = nu
 
 
 
-export const FX_DELIVERED = Object.freeze([]);
+export const FX_DELIVERED = Object.freeze(['muzzle', 'beam', 'explosion', 'clang', 'ringout']);
 
 
 
