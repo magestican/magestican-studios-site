@@ -42,7 +42,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <title>Fossick - free a treasure from the rock, one cube at a time</title>
   <meta name="description" content="Fossick is a careful excavation game: turn a block of rock on a brass cradle and tap a little treasure free, without bringing it all down.">
-  <meta name="build" content="58575b4a-20261126T132057Z">
+  <meta name="build" content="e6e14200-20261126T142348Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/fossick/">
   <link rel="icon" href="./assets/icons/heart-icon/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="./assets/icons/heart-icon/favicon-32.png" type="image/png" sizes="32x32">
@@ -50,7 +50,7 @@
   <script type="importmap">
   {"imports":{"three":"../../web-engine/vendor/three-0.161.0/three.module.js"}}
   </script>
-  <link rel="stylesheet" href="./src/style.css?v=58575b4a-20261126T132057Z">
+  <link rel="stylesheet" href="./src/style.css?v=e6e14200-20261126T142348Z">
 </head>
 <body>
   
@@ -67,7 +67,10 @@
         <p class="blurb" id="t-blurb"></p>
         <button class="cartouche" id="t-open" type="button"></button>
         <p class="goal-line" id="t-goal"></p>
-        <button class="cartouche quiet" id="t-room" type="button" hidden></button>
+        <div class="t-more">
+          <button class="cartouche quiet" id="t-layers" type="button"></button>
+          <button class="cartouche quiet" id="t-room" type="button" hidden></button>
+        </div>
         <p class="imprint" id="t-imprint"></p>
       </div>
     </div>
@@ -110,6 +113,7 @@
       </div>
       <div class="cab-marks" id="c-sound">
         <a class="home-mark" id="c-home" href="/"></a>
+        <button class="cartouche quiet" id="c-to-title" type="button"></button>
       </div>
     </header>
     <div class="themes" id="c-themes" role="radiogroup"></div>
@@ -130,6 +134,8 @@
     </div>
 
     <div class="stage" id="stage">
+      
+      <span class="chisel-mark" id="h-aim" aria-hidden="true" hidden></span>
       <p class="caption" id="h-hint" aria-live="polite"></p>
     </div>
 
@@ -167,8 +173,18 @@
     </div>
   </section>
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=58575b4a-20261126T132057Z"></script>
-  <script type="module" src="./src/main.js?v=58575b4a-20261126T132057Z"></script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=58575b4a-20261126T132057Z"></script>
+  
+  <div class="pause" id="pause" role="dialog" aria-modal="true" aria-labelledby="m-head" hidden>
+    <div class="pause-card">
+      <h2 id="m-head"></h2>
+      <button class="cartouche" id="m-resume" type="button"></button>
+      <button class="cartouche quiet" id="m-layers" type="button"></button>
+      <button class="cartouche quiet" id="m-title" type="button"></button>
+    </div>
+  </div>
+
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=e6e14200-20261126T142348Z"></script>
+  <script type="module" src="./src/main.js?v=e6e14200-20261126T142348Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=e6e14200-20261126T142348Z"></script>
 </body>
 </html>

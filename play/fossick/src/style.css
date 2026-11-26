@@ -573,6 +573,59 @@ button.spec-label:hover { background-color: #f5dc8a; }
   .bench.in-room { grid-template-columns: auto 1fr 212px; }
 }
 
+
+
+
+
+
+@keyframes fs-rise { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+@keyframes fs-bob { 0%, 70%, 100% { translate: 0 0; } 35% { translate: 0 -4px; } }
+@keyframes fs-breathe {
+  0%, 100% { translate: 0 0; filter: drop-shadow(0 0 0 rgba(176, 23, 15, 0)); }
+  50% { translate: 0 -2px; filter: drop-shadow(0 0 9px rgba(176, 23, 15, .38)); }
+}
+.title-block > *, .cabinet-room > *, .lobby-slab > *, .bench > .tag, .bench > .tools, .bench > .seismo, .bench > .back-tab {
+  animation: fs-rise .22s cubic-bezier(.2, .8, .3, 1) both;
+}
+.title-block > :nth-child(2), .cabinet-room > :nth-child(2), .lobby-slab > :nth-child(2), .bench > .tools { animation-delay: 45ms; }
+.title-block > :nth-child(3), .cabinet-room > :nth-child(3), .lobby-slab > :nth-child(3), .bench > .seismo { animation-delay: 90ms; }
+.title-block > :nth-child(4), .lobby-slab > :nth-child(4) { animation-delay: 135ms; }
+.title-block > :nth-child(5), .lobby-slab > :nth-child(5) { animation-delay: 180ms; }
+.title-block > :nth-child(n + 6), .lobby-slab > :nth-child(n + 6) { animation-delay: 225ms; }
+.title-block .letter { animation: fs-bob 3.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 140ms + 600ms); }
+.title-block #t-open { animation: fs-rise .22s cubic-bezier(.2, .8, .3, 1) 135ms both, fs-breathe 2.8s ease-in-out .9s infinite; }
+.title-block #t-open:active, .title-block #t-open:focus-visible { animation-play-state: running, paused; }
+.t-more { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+
+@keyframes fs-card { from { opacity: 0; translate: 0 14px; } to { opacity: 1; translate: 0 0; } }
+@keyframes fs-dim { from { opacity: 0; } }
+.pause {
+  position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px;
+  background: rgba(43, 28, 16, .38); animation: fs-dim .18s ease-out both;
+}
+.pause-card {
+  display: flex; flex-direction: column; align-items: stretch; gap: 14px; width: min(100%, 340px);
+  padding: 22px 22px 24px; text-align: center;
+  background-color: var(--paper); background-image: var(--stipple);
+  border: var(--edge) solid var(--ink); box-shadow: var(--lift) var(--lift) 0 var(--ink);
+  animation: fs-card .18s cubic-bezier(.2, .8, .3, 1) both;
+}
+.pause-card h2 { font-size: 1.5rem; margin-bottom: 4px; }
+
+
+.chisel-mark {
+  position: fixed; z-index: 3; width: 30px; height: 30px; margin: -15px 0 0 -15px; pointer-events: none;
+  border: 2px dashed var(--red); 
+  background:
+    linear-gradient(var(--ink), var(--ink)) center / 2px 12px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) center / 12px 2px no-repeat;
+  transition: left .07s ease-out, top .07s ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .drawer-body, .drawer-face, .stamp, .museum, .seal.broken { transition: none; animation: none; }
+  .title-block > *, .cabinet-room > *, .lobby-slab > *, .bench > *, .title-block .letter, .title-block #t-open,
+  .pause, .pause-card { animation: none; }
+  .chisel-mark { transition: none; }
 }

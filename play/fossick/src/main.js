@@ -8,6 +8,11 @@ import { TREASURE, ROCK, FATIGUE_FROM } from './structure.js';
 import { PlateView } from './view.js';
 import { stringsFor, fill, count } from './strings.js';
 import { createBenchSound } from './sound.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
+import {
+  TITLE_BUTTONS, MENU_BUTTONS, navKey, stepFocus, STEP, backAction, AIM_KEYS, aimStart, aimMove,
+  padHeld, padTurn, padPresses, PAD_KEY_MENU, PAD_KEY_BENCH, MENU_CUES, MENU_GAINS, menuCue,
+} from './menuNav.js';
 import { mountSoundToggle, readMuted, writeMuted } from '../../shared/ui/muteButton.js';
 import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { joinIdFrom, shareLinkFor, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
@@ -76,6 +81,13 @@ let last = performance.now();
 let acc = 0;
 let lastPointer = null;
 let hoverCheck = 0;
+
+let paused = false;            
+let usedKeys = false;          
+let aim = null;                
+let aimOn = false;             
+let padAxes = [0, 0];          
+let menuReturn = null;         
 const stats = { tickMs: 0, tickWorst: 0, frameMs: 0, ticks: 0, frames: 0 };
 const told = { drag: false, strike: false, strain: false, treasure: false, creak: false };
 
@@ -137,7 +149,10 @@ const show = (name) => {
   $('plate').classList.toggle('off', name === 'cabinet' || name === 'lobby');
   $('plate').style.pointerEvents = name === 'bench' ? 'auto' : 'none';
   if (name === 'cabinet' || name === 'lobby') endGame();
+  closeMenu(false);
+  hideAim();
   requestAnimationFrame(reframe);
+  focusPrimary();
   tell('screen', { screen: name });
 };
 
@@ -212,6 +227,8 @@ function applyCheats() {
 
 const SOUND_KEY = 'fossick.muted';
 const sound = createBenchSound();
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
 
 const PICK_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M21.5 13 L8 36 l-3-1.7 L18.4 11.3z" fill="#c9a26a" stroke="#1d1008"/><path d="M6 13C13 3 27 2 36 10c-7-3.6-13-3.9-16-1.7-3.4-.2-9 1.2-14 4.7z" fill="#a9aeb0" stroke="#1d1008"/></svg>`;
 const MALLET_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M23.5 15 L10.5 37 l-3-1.7 L20.5 13.3z" fill="#c9a26a" stroke="#1d1008"/><path d="M11 6.5 L27.5 16 L32.5 7.5 L16 -1.5z" transform="translate(0 5)" fill="#8c6a3a" stroke="#1d1008"/></svg>`;
@@ -471,9 +488,12 @@ function showLabel() {
   $('result').hidden = false;
   $('r-next').onclick = () => startGame(nextLevel);
   $('r-again').onclick = () => startGame(level);
-  $('r-cabinet').onclick = () => openCabinet(level.drawer);
+  $('r-cabinet').onclick = () => { ui.play(menuCue('r-cabinet')); openCabinet(level.drawer); };
   if (inRoom) roomLabel();
   requestAnimationFrame(reframe);
+  
+  hideAim();
+  if (wantsFocus()) focusEl([next, $('r-again'), $('r-cabinet')].find((b) => !b.hidden));
 }
 
 
@@ -717,6 +737,7 @@ function canvasDown(e) {
 
 function canvasMove(e) {
   lastPointer = { x: e.clientX, y: e.clientY };
+  if (aimOn && e.pointerType === 'mouse') hideAim(); 
   if (screen !== 'bench' || !game) return;
   const p = pointers.get(e.pointerId);
   if (p) { p.x = e.clientX; p.y = e.clientY; }
@@ -759,20 +780,22 @@ function canvasUp(e) {
   refreshHover();
 }
 
-function strikeAt(x, y) {
+function strikeAt(x, y, byMark = false) {
   if (!game || game.state !== 'play') return;
   const hit = view.pickAt(x, y);
-  if (!hit) return;
+  
+  if (!hit) { if (byMark) ui.play('error'); return; }
   const r = game.strike(hit.i, tool, hit.normal);
-  if (!r) return;
+  if (!r) { if (byMark) ui.play('error'); return; }
   if (!told.strike) { told.strike = true; if (told.drag) toldBasics(); }
   if (r === 'treasure' && !told.treasure) { told.treasure = true; setHint(S.hintTreasure, 6000); }
 }
 
 function refreshHover() {
-  if (!game || screen !== 'bench' || !lastPointer || press?.moved || game.state !== 'play') { if (view) view.setHover(null); return; }
-  if (view.coarse) return;
-  const hit = view.pickAt(lastPointer.x, lastPointer.y);
+  const at = aimOn ? aim : lastPointer;
+  if (!game || screen !== 'bench' || !at || press?.moved || game.state !== 'play') { if (view) view.setHover(null); return; }
+  if (view.coarse && !aimOn) return;
+  const hit = view.pickAt(at.x, at.y);
   view.setHover(hit ? hit.i : null);
   view.hoverHit = hit;
   const plate = $('plate');
@@ -791,31 +814,58 @@ const KEY_TURN = {
 const normKey = (e) => (e.key.length === 1 ? e.key.toLowerCase() : e.key);
 
 addEventListener('keydown', (e) => {
-  if (screen !== 'bench' || !game) return;
+  if (screen !== 'bench' || !game || paused) return;
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  
+  if (onResult(e.target) && (navKey(e.key) || e.key === 'Enter')) return;
   const k = normKey(e);
   held.add(k);
   if (KEY_TURN[k]) { levelling = false; e.preventDefault(); }
+  if (AIM_KEYS[k] && game.state === 'play') {
+    
+    e.preventDefault();
+    const box = stageBox();
+    if (!aimOn) { aim = aim && inBox(aim, box) ? aim : aimStart(box); showAim(); }
+    else aim = aimMove(aim, AIM_KEYS[k], box);
+    placeAim();
+    return;
+  }
   if (e.repeat) return;
   if (k === ' ') {
     
     if (document.activeElement && document.activeElement.tagName === 'BUTTON') document.activeElement.blur();
     e.preventDefault();
-    if (lastPointer) strikeAt(lastPointer.x, lastPointer.y);
+    if (aimOn) strikeAt(aim.x, aim.y, true);
+    else if (lastPointer && !view.coarse) strikeAt(lastPointer.x, lastPointer.y);
+    else if (game.state === 'play') {
+      
+      aim = aimStart(stageBox());
+      showAim();
+      placeAim();
+      setHint(S.hintAim, 7000);
+    }
   }
   if (k === '1') pickTool('pick');
   if (k === '2') pickTool('mallet');
+  if (k === 'x') { const was = tool; pickTool(tool === 'pick' ? 'mallet' : 'pick'); ui.play(tool !== was ? 'tap' : 'error'); }
   if (k === 'r') levelling = true;
 });
 addEventListener('keyup', (e) => held.delete(normKey(e)));
 addEventListener('blur', () => held.clear());
 
 function applyKeys(dt) {
-  if (!game || screen !== 'bench') return;
+  if (!game || screen !== 'bench' || paused) return;
   const rate = KEY_RATE * (steadyNow() ? STEADY : 1) * dt;
   const axes = view.axes();
   for (const k of held) {
     const t = KEY_TURN[k];
     if (t) game.turn(axes[t[0]], t[1] * rate);
+  }
+  
+  if (padAxes[0] || padAxes[1]) {
+    levelling = false;
+    if (padAxes[0]) game.turn(axes.up, padAxes[0] * rate);
+    if (padAxes[1]) game.turn(axes.right, padAxes[1] * rate);
   }
   if (levelling) {
     
@@ -830,11 +880,167 @@ function applyKeys(dt) {
 }
 
 
+
+
+
+const coarseOnly = () => globalThis.matchMedia?.('(pointer: coarse)').matches && !globalThis.matchMedia?.('(any-pointer: fine)').matches;
+
+const wantsFocus = () => usedKeys || !coarseOnly();
+const focusEl = (node) => node?.focus({ preventScroll: true });
+const visible = (el) => !!el && !el.hidden && !el.disabled && el.getClientRects().length > 0;
+const onResult = (t) => !$('result').hidden && $('result').contains(t);
+const menuOpen = () => !$('pause').hidden;
+
+function focusPrimary() {
+  if (!wantsFocus()) return;
+  if (screen === 'title') focusEl($('t-open'));
+  else if (screen === 'cabinet') {
+    focusEl(document.querySelector('#drawers .drawer.open .drawer-face') || [...document.querySelectorAll('#drawers .drawer-face')].find((b) => !b.disabled) || $('c-to-title'));
+  } else if (screen === 'lobby') focusEl([$('l-start'), $('l-share'), $('l-leave')].find(visible));
+  else if (screen === 'bench' && document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+}
+
+
+function stageBox() {
+  const r = $('stage').getBoundingClientRect();
+  const cap = $('h-hint').offsetHeight + 12;
+  return { x: r.left, y: r.top, w: Math.max(40, r.width), h: Math.max(40, r.height - cap) };
+}
+const inBox = (a, b) => a.x >= b.x && a.x <= b.x + b.w && a.y >= b.y && a.y <= b.y + b.h;
+function showAim() { aimOn = true; $('h-aim').hidden = false; }
+function hideAim() { aimOn = false; const m = $('h-aim'); if (m) m.hidden = true; }
+function placeAim() {
+  const m = $('h-aim');
+  m.style.left = `${aim.x}px`;
+  m.style.top = `${aim.y}px`;
+  refreshHover();
+}
+
+function openMenu() {
+  if (screen !== 'bench' || menuOpen()) return;
+  paused = true;
+  held.clear();
+  padAxes = [0, 0];
+  menuReturn = document.activeElement;
+  $('pause').hidden = false;
+  $('hud').inert = true;
+  ui.play('open');
+  focusEl($('m-resume'));
+  tell('menu', { open: true });
+}
+function closeMenu(restore = true) {
+  if (!menuOpen()) { paused = false; return; }
+  $('pause').hidden = true;
+  $('hud').inert = false;
+  paused = false;
+  last = performance.now(); 
+  if (restore) {
+    if (menuReturn && menuReturn !== document.body && document.contains(menuReturn) && !menuReturn.hidden) focusEl(menuReturn);
+    else document.activeElement?.blur?.();
+  }
+  tell('menu', { open: false });
+}
+const toTitle = () => { if (inRoom) leaveRoom(); else startGame(LEVELS[0], { title: true }); };
+
+$('t-layers').addEventListener('click', () => { ui.play(menuCue('t-layers')); openCabinet(); });
+$('c-to-title').addEventListener('click', () => { ui.play(menuCue('c-to-title')); toTitle(); });
+$('m-resume').addEventListener('click', () => { ui.play(menuCue('m-resume')); closeMenu(); });
+$('m-layers').addEventListener('click', () => {
+  ui.play(menuCue('m-layers'));
+  closeMenu(false);
+  if (inRoom) leaveRoom(); else openCabinet(game?.level.drawer);
+});
+$('m-title').addEventListener('click', () => { ui.play(menuCue('m-title')); closeMenu(false); toTitle(); });
+
+$('pause').addEventListener('click', (ev) => { if (ev.target === $('pause')) { ui.play('back'); closeMenu(); } });
+
+
+for (const id of ['t-open', 't-room', 'h-back', 'r-next', 'r-again', 'l-start', 'l-share', 'l-join-go', 'l-leave']) {
+  $(id).addEventListener('click', () => ui.play(menuCue(id)));
+}
+
+
+function navList() {
+  if (menuOpen()) return MENU_BUTTONS.map($).filter(visible);
+  if (screen === 'title') return TITLE_BUTTONS.map($).filter(visible);
+  if (screen === 'bench') return onResult(document.activeElement) ? [...$('result').querySelectorAll('button')].filter(visible) : null;
+  const root = screen === 'cabinet' ? $('cabinet') : $('lobby');
+  return [...root.querySelectorAll('button, a[href], input, summary')].filter((b) => visible(b) && b.tabIndex >= 0);
+}
+
+addEventListener('keydown', (ev) => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (/^(Arrow|Tab$|Enter$|Escape$| $|[ijkl]$)/i.test(ev.key)) usedKeys = true;
+  const typing = ev.target?.tagName === 'INPUT';
+  if (ev.key === 'Escape' || (ev.key === 'Backspace' && !typing)) {
+    const act = backAction(screen, menuOpen());
+    if (ev.key === 'Backspace' && (act === 'menu' || act === 'resume')) return; 
+    if (!act) return;
+    ev.preventDefault();
+    if (act === 'menu') openMenu();
+    else if (act === 'resume') { ui.play('back'); closeMenu(); }
+    else if (act === 'title') { ui.play('back'); toTitle(); }
+    else if (act === 'leave') $('l-leave').click();
+    return;
+  }
+  const word = navKey(ev.key);
+  if (!word || typing) return;
+  const list = navList();
+  if (!list || !list.length) return;
+  ev.preventDefault();
+  const at = list.indexOf(document.activeElement);
+  const next = list[stepFocus(at, STEP[word], list.length)];
+  if (next && next !== document.activeElement) { focusEl(next); ui.play('focus'); }
+});
+
+
+function pressKey(key) {
+  usedKeys = true;
+  const bench = screen === 'bench' && !menuOpen() && !onResult(document.activeElement);
+  let t = document.activeElement;
+  if (!bench && (!t || t === document.body)) {
+    if (menuOpen()) focusEl($('m-resume'));
+    else if (screen === 'bench' && !$('result').hidden) focusEl([$('r-next'), $('r-again'), $('r-cabinet')].find(visible));
+    else focusPrimary();
+    t = document.activeElement;
+    if (key !== 'Escape') return; 
+  }
+  
+  if (!bench && key === 'Enter' && t && t !== document.body) { t.click(); return; }
+  const target = bench ? window : (t || document);
+  target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+  if (bench) window.dispatchEvent(new KeyboardEvent('keyup', { key, bubbles: true }));
+}
+let padState = null;
+let padLoop = 0;
+function pollPad() {
+  padLoop = 0;
+  const p = [...(navigator.getGamepads?.() || [])].find(Boolean);
+  if (!p) { padState = null; padAxes = [0, 0]; return; }
+  const bench = screen === 'bench' && !menuOpen() && !onResult(document.activeElement);
+  
+  padAxes = bench && !paused ? padTurn(p) : [0, 0];
+  if (padAxes[0] || padAxes[1]) usedKeys = true;
+  const r = padPresses(padState, padHeld(p, { stickDirs: !bench }), performance.now());
+  padState = r.state;
+  for (const w of r.presses) {
+    const key = (bench ? PAD_KEY_BENCH : PAD_KEY_MENU)[w];
+    if (key) pressKey(key);
+  }
+  padLoop = requestAnimationFrame(pollPad);
+}
+
+addEventListener('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+
+
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
   if (screen === 'cabinet' || screen === 'lobby' || !game) return;
+  
+  
+  if (paused) return;
   const t0 = performance.now();
 
   if (screen === 'title') game.turn([0, 1, 0], IDLE_TURN * dt);
@@ -906,10 +1112,16 @@ async function boot() {
   const tTitle = $('t-title');
   tTitle.setAttribute('aria-label', S.title);
   tTitle.style.setProperty('--letters', letters.length);
-  tTitle.innerHTML = letters.map((ch) => `<span class="letter" aria-hidden="true">${ch}</span>`).join('');
+  tTitle.innerHTML = letters.map((ch, i) => `<span class="letter" aria-hidden="true" style="--i:${i}">${ch}</span>`).join('');
   $('t-sub').textContent = S.titleSub;
   $('t-blurb').textContent = S.titleBlurb;
   $('t-imprint').textContent = S.imprint;
+  $('t-layers').textContent = S.layers;
+  $('c-to-title').textContent = S.toTitle;
+  $('m-head').textContent = S.menuHead;
+  $('m-resume').textContent = S.resume;
+  $('m-layers').textContent = S.layers;
+  $('m-title').textContent = S.toTitle;
   wireRoom();
   $('c-title').textContent = S.cabinet;
   $('c-sub').textContent = S.cabinetSub;
@@ -939,6 +1151,7 @@ async function boot() {
   $('h-lever').addEventListener('click', () => {
     steadyLever = !steadyLever;
     $('h-lever').setAttribute('aria-pressed', String(steadyLever));
+    ui.play(steadyLever ? 'toggleOn' : 'toggleOff');
   });
   const plate = $('plate');
   plate.addEventListener('pointerdown', canvasDown);

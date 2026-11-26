@@ -28,6 +28,11 @@ export const T = Object.freeze({
   again: 'Try it again',
   next: 'Dig the next block',
   toCabinet: 'Back to the dig',
+  layers: 'Choose a layer',
+  resume: 'Back to the block',
+  toTitle: 'Go to the title page',
+  menuHead: 'The block is held',
+  hintAim: 'Move the chisel mark with I, J, K and L, and Space strikes the cube under it.',
 
   cabinetSub: 'Choose a layer. Free a treasure to open the next.',
   hintStart: 'Drag to turn the block. Tap a cube to strike it.',
