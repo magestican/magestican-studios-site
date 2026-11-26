@@ -99,6 +99,7 @@ function loadScript(src) {
 
 export const closeMesh = (m) => {
   m.destroy();
+  m.peer?.removeAllListeners('disconnected');
   m.peer?.destroy();
 };
 

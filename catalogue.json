@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "f9d38f25-20261126T010158Z",
+ "buildId": "2f48d7b7-20261126T014825Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -387,7 +387,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 4863935
+   "bytes": 4998053
   },
   {
    "id": "truco",
@@ -738,7 +738,7 @@
    "ageNote": null,
    "order": 24,
    "addedAt": "2026-10-23",
-   "bytes": 338054168
+   "bytes": 338054214
   },
   {
    "id": "magic-mirror-moves",

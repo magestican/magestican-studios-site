@@ -28,7 +28,6 @@ import {
 import { applyGameName, gameLang, localGameName } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
-import { playUi } from '../../../web-engine/brand/uiSound.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
@@ -53,6 +52,10 @@ import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
 import {
   progressWords, nextGoal, goalFill, prizeLines, newPrizes, recordAfter, helpLines, cleanRecord, earnedPrizes, PRIZES,
 } from './progress.js';
+import {
+  showsTitle, TITLE_BUTTONS, MENU_BUTTONS, navKey, stepFocus, STEP, resumeDeadline, canPauseClock, padHeld,
+  padPresses, PAD_KEY, MENU_CUES, MENU_GAINS, menuCue, TITLE_OUT_MS,
+} from './menuNav.js';
 
 const GAME_ID = 'word-chain';
 const SETTINGS_KEY = 'relaywise-settings-v1';
@@ -80,6 +83,10 @@ const music = createTrackMusic({
 });
 
 const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['word', 'wordThem', 'win', 'lose']);
+
+
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -175,7 +182,7 @@ seeEl.addEventListener('click', () => {
   $('prizes').hidden = !open;
   seeEl.setAttribute('aria-expanded', String(open));
   seeEl.textContent = open ? P.close : P.open;
-  playUi('tap');
+  ui.play('tap');
 });
 drawGoal();
 
@@ -455,7 +462,32 @@ function restartClock() {
   tickClock();
 }
 
+
+
+
+
+let clockHeld = null;
+function holdClock() {
+  if (clockHeld || !canPauseClock(settings.mode)) return;
+  clockHeld = { key: clock.key, left: clock.key !== null ? clock.deadline - Date.now() : null };
+}
+function releaseClock({ fresh = false } = {}) {
+  const held = clockHeld;
+  clockHeld = null;
+  if (!held) return;
+  const at = fresh ? null : resumeDeadline(held, clockKey(), Date.now());
+  if (at !== null && clock.key === held.key) {
+    clock.deadline = at;
+    clock.lastTick = null;
+    tickClock();
+    return;
+  }
+  clock.key = null;
+  if (state) restartClock();
+}
+
 function tickClock() {
+  if (clockHeld) return;
   if (!state || clock.key === null || clock.key !== clockKey() || !moverIsTimed()) {
     clockEl.hidden = !state || !moverIsTimed();
     return;
@@ -466,7 +498,7 @@ function tickClock() {
   clockEl.classList.toggle('low', left < TICK_FROM * 1000);
   const mine = settings.mode === 'local' || isMyTurn(state, me());
   const secs = Math.ceil(left / 1000);
-  if (mine && secs <= TICK_FROM && secs > 0 && secs !== clock.lastTick) { clock.lastTick = secs; playUi('tick'); }
+  if (mine && secs <= TICK_FROM && secs > 0 && secs !== clock.lastTick) { clock.lastTick = secs; ui.play('tick'); }
   if (left > 0) return;
   
   
@@ -521,7 +553,7 @@ function submitWord() {
   if (!text.trim()) return;
   const res = applyAction(dict, state, { kind: 'word', text, by: seatOwner() });
   if (res.error) {
-    playUi('error');
+    ui.play('error');
     flash(errorText(res.error, needed(dict, state.game)));
     inputEl.select();
     return;
@@ -550,7 +582,7 @@ function clearEcho() {
 
 
 function rollBack(was) {
-  playUi('error');
+  ui.play('error');
   flash(T.refused, 3200);
   if (was && !inputEl.value) { inputEl.value = was.typed; handedBack = was; }
 }
@@ -676,25 +708,25 @@ wordLangEl.addEventListener('change', () => {
   settings.wordLang = wordLangEl.value;
   wordLangChosen = true;
   settings.link = isLink(settings.wordLang, linksChosen[settings.wordLang]) ? linksChosen[settings.wordLang] : defaultLink(settings.wordLang);
-  playUi('toggleOn');
+  ui.play('toggleOn');
   settingsChanged();
 });
 linkEl.addEventListener('change', () => {
   settings.link = linkEl.value;
   linksChosen[settings.wordLang] = settings.link;
-  playUi('toggleOn');
+  ui.play('toggleOn');
   settingsChanged();
 });
 timerEl.addEventListener('change', () => {
   settings.timer = Number(timerEl.value);
-  playUi('toggleOn');
+  ui.play('toggleOn');
   settingsChanged();
 });
 for (const b of document.querySelectorAll('[data-mode]')) {
   b.addEventListener('click', async () => {
     const mode = b.dataset.mode;
     if (mode === settings.mode) return;
-    playUi('toggleOn');
+    ui.play('toggleOn');
     if (settings.mode === 'room') leaveRoom();
     settings.mode = mode;
     persist();
@@ -705,7 +737,7 @@ for (const b of document.querySelectorAll('[data-mode]')) {
 for (const b of document.querySelectorAll('[data-level]')) {
   b.addEventListener('click', async () => {
     if (b.dataset.level === settings.level) return;
-    playUi('toggleOn');
+    ui.play('toggleOn');
     settings.level = b.dataset.level;
     persist();
     await newMatch();
@@ -713,7 +745,7 @@ for (const b of document.querySelectorAll('[data-level]')) {
   });
 }
 newGameEl.addEventListener('click', async () => {
-  playUi('tap');
+  ui.play('tap');
   if (settings.mode === 'room') {
     if (net?.hosting) {
       await begin(state.game.chain.length || state.game.over ? rematch(match) : match);
@@ -729,7 +761,7 @@ newGameEl.addEventListener('click', async () => {
 });
 giveUpEl.addEventListener('click', () => {
   if (!canType()) return;
-  playUi('toggleOff');
+  ui.play('toggleOff');
   if (settings.mode === 'room' && !net?.hosting) { net?.propose({ kind: 'resign' }); return; }
   commit('!resign');
 });
@@ -874,14 +906,14 @@ function leaveRoom() {
   Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 
-$('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
+$('create-room').addEventListener('click', () => { ui.play('tap'); openRoom(); });
 $('join-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  playUi('tap');
+  ui.play('tap');
   joinRoom($('join-code').value.trim());
 });
 $('leave-room').addEventListener('click', async () => {
-  playUi('toggleOff');
+  ui.play('toggleOff');
   leaveRoom();
   await newMatch();
   afterChange();
@@ -917,10 +949,163 @@ $('watch-link').addEventListener('click', () => {
 });
 
 
+
+
+
+
+const titleEl = $('title');
+const menuEl = $('menu');
+const mainEl = document.querySelector('main.wc');
+const reduced = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+const coarse = () => globalThis.matchMedia?.('(pointer: coarse)').matches;
+let usedKeys = false;
+let setupFold = null;          
+let menuReturn = null;         
+const atTitle = () => !titleEl.hidden;
+const menuOpen = () => !menuEl.hidden;
+const focusEl = (node) => node?.focus({ preventScroll: true });
+
+
+const focusPlay = () => { if (!inputEl.disabled) focusEl(inputEl); };
+
+
+function drawTitleRelay() {
+  const words = String(EXAMPLES[settings.wordLang] || EXAMPLES.en).split('·')[0].split('→').map((w) => w.trim()).filter(Boolean).slice(0, 3);
+  const ol = $('title-relay');
+  ol.lang = settings.wordLang;
+  ol.replaceChildren(...words.map((w) => Object.assign(document.createElement('li'), { textContent: w })));
+}
+
+function showTitle() {
+  closeMenu(false, false);
+  holdClock();
+  drawTitleRelay();
+  document.body.classList.remove('title-leaving');
+  document.body.classList.add('at-title');
+  titleEl.hidden = false;
+  mainEl.inert = true;
+  if (usedKeys || !coarse()) focusEl($('start'));
+}
+function leaveTitle(then) {
+  if (!atTitle()) { then?.(); return; }
+  mainEl.inert = false;
+  const done = () => {
+    document.body.classList.remove('at-title', 'title-leaving');
+    titleEl.hidden = true;
+    fit?.refit({ grow: true });
+    then?.();
+  };
+  if (reduced()) { done(); return; }
+  document.body.classList.add('title-leaving');
+  setTimeout(done, TITLE_OUT_MS);
+}
+function openOptions() {
+  if (setupFold) setupFold.open = true;
+  ui.play(menuCue('menu-options'));
+  const first = document.querySelector('[data-mode][aria-pressed="true"]') || document.querySelector('[data-mode]');
+  focusEl(first);
+  first?.scrollIntoView?.({ block: 'nearest' });
+}
+function openMenu() {
+  if (menuOpen() || atTitle()) return;
+  menuReturn = document.activeElement;
+  holdClock();
+  menuEl.hidden = false;
+  mainEl.inert = true;
+  ui.play('open');
+  focusEl($('menu-resume'));
+}
+
+function closeMenu(restore = true, release = true) {
+  if (!menuOpen()) return;
+  menuEl.hidden = true;
+  mainEl.inert = false;
+  if (release) releaseClock();
+  if (!restore) return;
+  if (menuReturn && menuReturn !== document.body && document.contains(menuReturn) && !menuReturn.disabled) focusEl(menuReturn);
+  else focusPlay();
+}
+
+$('start').addEventListener('click', () => {
+  ui.play(menuCue('start'));
+  
+  leaveTitle(() => { releaseClock({ fresh: true }); focusPlay(); });
+});
+$('see-options').addEventListener('click', () => leaveTitle(() => { releaseClock({ fresh: true }); openOptions(); }));
+$('menu-btn').addEventListener('click', openMenu);
+$('menu-resume').addEventListener('click', () => { ui.play(menuCue('menu-resume')); closeMenu(); });
+$('menu-new').addEventListener('click', () => { closeMenu(false); newGameEl.click(); focusPlay(); });
+$('menu-options').addEventListener('click', () => { closeMenu(false); openOptions(); });
+$('menu-title').addEventListener('click', () => { ui.play(menuCue('menu-title')); showTitle(); });
+
+menuEl.addEventListener('click', (ev) => { if (ev.target === menuEl) { ui.play('back'); closeMenu(); } });
+
+
+function navList() {
+  if (atTitle()) return TITLE_BUTTONS.map($);
+  if (menuOpen()) return MENU_BUTTONS.map($);
+  return [...mainEl.querySelectorAll('button, select, input, summary')]
+    .filter((b) => !b.disabled && b.getClientRects().length);
+}
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (/^(Arrow|Tab$|Enter$|Escape$| $)/.test(ev.key)) usedKeys = true;
+  if (ev.defaultPrevented || ev.isComposing) return;
+  if (ev.key === 'Escape') {
+    if (atTitle()) return;
+    ev.preventDefault();
+    if (menuOpen()) { ui.play('back'); closeMenu(); } else openMenu();
+    return;
+  }
+  const word = navKey(ev.key);
+  if (!word) return;
+  const t = ev.target;
+  
+  if (t?.tagName === 'SELECT' || t?.tagName === 'INPUT') return;
+  ev.preventDefault();
+  const list = navList();
+  if (!list.length) return;
+  const next = list[stepFocus(list.indexOf(document.activeElement), STEP[word], list.length)];
+  if (next && next !== document.activeElement) { focusEl(next); ui.play('focus'); }
+});
+
+
+function pressKey(key) {
+  usedKeys = true;
+  let t = document.activeElement;
+  if (!t || t === document.body) {
+    if (atTitle()) focusEl($('start'));
+    else if (menuOpen()) focusEl($('menu-resume'));
+    else focusPlay();
+    t = document.activeElement;
+    if (key !== 'Escape') return; 
+  }
+  if (key === 'Enter' && t === inputEl) { formEl.requestSubmit(); return; }
+  
+  if (key === 'Enter' && t && t !== document.body) { t.click(); return; }
+  (t || document).dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+}
+let padState = null;
+let padLoop = 0;
+function pollPad() {
+  padLoop = 0;
+  const p = [...(navigator.getGamepads?.() || [])].find(Boolean);
+  if (!p) { padState = null; return; }
+  const r = padPresses(padState, padHeld(p), performance.now());
+  padState = r.state;
+  for (const w of r.presses) pressKey(PAD_KEY[w]);
+  padLoop = requestAnimationFrame(pollPad);
+}
+
+globalThis.addEventListener('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
+
+
 wireMusicButton({ music });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
 
-foldSetup();
+setupFold = foldSetup();
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Relaywise' });
 
 
@@ -962,6 +1147,15 @@ async function boot() {
   if (cheat.length) reportGate.settle();
   afterChange();
 }
+
+
+
+if (showsTitle(params, { linkRoom: !!roomFromHref(location.href), framed: document.documentElement.classList.contains('framed') })) showTitle();
+
+
+afterBoot(() => {
+  if (atTitle() && (usedKeys || !coarse()) && document.activeElement === document.body) focusEl($('start'));
+});
 boot().catch(() => { statusEl.textContent = T.loading; })
   
   .finally(() => { fit.refit({ grow: true }); bootDone(); });
