@@ -496,6 +496,10 @@ select.tb-input {
 @media (max-width: 480px) {
   .tb-card-rows .frame { display: none; }
   #end-title { font-size: 1.4rem; }
+  
+
+
+  .tb-card-rows li { line-height: 1.1; row-gap: 0; }
 }
 
 
@@ -525,6 +529,17 @@ select.tb-input {
   .tb-steps .score { font-size: 0.85rem; }
 }
 
+
+
+@media (max-width: 600px) {
+  #night.tb-page { padding-top: 16px; gap: 16px; } 
+  #night-title { font-size: 2rem; line-height: 1; padding-bottom: 8px; }
+  .tb-steps .p1 .block { min-height: 88px; }
+  .tb-steps .p2 .block { min-height: 64px; }
+  .tb-steps .p3 .block { min-height: 44px; }
+  .tb-steps .block { padding: 8px 0; font-size: 1.8rem; }
+}
+
 .tb-face.tinted::after { background-image: var(--face) !important; background-size: 100% 100% !important; }
 
 
@@ -545,6 +560,12 @@ select.tb-input {
   #end .tb-card-rows .tb-face { width: 36px; height: 36px; }
   #end-title { margin-bottom: 8px; }
   #end .tb-go { min-height: 80px; font-size: 3.6rem; }
+  
+
+  #night.tb-page { padding-top: 16px; gap: 16px; }
+  .tb-steps .p1 .block { min-height: 96px; }
+  .tb-steps .p2 .block { min-height: 72px; }
+  .tb-steps .p3 .block { min-height: 52px; }
 }
 
 
