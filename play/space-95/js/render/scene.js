@@ -10,7 +10,7 @@ import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
 import { createAmbient } from './ambient.js';
 import { batchStatic } from './batch.js';
-import { biomeArt, paintedBackdrop, skinMaterial, worldUV } from './biomeArt.js';
+import { biomeArt, paintedBackdrop, skinMaterial, track, worldUV } from './biomeArt.js';
 import { createBoltSprite } from './boltSprite.js';
 import { bossLabelPosition } from './bossLabel.js';
 import { burrowEntityView, createBurrow } from './burrowView.js';
@@ -40,7 +40,6 @@ import { createRide, rideEntityView } from './rideView.js';
 import { createSilk, silkEntityView } from './silkView.js';
 import { createSky, skyEntityView } from './skyView.js';
 import { sovereignEntityView } from './sovereignView.js';
-import { createTrainView } from './trainView.js';
 import { CONTACT, contactShadow, groundBelow, setShiftGrade } from './unify.js';
 
 const CAM_DIST = 20;
@@ -57,10 +56,21 @@ const PLANE_PULL = 1.4;
 const FLIGHT_CARRY = 10;
 
 
-export function createView(canvas, level, labels) {
-  
+
+
+
+
+export async function openView(canvas, level, labels) {
+  if (level.mode !== 'train') return createView(canvas, level, labels);
   setShiftGrade(level.id); 
-  if (level.mode === 'train') return createTrainView(canvas, level, labels);
+  const { createTrainView } = await import('./trainView.js');
+  return createTrainView(canvas, level, labels);
+}
+
+
+export function createView(canvas, level, labels) {
+  setShiftGrade(level.id); 
+  if (level.mode === 'train') throw new Error('train levels: use openView (it loads trainView.js)');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -81,6 +91,15 @@ export function createView(canvas, level, labels) {
   
   const kitchenSkin = !!level.colds?.length && !art?.solid;
   scene.add(tileMeshes(level.world, level.darkTint === 'umber' ? 'bedrock' : kitchenSkin ? 'kitchen' : null, art));
+  
+  
+  
+  if (art?.edges)
+    track(
+      import('./groundTrim.js').then(({ trimMeshes }) => {
+        scene.add(trimMeshes(level.world, { top: art.top, solid: art.solid, tint: art.edges.tint }));
+      }),
+    );
   const props = art?.props ? createProps(scene, level, art.props) : null; 
   if (kitchenSkin) scene.background = new THREE.Color(0x6cc7bd);
   scene.add(barkMeshes(level.world));

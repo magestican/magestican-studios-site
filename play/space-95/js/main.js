@@ -1,7 +1,7 @@
 
 
 import { createAudio } from './audio/audio.js';
-import { createFootsteps, createGallop, createLadder, cueFor, cueRate, signalSounds } from './audio/cues.js';
+import { createFootsteps, createGallop, createLadder, cueFor, cueRate, FOOTSTEP_VOLUME, signalSounds } from './audio/cues.js';
 import { roomFor } from './audio/mix.js';
 import { SFX } from './audio/sfxManifest.js';
 import { levelMusic as musicOf, SURFACE, shiftSounds } from './audio/shiftSounds.js';
@@ -21,7 +21,7 @@ import { coopFromUrl } from './net/peer.js';
 import { biomeTexturesSettled } from './render/biomeArt.js';
 import { preloadCritterSprites } from './render/critterSprite.js';
 import { joSpriteLoaded } from './render/joSprite.js';
-import { createView } from './render/scene.js';
+import { openView } from './render/scene.js';
 import { parseAbilities } from './sim/abilities.js';
 import { STEP } from './sim/constants.js';
 import { endingTier } from './sim/intel.js';
@@ -127,7 +127,7 @@ if (abilities.has('dash')) for (const el of document.querySelectorAll('.touch-da
 if (abilities.has('tether')) for (const el of document.querySelectorAll('.touch-tether, .help-tether')) el.hidden = false;
 const input = createInput();
 mountTouchControls(document.body, input.touch);
-const view = createView(document.getElementById('stage'), level, labels);
+const view = await openView(document.getElementById('stage'), level, labels);
 const critters = preloadCritterSprites(level.entities ?? []);
 
 
@@ -400,7 +400,7 @@ function frame(now) {
   if (steps === MAX_STEPS) acc = 0;
   coop?.frame(session, now, 'idle');
   const step = session.dead > 0 || train ? null : footsteps.update(session.player, dt * cheats.slow);
-  if (step && step in SFX) audio.play(step, { volume: 0.8 });
+  if (step && step in SFX) audio.play(step, { volume: FOOTSTEP_VOLUME });
   const paws = gallop?.update(session.dead === 0 && !session.cleared, dt * cheats.slow);
   if (paws && paws in SFX) audio.play(paws, { volume: 0.7 });
   if (boltHide > 0) boltHide -= dt;

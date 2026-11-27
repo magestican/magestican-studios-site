@@ -6,6 +6,8 @@ const LAND_SOFT_MAX = 1.0;
 const LAND_RUN_MAX = 3.0; 
 const WALK_SPEED = 5; 
 const STRIDE = 1.9; 
+
+export const FOOTSTEP_VOLUME = 0.32;
 const BORE_CELLS = 20; 
 
 

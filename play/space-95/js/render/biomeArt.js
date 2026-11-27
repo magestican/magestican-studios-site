@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { v } from '../site/assetUrl.js';
 import { CANOPY_COMIC } from './canopyArt.js';
-import { GORGE, gardenFrontLeaf, gardenNightSway } from './gorgeArt.js';
+import { GORGE, gardenNightSway } from './gorgeArt.js';
 import { ORCHARD_COMIC, orchardBackSway } from './orchardArt.js';
 import { stampedeArt } from './phaseFArt.js';
 import { comicPlate } from './platesComicArt.js';
@@ -43,25 +43,20 @@ const tex = (dir, name, tint = 0xffffff, unit = 2) => ({
   tint,
   unit,
 });
-
-
 const GRASS = tex('orchard', 'orchard-grass');
-const BARK = tex('orchard', 'orchard-bark', 0xb98be8, 4);
+
+
+
+const EARTH = tex('batch3', 'soil', 0xe8c29a, 3);
+
+const EDGES = (tint = 0xffffff) => ({ edges: { tint } });
 
 const plate = (dir, name) => `${B}${dir}/${name}/plate.webp`;
 
 
+const own = (p) => (p.items.length ? { props: p } : {});
 
-
-
-const withFront = (p, tint) => {
-  const items = [...p.items, ...gardenFrontLeaf(tint)];
-  return items.length ? { props: { ...p, items } } : {};
-};
-
-const FRONT_DAY = 0x3a2d5c;
-
-const sway = (tint, seed, front = FRONT_DAY) => withFront(orchardBackSway(tint, seed), front);
+const sway = (tint, seed) => own(orchardBackSway(tint, seed));
 
 const nightSway = (tint, seed) => {
   const p = gardenNightSway(tint, seed);
@@ -77,8 +72,9 @@ const BIOMES = {
     ...(ORCHARD_COMIC.plateHaze ? { plateHaze: ORCHARD_COMIC.plateHaze } : {}),
     sky: 0xffe3c6,
     top: ORCHARD_COMIC.top ?? GRASS,
-    solid: ORCHARD_COMIC.solid ?? BARK,
-    ...withFront(ORCHARD_COMIC.props, FRONT_DAY), 
+    solid: EARTH,
+    ...EDGES(),
+    ...own(ORCHARD_COMIC.props),
   },
   
   orchardDusk: {
@@ -86,9 +82,10 @@ const BIOMES = {
     plateAspect: 16 / 9,
     sky: 0xffb07a,
     top: GRASS,
-    solid: BARK,
+    solid: { ...EARTH, tint: 0xc9a08f },
+    ...EDGES(0xd8b8c0), 
     ...comicPlate('orchardDusk'),
-    ...sway(0x9c7f95, 7, 0x3a2440), 
+    ...sway(0x9c7f95, 7), 
   },
   
   
@@ -101,8 +98,9 @@ const BIOMES = {
     top: CANOPY_COMIC.top ?? GRASS,
     
     oneWay: CANOPY_COMIC.top ?? GRASS,
-    solid: BARK,
-    ...withFront(CANOPY_COMIC.props, FRONT_DAY), 
+    solid: EARTH,
+    ...EDGES(),
+    ...own(CANOPY_COMIC.props),
   },
   stripecat: {
     plate: plate('batch2', 'stripecat-far'),
@@ -128,16 +126,18 @@ const BIOMES = {
     plateAspect: 16 / 9,
     sky: 0xffe3c6,
     top: GRASS,
-    solid: BARK,
+    solid: { ...EARTH, tint: 0xc8b4a4 },
+    ...EDGES(0xd4d8e8), 
     ...comicPlate('puddle'),
-    ...sway(0xc4c8e0, 9, 0x2e3448), 
+    ...sway(0xc4c8e0, 9), 
   },
   antTrail: {
     plate: plate('batch3', 'anttrail-far'),
     plateAspect: 16 / 9,
     sky: 0xffe3c6,
     top: GRASS,
-    solid: BARK,
+    solid: EARTH,
+    ...EDGES(),
     ...comicPlate('antTrail'),
     ...sway(0xcdbfe0, 3), 
   },
@@ -229,7 +229,22 @@ export function biomeTexturesSettled() {
 }
 
 
-function load(url, color, done) {
+
+
+
+
+export function track(p) {
+  const at = pending.length;
+  pending.push(
+    p.then(
+      () => Promise.all(pending.slice(at + 1)).then(() => {}),
+      () => {},
+    ),
+  );
+}
+
+
+export function load(url, color, done) {
   pending.push(
     new Promise((settle) => {
       loader.load(
