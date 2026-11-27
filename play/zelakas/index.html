@@ -75,9 +75,19 @@
 
 
 
-  <script src="./vendor/ruffle/ruffle.js?v=c6256486-20261127T011651Z"></script>
+  <script src="./vendor/ruffle/ruffle.js?v=41fa4a4c-20261127T014508Z"></script>
   <style>
-    :root { color-scheme: dark; }
+    :root {
+      color-scheme: dark;
+      
+
+
+
+      --zl-green: #3dff6e;
+      --zl-green-dim: #1f9c43;
+      --zl-purple: #2a0f4a;
+      --zl-deep: #0b0420;
+    }
     html, body {
       margin: 0; padding: 0; height: 100%;
       background: #05060a;
@@ -94,16 +104,34 @@
       margin: 0 0 4px 0; font-size: 28px; letter-spacing: 0.02em;
     }
     header p { margin: 0; opacity: 0.7; font-size: 14px; }
+    
+
+
     #stage-wrap {
       position: relative;
-      width: 100%; max-width: 1360px; aspect-ratio: 1360 / 768;
-      background: #000;
+      
+
+
+      flex-shrink: 0;
+      width: min(100%, calc((100vh - 190px) * 1360 / 768)); max-width: 1360px; aspect-ratio: 1360 / 768;
+      background: var(--zl-deep) url('/assets/shot-zelakas.webp') center / cover no-repeat;
       border: 1px solid #1a1e28;
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
-    #stage { width: 100%; height: 100%; }
+    #stage-wrap::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at center, rgba(11, 4, 32, 0.55) 0%, rgba(11, 4, 32, 0.88) 75%);
+      backdrop-filter: blur(3px);
+      transition: opacity 360ms ease;
+    }
+    #stage-wrap.zl-live::before { opacity: 0; pointer-events: none; }
+    #stage { position: relative; width: 100%; height: 100%; }
+    
+
+    #stage ruffle-player { opacity: 0; transition: opacity 360ms ease; }
+    #stage-wrap.zl-live #stage ruffle-player { opacity: 1; }
     
 
 
@@ -116,36 +144,106 @@
       left: 50%; top: 50%; transform: translate(-50%, -50%);
       width: min(620px, calc(100% - 32px));
       height: min(146px, calc(100% - 24px));
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 24px;
       font-family: 'Arial Black', 'Segoe UI Black', Impact, sans-serif;
       font-weight: 900;
       font-size: clamp(40px, 11vw, 64px);
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #fff4e0;
-      text-shadow: 0 3px 0 #b8430e;
+      color: #eafff0;
+      text-shadow: 0 0 10px rgba(61, 255, 110, 0.85), 0 0 26px rgba(61, 255, 110, 0.45);
       background:
         radial-gradient(circle at 12% 28%, #fff 0 1.5px, transparent 2px),
-        radial-gradient(circle at 84% 22%, #cfe3ff 0 1.5px, transparent 2px),
+        radial-gradient(circle at 84% 22%, #e6d0ff 0 1.5px, transparent 2px),
         radial-gradient(circle at 70% 78%, #fff 0 1px, transparent 1.5px),
-        radial-gradient(circle at 26% 80%, #cfe3ff 0 1px, transparent 1.5px),
-        linear-gradient(180deg, #1b2a4a 0%, #0c1426 100%);
-      border: 4px solid #ff7a2e;
-      border-radius: 18px;
-      box-shadow: 0 8px 0 #7a2a08, 0 0 40px rgba(255, 122, 46, 0.35);
+        radial-gradient(circle at 26% 80%, #e6d0ff 0 1px, transparent 1.5px),
+        linear-gradient(180deg, #3a1468 0%, var(--zl-deep) 100%);
+      background-size: 240px 140px, 300px 160px, 200px 120px, 260px 150px, 100% 100%;
+      border: 4px solid var(--zl-green);
+      border-radius: 6px;
+      clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
+      box-shadow: inset 0 0 24px rgba(61, 255, 110, 0.35);
       cursor: pointer;
+      animation: zl-rise 360ms ease-out both, zl-breathe 2.6s ease-in-out 360ms infinite, zl-drift 18s linear infinite;
     }
-    #startBtn:hover, #startBtn:focus-visible {
-      outline: none; border-color: #ffb066;
-      box-shadow: 0 8px 0 #7a2a08, 0 0 56px rgba(255, 160, 80, 0.55);
+    #startBtn .zl-word { line-height: 1; }
+    #startBtn .zl-load {
+      font: 800 14px/1.2 -apple-system, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: 0.06em; color: #b9ffcc; text-shadow: none;
     }
-    #startBtn:active { transform: translate(-50%, calc(-50% + 4px)); box-shadow: 0 4px 0 #7a2a08; }
+    #startBtn .zl-bar {
+      display: block; width: 58%; height: 6px; border-radius: 3px;
+      background: rgba(61, 255, 110, 0.18); overflow: hidden;
+    }
+    #startBtn .zl-bar i {
+      display: block; height: 100%; width: 0; background: var(--zl-green);
+      box-shadow: 0 0 8px var(--zl-green); transition: width 200ms linear;
+    }
+    #startBtn .zl-need {
+      display: none; font: 700 12px/1.2 -apple-system, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: 0.02em; text-transform: none; color: #e6d0ff; text-shadow: none;
+    }
+    #startBtn.zl-ready .zl-bar { display: none; }
+    
+
+    #startBtn:hover, #startBtn:focus-visible, #startBtn:focus {
+      outline: none; border-color: #d4ffe0; color: #ffffff;
+      box-shadow: inset 0 0 48px rgba(61, 255, 110, 0.7), inset 0 0 0 3px rgba(61, 255, 110, 0.5);
+      animation: zl-drift 18s linear infinite;
+    }
+    #startBtn:active { transform: translate(-50%, calc(-50% + 3px)); }
+    #startBtn.zl-leave { animation: zl-leave 220ms ease-in both; pointer-events: none; }
     @media (min-width: 900px) {
       #startBtn { height: 160px; }
     }
+    @media (pointer: coarse) {
+      #startBtn .zl-need { display: block; }
+    }
+    @keyframes zl-rise { from { opacity: 0; transform: translate(-50%, calc(-50% + 18px)); } }
+    @keyframes zl-breathe { 50% { border-color: #9dffb8; box-shadow: inset 0 0 36px rgba(61, 255, 110, 0.55); } }
+    @keyframes zl-drift { to { background-position: 240px 0, -300px 0, 200px 0, -260px 0, 0 0; } }
+    @keyframes zl-leave { to { opacity: 0; transform: translate(-50%, -50%) scale(1.08); } }
+
+    
+
+    #pauseCard {
+      position: absolute; inset: 0; z-index: 3;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      padding: 16px;
+      background: rgba(11, 4, 32, 0.82);
+      animation: zl-drop 220ms ease-out both;
+    }
+    #pauseCard[hidden] { display: none; }
+    #pauseCard h2 {
+      margin: 0 0 4px; font: 900 clamp(24px, 6vw, 40px)/1 'Arial Black', 'Segoe UI Black', Impact, sans-serif;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--zl-green);
+      text-shadow: 0 0 12px rgba(61, 255, 110, 0.7);
+    }
+    #pauseCard button {
+      min-width: 200px; min-height: 48px; padding: 10px 28px;
+      font: 900 18px/1 'Arial Black', 'Segoe UI Black', Impact, sans-serif;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #eafff0;
+      background: linear-gradient(180deg, #3a1468, var(--zl-deep));
+      border: 3px solid var(--zl-green-dim); border-radius: 4px;
+      clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+      cursor: pointer; animation: zl-rise-btn 220ms ease-out both;
+      transition: transform 120ms ease, border-color 120ms ease;
+    }
+    #pauseCard button:nth-of-type(2) { animation-delay: 60ms; }
+    #pauseCard button:hover, #pauseCard button:focus-visible, #pauseCard button:focus {
+      outline: none; border-color: var(--zl-green); transform: translateY(-2px);
+      animation: zl-rise-btn 220ms ease-out both, zl-ring 1.4s ease-in-out infinite;
+    }
+    #pauseCard button:active { transform: translateY(3px); }
+    @keyframes zl-drop { from { opacity: 0; transform: translateY(-14px); } }
+    @keyframes zl-rise-btn { from { opacity: 0; transform: translateY(10px); } }
+    @keyframes zl-ring { 50% { box-shadow: 0 0 18px rgba(61, 255, 110, 0.6); } }
+
     
 
 
-    #stage-controls { display: flex; justify-content: center; }
+    #stage-controls { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
     
 
 
@@ -154,12 +252,26 @@
       background: #0d1017; color: #d8dde8; border: 1px solid #2a3140;
       cursor: pointer;
     }
+    #stage-controls button[hidden] { display: none; }
     #stage-controls button:hover, #stage-controls button:focus-visible {
-      border-color: #9dc6ff; color: #9dc6ff; outline: none;
+      border-color: var(--zl-green); color: #b9ffcc; outline: none;
     }
     #stage-controls button[data-muted="1"] { color: #9dc6ff; border-color: #9dc6ff; }
+    
+    #legend {
+      margin: 0; max-width: 900px; text-align: center; font-size: 13px; line-height: 1.7; color: #b8bfcc;
+    }
+    #legend b { color: #b9ffcc; font-weight: 800; }
     footer { font-size: 12px; opacity: 0.55; text-align: center; max-width: 900px; }
     footer a { color: #9dc6ff; }
+
+    
+
+    @media (prefers-reduced-motion: reduce) {
+      #startBtn, #startBtn.zl-leave, #pauseCard, #pauseCard button,
+      #pauseCard button:focus, #pauseCard button:hover { animation: none !important; }
+      #stage-wrap::before, #stage ruffle-player, #startBtn .zl-bar i { transition: none !important; }
+    }
   </style>
   <script type="module" src="/web-engine/library/openHook.js?play=zelakas"></script>
 </head>
@@ -169,7 +281,7 @@
     <p>Original 2014 Flash build · Bryan Arbelo · Gonzalo · Christian · running in-browser via Ruffle</p>
   </header>
 
-  <div id="stage-wrap"><button id="startBtn" type="button">Start</button><div id="stage"></div></div>
+  <div id="stage-wrap"><button id="startBtn" type="button"><span class="zl-word">Start</span><span class="zl-load" aria-live="polite">Loading</span><span class="zl-bar"><i></i></span><span class="zl-need">Needs a keyboard or a controller</span></button><div id="stage"></div><div id="pauseCard" role="dialog" aria-label="Paused" hidden><h2>Paused</h2><button id="resumeBtn" type="button">Resume</button></div></div>
 
   
 
@@ -178,7 +290,9 @@
 
 
 
-  <div id="stage-controls"></div>
+  <div id="stage-controls"><button id="pauseBtn" type="button" hidden>Pause</button></div>
+
+  <p id="legend"><b>Keyboard</b> arrows fly · Space fires · 1 weapon · 2 drone · Esc skips the intro · P pauses<br><b>Controller</b> D-pad flies · A fires · X weapon · Y drone · B skips · Start pauses<br>Pick PLAY and the difficulty with the mouse: the 2014 title screen only takes clicks.</p>
 
   <div id="account" style="text-align:center;margin:8px 0"></div>
 
@@ -247,7 +361,38 @@
     import {
       mountSoundToggle, syncSoundToggles, readMuted, writeMuted,
     } from '../shared/ui/muteButton.js';
+    import {
+      PAD_TO_KEY, padEdges, actionFor, progressText, focusOnLoad, fetchSwf,
+    } from './shell.js';
     const MUTE_KEY = 'zelakas.muted';
+
+    const wrap = document.getElementById("stage-wrap");
+    const startBtn = document.getElementById("startBtn");
+    const loadLine = startBtn.querySelector(".zl-load");
+    const loadBar = startBtn.querySelector(".zl-bar i");
+    const pauseCard = document.getElementById("pauseCard");
+    const resumeBtn = document.getElementById("resumeBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+
+    
+    
+    
+    if (focusOnLoad(window.matchMedia && window.matchMedia.bind(window))) {
+      try { startBtn.focus({ preventScroll: true }); } catch (_) {}
+    }
+
+    
+    
+    
+    
+    const swfBytes = fetchSwf({
+      url: "./ZelakasInSpace.swf",
+      onProgress: (got, total) => {
+        loadLine.textContent = progressText(got, total);
+        if (total > 0) loadBar.style.width = `${Math.min(100, (got / total) * 100)}%`;
+      },
+    });
+    swfBytes.catch(() => {});
 
     window.addEventListener("load", () => {
       
@@ -305,30 +450,107 @@
       
       
       
-      
-      
-      
-      
-      
-      
-      
       let loaded = false;
       let wantPlay = false;
-      const startBtn = document.getElementById("startBtn");
-      startBtn.addEventListener("click", () => {
-        wantPlay = true;
-        startBtn.remove();
-        if (loaded) { try { player.play(); } catch (_) {} }
+      let screen = "start";
+
+      function goLive() {
+        screen = "play";
+        wrap.classList.add("zl-live");
+        startBtn.classList.add("zl-leave");
+        setTimeout(() => { if (startBtn.isConnected) startBtn.remove(); }, 240);
+        pauseBtn.hidden = false;
+        try { player.play(); } catch (_) {}
         try { player.focus(); } catch (_) {}
-      });
-      player.load({
-        url: "./ZelakasInSpace.swf",
+      }
+      function pressStart() {
+        if (screen !== "start") return;
+        wantPlay = true;
+        if (loaded) goLive();
+        else startBtn.querySelector(".zl-word").textContent = "Launching";
+      }
+      startBtn.addEventListener("click", pressStart);
+
+      function pause() {
+        if (screen !== "play") return;
+        screen = "paused";
+        try { player.pause(); } catch (_) {}
+        
+        
+        
+        try {
+          const pb = player.shadowRoot && player.shadowRoot.getElementById("play-button");
+          if (pb) pb.style.display = "none";
+        } catch (_) {}
+        pauseCard.hidden = false;
+        resumeBtn.focus({ preventScroll: true });
+      }
+      function resume() {
+        if (screen !== "paused") return;
+        screen = "play";
+        pauseCard.hidden = true;
+        try { player.play(); } catch (_) {}
+        try { player.focus(); } catch (_) {}
+      }
+      resumeBtn.addEventListener("click", resume);
+      pauseBtn.addEventListener("click", pause);
+      
+      document.addEventListener("visibilitychange", () => { if (document.hidden) pause(); });
+
+      
+      
+      
+      window.addEventListener("keydown", (e) => {
+        const act = actionFor(screen, { key: e.key });
+        if (act === "pause") { e.preventDefault(); e.stopPropagation(); pause(); }
+        else if (act === "resume") { e.preventDefault(); e.stopPropagation(); resume(); }
+      }, true);
+
+      
+      
+      
+      
+      const padState = { prev: [] };
+      function pollPads() {
+        let pads = [];
+        try { pads = navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean) : []; } catch (_) {}
+        for (const pad of pads.slice(0, 1)) {
+          for (const button of padEdges(padState, pad)) {
+            const act = actionFor(screen, { pad: button });
+            if (act === "start") pressStart();
+            else if (act === "pause") pause();
+            else if (act === "resume") resume();
+            else if (act === "press" && document.activeElement && document.activeElement.click) document.activeElement.click();
+          }
+        }
+        requestAnimationFrame(pollPads);
+      }
+      requestAnimationFrame(pollPads);
+
+      function fail() {
+        if (startBtn.isConnected) startBtn.remove();
+        
+        
+        stage.innerHTML =
+          "<div style='padding:32px;text-align:center;line-height:1.6;position:relative;z-index:2'>" +
+          "<strong>Zelakas In Space could not start.</strong><br><br>" +
+          "This can happen if your browser blocks the emulator, or if the " +
+          "connection dropped while it was loading. Reloading the page usually " +
+          "fixes it." +
+          "</div>";
+      }
+
+      swfBytes.then((data) => player.load({
+        data,
+        swfFileName: "ZelakasInSpace.swf",
+        base: "./",
         autoplay: "off",
         unmuteOverlay: "hidden",
         splashScreen: false,
+        gamepadButtonMapping: PAD_TO_KEY,
         volume: muted ? 0 : 1,
         
-      }).then(() => {
+      })).then(() => {
         
         
         
@@ -336,40 +558,23 @@
         try { player.volume = readMuted(MUTE_KEY, false) ? 0 : 1; } catch (_) {}
         syncSoundToggles();
         loaded = true;
-        if (wantPlay) { try { player.play(); } catch (_) {} }
-      }).catch(() => {
-        if (startBtn.isConnected) startBtn.remove();
-        
-        
-        
-        
-        
-        
-        
-        stage.innerHTML =
-          "<div style='padding:32px;text-align:center;line-height:1.6'>" +
-          "<strong>Zelakas In Space could not start.</strong><br><br>" +
-          "This can happen if your browser blocks the emulator, or if the " +
-          "connection dropped while it was loading. Reloading the page usually " +
-          "fixes it." +
-          "</div>";
-      });
+        startBtn.classList.add("zl-ready");
+        loadLine.textContent = "Ready";
+        if (wantPlay) goLive();
+      }).catch(fail);
 
       
       
       
       
-      
-      mountSoundToggle({
-        host: document.getElementById('stage-controls'),
-        id: 'zelakas-sound',
+      const sound = {
         
         
         
         
         isMuted: () => {
           try {
-            if (player.isPlaying !== undefined || player.readyState) return player.volume === 0;
+            if (loaded) return player.volume === 0;
           } catch (_) {  }
           return readMuted(MUTE_KEY, false);
         },
@@ -377,9 +582,11 @@
           try { player.volume = m ? 0 : 1; } catch (_) {  }
           writeMuted(MUTE_KEY, m);
         },
-      });
+      };
+      mountSoundToggle({ host: document.getElementById('stage-controls'), id: 'zelakas-sound', ...sound });
+      mountSoundToggle({ host: pauseCard, id: 'zelakas-sound-pause', ...sound });
     });
   </script>
-  <script type="module" src="/web-engine/site/siteControls.js?v=c6256486-20261127T011651Z"></script>
+  <script type="module" src="/web-engine/site/siteControls.js?v=41fa4a4c-20261127T014508Z"></script>
 </body>
 </html>
