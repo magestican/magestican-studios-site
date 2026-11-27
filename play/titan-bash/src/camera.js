@@ -54,8 +54,17 @@ export function zoomFor(target, want, fit, view, rot) {
 }
 
 
-export function clampCentre(c, half, arenaHalf) {
-  const lo = -arenaHalf - EDGE_MARGIN + half; const hi = arenaHalf + EDGE_MARGIN - half;
+
+
+
+
+
+
+export const HEADROOM = 7;
+
+
+export function clampCentre(c, half, arenaHalf, up = 0) {
+  const lo = -arenaHalf - EDGE_MARGIN - up + half; const hi = arenaHalf + EDGE_MARGIN - half;
   return lo > hi ? 0 : Math.min(Math.max(c, lo), hi);
 }
 
@@ -84,9 +93,11 @@ export function stepCamera(cam, m, L, W, H, { focus = [], touch = false, dt = 1 
   const s = fit * cam.z;
   
   const hx = (rot ? view.h : view.w) / 2 / s; const hy = (rot ? view.w : view.h) / 2 / s;
-  const tx = clampCentre(target.x, hx, A0.w / 2); const ty = clampCentre(target.y, hy, A0.h / 2);
+  
+  const upX = rot ? HEADROOM : 0; const upY = rot ? 0 : HEADROOM;
+  const tx = clampCentre(target.x, hx, A0.w / 2, upX); const ty = clampCentre(target.y, hy, A0.h / 2, upY);
   cam.x += (tx - cam.x) * k; cam.y += (ty - cam.y) * k;
-  cam.x = clampCentre(cam.x, hx, A0.w / 2); cam.y = clampCentre(cam.y, hy, A0.h / 2);
+  cam.x = clampCentre(cam.x, hx, A0.w / 2, upX); cam.y = clampCentre(cam.y, hy, A0.h / 2, upY);
   const vcx = view.x + view.w / 2; const vcy = view.y + view.h / 2;
   
   const ox = rot ? vcx + cam.y * s : vcx - cam.x * s;
