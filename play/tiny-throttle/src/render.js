@@ -18,6 +18,7 @@ import { propDir } from './propDirs.js';
 import { supportY } from './support.js';
 import { KINDS } from '../../../web-engine/rc/props.js';
 import { buildItems } from './renderItems.js';
+import { qualityFor, createScaler } from './quality.js';
 import { createSuspension, stepSuspension, bodyScale, createShake, addShake, stepShake } from './carFeel.js';
 import { createAttitude, stepAttitude, createSparks, emitSparks, stepSparks, SPARKS } from './carAttitude.js';
 
@@ -74,11 +75,17 @@ const clone = (models, name) => {
 
 const yawOf = (tx, tz) => Math.atan2(-tz, tx);
 
-export function createView(canvas, race, models, { pixelRatio = Math.min(window.devicePixelRatio || 1, 2) } = {}) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(pixelRatio);
+const coarsePointer = () => typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
+
+
+
+export function createView(canvas, race, models, { quality = qualityFor({ coarse: coarsePointer(), dpr: window.devicePixelRatio || 1 }) } = {}) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: quality.antialias, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(quality.pixelRatio);
+  const scaler = createScaler(quality);
+  let lastNow = 0;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = quality.softShadows ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
@@ -95,7 +102,7 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
   scene.add(new THREE.HemisphereLight(0xfff6e8, 0xb59a7a, 1.4));
   const sun = new THREE.DirectionalLight(0xffffff, 1.6);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(quality.shadowMap, quality.shadowMap);
   const sc = sun.shadow.camera;
   sc.left = -3; sc.right = 3; sc.top = 3; sc.bottom = -3; sc.near = 0.1; sc.far = 12;
   sun.shadow.bias = -0.0004;
@@ -106,10 +113,17 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
   buildConnector(scene, race.track, models);
   buildProps(scene, race.track.def, models);
   buildStart(scene, race.track, models);
+  
+  
+  if (!quality.propShadows) scene.traverse((o) => { if (o.isMesh) o.castShadow = false; });
   const cars = buildCars(scene, race, models);
   const loose = buildLoose(scene, race, models);
   const items = buildItems(scene, race, models);
   const sparks = buildSparks(scene);
+  
+  const warm = items.warm();
+  renderer.compile(scene, camera);
+  for (const o of warm) o.removeFromParent();
 
   const cam = { pos: new THREE.Vector3(), look: new THREE.Vector3(), ready: false, fov: METRICS.fov.base };
   
@@ -187,10 +201,17 @@ export function createView(canvas, race, models, { pixelRatio = Math.min(window.
     if (Math.abs(camera.fov - cam.fov) > 0.01) { camera.fov = cam.fov; camera.updateProjectionMatrix(); }
     sun.position.set(p.x + 2.5, p.y + 6, p.z + 1.5);
     sun.target.position.copy(p);
+    
+    const now = performance.now();
+    if (lastNow) {
+      const r = scaler.step((now - lastNow) / 1000);
+      if (r !== renderer.getPixelRatio()) renderer.setPixelRatio(r);
+    }
+    lastNow = now;
     renderer.render(scene, camera);
   }
 
-  return { renderer, scene, camera, resize, draw, cars, shake: (amount) => addShake(shake, amount) };
+  return { renderer, scene, camera, resize, draw, cars, quality, scaler, shake: (amount) => addShake(shake, amount) };
 }
 
 

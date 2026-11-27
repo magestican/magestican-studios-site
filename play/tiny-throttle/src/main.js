@@ -380,7 +380,8 @@ function newRace({ attract = false, cars = null, laps = opts.laps, seed } = {}) 
   if (!cars) me = attract ? null : 'you';
   race.me = me;
   const old = view;
-  view = createView(canvas, race, models);
+  
+  view = createView(canvas, race, models, old ? { quality: { ...old.quality, pixelRatio: old.scaler.ratio } } : {});
   if (old) old.renderer.dispose();
   resize();
   lastBeat = null;

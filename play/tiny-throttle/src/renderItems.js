@@ -182,7 +182,14 @@ export function buildItems(scene, race, models) {
       }
     }
   }
-  return { draw };
+  
+  
+  
+  function warm() {
+    return ['marble', 'gum', 'band', 'fan', 'balloon'].map((id) => meshFor({ id }));
+  }
+
+  return { draw, warm };
 }
 
 

@@ -31,6 +31,7 @@ import { bootDone } from '../../shared/ui/fitScreen.js';
 import { setupPanels, togglePanel } from './setupPanels.js';
 import { installMenuInput } from './menuInput.js';
 import { MENU_CUES, MENU_GAINS } from './menuNav.js';
+import { installOwnUi } from './ownUi.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { createNet, canPlayTogether } from './net.js';
 import { forgetRoomCode } from './net.js';
@@ -52,6 +53,8 @@ const SKYLINE_KEY = 'lamplighters-skyline-v1';
 const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['light', 'rival', 'fuse', 'fuseFar', 'flicker', 'close', 'win', 'lose'], { light: 4, rival: 4, fuse: 2, fuseFar: 2 });
 
 const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
+
+installOwnUi({ ui, sfx });
 
 const TILE_LIT = './assets/windows/lit0_a.svg';
 const TILE_DARK = './assets/windows/dark_a.svg';
