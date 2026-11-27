@@ -13,6 +13,7 @@ import { floorPattern, DIM } from './floors.js';
 import { ARENAS } from '../../../web-engine/titan-bash/arenas.js';
 import { ABILITIES } from '../../../web-engine/titan-bash/abilities.js';
 import { bounty, isStorm, stormBounds } from '../../../web-engine/titan-bash/sim.js';
+import { wordsBox, proximityMarks, drawProximity } from './camera.js';
 
 
 const HOUSE = { ...Object.fromEntries(HOUSES.map((h) => [h.id, h])), dummy: { id: 'dummy', name: 'Target', colour: '#8a93a8' } };
@@ -143,6 +144,8 @@ export function draw(ctx, m, fx, L, opts = {}) {
   const storm = isStorm(m);
   ctx.save();
   ctx.fillStyle = '#06080d'; ctx.fillRect(0, 0, W, H);
+  
+  if (L.view) { ctx.save(); ctx.beginPath(); ctx.rect(L.view.x, L.view.y, L.view.w, L.view.h); ctx.clip(); }
   
   
   
@@ -287,10 +290,16 @@ function drawStanding(ctx, m, V, L, A, s, X, Y, opts, W) {
   const plates = [];
   for (const t of V.titans.filter((o) => o.alive).sort((a, b) => a.y - b.y)) plates.push(titan(ctx, m, t, X, Y, s, t === big, opts));
   
-  drawPlates(ctx, m, plates, s, L.dpr || 1, m.endless ? -Infinity : L.hud + 4 * (L.dpr || 1));
+  drawPlates(ctx, m, plates, s, L.dpr || 1, m.endless || L.view ? -Infinity : L.hud + 4 * (L.dpr || 1)); 
   
   if (opts.juice) opts.juice.draw(ctx, X, Y, s, (x, y) => project(L, x, y));
 
+  
+  const B = wordsBox(L);
+  if (L.view) {
+    ctx.restore();
+    if (opts.focus) drawProximity(ctx, proximityMarks(m, L, opts.focus, (x, y) => project(L, x, y)), (i) => HOUSE[m.titans[i].house]?.colour || '#fff');
+  }
   
   const fx = V.fx;
   for (const f of fx) {
@@ -299,21 +308,21 @@ function drawStanding(ctx, m, V, L, A, s, X, Y, opts, W) {
     if (f.kind === 'banner') {
       
       
-      const px = bannerPx(ctx, f.text, s, L.aw); 
+      const px = bannerPx(ctx, f.text, s, B.aw); 
       ctx.font = `800 ${px}px ${DISPLAY}`;
       
       
       
       const tw = ctx.measureText(f.text).width;
-      const ys = [L.oy - L.ah / 2 + s * 3, L.oy + L.ah / 2 - s * 3];
-      const lanes = ys.map((y) => bannerPlate(tw, px, L.ox, y));
+      const ys = [B.oy - B.ah / 2 + s * 3, B.oy + B.ah / 2 - s * 3];
+      const lanes = ys.map((y) => bannerPlate(tw, px, B.ox, y));
       const under = V.titans.filter((o) => o.alive).map((o) => titanBox(X(o.x), Y(o.y), T.radius * s, s));
       const spot = bannerSpot(lanes, under); const pl = lanes[spot.lane]; const by = ys[spot.lane];
       ctx.globalAlpha = a * spot.plate;
       ctx.fillStyle = 'rgba(6,8,13,0.72)'; roundRect(ctx, pl.x, pl.y, pl.w, pl.h, pl.h * 0.2); ctx.fill();
       ctx.globalAlpha = a * spot.text;
       ctx.lineWidth = Math.max(3, px * 0.16); ctx.strokeStyle = '#000'; ctx.fillStyle = f.colour || '#fff';
-      ctx.strokeText(f.text, L.ox, by); ctx.fillText(f.text, L.ox, by);
+      ctx.strokeText(f.text, B.ox, by); ctx.fillText(f.text, B.ox, by);
     } else {
       const fpx = popFontPx(s, L.dpr || 1, f.big);
       ctx.font = `800 ${popFontPx(s, L.dpr || 1, f.big)}px ${DISPLAY}`;
@@ -324,8 +333,8 @@ function drawStanding(ctx, m, V, L, A, s, X, Y, opts, W) {
         
         
         const tw = ctx.measureText(f.text).width; const px = fpx; 
-        const half = tw / 2 + px * 0.5; const lo = L.ox - L.aw / 2 + half + 8; const hi = L.ox + L.aw / 2 - half - 8;
-        xx = lo <= hi ? Math.min(Math.max(xx, lo), hi) : L.ox;
+        const half = tw / 2 + px * 0.5; const lo = B.ox - B.aw / 2 + half + 8; const hi = B.ox + B.aw / 2 - half - 8;
+        xx = lo <= hi ? Math.min(Math.max(xx, lo), hi) : B.ox;
         ctx.fillStyle = 'rgba(6,8,13,0.8)'; roundRect(ctx, xx - half, yy - px * 0.75, half * 2, px * 1.5, px * 0.3); ctx.fill();
         ctx.fillStyle = f.colour || '#fff';
       }
@@ -344,9 +353,9 @@ function drawStanding(ctx, m, V, L, A, s, X, Y, opts, W) {
 
 
   if (!m.endless) scoreboard(ctx, m, L, W, big); 
-  if (opts.countdown) drawCountdown(ctx, L, opts.countdown);
+  if (opts.countdown) drawCountdown(ctx, B, opts.countdown);
   
-  if (opts.cutin) drawCutin(ctx, opts.cutin, ctx.canvas.width, ctx.canvas.height, L.oy, cutinFace(opts.cutin, opts.faceArt), DISPLAY);
+  if (opts.cutin) drawCutin(ctx, opts.cutin, ctx.canvas.width, ctx.canvas.height, B.oy, cutinFace(opts.cutin, opts.faceArt), DISPLAY);
   ctx.restore();
 }
 

@@ -12,6 +12,7 @@ import { bootDone } from '../../shared/ui/fitScreen.js';
 import { KEYMAPS, GAME_KEYS, keyboardInput, padInput, padWantsJoin, cheatsFrom, buildSeats, setupFromCheats, defaultCpuLevel, defaultRookie, seatRookie, isTouchDevice, firstPilot } from './input.js';
 import { wirePad } from './touchPad.js';
 import { layout, draw, LIP, screenToWorld } from './render.js';
+import { createCamera, stepCamera } from './camera.js';
 import { createScreenLink, joinCodeFrom, linkFor, canLink, PREFIX } from './net.js';
 import { MSG, STATUS_HZ, encodeStatus } from './wire.js';
 import { newCodeButton } from '../../../web-engine/net/stickyRoomCode.js';
@@ -321,7 +322,9 @@ function frame(now) {
 }
 
 let L = null;
+const cam = createCamera(); let camLast = 0;
 function resize() {
+  cam.key = null; 
   const c = $('stage'); const dpr = Math.min(2, window.devicePixelRatio || 1);
   c.width = Math.round(c.clientWidth * dpr); c.height = Math.round(c.clientHeight * dpr);
   
@@ -344,7 +347,13 @@ function paint() {
   const hs = new Set(seats.map((s, i) => (s.control !== 'bot' ? i : -1)).filter((i) => i >= 0));
   const tag = (c) => (c === 'touch' ? 'You' : c === 'p1' ? 'P1' : c === 'p2' ? 'P2' : c.startsWith('phone') ? `Phone ${Number(c.slice(5)) + 1}` : `Pad ${Number(c.slice(3)) + 1}`);
   const labels = seats.map((s) => (s.control === 'bot' ? null : `${emblemGlyph(wear(s).emblem)} ${HOUSE[s.house].name} (${tag(s.control)})`.trim()));
-  draw(ctx, match, fx, L, { humans: hs, labels, paints: seats.map((s) => paintColor(wear(s).paint)), juice, countdown: countdownAt(countMs, reducedMotion), cutin: cutins.current(), faceArt, reducedMotion });
+  
+  const focus = seats.map((s, i) => (screenSlot(s.control) ? i : -1)).filter((i) => i >= 0);
+  const now = performance.now(); const dt = camLast ? (now - camLast) / 1000 : 0; camLast = now;
+  const cut = cam.match !== match; cam.match = match;
+  const touch = document.body.classList.contains('tb-touch-on');
+  const Lc = stepCamera(cam, match, L, ctx.canvas.width, ctx.canvas.height, { focus, touch, dt: Math.min(dt, 0.1), cut });
+  draw(ctx, match, fx, Lc, { focus: Lc.follow ? focus : null, humans: hs, labels, paints: seats.map((s) => paintColor(wear(s).paint)), juice, countdown: countdownAt(countMs, reducedMotion), cutin: cutins.current(), faceArt, reducedMotion });
 }
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
