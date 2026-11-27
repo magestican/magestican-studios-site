@@ -640,6 +640,15 @@ body.tb-touch-mode { --pad-h: 216px; }
 body.tb-touch-on .tb-match { height: calc(100dvh - 53px - var(--pad-h)); }
 body.tb-touch-on .tb-title { padding-bottom: calc(var(--pad-h) + 16px); }
 body.tb-touch-on { overscroll-behavior: none; }
+
+
+body.tb-touch-on.tb-in-match .studio-bar { display: none; }
+body.tb-touch-on.tb-in-match .tb-match { height: calc(100vh - var(--pad-h)); height: calc(100dvh - var(--pad-h)); }
+
+
+
+body.tb-touch-on #match.turned #quit { right: 2px; bottom: 8px; width: 32px; min-height: 32px; padding: 0; font-size: 0; }
+body.tb-touch-on #match.turned #quit::after { content: '\2715'; font-size: 1.1rem; }
 @media (orientation: landscape) {
   body.tb-touch-mode { --pad-h: 0px; }
   .tb-touch {

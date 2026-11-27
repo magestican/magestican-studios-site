@@ -57,12 +57,21 @@ export function screenToWorld(L, inp) {
   return out;
 }
 
-function flatLayout(w, h, dpr, { hud: withHud = true, arena = 'bellRing', reserve = 0, gutter = null, swap = false } = {}) {
-  const g = gutter != null ? gutter * dpr : Math.max(16 * dpr, Math.round(Math.min(w, h) * 0.02));
+function flatLayout(w, h, dpr, { hud: withHud = true, arena = 'bellRing', reserve = 0, gutter = null, swap = false, compact = false } = {}) {
   
   const rows = w / dpr < 760 ? 2 : 1;
-  const row = Math.max(44 * dpr, Math.round(Math.min(h * 0.09, 96 * dpr)));
-  const hud = withHud ? g * 0.6 + rows * row + (rows - 1) * 12 * dpr : -g;
+  
+  
+  
+  
+  
+  
+  const tight = !!compact && withHud && rows === 2;
+  const g = gutter != null ? gutter * dpr : tight ? 8 * dpr : Math.max(16 * dpr, Math.round(Math.min(w, h) * 0.02));
+  const row = tight ? 28 * dpr : Math.max(44 * dpr, Math.round(Math.min(h * 0.09, 96 * dpr)));
+  const rowGap = (tight ? 6 : 12) * dpr;
+  const hudTop = tight ? g : g * 0.6;
+  const hud = withHud ? hudTop + rows * row + (rows - 1) * rowGap : -g;
   const A0 = ARENAS[arena] || ARENAS.bellRing;
   const A = swap ? { w: A0.h, h: A0.w } : A0; 
   
@@ -79,7 +88,7 @@ function flatLayout(w, h, dpr, { hud: withHud = true, arena = 'bellRing', reserv
   const band = reserve > 0 ? Math.max(0, free - reserve) : 0;
   const oy = hud + g * 2 + lip + (rows === 2 ? band / 2 : free / 2) + ah / 2;
   
-  return { g, hud, row, rows, dpr, scale, ox: (w - aw) / 2 + aw / 2, oy, aw, ah, rot: swap, vw: A0.w * scale, vh: A0.h * scale };
+  return { g, hud, hudTop, row, rowGap, rows, compact: tight, dpr, scale, ox: (w - aw) / 2 + aw / 2, oy, aw, ah, rot: swap, vw: A0.w * scale, vh: A0.h * scale };
 }
 
 
@@ -724,9 +733,9 @@ function leaf(ctx, x, y, k) {
 
 function scoreboard(ctx, m, L, W, big) {
   const n = m.titans.length;
-  const gap = 12 * L.dpr;
-  const left = L.g; const top = L.g * 0.6; const ch = L.row;
-  const timerW = Math.min(160 * L.dpr, Math.max(72 * L.dpr, W * 0.14));
+  const gap = L.rowGap ?? 12 * L.dpr;
+  const left = L.g; const top = L.hudTop ?? L.g * 0.6; const ch = L.row;
+  const timerW = L.compact ? 56 * L.dpr : Math.min(160 * L.dpr, Math.max(72 * L.dpr, W * 0.14));
   const left2 = left + timerW + gap;
   const perRow = Math.ceil(n / L.rows);
   const cw = (W - left2 - L.g + gap) / Math.max(1, perRow);
@@ -745,6 +754,7 @@ function scoreboard(ctx, m, L, W, big) {
     ctx.fillStyle = t === big ? '#5c4a12' : '#1b2233';
     roundRect(ctx, x, y, w, ch, 10 * L.dpr); ctx.fill();
     ctx.fillStyle = h.colour; ctx.fillRect(x, y, Math.max(6 * L.dpr, w * 0.06), ch);
+    if (L.compact) { compactTile(ctx, m, t, h, x, y, w, ch, L.dpr); continue; }
     const tx = x + Math.max(12 * L.dpr, w * 0.12);
     const fs = Math.min(ch * 0.3, (w - (tx - x) - 6 * L.dpr) / 4);
     ctx.fillStyle = t.alive ? '#fff' : '#8893ad'; ctx.textAlign = 'left';
@@ -753,6 +763,26 @@ function scoreboard(ctx, m, L, W, big) {
     ctx.font = `700 ${Math.round(fs * 1.6)}px ${DISPLAY}`;
     ctx.fillText(t.alive ? String(t.bells) : `${t.bells}  ${Math.ceil(t.respawn / 60)}s`, tx, y + ch * 0.7);
   }
+}
+
+
+
+
+
+
+function compactTile(ctx, m, t, h, x, y, w, ch, dpr) {
+  ctx.fillStyle = h.colour; ctx.fillRect(x, y, Math.max(5 * dpr, w * 0.06), ch);
+  const pad = 9 * dpr; const cy = y + ch / 2;
+  const score = t.alive ? String(t.bells) : `${Math.ceil(t.respawn / 60)}s`;
+  ctx.textBaseline = 'middle'; ctx.fillStyle = t.alive ? '#fff' : '#8893ad';
+  ctx.font = `700 ${Math.round(ch * 0.6)}px ${DISPLAY}`; ctx.textAlign = 'right';
+  ctx.fillText(score, x + w - 6 * dpr, cy);
+  const room = w - pad - 6 * dpr - ctx.measureText(score).width - 4 * dpr;
+  const name = m.mode === 'team' ? `${h.name} T${t.team + 1}` : h.name;
+  let fs = Math.round(ch * 0.5);
+  ctx.font = `600 ${fs}px ${DISPLAY}`;
+  while (fs > 9 * dpr && ctx.measureText(name).width > room) { fs -= dpr; ctx.font = `600 ${fs}px ${DISPLAY}`; }
+  ctx.textAlign = 'left'; ctx.fillText(name, x + pad, cy);
 }
 
 function roundRect(ctx, x, y, w, h, r) {

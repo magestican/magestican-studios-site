@@ -102,6 +102,8 @@ let countMs = Infinity;
 function show(id) {
   for (const s of ['title', 'match', 'end', 'night']) $(s).hidden = s !== id;
   
+  document.body.classList.toggle('tb-in-match', id === 'match');
+  
   $(id).classList.remove(...ENTER_CLASSES); void $(id).offsetWidth;
   const enter = enterClass(id, reducedMotion); if (enter) $(id).classList.add(enter);
   if (id !== 'match') { leave.reset(); $('leave-ask').hidden = true; }
@@ -326,7 +328,7 @@ function resize() {
   const lg = $('legend'); const touch = document.body.classList.contains('tb-touch-on');
   lg.classList.remove('over-hud'); 
   const cover = touch && !lg.hidden ? Math.max(0, c.getBoundingClientRect().bottom - lg.getBoundingClientRect().top + 16) : 0;
-  L = layout(c.width, c.height, dpr, { arena: match ? match.arena : 'bellRing', reserve: Math.round(cover * dpr), turn: true }); 
+  L = layout(c.width, c.height, dpr, { arena: match ? match.arena : 'bellRing', reserve: Math.round(cover * dpr), turn: true, compact: touch }); 
   
   
   lg.classList.toggle('over-hud', !!L.rot && touch);
