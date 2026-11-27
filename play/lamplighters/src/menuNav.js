@@ -133,6 +133,13 @@ export function padAction(screen, word, onBoard) {
 }
 
 
+
+export const MENU_CUES = Object.freeze(['tap', 'back', 'toggleOn', 'toggleOff', 'open', 'focus', 'error']);
+
+
+export const MENU_GAINS = Object.freeze({ tap: 0.4, back: 0.4, toggleOn: 0.42, toggleOff: 0.42, open: 0.36, focus: 0.2, error: 0.45 });
+
+
 export const RISE_MS = 260;
 export const STAGGER_MS = 60;
 export const SCREEN_IN_MS = 200;

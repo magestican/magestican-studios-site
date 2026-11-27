@@ -1,0 +1,478 @@
+{
+ "flicker": {
+  "idea": "Last Call - the whole city flickers, a bulb hum stuttering off and on with switch clicks and a spark",
+  "seed": 112705,
+  "licences": [
+   "Sonniss-GDC-RF",
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "flicker.wav",
+    "lufs": -18.01,
+    "true_peak_db": -3.41,
+    "sources": [
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-thermometer",
+      "file": "audio/ELECEmf_Thermometer02_InMotionAudio_MedicalThermometer.wav",
+      "sha256": "5c6a14e09af84a8df9f0773be531d4c80df613c26328502d582375c725ccccd6",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-interface-infographics",
+      "file": "audio/Interface Accept Glassy Snap.wav",
+      "sha256": "7c4337c429b72efa3731e2fb970f32e87ca39a6dd62adce1a6779f9e809a3444",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   }
+  ]
+ },
+ "fuseFar": {
+  "idea": "the rival's wrong window blows a fuse across the tower - the same crackle, far and soft",
+  "seed": 112704,
+  "licences": [
+   "Sonniss-GDC-RF",
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "fuseFar.wav",
+    "lufs": -26.0,
+    "true_peak_db": -8.76,
+    "sources": [
+     {
+      "library": "sonniss26-thermometer",
+      "file": "audio/ELECEmf_Thermometer02_InMotionAudio_MedicalThermometer.wav",
+      "sha256": "5c6a14e09af84a8df9f0773be531d4c80df613c26328502d582375c725ccccd6",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "fuseFar_2.wav",
+    "lufs": -25.99,
+    "true_peak_db": -9.09,
+    "sources": [
+     {
+      "library": "sonniss26-thermometer",
+      "file": "audio/ELECEmf_Thermometer02_InMotionAudio_MedicalThermometer.wav",
+      "sha256": "5c6a14e09af84a8df9f0773be531d4c80df613c26328502d582375c725ccccd6",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   }
+  ]
+ },
+ "fuse": {
+  "idea": "your wrong window blows a fuse - a hard electric crackle over a low dull thump in the fuse box",
+  "seed": 112703,
+  "licences": [
+   "Sonniss-GDC-RF",
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "fuse.wav",
+    "lufs": -17.99,
+    "true_peak_db": -3.47,
+    "sources": [
+     {
+      "library": "sonniss26-thermometer",
+      "file": "audio/ELECEmf_Thermometer02_InMotionAudio_MedicalThermometer.wav",
+      "sha256": "5c6a14e09af84a8df9f0773be531d4c80df613c26328502d582375c725ccccd6",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "fuse_2.wav",
+    "lufs": -18.01,
+    "true_peak_db": -3.25,
+    "sources": [
+     {
+      "library": "sonniss26-thermometer",
+      "file": "audio/ELECEmf_Thermometer02_InMotionAudio_MedicalThermometer.wav",
+      "sha256": "5c6a14e09af84a8df9f0773be531d4c80df613c26328502d582375c725ccccd6",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   }
+  ]
+ },
+ "light": {
+  "idea": "a lamp in a tower window switching on behind wet glass - a glassy snap, a switch click, a light bulb hum swelling",
+  "seed": 112701,
+  "licences": [
+   "Sonniss-GDC-RF",
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "light.wav",
+    "lufs": -22.0,
+    "true_peak_db": -7.87,
+    "sources": [
+     {
+      "library": "sonniss26-interface-infographics",
+      "file": "audio/Interface Accept Glassy Snap.wav",
+      "sha256": "7c4337c429b72efa3731e2fb970f32e87ca39a6dd62adce1a6779f9e809a3444",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "light_2.wav",
+    "lufs": -22.01,
+    "true_peak_db": -7.49,
+    "sources": [
+     {
+      "library": "sonniss26-interface-infographics",
+      "file": "audio/Interface Accept Glassy Snap.wav",
+      "sha256": "7c4337c429b72efa3731e2fb970f32e87ca39a6dd62adce1a6779f9e809a3444",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "light_3.wav",
+    "lufs": -22.01,
+    "true_peak_db": -7.56,
+    "sources": [
+     {
+      "library": "sonniss26-interface-infographics",
+      "file": "audio/Interface Accept Glassy Snap.wav",
+      "sha256": "7c4337c429b72efa3731e2fb970f32e87ca39a6dd62adce1a6779f9e809a3444",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "light_4.wav",
+    "lufs": -21.99,
+    "true_peak_db": -7.67,
+    "sources": [
+     {
+      "library": "sonniss26-interface-infographics",
+      "file": "audio/Interface Accept Glassy Snap.wav",
+      "sha256": "7c4337c429b72efa3731e2fb970f32e87ca39a6dd62adce1a6779f9e809a3444",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   }
+  ]
+ },
+ "rival": {
+  "idea": "a rival's window lighting across the tower - the same lamp, further away, softer and darker",
+  "seed": 112702,
+  "licences": [
+   "Sonniss-GDC-RF",
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "rival.wav",
+    "lufs": -27.0,
+    "true_peak_db": -13.99,
+    "sources": [
+     {
+      "library": "sonniss26-interface-infographics",
+      "file": "audio/Interface Accept Glassy Snap.wav",
+      "sha256": "7c4337c429b72efa3731e2fb970f32e87ca39a6dd62adce1a6779f9e809a3444",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "rival_2.wav",
+    "lufs": -27.0,
+    "true_peak_db": -14.01,
+    "sources": [
+     {
+      "library": "sonniss26-interface-infographics",
+      "file": "audio/Interface Accept Glassy Snap.wav",
+      "sha256": "7c4337c429b72efa3731e2fb970f32e87ca39a6dd62adce1a6779f9e809a3444",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "rival_3.wav",
+    "lufs": -26.98,
+    "true_peak_db": -14.1,
+    "sources": [
+     {
+      "library": "sonniss26-interface-infographics",
+      "file": "audio/Interface Accept Glassy Snap.wav",
+      "sha256": "7c4337c429b72efa3731e2fb970f32e87ca39a6dd62adce1a6779f9e809a3444",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "rival_4.wav",
+    "lufs": -27.0,
+    "true_peak_db": -14.0,
+    "sources": [
+     {
+      "library": "sonniss26-interface-infographics",
+      "file": "audio/Interface Accept Glassy Snap.wav",
+      "sha256": "7c4337c429b72efa3731e2fb970f32e87ca39a6dd62adce1a6779f9e809a3444",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     },
+     {
+      "library": "sonniss26-east-coast-america",
+      "file": "audio/AMBSubn_Electricity Hum, Lightbulb,  Coil Pickup 01_344 Audio_East Coast America.wav",
+      "sha256": "cdbf8b50b7fec17ce3239e6880e8b2e20995e51d7500f24e104b4f8e4b1ea72c",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   }
+  ]
+ },
+ "close": {
+  "kit": "arbelo-lamplighters-fx",
+  "takes": [
+   {
+    "file": "close.wav",
+    "engineer": {
+     "file": "close.wav",
+     "sha256": "7fd2c4a1cb6298a8c6bd433d4349aa050e29e4c8d3e28857407d8f062b8c158a",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 0.52,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "win": {
+  "kit": "arbelo-lamplighters-fx",
+  "takes": [
+   {
+    "file": "win.wav",
+    "engineer": {
+     "file": "win.wav",
+     "sha256": "cce071cdb3886b43e888047d65a20550391243f43625d904ad70bee6f4abee50",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 2.0,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "lose": {
+  "kit": "arbelo-lamplighters-fx",
+  "takes": [
+   {
+    "file": "lose.wav",
+    "engineer": {
+     "file": "lose.wav",
+     "sha256": "baff2f7052aed716347c66cd8083da970ee88617e971867d369d3af78d76cce8",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 1.8,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "ui:tap": {
+  "kit": "arbelo-lamplighters-ui",
+  "takes": [
+   {
+    "file": "tap.wav",
+    "engineer": {
+     "file": "tap.wav",
+     "sha256": "6b82df8f238485f0dbf5a7d51335226eee0d2f2a67e2376f3ba6abee97ecc476",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 0.18,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "ui:back": {
+  "kit": "arbelo-lamplighters-ui",
+  "takes": [
+   {
+    "file": "back.wav",
+    "engineer": {
+     "file": "back.wav",
+     "sha256": "f988afc8bcf8c036f30920c693f7409fad5bdc4034cf2a13340b69aa3942845b",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 0.24,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "ui:toggleOn": {
+  "kit": "arbelo-lamplighters-ui",
+  "takes": [
+   {
+    "file": "toggleOn.wav",
+    "engineer": {
+     "file": "toggleOn.wav",
+     "sha256": "b34cc3cbe4601793416cf5a4e8277643dc73c54b4c2bd203645e1231dfefd90a",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 0.24,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "ui:toggleOff": {
+  "kit": "arbelo-lamplighters-ui",
+  "takes": [
+   {
+    "file": "toggleOff.wav",
+    "engineer": {
+     "file": "toggleOff.wav",
+     "sha256": "fba3f62b71dc4a2bed607327728b90a0e00bb2fe804e8fb020f2665514e85923",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 0.24,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "ui:open": {
+  "kit": "arbelo-lamplighters-ui",
+  "takes": [
+   {
+    "file": "open.wav",
+    "engineer": {
+     "file": "open.wav",
+     "sha256": "55fe2d55485b2d02e223d987949921643b94c579652e7b4176749aa66523ff9d",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 0.48,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "ui:focus": {
+  "kit": "arbelo-lamplighters-ui",
+  "takes": [
+   {
+    "file": "focus.wav",
+    "engineer": {
+     "file": "focus.wav",
+     "sha256": "ecc159e11955cf29f945f79625409ec6f54791db303f8b6ade6b2ae871724469",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 0.11,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "ui:error": {
+  "kit": "arbelo-lamplighters-ui",
+  "takes": [
+   {
+    "file": "error.wav",
+    "engineer": {
+     "file": "error.wav",
+     "sha256": "56313406ce03d2f24f1a8c4ca87bb53d519a8f6be42dbc9d05a54f4364f2d83d",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 0.27,
+     "chain": "sfx"
+    }
+   }
+  ]
+ }
+}

@@ -26,10 +26,11 @@ import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
-import { playUi } from '../../../web-engine/brand/uiSound.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
 import { setupPanels, togglePanel } from './setupPanels.js';
 import { installMenuInput } from './menuInput.js';
+import { MENU_CUES, MENU_GAINS } from './menuNav.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { createNet, canPlayTogether } from './net.js';
 import { forgetRoomCode } from './net.js';
@@ -44,6 +45,13 @@ import {
 const GAME_ID = 'lamplighters';
 const SETUP_KEY = 'lamplighters-setup-v1';
 const SKYLINE_KEY = 'lamplighters-skyline-v1';
+
+
+
+
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['light', 'rival', 'fuse', 'fuseFar', 'flicker', 'close', 'win', 'lose'], { light: 4, rival: 4, fuse: 2, fuseFar: 2 });
+
+const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
 
 const TILE_LIT = './assets/windows/lit0_a.svg';
 const TILE_DARK = './assets/windows/dark_a.svg';
@@ -202,8 +210,8 @@ function chip(label, pressed, locked, onPick) {
   b.setAttribute('aria-pressed', String(pressed));
   b.setAttribute('aria-disabled', String(locked));
   b.addEventListener('click', () => {
-    if (locked) return;
-    playUi('tap');
+    if (locked) { ui.play('error'); return; }
+    ui.play('tap');
     onPick();
   });
   return b;
@@ -304,7 +312,7 @@ function drawSkyline(inRoom, shown) {
       b.setAttribute('aria-pressed', String(id === shown));
       b.setAttribute('aria-label', `${groupLabel(group)}, ${fill(T.towerName, { n: i + 1 })}`);
       b.append(tileImg(isLitTower(id)));
-      b.addEventListener('click', () => { playUi('tap'); pickPicture(id); });
+      b.addEventListener('click', () => { ui.play('tap'); pickPicture(id); });
       return b;
     }));
     const n = document.createElement('span');
@@ -805,10 +813,16 @@ function onView(next) {
     const closes = diff.closedRows.length + diff.closedCols.length + diff.closedLines.length;
     if (diff.finished) {
       
-    } else if (diff.lastCallStarted) playUi('badge');
-    else if (closes > 0) playUi('xp');
-    else if (diff.fused.length > 0) playUi(next.wrong[me] > 0 && diff.gained[me] <= 0 && frozenLeft(me) > 0 ? 'error' : 'tick');
-    else if (diff.lit.length > 0) playUi(diff.lit.some((l) => l.seat === me) ? 'tap' : 'tick');
+    } else if (diff.lastCallStarted) sfx.play('flicker');
+    else if (closes > 0) sfx.play('close');
+    else if (diff.fused.length > 0) {
+      
+      if (next.wrong[me] > 0 && diff.gained[me] <= 0 && frozenLeft(me) > 0) sfx.play('fuse');
+      else sfx.play('fuseFar');
+    } else if (diff.lit.length > 0) {
+      if (diff.lit.some((l) => l.seat === me)) sfx.play('light');
+      else sfx.play('rival');
+    }
   }
   paint();
   
@@ -849,7 +863,7 @@ function endButton(label, go, onClick) {
   b.type = 'button';
   b.className = go ? 'll-go skin-stone-button_primary' : 'll-btn skin-stone-button_secondary';
   b.textContent = label;
-  b.addEventListener('click', () => { playUi('tap'); onClick(); });
+  b.addEventListener('click', () => { ui.play('tap'); onClick(); });
   return b;
 }
 
@@ -905,7 +919,10 @@ function showEnd() {
     return el;
   }));
   const won = finished ? view.winner === me : room.result?.winner === me;
-  if (me >= 0) playUi(won ? 'trophy' : 'levelUp');
+  if (me >= 0) {
+    if (won) sfx.play('win');
+    else sfx.play('lose');
+  }
   endNews = { prizes: [], advice: null, won: false };
   if (mode === 'bot' && finished && !botCheated) recordSkyline(won);
   drawEndButtons();
@@ -1326,22 +1343,22 @@ function shareBase() { return `${location.origin}${location.pathname}`; }
 function roomId() { return net?.hosting ? net.id : `flt-${roomUi.code}`; }
 
 function wireButtons() {
-  $('start-bot').addEventListener('click', () => { playUi('tap'); startBotMatch(setup.picture, setup.rival); });
+  $('start-bot').addEventListener('click', () => { ui.play('tap'); startBotMatch(setup.picture, setup.rival); });
   for (const [id, which] of [['options-btn', 'options'], ['friend-btn', 'friend']]) {
     $(id).addEventListener('click', () => {
-      playUi('tap');
       setupPanel = togglePanel(setupPanel, which);
+      ui.play(setupPanel ? 'open' : 'back');
       drawSetup();
     });
   }
-  $('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
+  $('create-room').addEventListener('click', () => { ui.play('tap'); openRoom(); });
   $('join-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    playUi('tap');
+    ui.play('tap');
     joinRoom($('join-code').value.trim());
   });
-  $('leave-room').addEventListener('click', () => { playUi('toggleOff'); leaveToSetup(); });
-  $('start-room').addEventListener('click', () => { playUi('tap'); startRoomRound(room.picture ?? setup.picture); });
+  $('leave-room').addEventListener('click', () => { ui.play('toggleOff'); leaveToSetup(); });
+  $('start-room').addEventListener('click', () => { ui.play('tap'); startRoomRound(room.picture ?? setup.picture); });
   
   
   newCodeButton($('copy-link'), {
@@ -1368,9 +1385,9 @@ function wireButtons() {
         else if (res?.via === 'manual') toast(res.url, 8000);
       }, () => toast(link, 8000));
   });
-  $('quit').addEventListener('click', () => { playUi('back'); leaveToSetup(); });
-  $('mode-light').addEventListener('click', () => { playUi('toggleOff'); inputMode = 'light'; paint(); });
-  $('mode-mark').addEventListener('click', () => { playUi('toggleOn'); inputMode = 'mark'; aimCell = -1; paint(); });
+  $('quit').addEventListener('click', () => { ui.play('back'); leaveToSetup(); });
+  $('mode-light').addEventListener('click', () => { ui.play('toggleOff'); inputMode = 'light'; paint(); });
+  $('mode-mark').addEventListener('click', () => { ui.play('toggleOn'); inputMode = 'mark'; aimCell = -1; paint(); });
   $('commit').addEventListener('click', () => { if (aimCell >= 0) lightWindow(aimCell); });
   wireBoardInput();
   wireBlockInput();
@@ -1393,7 +1410,7 @@ function wireButtons() {
 fillStaticText();
 wireButtons();
 
-installMenuInput();
+installMenuInput({ onFocusMove: () => ui.play('focus') });
 show('setup');
 drawSetup();
 const params = new URLSearchParams(location.search);

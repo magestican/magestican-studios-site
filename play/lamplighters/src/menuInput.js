@@ -27,7 +27,9 @@ function visible(el) {
 
 const isField = (t) => !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
 
-export function installMenuInput() {
+
+
+export function installMenuInput({ onFocusMove } = {}) {
   const $ = (id) => document.getElementById(id);
   
   let lastInput = null;
@@ -73,7 +75,9 @@ export function installMenuInput() {
   function step(id, by) {
     const list = controls(id);
     if (!list.length) return;
-    focus(list[stepFocus(list.indexOf(document.activeElement), by, list.length)]);
+    const was = document.activeElement;
+    focus(list[stepFocus(list.indexOf(was), by, list.length)]);
+    if (document.activeElement !== was) { try { onFocusMove?.(); } catch {  } }
   }
 
   function pressFocused(id) {

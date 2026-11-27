@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "cc39c443-20261127T030153Z",
+ "buildId": "b772d734-20261127T035813Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -834,7 +834,7 @@
    "ageNote": null,
    "order": 27,
    "addedAt": "2026-11-02",
-   "bytes": 394687
+   "bytes": 1358455
   },
   {
    "id": "fossick",
@@ -1058,7 +1058,7 @@
    "ageNote": null,
    "order": 34,
    "addedAt": "2026-11-24",
-   "bytes": 7557911
+   "bytes": 7614604
   },
   {
    "id": "emberpane",

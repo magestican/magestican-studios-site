@@ -1,0 +1,122 @@
+# dj sfx-set brief - Lamplighters (lamplighters), the game's OWN play sound effects (2026-11-27, task LL-M2).
+# Run from projects/magestican-dj:
+#   .venv/Scripts/python -m studio.cli sfx-set <this file> --no-deliver
+# then games/lamplighters/docs/audio/deliver.py turns the masters into the WAVs the game plays (assets/sfx).
+# The three pitched stingers (close, win, lose) are the DJ kit demos/kits/arbelo-lamplighters-fx.yaml, and the menus
+# are demos/kits/arbelo-lamplighters-ui.yaml (FM electric piano GM 5 + halo pad GM 94, F minor); deliver.py copies
+# those too.
+#
+# Bryan, 2026-11-24: "Make sure this is a AAA level game , do not stop until you are done , pay special attention
+# to menus . Make sure all [games] do that"; 2026-11-09: "every game needs unique music sound menus etc. Make it a
+# hard rule forever". Until now every Lamplighters sound was the site kit web-engine/brand/uiSound.js (tap, tick, xp,
+# error, badge, trophy, levelUp), the same clicks as a dozen other games.
+#
+# The fantasy (docs/design/DOSSIER.md): a rival crew of lamplighters racing across one tower at night in the rain;
+# you deduce a window and light it, a wrong window blows a fuse (GD-108: its own unmistakable response), and at Last
+# Call the city flickers. So the palette is electric and glassy, never wood, cards or stone:
+#   - light (your window): a glassy snap as the lamp catches, a switch click, and the hum of a real light bulb
+#     swelling under it;
+#   - rival (their window): the same lamp further away - softer, darker, shorter - so you hear the rival working
+#     without it ever sounding like your own;
+#   - fuse (your wrong window): a recorded electro-magnetic crackle, cut hard, over a low dull thump - the fuse box;
+#   - fuseFar (their wrong window): the same, far and soft;
+#   - flicker (Last Call starts): the bulb hum stuttering on and off with switch clicks, the whole city flickering.
+# Sample families: sonniss26-east-coast-america (Electricity Hum, Lightbulb, Coil Pickup), sonniss26-thermometer
+# (ELECEmf) and sonniss26-interface-infographics (Glassy Snap) are picked by no other game's brief and no DJ demo
+# (checked across games/*/docs/audio and magestican-dj demos on 2026-11-27).
+# Levels: a window is lit every few seconds, so light and rival sit well under the stingers; the fuse is the loudest
+# foley because a wrong guess must never be missed.
+out_root: E:/magestican-dj/renders/lamplighters-sfx
+defaults:
+  space: sky   # outdoors, a tower across a city square at night
+  wet: 0.05
+  peak_db: -3
+sounds:
+  light:
+    new: true
+    idea: a lamp in a tower window switching on behind wet glass - a glassy snap, a switch click, a light bulb hum swelling
+    prompt: a light switch clicked and a light bulb humming on, glassy
+    seed: 112701
+    variants: 4
+    length_ms: 300
+    lufs: -22
+    lufs_range: [-25, -19]
+    pitch_jitter: 0.05
+    timing_jitter_ms: 3
+    mix_jitter_db: 1.5
+    highpass_hz: 120
+    lowpass_hz: 10500
+    layers:
+      - {type: click, at_ms: 0, ms: 3, highpass_hz: 2200, gain_db: -10}
+      - {type: sample, pick: "sonniss26-interface-infographics:*Glassy Snap*", at_ms: 4, ms: 220, gain_db: -4, fade_ms: 120}
+      - {type: sample, pick: "sonniss26-east-coast-america:*Lightbulb*", slices: true, at_ms: 10, ms: 280, gain_db: -9, fade_in_ms: 40, fade_ms: 140}
+  rival:
+    new: true
+    idea: a rival's window lighting across the tower - the same lamp, further away, softer and darker
+    prompt: a distant light switch and a soft bulb hum
+    seed: 112702
+    variants: 4
+    length_ms: 240
+    lufs: -27
+    lufs_range: [-30, -24]
+    pitch_jitter: 0.05
+    timing_jitter_ms: 3
+    mix_jitter_db: 1.5
+    highpass_hz: 160
+    lowpass_hz: 5200
+    layers:
+      - {type: click, at_ms: 0, ms: 3, highpass_hz: 1400, gain_db: -14}
+      - {type: sample, pick: "sonniss26-interface-infographics:*Glassy Snap*", at_ms: 4, ms: 180, semitones: -3, gain_db: -7, fade_ms: 100}
+      - {type: sample, pick: "sonniss26-east-coast-america:*Lightbulb*", slices: true, at_ms: 10, ms: 220, gain_db: -11, fade_in_ms: 30, fade_ms: 110}
+  fuse:
+    new: true
+    idea: your wrong window blows a fuse - a hard electric crackle over a low dull thump in the fuse box
+    prompt: an electric fuse blowing, a crackle and a dull thump
+    seed: 112703
+    variants: 2
+    length_ms: 420
+    lufs: -18
+    lufs_range: [-21, -15]
+    pitch_jitter: 0.04
+    timing_jitter_ms: 2
+    highpass_hz: 60
+    lowpass_hz: 11000
+    layers:
+      - {type: sample, pick: "sonniss26-thermometer:*ELECEmf*", slices: true, ms: 360, gain_db: -2, fade_ms: 160}
+      - {type: click, at_ms: 0, ms: 4, highpass_hz: 1800, gain_db: -8}
+      - {type: tone, freq: 95, freq_end: 55, ms: 160, harmonics: [1.0, 0.35], gain_db: -9}
+  fuseFar:
+    new: true
+    idea: the rival's wrong window blows a fuse across the tower - the same crackle, far and soft
+    prompt: a distant electric fuse crackle
+    seed: 112704
+    variants: 2
+    length_ms: 320
+    lufs: -26
+    lufs_range: [-29, -23]
+    pitch_jitter: 0.04
+    timing_jitter_ms: 2
+    highpass_hz: 120
+    lowpass_hz: 4800
+    layers:
+      - {type: sample, pick: "sonniss26-thermometer:*ELECEmf*", slices: true, ms: 280, gain_db: -4, fade_ms: 140}
+      - {type: tone, freq: 90, freq_end: 60, ms: 120, harmonics: [1.0, 0.3], gain_db: -14}
+  flicker:
+    new: true
+    idea: Last Call - the whole city flickers, a bulb hum stuttering off and on with switch clicks and a spark
+    prompt: lights flickering, a humming bulb cutting in and out, switch clicks
+    seed: 112705
+    variants: 1
+    length_ms: 900
+    lufs: -18
+    lufs_range: [-21, -15]
+    highpass_hz: 80
+    lowpass_hz: 11000
+    layers:
+      - {type: sample, pick: "sonniss26-east-coast-america:*Lightbulb*", slices: true, at_ms: 0, ms: 150, gain_db: -5, fade_ms: 30}
+      - {type: click, at_ms: 150, ms: 3, highpass_hz: 2000, gain_db: -10}
+      - {type: sample, pick: "sonniss26-east-coast-america:*Lightbulb*", slices: true, offset: 1, at_ms: 260, ms: 90, gain_db: -5, fade_ms: 20}
+      - {type: click, at_ms: 350, ms: 3, highpass_hz: 2000, gain_db: -10}
+      - {type: sample, pick: "sonniss26-thermometer:*ELECEmf*", at_ms: 360, ms: 120, gain_db: -9, fade_ms: 50}
+      - {type: sample, pick: "sonniss26-east-coast-america:*Lightbulb*", slices: true, offset: 2, at_ms: 520, ms: 380, gain_db: -4, fade_in_ms: 20, fade_ms: 200}
+      - {type: sample, pick: "sonniss26-interface-infographics:*Glassy Snap*", at_ms: 520, ms: 260, gain_db: -8, fade_ms: 140}
