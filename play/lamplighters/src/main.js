@@ -27,6 +27,8 @@ import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
+import { MUSIC_KEY, createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { MUSIC_TRACKS, followScreen, musicWanted, startOnFirstGesture } from './music.js';
 import { bootDone } from '../../shared/ui/fitScreen.js';
 import { setupPanels, togglePanel } from './setupPanels.js';
 import { installMenuInput } from './menuInput.js';
@@ -55,6 +57,10 @@ const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['light', 
 const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
 
 installOwnUi({ ui, sfx });
+
+const music = createTrackMusic({ game: GAME_ID, manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS });
+const savedMusic = () => { try { return localStorage.getItem(MUSIC_KEY); } catch { return null; } };
+startOnFirstGesture(music, { wanted: () => musicWanted(savedMusic()) });
 
 const TILE_LIT = './assets/windows/lit0_a.svg';
 const TILE_DARK = './assets/windows/dark_a.svg';
@@ -170,6 +176,7 @@ const viewer = () => mode === 'room' && mySeat() < 0;
 
 function show(which) {
   screen = which;
+  followScreen(music, which);
   if (which === 'setup') disposeBlock();
   for (const id of ['setup', 'match', 'end']) $(id).hidden = id !== which;
   
@@ -247,6 +254,13 @@ function drawSetup() {
   $('rivals').replaceChildren(...LEVELS.map((lv) => chip(T.rivals[lv], lv === setup.rival, false, () => {
     setup.rival = lv;
     saveSetup();
+    drawSetup();
+  })));
+  
+  
+  const musicOn = music.isOn() || musicWanted(savedMusic());
+  $('musics').replaceChildren(...[true, false].map((v) => chip(v ? T.music.on : T.music.off, v === musicOn, false, () => {
+    music.setOn(v);
     drawSetup();
   })));
   const panels = setupPanels({ inRoom, panel: setupPanel });
@@ -923,6 +937,7 @@ function showEnd() {
   }));
   const won = finished ? view.winner === me : room.result?.winner === me;
   if (me >= 0) {
+    music.duck(0.35, 1400); 
     if (won) sfx.play('win');
     else sfx.play('lose');
   }
@@ -1316,6 +1331,7 @@ function fillStaticText() {
   $('size-h').textContent = T.sizeH;
   $('tower-h').textContent = T.towerH;
   $('rival-h').textContent = T.rivalH;
+  $('music-h').textContent = T.musicH;
   $('start-bot').textContent = T.startBot;
   $('skyline-h').textContent = T.skylineH;
   $('prizes-h').textContent = T.prizesH;

@@ -1,0 +1,25 @@
+# Lamplighters match loop (LL-M3, 2026-11-27): every tower, 5x5 to 15x15, both crews racing.
+# Written from THIS game (docs/design/DOSSIER.md), not copied from another game's brief: two rival crews of
+# lamplighters race across one tower at night in the rain, deducing which window to light; the picture hidden in the
+# windows is the prize, and at Last Call the city flickers. The sound is a rain-soaked neon city at night: the same FM
+# electric piano and halo pad family as the game's own UI and stingers (LL-M2, F minor, so a win chime never clashes),
+# glassy bells for windows catching light, and a pulsing synth bass that keeps the race moving under a thinking game.
+# Genre: neo-noir-synthwave (DJ knowledge/styles/neo-noir-synthwave.md, NN B instrumental block). No other game's brief
+# or music.json picks it (checked games/*/docs/audio, games/*/assets/music and DJ demos/briefs on 2026-11-27).
+# Feeling: focused, nocturnal, quietly tense - a deduction race, never sad and never frantic. Signature: the bending
+#   brass swell over the e-piano; captivating moment: the bass and snare drop out to rain, bells and pad, then return;
+#   unexpected turn: a lift where a glockenspiel line climbs like windows lighting up one floor at a time.
+# Long loop (64 bars at 100 bpm, ~154 s) so a 3-6 minute tower does not hear the join every minute.
+# Render (from projects/magestican-dj), detached through heavyq:
+#   .venv/Scripts/python -m studio.cli compose <this file> --out D:/magestican-dj/renders/lamplighters-ll-m3-match
+# Bryan 2026-11-24: "Make sure this is a AAA level game"; 2026-11-09: "every game needs unique music sound menus etc".
+game: lamplighters
+use: bgm
+genre: neo-noir-synthwave
+title: Night Race
+duration: 160
+bpm: 100
+loop: true
+loop_bars: 64
+candidates: 3
+extra: "1980s neo noir synthwave, instrumental video game loop, rain soaked neon city at night, warm FM electric piano chords from the first bar, deep pulsing sixteenth note synth bass that keeps a race moving, slow bending analog brass synth swells in a cathedral reverb, glassy bells answering like windows lighting up, half time gated reverb snare, a breakdown where bass and drums drop out to soft rain and bells then return, a glockenspiel line climbing into the last section, focused and mysterious, F minor, wide cinematic polished mix, no vocals, no saxophone"

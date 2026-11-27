@@ -13,6 +13,8 @@ export const T = Object.freeze({
   blockSize: '{n}x{n}x{n}',
   rivalH: 'Rival crew',
   rivals: { apprentice: 'Apprentice', lamplighter: 'Lamplighter', foreman: 'Foreman' },
+  musicH: 'Music',
+  music: { on: 'On', off: 'Off' },
   startBot: 'Start the climb',
   options: 'Options',
   friendH: 'Play a friend',

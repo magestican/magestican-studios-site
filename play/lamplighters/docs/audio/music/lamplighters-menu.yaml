@@ -1,0 +1,22 @@
+# Lamplighters menu bed (LL-M3, 2026-11-27): the title, Options, the friend room and the tally.
+# Its own brief, not the match brief reworded: before a match nobody is racing yet. The tower stands dark in the rain
+# and the city waits for its lamps, so this is the quiet before the shift - no drums driving, a slow heartbeat kick,
+# rain on glass, the halo pad and the FM electric piano of the game's own menu cues (LL-M2, F minor), and one koto
+# pluck answering in the gaps like a lamp being tested. Slower and sparser than the match loop so the two never blur.
+# Genre: neo-noir-synthwave (DJ knowledge/styles/neo-noir-synthwave.md, NN B instrumental block).
+# Feeling: calm anticipation at night - the street before the shift starts. Signature: the slow brass swell rising out
+#   of the rain; captivating moment: the string machine choir opening up halfway like the city lights coming on.
+# Loop 40 bars at 84 bpm (~114 s): a menu visit is short, and a long bed never repeats inside one.
+# Render (from projects/magestican-dj), detached through heavyq:
+#   .venv/Scripts/python -m studio.cli compose <this file> --out D:/magestican-dj/renders/lamplighters-ll-m3-menu
+# Bryan 2026-11-24: "pay special attention to menus"; 2026-11-09: "every game needs unique music sound menus etc".
+game: lamplighters
+use: menu
+genre: neo-noir-synthwave
+title: Rain Tower
+duration: 125
+bpm: 84
+loop: true
+loop_bars: 40
+candidates: 3
+extra: "1980s neo noir synthwave, instrumental menu theme, soft rain on glass at night, warm halo synth pad, gentle FM electric piano chords, a slow heartbeat kick and no snare, slow bending analog brass synth swell rising out of the rain, a koto pluck answering in the gaps, string machine choir pad opening up halfway, deep soft sub bass, calm and expectant, F minor, wide cathedral reverb, polished mix, no vocals, no saxophone"

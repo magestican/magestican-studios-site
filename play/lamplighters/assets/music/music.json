@@ -1,0 +1,28 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "menu",
+      "side": "A",
+      "title": "Rain Tower",
+      "genre": "neo-noir-synthwave",
+      "file": "lamplighters-rain-tower.webm",
+      "loopSamples": 5485714,
+      "seed": 890655292,
+      "lufs": -13.9,
+      "lra": 6.8
+    },
+    {
+      "id": "match",
+      "side": "A",
+      "title": "Night Race",
+      "genre": "neo-noir-synthwave",
+      "file": "lamplighters-night-race.webm",
+      "loopSamples": 6451200,
+      "seed": 1998211912,
+      "lufs": -13.6,
+      "lra": 6.3
+    }
+  ]
+}
