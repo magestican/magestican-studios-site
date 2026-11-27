@@ -6,6 +6,7 @@
 
 
 import { TRACKS, TRACK_ORDER } from './tracks/index.js';
+import { musicFor } from './music.js';
 import { createRace, stepRace, standings, PHASE, surfaceFor } from './race.js';
 import { createTyres, stepTyres, TYRE_LOOPS } from './surfaceFeel.js';
 import { loadModels, createView, LIVERIES } from './render.js';
@@ -505,7 +506,12 @@ function toggleSound() {
 let music = null;
 function setMusic() {
   try {
-    music ??= Object.assign(new Audio('./assets/music/counter-rush.m4a'), { loop: true, volume: 0.45 });
+    const want = musicFor(def.world);
+    if (music && music.dataset.src !== want.src) { music.pause(); music = null; }
+    if (!music) {
+      music = Object.assign(new Audio(want.src), { loop: true, volume: want.volume });
+      music.dataset.src = want.src;
+    }
     if (running && !paused && !muted) music.play().catch(() => {}); else music.pause();
   } catch {  }
 }
