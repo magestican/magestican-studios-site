@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "cac8f408-20261127T115943Z",
+ "buildId": "6bf8bcde-20261127T121753Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -387,7 +387,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 4998053
+   "bytes": 4998118
   },
   {
    "id": "truco",

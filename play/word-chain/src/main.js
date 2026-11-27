@@ -1102,7 +1102,9 @@ function pollPad() {
 globalThis.addEventListener('gamepadconnected', () => { if (!padLoop) padLoop = requestAnimationFrame(pollPad); });
 
 
-wireMusicButton({ music });
+
+
+wireMusicButton({ music, sound: () => ui.play(music.isOn() ? 'toggleOn' : 'toggleOff') });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
 
 setupFold = foldSetup();
