@@ -27,7 +27,13 @@
 
 
 
-import { playFile, preloadFiles } from '../../../web-engine/brand/uiSound.js';
+import { playFile, preloadFiles, claimUiSounds } from '../../../web-engine/brand/uiSound.js';
+
+
+
+
+
+const UI_FOLDER = /\/assets\/ui\/$/;
 
 
 export function takeFiles(name, count = 1) {
@@ -51,7 +57,7 @@ export function createGameSfx(baseUrl, names, takes = {}, random = Math.random, 
     const g = Object.prototype.hasOwnProperty.call(gains, name) ? Number(gains[name]) : 1;
     return Number.isFinite(g) && g >= 0 ? g : 1;
   };
-  return {
+  const kit = {
     names: Object.freeze([...names]),
     urls,
     
@@ -70,4 +76,6 @@ export function createGameSfx(baseUrl, names, takes = {}, random = Math.random, 
       return last[name];
     },
   };
+  if (UI_FOLDER.test(new URL('.', new URL('x', baseUrl)).pathname)) claimUiSounds((name) => { kit.play(name); });
+  return kit;
 }

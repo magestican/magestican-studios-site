@@ -132,10 +132,22 @@ export function preloadFiles(urls) {
 
 
 let ownPlayer = null;
+let ownExplicit = false;
 
 
 export function useOwnUiSounds(fn) {
   ownPlayer = typeof fn === 'function' ? fn : null;
+  ownExplicit = ownPlayer !== null;
+}
+
+
+
+
+
+
+export function claimUiSounds(fn) {
+  if (ownExplicit || typeof fn !== 'function') return;
+  ownPlayer = fn;
 }
 
 function preloadAll(c) {
@@ -266,4 +278,4 @@ function bootUnlock() {
 bootUnlock();
 
 
-export function _resetUiSoundPlayer() { ownPlayer = null; ctx = null; bus = null; muteSources.clear(); buffers.clear(); fileUrls.clear(); live.clear(); pending.clear(); }
+export function _resetUiSoundPlayer() { ownPlayer = null; ownExplicit = false; ctx = null; bus = null; muteSources.clear(); buffers.clear(); fileUrls.clear(); live.clear(); pending.clear(); }
