@@ -1,0 +1,165 @@
+{
+ "card": {
+  "idea": "a thin glossy naipe thrown onto a bare wooden patio table, a quick card swish and a light dry wood tick",
+  "seed": 92711,
+  "licences": [
+   "Sonniss-GDC-RF",
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "card.wav",
+    "lufs": -21.98,
+    "true_peak_db": -4.64,
+    "sources": [
+     {
+      "library": "sonniss26-scratch-card",
+      "file": "audio/OBJMisc_ScratchCard_CardMovement_09_InMotionAudio_ScratchCard.wav",
+      "sha256": "18a8b741a11589d7302ab0d5e7ed317df4142377a80c0acdfa4045f6e6e21522",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "card_2.wav",
+    "lufs": -22.01,
+    "true_peak_db": -10.15,
+    "sources": [
+     {
+      "library": "sonniss26-scratch-card",
+      "file": "audio/OBJMisc_ScratchCard_CardMovement_09_InMotionAudio_ScratchCard.wav",
+      "sha256": "18a8b741a11589d7302ab0d5e7ed317df4142377a80c0acdfa4045f6e6e21522",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "card_3.wav",
+    "lufs": -22.0,
+    "true_peak_db": -5.98,
+    "sources": [
+     {
+      "library": "sonniss26-scratch-card",
+      "file": "audio/OBJMisc_ScratchCard_CardMovement_09_InMotionAudio_ScratchCard.wav",
+      "sha256": "18a8b741a11589d7302ab0d5e7ed317df4142377a80c0acdfa4045f6e6e21522",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "card_4.wav",
+    "lufs": -22.02,
+    "true_peak_db": -4.79,
+    "sources": [
+     {
+      "library": "sonniss26-scratch-card",
+      "file": "audio/OBJMisc_ScratchCard_CardMovement_09_InMotionAudio_ScratchCard.wav",
+      "sha256": "18a8b741a11589d7302ab0d5e7ed317df4142377a80c0acdfa4045f6e6e21522",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   }
+  ]
+ },
+ "draw": {
+  "idea": "the top card slid off the mazo or the pile into the hand, a short glossy paper slide",
+  "seed": 92712,
+  "licences": [
+   "Sonniss-GDC-RF"
+  ],
+  "takes": [
+   {
+    "file": "draw.wav",
+    "lufs": -25.01,
+    "true_peak_db": -10.2,
+    "sources": [
+     {
+      "library": "sonniss26-paper-foley",
+      "file": "audio/Encyclopedia Glossy Page Turn Muted.wav",
+      "sha256": "0746668350526caa62127530fa43dead246ab423a0996f4cc87774d1fed3f61d",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "draw_2.wav",
+    "lufs": -25.0,
+    "true_peak_db": -10.2,
+    "sources": [
+     {
+      "library": "sonniss26-paper-foley",
+      "file": "audio/Encyclopedia Glossy Page Turn Muted.wav",
+      "sha256": "0746668350526caa62127530fa43dead246ab423a0996f4cc87774d1fed3f61d",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "draw_3.wav",
+    "lufs": -25.0,
+    "true_peak_db": -9.18,
+    "sources": [
+     {
+      "library": "sonniss26-paper-foley",
+      "file": "audio/Encyclopedia Glossy Page Turn Muted.wav",
+      "sha256": "0746668350526caa62127530fa43dead246ab423a0996f4cc87774d1fed3f61d",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "draw_4.wav",
+    "lufs": -25.0,
+    "true_peak_db": -9.16,
+    "sources": [
+     {
+      "library": "sonniss26-paper-foley",
+      "file": "audio/Encyclopedia Glossy Page Turn Muted.wav",
+      "sha256": "0746668350526caa62127530fa43dead246ab423a0996f4cc87774d1fed3f61d",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   }
+  ]
+ },
+ "win": {
+  "kit": "arbelo-congawise-fx",
+  "takes": [
+   {
+    "file": "win.wav",
+    "engineer": {
+     "file": "win.wav",
+     "sha256": "949086b7509ae750fefbf22edc020b6f0aa3a5b9489c4468e14d12840968a9b8",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 1.9,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "lose": {
+  "kit": "arbelo-congawise-fx",
+  "takes": [
+   {
+    "file": "lose.wav",
+    "engineer": {
+     "file": "lose.wav",
+     "sha256": "f0eff783d7859955dcb3444bbc2001fc973601ed0bf2d895fb875a223367cddc",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 1.7,
+     "chain": "sfx"
+    }
+   }
+  ]
+ }
+}

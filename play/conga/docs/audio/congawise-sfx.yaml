@@ -1,0 +1,61 @@
+# dj sfx-set brief - Congawise (conga), the game's OWN card sound effects (2026-11-27).
+# Run from projects/magestican-dj:
+#   .venv/Scripts/python -m studio.cli sfx-set <this file> --no-deliver
+# then games/conga/docs/audio/deliver.py turns the masters into the WAVs the game plays (assets/sfx).
+# The two result stingers (win, lose) are the DJ kit demos/kits/arbelo-congawise-fx.yaml (the candombe conga drums
+# under the kalimba of Congawise's own menu kit); deliver.py copies those too.
+#
+# Bryan, 2026-11-24: "Make sure this is a AAA level game , do not stop until you are done , pay special attention
+# to menus . Make sure all [games] do that"; 2026-11-09: "every game needs unique music sound menus etc. Make it a
+# hard rule forever". Until now Congawise played DJ's shared card foley (demos/sfx/cards/card_place + card_draw),
+# the very same files as Buraco and Truco: the felt card table of a casino.
+#
+# The fantasy (docs/design/DOSSIER.md): a summer table at the beach in Uruguay / a Montevideo patio table, the
+# Spanish 50-card deck. A naipe espanol is a thin, glossy-coated card, thrown onto a BARE wooden patio table - no
+# felt, no casino. So the palette is:
+#   - the throw (card): a recorded stiff card moving, cut short, with the light dry knock of bare wood under it and
+#     a small paper tick on contact - brighter and woodier than the felt "thup" of the card games;
+#   - the draw (draw): a recorded glossy page turn, cut to the slide of the top card off the mazo (or the pozo).
+# Sample families: sonniss26-scratch-card (CardMovement) and sonniss26-paper-foley (Encyclopedia Glossy Page Turn)
+# are picked by no other game's brief and no DJ demo (checked across games/*/docs/audio, magestican-dj demos and
+# briefs on 2026-11-27); Hanawise's kenney-casino / casino-cards-1 and the board-tabletop and wood-impact families
+# of Clashwell and the card games are left alone.
+# Levels: a card is thrown and drawn every turn, so they sit well under the stingers.
+out_root: E:/magestican-dj/renders/congawise-sfx
+defaults:
+  space: desk
+  wet: 0.04
+  peak_db: -3
+sounds:
+  card:
+    new: true
+    idea: a thin glossy naipe thrown onto a bare wooden patio table, a quick card swish and a light dry wood tick
+    prompt: a playing card tossed onto a bare wooden table, a light dry tick
+    seed: 92711
+    variants: 4
+    length_ms: 210
+    lufs: -22
+    lufs_range: [-25, -19]
+    pitch_jitter: 0.05
+    timing_jitter_ms: 3
+    mix_jitter_db: 1.5
+    highpass_hz: 140
+    lowpass_hz: 10500
+    layers:
+      - {type: sample, pick: "sonniss26-scratch-card:*CardMovement*", slices: true, ms: 190, gain_db: -2, fade_ms: 60}
+      - {type: click, at_ms: 30, ms: 3, highpass_hz: 2500, gain_db: -14}
+      - {type: modal, material: wood, at_ms: 30, freq: 1650, ms: 55, strike_ms: 0.4, gain_db: -11}
+  draw:
+    new: true
+    idea: the top card slid off the mazo or the pile into the hand, a short glossy paper slide
+    prompt: a glossy playing card slid off a pile
+    seed: 92712
+    variants: 4
+    length_ms: 230
+    lufs: -25
+    lufs_range: [-28, -22]
+    pitch_jitter: 0.05
+    timing_jitter_ms: 3
+    highpass_hz: 220
+    layers:
+      - {type: sample, pick: "sonniss26-paper-foley:*Glossy Page Turn*", ms: 220, gain_db: -1, fade_ms: 80}

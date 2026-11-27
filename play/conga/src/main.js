@@ -1496,7 +1496,8 @@ function fillTitleFan() {
 }
 
 
-wireMusicButton({ music });
+
+wireMusicButton({ music, sound: () => ui.play(music.isOn() ? 'toggleOn' : 'toggleOff') });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
 
 setupFold = foldSetup();
