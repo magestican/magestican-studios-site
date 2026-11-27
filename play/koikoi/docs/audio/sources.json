@@ -1,0 +1,286 @@
+{
+ "capture": {
+  "idea": "the matched pair swept off the field into the captured pile, a quick gather of stiff cards",
+  "seed": 92702,
+  "licences": [
+   "Sonniss-GDC-RF",
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "capture.wav",
+    "lufs": -24.01,
+    "true_peak_db": -10.08,
+    "sources": [
+     {
+      "library": "sonniss26-casino-cards-1",
+      "file": "audio/GAMECas_Pick Up Multiple Cards At Once 5_344 Audio_Casino Cards Vol 1.wav",
+      "sha256": "886284ed373d5795bdca521fc1fe30ceaf5155af05ce9c53263594593d92c510",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "capture_2.wav",
+    "lufs": -24.01,
+    "true_peak_db": -10.09,
+    "sources": [
+     {
+      "library": "sonniss26-casino-cards-1",
+      "file": "audio/GAMECas_Pick Up Multiple Cards At Once 5_344 Audio_Casino Cards Vol 1.wav",
+      "sha256": "886284ed373d5795bdca521fc1fe30ceaf5155af05ce9c53263594593d92c510",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "capture_3.wav",
+    "lufs": -24.0,
+    "true_peak_db": -9.88,
+    "sources": [
+     {
+      "library": "sonniss26-casino-cards-1",
+      "file": "audio/GAMECas_Pick Up Multiple Cards At Once 5_344 Audio_Casino Cards Vol 1.wav",
+      "sha256": "886284ed373d5795bdca521fc1fe30ceaf5155af05ce9c53263594593d92c510",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   }
+  ]
+ },
+ "card": {
+  "idea": "a thick stiff hanafuda card slapped down hard on the card it matches, a sharp dry pachi crack",
+  "seed": 92701,
+  "licences": [
+   "CC0-1.0",
+   "original-synthesis"
+  ],
+  "takes": [
+   {
+    "file": "card.wav",
+    "lufs": -22.0,
+    "true_peak_db": -4.38,
+    "sources": [
+     {
+      "library": "kenney-casino",
+      "file": "audio/card-place-1.ogg",
+      "sha256": "d8f26c33a665dcbdcc6f632f6050bc9dd548feb0d4942d4547615926d3926810",
+      "licence": "CC0-1.0",
+      "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    ]
+   },
+   {
+    "file": "card_2.wav",
+    "lufs": -22.01,
+    "true_peak_db": -5.23,
+    "sources": [
+     {
+      "library": "kenney-casino",
+      "file": "audio/card-place-3.ogg",
+      "sha256": "1d988631a6e5201ed1bb0d728f2e43a3ec79401258426858793598044ac95841",
+      "licence": "CC0-1.0",
+      "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    ]
+   },
+   {
+    "file": "card_3.wav",
+    "lufs": -21.99,
+    "true_peak_db": -4.02,
+    "sources": [
+     {
+      "library": "kenney-casino",
+      "file": "audio/card-place-4.ogg",
+      "sha256": "18e3ba713b7259605fd27cdc048085ed56cf86b32403f070b6cb125019f77183",
+      "licence": "CC0-1.0",
+      "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    ]
+   },
+   {
+    "file": "card_4.wav",
+    "lufs": -22.0,
+    "true_peak_db": -4.3,
+    "sources": [
+     {
+      "library": "kenney-casino",
+      "file": "audio/card-place-2.ogg",
+      "sha256": "903d5050718595e87864dd755643b476ab1a5533080dcc2dddc72570d33ba9f8",
+      "licence": "CC0-1.0",
+      "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    ]
+   }
+  ]
+ },
+ "deal": {
+  "idea": "one card dealt off the pile onto the field at the start of a month, a light quick toss",
+  "seed": 92704,
+  "licences": [
+   "Sonniss-GDC-RF"
+  ],
+  "takes": [
+   {
+    "file": "deal.wav",
+    "lufs": -28.0,
+    "true_peak_db": -4.39,
+    "sources": [
+     {
+      "library": "sonniss26-casino-cards-1",
+      "file": "audio/GAMECas_Dealing 3_344 Audio_Casino Cards Vol 1.wav",
+      "sha256": "df844d02603e1108a2c7ce2e2ebb2cf26de6835bc717ca18098fb9f2dc4ebc04",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "deal_2.wav",
+    "lufs": -27.99,
+    "true_peak_db": -4.36,
+    "sources": [
+     {
+      "library": "sonniss26-casino-cards-1",
+      "file": "audio/GAMECas_Dealing 3_344 Audio_Casino Cards Vol 1.wav",
+      "sha256": "df844d02603e1108a2c7ce2e2ebb2cf26de6835bc717ca18098fb9f2dc4ebc04",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   },
+   {
+    "file": "deal_3.wav",
+    "lufs": -28.0,
+    "true_peak_db": -4.28,
+    "sources": [
+     {
+      "library": "sonniss26-casino-cards-1",
+      "file": "audio/GAMECas_Dealing 3_344 Audio_Casino Cards Vol 1.wav",
+      "sha256": "df844d02603e1108a2c7ce2e2ebb2cf26de6835bc717ca18098fb9f2dc4ebc04",
+      "licence": "Sonniss-GDC-RF",
+      "licence_url": "https://sonniss.com/gdc-bundle-license/"
+     }
+    ]
+   }
+  ]
+ },
+ "flip": {
+  "idea": "the draw pile's top card flicked over face up, a short stiff card slide and turn",
+  "seed": 92703,
+  "licences": [
+   "CC0-1.0"
+  ],
+  "takes": [
+   {
+    "file": "flip.wav",
+    "lufs": -25.98,
+    "true_peak_db": -5.23,
+    "sources": [
+     {
+      "library": "kenney-casino",
+      "file": "audio/card-slide-2.ogg",
+      "sha256": "e674a1679ec87b507047fe012d068ad2c412125f56186f0e732684705c2a6888",
+      "licence": "CC0-1.0",
+      "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    ]
+   },
+   {
+    "file": "flip_2.wav",
+    "lufs": -26.01,
+    "true_peak_db": -5.39,
+    "sources": [
+     {
+      "library": "kenney-casino",
+      "file": "audio/card-slide-1.ogg",
+      "sha256": "006cf9822d15d7063f8899e56041f41646df30adb6fbd8b974ee5d5420012690",
+      "licence": "CC0-1.0",
+      "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    ]
+   },
+   {
+    "file": "flip_3.wav",
+    "lufs": -26.01,
+    "true_peak_db": -5.35,
+    "sources": [
+     {
+      "library": "kenney-casino",
+      "file": "audio/card-slide-5.ogg",
+      "sha256": "8638ab0c17f029aded0e27a4f9b9bb9f8c621b19a6e9975e855cb40ea63e2201",
+      "licence": "CC0-1.0",
+      "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    ]
+   }
+  ]
+ },
+ "yaku": {
+  "kit": "arbelo-hanawise-fx",
+  "takes": [
+   {
+    "file": "yaku.wav",
+    "engineer": {
+     "file": "yaku.wav",
+     "sha256": "1a210f5bd613f618daba94b1a2c870b36f1340ca56f5e6c49568ccc7706e79f3",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 1.1,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "koikoi": {
+  "kit": "arbelo-hanawise-fx",
+  "takes": [
+   {
+    "file": "koikoi.wav",
+    "engineer": {
+     "file": "koikoi.wav",
+     "sha256": "efff6e687bd958dc027506edeb270e91d45beb64dafe5fe26442db80a60152a8",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 1.2,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "win": {
+  "kit": "arbelo-hanawise-fx",
+  "takes": [
+   {
+    "file": "win.wav",
+    "engineer": {
+     "file": "win.wav",
+     "sha256": "69c0154a38932ee3eb17a2684a61f2b2309ad3117d0d657797e77b44030897de",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 1.8,
+     "chain": "sfx"
+    }
+   }
+  ]
+ },
+ "lose": {
+  "kit": "arbelo-hanawise-fx",
+  "takes": [
+   {
+    "file": "lose.wav",
+    "engineer": {
+     "file": "lose.wav",
+     "sha256": "a7c8da434329dd2bcc21f0d628bc4a67016ba9f9d4dad9e4b589877c1281d28e",
+     "engineer": 1,
+     "kind": "sfx",
+     "seconds": 1.7,
+     "chain": "sfx"
+    }
+   }
+  ]
+ }
+}

@@ -80,6 +80,11 @@ const T = stringsFor(lang);
 
 const ui = createGameSfx(new URL('../assets/ui/', import.meta.url), MENU_CUES, {}, Math.random, MENU_GAINS);
 
+
+
+
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['card', 'capture', 'flip', 'deal', 'yaku', 'koikoi', 'win', 'lose'], { card: 4, capture: 3, flip: 3, deal: 3 });
+
 let cursor = 0;
 applyGameName(GAME_ID, document, lang);
 initAnalytics({ page: GAME_ID });
@@ -295,10 +300,11 @@ async function flyMoves(before) {
       if (e.koikoi) { await banner(fill(T.calledKoikoi, { who: seatName(e.seat) }), 'koikoi'); continue; }
       let from;
       if (before.pending && before.pending.id === e.card) from = before.pending.rect;
-      else if (e.source === 'stock') { from = before.stock; await flipAt(e.card, from); }
+      else if (e.source === 'stock') { from = before.stock; sfx.play('flip'); await flipAt(e.card, from); }
       else from = me >= 0 && e.seat === me ? before.hand[e.card] : before.backs;
       if (!e.took.length) {
         await flyCard({ ghost: cardEl(e.card), from, target: fieldEl.querySelector(`[data-id="${e.card}"]`) });
+        sfx.play('card');
         continue;
       }
       
@@ -306,6 +312,7 @@ async function flyMoves(before) {
       const at = before.field[e.took[0]];
       const stand = e.took.map((c) => (before.field[c] ? pinned(c, before.field[c]) : null)).filter(Boolean);
       if (at) await flyCard({ ghost: cardEl(e.card), from, to: at });
+      sfx.play('card');
       const mid = at ? pinned(e.card, at) : null;
       if (mid) stand.push(mid);
       await wait(PACE.settle / 2);
@@ -313,10 +320,11 @@ async function flyMoves(before) {
       await Promise.all([e.card, ...e.took].map((c, k) => wait(k * 90).then(() => flyCard({
         ghost: cardEl(c), from: before.field[c] || at || from, target: capturedEl(e.seat, c),
       }))));
+      sfx.play('capture');
     }
     if (newPending) {
       const target = stockEl.querySelector('.kk-pending [data-id]');
-      if (newPending.source === 'stock') { await flipAt(newPending.card, before.stock); await flyCard({ ghost: cardEl(newPending.card), from: before.stock, target }); }
+      if (newPending.source === 'stock') { sfx.play('flip'); await flipAt(newPending.card, before.stock); await flyCard({ ghost: cardEl(newPending.card), from: before.stock, target }); }
       else await flyCard({ ghost: cardEl(newPending.card), from: me >= 0 && view.turn === me ? before.hand[newPending.card] : before.backs, target });
     }
   } finally {
@@ -357,7 +365,10 @@ async function dealIn() {
       { transform: `translate(${dx}px, ${dy}px) rotate(-8deg) scale(0.8)`, opacity: 0 },
       { opacity: 1, offset: 0.25 },
       { transform: 'none', opacity: 1 },
-    ], { duration: 340, delay: k * 38, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' }).finished.catch(() => {});
+    ], { duration: 340, delay: k * 38, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' }).finished.catch(() => {}).then(() => {
+      
+      if (k % 3 === 0) sfx.play('deal');
+    });
   });
   await Promise.all(flights);
 }
@@ -372,7 +383,8 @@ function banner(text, kindName) {
   
   void bannerEl.offsetWidth;
   bannerEl.classList.add('on');
-  if (kindName === 'koikoi' || kindName === 'yaku') ui.play('toggleOn');
+  if (kindName === 'koikoi') sfx.play('koikoi');
+  else if (kindName === 'yaku' || kindName === 'win') sfx.play('yaku');
   return new Promise((r) => {
     bannerTimer = setTimeout(() => { bannerEl.hidden = true; bannerEl.classList.remove('on'); r(); }, BANNER_MS);
   });
@@ -450,10 +462,10 @@ function stopTimers() {
   nextTimer = null;
 }
 
+
+
 function sound(a) {
-  if (a.type === 'koikoi') ui.play('toggleOn');
-  else if (a.type === 'stop') ui.play('toggleOff');
-  else ui.play('tap');
+  if (a.type === 'stop') ui.play('toggleOff');
 }
 
 
@@ -851,7 +863,8 @@ function finished() {
   if (me < 0) return;
   const [a, b] = [view.scores[me], view.scores[1 - me]];
   const result = a > b ? 'won' : a < b ? 'lost' : 'draw';
-  ui.play(result === 'won' ? 'toggleOn' : 'toggleOff');
+  if (result === 'won') sfx.play('win');
+  else sfx.play('lose');
   const turn = reportGate.take();
   if (turn) {
     const arg = twoSeatMatch({

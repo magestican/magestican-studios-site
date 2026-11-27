@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "41fa4a4c-20261127T014508Z",
+ "buildId": "3e383d32-20261127T022044Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -515,7 +515,7 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-10-28",
-   "bytes": 1462944
+   "bytes": 2235389
   },
   {
    "id": "shogi",

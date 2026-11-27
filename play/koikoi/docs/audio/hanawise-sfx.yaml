@@ -1,0 +1,91 @@
+# dj sfx-set brief - Hanawise (koikoi), the game's OWN play sound effects (2026-11-27).
+# Run from projects/magestican-dj:
+#   .venv/Scripts/python -m studio.cli sfx-set <this file> --no-deliver
+# then games/koikoi/docs/audio/deliver.py turns the masters into the WAVs the game plays (assets/sfx).
+# The four musical stingers (yaku, koikoi, win, lose) are the DJ kit demos/kits/arbelo-hanawise-fx.yaml (taiko +
+# shakuhachi through the symbolic lane); deliver.py copies those too.
+#
+# Bryan, 2026-11-24: "Make sure this is a AAA level game , do not stop until you are done , pay special attention
+# to menus . Make sure all [games] do that"; 2026-11-09: "every game needs unique music sound menus etc. Make it a
+# hard rule forever". Until now every card in Hanawise flew in silence: the only sounds were the shakuhachi menu kit.
+#
+# The fantasy (docs/design/DOSSIER.md): hanafuda, the Japanese flower cards of the twelve months. A hanafuda card
+# is not a paper playing card: it is small, thick and stiff (card stock laminated on board), and the way it is
+# played is the SLAP - the card is snapped down hard on the card it matches, a sharp "pachi!" that is half the joy
+# of the game. So the palette is:
+#   - the slap: a recorded card placed, pitched down a little for the thicker card, with a hard wooden crack on
+#     top (the stiff card hitting the board) - never the soft felt landing of the western card games;
+#   - the gather: a recorded pick-up of several cards at once, the pair swept into the captured pile;
+#   - the turn of the draw pile: a short recorded card slide, the stock's top card flicked over;
+#   - the deal: recorded dealing, one card off the pile;
+#   - the stingers (kit): a festival taiko under the shakuhachi of the menus - a yaku made, the koi-koi gamble.
+# Sample families: kenney-casino card-place / card-slide and sonniss26-casino-cards-1 are picked by no other
+# game's brief (checked against games/*/docs/audio and DJ demos on 2026-11-27); Clashwell's and the card games'
+# board-tabletop and wood-impact families are left alone.
+# Levels: a card is played dozens of times a month, so the card sounds sit well under the stingers.
+out_root: E:/magestican-dj/renders/hanawise-sfx
+defaults:
+  space: desk
+  wet: 0.05
+  peak_db: -3
+sounds:
+  card:
+    new: true
+    idea: a thick stiff hanafuda card slapped down hard on the card it matches, a sharp dry pachi crack
+    prompt: a stiff card slapped hard onto a wooden board, a sharp dry crack
+    seed: 92701
+    variants: 4
+    length_ms: 200
+    lufs: -22
+    lufs_range: [-25, -19]
+    pitch_jitter: 0.04
+    timing_jitter_ms: 2
+    mix_jitter_db: 1.5
+    highpass_hz: 120
+    lowpass_hz: 12000
+    layers:
+      - {type: sample, pick: "kenney-casino:card-place-*", ms: 180, semitones: -2, gain_db: -2, fade_ms: 50}
+      - {type: click, at_ms: 2, ms: 3, highpass_hz: 2500, gain_db: -6}
+      - {type: modal, material: wood, at_ms: 2, freq: 1250, ms: 70, strike_ms: 0.5, gain_db: -7}
+      - {type: noise, at_ms: 2, ms: 40, band: [140, 520], attack_ms: 1, decay_db: 40, gain_db: -10}
+  capture:
+    new: true
+    idea: the matched pair swept off the field into the captured pile, a quick gather of stiff cards
+    prompt: several playing cards picked up together and squared
+    seed: 92702
+    variants: 3
+    length_ms: 320
+    lufs: -24
+    lufs_range: [-27, -21]
+    pitch_jitter: 0.04
+    highpass_hz: 150
+    layers:
+      - {type: sample, pick: "sonniss26-casino-cards-1:*Pick Up Multiple Cards*", slices: true, ms: 300,
+         gain_db: -1, fade_ms: 90}
+      - {type: modal, material: wood, at_ms: 250, freq: 980, ms: 50, strike_ms: 0.6, gain_db: -16}
+  flip:
+    new: true
+    idea: the draw pile's top card flicked over face up, a short stiff card slide and turn
+    prompt: a playing card flicked over on a table
+    seed: 92703
+    variants: 3
+    length_ms: 180
+    lufs: -26
+    lufs_range: [-29, -23]
+    pitch_jitter: 0.05
+    highpass_hz: 200
+    layers:
+      - {type: sample, pick: "kenney-casino:card-slide-*", ms: 170, gain_db: -2, fade_ms: 60}
+  deal:
+    new: true
+    idea: one card dealt off the pile onto the field at the start of a month, a light quick toss
+    prompt: a single playing card dealt onto a table
+    seed: 92704
+    variants: 3
+    length_ms: 160
+    lufs: -28
+    lufs_range: [-31, -25]
+    pitch_jitter: 0.05
+    highpass_hz: 200
+    layers:
+      - {type: sample, pick: "sonniss26-casino-cards-1:*Dealing*", slices: true, ms: 150, gain_db: -2, fade_ms: 50}
