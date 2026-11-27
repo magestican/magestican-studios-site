@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "b64186bc-20261127T000339Z",
+ "buildId": "21fa6200-20261127T004444Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -100,7 +100,7 @@
    "ageNote": "Frequent and intense horror themes: body horror, dread, jump scares and sustained tension. This is the game the pack is rated for.",
    "order": 2,
    "addedAt": "2026-08-31",
-   "bytes": 7797612
+   "bytes": 7807683
   },
   {
    "id": "farmykart",

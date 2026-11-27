@@ -191,6 +191,8 @@ import { COOP, CHARACTERS } from '../../../web-engine/horror/coop.js';
 import { renderSplit, createSplitHud, SPLIT } from './render/splitScreen.js';
 import { mountLiveBadge } from '../../shared/ui/liveBadge.js';
 import { LIVE_PATH } from '../../../web-engine/net/presence.js';
+import { bootClickStarts, bootKeyStarts } from './menu/menuNav.js';
+import { installMenuInput } from './menu/menuInput.js';
 
 
 
@@ -8266,6 +8268,8 @@ export function boot(canvas, hud) {
     getAccess() { return { ...access }; },
     introActive: () => !!(intro && !intro.done),
     
+    skipIntro: () => introSkipPress(),
+    
     
     
     
@@ -8753,12 +8757,31 @@ function start() {
         
         
         
-        if (e.target && e.target.closest && e.target.closest('#coop')) return;
+        
+        
+        
+        
+        
+        
+        if (!bootClickStarts(!!(e.target && e.target.closest && e.target.closest('#bootMore')))) return;
         go();
       });
+      
+      
+      
+      
       document.addEventListener('keydown', (e) => {
-        if (document.activeElement && document.activeElement.id === 'coopCode') return;
-        if (e.code === 'Space' || e.code === 'Enter') go();
+        const a = document.activeElement;
+        if (bootKeyStarts(e.code, a && a !== document.body ? a.tagName : '')) go();
+      });
+      
+      
+      
+      installMenuInput({
+        pause: () => api.debug.setPaused(true),
+        resume: () => api.debug.setPaused(false),
+        skipFilm: () => api.skipIntro(),
+        filmActive: () => !!(api.introActive && api.introActive()),
       });
     }
   } catch (err) {
