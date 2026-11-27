@@ -1,0 +1,24 @@
+# Hanawise menu bed (HW-M3, 2026-11-27): the title, Options, the friend room and the month tally.
+# Its own brief, written from the game's fantasy, not another game's reworded: before a match the flower cards are
+# still in their box on the tatami, a spring afternoon at a teahouse while the blossoms fall. So this is the pause
+# before the first deal - no drums at all, the shakuhachi of the game's own menu cues (DJ kit arbelo-hanawise-ui,
+# D minor, notes D F G A C) holding long breaths over a gentle koto ostinato, a bass koto drone and a wind chime.
+# Distinct from Space 95's Night Bloom (D minor too, but night, taiko pulse, surf guitar and a whistle): daylight, no
+# percussion, no guitar, no whistle, slower.
+# Genre: japanese-traditional (DJ knowledge/styles/japanese-traditional.md; canon Haru no Umi, Rokudan no Shirabe).
+# Feeling: warm, unhurried calm - tea poured, cards about to be shuffled. Signature: the long shakuhachi breath that
+#   bends up into its note (meri to kari); captivating moment: the second koto's sararin glissando answering it halfway.
+# Loop 36 bars at 72 bpm (120 s): a menu visit is short, and a long bed never repeats inside one.
+# Render (from projects/magestican-dj), detached through heavyq:
+#   .venv/Scripts/python -m studio.cli compose <this file> --out D:/magestican-dj/renders/hanawise-hw-m3-menu
+# Bryan 2026-11-24: "pay special attention to menus"; 2026-11-09: "every game needs unique music sound menus etc".
+game: koikoi
+use: menu
+genre: japanese-traditional
+title: Hanami
+duration: 130
+bpm: 72
+loop: true
+loop_bars: 36
+candidates: 3
+extra: "japanese traditional, instrumental menu theme, a spring afternoon at a quiet teahouse while cherry blossoms fall, breathy shakuhachi melody with long held notes bending up into each note and slow vibrato at the ends, a gentle koto ostinato of open fourths and fifths, a second koto answering with a sararin glissando halfway, a soft low bass koto drone on D, a glass wind chime now and then, no drums, warm and unhurried, D minor min'yo pentatonic, space between phrases, intimate close polished mix, no vocals, no guitar, no whistle"

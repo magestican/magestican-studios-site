@@ -1,0 +1,25 @@
+# Hanawise match loop (HW-M3, 2026-11-27): plays while the months are dealt and the cards are slapped down.
+# Its own brief, not the menu brief reworded: koi-koi is a gamble - every yaku asks "go on, or stop?" - so the match
+# is a summer festival night, lanterns over the stalls, where you push your luck one more month. A bright shinobue
+# bamboo flute leads (higher and quicker than the menu's shakuhachi), quick koto plucks keep the deal moving, a light
+# shime-daiko and a kane bell keep festival time, the deep odaiko only on the downbeats. Moderate: a card game is
+# played thinking, so the pulse carries without crowding a decision.
+# Distinct from Space 95's Night Bloom (moonlit calm, surf guitar, whistle, 84 bpm) and from the menu bed (no drums,
+# daylight, 72 bpm): a festival, flute-led, drum-driven, with a breakdown to koto and flute that the drums answer.
+# Genre: japanese-traditional (DJ knowledge/styles/japanese-traditional.md: matsuri taiko texture, jo-ha-kyu).
+# Feeling: playful daring - the grin before calling koi-koi. Signature: the shinobue's quick trill on the high D;
+#   unexpected turn: the drums drop out to koto and flute alone, then the odaiko comes back louder (jo-ha-kyu).
+# Loop 60 bars at 96 bpm (150 s).
+# Render (from projects/magestican-dj), detached through heavyq:
+#   .venv/Scripts/python -m studio.cli compose <this file> --out D:/magestican-dj/renders/hanawise-hw-m3-match
+# Bryan 2026-11-09: "every game needs unique music sound menus etc".
+game: koikoi
+use: bgm
+genre: japanese-traditional
+title: Matsuri
+duration: 165
+bpm: 96
+loop: true
+loop_bars: 60
+candidates: 3
+extra: "japanese traditional festival, instrumental video game loop, a lantern lit summer matsuri at night, bright shinobue bamboo flute melody with quick trills on the high notes, quick plucked koto patterns keeping the music moving, light shime-daiko sixteenths and a kane bell keeping festival time, deep odaiko only on the downbeats, a breakdown where the drums drop out to koto and flute alone and then the odaiko returns louder, playful and daring, D minor min'yo pentatonic, wide polished mix, no vocals, no guitar, no whistle"

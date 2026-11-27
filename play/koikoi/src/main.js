@@ -31,6 +31,9 @@ import { applyGameName, gameLang, localGameName } from '../../../web-engine/i18n
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
+import { MUSIC_KEY, createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { wireMusicButton } from '../../shared/ui/musicButton.js';
+import { MUSIC_TRACKS, followScreen, musicWanted, startOnFirstGesture, trackFor } from './music.js';
 import {
   showsTitle, TITLE_BUTTONS, MENU_BUTTONS, navKey, stepFocus, STEP, handStep, clampCursor, padHeld, padPresses, PAD_KEY,
   MENU_CUES, MENU_GAINS, menuCue, TITLE_OUT_MS, FAN_CARDS,
@@ -111,7 +114,18 @@ const fit = fitScreen({
 mountLevelScene({ levels: ['easy', 'medium', 'hard'] });
 
 
-$('music-btn').hidden = true;
+
+const music = createTrackMusic({ game: GAME_ID, manifestUrl: new URL('../assets/music/music.json', import.meta.url), trackIds: MUSIC_TRACKS });
+const savedMusic = () => { try { return localStorage.getItem(MUSIC_KEY); } catch { return null; } };
+const wireSwitch = () => wireMusicButton({ music, sound: () => ui.play(music.isOn() ? 'toggleOn' : 'toggleOff') });
+let unwireSwitch = wireSwitch();
+startOnFirstGesture(music, {
+  wanted: () => musicWanted(savedMusic()),
+  ignore: (e) => !!e?.target?.closest?.('#music-btn'),
+  after: () => { unwireSwitch(); unwireSwitch = wireSwitch(); },
+});
+
+const syncMusic = () => followScreen(music, trackFor({ title: atTitle(), menu: menuOpen(), playing: !!view && !view.matchOver }));
 
 
 document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang;
@@ -824,6 +838,7 @@ function draw() {
   document.querySelector('.kk-foot').hidden = watching;
   again.update(!!view?.matchOver && !watching);
   drawProgress();
+  syncMusic();
   fit.refit();
 }
 
@@ -1146,6 +1161,7 @@ function showTitle() {
   document.body.classList.add('at-title');
   titleEl.hidden = false;
   mainEl.inert = true;
+  syncMusic();
   if (usedKeys || !coarse()) focusEl($('start'));
 }
 function leaveTitle(then) {
@@ -1157,6 +1173,7 @@ function leaveTitle(then) {
     fit.refit({ grow: true });
     then?.();
     resumePlay();
+    syncMusic();
   };
   if (reduced()) { done(); return; }
   document.body.classList.add('title-leaving');
@@ -1174,6 +1191,7 @@ function openMenu() {
   menuReturn = document.activeElement;
   $('menu').hidden = false;
   mainEl.inert = true;
+  syncMusic();
   ui.play('open');
   focusEl($('menu-resume'));
 }
@@ -1181,6 +1199,7 @@ function closeMenu(restore = true) {
   if (!menuOpen()) return;
   $('menu').hidden = true;
   mainEl.inert = false;
+  syncMusic();
   if (restore) {
     
     if (menuReturn && menuReturn !== document.body && document.contains(menuReturn)) focusEl(menuReturn);

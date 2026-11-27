@@ -1,0 +1,28 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "menu",
+      "side": "A",
+      "title": "Hanami",
+      "genre": "japanese-traditional",
+      "file": "hanawise-hanami.webm",
+      "loopSamples": 5120000,
+      "seed": 1773920666,
+      "lufs": -13.8,
+      "lra": 12.7
+    },
+    {
+      "id": "match",
+      "side": "A",
+      "title": "Matsuri",
+      "genre": "japanese-traditional",
+      "file": "hanawise-matsuri.webm",
+      "loopSamples": 7200000,
+      "seed": 1057351885,
+      "lufs": -14.0,
+      "lra": 9.4
+    }
+  ]
+}
